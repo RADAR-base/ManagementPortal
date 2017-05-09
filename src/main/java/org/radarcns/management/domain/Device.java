@@ -30,6 +30,10 @@ public class Device implements Serializable {
     @Column(name = "device_category", nullable = false)
     private String deviceCategory;
 
+    @OneToOne
+    @JoinColumn(unique = true)
+    private DeviceType deviceType;
+
     public Long getId() {
         return id;
     }
@@ -62,6 +66,19 @@ public class Device implements Serializable {
 
     public void setDeviceCategory(String deviceCategory) {
         this.deviceCategory = deviceCategory;
+    }
+
+    public DeviceType getDeviceType() {
+        return deviceType;
+    }
+
+    public Device deviceType(DeviceType deviceType) {
+        this.deviceType = deviceType;
+        return this;
+    }
+
+    public void setDeviceType(DeviceType deviceType) {
+        this.deviceType = deviceType;
     }
 
     @Override

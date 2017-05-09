@@ -34,6 +34,12 @@
                             <span jhiTranslate="global.menu.entities.device">Device</span>
                         </a>
                     </li>
+                    <li uiSrefActive="active">
+                        <a class="dropdown-item" routerLink="device-type" (click)="collapseNavbar()">
+                            <i class="fa fa-fw fa-asterisk" aria-hidden="true"></i>
+                            <span jhiTranslate="global.menu.entities.deviceType">Device Type</span>
+                        </a>
+                    </li>
                     <!-- jhipster-needle-add-entity-to-menu - JHipster will add entities to the menu here -->
                 </ul>
             </li>

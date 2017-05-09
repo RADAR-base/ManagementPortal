@@ -8,6 +8,7 @@
             "entities": {
                 "main": "Entities",
                 "device": "Device",
+                "deviceType": "Device Type",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
             "account": {

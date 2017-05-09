@@ -1,0 +1,33 @@
+
+<div *ngIf="deviceType">
+    <h2><span jhiTranslate="managementPortalApp.deviceType.detail.title">Device Type</span> {{deviceType.id}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="managementPortalApp.deviceType.deviceProducer">Device Producer</span></dt>
+        <dd>
+            <span>{{deviceType.deviceProducer}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.deviceType.deviceModel">Device Model</span></dt>
+        <dd>
+            <span>{{deviceType.deviceModel}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.deviceType.sensorType">Sensor Type</span></dt>
+        <dd>
+            <span>{{deviceType.sensorType}}</span>
+        </dd>
+    </dl>
+
+    <button type="submit"
+            (click)="previousState()"
+            class="btn btn-info">
+        <span class="fa fa-arrow-left"></span>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+    </button>
+
+    <button type="button"
+            [routerLink]="['/', { outlets: { popup: 'device-type/'+ deviceType.id + '/edit'} }]"
+            replaceUrl="true"
+            class="btn btn-primary">
+        <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+    </button>
+</div>

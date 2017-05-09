@@ -15,23 +15,25 @@
     <property name="floatType" value="float" dbms="mysql, oracle, mssql"/>
 
     <!--
-        Added the entity Device.
+        Added the entity DeviceType.
     -->
-    <changeSet id="20170509091039-1" author="jhipster">
-        <createTable tableName="device">
+    <changeSet id="20170509093559-1" author="jhipster">
+        <createTable tableName="device_type">
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="device_physical_id" type="varchar(255)">
+            <column name="device_producer" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="device_model" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
 
-            <column name="device_category" type="varchar(255)">
+            <column name="sensor_type" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            <column name="device_type_id" type="bigint">
-                <constraints unique="true" nullable="true" />
-            </column>
+
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
         

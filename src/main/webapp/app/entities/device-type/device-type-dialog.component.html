@@ -1,0 +1,55 @@
+<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+
+    <div class="modal-header">
+        <h4 class="modal-title" id="myDeviceTypeLabel" jhiTranslate="managementPortalApp.deviceType.home.createOrEditLabel">Create or edit a Device Type</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                (click)="clear()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" [hidden]="!deviceType.id">
+            <label for="id" jhiTranslate="global.field.id">ID</label>
+            <input type="text" class="form-control" id="id" name="id"
+                   [(ngModel)]="deviceType.id" readonly />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.deviceType.deviceProducer" for="field_deviceProducer">Device Producer</label>
+            <input type="text" class="form-control" name="deviceProducer" id="field_deviceProducer"
+                [(ngModel)]="deviceType.deviceProducer"
+             />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.deviceType.deviceModel" for="field_deviceModel">Device Model</label>
+            <input type="text" class="form-control" name="deviceModel" id="field_deviceModel"
+                [(ngModel)]="deviceType.deviceModel"
+            required />
+            <div [hidden]="!(editForm.controls.deviceModel?.dirty && editForm.controls.deviceModel?.invalid)">
+                <small class="form-text text-danger"
+                   [hidden]="!editForm.controls.deviceModel?.errors?.required" jhiTranslate="entity.validation.required">
+                   This field is required.
+                </small>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.deviceType.sensorType" for="field_sensorType">Sensor Type</label>
+            <input type="text" class="form-control" name="sensorType" id="field_sensorType"
+                [(ngModel)]="deviceType.sensorType"
+            required />
+            <div [hidden]="!(editForm.controls.sensorType?.dirty && editForm.controls.sensorType?.invalid)">
+                <small class="form-text text-danger"
+                   [hidden]="!editForm.controls.sensorType?.errors?.required" jhiTranslate="entity.validation.required">
+                   This field is required.
+                </small>
+            </div>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+            <span class="fa fa-ban"></span>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+        </button>
+        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+            <span class="fa fa-save"></span>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+        </button>
+    </div>
+</form>

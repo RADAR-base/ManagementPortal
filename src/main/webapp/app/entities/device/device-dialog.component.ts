@@ -8,6 +8,7 @@ import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 import { Device } from './device.model';
 import { DevicePopupService } from './device-popup.service';
 import { DeviceService } from './device.service';
+import { DeviceType, DeviceTypeService } from '../device-type';
 
 @Component({
     selector: 'jhi-device-dialog',
@@ -18,11 +19,14 @@ export class DeviceDialogComponent implements OnInit {
     device: Device;
     authorities: any[];
     isSaving: boolean;
+
+    devicetypes: DeviceType[];
     constructor(
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
         private alertService: AlertService,
         private deviceService: DeviceService,
+        private deviceTypeService: DeviceTypeService,
         private eventManager: EventManager
     ) {
         this.jhiLanguageService.setLocations(['device']);
@@ -31,6 +35,15 @@ export class DeviceDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
+        this.deviceTypeService.query({filter: 'device-is-null'}).subscribe((res: Response) => {
+            if (!this.device.deviceType || !this.device.deviceType.id) {
+                this.devicetypes = res.json();
+            } else {
+                this.deviceTypeService.find(this.device.deviceType.id).subscribe((subRes: DeviceType) => {
+                    this.devicetypes = [subRes].concat(res.json());
+                }, (subRes: Response) => this.onError(subRes.json()));
+            }
+        }, (res: Response) => this.onError(res.json()));
     }
     clear() {
         this.activeModal.dismiss('cancel');
@@ -67,6 +80,10 @@ export class DeviceDialogComponent implements OnInit {
 
     private onError(error) {
         this.alertService.error(error.message, null, null);
+    }
+
+    trackDeviceTypeById(index: number, item: DeviceType) {
+        return item.id;
     }
 }
 
