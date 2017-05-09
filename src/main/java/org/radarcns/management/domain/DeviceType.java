@@ -26,7 +26,7 @@ public class DeviceType implements Serializable {
     private String deviceProducer;
 
     @NotNull
-    @Column(name = "device_model", nullable = false)
+    @Column(name = "device_model", nullable = false, unique = true)
     private String deviceModel;
 
     @NotNull

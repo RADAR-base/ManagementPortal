@@ -27,7 +27,7 @@
             </column>
 
             <column name="device_model" type="varchar(255)">
-                <constraints nullable="false" />
+                <constraints nullable="false" unique="true" />
             </column>
 
             <column name="sensor_type" type="varchar(255)">
@@ -36,6 +36,6 @@
 
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
-        
+
     </changeSet>
 </databaseChangeLog>
