@@ -35,15 +35,8 @@ export class DeviceDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
-        this.deviceTypeService.query({filter: 'device-is-null'}).subscribe((res: Response) => {
-            if (!this.device.deviceType || !this.device.deviceType.id) {
-                this.devicetypes = res.json();
-            } else {
-                this.deviceTypeService.find(this.device.deviceType.id).subscribe((subRes: DeviceType) => {
-                    this.devicetypes = [subRes].concat(res.json());
-                }, (subRes: Response) => this.onError(subRes.json()));
-            }
-        }, (res: Response) => this.onError(res.json()));
+        this.deviceTypeService.query().subscribe(
+            (res: Response) => { this.devicetypes = res.json(); }, (res: Response) => this.onError(res.json()));
     }
     clear() {
         this.activeModal.dismiss('cancel');

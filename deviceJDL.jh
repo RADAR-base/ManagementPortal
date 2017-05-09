@@ -9,6 +9,6 @@ entity DeviceType {
     sensorType String required
 }
 
-relationship OneToOne {
+relationship ManyToOne {
   Device{deviceType} to DeviceType
 }

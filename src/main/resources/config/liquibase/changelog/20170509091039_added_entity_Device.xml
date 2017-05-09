@@ -29,9 +29,11 @@
             <column name="device_category" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
+
             <column name="device_type_id" type="bigint">
-                <constraints unique="true" nullable="true" />
+                <constraints nullable="true" />
             </column>
+
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
         

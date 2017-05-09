@@ -30,8 +30,7 @@ public class Device implements Serializable {
     @Column(name = "device_category", nullable = false)
     private String deviceCategory;
 
-    @OneToOne
-    @JoinColumn(unique = true)
+    @ManyToOne
     private DeviceType deviceType;
 
     public Long getId() {
