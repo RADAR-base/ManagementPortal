@@ -1,0 +1,14 @@
+entity Device {
+	devicePhysicalId String required,
+    deviceCategory String required,
+}
+
+entity DeviceType {
+    deviceProducer String,
+    deviceModel String required,
+    sensorType String required
+}
+
+relationship OneToOne {
+  Device{deviceType} to DeviceType
+}
