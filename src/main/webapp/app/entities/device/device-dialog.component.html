@@ -41,7 +41,7 @@
             <label jhiTranslate="managementPortalApp.device.deviceType" for="field_deviceType">Device Type</label>
             <select class="form-control" id="field_deviceType" name="deviceType" [(ngModel)]="device.deviceType" >
                 <option [ngValue]="null"></option>
-                <option [ngValue]="deviceTypeOption.id === device.deviceType?.id ? device.deviceType : deviceTypeOption" *ngFor="let deviceTypeOption of devicetypes; trackBy: trackDeviceTypeById">{{deviceTypeOption.id}}</option>
+                <option [ngValue]="deviceTypeOption.id === device.deviceType?.id ? device.deviceType : deviceTypeOption" *ngFor="let deviceTypeOption of devicetypes; trackBy: trackDeviceTypeById">{{deviceTypeOption.deviceModel}}</option>
             </select>
         </div>
     </div>

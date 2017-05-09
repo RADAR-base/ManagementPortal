@@ -30,7 +30,7 @@
                 <td>{{device.deviceCategory}}</td>
                 <td>
                     <div *ngIf="device.deviceType">
-                        <a [routerLink]="['../device-type', device.deviceType?.id ]" >{{device.deviceType?.id}}</a>
+                        <a [routerLink]="['../device-type', device.deviceType?.id ]" >{{device.deviceType?.deviceModel}}</a>
                     </div>
                 </td>
                 <td class="text-right">
