@@ -1,6 +1,5 @@
 # ManagementPortal
-This application was generated using JHipster 4.3.0, you can find documentation and help at [https://jhipster.github.io/documentation-archive/v4.3.0](https://jhipster.github.io/documentation-archive/v4.3.0).
-
+ManagementPortal is an application which is used to manage pilot studies for [RADAR-CNS](http://www.radar-cns.org/).
 ## Development
 
 Before you can build this project, you must install and configure the following dependencies on your machine:
