@@ -17,6 +17,7 @@ export * from './constants/pagination.constants';
 export * from './user/account.model';
 export * from './user/user.model';
 export * from './user/user.service';
+export * from './user/authority.service';
 export * from './shared-libs.module';
 export * from './shared-common.module';
 export * from './shared.module';

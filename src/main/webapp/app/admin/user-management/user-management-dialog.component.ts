@@ -5,7 +5,7 @@ import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, JhiLanguageService } from 'ng-jhipster';
 
 import { UserModalService } from './user-modal.service';
-import { JhiLanguageHelper, User, UserService } from '../../shared';
+import { JhiLanguageHelper, User, UserService , AuthorityService } from '../../shared';
 
 @Component({
     selector: 'jhi-user-mgmt-dialog',
@@ -23,12 +23,17 @@ export class UserMgmtDialogComponent implements OnInit {
         private languageHelper: JhiLanguageHelper,
         private jhiLanguageService: JhiLanguageService,
         private userService: UserService,
+        private authorityService: AuthorityService,
         private eventManager: EventManager
     ) {}
 
     ngOnInit() {
         this.isSaving = false;
-        this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
+        this.authorityService.findAll().subscribe((res) => {
+           this.authorities = res.json();
+           console.log('Authorities ', this.authorities, res)
+        });
+        // this.authorities = this.authorityService.findAll();
         this.languageHelper.getAll().then((languages) => {
             this.languages = languages;
         });
