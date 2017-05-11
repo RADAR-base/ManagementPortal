@@ -33,9 +33,6 @@ public class UserDTO {
     @Size(min = 5, max = 100)
     private String email;
 
-    @Size(max = 256)
-    private String imageUrl;
-
     private boolean activated = false;
 
     @Size(min = 2, max = 5)
@@ -57,14 +54,14 @@ public class UserDTO {
 
     public UserDTO(User user) {
         this(user.getId(), user.getLogin(), user.getFirstName(), user.getLastName(),
-            user.getEmail(), user.getActivated(), user.getImageUrl(), user.getLangKey(),
+            user.getEmail(), user.getActivated(), user.getLangKey(),
             user.getCreatedBy(), user.getCreatedDate(), user.getLastModifiedBy(), user.getLastModifiedDate(),
             user.getAuthorities().stream().map(Authority::getName)
                 .collect(Collectors.toSet()));
     }
 
     public UserDTO(Long id, String login, String firstName, String lastName,
-        String email, boolean activated, String imageUrl, String langKey,
+        String email, boolean activated, String langKey,
         String createdBy, ZonedDateTime createdDate, String lastModifiedBy, ZonedDateTime lastModifiedDate,
         Set<String> authorities) {
 
@@ -74,7 +71,6 @@ public class UserDTO {
         this.lastName = lastName;
         this.email = email;
         this.activated = activated;
-        this.imageUrl = imageUrl;
         this.langKey = langKey;
         this.createdBy = createdBy;
         this.createdDate = createdDate;
@@ -109,10 +105,6 @@ public class UserDTO {
 
     public String getEmail() {
         return email;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
     }
 
     public boolean isActivated() {
@@ -154,7 +146,6 @@ public class UserDTO {
             ", firstName='" + firstName + '\'' +
             ", lastName='" + lastName + '\'' +
             ", email='" + email + '\'' +
-            ", imageUrl='" + imageUrl + '\'' +
             ", activated=" + activated +
             ", langKey='" + langKey + '\'' +
             ", createdBy=" + createdBy +
