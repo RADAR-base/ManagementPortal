@@ -5,44 +5,44 @@ import { Response } from '@angular/http';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 
-import { Device } from './device.model';
-import { DevicePopupService } from './device-popup.service';
-import { DeviceService } from './device.service';
-import { DeviceType, DeviceTypeService } from '../device-type';
-import { Study, StudyService } from '../study';
+import { Study } from './study.model';
+import { StudyPopupService } from './study-popup.service';
+import { StudyService } from './study.service';
+import { Project, ProjectService } from '../project';
+import { Device, DeviceService } from '../device';
 
 @Component({
-    selector: 'jhi-device-dialog',
-    templateUrl: './device-dialog.component.html'
+    selector: 'jhi-study-dialog',
+    templateUrl: './study-dialog.component.html'
 })
-export class DeviceDialogComponent implements OnInit {
+export class StudyDialogComponent implements OnInit {
 
-    device: Device;
+    study: Study;
     authorities: any[];
     isSaving: boolean;
 
-    devicetypes: DeviceType[];
+    projects: Project[];
 
-    studies: Study[];
+    devices: Device[];
     constructor(
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
         private alertService: AlertService,
-        private deviceService: DeviceService,
-        private deviceTypeService: DeviceTypeService,
         private studyService: StudyService,
+        private projectService: ProjectService,
+        private deviceService: DeviceService,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['device']);
+        this.jhiLanguageService.setLocations(['study', 'studyStatus']);
     }
 
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
-        this.deviceTypeService.query().subscribe(
-            (res: Response) => { this.devicetypes = res.json(); }, (res: Response) => this.onError(res.json()));
-        this.studyService.query().subscribe(
-            (res: Response) => { this.studies = res.json(); }, (res: Response) => this.onError(res.json()));
+        this.projectService.query().subscribe(
+            (res: Response) => { this.projects = res.json(); }, (res: Response) => this.onError(res.json()));
+        this.deviceService.query().subscribe(
+            (res: Response) => { this.devices = res.json(); }, (res: Response) => this.onError(res.json()));
     }
     clear() {
         this.activeModal.dismiss('cancel');
@@ -50,19 +50,19 @@ export class DeviceDialogComponent implements OnInit {
 
     save() {
         this.isSaving = true;
-        if (this.device.id !== undefined) {
-            this.deviceService.update(this.device)
-                .subscribe((res: Device) =>
+        if (this.study.id !== undefined) {
+            this.studyService.update(this.study)
+                .subscribe((res: Study) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         } else {
-            this.deviceService.create(this.device)
-                .subscribe((res: Device) =>
+            this.studyService.create(this.study)
+                .subscribe((res: Study) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         }
     }
 
-    private onSaveSuccess(result: Device) {
-        this.eventManager.broadcast({ name: 'deviceListModification', content: 'OK'});
+    private onSaveSuccess(result: Study) {
+        this.eventManager.broadcast({ name: 'studyListModification', content: 'OK'});
         this.isSaving = false;
         this.activeModal.dismiss(result);
     }
@@ -81,11 +81,11 @@ export class DeviceDialogComponent implements OnInit {
         this.alertService.error(error.message, null, null);
     }
 
-    trackDeviceTypeById(index: number, item: DeviceType) {
+    trackProjectById(index: number, item: Project) {
         return item.id;
     }
 
-    trackStudyById(index: number, item: Study) {
+    trackDeviceById(index: number, item: Device) {
         return item.id;
     }
 
@@ -102,27 +102,27 @@ export class DeviceDialogComponent implements OnInit {
 }
 
 @Component({
-    selector: 'jhi-device-popup',
+    selector: 'jhi-study-popup',
     template: ''
 })
-export class DevicePopupComponent implements OnInit, OnDestroy {
+export class StudyPopupComponent implements OnInit, OnDestroy {
 
     modalRef: NgbModalRef;
     routeSub: any;
 
     constructor(
         private route: ActivatedRoute,
-        private devicePopupService: DevicePopupService
+        private studyPopupService: StudyPopupService
     ) {}
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
             if ( params['id'] ) {
-                this.modalRef = this.devicePopupService
-                    .open(DeviceDialogComponent, params['id']);
+                this.modalRef = this.studyPopupService
+                    .open(StudyDialogComponent, params['id']);
             } else {
-                this.modalRef = this.devicePopupService
-                    .open(DeviceDialogComponent);
+                this.modalRef = this.studyPopupService
+                    .open(StudyDialogComponent);
             }
         });
     }

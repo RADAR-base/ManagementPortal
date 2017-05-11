@@ -1,0 +1,25 @@
+{
+    "managementPortalApp": {
+        "project" : {
+            "home": {
+                "title": "Projects",
+                "createLabel": "Maak een nieuwe Project",
+                "createOrEditLabel": "Maak of wijzig een Project"
+            },
+            "created": "A new Project is created with identifier {{ param }}",
+            "updated": "A Project is updated with identifier {{ param }}",
+            "deleted": "A Project is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Bent u zeker dat u Project {{ id }} wilt verwijderen?"
+            },
+            "detail": {
+                "title": "Project"
+            },
+            "projectName": "Project Name",
+            "description": "Description",
+            "organization": "Organization",
+            "startDate": "Start Date",
+            "endDate": "End Date"
+        }
+    }
+}

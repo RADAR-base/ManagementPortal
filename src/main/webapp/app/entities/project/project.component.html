@@ -1,10 +1,10 @@
 <div>
     <h2>
-        <span jhiTranslate="managementPortalApp.device.home.title">Devices</span>
-        <button class="btn btn-primary float-right create-device" [routerLink]="['/', { outlets: { popup: ['device-new'] } }]">
+        <span jhiTranslate="managementPortalApp.project.home.title">Projects</span>
+        <button class="btn btn-primary float-right create-project" [routerLink]="['/', { outlets: { popup: ['project-new'] } }]">
             <span class="fa fa-plus"></span>
-            <span  jhiTranslate="managementPortalApp.device.home.createLabel">
-            Create new Device
+            <span  jhiTranslate="managementPortalApp.project.home.createLabel">
+            Create new Project
             </span>
         </button>
     </h2>
@@ -12,44 +12,44 @@
     <div class="row">
     </div>
     <br/>
-    <div class="table-responsive" *ngIf="devices">
+    <div class="table-responsive" *ngIf="projects">
         <table class="table table-striped">
             <thead>
             <tr>
             <th><span jhiTranslate="global.field.id">ID</span></th>
-            <th><span jhiTranslate="managementPortalApp.device.devicePhysicalId">Device Physical Id</span></th>
-            <th><span jhiTranslate="managementPortalApp.device.deviceCategory">Device Category</span></th>
-            <th><span jhiTranslate="managementPortalApp.device.deviceType">Device Type</span></th>
+            <th><span jhiTranslate="managementPortalApp.project.projectName">Project Name</span></th>
+            <th><span jhiTranslate="managementPortalApp.project.description">Description</span></th>
+            <th><span jhiTranslate="managementPortalApp.project.organization">Organization</span></th>
+            <th><span jhiTranslate="managementPortalApp.project.startDate">Start Date</span></th>
+            <th><span jhiTranslate="managementPortalApp.project.endDate">End Date</span></th>
             <th></th>
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let device of devices ;trackBy: trackId">
-                <td><a [routerLink]="['../device', device.id ]">{{device.id}}</a></td>
-                <td>{{device.devicePhysicalId}}</td>
-                <td>{{device.deviceCategory}}</td>
-                <td>
-                    <div *ngIf="device.deviceType">
-                        <a [routerLink]="['../device-type', device.deviceType?.id ]" >{{device.deviceType?.id}}</a>
-                    </div>
-                </td>
+            <tr *ngFor="let project of projects ;trackBy: trackId">
+                <td><a [routerLink]="['../project', project.id ]">{{project.id}}</a></td>
+                <td>{{project.projectName}}</td>
+                <td>{{project.description}}</td>
+                <td>{{project.organization}}</td>
+                <td>{{project.startDate | date:'medium'}}</td>
+                <td>{{project.endDate | date:'medium'}}</td>
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"
-                                [routerLink]="['../device', device.id ]"
+                                [routerLink]="['../project', project.id ]"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
                         </button>
                         <button type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'device/'+ device.id + '/edit'} }]"
+                                [routerLink]="['/', { outlets: { popup: 'project/'+ project.id + '/edit'} }]"
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
                         </button>
                         <button type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'device/'+ device.id + '/delete'} }]"
+                                [routerLink]="['/', { outlets: { popup: 'project/'+ project.id + '/delete'} }]"
                                 replaceUrl="true"
                                 class="btn btn-danger btn-sm">
                             <span class="fa fa-remove"></span>

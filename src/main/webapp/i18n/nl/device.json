@@ -17,7 +17,8 @@
             },
             "devicePhysicalId": "Device Physical Id",
             "deviceCategory": "Device Category",
-            "deviceType": "Device Type"
+            "deviceType": "Device Type",
+            "study": "Study"
         }
     }
 }

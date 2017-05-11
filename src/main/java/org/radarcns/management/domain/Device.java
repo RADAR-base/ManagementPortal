@@ -1,11 +1,14 @@
 package org.radarcns.management.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Objects;
 
 /**
@@ -23,7 +26,7 @@ public class Device implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "device_physical_id", nullable = false, unique = true)
+    @Column(name = "device_physical_id", nullable = false)
     private String devicePhysicalId;
 
     @NotNull
@@ -32,6 +35,11 @@ public class Device implements Serializable {
 
     @ManyToOne
     private DeviceType deviceType;
+
+    @ManyToMany(mappedBy = "devices")
+    @JsonIgnore
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Set<Study> studies = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -78,6 +86,31 @@ public class Device implements Serializable {
 
     public void setDeviceType(DeviceType deviceType) {
         this.deviceType = deviceType;
+    }
+
+    public Set<Study> getStudies() {
+        return studies;
+    }
+
+    public Device studies(Set<Study> studies) {
+        this.studies = studies;
+        return this;
+    }
+
+    public Device addStudy(Study study) {
+        this.studies.add(study);
+        study.getDevices().add(this);
+        return this;
+    }
+
+    public Device removeStudy(Study study) {
+        this.studies.remove(study);
+        study.getDevices().remove(this);
+        return this;
+    }
+
+    public void setStudies(Set<Study> studies) {
+        this.studies = studies;
     }
 
     @Override

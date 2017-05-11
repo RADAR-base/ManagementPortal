@@ -1,0 +1,84 @@
+<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+
+    <div class="modal-header">
+        <h4 class="modal-title" id="myStudyLabel" jhiTranslate="managementPortalApp.study.home.createOrEditLabel">Create or edit a Study</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                (click)="clear()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" [hidden]="!study.id">
+            <label for="id" jhiTranslate="global.field.id">ID</label>
+            <input type="text" class="form-control" id="id" name="id"
+                   [(ngModel)]="study.id" readonly />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.study.studyName" for="field_studyName">Study Name</label>
+            <input type="text" class="form-control" name="studyName" id="field_studyName"
+                [(ngModel)]="study.studyName"
+            required />
+            <div [hidden]="!(editForm.controls.studyName?.dirty && editForm.controls.studyName?.invalid)">
+                <small class="form-text text-danger"
+                   [hidden]="!editForm.controls.studyName?.errors?.required" jhiTranslate="entity.validation.required">
+                   This field is required.
+                </small>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.study.description" for="field_description">Description</label>
+            <input type="text" class="form-control" name="description" id="field_description"
+                [(ngModel)]="study.description"
+            required />
+            <div [hidden]="!(editForm.controls.description?.dirty && editForm.controls.description?.invalid)">
+                <small class="form-text text-danger"
+                   [hidden]="!editForm.controls.description?.errors?.required" jhiTranslate="entity.validation.required">
+                   This field is required.
+                </small>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.study.startDate" for="field_startDate">Start Date</label>
+            <div class="d-flex">
+                <input id="field_startDate" type="datetime-local" class="form-control" name="startDate" [(ngModel)]="study.startDate"
+                  />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.study.endDate" for="field_endDate">End Date</label>
+            <div class="d-flex">
+                <input id="field_endDate" type="datetime-local" class="form-control" name="endDate" [(ngModel)]="study.endDate"
+                  />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.study.studyStatus" for="field_studyStatus">Study Status</label>
+            <select class="form-control" name="studyStatus" [(ngModel)]="study.studyStatus" id="field_studyStatus" >
+                <option value="PLANNING" jhiTranslate="managementPortalApp.StudyStatus.PLANNING">PLANNING</option>
+                <option value="ONGOING" jhiTranslate="managementPortalApp.StudyStatus.ONGOING">ONGOING</option>
+                <option value="ENDED" jhiTranslate="managementPortalApp.StudyStatus.ENDED">ENDED</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label jhiTranslate="managementPortalApp.study.parentProjectId" for="field_parentProjectId">Parent Project Id</label>
+            <select class="form-control" id="field_parentProjectId" name="parentProjectId" [(ngModel)]="study.parentProjectId" >
+                <option [ngValue]="null"></option>
+                <option [ngValue]="projectOption.id === study.parentProjectId?.id ? study.parentProjectId : projectOption" *ngFor="let projectOption of projects; trackBy: trackProjectById">{{projectOption.id}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label jhiTranslate="managementPortalApp.study.device" for="field_device">Device</label>
+            <select class="form-control" id="field_device" multiple name="device" [(ngModel)]="study.devices">
+                <option [ngValue]="getSelected(study.devices, deviceOption)" *ngFor="let deviceOption of devices; trackBy: trackDeviceById">{{deviceOption.devicePhysicalId}}</option>
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+            <span class="fa fa-ban"></span>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+        </button>
+        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+            <span class="fa fa-save"></span>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+        </button>
+    </div>
+</form>

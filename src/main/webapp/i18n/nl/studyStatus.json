@@ -1,0 +1,10 @@
+{
+    "managementPortalApp": {
+        "StudyStatus" : {
+            "null": "",
+            "PLANNING": "PLANNING",
+            "ONGOING": "ONGOING",
+            "ENDED": "ENDED"
+        }
+    }
+}

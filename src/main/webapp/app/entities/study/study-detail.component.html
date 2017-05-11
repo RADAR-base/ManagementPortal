@@ -1,0 +1,53 @@
+
+<div *ngIf="study">
+    <h2><span jhiTranslate="managementPortalApp.study.detail.title">Study</span> {{study.id}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="managementPortalApp.study.studyName">Study Name</span></dt>
+        <dd>
+            <span>{{study.studyName}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.study.description">Description</span></dt>
+        <dd>
+            <span>{{study.description}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.study.startDate">Start Date</span></dt>
+        <dd>
+            <span>{{study.startDate | date:'medium'}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.study.endDate">End Date</span></dt>
+        <dd>
+            <span>{{study.endDate | date:'medium'}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.study.studyStatus">Study Status</span></dt>
+        <dd>
+            <span jhiTranslate="{{'managementPortalApp.StudyStatus.' + study.studyStatus}}">{{study.studyStatus}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.study.parentProjectId">Parent Project Id</span></dt>
+        <dd>
+            <div *ngIf="study.parentProjectId">
+                <a [routerLink]="['/project', study.parentProjectId?.id]">{{study.parentProjectId?.id}}</a>
+            </div>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.study.device">Device</span></dt>
+        <dd>
+            <span *ngFor="let device of study.devices; let last = last">
+                <a [routerLink]="['/device', device?.id ]">{{device.devicePhysicalId}}</a>{{last ? '' : ', '}}
+            </span>
+        </dd>
+    </dl>
+
+    <button type="submit"
+            (click)="previousState()"
+            class="btn btn-info">
+        <span class="fa fa-arrow-left"></span>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+    </button>
+
+    <button type="button"
+            [routerLink]="['/', { outlets: { popup: 'study/'+ study.id + '/edit'} }]"
+            replaceUrl="true"
+            class="btn btn-primary">
+        <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+    </button>
+</div>

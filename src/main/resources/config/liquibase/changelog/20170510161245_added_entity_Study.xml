@@ -15,27 +15,52 @@
     <property name="floatType" value="float" dbms="mysql, oracle, mssql"/>
 
     <!--
-        Added the entity Device.
+        Added the entity Study.
     -->
-    <changeSet id="20170509091039-1" author="jhipster">
-        <createTable tableName="device">
+    <changeSet id="20170510161245-1" author="jhipster">
+        <createTable tableName="study">
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="device_physical_id" type="varchar(255)">
+            <column name="study_name" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
 
-            <column name="device_category" type="varchar(255)">
+            <column name="description" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
 
-            <column name="device_type_id" type="bigint">
+            <column name="start_date" type="timestamp">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="end_date" type="timestamp">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="study_status" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="parent_project_id_id" type="bigint">
                 <constraints nullable="true" />
             </column>
 
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
+        <dropDefaultValue tableName="study" columnName="start_date" columnDataType="datetime"/>
+        <dropDefaultValue tableName="study" columnName="end_date" columnDataType="datetime"/>
+        
+        <createTable tableName="study_device">
+            <column name="devices_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="studies_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="studies_id, devices_id" tableName="study_device"/>
         
     </changeSet>
 </databaseChangeLog>

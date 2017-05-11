@@ -1,0 +1,27 @@
+{
+    "managementPortalApp": {
+        "study" : {
+            "home": {
+                "title": "Studies",
+                "createLabel": "Maak een nieuwe Study",
+                "createOrEditLabel": "Maak of wijzig een Study"
+            },
+            "created": "A new Study is created with identifier {{ param }}",
+            "updated": "A Study is updated with identifier {{ param }}",
+            "deleted": "A Study is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Bent u zeker dat u Study {{ id }} wilt verwijderen?"
+            },
+            "detail": {
+                "title": "Study"
+            },
+            "studyName": "Study Name",
+            "description": "Description",
+            "startDate": "Start Date",
+            "endDate": "End Date",
+            "studyStatus": "Study Status",
+            "parentProjectId": "Parent Project Id",
+            "device": "Device"
+        }
+    }
+}
