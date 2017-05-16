@@ -16,13 +16,31 @@
         <dd>
             <span>{{project.organization}}</span>
         </dd>
+        <dt><span jhiTranslate="managementPortalApp.project.location">Location</span></dt>
+        <dd>
+            <span>{{project.location}}</span>
+        </dd>
         <dt><span jhiTranslate="managementPortalApp.project.startDate">Start Date</span></dt>
         <dd>
             <span>{{project.startDate | date:'medium'}}</span>
         </dd>
+        <dt><span jhiTranslate="managementPortalApp.project.projectStatus">Project Status</span></dt>
+        <dd>
+            <span jhiTranslate="{{'managementPortalApp.ProjectStatus.' + project.projectStatus}}">{{project.projectStatus}}</span>
+        </dd>
         <dt><span jhiTranslate="managementPortalApp.project.endDate">End Date</span></dt>
         <dd>
             <span>{{project.endDate | date:'medium'}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.project.projectOwner">Project Owner</span></dt>
+        <dd>
+            <span>{{project.projectOwner}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.project.device">Device</span></dt>
+        <dd>
+            <span *ngFor="let device of project.devices; let last = last">
+                <a [routerLink]="['/device', device?.id ]">{{device.devicePhysicalId}}</a>{{last ? '' : ', '}}
+            </span>
         </dd>
     </dl>
 

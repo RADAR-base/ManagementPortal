@@ -33,9 +33,17 @@ public class Device implements Serializable {
     @Column(name = "device_category", nullable = false)
     private String deviceCategory;
 
+    @NotNull
+    @Column(name = "activated", nullable = false)
+    private Boolean activated;
+
     @ManyToOne
     private DeviceType deviceType;
 
+    @ManyToMany(mappedBy = "devices")
+    @JsonIgnore
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Set<Project> projects = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -71,6 +79,19 @@ public class Device implements Serializable {
         this.deviceCategory = deviceCategory;
     }
 
+    public Boolean isActivated() {
+        return activated;
+    }
+
+    public Device activated(Boolean activated) {
+        this.activated = activated;
+        return this;
+    }
+
+    public void setActivated(Boolean activated) {
+        this.activated = activated;
+    }
+
     public DeviceType getDeviceType() {
         return deviceType;
     }
@@ -82,6 +103,31 @@ public class Device implements Serializable {
 
     public void setDeviceType(DeviceType deviceType) {
         this.deviceType = deviceType;
+    }
+
+    public Set<Project> getProjects() {
+        return projects;
+    }
+
+    public Device projects(Set<Project> projects) {
+        this.projects = projects;
+        return this;
+    }
+
+    public Device addProject(Project project) {
+        this.projects.add(project);
+        project.getDevices().add(this);
+        return this;
+    }
+
+    public Device removeProject(Project project) {
+        this.projects.remove(project);
+        project.getDevices().remove(this);
+        return this;
+    }
+
+    public void setProjects(Set<Project> projects) {
+        this.projects = projects;
     }
 
     @Override
@@ -110,6 +156,7 @@ public class Device implements Serializable {
             "id=" + id +
             ", devicePhysicalId='" + devicePhysicalId + "'" +
             ", deviceCategory='" + deviceCategory + "'" +
+            ", activated='" + activated + "'" +
             '}';
     }
 }

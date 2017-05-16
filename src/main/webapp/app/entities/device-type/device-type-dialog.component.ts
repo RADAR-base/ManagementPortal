@@ -8,6 +8,7 @@ import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 import { DeviceType } from './device-type.model';
 import { DeviceTypePopupService } from './device-type-popup.service';
 import { DeviceTypeService } from './device-type.service';
+import { SensorData, SensorDataService } from '../sensor-data';
 
 @Component({
     selector: 'jhi-device-type-dialog',
@@ -18,19 +19,24 @@ export class DeviceTypeDialogComponent implements OnInit {
     deviceType: DeviceType;
     authorities: any[];
     isSaving: boolean;
+
+    sensordata: SensorData[];
     constructor(
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
         private alertService: AlertService,
         private deviceTypeService: DeviceTypeService,
+        private sensorDataService: SensorDataService,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['deviceType']);
+        this.jhiLanguageService.setLocations(['deviceType', 'sourceType']);
     }
 
     ngOnInit() {
         this.isSaving = false;
-        this.authorities = ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_SYS_ADMIN'];
+        this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
+        this.sensorDataService.query().subscribe(
+            (res: Response) => { this.sensordata = res.json(); }, (res: Response) => this.onError(res.json()));
     }
     clear() {
         this.activeModal.dismiss('cancel');
@@ -67,6 +73,21 @@ export class DeviceTypeDialogComponent implements OnInit {
 
     private onError(error) {
         this.alertService.error(error.message, null, null);
+    }
+
+    trackSensorDataById(index: number, item: SensorData) {
+        return item.id;
+    }
+
+    getSelected(selectedVals: Array<any>, option: any) {
+        if (selectedVals) {
+            for (let i = 0; i < selectedVals.length; i++) {
+                if (option.id === selectedVals[i].id) {
+                    return selectedVals[i];
+                }
+            }
+        }
+        return option;
     }
 }
 

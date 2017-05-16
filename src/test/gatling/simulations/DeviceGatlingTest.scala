@@ -80,7 +80,7 @@ class DeviceGatlingTest extends Simulation {
             .exec(http("Create new device")
             .post("/api/devices")
             .headers(headers_http_authenticated)
-            .body(StringBody("""{"id":null, "devicePhysicalId":"SAMPLE_TEXT", "deviceCategory":"SAMPLE_TEXT"}""")).asJSON
+            .body(StringBody("""{"id":null, "devicePhysicalId":"SAMPLE_TEXT", "deviceCategory":"SAMPLE_TEXT", "activated":null}""")).asJSON
             .check(status.is(201))
             .check(headerRegex("Location", "(.*)").saveAs("new_device_url"))).exitHereIfFailed
             .pause(10)

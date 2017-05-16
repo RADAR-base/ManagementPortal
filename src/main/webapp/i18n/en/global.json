@@ -10,6 +10,7 @@
                 "device": "Device",
                 "deviceType": "Device Type",
                 "project": "Project",
+                "sensorData": "Sensor Data",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
             "account": {

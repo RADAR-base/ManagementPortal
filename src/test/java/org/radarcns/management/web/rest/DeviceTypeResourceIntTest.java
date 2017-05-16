@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import org.radarcns.management.domain.enumeration.SourceType;
 /**
  * Test class for the DeviceTypeResource REST controller.
  *
@@ -43,8 +44,8 @@ public class DeviceTypeResourceIntTest {
     private static final String DEFAULT_DEVICE_MODEL = "AAAAAAAAAA";
     private static final String UPDATED_DEVICE_MODEL = "BBBBBBBBBB";
 
-    private static final String DEFAULT_SENSOR_TYPE = "AAAAAAAAAA";
-    private static final String UPDATED_SENSOR_TYPE = "BBBBBBBBBB";
+    private static final SourceType DEFAULT_SOURCE_TYPE = SourceType.ACTIVE;
+    private static final SourceType UPDATED_SOURCE_TYPE = SourceType.PASSIVE;
 
     @Autowired
     private DeviceTypeRepository deviceTypeRepository;
@@ -85,7 +86,7 @@ public class DeviceTypeResourceIntTest {
         DeviceType deviceType = new DeviceType()
             .deviceProducer(DEFAULT_DEVICE_PRODUCER)
             .deviceModel(DEFAULT_DEVICE_MODEL)
-            .sensorType(DEFAULT_SENSOR_TYPE);
+            .sourceType(DEFAULT_SOURCE_TYPE);
         return deviceType;
     }
 
@@ -111,7 +112,7 @@ public class DeviceTypeResourceIntTest {
         DeviceType testDeviceType = deviceTypeList.get(deviceTypeList.size() - 1);
         assertThat(testDeviceType.getDeviceProducer()).isEqualTo(DEFAULT_DEVICE_PRODUCER);
         assertThat(testDeviceType.getDeviceModel()).isEqualTo(DEFAULT_DEVICE_MODEL);
-        assertThat(testDeviceType.getSensorType()).isEqualTo(DEFAULT_SENSOR_TYPE);
+        assertThat(testDeviceType.getSourceType()).isEqualTo(DEFAULT_SOURCE_TYPE);
     }
 
     @Test
@@ -153,10 +154,10 @@ public class DeviceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void checkSensorTypeIsRequired() throws Exception {
+    public void checkSourceTypeIsRequired() throws Exception {
         int databaseSizeBeforeTest = deviceTypeRepository.findAll().size();
         // set the field null
-        deviceType.setSensorType(null);
+        deviceType.setSourceType(null);
 
         // Create the DeviceType, which fails.
 
@@ -182,7 +183,7 @@ public class DeviceTypeResourceIntTest {
             .andExpect(jsonPath("$.[*].id").value(hasItem(deviceType.getId().intValue())))
             .andExpect(jsonPath("$.[*].deviceProducer").value(hasItem(DEFAULT_DEVICE_PRODUCER.toString())))
             .andExpect(jsonPath("$.[*].deviceModel").value(hasItem(DEFAULT_DEVICE_MODEL.toString())))
-            .andExpect(jsonPath("$.[*].sensorType").value(hasItem(DEFAULT_SENSOR_TYPE.toString())));
+            .andExpect(jsonPath("$.[*].sourceType").value(hasItem(DEFAULT_SOURCE_TYPE.toString())));
     }
 
     @Test
@@ -198,7 +199,7 @@ public class DeviceTypeResourceIntTest {
             .andExpect(jsonPath("$.id").value(deviceType.getId().intValue()))
             .andExpect(jsonPath("$.deviceProducer").value(DEFAULT_DEVICE_PRODUCER.toString()))
             .andExpect(jsonPath("$.deviceModel").value(DEFAULT_DEVICE_MODEL.toString()))
-            .andExpect(jsonPath("$.sensorType").value(DEFAULT_SENSOR_TYPE.toString()));
+            .andExpect(jsonPath("$.sourceType").value(DEFAULT_SOURCE_TYPE.toString()));
     }
 
     @Test
@@ -221,7 +222,7 @@ public class DeviceTypeResourceIntTest {
         updatedDeviceType
             .deviceProducer(UPDATED_DEVICE_PRODUCER)
             .deviceModel(UPDATED_DEVICE_MODEL)
-            .sensorType(UPDATED_SENSOR_TYPE);
+            .sourceType(UPDATED_SOURCE_TYPE);
 
         restDeviceTypeMockMvc.perform(put("/api/device-types")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -234,7 +235,7 @@ public class DeviceTypeResourceIntTest {
         DeviceType testDeviceType = deviceTypeList.get(deviceTypeList.size() - 1);
         assertThat(testDeviceType.getDeviceProducer()).isEqualTo(UPDATED_DEVICE_PRODUCER);
         assertThat(testDeviceType.getDeviceModel()).isEqualTo(UPDATED_DEVICE_MODEL);
-        assertThat(testDeviceType.getSensorType()).isEqualTo(UPDATED_SENSOR_TYPE);
+        assertThat(testDeviceType.getSourceType()).isEqualTo(UPDATED_SOURCE_TYPE);
     }
 
     @Test

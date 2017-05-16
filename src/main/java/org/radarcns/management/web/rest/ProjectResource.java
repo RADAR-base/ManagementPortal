@@ -85,7 +85,7 @@ public class ProjectResource {
     @Timed
     public List<Project> getAllProjects() {
         log.debug("REST request to get all Projects");
-        List<Project> projects = projectRepository.findAll();
+        List<Project> projects = projectRepository.findAllWithEagerRelationships();
         return projects;
     }
 
@@ -99,7 +99,7 @@ public class ProjectResource {
     @Timed
     public ResponseEntity<Project> getProject(@PathVariable Long id) {
         log.debug("REST request to get Project : {}", id);
-        Project project = projectRepository.findOne(id);
+        Project project = projectRepository.findOneWithEagerRelationships(id);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(project));
     }
 

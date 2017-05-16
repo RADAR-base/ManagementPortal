@@ -43,11 +43,31 @@
              />
         </div>
         <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.project.location" for="field_location">Location</label>
+            <input type="text" class="form-control" name="location" id="field_location"
+                [(ngModel)]="project.location"
+            required />
+            <div [hidden]="!(editForm.controls.location?.dirty && editForm.controls.location?.invalid)">
+                <small class="form-text text-danger"
+                   [hidden]="!editForm.controls.location?.errors?.required" jhiTranslate="entity.validation.required">
+                   This field is required.
+                </small>
+            </div>
+        </div>
+        <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.project.startDate" for="field_startDate">Start Date</label>
             <div class="d-flex">
                 <input id="field_startDate" type="datetime-local" class="form-control" name="startDate" [(ngModel)]="project.startDate"
                   />
             </div>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.project.projectStatus" for="field_projectStatus">Project Status</label>
+            <select class="form-control" name="projectStatus" [(ngModel)]="project.projectStatus" id="field_projectStatus" >
+                <option value="PLANNING" jhiTranslate="managementPortalApp.ProjectStatus.PLANNING">PLANNING</option>
+                <option value="ONGOING" jhiTranslate="managementPortalApp.ProjectStatus.ONGOING">ONGOING</option>
+                <option value="ENDED" jhiTranslate="managementPortalApp.ProjectStatus.ENDED">ENDED</option>
+            </select>
         </div>
         <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.project.endDate" for="field_endDate">End Date</label>
@@ -56,7 +76,19 @@
                   />
             </div>
         </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.project.projectOwner" for="field_projectOwner">Project Owner</label>
+            <input type="number" class="form-control" name="projectOwner" id="field_projectOwner"
+                [(ngModel)]="project.projectOwner"
+             />
+        </div>
 
+        <div class="form-group">
+            <label jhiTranslate="managementPortalApp.project.device" for="field_device">Device</label>
+            <select class="form-control" id="field_device" multiple name="device" [(ngModel)]="project.devices">
+                <option [ngValue]="getSelected(project.devices, deviceOption)" *ngFor="let deviceOption of devices; trackBy: trackDeviceById">{{deviceOption.devicePhysicalId}}</option>
+            </select>
+        </div>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">

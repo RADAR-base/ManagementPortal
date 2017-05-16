@@ -9,6 +9,7 @@ import { Device } from './device.model';
 import { DevicePopupService } from './device-popup.service';
 import { DeviceService } from './device.service';
 import { DeviceType, DeviceTypeService } from '../device-type';
+import { Project, ProjectService } from '../project';
 
 @Component({
     selector: 'jhi-device-dialog',
@@ -22,12 +23,14 @@ export class DeviceDialogComponent implements OnInit {
 
     devicetypes: DeviceType[];
 
+    projects: Project[];
     constructor(
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
         private alertService: AlertService,
         private deviceService: DeviceService,
         private deviceTypeService: DeviceTypeService,
+        private projectService: ProjectService,
         private eventManager: EventManager
     ) {
         this.jhiLanguageService.setLocations(['device']);
@@ -35,9 +38,11 @@ export class DeviceDialogComponent implements OnInit {
 
     ngOnInit() {
         this.isSaving = false;
-        this.authorities = ['ROLE_USER', 'ROLE_ADMIN','ROLE_SYS_ADMIN'];
+        this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
         this.deviceTypeService.query().subscribe(
             (res: Response) => { this.devicetypes = res.json(); }, (res: Response) => this.onError(res.json()));
+        this.projectService.query().subscribe(
+            (res: Response) => { this.projects = res.json(); }, (res: Response) => this.onError(res.json()));
     }
     clear() {
         this.activeModal.dismiss('cancel');
@@ -77,6 +82,10 @@ export class DeviceDialogComponent implements OnInit {
     }
 
     trackDeviceTypeById(index: number, item: DeviceType) {
+        return item.id;
+    }
+
+    trackProjectById(index: number, item: Project) {
         return item.id;
     }
 

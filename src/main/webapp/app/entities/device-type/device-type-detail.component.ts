@@ -22,7 +22,7 @@ export class DeviceTypeDetailComponent implements OnInit, OnDestroy {
         private deviceTypeService: DeviceTypeService,
         private route: ActivatedRoute
     ) {
-        this.jhiLanguageService.setLocations(['deviceType']);
+        this.jhiLanguageService.setLocations(['deviceType', 'sourceType']);
     }
 
     ngOnInit() {

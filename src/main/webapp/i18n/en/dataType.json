@@ -1,0 +1,9 @@
+{
+    "managementPortalApp": {
+        "DataType" : {
+            "null": "",
+            "RAW": "RAW",
+            "DERIVED": "DERIVED"
+        }
+    }
+}

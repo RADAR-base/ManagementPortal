@@ -7,7 +7,11 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Objects;
+
+import org.radarcns.management.domain.enumeration.ProjectStatus;
 
 /**
  * A Project.
@@ -34,11 +38,29 @@ public class Project implements Serializable {
     @Column(name = "jhi_organization")
     private String organization;
 
+    @NotNull
+    @Column(name = "location", nullable = false)
+    private String location;
+
     @Column(name = "start_date")
     private ZonedDateTime startDate;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "project_status")
+    private ProjectStatus projectStatus;
+
     @Column(name = "end_date")
     private ZonedDateTime endDate;
+
+    @Column(name = "project_owner")
+    private Long projectOwner;
+
+    @ManyToMany
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @JoinTable(name = "project_device",
+               joinColumns = @JoinColumn(name="projects_id", referencedColumnName="id"),
+               inverseJoinColumns = @JoinColumn(name="devices_id", referencedColumnName="id"))
+    private Set<Device> devices = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -87,6 +109,19 @@ public class Project implements Serializable {
         this.organization = organization;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
+    public Project location(String location) {
+        this.location = location;
+        return this;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
     public ZonedDateTime getStartDate() {
         return startDate;
     }
@@ -100,6 +135,19 @@ public class Project implements Serializable {
         this.startDate = startDate;
     }
 
+    public ProjectStatus getProjectStatus() {
+        return projectStatus;
+    }
+
+    public Project projectStatus(ProjectStatus projectStatus) {
+        this.projectStatus = projectStatus;
+        return this;
+    }
+
+    public void setProjectStatus(ProjectStatus projectStatus) {
+        this.projectStatus = projectStatus;
+    }
+
     public ZonedDateTime getEndDate() {
         return endDate;
     }
@@ -111,6 +159,44 @@ public class Project implements Serializable {
 
     public void setEndDate(ZonedDateTime endDate) {
         this.endDate = endDate;
+    }
+
+    public Long getProjectOwner() {
+        return projectOwner;
+    }
+
+    public Project projectOwner(Long projectOwner) {
+        this.projectOwner = projectOwner;
+        return this;
+    }
+
+    public void setProjectOwner(Long projectOwner) {
+        this.projectOwner = projectOwner;
+    }
+
+    public Set<Device> getDevices() {
+        return devices;
+    }
+
+    public Project devices(Set<Device> devices) {
+        this.devices = devices;
+        return this;
+    }
+
+    public Project addDevice(Device device) {
+        this.devices.add(device);
+        device.getProjects().add(this);
+        return this;
+    }
+
+    public Project removeDevice(Device device) {
+        this.devices.remove(device);
+        device.getProjects().remove(this);
+        return this;
+    }
+
+    public void setDevices(Set<Device> devices) {
+        this.devices = devices;
     }
 
     @Override
@@ -140,8 +226,11 @@ public class Project implements Serializable {
             ", projectName='" + projectName + "'" +
             ", description='" + description + "'" +
             ", organization='" + organization + "'" +
+            ", location='" + location + "'" +
             ", startDate='" + startDate + "'" +
+            ", projectStatus='" + projectStatus + "'" +
             ", endDate='" + endDate + "'" +
+            ", projectOwner='" + projectOwner + "'" +
             '}';
     }
 }

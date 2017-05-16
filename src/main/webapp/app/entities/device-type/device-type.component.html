@@ -19,7 +19,8 @@
             <th><span jhiTranslate="global.field.id">ID</span></th>
             <th><span jhiTranslate="managementPortalApp.deviceType.deviceProducer">Device Producer</span></th>
             <th><span jhiTranslate="managementPortalApp.deviceType.deviceModel">Device Model</span></th>
-            <th><span jhiTranslate="managementPortalApp.deviceType.sensorType">Sensor Type</span></th>
+            <th><span jhiTranslate="managementPortalApp.deviceType.sourceType">Source Type</span></th>
+            <th><span jhiTranslate="managementPortalApp.deviceType.sensorData">Sensor Data</span></th>
             <th></th>
             </tr>
             </thead>
@@ -28,7 +29,12 @@
                 <td><a [routerLink]="['../device-type', deviceType.id ]">{{deviceType.id}}</a></td>
                 <td>{{deviceType.deviceProducer}}</td>
                 <td>{{deviceType.deviceModel}}</td>
-                <td>{{deviceType.sensorType}}</td>
+                <td jhiTranslate="{{'managementPortalApp.SourceType.' + deviceType.sourceType}}">{{deviceType.sourceType}}</td>
+                <td>
+                    <span *ngFor="let sensorData of deviceType.sensorData; let last = last">
+                            <a class="form-control-static" [routerLink]="['../sensor-data', sensorData?.id ]">{{sensorData.sensorType}}</a>{{last ? '' : ', '}}
+                        </span>
+                </td>
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"

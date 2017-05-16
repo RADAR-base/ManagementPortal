@@ -22,7 +22,7 @@ export class DeviceTypeDeleteDialogComponent {
         public activeModal: NgbActiveModal,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['deviceType']);
+        this.jhiLanguageService.setLocations(['deviceType', 'sourceType']);
     }
 
     clear() {

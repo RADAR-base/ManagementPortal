@@ -8,6 +8,7 @@ import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 import { Project } from './project.model';
 import { ProjectPopupService } from './project-popup.service';
 import { ProjectService } from './project.service';
+import { Device, DeviceService } from '../device';
 
 @Component({
     selector: 'jhi-project-dialog',
@@ -18,19 +19,24 @@ export class ProjectDialogComponent implements OnInit {
     project: Project;
     authorities: any[];
     isSaving: boolean;
+
+    devices: Device[];
     constructor(
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
         private alertService: AlertService,
         private projectService: ProjectService,
+        private deviceService: DeviceService,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['project']);
+        this.jhiLanguageService.setLocations(['project', 'projectStatus']);
     }
 
     ngOnInit() {
         this.isSaving = false;
-        this.authorities = ['ROLE_USER', 'ROLE_ADMIN','ROLE_SYS_ADMIN'];
+        this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
+        this.deviceService.query().subscribe(
+            (res: Response) => { this.devices = res.json(); }, (res: Response) => this.onError(res.json()));
     }
     clear() {
         this.activeModal.dismiss('cancel');
@@ -67,6 +73,21 @@ export class ProjectDialogComponent implements OnInit {
 
     private onError(error) {
         this.alertService.error(error.message, null, null);
+    }
+
+    trackDeviceById(index: number, item: Device) {
+        return item.id;
+    }
+
+    getSelected(selectedVals: Array<any>, option: any) {
+        if (selectedVals) {
+            for (let i = 0; i < selectedVals.length; i++) {
+                if (option.id === selectedVals[i].id) {
+                    return selectedVals[i];
+                }
+            }
+        }
+        return option;
     }
 }
 

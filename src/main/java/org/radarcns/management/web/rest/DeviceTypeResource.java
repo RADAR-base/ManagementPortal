@@ -85,7 +85,7 @@ public class DeviceTypeResource {
     @Timed
     public List<DeviceType> getAllDeviceTypes() {
         log.debug("REST request to get all DeviceTypes");
-        List<DeviceType> deviceTypes = deviceTypeRepository.findAll();
+        List<DeviceType> deviceTypes = deviceTypeRepository.findAllWithEagerRelationships();
         return deviceTypes;
     }
 
@@ -99,7 +99,7 @@ public class DeviceTypeResource {
     @Timed
     public ResponseEntity<DeviceType> getDeviceType(@PathVariable Long id) {
         log.debug("REST request to get DeviceType : {}", id);
-        DeviceType deviceType = deviceTypeRepository.findOne(id);
+        DeviceType deviceType = deviceTypeRepository.findOneWithEagerRelationships(id);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(deviceType));
     }
 

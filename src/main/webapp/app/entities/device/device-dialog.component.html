@@ -36,6 +36,18 @@
                 </small>
             </div>
         </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.device.activated" for="field_activated">Activated</label>
+            <input type="checkbox" class="form-control" name="activated" id="field_activated"
+                [(ngModel)]="device.activated"
+             />
+            <div [hidden]="!(editForm.controls.activated?.dirty && editForm.controls.activated?.invalid)">
+                <small class="form-text text-danger"
+                   [hidden]="!editForm.controls.activated?.errors?.required" jhiTranslate="entity.validation.required">
+                   This field is required.
+                </small>
+            </div>
+        </div>
 
         <div class="form-group">
             <label jhiTranslate="managementPortalApp.device.deviceType" for="field_deviceType">Device Type</label>

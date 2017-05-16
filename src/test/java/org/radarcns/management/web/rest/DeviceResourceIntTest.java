@@ -43,6 +43,9 @@ public class DeviceResourceIntTest {
     private static final String DEFAULT_DEVICE_CATEGORY = "AAAAAAAAAA";
     private static final String UPDATED_DEVICE_CATEGORY = "BBBBBBBBBB";
 
+    private static final Boolean DEFAULT_ACTIVATED = false;
+    private static final Boolean UPDATED_ACTIVATED = true;
+
     @Autowired
     private DeviceRepository deviceRepository;
 
@@ -81,7 +84,8 @@ public class DeviceResourceIntTest {
     public static Device createEntity(EntityManager em) {
         Device device = new Device()
             .devicePhysicalId(DEFAULT_DEVICE_PHYSICAL_ID)
-            .deviceCategory(DEFAULT_DEVICE_CATEGORY);
+            .deviceCategory(DEFAULT_DEVICE_CATEGORY)
+            .activated(DEFAULT_ACTIVATED);
         return device;
     }
 
@@ -107,6 +111,7 @@ public class DeviceResourceIntTest {
         Device testDevice = deviceList.get(deviceList.size() - 1);
         assertThat(testDevice.getDevicePhysicalId()).isEqualTo(DEFAULT_DEVICE_PHYSICAL_ID);
         assertThat(testDevice.getDeviceCategory()).isEqualTo(DEFAULT_DEVICE_CATEGORY);
+        assertThat(testDevice.isActivated()).isEqualTo(DEFAULT_ACTIVATED);
     }
 
     @Test
@@ -166,6 +171,24 @@ public class DeviceResourceIntTest {
 
     @Test
     @Transactional
+    public void checkActivatedIsRequired() throws Exception {
+        int databaseSizeBeforeTest = deviceRepository.findAll().size();
+        // set the field null
+        device.setActivated(null);
+
+        // Create the Device, which fails.
+
+        restDeviceMockMvc.perform(post("/api/devices")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(device)))
+            .andExpect(status().isBadRequest());
+
+        List<Device> deviceList = deviceRepository.findAll();
+        assertThat(deviceList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     public void getAllDevices() throws Exception {
         // Initialize the database
         deviceRepository.saveAndFlush(device);
@@ -176,7 +199,8 @@ public class DeviceResourceIntTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(device.getId().intValue())))
             .andExpect(jsonPath("$.[*].devicePhysicalId").value(hasItem(DEFAULT_DEVICE_PHYSICAL_ID.toString())))
-            .andExpect(jsonPath("$.[*].deviceCategory").value(hasItem(DEFAULT_DEVICE_CATEGORY.toString())));
+            .andExpect(jsonPath("$.[*].deviceCategory").value(hasItem(DEFAULT_DEVICE_CATEGORY.toString())))
+            .andExpect(jsonPath("$.[*].activated").value(hasItem(DEFAULT_ACTIVATED.booleanValue())));
     }
 
     @Test
@@ -191,7 +215,8 @@ public class DeviceResourceIntTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(device.getId().intValue()))
             .andExpect(jsonPath("$.devicePhysicalId").value(DEFAULT_DEVICE_PHYSICAL_ID.toString()))
-            .andExpect(jsonPath("$.deviceCategory").value(DEFAULT_DEVICE_CATEGORY.toString()));
+            .andExpect(jsonPath("$.deviceCategory").value(DEFAULT_DEVICE_CATEGORY.toString()))
+            .andExpect(jsonPath("$.activated").value(DEFAULT_ACTIVATED.booleanValue()));
     }
 
     @Test
@@ -213,7 +238,8 @@ public class DeviceResourceIntTest {
         Device updatedDevice = deviceRepository.findOne(device.getId());
         updatedDevice
             .devicePhysicalId(UPDATED_DEVICE_PHYSICAL_ID)
-            .deviceCategory(UPDATED_DEVICE_CATEGORY);
+            .deviceCategory(UPDATED_DEVICE_CATEGORY)
+            .activated(UPDATED_ACTIVATED);
 
         restDeviceMockMvc.perform(put("/api/devices")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -226,6 +252,7 @@ public class DeviceResourceIntTest {
         Device testDevice = deviceList.get(deviceList.size() - 1);
         assertThat(testDevice.getDevicePhysicalId()).isEqualTo(UPDATED_DEVICE_PHYSICAL_ID);
         assertThat(testDevice.getDeviceCategory()).isEqualTo(UPDATED_DEVICE_CATEGORY);
+        assertThat(testDevice.isActivated()).isEqualTo(UPDATED_ACTIVATED);
     }
 
     @Test

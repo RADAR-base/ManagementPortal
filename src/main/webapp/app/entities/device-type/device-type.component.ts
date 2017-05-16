@@ -25,7 +25,7 @@ deviceTypes: DeviceType[];
         private eventManager: EventManager,
         private principal: Principal
     ) {
-        this.jhiLanguageService.setLocations(['deviceType']);
+        this.jhiLanguageService.setLocations(['deviceType', 'sourceType']);
     }
 
     loadAll() {
