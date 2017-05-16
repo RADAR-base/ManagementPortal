@@ -30,7 +30,7 @@ export class DeviceTypeDialogComponent implements OnInit {
 
     ngOnInit() {
         this.isSaving = false;
-        this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
+        this.authorities = ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_SYS_ADMIN'];
     }
     clear() {
         this.activeModal.dismiss('cancel');

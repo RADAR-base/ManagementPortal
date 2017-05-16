@@ -101,7 +101,10 @@ public class AccountResourceIntTest {
         Set<Authority> authorities = new HashSet<>();
         Authority authority = new Authority();
         authority.setName(AuthoritiesConstants.ADMIN);
+        Authority authority2 = new Authority();
+        authority2.setName(AuthoritiesConstants.SYS_ADMIN);
         authorities.add(authority);
+        authorities.add(authority2);
 
         User user = new User();
         user.setLogin("test");
@@ -351,7 +354,7 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.ADMIN)));
+            new HashSet<>(Arrays.asList(AuthoritiesConstants.ADMIN, AuthoritiesConstants.SYS_ADMIN)));
 
         restMvc.perform(
             post("/api/register")

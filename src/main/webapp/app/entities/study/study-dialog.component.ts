@@ -38,7 +38,7 @@ export class StudyDialogComponent implements OnInit {
 
     ngOnInit() {
         this.isSaving = false;
-        this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
+        this.authorities = ['ROLE_USER', 'ROLE_ADMIN','ROLE_SYS_ADMIN'];
         this.projectService.query().subscribe(
             (res: Response) => { this.projects = res.json(); }, (res: Response) => this.onError(res.json()));
         this.deviceService.query().subscribe(

@@ -36,7 +36,7 @@ public class AuthorityResource {
      */
     @GetMapping("/authorities")
     @Timed
-    @Secured(AuthoritiesConstants.ADMIN)
+    @Secured({AuthoritiesConstants.ADMIN, AuthoritiesConstants.SYS_ADMIN})
     public List<String> getAllAuthorities() {
         log.debug("REST request to get all Authorities");
         List<String> authorities = authorityRepository.findAll().stream().map( auth -> auth.getName()).collect(
