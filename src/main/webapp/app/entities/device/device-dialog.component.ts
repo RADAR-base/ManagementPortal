@@ -9,7 +9,6 @@ import { Device } from './device.model';
 import { DevicePopupService } from './device-popup.service';
 import { DeviceService } from './device.service';
 import { DeviceType, DeviceTypeService } from '../device-type';
-import { Study, StudyService } from '../study';
 
 @Component({
     selector: 'jhi-device-dialog',
@@ -23,14 +22,12 @@ export class DeviceDialogComponent implements OnInit {
 
     devicetypes: DeviceType[];
 
-    studies: Study[];
     constructor(
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
         private alertService: AlertService,
         private deviceService: DeviceService,
         private deviceTypeService: DeviceTypeService,
-        private studyService: StudyService,
         private eventManager: EventManager
     ) {
         this.jhiLanguageService.setLocations(['device']);
@@ -41,8 +38,6 @@ export class DeviceDialogComponent implements OnInit {
         this.authorities = ['ROLE_USER', 'ROLE_ADMIN','ROLE_SYS_ADMIN'];
         this.deviceTypeService.query().subscribe(
             (res: Response) => { this.devicetypes = res.json(); }, (res: Response) => this.onError(res.json()));
-        this.studyService.query().subscribe(
-            (res: Response) => { this.studies = res.json(); }, (res: Response) => this.onError(res.json()));
     }
     clear() {
         this.activeModal.dismiss('cancel');
@@ -82,10 +77,6 @@ export class DeviceDialogComponent implements OnInit {
     }
 
     trackDeviceTypeById(index: number, item: DeviceType) {
-        return item.id;
-    }
-
-    trackStudyById(index: number, item: Study) {
         return item.id;
     }
 

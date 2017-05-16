@@ -36,10 +36,6 @@ public class Device implements Serializable {
     @ManyToOne
     private DeviceType deviceType;
 
-    @ManyToMany(mappedBy = "devices")
-    @JsonIgnore
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    private Set<Study> studies = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -86,31 +82,6 @@ public class Device implements Serializable {
 
     public void setDeviceType(DeviceType deviceType) {
         this.deviceType = deviceType;
-    }
-
-    public Set<Study> getStudies() {
-        return studies;
-    }
-
-    public Device studies(Set<Study> studies) {
-        this.studies = studies;
-        return this;
-    }
-
-    public Device addStudy(Study study) {
-        this.studies.add(study);
-        study.getDevices().add(this);
-        return this;
-    }
-
-    public Device removeStudy(Study study) {
-        this.studies.remove(study);
-        study.getDevices().remove(this);
-        return this;
-    }
-
-    public void setStudies(Set<Study> studies) {
-        this.studies = studies;
     }
 
     @Override

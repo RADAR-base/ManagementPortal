@@ -10,7 +10,6 @@
                 "device": "Device",
                 "deviceType": "Device Type",
                 "project": "Project",
-                "study": "Study",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
             "account": {
