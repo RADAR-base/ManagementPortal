@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.UserRepository;
+import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.security.SecurityUtils;
 import org.radarcns.management.service.MailService;
 import org.radarcns.management.service.UserService;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -56,6 +58,7 @@ public class AccountResource {
      */
     @PostMapping(path = "/register",
                     produces={MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
+    @Secured(AuthoritiesConstants.ADMIN)
     @Timed
     public ResponseEntity registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
 

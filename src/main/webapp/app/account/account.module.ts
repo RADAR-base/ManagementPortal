@@ -4,13 +4,13 @@ import { RouterModule } from '@angular/router';
 import { ManagementPortalSharedModule } from '../shared';
 
 import {
-    Register,
+    // Register,
     Activate,
     Password,
     PasswordResetInit,
     PasswordResetFinish,
     PasswordStrengthBarComponent,
-    RegisterComponent,
+    // RegisterComponent,
     ActivateComponent,
     PasswordComponent,
     PasswordResetInitComponent,
@@ -26,7 +26,7 @@ import {
     ],
     declarations: [
         ActivateComponent,
-        RegisterComponent,
+        // RegisterComponent,
         PasswordComponent,
         PasswordStrengthBarComponent,
         PasswordResetInitComponent,
@@ -34,7 +34,7 @@ import {
         SettingsComponent
     ],
     providers: [
-        Register,
+        // Register,
         Activate,
         Password,
         PasswordResetInit,

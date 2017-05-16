@@ -71,6 +71,7 @@ public class UserService {
                 user.setPassword(passwordEncoder.encode(newPassword));
                 user.setResetKey(null);
                 user.setResetDate(null);
+                user.setActivated(true);
                 return user;
            });
     }
@@ -132,7 +133,7 @@ public class UserService {
         user.setPassword(encryptedPassword);
         user.setResetKey(RandomUtil.generateResetKey());
         user.setResetDate(ZonedDateTime.now());
-        user.setActivated(true);
+        user.setActivated(false);
         userRepository.save(user);
         log.debug("Created Information for User: {}", user);
         return user;

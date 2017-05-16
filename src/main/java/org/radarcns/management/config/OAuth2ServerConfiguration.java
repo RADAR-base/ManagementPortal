@@ -88,7 +88,7 @@ public class OAuth2ServerConfiguration {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/api/authenticate").permitAll()
-                .antMatchers("/api/register").permitAll()
+                .antMatchers("/api/register").hasAuthority(AuthoritiesConstants.ADMIN)
                 .antMatchers("/api/profile-info").permitAll()
                 .antMatchers("/api/**").authenticated()
                 .antMatchers("/api/users/**").hasAuthority(AuthoritiesConstants.ADMIN)
