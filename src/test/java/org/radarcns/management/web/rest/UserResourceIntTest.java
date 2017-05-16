@@ -112,7 +112,6 @@ public class UserResourceIntTest {
         user.setEmail(DEFAULT_EMAIL);
         user.setFirstName(DEFAULT_FIRSTNAME);
         user.setLastName(DEFAULT_LASTNAME);
-        user.setImageUrl(DEFAULT_IMAGEURL);
         user.setLangKey(DEFAULT_LANGKEY);
         return user;
     }
@@ -138,7 +137,6 @@ public class UserResourceIntTest {
             DEFAULT_LASTNAME,
             DEFAULT_EMAIL,
             true,
-            DEFAULT_IMAGEURL,
             DEFAULT_LANGKEY,
             null,
             null,
@@ -159,7 +157,6 @@ public class UserResourceIntTest {
         assertThat(testUser.getFirstName()).isEqualTo(DEFAULT_FIRSTNAME);
         assertThat(testUser.getLastName()).isEqualTo(DEFAULT_LASTNAME);
         assertThat(testUser.getEmail()).isEqualTo(DEFAULT_EMAIL);
-        assertThat(testUser.getImageUrl()).isEqualTo(DEFAULT_IMAGEURL);
         assertThat(testUser.getLangKey()).isEqualTo(DEFAULT_LANGKEY);
     }
 
@@ -178,7 +175,6 @@ public class UserResourceIntTest {
             DEFAULT_LASTNAME,
             DEFAULT_EMAIL,
             true,
-            DEFAULT_IMAGEURL,
             DEFAULT_LANGKEY,
             null,
             null,
@@ -214,7 +210,6 @@ public class UserResourceIntTest {
             DEFAULT_LASTNAME,
             "anothermail@localhost",
             true,
-            DEFAULT_IMAGEURL,
             DEFAULT_LANGKEY,
             null,
             null,
@@ -250,7 +245,6 @@ public class UserResourceIntTest {
             DEFAULT_LASTNAME,
             DEFAULT_EMAIL, // this email should already be used
             true,
-            DEFAULT_IMAGEURL,
             DEFAULT_LANGKEY,
             null,
             null,
@@ -284,7 +278,6 @@ public class UserResourceIntTest {
             .andExpect(jsonPath("$.[*].firstName").value(hasItem(DEFAULT_FIRSTNAME)))
             .andExpect(jsonPath("$.[*].lastName").value(hasItem(DEFAULT_LASTNAME)))
             .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
-            .andExpect(jsonPath("$.[*].imageUrl").value(hasItem(DEFAULT_IMAGEURL)))
             .andExpect(jsonPath("$.[*].langKey").value(hasItem(DEFAULT_LANGKEY)));
     }
 
@@ -302,7 +295,6 @@ public class UserResourceIntTest {
             .andExpect(jsonPath("$.firstName").value(DEFAULT_FIRSTNAME))
             .andExpect(jsonPath("$.lastName").value(DEFAULT_LASTNAME))
             .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL))
-            .andExpect(jsonPath("$.imageUrl").value(DEFAULT_IMAGEURL))
             .andExpect(jsonPath("$.langKey").value(DEFAULT_LANGKEY));
     }
 
@@ -333,7 +325,6 @@ public class UserResourceIntTest {
             UPDATED_LASTNAME,
             UPDATED_EMAIL,
             updatedUser.getActivated(),
-            UPDATED_IMAGEURL,
             UPDATED_LANGKEY,
             updatedUser.getCreatedBy(),
             updatedUser.getCreatedDate(),
@@ -353,7 +344,6 @@ public class UserResourceIntTest {
         assertThat(testUser.getFirstName()).isEqualTo(UPDATED_FIRSTNAME);
         assertThat(testUser.getLastName()).isEqualTo(UPDATED_LASTNAME);
         assertThat(testUser.getEmail()).isEqualTo(UPDATED_EMAIL);
-        assertThat(testUser.getImageUrl()).isEqualTo(UPDATED_IMAGEURL);
         assertThat(testUser.getLangKey()).isEqualTo(UPDATED_LANGKEY);
     }
 
@@ -377,7 +367,6 @@ public class UserResourceIntTest {
             UPDATED_LASTNAME,
             UPDATED_EMAIL,
             updatedUser.getActivated(),
-            UPDATED_IMAGEURL,
             UPDATED_LANGKEY,
             updatedUser.getCreatedBy(),
             updatedUser.getCreatedDate(),
@@ -398,7 +387,6 @@ public class UserResourceIntTest {
         assertThat(testUser.getFirstName()).isEqualTo(UPDATED_FIRSTNAME);
         assertThat(testUser.getLastName()).isEqualTo(UPDATED_LASTNAME);
         assertThat(testUser.getEmail()).isEqualTo(UPDATED_EMAIL);
-        assertThat(testUser.getImageUrl()).isEqualTo(UPDATED_IMAGEURL);
         assertThat(testUser.getLangKey()).isEqualTo(UPDATED_LANGKEY);
     }
 
@@ -415,7 +403,6 @@ public class UserResourceIntTest {
         anotherUser.setEmail("jhipster@localhost");
         anotherUser.setFirstName("java");
         anotherUser.setLastName("hipster");
-        anotherUser.setImageUrl("");
         anotherUser.setLangKey("en");
         userRepository.saveAndFlush(anotherUser);
 
@@ -432,7 +419,6 @@ public class UserResourceIntTest {
             updatedUser.getLastName(),
             "jhipster@localhost",  // this email should already be used by anotherUser
             updatedUser.getActivated(),
-            updatedUser.getImageUrl(),
             updatedUser.getLangKey(),
             updatedUser.getCreatedBy(),
             updatedUser.getCreatedDate(),
@@ -459,7 +445,6 @@ public class UserResourceIntTest {
         anotherUser.setEmail("jhipster@localhost");
         anotherUser.setFirstName("java");
         anotherUser.setLastName("hipster");
-        anotherUser.setImageUrl("");
         anotherUser.setLangKey("en");
         userRepository.saveAndFlush(anotherUser);
 
@@ -476,7 +461,6 @@ public class UserResourceIntTest {
             updatedUser.getLastName(),
             updatedUser.getEmail(),
             updatedUser.getActivated(),
-            updatedUser.getImageUrl(),
             updatedUser.getLangKey(),
             updatedUser.getCreatedBy(),
             updatedUser.getCreatedDate(),

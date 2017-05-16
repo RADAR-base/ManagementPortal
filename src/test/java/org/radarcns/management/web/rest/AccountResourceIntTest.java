@@ -101,10 +101,10 @@ public class AccountResourceIntTest {
         Set<Authority> authorities = new HashSet<>();
         Authority authority = new Authority();
         authority.setName(AuthoritiesConstants.ADMIN);
-        Authority authority2 = new Authority();
-        authority2.setName(AuthoritiesConstants.SYS_ADMIN);
+//        Authority authority2 = new Authority();
+//        authority2.setName(AuthoritiesConstants.SYS_ADMIN);
         authorities.add(authority);
-        authorities.add(authority2);
+//        authorities.add(authority2);
 
         User user = new User();
         user.setLogin("test");
@@ -123,7 +123,6 @@ public class AccountResourceIntTest {
             .andExpect(jsonPath("$.firstName").value("john"))
             .andExpect(jsonPath("$.lastName").value("doe"))
             .andExpect(jsonPath("$.email").value("john.doe@jhipster.com"))
-            .andExpect(jsonPath("$.imageUrl").value("http://placehold.it/50x50"))
             .andExpect(jsonPath("$.langKey").value("en"))
             .andExpect(jsonPath("$.authorities").value(AuthoritiesConstants.ADMIN));
     }
@@ -148,7 +147,6 @@ public class AccountResourceIntTest {
             "Shmoe",                // lastName
             "joe@example.com",      // email
             true,                   // activated
-            "http://placehold.it/50x50", //imageUrl
             "en",                   // langKey
             null,                   // createdBy
             null,                   // createdDate
@@ -177,7 +175,6 @@ public class AccountResourceIntTest {
             "One",                  // lastName
             "funky@example.com",    // email
             true,                   // activated
-            "http://placehold.it/50x50", //imageUrl
             "en",                   // langKey
             null,                   // createdBy
             null,                   // createdDate
@@ -206,7 +203,6 @@ public class AccountResourceIntTest {
             "Green",            // lastName
             "invalid",          // email <-- invalid
             true,               // activated
-            "http://placehold.it/50x50", //imageUrl
             "en",                   // langKey
             null,                   // createdBy
             null,                   // createdDate
@@ -235,7 +231,6 @@ public class AccountResourceIntTest {
             "Green",            // lastName
             "bob@example.com",  // email
             true,               // activated
-            "http://placehold.it/50x50", //imageUrl
             "en",                   // langKey
             null,                   // createdBy
             null,                   // createdDate
@@ -265,7 +260,6 @@ public class AccountResourceIntTest {
             "Something",            // lastName
             "alice@example.com",    // email
             true,                   // activated
-            "http://placehold.it/50x50", //imageUrl
             "en",                   // langKey
             null,                   // createdBy
             null,                   // createdDate
@@ -307,7 +301,6 @@ public class AccountResourceIntTest {
             "Doe",                  // lastName
             "john@example.com",     // email
             true,                   // activated
-            "http://placehold.it/50x50", //imageUrl
             "en",                   // langKey
             null,                   // createdBy
             null,                   // createdDate
@@ -348,7 +341,6 @@ public class AccountResourceIntTest {
             "Guy",                  // lastName
             "badguy@example.com",   // email
             true,                   // activated
-            "http://placehold.it/50x50", //imageUrl
             "en",                   // langKey
             null,                   // createdBy
             null,                   // createdDate
@@ -378,7 +370,6 @@ public class AccountResourceIntTest {
             "One",                  // lastName
             "funky@example.com",    // email
             true,                   // activated
-            "http://placehold.it/50x50", //imageUrl
             "en",                   // langKey
             null,                   // createdBy
             null,                   // createdDate
