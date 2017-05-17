@@ -5,7 +5,7 @@ const enum ProjectStatus {
     'ENDED'
 
 };
-import { Device } from '../device';
+import { DeviceType } from '../device-type';
 export class Project {
     constructor(
         public id?: number,
@@ -17,7 +17,7 @@ export class Project {
         public projectStatus?: ProjectStatus,
         public endDate?: any,
         public projectOwner?: number,
-        public device?: Device,
+        public deviceType?: DeviceType,
     ) {
     }
 }

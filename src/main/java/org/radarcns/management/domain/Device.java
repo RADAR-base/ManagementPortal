@@ -1,14 +1,11 @@
 package org.radarcns.management.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Objects;
 
 /**
@@ -39,11 +36,6 @@ public class Device implements Serializable {
 
     @ManyToOne
     private DeviceType deviceType;
-
-    @ManyToMany(mappedBy = "devices")
-    @JsonIgnore
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    private Set<Project> projects = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -103,31 +95,6 @@ public class Device implements Serializable {
 
     public void setDeviceType(DeviceType deviceType) {
         this.deviceType = deviceType;
-    }
-
-    public Set<Project> getProjects() {
-        return projects;
-    }
-
-    public Device projects(Set<Project> projects) {
-        this.projects = projects;
-        return this;
-    }
-
-    public Device addProject(Project project) {
-        this.projects.add(project);
-        project.getDevices().add(this);
-        return this;
-    }
-
-    public Device removeProject(Project project) {
-        this.projects.remove(project);
-        project.getDevices().remove(this);
-        return this;
-    }
-
-    public void setProjects(Set<Project> projects) {
-        this.projects = projects;
     }
 
     @Override

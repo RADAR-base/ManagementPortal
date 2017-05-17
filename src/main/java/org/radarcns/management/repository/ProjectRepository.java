@@ -13,10 +13,10 @@ import java.util.List;
 @SuppressWarnings("unused")
 public interface ProjectRepository extends JpaRepository<Project,Long> {
 
-    @Query("select distinct project from Project project left join fetch project.devices")
+    @Query("select distinct project from Project project left join fetch project.deviceTypes")
     List<Project> findAllWithEagerRelationships();
 
-    @Query("select project from Project project left join fetch project.devices where project.id =:id")
+    @Query("select project from Project project left join fetch project.deviceTypes where project.id =:id")
     Project findOneWithEagerRelationships(@Param("id") Long id);
 
 }

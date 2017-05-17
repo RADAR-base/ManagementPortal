@@ -1,5 +1,4 @@
 import { DeviceType } from '../device-type';
-import { Project } from '../project';
 export class Device {
     constructor(
         public id?: number,
@@ -7,7 +6,6 @@ export class Device {
         public deviceCategory?: string,
         public activated?: boolean,
         public deviceType?: DeviceType,
-        public project?: Project,
     ) {
         this.activated = false;
     }

@@ -8,7 +8,7 @@ import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 import { Project } from './project.model';
 import { ProjectPopupService } from './project-popup.service';
 import { ProjectService } from './project.service';
-import { Device, DeviceService } from '../device';
+import { DeviceType, DeviceTypeService } from '../device-type';
 
 @Component({
     selector: 'jhi-project-dialog',
@@ -20,13 +20,13 @@ export class ProjectDialogComponent implements OnInit {
     authorities: any[];
     isSaving: boolean;
 
-    devices: Device[];
+    devicetypes: DeviceType[];
     constructor(
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
         private alertService: AlertService,
         private projectService: ProjectService,
-        private deviceService: DeviceService,
+        private deviceTypeService: DeviceTypeService,
         private eventManager: EventManager
     ) {
         this.jhiLanguageService.setLocations(['project', 'projectStatus']);
@@ -34,9 +34,9 @@ export class ProjectDialogComponent implements OnInit {
 
     ngOnInit() {
         this.isSaving = false;
-        this.authorities = [ 'ROLE_SYS_ADMIN'];
-        this.deviceService.query().subscribe(
-            (res: Response) => { this.devices = res.json(); }, (res: Response) => this.onError(res.json()));
+        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
+        this.deviceTypeService.query().subscribe(
+            (res: Response) => { this.devicetypes = res.json(); }, (res: Response) => this.onError(res.json()));
     }
     clear() {
         this.activeModal.dismiss('cancel');
@@ -75,7 +75,7 @@ export class ProjectDialogComponent implements OnInit {
         this.alertService.error(error.message, null, null);
     }
 
-    trackDeviceById(index: number, item: Device) {
+    trackDeviceTypeById(index: number, item: DeviceType) {
         return item.id;
     }
 

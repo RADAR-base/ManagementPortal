@@ -1,7 +1,9 @@
 package org.radarcns.management.domain;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -11,6 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Objects;
 
+import org.hibernate.annotations.Cache;
 import org.radarcns.management.domain.enumeration.ProjectStatus;
 
 /**
@@ -55,12 +58,17 @@ public class Project implements Serializable {
     @Column(name = "project_owner")
     private Long projectOwner;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "project")
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    private Set<Role> roles;
+
     @ManyToMany
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    @JoinTable(name = "project_device",
+    @JoinTable(name = "project_device_type",
                joinColumns = @JoinColumn(name="projects_id", referencedColumnName="id"),
-               inverseJoinColumns = @JoinColumn(name="devices_id", referencedColumnName="id"))
-    private Set<Device> devices = new HashSet<>();
+               inverseJoinColumns = @JoinColumn(name="device_types_id", referencedColumnName="id"))
+    private Set<DeviceType> deviceTypes = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -103,6 +111,14 @@ public class Project implements Serializable {
     public Project organization(String organization) {
         this.organization = organization;
         return this;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 
     public void setOrganization(String organization) {
@@ -174,29 +190,29 @@ public class Project implements Serializable {
         this.projectOwner = projectOwner;
     }
 
-    public Set<Device> getDevices() {
-        return devices;
+    public Set<DeviceType> getDeviceTypes() {
+        return deviceTypes;
     }
 
-    public Project devices(Set<Device> devices) {
-        this.devices = devices;
+    public Project deviceTypes(Set<DeviceType> deviceTypes) {
+        this.deviceTypes = deviceTypes;
         return this;
     }
 
-    public Project addDevice(Device device) {
-        this.devices.add(device);
-        device.getProjects().add(this);
+    public Project addDeviceType(DeviceType deviceType) {
+        this.deviceTypes.add(deviceType);
+        deviceType.getProjects().add(this);
         return this;
     }
 
-    public Project removeDevice(Device device) {
-        this.devices.remove(device);
-        device.getProjects().remove(this);
+    public Project removeDeviceType(DeviceType deviceType) {
+        this.deviceTypes.remove(deviceType);
+        deviceType.getProjects().remove(this);
         return this;
     }
 
-    public void setDevices(Set<Device> devices) {
-        this.devices = devices;
+    public void setDeviceTypes(Set<DeviceType> deviceTypes) {
+        this.deviceTypes = deviceTypes;
     }
 
     @Override

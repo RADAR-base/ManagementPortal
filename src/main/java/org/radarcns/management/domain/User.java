@@ -1,5 +1,6 @@
 package org.radarcns.management.domain;
 
+import java.util.stream.Collectors;
 import org.radarcns.management.config.Constants;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,6 +18,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.time.ZonedDateTime;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
  * A user.
@@ -86,6 +89,16 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @BatchSize(size = 20)
     private Set<Authority> authorities = new HashSet<>();
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "role_users",
+        joinColumns = {@JoinColumn(name = "users_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "roles_id", referencedColumnName = "id")})
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @BatchSize(size = 20)
+    private Set<Role> roles = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -176,8 +189,20 @@ public class User extends AbstractAuditingEntity implements Serializable {
         this.langKey = langKey;
     }
 
+//    public Set<Authority> getAuthorities() {
+//        return authorities;
+//    }
+
+    public Set<Role> getRoles() { return roles; }
+
+    public void setRoles(Set<Role> roles) { this.roles = roles; }
+
     public Set<Authority> getAuthorities() {
-        return authorities;
+        return roles.stream()
+            .map(Role::getAuthority).collect(Collectors.toSet());
+            /*  .map(Authority::getName)
+            .map(SimpleGrantedAuthority::new)
+            .collect(Collectors.toSet());*/
     }
 
     public void setAuthorities(Set<Authority> authorities) {

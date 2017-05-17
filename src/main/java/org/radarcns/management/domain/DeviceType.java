@@ -1,5 +1,6 @@
 package org.radarcns.management.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -44,6 +45,11 @@ public class DeviceType implements Serializable {
                joinColumns = @JoinColumn(name="device_types_id", referencedColumnName="id"),
                inverseJoinColumns = @JoinColumn(name="sensor_data_id", referencedColumnName="id"))
     private Set<SensorData> sensorData = new HashSet<>();
+
+    @ManyToMany(mappedBy = "deviceTypes")
+    @JsonIgnore
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Set<Project> projects = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -115,6 +121,31 @@ public class DeviceType implements Serializable {
 
     public void setSensorData(Set<SensorData> sensorData) {
         this.sensorData = sensorData;
+    }
+
+    public Set<Project> getProjects() {
+        return projects;
+    }
+
+    public DeviceType projects(Set<Project> projects) {
+        this.projects = projects;
+        return this;
+    }
+
+    public DeviceType addProject(Project project) {
+        this.projects.add(project);
+        project.getDeviceTypes().add(this);
+        return this;
+    }
+
+    public DeviceType removeProject(Project project) {
+        this.projects.remove(project);
+        project.getDeviceTypes().remove(this);
+        return this;
+    }
+
+    public void setProjects(Set<Project> projects) {
+        this.projects = projects;
     }
 
     @Override

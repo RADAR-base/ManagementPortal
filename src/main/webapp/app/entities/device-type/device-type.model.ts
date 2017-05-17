@@ -5,6 +5,7 @@ const enum SourceType {
 
 };
 import { SensorData } from '../sensor-data';
+import { Project } from '../project';
 export class DeviceType {
     constructor(
         public id?: number,
@@ -12,6 +13,7 @@ export class DeviceType {
         public deviceModel?: string,
         public sourceType?: SourceType,
         public sensorData?: SensorData,
+        public project?: Project,
     ) {
     }
 }

@@ -23,7 +23,7 @@
             "projectStatus": "Project Status",
             "endDate": "End Date",
             "projectOwner": "Project Owner",
-            "device": "Device"
+            "deviceType": "Device Type"
         }
     }
 }

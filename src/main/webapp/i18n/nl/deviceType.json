@@ -18,7 +18,8 @@
             "deviceProducer": "Device Producer",
             "deviceModel": "Device Model",
             "sourceType": "Source Type",
-            "sensorData": "Sensor Data"
+            "sensorData": "Sensor Data",
+            "project": "Project"
         }
     }
 }

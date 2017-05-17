@@ -36,10 +36,10 @@
         <dd>
             <span>{{project.projectOwner}}</span>
         </dd>
-        <dt><span jhiTranslate="managementPortalApp.project.device">Device</span></dt>
+        <dt><span jhiTranslate="managementPortalApp.project.deviceType">Device Type</span></dt>
         <dd>
-            <span *ngFor="let device of project.devices; let last = last">
-                <a [routerLink]="['/device', device?.id ]">{{device.devicePhysicalId}}</a>{{last ? '' : ', '}}
+            <span *ngFor="let deviceType of project.deviceTypes; let last = last">
+                <a [routerLink]="['/device-type', deviceType?.id ]">{{deviceType.deviceModel}}</a>{{last ? '' : ', '}}
             </span>
         </dd>
     </dl>

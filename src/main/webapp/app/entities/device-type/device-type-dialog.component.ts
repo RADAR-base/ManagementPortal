@@ -9,6 +9,7 @@ import { DeviceType } from './device-type.model';
 import { DeviceTypePopupService } from './device-type-popup.service';
 import { DeviceTypeService } from './device-type.service';
 import { SensorData, SensorDataService } from '../sensor-data';
+import { Project, ProjectService } from '../project';
 
 @Component({
     selector: 'jhi-device-type-dialog',
@@ -21,12 +22,15 @@ export class DeviceTypeDialogComponent implements OnInit {
     isSaving: boolean;
 
     sensordata: SensorData[];
+
+    projects: Project[];
     constructor(
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
         private alertService: AlertService,
         private deviceTypeService: DeviceTypeService,
         private sensorDataService: SensorDataService,
+        private projectService: ProjectService,
         private eventManager: EventManager
     ) {
         this.jhiLanguageService.setLocations(['deviceType', 'sourceType']);
@@ -34,9 +38,11 @@ export class DeviceTypeDialogComponent implements OnInit {
 
     ngOnInit() {
         this.isSaving = false;
-        this.authorities = ['ROLE_SYS_ADMIN'];
+        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.sensorDataService.query().subscribe(
             (res: Response) => { this.sensordata = res.json(); }, (res: Response) => this.onError(res.json()));
+        this.projectService.query().subscribe(
+            (res: Response) => { this.projects = res.json(); }, (res: Response) => this.onError(res.json()));
     }
     clear() {
         this.activeModal.dismiss('cancel');
@@ -76,6 +82,10 @@ export class DeviceTypeDialogComponent implements OnInit {
     }
 
     trackSensorDataById(index: number, item: SensorData) {
+        return item.id;
+    }
+
+    trackProjectById(index: number, item: Project) {
         return item.id;
     }
 
