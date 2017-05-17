@@ -34,7 +34,7 @@ export class ProjectDialogComponent implements OnInit {
 
     ngOnInit() {
         this.isSaving = false;
-        this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
+        this.authorities = [ 'ROLE_SYS_ADMIN'];
         this.deviceService.query().subscribe(
             (res: Response) => { this.devices = res.json(); }, (res: Response) => this.onError(res.json()));
     }

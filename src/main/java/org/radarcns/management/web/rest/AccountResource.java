@@ -58,7 +58,7 @@ public class AccountResource {
      */
     @PostMapping(path = "/register",
                     produces={MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
-    @Secured({AuthoritiesConstants.ADMIN, AuthoritiesConstants.SYS_ADMIN})
+    @Secured({ AuthoritiesConstants.SYS_ADMIN})
     @Timed
     public ResponseEntity registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
 

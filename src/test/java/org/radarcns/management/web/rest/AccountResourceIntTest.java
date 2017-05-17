@@ -100,7 +100,7 @@ public class AccountResourceIntTest {
     public void testGetExistingAccount() throws Exception {
         Set<Authority> authorities = new HashSet<>();
         Authority authority = new Authority();
-        authority.setName(AuthoritiesConstants.ADMIN);
+        authority.setName(AuthoritiesConstants.SYS_ADMIN);
 //        Authority authority2 = new Authority();
 //        authority2.setName(AuthoritiesConstants.SYS_ADMIN);
         authorities.add(authority);
@@ -124,7 +124,7 @@ public class AccountResourceIntTest {
             .andExpect(jsonPath("$.lastName").value("doe"))
             .andExpect(jsonPath("$.email").value("john.doe@jhipster.com"))
             .andExpect(jsonPath("$.langKey").value("en"))
-            .andExpect(jsonPath("$.authorities").value(AuthoritiesConstants.ADMIN));
+            .andExpect(jsonPath("$.authorities").value(AuthoritiesConstants.SYS_ADMIN));
     }
 
     @Test
@@ -346,7 +346,7 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.ADMIN, AuthoritiesConstants.SYS_ADMIN)));
+            new HashSet<>(Arrays.asList( AuthoritiesConstants.SYS_ADMIN)));
 
         restMvc.perform(
             post("/api/register")

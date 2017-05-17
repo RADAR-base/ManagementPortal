@@ -86,7 +86,7 @@
                                  referencedColumnNames="id"
                                  referencedTableName="radar_user"/>
         <loadData encoding="UTF-8"
-                  file="config/liquibase/users.csv"
+                  file="config/liquibase/users-new.csv"
                   separator=";"
                   tableName="radar_user">
             <column name="activated" type="boolean"/>

@@ -88,14 +88,14 @@ public class OAuth2ServerConfiguration {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/api/authenticate").permitAll()
-                .antMatchers("/api/register").hasAnyAuthority(AuthoritiesConstants.ADMIN,AuthoritiesConstants.SYS_ADMIN)
+                .antMatchers("/api/register").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
                 .antMatchers("/api/profile-info").permitAll()
                 .antMatchers("/api/**").authenticated()
-                .antMatchers("/api/users/**").hasAnyAuthority(AuthoritiesConstants.ADMIN,AuthoritiesConstants.SYS_ADMIN)
-                .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.ADMIN,AuthoritiesConstants.SYS_ADMIN)
+                .antMatchers("/api/users/**").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
+                .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
                 .antMatchers("/v2/api-docs/**").permitAll()
                 .antMatchers("/swagger-resources/configuration/ui").permitAll()
-                .antMatchers("/swagger-ui/index.html").hasAnyAuthority(AuthoritiesConstants.ADMIN,AuthoritiesConstants.SYS_ADMIN);
+                .antMatchers("/swagger-ui/index.html").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN);
         }
 
         @Override
