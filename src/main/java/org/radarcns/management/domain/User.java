@@ -100,6 +100,9 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @BatchSize(size = 20)
     private Set<Role> roles = new HashSet<>();
 
+    @ManyToOne
+    private Project project;
+
     public Long getId() {
         return id;
     }
@@ -207,6 +210,19 @@ public class User extends AbstractAuditingEntity implements Serializable {
 
     public void setAuthorities(Set<Authority> authorities) {
         this.authorities = authorities;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public User project(Project project) {
+        this.project = project;
+        return this;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 
     @Override
