@@ -37,6 +37,9 @@ public class Device implements Serializable {
     @ManyToOne
     private DeviceType deviceType;
 
+    @ManyToOne
+    private Project project;
+
     public Long getId() {
         return id;
     }
@@ -84,6 +87,10 @@ public class Device implements Serializable {
         this.activated = activated;
     }
 
+    public void setDeviceType(DeviceType deviceType) {
+        this.deviceType = deviceType;
+    }
+
     public DeviceType getDeviceType() {
         return deviceType;
     }
@@ -93,9 +100,20 @@ public class Device implements Serializable {
         return this;
     }
 
-    public void setDeviceType(DeviceType deviceType) {
-        this.deviceType = deviceType;
+    public void setProject(Project project) {
+        this.project = project;
     }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public Device project(Project project) {
+        this.project = project;
+        return this;
+    }
+
+
 
     @Override
     public boolean equals(Object o) {
