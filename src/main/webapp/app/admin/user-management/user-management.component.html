@@ -19,6 +19,7 @@
                 <th jhiSortBy="createdDate"><span jhiTranslate="userManagement.createdDate">Created Date</span> <span class="fa fa-sort"></span></th>
                 <th jhiSortBy="lastModifiedBy"><span jhiTranslate="userManagement.lastModifiedBy">Last Modified By</span> <span class="fa fa-sort"></span></th>
                 <th jhiSortBy="lastModifiedDate"><span jhiTranslate="userManagement.lastModifiedDate">Last Modified Date</span> <span class="fa fa-sort"></span></th>
+                <th jhiSortBy="lastModifiedDate"><span jhiTranslate="userManagement.project">Project</span> <span class="fa fa-sort"></span></th>
                 <th></th>
             </tr>
             </thead>
@@ -42,6 +43,12 @@
                 <td>{{user.createdDate | date:'dd/MM/yy HH:mm'}}</td>
                 <td>{{user.lastModifiedBy}}</td>
                 <td>{{user.lastModifiedDate | date:'dd/MM/yy HH:mm'}}</td>
+                <td>{{user.project?.id}}</td>
+                <!--<td>
+                    <div *ngIf="user.project">
+                        <a [routerLink]="['../project', user.project?.id ]" >{{project.project?.id}}</a>
+                    </div>
+                </td>-->
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"

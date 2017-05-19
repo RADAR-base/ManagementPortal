@@ -6,7 +6,7 @@ import { Authority } from './authority.model';
 
 @Injectable()
 export class AuthorityService {
-    private resourceUrl = 'api/authorities';
+    private resourceUrl = 'api/roles';
 
     constructor(private http: Http) { }
 

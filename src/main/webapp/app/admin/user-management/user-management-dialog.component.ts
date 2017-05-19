@@ -6,6 +6,7 @@ import { EventManager, JhiLanguageService } from 'ng-jhipster';
 
 import { UserModalService } from './user-modal.service';
 import { JhiLanguageHelper, User, UserService , AuthorityService } from '../../shared';
+import { Project, ProjectService} from '../../entities/project';
 
 @Component({
     selector: 'jhi-user-mgmt-dialog',
@@ -17,6 +18,7 @@ export class UserMgmtDialogComponent implements OnInit {
     languages: any[];
     authorities: any[];
     isSaving: Boolean;
+    projects: Project[];
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -24,6 +26,7 @@ export class UserMgmtDialogComponent implements OnInit {
         private jhiLanguageService: JhiLanguageService,
         private userService: UserService,
         private authorityService: AuthorityService,
+        private projectService: ProjectService,
         private eventManager: EventManager
     ) {}
 
@@ -31,13 +34,18 @@ export class UserMgmtDialogComponent implements OnInit {
         this.isSaving = false;
         this.authorityService.findAll().subscribe((res) => {
            this.authorities = res.json();
-           console.log('Authorities ', this.authorities, res)
         });
         // this.authorities = this.authorityService.findAll();
         this.languageHelper.getAll().then((languages) => {
             this.languages = languages;
         });
         this.jhiLanguageService.setLocations(['user-management']);
+
+        this.projectService.query().subscribe(
+            (res) => {
+                this.projects = res.json();
+                console.log('Projects ', this.projects);
+            } );
     }
 
     clear() {
@@ -51,6 +59,10 @@ export class UserMgmtDialogComponent implements OnInit {
         } else {
             this.userService.create(this.user).subscribe((response) => this.onSaveSuccess(response), () => this.onSaveError());
         }
+    }
+
+    trackProjectById(index: number, item: Project) {
+        return item.id;
     }
 
     private onSaveSuccess(result) {

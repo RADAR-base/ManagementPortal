@@ -1,9 +1,10 @@
 package org.radarcns.management.service;
 
-import org.radarcns.management.domain.Authority;
+import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
-import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.config.Constants;
+import org.radarcns.management.repository.ProjectRepository;
+import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.security.SecurityUtils;
@@ -34,17 +35,23 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    private final ProjectRepository projectRepository;
+
     private final PasswordEncoder passwordEncoder;
 
     public final JdbcTokenStore jdbcTokenStore;
 
-    private final AuthorityRepository authorityRepository;
+    private final RoleRepository roleRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JdbcTokenStore jdbcTokenStore, AuthorityRepository authorityRepository) {
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+        JdbcTokenStore jdbcTokenStore, RoleRepository roleRepository,
+        ProjectRepository projectRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jdbcTokenStore = jdbcTokenStore;
-        this.authorityRepository = authorityRepository;
+        this.roleRepository = roleRepository;
+        this.projectRepository = projectRepository;
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -60,20 +67,20 @@ public class UserService {
     }
 
     public Optional<User> completePasswordReset(String newPassword, String key) {
-       log.debug("Reset user password for reset key {}", key);
+        log.debug("Reset user password for reset key {}", key);
 
-       return userRepository.findOneByResetKey(key)
+        return userRepository.findOneByResetKey(key)
             .filter(user -> {
                 ZonedDateTime oneDayAgo = ZonedDateTime.now().minusHours(24);
                 return user.getResetDate().isAfter(oneDayAgo);
-           })
-           .map(user -> {
+            })
+            .map(user -> {
                 user.setPassword(passwordEncoder.encode(newPassword));
                 user.setResetKey(null);
                 user.setResetDate(null);
                 user.setActivated(true);
                 return user;
-           });
+            });
     }
 
     public Optional<User> requestPasswordReset(String mail) {
@@ -86,12 +93,13 @@ public class UserService {
             });
     }
 
-    public User createUser(String login, String password, String firstName, String lastName, String email,
-         String langKey) {
+    public User createUser(String login, String password, String firstName, String lastName,
+        String email,
+        String langKey) {
 
         User newUser = new User();
-        Authority authority = authorityRepository.findOne(AuthoritiesConstants.USER);
-        Set<Authority> authorities = new HashSet<>();
+        Role role = roleRepository.findByAuthorityName(AuthoritiesConstants.USER);
+        Set<Role> roles = new HashSet<>();
         String encryptedPassword = passwordEncoder.encode(password);
         newUser.setLogin(login);
         // new user gets initially a generated password
@@ -104,14 +112,15 @@ public class UserService {
         newUser.setActivated(false);
         // new user gets registration key
         newUser.setActivationKey(RandomUtil.generateActivationKey());
-        authorities.add(authority);
-        newUser.setAuthorities(authorities);
+        roles.add(role);
+        newUser.setRoles(roles);
         userRepository.save(newUser);
         log.debug("Created Information for User: {}", newUser);
         return newUser;
     }
 
     public User createUser(UserDTO userDTO) {
+        log.info("User project ----> "+userDTO.getProject());
         User user = new User();
         user.setLogin(userDTO.getLogin());
         user.setFirstName(userDTO.getFirstName());
@@ -123,17 +132,25 @@ public class UserService {
             user.setLangKey(userDTO.getLangKey());
         }
         if (userDTO.getAuthorities() != null) {
-            Set<Authority> authorities = new HashSet<>();
+            Set<Role> roles = new HashSet<>();
             userDTO.getAuthorities().forEach(
-                authority -> authorities.add(authorityRepository.findOne(authority))
+                authority -> {
+                    Role role = roleRepository.findByAuthorityName(authority);
+                    if (role != null) {
+                        roles.add(role);
+                    }
+                }
             );
-            user.setAuthorities(authorities);
+            user.setRoles(roles);
         }
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
         user.setPassword(encryptedPassword);
         user.setResetKey(RandomUtil.generateResetKey());
         user.setResetDate(ZonedDateTime.now());
         user.setActivated(false);
+        if(userDTO.getProject().getId() != null) {
+            user.setProject(userDTO.getProject());
+        }
         userRepository.save(user);
         log.debug("Created Information for User: {}", user);
         return user;
@@ -173,11 +190,14 @@ public class UserService {
                 user.setEmail(userDTO.getEmail());
                 user.setActivated(userDTO.isActivated());
                 user.setLangKey(userDTO.getLangKey());
-                Set<Authority> managedAuthorities = user.getAuthorities();
-                managedAuthorities.clear();
+                Set<Role> managedRoles = user.getRoles();
+                managedRoles.clear();
                 userDTO.getAuthorities().stream()
-                    .map(authorityRepository::findOne)
-                    .forEach(managedAuthorities::add);
+                    .map(roleRepository::findByAuthorityName)
+                    .forEach(managedRoles::add);
+                if(userDTO.getProject().getId() != null) {
+                    user.setProject(userDTO.getProject());
+                }
                 log.debug("Changed Information for User: {}", user);
                 return user;
             })
@@ -203,7 +223,8 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Page<UserDTO> getAllManagedUsers(Pageable pageable) {
-        return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER).map(UserDTO::new);
+        return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER)
+            .map(UserDTO::new);
     }
 
     @Transactional(readOnly = true)
@@ -218,7 +239,8 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User getUserWithAuthorities() {
-        return userRepository.findOneWithAuthoritiesByLogin(SecurityUtils.getCurrentUserLogin()).orElse(null);
+        return userRepository.findOneWithAuthoritiesByLogin(SecurityUtils.getCurrentUserLogin())
+            .orElse(null);
     }
 
 
@@ -231,7 +253,8 @@ public class UserService {
     @Scheduled(cron = "0 0 1 * * ?")
     public void removeNotActivatedUsers() {
         ZonedDateTime now = ZonedDateTime.now();
-        List<User> users = userRepository.findAllByActivatedIsFalseAndCreatedDateBefore(now.minusDays(3));
+        List<User> users = userRepository
+            .findAllByActivatedIsFalseAndCreatedDateBefore(now.minusDays(3));
         for (User user : users) {
             log.debug("Deleting not activated user {}", user.getLogin());
             userRepository.delete(user);

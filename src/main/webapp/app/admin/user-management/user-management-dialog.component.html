@@ -93,6 +93,15 @@
                 <option *ngFor="let language of languages" [value]="language">{{language | findLanguageFromKey}}</option>
             </select>
         </div>
+
+        <div class="form-group">
+            <label jhiTranslate="userManagement.project" for="field_project">Project</label>
+            <select class="form-control" id="field_project" name="project" [(ngModel)]="user.project" >
+                <option [ngValue]="null"></option>
+                <option [ngValue]="projectOption" *ngFor="let projectOption of projects; trackBy: trackProjectById">{{projectOption.id}}</option>
+            </select>
+        </div>
+
         <div class="form-group">
             <label jhiTranslate="userManagement.profiles">Profiles</label>
             <select class="form-control" multiple name="authority" [(ngModel)]="user.authorities">

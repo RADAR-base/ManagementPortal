@@ -3,6 +3,7 @@ package org.radarcns.management.service.dto;
 import org.radarcns.management.config.Constants;
 
 import org.radarcns.management.domain.Authority;
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.User;
 
 import org.hibernate.validator.constraints.Email;
@@ -40,6 +41,8 @@ public class UserDTO {
 
     private String createdBy;
 
+    private Project project;
+
     private ZonedDateTime createdDate;
 
     private String lastModifiedBy;
@@ -57,13 +60,13 @@ public class UserDTO {
             user.getEmail(), user.getActivated(), user.getLangKey(),
             user.getCreatedBy(), user.getCreatedDate(), user.getLastModifiedBy(), user.getLastModifiedDate(),
             user.getAuthorities().stream().map(Authority::getName)
-                .collect(Collectors.toSet()));
+                .collect(Collectors.toSet()), user.getProject());
     }
 
     public UserDTO(Long id, String login, String firstName, String lastName,
         String email, boolean activated, String langKey,
         String createdBy, ZonedDateTime createdDate, String lastModifiedBy, ZonedDateTime lastModifiedDate,
-        Set<String> authorities) {
+        Set<String> authorities, Project project) {
 
         this.id = id;
         this.login = login;
@@ -77,6 +80,7 @@ public class UserDTO {
         this.lastModifiedBy = lastModifiedBy;
         this.lastModifiedDate = lastModifiedDate;
         this.authorities = authorities;
+        this.project = project;
     }
 
     public Long getId() {
@@ -133,6 +137,14 @@ public class UserDTO {
 
     public void setLastModifiedDate(ZonedDateTime lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 
     public Set<String> getAuthorities() {

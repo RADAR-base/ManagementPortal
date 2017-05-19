@@ -1,3 +1,4 @@
+import {Project} from "../../entities/project/project.model";
 export class User {
     public id?: any;
     public login?: string;
@@ -12,6 +13,8 @@ export class User {
     public lastModifiedBy?: string;
     public lastModifiedDate?: Date;
     public password?: string;
+    public project?: Project = new Project();
+
     constructor(
         id?: any,
         login?: string,
@@ -25,7 +28,8 @@ export class User {
         createdDate?: Date,
         lastModifiedBy?: string,
         lastModifiedDate?: Date,
-        password?: string
+        password?: string,
+        project?: Project
     ) {
         this.id = id ? id : null;
         this.login = login ? login : null;
@@ -40,5 +44,6 @@ export class User {
         this.lastModifiedBy = lastModifiedBy ? lastModifiedBy : null;
         this.lastModifiedDate = lastModifiedDate ? lastModifiedDate : null;
         this.password = password ? password : null;
+        this.project = project ? project: new Project();
     }
 }
