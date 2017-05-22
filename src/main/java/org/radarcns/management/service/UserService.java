@@ -200,7 +200,7 @@ public class UserService {
                 userDTO.getAuthorities().stream()
                     .map(roleRepository::findByAuthorityName)
                     .forEach(managedRoles::add);
-                if(userDTO.getProject().getId() != null) {
+                if(userDTO.getProject()!=null && userDTO.getProject().getId() != null) {
                     user.setProject(userDTO.getProject());
                 }
                 log.debug("Changed Information for User: {}", user);
