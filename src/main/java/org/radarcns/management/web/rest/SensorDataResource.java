@@ -4,11 +4,13 @@ import com.codahale.metrics.annotation.Timed;
 import org.radarcns.management.domain.SensorData;
 
 import org.radarcns.management.repository.SensorDataRepository;
+import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -27,7 +29,7 @@ public class SensorDataResource {
     private final Logger log = LoggerFactory.getLogger(SensorDataResource.class);
 
     private static final String ENTITY_NAME = "sensorData";
-        
+
     private final SensorDataRepository sensorDataRepository;
 
     public SensorDataResource(SensorDataRepository sensorDataRepository) {
@@ -43,6 +45,7 @@ public class SensorDataResource {
      */
     @PostMapping("/sensor-data")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<SensorData> createSensorData(@Valid @RequestBody SensorData sensorData) throws URISyntaxException {
         log.debug("REST request to save SensorData : {}", sensorData);
         if (sensorData.getId() != null) {
@@ -65,6 +68,7 @@ public class SensorDataResource {
      */
     @PutMapping("/sensor-data")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<SensorData> updateSensorData(@Valid @RequestBody SensorData sensorData) throws URISyntaxException {
         log.debug("REST request to update SensorData : {}", sensorData);
         if (sensorData.getId() == null) {
@@ -111,6 +115,7 @@ public class SensorDataResource {
      */
     @DeleteMapping("/sensor-data/{id}")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<Void> deleteSensorData(@PathVariable Long id) {
         log.debug("REST request to delete SensorData : {}", id);
         sensorDataRepository.delete(id);

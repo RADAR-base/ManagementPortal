@@ -88,7 +88,7 @@ public class UserResource {
      */
     @PostMapping("/users")
     @Timed
-    @Secured({ AuthoritiesConstants.SYS_ADMIN})
+    @Secured({ AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity createUser(@RequestBody ManagedUserVM managedUserVM) throws URISyntaxException {
         log.debug("REST request to save User : {}", managedUserVM);
 
@@ -124,7 +124,7 @@ public class UserResource {
      */
     @PutMapping("/users")
     @Timed
-    @Secured({ AuthoritiesConstants.SYS_ADMIN})
+    @Secured({ AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<UserDTO> updateUser(@RequestBody ManagedUserVM managedUserVM) {
         log.debug("REST request to update User : {}", managedUserVM);
         Optional<User> existingUser = userRepository.findOneByEmail(managedUserVM.getEmail());
@@ -149,7 +149,7 @@ public class UserResource {
      */
     @GetMapping("/users")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN})
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<List<UserDTO>> getAllUsers(@ApiParam Pageable pageable) {
         final Page<UserDTO> page = userService.getAllManagedUsers(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/users");
@@ -179,7 +179,7 @@ public class UserResource {
      */
     @DeleteMapping("/users/{login:" + Constants.LOGIN_REGEX + "}")
     @Timed
-    @Secured({ AuthoritiesConstants.SYS_ADMIN})
+    @Secured({ AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<Void> deleteUser(@PathVariable String login) {
         log.debug("REST request to delete User: {}", login);
         userService.deleteUser(login);

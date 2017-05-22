@@ -142,7 +142,7 @@ public class ProjectResourceIntTest {
         assertThat(testProject.getStartDate()).isEqualTo(DEFAULT_START_DATE);
         assertThat(testProject.getProjectStatus()).isEqualTo(DEFAULT_PROJECT_STATUS);
         assertThat(testProject.getEndDate()).isEqualTo(DEFAULT_END_DATE);
-        assertThat(testProject.getProjectOwner()).isEqualTo(DEFAULT_PROJECT_OWNER);
+        assertThat(testProject.getProjectAdmin()).isEqualTo(DEFAULT_PROJECT_OWNER);
     }
 
     @Test
@@ -303,7 +303,7 @@ public class ProjectResourceIntTest {
         assertThat(testProject.getStartDate()).isEqualTo(UPDATED_START_DATE);
         assertThat(testProject.getProjectStatus()).isEqualTo(UPDATED_PROJECT_STATUS);
         assertThat(testProject.getEndDate()).isEqualTo(UPDATED_END_DATE);
-        assertThat(testProject.getProjectOwner()).isEqualTo(UPDATED_PROJECT_OWNER);
+        assertThat(testProject.getProjectAdmin()).isEqualTo(UPDATED_PROJECT_OWNER);
     }
 
     @Test

@@ -4,11 +4,13 @@ import com.codahale.metrics.annotation.Timed;
 import org.radarcns.management.domain.Project;
 
 import org.radarcns.management.repository.ProjectRepository;
+import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -27,7 +29,7 @@ public class ProjectResource {
     private final Logger log = LoggerFactory.getLogger(ProjectResource.class);
 
     private static final String ENTITY_NAME = "project";
-        
+
     private final ProjectRepository projectRepository;
 
     public ProjectResource(ProjectRepository projectRepository) {
@@ -43,6 +45,7 @@ public class ProjectResource {
      */
     @PostMapping("/projects")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<Project> createProject(@Valid @RequestBody Project project) throws URISyntaxException {
         log.debug("REST request to save Project : {}", project);
         if (project.getId() != null) {
@@ -65,6 +68,7 @@ public class ProjectResource {
      */
     @PutMapping("/projects")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<Project> updateProject(@Valid @RequestBody Project project) throws URISyntaxException {
         log.debug("REST request to update Project : {}", project);
         if (project.getId() == null) {
@@ -111,6 +115,7 @@ public class ProjectResource {
      */
     @DeleteMapping("/projects/{id}")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         log.debug("REST request to delete Project : {}", id);
         projectRepository.delete(id);

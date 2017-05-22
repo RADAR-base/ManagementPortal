@@ -4,11 +4,13 @@ import com.codahale.metrics.annotation.Timed;
 import org.radarcns.management.domain.Device;
 
 import org.radarcns.management.repository.DeviceRepository;
+import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -27,7 +29,7 @@ public class DeviceResource {
     private final Logger log = LoggerFactory.getLogger(DeviceResource.class);
 
     private static final String ENTITY_NAME = "device";
-        
+
     private final DeviceRepository deviceRepository;
 
     public DeviceResource(DeviceRepository deviceRepository) {
@@ -43,6 +45,7 @@ public class DeviceResource {
      */
     @PostMapping("/devices")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<Device> createDevice(@Valid @RequestBody Device device) throws URISyntaxException {
         log.debug("REST request to save Device : {}", device);
         if (device.getId() != null) {
@@ -111,6 +114,7 @@ public class DeviceResource {
      */
     @DeleteMapping("/devices/{id}")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<Void> deleteDevice(@PathVariable Long id) {
         log.debug("REST request to delete Device : {}", id);
         deviceRepository.delete(id);

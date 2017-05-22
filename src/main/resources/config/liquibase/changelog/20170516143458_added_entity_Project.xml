@@ -50,7 +50,7 @@
                 <constraints nullable="true" />
             </column>
 
-            <column name="project_owner" type="bigint">
+            <column name="project_admin" type="bigint">
                 <constraints nullable="true" />
             </column>
 
@@ -58,7 +58,7 @@
         </createTable>
         <dropDefaultValue tableName="project" columnName="start_date" columnDataType="datetime"/>
         <dropDefaultValue tableName="project" columnName="end_date" columnDataType="datetime"/>
-        
+
         <createTable tableName="project_device_type">
             <column name="device_types_id" type="bigint">
                 <constraints nullable="false"/>
@@ -69,6 +69,6 @@
         </createTable>
 
         <addPrimaryKey columnNames="projects_id, device_types_id" tableName="project_device_type"/>
-        
+
     </changeSet>
 </databaseChangeLog>

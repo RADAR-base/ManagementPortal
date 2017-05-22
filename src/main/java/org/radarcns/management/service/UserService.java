@@ -1,5 +1,6 @@
 package org.radarcns.management.service;
 
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.config.Constants;
@@ -150,6 +151,10 @@ public class UserService {
         user.setActivated(false);
         if(userDTO.getProject().getId() != null) {
             user.setProject(userDTO.getProject());
+            if(userDTO.getAuthorities() != null && userDTO.getAuthorities().contains(AuthoritiesConstants.PROJECT_ADMIN)) {
+                Project project = userDTO.getProject();
+                project.setProjectAdmin(user.getId());
+            }
         }
         userRepository.save(user);
         log.debug("Created Information for User: {}", user);
