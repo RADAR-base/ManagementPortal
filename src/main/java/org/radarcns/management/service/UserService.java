@@ -149,7 +149,7 @@ public class UserService {
         user.setResetKey(RandomUtil.generateResetKey());
         user.setResetDate(ZonedDateTime.now());
         user.setActivated(false);
-        if(userDTO.getProject().getId() != null) {
+        if(userDTO.getProject()!= null && userDTO.getProject().getId() != null) {
             user.setProject(userDTO.getProject());
             if(userDTO.getAuthorities() != null && userDTO.getAuthorities().contains(AuthoritiesConstants.PROJECT_ADMIN)) {
                 Project project = userDTO.getProject();

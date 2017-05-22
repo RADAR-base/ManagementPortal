@@ -111,7 +111,7 @@ public class ProjectResourceIntTest {
             .startDate(DEFAULT_START_DATE)
             .projectStatus(DEFAULT_PROJECT_STATUS)
             .endDate(DEFAULT_END_DATE)
-            .projectOwner(DEFAULT_PROJECT_OWNER);
+            .projectAdmin(DEFAULT_PROJECT_OWNER);
         return project;
     }
 
@@ -236,7 +236,7 @@ public class ProjectResourceIntTest {
             .andExpect(jsonPath("$.[*].startDate").value(hasItem(sameInstant(DEFAULT_START_DATE))))
             .andExpect(jsonPath("$.[*].projectStatus").value(hasItem(DEFAULT_PROJECT_STATUS.toString())))
             .andExpect(jsonPath("$.[*].endDate").value(hasItem(sameInstant(DEFAULT_END_DATE))))
-            .andExpect(jsonPath("$.[*].projectOwner").value(hasItem(DEFAULT_PROJECT_OWNER.intValue())));
+            .andExpect(jsonPath("$.[*].projectAdmin").value(hasItem(DEFAULT_PROJECT_OWNER.intValue())));
     }
 
     @Test
@@ -257,7 +257,7 @@ public class ProjectResourceIntTest {
             .andExpect(jsonPath("$.startDate").value(sameInstant(DEFAULT_START_DATE)))
             .andExpect(jsonPath("$.projectStatus").value(DEFAULT_PROJECT_STATUS.toString()))
             .andExpect(jsonPath("$.endDate").value(sameInstant(DEFAULT_END_DATE)))
-            .andExpect(jsonPath("$.projectOwner").value(DEFAULT_PROJECT_OWNER.intValue()));
+            .andExpect(jsonPath("$.projectAdmin").value(DEFAULT_PROJECT_OWNER.intValue()));
     }
 
     @Test
@@ -285,7 +285,7 @@ public class ProjectResourceIntTest {
             .startDate(UPDATED_START_DATE)
             .projectStatus(UPDATED_PROJECT_STATUS)
             .endDate(UPDATED_END_DATE)
-            .projectOwner(UPDATED_PROJECT_OWNER);
+            .projectAdmin(UPDATED_PROJECT_OWNER);
 
         restProjectMockMvc.perform(put("/api/projects")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)

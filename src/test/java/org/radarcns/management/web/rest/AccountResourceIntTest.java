@@ -2,6 +2,7 @@ package org.radarcns.management.web.rest;
 
 import org.radarcns.management.ManagementPortalApp;
 import org.radarcns.management.domain.Authority;
+import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.repository.UserRepository;
@@ -98,12 +99,14 @@ public class AccountResourceIntTest {
 
     @Test
     public void testGetExistingAccount() throws Exception {
-        Set<Authority> authorities = new HashSet<>();
+        Set<Role> roles = new HashSet<>();
+        Role role = new Role();
         Authority authority = new Authority();
         authority.setName(AuthoritiesConstants.SYS_ADMIN);
+        role.setAuthority(authority);
 //        Authority authority2 = new Authority();
 //        authority2.setName(AuthoritiesConstants.SYS_ADMIN);
-        authorities.add(authority);
+        roles.add(role);
 //        authorities.add(authority2);
 
         User user = new User();
@@ -112,7 +115,7 @@ public class AccountResourceIntTest {
         user.setLastName("doe");
         user.setEmail("john.doe@jhipster.com");
         user.setLangKey("en");
-        user.setAuthorities(authorities);
+        user.setRoles(roles);
         when(mockUserService.getUserWithAuthorities()).thenReturn(user);
 
         restUserMockMvc.perform(get("/api/account")
@@ -152,7 +155,8 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)));
+            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)),
+            null);
 
         restMvc.perform(
             post("/api/register")
@@ -180,7 +184,8 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)));
+            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)),
+            null);
 
         restUserMockMvc.perform(
             post("/api/register")
@@ -208,7 +213,8 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)));
+            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)),
+            null);
 
         restUserMockMvc.perform(
             post("/api/register")
@@ -236,7 +242,8 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)));
+            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)),
+            null);
 
         restUserMockMvc.perform(
             post("/api/register")
@@ -265,11 +272,12 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)));
+            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)),
+            null);
 
         // Duplicate login, different email
         ManagedUserVM duplicatedUser = new ManagedUserVM(validUser.getId(), validUser.getLogin(), validUser.getPassword(), validUser.getFirstName(), validUser.getLastName(),
-            "alicejr@example.com", true, validUser.getLangKey(), validUser.getCreatedBy(), validUser.getCreatedDate(), validUser.getLastModifiedBy(), validUser.getLastModifiedDate(), validUser.getAuthorities());
+            "alicejr@example.com", true, validUser.getLangKey(), validUser.getCreatedBy(), validUser.getCreatedDate(), validUser.getLastModifiedBy(), validUser.getLastModifiedDate(), validUser.getAuthorities(), validUser.getProject());
 
         // Good user
         restMvc.perform(
@@ -306,11 +314,12 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)));
+            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)),
+            null);
 
         // Duplicate email, different login
         ManagedUserVM duplicatedUser = new ManagedUserVM(validUser.getId(), "johnjr", validUser.getPassword(), validUser.getLogin(), validUser.getLastName(),
-            validUser.getEmail(), true, validUser.getLangKey(), validUser.getCreatedBy(), validUser.getCreatedDate(), validUser.getLastModifiedBy(), validUser.getLastModifiedDate(), validUser.getAuthorities());
+            validUser.getEmail(), true, validUser.getLangKey(), validUser.getCreatedBy(), validUser.getCreatedDate(), validUser.getLastModifiedBy(), validUser.getLastModifiedDate(), validUser.getAuthorities() , validUser.getProject());
 
         // Good user
         restMvc.perform(
@@ -346,7 +355,8 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList( AuthoritiesConstants.SYS_ADMIN)));
+            new HashSet<>(Arrays.asList( AuthoritiesConstants.SYS_ADMIN)),
+            null);
 
         restMvc.perform(
             post("/api/register")
@@ -375,8 +385,8 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER))
-        );
+            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)),
+            null);
 
         restUserMockMvc.perform(
             post("/api/account")
