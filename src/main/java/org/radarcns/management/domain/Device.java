@@ -125,19 +125,19 @@ public class Device implements Serializable {
         return patients;
     }
 
-    public Device deviceTypes(Set<Patient> patients) {
+    public Device patients(Set<Patient> patients) {
         this.patients = patients;
         return this;
     }
 
-    public Device addDeviceType(Patient patient) {
+    public Device addPatient(Patient patient) {
         this.patients.add(patient);
         patient.getDevices().add(this);
         return this;
     }
 
-    public Device removeDeviceType(Patient patient) {
-        this.patients.remove(deviceType);
+    public Device removePatient(Patient patient) {
+        this.patients.remove(patient);
         patient.getDevices().remove(this);
         return this;
     }
