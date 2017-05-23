@@ -9,11 +9,14 @@ import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.security.SecurityUtils;
+import org.radarcns.management.service.mapper.ProjectMapper;
+import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
 import org.radarcns.management.service.dto.UserDTO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -44,15 +47,23 @@ public class UserService {
 
     private final RoleRepository roleRepository;
 
+    private final ProjectMapper projectMapper;
+
+    private final UserMapper userMapper;
+
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
         JdbcTokenStore jdbcTokenStore, RoleRepository roleRepository,
-        ProjectRepository projectRepository) {
+        ProjectRepository projectRepository, ProjectMapper projectMapper,
+        UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jdbcTokenStore = jdbcTokenStore;
         this.roleRepository = roleRepository;
         this.projectRepository = projectRepository;
+        this.projectMapper = projectMapper;
+        this.userMapper = userMapper;
+
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -150,9 +161,9 @@ public class UserService {
         user.setResetDate(ZonedDateTime.now());
         user.setActivated(false);
         if(userDTO.getProject()!= null && userDTO.getProject().getId() != null) {
-            user.setProject(userDTO.getProject());
+            Project project = projectMapper.projectDTOToProject(userDTO.getProject());
+            user.setProject(project);
             if(userDTO.getAuthorities() != null && userDTO.getAuthorities().contains(AuthoritiesConstants.PROJECT_ADMIN)) {
-                Project project = userDTO.getProject();
                 project.setProjectAdmin(user.getId());
             }
         }
@@ -201,7 +212,8 @@ public class UserService {
                     .map(roleRepository::findByAuthorityName)
                     .forEach(managedRoles::add);
                 if(userDTO.getProject()!=null && userDTO.getProject().getId() != null) {
-                    user.setProject(userDTO.getProject());
+                    Project project = projectMapper.projectDTOToProject(userDTO.getProject());
+                    user.setProject(project);
                 }
                 log.debug("Changed Information for User: {}", user);
                 return user;

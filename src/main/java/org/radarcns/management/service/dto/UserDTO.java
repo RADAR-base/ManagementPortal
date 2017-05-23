@@ -41,7 +41,7 @@ public class UserDTO {
 
     private String createdBy;
 
-    private Project project;
+    private ProjectDTO project;
 
     private ZonedDateTime createdDate;
 
@@ -80,7 +80,7 @@ public class UserDTO {
         this.lastModifiedBy = lastModifiedBy;
         this.lastModifiedDate = lastModifiedDate;
         this.authorities = authorities;
-        this.project = project;
+//        this.project = project;
     }
 
     public Long getId() {
@@ -139,11 +139,11 @@ public class UserDTO {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public Project getProject() {
+    public ProjectDTO getProject() {
         return project;
     }
 
-    public void setProject(Project project) {
+    public void setProject(ProjectDTO project) {
         this.project = project;
     }
 

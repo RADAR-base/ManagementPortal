@@ -1,26 +1,27 @@
 package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import java.net.URI;
-import java.net.URISyntaxException;
-import org.radarcns.management.domain.User;
-import org.radarcns.management.repository.UserRepository;
-import org.radarcns.management.security.AuthoritiesConstants;
-import org.radarcns.management.service.MailService;
-import org.radarcns.management.service.UserService;
+import org.radarcns.management.domain.Patient;
+
+import org.radarcns.management.repository.PatientRepository;
 import org.radarcns.management.web.rest.util.HeaderUtil;
-import org.radarcns.management.web.rest.vm.ManagedUserVM;
+import org.radarcns.management.service.dto.PatientDTO;
+import org.radarcns.management.service.mapper.PatientMapper;
+import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
- * Created by nivethika on 22-5-17.
+ * REST controller for managing Patient.
  */
 @RestController
 @RequestMapping("/api")
@@ -28,60 +29,103 @@ public class PatientResource {
 
     private final Logger log = LoggerFactory.getLogger(PatientResource.class);
 
-    private static final String ENTITY_NAME = "patientManagement";
+    private static final String ENTITY_NAME = "patient";
+        
+    private final PatientRepository patientRepository;
 
-    private final UserRepository userRepository;
+    private final PatientMapper patientMapper;
 
-    private final MailService mailService;
-
-    private final UserService userService;
-
-    public PatientResource(UserRepository userRepository, MailService mailService,
-        UserService userService) {
-
-        this.userRepository = userRepository;
-        this.mailService = mailService;
-        this.userService = userService;
+    public PatientResource(PatientRepository patientRepository, PatientMapper patientMapper) {
+        this.patientRepository = patientRepository;
+        this.patientMapper = patientMapper;
     }
-
 
     /**
-     * POST  /users  : Creates a new user.
-     * <p>
-     * Creates a new user if the login and email are not already used, and sends an
-     * mail with an activation link.
-     * The user needs to be activated on creation.
-     * </p>
+     * POST  /patients : Create a new patient.
      *
-     * @param managedUserVM the user to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new user, or with status 400 (Bad Request) if the login or email is already in use
+     * @param patientDTO the patientDTO to create
+     * @return the ResponseEntity with status 201 (Created) and with body the new patientDTO, or with status 400 (Bad Request) if the patient has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @PostMapping("/patient")
+    @PostMapping("/patients")
     @Timed
-    @Secured({ AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
-    public ResponseEntity createPatient(@RequestBody ManagedUserVM managedUserVM) throws URISyntaxException {
-        log.debug("REST request to save User : {}", managedUserVM);
-
-        if (managedUserVM.getId() != null) {
-            return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new user cannot already have an ID"))
-                .body(null);
-            // Lowercase the user login before comparing with database
-        } else if (userRepository.findOneByLogin(managedUserVM.getLogin().toLowerCase()).isPresent()) {
-            return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "userexists", "Login already in use"))
-                .body(null);
-        } else if (userRepository.findOneByEmail(managedUserVM.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "emailexists", "Email already in use"))
-                .body(null);
-        } else {
-            User newUser = userService.createUser(managedUserVM);
-            mailService.sendCreationEmail(newUser);
-            return ResponseEntity.created(new URI("/api/users/" + newUser.getLogin()))
-                .headers(HeaderUtil.createAlert( "userManagement.created", newUser.getLogin()))
-                .body(newUser);
+    public ResponseEntity<PatientDTO> createPatient(@RequestBody PatientDTO patientDTO) throws URISyntaxException {
+        log.debug("REST request to save Patient : {}", patientDTO);
+        if (patientDTO.getId() != null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new patient cannot already have an ID")).body(null);
         }
+        Patient patient = patientMapper.patientDTOToPatient(patientDTO);
+        patient = patientRepository.save(patient);
+        PatientDTO result = patientMapper.patientToPatientDTO(patient);
+        return ResponseEntity.created(new URI("/api/patients/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+            .body(result);
     }
+
+    /**
+     * PUT  /patients : Updates an existing patient.
+     *
+     * @param patientDTO the patientDTO to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated patientDTO,
+     * or with status 400 (Bad Request) if the patientDTO is not valid,
+     * or with status 500 (Internal Server Error) if the patientDTO couldnt be updated
+     * @throws URISyntaxException if the Location URI syntax is incorrect
+     */
+    @PutMapping("/patients")
+    @Timed
+    public ResponseEntity<PatientDTO> updatePatient(@RequestBody PatientDTO patientDTO) throws URISyntaxException {
+        log.debug("REST request to update Patient : {}", patientDTO);
+        if (patientDTO.getId() == null) {
+            return createPatient(patientDTO);
+        }
+        Patient patient = patientMapper.patientDTOToPatient(patientDTO);
+        patient = patientRepository.save(patient);
+        PatientDTO result = patientMapper.patientToPatientDTO(patient);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, patientDTO.getId().toString()))
+            .body(result);
+    }
+
+    /**
+     * GET  /patients : get all the patients.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of patients in body
+     */
+    @GetMapping("/patients")
+    @Timed
+    public List<PatientDTO> getAllPatients() {
+        log.debug("REST request to get all Patients");
+        List<Patient> patients = patientRepository.findAllWithEagerRelationships();
+        return patientMapper.patientsToPatientDTOs(patients);
+    }
+
+    /**
+     * GET  /patients/:id : get the "id" patient.
+     *
+     * @param id the id of the patientDTO to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the patientDTO, or with status 404 (Not Found)
+     */
+    @GetMapping("/patients/{id}")
+    @Timed
+    public ResponseEntity<PatientDTO> getPatient(@PathVariable Long id) {
+        log.debug("REST request to get Patient : {}", id);
+        Patient patient = patientRepository.findOneWithEagerRelationships(id);
+        PatientDTO patientDTO = patientMapper.patientToPatientDTO(patient);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(patientDTO));
+    }
+
+    /**
+     * DELETE  /patients/:id : delete the "id" patient.
+     *
+     * @param id the id of the patientDTO to delete
+     * @return the ResponseEntity with status 200 (OK)
+     */
+    @DeleteMapping("/patients/{id}")
+    @Timed
+    public ResponseEntity<Void> deletePatient(@PathVariable Long id) {
+        log.debug("REST request to delete Patient : {}", id);
+        patientRepository.delete(id);
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+    }
+
 }

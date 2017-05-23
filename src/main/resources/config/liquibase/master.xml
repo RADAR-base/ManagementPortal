@@ -9,17 +9,18 @@
     <include file="classpath:config/liquibase/changelog/20170516143459_added_entity_Device.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20170516143500_added_entity_DeviceType.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20170516143501_added_entity_SensorData.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20170517152000_added_entity_Role.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20170522172400_added_entity_Patient.xml" relativeToChangelogFile="false"/>
+
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <include file="classpath:config/liquibase/changelog/20170516143458_added_entity_constraints_Project.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20170516143459_added_entity_constraints_Device.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20170516143500_added_entity_constraints_DeviceType.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 
-    <include file="classpath:config/liquibase/changelog/20170517152000_added_entity_Role.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20170517155700_added_entity_constraints_Role.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20170517160300_added_project_and_roles_data.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20170517173000_added_user_fields.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20170517172500_added_entity_constraints_User.xml" relativeToChangelogFile="false"/>
-    <include file="classpath:config/liquibase/changelog/20170522172400_added_entity_Patient.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>

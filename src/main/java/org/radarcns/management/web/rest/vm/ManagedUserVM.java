@@ -1,6 +1,7 @@
 package org.radarcns.management.web.rest.vm;
 
 import org.radarcns.management.domain.Project;
+import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
 import javax.validation.constraints.Size;
 

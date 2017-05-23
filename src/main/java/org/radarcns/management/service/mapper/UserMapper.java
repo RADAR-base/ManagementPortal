@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 /**
  * Mapper for the entity User and its DTO UserDTO.
  */
-@Mapper(componentModel = "spring", uses = {})
+@Mapper(componentModel = "spring", uses = { ProjectMapper.class , RoleMapper.class})
 public interface UserMapper {
 
     UserDTO userToUserDTO(User user);
@@ -27,6 +27,7 @@ public interface UserMapper {
     @Mapping(target = "resetKey", ignore = true)
     @Mapping(target = "resetDate", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @Mapping(source = "authorities" , target = "roles")
     User userDTOToUser(UserDTO userDTO);
 
     List<User> userDTOsToUsers(List<UserDTO> userDTOs);
@@ -37,6 +38,15 @@ public interface UserMapper {
         }
         User user = new User();
         user.setId(id);
+        return user;
+    }
+
+    default User userFromLogin(String login) {
+        if (login == null) {
+            return null;
+        }
+        User user = new User();
+        user.setLogin(login);
         return user;
     }
 

@@ -1,53 +1,49 @@
 package org.radarcns.management.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.HashSet;
-import java.util.Set;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Objects;
+
 /**
- * Created by nivethika on 22-5-17.
+ * A Patient.
  */
 @Entity
 @Table(name = "patient")
-public class Patient {
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+public class Patient implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Size(max = 200)
-    @Column(name = "external_link", length = 50)
+    @Column(name = "external_link")
     private String externalLink;
 
-    @Size(max = 50)
-    @Column(name = "external_id", length = 50)
-    private String externalId;
+    @Column(name = "enternal_id")
+    private String enternalId;
+
+    @NotNull
+    @Column(name = "removed" , nullable = false)
+    private Boolean removed = false;
+
+    @OneToOne
+    @JoinColumn(unique = true)
+    private User user;
 
     @ManyToMany
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    @JoinTable(name = "patient_device",
-        joinColumns = @JoinColumn(name="patient_id", referencedColumnName="id"),
-        inverseJoinColumns = @JoinColumn(name="device_id", referencedColumnName="id"))
+    @JoinTable(name = "patient_devices",
+               joinColumns = @JoinColumn(name="patients_id", referencedColumnName="id"),
+               inverseJoinColumns = @JoinColumn(name="devices_id", referencedColumnName="id"))
     private Set<Device> devices = new HashSet<>();
-
-    @NotNull
-    @Column(nullable = false)
-    private boolean removed;
-
-    //    private User user;
 
     public Long getId() {
         return id;
@@ -61,16 +57,52 @@ public class Patient {
         return externalLink;
     }
 
+    public Patient externalLink(String externalLink) {
+        this.externalLink = externalLink;
+        return this;
+    }
+
     public void setExternalLink(String externalLink) {
         this.externalLink = externalLink;
     }
 
-    public String getExternalId() {
-        return externalId;
+    public String getEnternalId() {
+        return enternalId;
     }
 
-    public void setExternalId(String externalId) {
-        this.externalId = externalId;
+    public Patient enternalId(String enternalId) {
+        this.enternalId = enternalId;
+        return this;
+    }
+
+    public void setEnternalId(String enternalId) {
+        this.enternalId = enternalId;
+    }
+
+    public Boolean isRemoved() {
+        return removed;
+    }
+
+    public Patient removed(Boolean removed) {
+        this.removed = removed;
+        return this;
+    }
+
+    public void setRemoved(Boolean removed) {
+        this.removed = removed;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public Patient user(User usr) {
+        this.user = usr;
+        return this;
+    }
+
+    public void setUser(User usr) {
+        this.user = usr;
     }
 
     public Set<Device> getDevices() {
@@ -82,13 +114,13 @@ public class Patient {
         return this;
     }
 
-    public Patient addDevice(Device device) {
+    public Patient addDevices(Device device) {
         this.devices.add(device);
         device.getPatients().add(this);
         return this;
     }
 
-    public Patient removeDevice(Device device) {
+    public Patient removeDevices(Device device) {
         this.devices.remove(device);
         device.getPatients().remove(this);
         return this;
@@ -98,11 +130,33 @@ public class Patient {
         this.devices = devices;
     }
 
-    public boolean isRemoved() {
-        return removed;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Patient patient = (Patient) o;
+        if (patient.id == null || id == null) {
+            return false;
+        }
+        return Objects.equals(id, patient.id);
     }
 
-    public void setRemoved(boolean removed) {
-        this.removed = removed;
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Patient{" +
+            "id=" + id +
+            ", externalLink='" + externalLink + "'" +
+            ", enternalId='" + enternalId + "'" +
+            ", removed='" + removed + "'" +
+            '}';
     }
 }
