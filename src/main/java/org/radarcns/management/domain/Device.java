@@ -1,5 +1,8 @@
 package org.radarcns.management.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.HashSet;
+import java.util.Set;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -33,6 +36,11 @@ public class Device implements Serializable {
     @NotNull
     @Column(name = "activated", nullable = false)
     private Boolean activated;
+
+    @ManyToMany(mappedBy = "devices")
+    @JsonIgnore
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Set<Patient> patients = new HashSet<>();
 
     @ManyToOne
     private DeviceType deviceType;
@@ -113,7 +121,30 @@ public class Device implements Serializable {
         return this;
     }
 
+    public Set<Patient> getPatients() {
+        return patients;
+    }
 
+    public Device deviceTypes(Set<Patient> patients) {
+        this.patients = patients;
+        return this;
+    }
+
+    public Device addDeviceType(Patient patient) {
+        this.patients.add(patient);
+        patient.getDevices().add(this);
+        return this;
+    }
+
+    public Device removeDeviceType(Patient patient) {
+        this.patients.remove(deviceType);
+        patient.getDevices().remove(this);
+        return this;
+    }
+
+    public void setPatients(Set<Patient> patients) {
+        this.patients = patients;
+    }
 
     @Override
     public boolean equals(Object o) {
