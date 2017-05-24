@@ -10,6 +10,7 @@ import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.MailService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.UserDTO;
+import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.web.rest.vm.ManagedUserVM;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,6 +54,9 @@ public class AccountResourceIntTest {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @Mock
     private UserService mockUserService;
 
@@ -67,11 +72,15 @@ public class AccountResourceIntTest {
         MockitoAnnotations.initMocks(this);
         doNothing().when(mockMailService).sendActivationEmail(anyObject());
 
-        AccountResource accountResource =
-            new AccountResource(userRepository, userService, mockMailService);
+        AccountResource accountResource = new AccountResource();
+        ReflectionTestUtils.setField(accountResource, "userService", userService);
+        ReflectionTestUtils.setField(accountResource, "userMapper", userMapper);
+        ReflectionTestUtils.setField(accountResource, "mailService", mockMailService);
 
-        AccountResource accountUserMockResource =
-            new AccountResource(userRepository, mockUserService, mockMailService);
+        AccountResource accountUserMockResource = new AccountResource();
+        ReflectionTestUtils.setField(accountUserMockResource, "userService", mockUserService);
+        ReflectionTestUtils.setField(accountUserMockResource, "userMapper", userMapper);
+        ReflectionTestUtils.setField(accountUserMockResource, "mailService", mockMailService);
 
         this.restMvc = MockMvcBuilders.standaloneSetup(accountResource).build();
         this.restUserMockMvc = MockMvcBuilders.standaloneSetup(accountUserMockResource).build();

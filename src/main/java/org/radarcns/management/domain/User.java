@@ -103,7 +103,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
     private Set<Role> roles = new HashSet<>();
 
     @ManyToOne
-    @Cascade(CascadeType.ALL)
+//    @Cascade(CascadeType.ALL)
     private Project project;
 
     public Long getId() {

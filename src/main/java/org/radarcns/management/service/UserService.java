@@ -218,7 +218,7 @@ public class UserService {
                 log.debug("Changed Information for User: {}", user);
                 return user;
             })
-            .map(UserDTO::new);
+            .map(userMapper::userToUserDTO);
     }
 
     public void deleteUser(String login) {
@@ -241,12 +241,12 @@ public class UserService {
     @Transactional(readOnly = true)
     public Page<UserDTO> getAllManagedUsers(Pageable pageable) {
         return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER)
-            .map(UserDTO::new);
+            .map(userMapper::userToUserDTO);
     }
 
     @Transactional(readOnly = true)
-    public Optional<User> getUserWithAuthoritiesByLogin(String login) {
-        return userRepository.findOneWithAuthoritiesByLogin(login);
+    public Optional<UserDTO> getUserWithAuthoritiesByLogin(String login) {
+        return userRepository.findOneWithAuthoritiesByLogin(login).map(userMapper::userToUserDTO);
     }
 
     @Transactional(readOnly = true)

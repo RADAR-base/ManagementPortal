@@ -55,18 +55,18 @@ public class UserDTO {
         // Empty constructor needed for MapStruct.
     }
 
-    public UserDTO(User user) {
-        this(user.getId(), user.getLogin(), user.getFirstName(), user.getLastName(),
-            user.getEmail(), user.getActivated(), user.getLangKey(),
-            user.getCreatedBy(), user.getCreatedDate(), user.getLastModifiedBy(), user.getLastModifiedDate(),
-            user.getAuthorities().stream().map(Authority::getName)
-                .collect(Collectors.toSet()), user.getProject());
-    }
+//    public UserDTO(User user) {
+//        this(user.getId(), user.getLogin(), user.getFirstName(), user.getLastName(),
+//            user.getEmail(), user.getActivated(), user.getLangKey(),
+//            user.getCreatedBy(), user.getCreatedDate(), user.getLastModifiedBy(), user.getLastModifiedDate(),
+//            user.getAuthorities().stream().map(Authority::getName)
+//                .collect(Collectors.toSet()), user.getProject());
+//    }
 
     public UserDTO(Long id, String login, String firstName, String lastName,
         String email, boolean activated, String langKey,
         String createdBy, ZonedDateTime createdDate, String lastModifiedBy, ZonedDateTime lastModifiedDate,
-        Set<String> authorities, Project project) {
+        Set<String> authorities, ProjectDTO project) {
 
         this.id = id;
         this.login = login;
@@ -80,7 +80,7 @@ public class UserDTO {
         this.lastModifiedBy = lastModifiedBy;
         this.lastModifiedDate = lastModifiedDate;
         this.authorities = authorities;
-//        this.project = project;
+        this.project = project;
     }
 
     public Long getId() {
@@ -103,40 +103,48 @@ public class UserDTO {
         return firstName;
     }
 
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
     public String getLastName() {
         return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getEmail() {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public boolean isActivated() {
         return activated;
+    }
+
+    public void setActivated(boolean activated) {
+        this.activated = activated;
     }
 
     public String getLangKey() {
         return langKey;
     }
 
+    public void setLangKey(String langKey) {
+        this.langKey = langKey;
+    }
+
     public String getCreatedBy() {
         return createdBy;
     }
 
-    public ZonedDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public String getLastModifiedBy() {
-        return lastModifiedBy;
-    }
-
-    public ZonedDateTime getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(ZonedDateTime lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 
     public ProjectDTO getProject() {
@@ -147,8 +155,36 @@ public class UserDTO {
         this.project = project;
     }
 
+    public ZonedDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(ZonedDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public String getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(String lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+    }
+
+    public ZonedDateTime getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(ZonedDateTime lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
+    }
+
     public Set<String> getAuthorities() {
         return authorities;
+    }
+
+    public void setAuthorities(Set<String> authorities) {
+        this.authorities = authorities;
     }
 
     @Override
