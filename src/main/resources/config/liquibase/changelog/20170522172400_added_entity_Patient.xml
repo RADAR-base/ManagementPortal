@@ -43,15 +43,15 @@
             <column name="removed" type="boolean" valueBoolean="false">
                 <constraints nullable="true" />
             </column>
-            <column name="user_id" type="varchar(50)">
-                <constraints unique="true" nullable="false" />
+            <column name="user_id" type="bigint">
+                <constraints unique="true" nullable="false"/>
             </column>
         </createTable>
 
         <addForeignKeyConstraint baseColumnNames="user_id"
                                                 baseTableName="patient"
                                                 constraintName="fk_patient_user_id"
-                                                referencedColumnNames="login"
+                                                referencedColumnNames="id"
                                                 referencedTableName="radar_user"/>
 
 

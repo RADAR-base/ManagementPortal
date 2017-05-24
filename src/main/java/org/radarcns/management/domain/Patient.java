@@ -35,7 +35,7 @@ public class Patient implements Serializable {
     private Boolean removed = false;
 
     @OneToOne
-    @JoinColumn(unique = true)
+    @JoinColumn(unique = true, name = "user_id")
     private User user;
 
     @ManyToMany

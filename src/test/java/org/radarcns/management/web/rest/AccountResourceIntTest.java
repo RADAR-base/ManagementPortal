@@ -76,11 +76,13 @@ public class AccountResourceIntTest {
         ReflectionTestUtils.setField(accountResource, "userService", userService);
         ReflectionTestUtils.setField(accountResource, "userMapper", userMapper);
         ReflectionTestUtils.setField(accountResource, "mailService", mockMailService);
+        ReflectionTestUtils.setField(accountResource, "userRepository", userRepository);
 
         AccountResource accountUserMockResource = new AccountResource();
         ReflectionTestUtils.setField(accountUserMockResource, "userService", mockUserService);
         ReflectionTestUtils.setField(accountUserMockResource, "userMapper", userMapper);
         ReflectionTestUtils.setField(accountUserMockResource, "mailService", mockMailService);
+        ReflectionTestUtils.setField(accountUserMockResource, "userRepository", userRepository);
 
         this.restMvc = MockMvcBuilders.standaloneSetup(accountResource).build();
         this.restUserMockMvc = MockMvcBuilders.standaloneSetup(accountUserMockResource).build();
