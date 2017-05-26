@@ -128,4 +128,19 @@ public class ProjectDTO {
     public void setDeviceTypes(Set<DeviceTypeDTO> deviceTypes) {
         this.deviceTypes = deviceTypes;
     }
+
+    @Override
+    public String toString() {
+        return "ProjectDTO{" +
+            "id=" + id +
+            ", projectName='" + projectName + '\'' +
+            ", description='" + description + '\'' +
+            ", organization='" + organization + '\'' +
+            ", location='" + location + '\'' +
+            ", startDate=" + startDate +
+            ", projectStatus=" + projectStatus +
+            ", endDate=" + endDate +
+            ", projectAdmin=" + projectAdmin +
+            '}';
+    }
 }

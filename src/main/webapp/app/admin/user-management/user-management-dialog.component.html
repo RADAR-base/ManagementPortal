@@ -98,7 +98,7 @@
             <label jhiTranslate="userManagement.project" for="field_project">Project</label>
             <select class="form-control" id="field_project" name="project" [(ngModel)]="user.project" >
                 <option [ngValue]="null"></option>
-                <option [ngValue]="projectOption" *ngFor="let projectOption of projects; trackBy: trackProjectById">{{projectOption.id}}</option>
+                <option [ngValue]="projectOption.id === user.project?.id ? user.project : projectOption" *ngFor="let projectOption of projects; trackBy: trackProjectById">{{projectOption.id}}</option>
             </select>
         </div>
 
