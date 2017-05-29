@@ -6,6 +6,8 @@ import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Objects;
+import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.Email;
 
 /**
  * A DTO for the Patient entity.
@@ -20,7 +22,7 @@ public class PatientDTO implements Serializable {
 
     private Boolean removed;
 
-    private String userId;
+    private String userLogin;
 
     private boolean activated = false;
 
@@ -33,6 +35,11 @@ public class PatientDTO implements Serializable {
     private String lastModifiedBy;
 
     private ZonedDateTime lastModifiedDate;
+
+    @Email
+    @Size(min = 5, max = 100)
+    private String email;
+
 
     private Set<DeviceDTO> devices = new HashSet<>();
 
@@ -114,12 +121,12 @@ public class PatientDTO implements Serializable {
         this.removed = removed;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUserLogin() {
+        return userLogin;
     }
 
-    public void setUserId(String usrId) {
-        this.userId = usrId;
+    public void setUserLogin(String userLogin) {
+        this.userLogin = userLogin;
     }
 
     public Set<DeviceDTO> getDevices() {
@@ -128,6 +135,14 @@ public class PatientDTO implements Serializable {
 
     public void setDevices(Set<DeviceDTO> devices) {
         this.devices = devices;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override

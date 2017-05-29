@@ -57,4 +57,9 @@ public class ProjectService {
         projectRepository.delete(id);
     }
 
+    public Project saveAndFlush(Project project) {
+        return projectRepository.saveAndFlush(project);
+    }
+
+
 }

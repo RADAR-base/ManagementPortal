@@ -15,7 +15,7 @@ import org.radarcns.management.service.dto.ProjectDTO;
 @Mapper(componentModel = "spring", uses = {UserMapper.class, ProjectMapper.class, DeviceMapper.class})
 public interface PatientMapper {
 
-    @Mapping(source = "user.login", target = "userId")
+    @Mapping(source = "user.login", target = "userLogin")
     @Mapping(source = "user.activated", target = "activated")
     @Mapping(source = "user.createdBy", target = "createdBy")
     @Mapping(source = "user.project", target = "project")
@@ -26,7 +26,13 @@ public interface PatientMapper {
 
     List<PatientDTO> patientsToPatientDTOs(List<Patient> patients);
 
-    @Mapping(source = "userId", target = "user")
+    @Mapping(source = "userLogin", target = "user.login")
+    @Mapping(source = "activated", target = "user.activated")
+    @Mapping(source = "createdBy", target = "user.createdBy")
+    @Mapping(source = "project", target = "user.project")
+    @Mapping(source = "createdDate", target = "user.createdDate")
+    @Mapping(source = "lastModifiedBy", target = "user.lastModifiedBy")
+    @Mapping(source = "lastModifiedDate", target = "user.lastModifiedDate")
     Patient patientDTOToPatient(PatientDTO patientDTO);
 
     List<Patient> patientDTOsToPatients(List<PatientDTO> patientDTOs);

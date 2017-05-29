@@ -1,0 +1,72 @@
+<div>
+    <h2>
+        <span jhiTranslate="managementPortalApp.patient.home.title">Patients</span>
+        <button class="btn btn-primary float-right create-patient" [routerLink]="['/', { outlets: { popup: ['patient-new'] } }]">
+            <span class="fa fa-plus"></span>
+            <span  jhiTranslate="managementPortalApp.patient.home.createLabel">
+            Create new Patient
+            </span>
+        </button>
+    </h2>
+    <jhi-alert></jhi-alert>
+    <div class="row">
+    </div>
+    <br/>
+    <div class="table-responsive" *ngIf="patients">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+            <th><span jhiTranslate="managementPortalApp.patient.login">login</span></th>
+            <th><span jhiTranslate="global.field.id">ID</span></th>
+            <th><span jhiTranslate="managementPortalApp.patient.externalLink">External Link</span></th>
+            <th><span jhiTranslate="managementPortalApp.patient.enternalId">Enternal Id</span></th>
+            <th><span jhiTranslate="managementPortalApp.patient.removed">Removed</span></th>
+            <th><span jhiTranslate="managementPortalApp.patient.devices">Devices</span></th>
+            <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let patient of patients ;trackBy: trackId">
+                <td><a [routerLink]="['../patient', patient.id ]">{{patient.id}}</a></td>
+                <td>{{patient.externalLink}}</td>
+                <td>{{patient.enternalId}}</td>
+                <td>{{patient.removed}}</td>
+                <td>
+                    <div *ngIf="patient.userId">
+                        <a [routerLink]="['../usr', patient.userId  ]" >{{patient.userId}}</a>
+                    </div>
+                </td>
+                <td>
+                    <span *ngFor="let devices of patient.devices; let last = last">
+                            <a class="form-control-static" [routerLink]="['../device', devices?.id ]">{{devices.id}}</a>{{last ? '' : ', '}}
+                        </span>
+                </td>
+                <td class="text-right">
+                    <div class="btn-group flex-btn-group-container">
+                        <button type="submit"
+                                [routerLink]="['../patient', patient.id ]"
+                                class="btn btn-info btn-sm">
+                            <span class="fa fa-eye"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'patient/'+ patient.id + '/edit'} }]"
+                                replaceUrl="true"
+                                class="btn btn-primary btn-sm">
+                            <span class="fa fa-pencil"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'patient/'+ patient.id + '/delete'} }]"
+                                replaceUrl="true"
+                                class="btn btn-danger btn-sm">
+                            <span class="fa fa-remove"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.delete">Delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

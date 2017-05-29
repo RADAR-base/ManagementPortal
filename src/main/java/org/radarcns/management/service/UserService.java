@@ -1,5 +1,6 @@
 package org.radarcns.management.service;
 
+import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
@@ -165,6 +166,7 @@ public class UserService {
             user.setProject(project);
             if(userDTO.getAuthorities() != null && userDTO.getAuthorities().contains(AuthoritiesConstants.PROJECT_ADMIN)) {
                 project.setProjectAdmin(user.getId());
+                projectRepository.save(project);
             }
         }
         userRepository.save(user);
@@ -172,6 +174,24 @@ public class UserService {
         return user;
     }
 
+    public User createPatientUser(User user) {
+        user.setLangKey("en"); // default language
+        Set<Role> roles = new HashSet<>();
+        Authority authority = new Authority();
+        authority.setName(AuthoritiesConstants.PARTICIPANT);
+        Role role = new Role();
+        role.setAuthority(authority);
+        roles.add(role);
+        user.setRoles(roles);
+        String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
+        user.setPassword(encryptedPassword);
+        user.setResetKey(RandomUtil.generateResetKey());
+        user.setResetDate(ZonedDateTime.now());
+        user.setActivated(false);
+        userRepository.save(user);
+        log.debug("Created Information for User: {}", user);
+        return user;
+    }
     /**
      * Update basic information (first name, last name, email, language) for the current user.
      *
