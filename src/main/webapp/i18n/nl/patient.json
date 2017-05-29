@@ -15,11 +15,18 @@
             "detail": {
                 "title": "Patient"
             },
+            "login": "Login",
+            "email": "Email",
             "externalLink": "External Link",
-            "enternalId": "Enternal Id",
+            "externalId": "External Id",
             "removed": "Removed",
-            "user": "User",
-            "devices": "Devices"
+            "activated": "Activated",
+            "langKey": "Taal",
+            "project": "Project",
+            "devices": "Devices",
+            "createdDate": "Aanmaak datum",
+            "lastModifiedBy": "Laatst aangepast door",
+            "lastModifiedDate": "Laatst aangepast datum"
         }
     }
 }

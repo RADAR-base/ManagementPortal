@@ -58,10 +58,10 @@ public class PatientResource {
         if (patientDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new patient cannot already have an ID")).body(null);
         }
-        if (patientDTO.getUserLogin() == null) {
+        if (patientDTO.getLogin() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "loginrequired", "A patient login is required")).body(null);
         }
-        if (patientDTO.getEmail() != null) {
+        if (patientDTO.getEmail() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "emailrequired", "A patient email is required")).body(null);
         }
         PatientDTO result = patientService.createPatient(patientDTO);

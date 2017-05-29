@@ -1,14 +1,17 @@
 package org.radarcns.management.domain;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Objects;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CascadeType;
 
 /**
  * A Patient.
@@ -27,8 +30,8 @@ public class Patient implements Serializable {
     @Column(name = "external_link")
     private String externalLink;
 
-    @Column(name = "enternal_id")
-    private String enternalId;
+    @Column(name = "external_id")
+    private String externalId;
 
     @NotNull
     @Column(name = "removed" , nullable = false)
@@ -36,6 +39,7 @@ public class Patient implements Serializable {
 
     @OneToOne
     @JoinColumn(unique = true, name = "user_id")
+    @Cascade(CascadeType.ALL)
     private User user;
 
     @ManyToMany
@@ -66,17 +70,17 @@ public class Patient implements Serializable {
         this.externalLink = externalLink;
     }
 
-    public String getEnternalId() {
-        return enternalId;
+    public String getExternalId() {
+        return externalId;
     }
 
-    public Patient enternalId(String enternalId) {
-        this.enternalId = enternalId;
+    public Patient externalId(String enternalId) {
+        this.externalId = enternalId;
         return this;
     }
 
-    public void setEnternalId(String enternalId) {
-        this.enternalId = enternalId;
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
 
     public Boolean isRemoved() {
@@ -155,7 +159,7 @@ public class Patient implements Serializable {
         return "Patient{" +
             "id=" + id +
             ", externalLink='" + externalLink + "'" +
-            ", enternalId='" + enternalId + "'" +
+            ", enternalId='" + externalId + "'" +
             ", removed='" + removed + "'" +
             '}';
     }

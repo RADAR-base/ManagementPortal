@@ -37,7 +37,7 @@
             <column name="external_link" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="enternal_id" type="varchar(255)">
+            <column name="external_id" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
             <column name="removed" type="boolean" valueBoolean="false">

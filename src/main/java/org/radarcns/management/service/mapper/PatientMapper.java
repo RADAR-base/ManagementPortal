@@ -15,7 +15,7 @@ import org.radarcns.management.service.dto.ProjectDTO;
 @Mapper(componentModel = "spring", uses = {UserMapper.class, ProjectMapper.class, DeviceMapper.class})
 public interface PatientMapper {
 
-    @Mapping(source = "user.login", target = "userLogin")
+    @Mapping(source = "user.login", target = "login")
     @Mapping(source = "user.activated", target = "activated")
     @Mapping(source = "user.createdBy", target = "createdBy")
     @Mapping(source = "user.project", target = "project")
@@ -26,7 +26,7 @@ public interface PatientMapper {
 
     List<PatientDTO> patientsToPatientDTOs(List<Patient> patients);
 
-    @Mapping(source = "userLogin", target = "user.login")
+    @Mapping(source = "login", target = "user.login")
     @Mapping(source = "activated", target = "user.activated")
     @Mapping(source = "createdBy", target = "user.createdBy")
     @Mapping(source = "project", target = "user.project")

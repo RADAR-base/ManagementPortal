@@ -8,14 +8,12 @@ export class Patient {
     public externalId?: string;
     public removed?: boolean;
     public activated?: Boolean;
-    public langKey?: string;
-    public authorities?: any[];
     public createdBy?: string;
     public createdDate?: Date;
     public lastModifiedBy?: string;
     public lastModifiedDate?: Date;
     public password?: string;
-    public project?: Project = new Project();
+    public project?: Project;
     public device?: Device = new Device();
 
     constructor(
@@ -26,8 +24,6 @@ export class Patient {
          externalId?: string,
          removed?: boolean,
          activated?: boolean,
-         langKey?: string,
-         authorities?: any[],
          createdBy?: string,
          createdDate?: Date,
          lastModifiedBy?: string,
@@ -44,14 +40,12 @@ export class Patient {
         this.externalId = externalId ? externalId : null;
         this.removed = removed ? removed: false;
         this.activated = activated ? activated : false;
-        this.langKey = langKey ? langKey : null;
-        this.authorities = authorities ? authorities : null;
         this.createdBy = createdBy ? createdBy : null;
         this.createdDate = createdDate ? createdDate : null;
         this.lastModifiedBy = lastModifiedBy ? lastModifiedBy : null;
         this.lastModifiedDate = lastModifiedDate ? lastModifiedDate : null;
         this.password = password ? password : null;
-        this.project = project ? project: new Project();
+        this.project = project ? project: null;
         this.device = device ? device: new Device();
     }
 }

@@ -59,11 +59,11 @@ public class Project implements Serializable {
     private Long projectAdmin;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", fetch = FetchType.EAGER)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private Set<Role> roles;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JoinTable(name = "project_device_type",
                joinColumns = @JoinColumn(name="projects_id", referencedColumnName="id"),

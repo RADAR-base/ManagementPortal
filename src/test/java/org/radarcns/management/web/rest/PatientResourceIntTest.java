@@ -99,10 +99,10 @@ public class PatientResourceIntTest {
      */
     public static PatientDTO createEntity(EntityManager em) {
         PatientDTO patient = new PatientDTO();
-        patient.setUserLogin(UUID.randomUUID().toString());
+        patient.setLogin(UUID.randomUUID().toString());
         patient.setExternalLink(DEFAULT_EXTERNAL_LINK);
         patient
-            .setEnternalId(DEFAULT_ENTERNAL_ID);
+            .setExternalId(DEFAULT_ENTERNAL_ID);
         patient
             .setRemoved(DEFAULT_REMOVED);
         return patient;
@@ -129,7 +129,7 @@ public class PatientResourceIntTest {
         assertThat(patientList).hasSize(databaseSizeBeforeCreate + 1);
         Patient testPatient = patientList.get(patientList.size() - 1);
         assertThat(testPatient.getExternalLink()).isEqualTo(DEFAULT_EXTERNAL_LINK);
-        assertThat(testPatient.getEnternalId()).isEqualTo(DEFAULT_ENTERNAL_ID);
+        assertThat(testPatient.getExternalId()).isEqualTo(DEFAULT_ENTERNAL_ID);
         assertThat(testPatient.isRemoved()).isEqualTo(DEFAULT_REMOVED);
     }
 //

@@ -10,6 +10,8 @@ import { PatientPopupService } from './patient-popup.service';
 import { PatientService } from './patient.service';
 // import { Usr, UsrService } from '../usr';
 import { Device, DeviceService } from '../device';
+import {Project} from "../project/project.model";
+import {ProjectService} from "../project/project.service";
 
 @Component({
     selector: 'jhi-patient-dialog',
@@ -20,8 +22,7 @@ export class PatientDialogComponent implements OnInit {
     patient: Patient;
     authorities: any[];
     isSaving: boolean;
-
-    // users: Usr[];
+    projects: Project[];
 
     devices: Device[];
     constructor(
@@ -29,7 +30,7 @@ export class PatientDialogComponent implements OnInit {
         private jhiLanguageService: JhiLanguageService,
         private alertService: AlertService,
         private patientService: PatientService,
-        // private usrService: UsrService,
+        private projectService: ProjectService,
         private deviceService: DeviceService,
         private eventManager: EventManager
     ) {
@@ -39,6 +40,10 @@ export class PatientDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
+        this.projectService.query().subscribe(
+            (res) => {
+                this.projects = res.json();
+            } );
         // this.usrService.query({filter: 'patient-is-null'}).subscribe((res: Response) => {
         //     if (!this.patient.userId) {
         //         this.users = res.json();
@@ -57,7 +62,7 @@ export class PatientDialogComponent implements OnInit {
 
     save() {
         this.isSaving = true;
-        if (this.patient.id !== undefined) {
+        if (this.patient.id !== null) {
             this.patientService.update(this.patient)
                 .subscribe((res: Patient) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
@@ -88,11 +93,11 @@ export class PatientDialogComponent implements OnInit {
         this.alertService.error(error.message, null, null);
     }
 
-    // trackUsrById(index: number, item: Usr) {
-    //     return item.id;
-    // }
-
     trackDeviceById(index: number, item: Device) {
+        return item.id;
+    }
+
+    trackProjectById(index: number, item: Project) {
         return item.id;
     }
 

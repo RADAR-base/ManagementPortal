@@ -83,7 +83,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
     private ZonedDateTime resetDate = null;
 
     @JsonIgnore
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "radar_user_authority",
         joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},

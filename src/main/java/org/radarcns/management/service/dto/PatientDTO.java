@@ -16,19 +16,21 @@ public class PatientDTO implements Serializable {
 
     private Long id;
 
+    private String login;
+
+    @Email
+    @Size(min = 5, max = 100)
+    private String email;
+
     private String externalLink;
 
-    private String enternalId;
+    private String externalId;
 
-    private Boolean removed;
-
-    private String userLogin;
+    private Boolean removed ;
 
     private boolean activated = false;
 
     private String createdBy;
-
-    private ProjectDTO project;
 
     private ZonedDateTime createdDate;
 
@@ -36,10 +38,7 @@ public class PatientDTO implements Serializable {
 
     private ZonedDateTime lastModifiedDate;
 
-    @Email
-    @Size(min = 5, max = 100)
-    private String email;
-
+    private ProjectDTO project;
 
     private Set<DeviceDTO> devices = new HashSet<>();
 
@@ -106,12 +105,12 @@ public class PatientDTO implements Serializable {
     public void setExternalLink(String externalLink) {
         this.externalLink = externalLink;
     }
-    public String getEnternalId() {
-        return enternalId;
+    public String getExternalId() {
+        return externalId;
     }
 
-    public void setEnternalId(String enternalId) {
-        this.enternalId = enternalId;
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
     public Boolean getRemoved() {
         return removed;
@@ -121,12 +120,12 @@ public class PatientDTO implements Serializable {
         this.removed = removed;
     }
 
-    public String getUserLogin() {
-        return userLogin;
+    public String getLogin() {
+        return login;
     }
 
-    public void setUserLogin(String userLogin) {
-        this.userLogin = userLogin;
+    public void setLogin(String login) {
+        this.login = login;
     }
 
     public Set<DeviceDTO> getDevices() {
@@ -144,6 +143,14 @@ public class PatientDTO implements Serializable {
     public void setEmail(String email) {
         this.email = email;
     }
+
+//    public String getLangKey() {
+//        return langKey;
+//    }
+//
+//    public void setLangKey(String langKey) {
+//        this.langKey = langKey;
+//    }
 
     @Override
     public boolean equals(Object o) {
@@ -171,7 +178,7 @@ public class PatientDTO implements Serializable {
         return "PatientDTO{" +
             "id=" + id +
             ", externalLink='" + externalLink + "'" +
-            ", enternalId='" + enternalId + "'" +
+            ", enternalId='" + externalId + "'" +
             ", removed='" + removed + "'" +
             '}';
     }
