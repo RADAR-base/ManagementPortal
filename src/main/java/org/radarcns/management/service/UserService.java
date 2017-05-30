@@ -1,5 +1,7 @@
 package org.radarcns.management.service;
 
+import org.radarcns.management.domain.Authority;
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.config.Constants;
@@ -8,11 +10,14 @@ import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.security.SecurityUtils;
+import org.radarcns.management.service.mapper.ProjectMapper;
+import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
 import org.radarcns.management.service.dto.UserDTO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -43,15 +48,23 @@ public class UserService {
 
     private final RoleRepository roleRepository;
 
+    private final ProjectMapper projectMapper;
+
+    private final UserMapper userMapper;
+
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
         JdbcTokenStore jdbcTokenStore, RoleRepository roleRepository,
-        ProjectRepository projectRepository) {
+        ProjectRepository projectRepository, ProjectMapper projectMapper,
+        UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jdbcTokenStore = jdbcTokenStore;
         this.roleRepository = roleRepository;
         this.projectRepository = projectRepository;
+        this.projectMapper = projectMapper;
+        this.userMapper = userMapper;
+
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -148,14 +161,37 @@ public class UserService {
         user.setResetKey(RandomUtil.generateResetKey());
         user.setResetDate(ZonedDateTime.now());
         user.setActivated(false);
-        if(userDTO.getProject().getId() != null) {
-            user.setProject(userDTO.getProject());
+        if(userDTO.getProject()!= null && userDTO.getProject().getId() != null) {
+            Project project = projectMapper.projectDTOToProject(userDTO.getProject());
+            user.setProject(project);
+            if(userDTO.getAuthorities() != null && userDTO.getAuthorities().contains(AuthoritiesConstants.PROJECT_ADMIN)) {
+                project.setProjectAdmin(user.getId());
+                projectRepository.save(project);
+            }
         }
         userRepository.save(user);
         log.debug("Created Information for User: {}", user);
         return user;
     }
 
+    public User createPatientUser(User user) {
+        user.setLangKey("en"); // default language
+        Set<Role> roles = new HashSet<>();
+        Authority authority = new Authority();
+        authority.setName(AuthoritiesConstants.PARTICIPANT);
+        Role role = new Role();
+        role.setAuthority(authority);
+        roles.add(role);
+        user.setRoles(roles);
+        String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
+        user.setPassword(encryptedPassword);
+        user.setResetKey(RandomUtil.generateResetKey());
+        user.setResetDate(ZonedDateTime.now());
+        user.setActivated(false);
+        userRepository.save(user);
+        log.debug("Created Information for User: {}", user);
+        return user;
+    }
     /**
      * Update basic information (first name, last name, email, language) for the current user.
      *
@@ -195,13 +231,14 @@ public class UserService {
                 userDTO.getAuthorities().stream()
                     .map(roleRepository::findByAuthorityName)
                     .forEach(managedRoles::add);
-                if(userDTO.getProject().getId() != null) {
-                    user.setProject(userDTO.getProject());
+                if(userDTO.getProject()!=null && userDTO.getProject().getId() != null) {
+                    Project project = projectMapper.projectDTOToProject(userDTO.getProject());
+                    user.setProject(project);
                 }
                 log.debug("Changed Information for User: {}", user);
                 return user;
             })
-            .map(UserDTO::new);
+            .map(userMapper::userToUserDTO);
     }
 
     public void deleteUser(String login) {
@@ -224,12 +261,12 @@ public class UserService {
     @Transactional(readOnly = true)
     public Page<UserDTO> getAllManagedUsers(Pageable pageable) {
         return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER)
-            .map(UserDTO::new);
+            .map(userMapper::userToUserDTO);
     }
 
     @Transactional(readOnly = true)
-    public Optional<User> getUserWithAuthoritiesByLogin(String login) {
-        return userRepository.findOneWithAuthoritiesByLogin(login);
+    public Optional<UserDTO> getUserWithAuthoritiesByLogin(String login) {
+        return userRepository.findOneWithAuthoritiesByLogin(login).map(userMapper::userToUserDTO);
     }
 
     @Transactional(readOnly = true)

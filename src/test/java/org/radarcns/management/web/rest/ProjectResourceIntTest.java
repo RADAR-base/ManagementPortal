@@ -4,6 +4,8 @@ import org.radarcns.management.ManagementPortalApp;
 
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.repository.ProjectRepository;
+import org.radarcns.management.service.ProjectService;
+import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -16,6 +18,7 @@ import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,7 +71,9 @@ public class ProjectResourceIntTest {
     private static final Long UPDATED_PROJECT_OWNER = 2L;
 
     @Autowired
-    private ProjectRepository projectRepository;
+    private ProjectService projectService;
+
+    @Autowired ProjectRepository projectRepository;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -89,7 +94,10 @@ public class ProjectResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ProjectResource projectResource = new ProjectResource(projectRepository);
+        ProjectResource projectResource = new ProjectResource();
+        ReflectionTestUtils.setField(projectResource, "projectService", projectService);
+
+
         this.restProjectMockMvc = MockMvcBuilders.standaloneSetup(projectResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -111,7 +119,7 @@ public class ProjectResourceIntTest {
             .startDate(DEFAULT_START_DATE)
             .projectStatus(DEFAULT_PROJECT_STATUS)
             .endDate(DEFAULT_END_DATE)
-            .projectOwner(DEFAULT_PROJECT_OWNER);
+            .projectAdmin(DEFAULT_PROJECT_OWNER);
         return project;
     }
 
@@ -123,7 +131,7 @@ public class ProjectResourceIntTest {
     @Test
     @Transactional
     public void createProject() throws Exception {
-        int databaseSizeBeforeCreate = projectRepository.findAll().size();
+        int databaseSizeBeforeCreate = projectService.getAllProjects().size();
 
         // Create the Project
         restProjectMockMvc.perform(post("/api/projects")
@@ -132,9 +140,9 @@ public class ProjectResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the Project in the database
-        List<Project> projectList = projectRepository.findAll();
+        List<ProjectDTO> projectList = projectService.getAllProjects();
         assertThat(projectList).hasSize(databaseSizeBeforeCreate + 1);
-        Project testProject = projectList.get(projectList.size() - 1);
+        ProjectDTO testProject = projectList.get(projectList.size() - 1);
         assertThat(testProject.getProjectName()).isEqualTo(DEFAULT_PROJECT_NAME);
         assertThat(testProject.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
         assertThat(testProject.getOrganization()).isEqualTo(DEFAULT_ORGANIZATION);
@@ -142,13 +150,13 @@ public class ProjectResourceIntTest {
         assertThat(testProject.getStartDate()).isEqualTo(DEFAULT_START_DATE);
         assertThat(testProject.getProjectStatus()).isEqualTo(DEFAULT_PROJECT_STATUS);
         assertThat(testProject.getEndDate()).isEqualTo(DEFAULT_END_DATE);
-        assertThat(testProject.getProjectOwner()).isEqualTo(DEFAULT_PROJECT_OWNER);
+        assertThat(testProject.getProjectAdmin()).isEqualTo(DEFAULT_PROJECT_OWNER);
     }
 
     @Test
     @Transactional
     public void createProjectWithExistingId() throws Exception {
-        int databaseSizeBeforeCreate = projectRepository.findAll().size();
+        int databaseSizeBeforeCreate = projectService.getAllProjects().size();
 
         // Create the Project with an existing ID
         project.setId(1L);
@@ -160,7 +168,7 @@ public class ProjectResourceIntTest {
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
-        List<Project> projectList = projectRepository.findAll();
+        List<ProjectDTO> projectList = projectService.getAllProjects();
         assertThat(projectList).hasSize(databaseSizeBeforeCreate);
     }
 
@@ -222,7 +230,7 @@ public class ProjectResourceIntTest {
     @Transactional
     public void getAllProjects() throws Exception {
         // Initialize the database
-        projectRepository.saveAndFlush(project);
+        projectService.saveAndFlush(project);
 
         // Get all the projectList
         restProjectMockMvc.perform(get("/api/projects?sort=id,desc"))
@@ -236,14 +244,14 @@ public class ProjectResourceIntTest {
             .andExpect(jsonPath("$.[*].startDate").value(hasItem(sameInstant(DEFAULT_START_DATE))))
             .andExpect(jsonPath("$.[*].projectStatus").value(hasItem(DEFAULT_PROJECT_STATUS.toString())))
             .andExpect(jsonPath("$.[*].endDate").value(hasItem(sameInstant(DEFAULT_END_DATE))))
-            .andExpect(jsonPath("$.[*].projectOwner").value(hasItem(DEFAULT_PROJECT_OWNER.intValue())));
+            .andExpect(jsonPath("$.[*].projectAdmin").value(hasItem(DEFAULT_PROJECT_OWNER.intValue())));
     }
 
     @Test
     @Transactional
     public void getProject() throws Exception {
         // Initialize the database
-        projectRepository.saveAndFlush(project);
+        projectService.saveAndFlush(project);
 
         // Get the project
         restProjectMockMvc.perform(get("/api/projects/{id}", project.getId()))
@@ -257,7 +265,7 @@ public class ProjectResourceIntTest {
             .andExpect(jsonPath("$.startDate").value(sameInstant(DEFAULT_START_DATE)))
             .andExpect(jsonPath("$.projectStatus").value(DEFAULT_PROJECT_STATUS.toString()))
             .andExpect(jsonPath("$.endDate").value(sameInstant(DEFAULT_END_DATE)))
-            .andExpect(jsonPath("$.projectOwner").value(DEFAULT_PROJECT_OWNER.intValue()));
+            .andExpect(jsonPath("$.projectAdmin").value(DEFAULT_PROJECT_OWNER.intValue()));
     }
 
     @Test
@@ -272,20 +280,19 @@ public class ProjectResourceIntTest {
     @Transactional
     public void updateProject() throws Exception {
         // Initialize the database
-        projectRepository.saveAndFlush(project);
-        int databaseSizeBeforeUpdate = projectRepository.findAll().size();
+        projectService.saveAndFlush(project);
+        int databaseSizeBeforeUpdate = projectService.getAllProjects().size();
 
         // Update the project
-        Project updatedProject = projectRepository.findOne(project.getId());
-        updatedProject
-            .projectName(UPDATED_PROJECT_NAME)
-            .description(UPDATED_DESCRIPTION)
-            .organization(UPDATED_ORGANIZATION)
-            .location(UPDATED_LOCATION)
-            .startDate(UPDATED_START_DATE)
-            .projectStatus(UPDATED_PROJECT_STATUS)
-            .endDate(UPDATED_END_DATE)
-            .projectOwner(UPDATED_PROJECT_OWNER);
+        ProjectDTO updatedProject = projectService.findProjectById(project.getId());
+        updatedProject.setProjectName(UPDATED_PROJECT_NAME);
+        updatedProject.setDescription(UPDATED_DESCRIPTION);
+        updatedProject.setOrganization(UPDATED_ORGANIZATION);
+        updatedProject.setLocation(UPDATED_LOCATION);
+        updatedProject.setStartDate(UPDATED_START_DATE);
+        updatedProject.setProjectStatus(UPDATED_PROJECT_STATUS);
+        updatedProject.setEndDate(UPDATED_END_DATE);
+        updatedProject.setProjectAdmin(UPDATED_PROJECT_OWNER);
 
         restProjectMockMvc.perform(put("/api/projects")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -293,9 +300,9 @@ public class ProjectResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the Project in the database
-        List<Project> projectList = projectRepository.findAll();
+        List<ProjectDTO> projectList = projectService.getAllProjects();
         assertThat(projectList).hasSize(databaseSizeBeforeUpdate);
-        Project testProject = projectList.get(projectList.size() - 1);
+        ProjectDTO testProject = projectList.get(projectList.size() - 1);
         assertThat(testProject.getProjectName()).isEqualTo(UPDATED_PROJECT_NAME);
         assertThat(testProject.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(testProject.getOrganization()).isEqualTo(UPDATED_ORGANIZATION);
@@ -303,13 +310,13 @@ public class ProjectResourceIntTest {
         assertThat(testProject.getStartDate()).isEqualTo(UPDATED_START_DATE);
         assertThat(testProject.getProjectStatus()).isEqualTo(UPDATED_PROJECT_STATUS);
         assertThat(testProject.getEndDate()).isEqualTo(UPDATED_END_DATE);
-        assertThat(testProject.getProjectOwner()).isEqualTo(UPDATED_PROJECT_OWNER);
+        assertThat(testProject.getProjectAdmin()).isEqualTo(UPDATED_PROJECT_OWNER);
     }
 
     @Test
     @Transactional
     public void updateNonExistingProject() throws Exception {
-        int databaseSizeBeforeUpdate = projectRepository.findAll().size();
+        int databaseSizeBeforeUpdate = projectService.getAllProjects().size();
 
         // Create the Project
 
@@ -320,7 +327,7 @@ public class ProjectResourceIntTest {
             .andExpect(status().isCreated());
 
         // Validate the Project in the database
-        List<Project> projectList = projectRepository.findAll();
+        List<ProjectDTO> projectList = projectService.getAllProjects();
         assertThat(projectList).hasSize(databaseSizeBeforeUpdate + 1);
     }
 
@@ -328,8 +335,8 @@ public class ProjectResourceIntTest {
     @Transactional
     public void deleteProject() throws Exception {
         // Initialize the database
-        projectRepository.saveAndFlush(project);
-        int databaseSizeBeforeDelete = projectRepository.findAll().size();
+        projectService.saveAndFlush(project);
+        int databaseSizeBeforeDelete = projectService.getAllProjects().size();
 
         // Get the project
         restProjectMockMvc.perform(delete("/api/projects/{id}", project.getId())
@@ -337,7 +344,7 @@ public class ProjectResourceIntTest {
             .andExpect(status().isOk());
 
         // Validate the database is empty
-        List<Project> projectList = projectRepository.findAll();
+        List<ProjectDTO> projectList = projectService.getAllProjects();
         assertThat(projectList).hasSize(databaseSizeBeforeDelete - 1);
     }
 

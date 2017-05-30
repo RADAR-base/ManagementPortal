@@ -55,8 +55,8 @@ public class Project implements Serializable {
     @Column(name = "end_date")
     private ZonedDateTime endDate;
 
-    @Column(name = "project_owner")
-    private Long projectOwner;
+    @Column(name = "project_admin")
+    private Long projectAdmin;
 
     @JsonIgnore
     @OneToMany(mappedBy = "project")
@@ -177,17 +177,17 @@ public class Project implements Serializable {
         this.endDate = endDate;
     }
 
-    public Long getProjectOwner() {
-        return projectOwner;
+    public Long getProjectAdmin() {
+        return projectAdmin;
     }
 
-    public Project projectOwner(Long projectOwner) {
-        this.projectOwner = projectOwner;
+    public Project projectAdmin(Long projectAdmin) {
+        this.projectAdmin = projectAdmin;
         return this;
     }
 
-    public void setProjectOwner(Long projectOwner) {
-        this.projectOwner = projectOwner;
+    public void setProjectAdmin(Long projectAdmin) {
+        this.projectAdmin = projectAdmin;
     }
 
     public Set<DeviceType> getDeviceTypes() {
@@ -246,7 +246,7 @@ public class Project implements Serializable {
             ", startDate='" + startDate + "'" +
             ", projectStatus='" + projectStatus + "'" +
             ", endDate='" + endDate + "'" +
-            ", projectOwner='" + projectOwner + "'" +
+            ", projectAdmin='" + projectAdmin + "'" +
             '}';
     }
 }

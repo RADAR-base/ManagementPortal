@@ -5,6 +5,8 @@ import { ManagementPortalDeviceTypeModule } from './device-type/device-type.modu
 import { ManagementPortalProjectModule } from './project/project.module';
 // import { ManagementPortalStudyModule } from './study/study.module';
 import { ManagementPortalSensorDataModule } from './sensor-data/sensor-data.module';
+import { ManagementPortalPatientModule } from './patient/patient.module';
+// import { ManagementPortalUsrModule } from './usr/usr.module';
 /* jhipster-needle-add-entity-module-import - JHipster will add entity modules imports here */
 
 @NgModule({
@@ -14,6 +16,8 @@ import { ManagementPortalSensorDataModule } from './sensor-data/sensor-data.modu
         ManagementPortalProjectModule,
         // ManagementPortalStudyModule,
         ManagementPortalSensorDataModule,
+        ManagementPortalPatientModule,
+        // ManagementPortalUsrModule,
         /* jhipster-needle-add-entity-module - JHipster will add entity modules here */
     ],
     declarations: [],

@@ -1,6 +1,7 @@
 package org.radarcns.management.web.rest.vm;
 
 import org.radarcns.management.domain.Project;
+import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
 import javax.validation.constraints.Size;
 
@@ -26,7 +27,7 @@ public class ManagedUserVM extends UserDTO {
     public ManagedUserVM(Long id, String login, String password, String firstName, String lastName,
                          String email, boolean activated, String langKey,
                          String createdBy, ZonedDateTime createdDate, String lastModifiedBy, ZonedDateTime lastModifiedDate,
-                        Set<String> authorities, Project project) {
+                        Set<String> authorities, ProjectDTO project) {
 
         super(id, login, firstName, lastName, email, activated, langKey,
             createdBy, createdDate, lastModifiedBy, lastModifiedDate,  authorities, project);

@@ -18,7 +18,8 @@
             "devicePhysicalId": "Device Physical Id",
             "deviceCategory": "Device Category",
             "activated": "Activated",
-            "deviceType": "Device Type"
+            "deviceType": "Device Type",
+            "project": "Project"
         }
     }
 }

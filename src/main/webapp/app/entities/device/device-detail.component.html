@@ -22,6 +22,12 @@
                 <a [routerLink]="['/device-type', device.deviceType?.id]">{{device.deviceType?.id}}</a>
             </div>
         </dd>
+        <dt><span jhiTranslate="managementPortalApp.device.project">Project</span></dt>
+        <dd>
+            <div *ngIf="device.project">
+                <a [routerLink]="['/project', device.project?.id]">{{device.project?.id}}</a>
+            </div>
+        </dd>
     </dl>
 
     <button type="submit"

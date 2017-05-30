@@ -1,12 +1,14 @@
 package org.radarcns.management.domain;
 
 import java.util.stream.Collectors;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import org.hibernate.annotations.*;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CascadeType;
 import org.radarcns.management.config.Constants;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
@@ -57,7 +59,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
 
     @Email
     @Size(min = 5, max = 100)
-    @Column(length = 100, unique = true)
+    @Column(length = 100, unique = true, nullable = true)
     private String email;
 
     @NotNull
@@ -101,6 +103,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
     private Set<Role> roles = new HashSet<>();
 
     @ManyToOne
+//    @Cascade(CascadeType.ALL)
     private Project project;
 
     public Long getId() {

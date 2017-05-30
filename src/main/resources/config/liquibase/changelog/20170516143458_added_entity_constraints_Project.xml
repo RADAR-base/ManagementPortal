@@ -7,7 +7,7 @@
         Added the constraints for entity Project.
     -->
     <changeSet id="20170516143458-2" author="jhipster">
-        
+
         <addForeignKeyConstraint baseColumnNames="projects_id"
                                  baseTableName="project_device_type"
                                  constraintName="fk_project_device_type_projects_id"
@@ -18,6 +18,11 @@
                                  constraintName="fk_project_device_type_device_types_id"
                                  referencedColumnNames="id"
                                  referencedTableName="device_type"/>
-        
+        <addForeignKeyConstraint baseColumnNames="project_admin"
+                                baseTableName="project"
+                                constraintName="fk_project_owner_id"
+                                referencedColumnNames="id"
+                                referencedTableName="radar_user"/>
+
     </changeSet>
 </databaseChangeLog>

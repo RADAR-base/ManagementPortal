@@ -37,7 +37,7 @@ public class RoleResource {
      */
     @GetMapping("/roles")
     @Timed
-    @Secured({ AuthoritiesConstants.SYS_ADMIN})
+    @Secured({ AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public List<String> getAllAuthorities() {
         log.debug("REST request to get all Authorities");
         List<String> authorities = roleRepository.findAll().stream().map( role -> role.getAuthority().getName()).collect(

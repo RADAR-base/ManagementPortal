@@ -4,11 +4,13 @@ import com.codahale.metrics.annotation.Timed;
 import org.radarcns.management.domain.DeviceType;
 
 import org.radarcns.management.repository.DeviceTypeRepository;
+import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -27,7 +29,7 @@ public class DeviceTypeResource {
     private final Logger log = LoggerFactory.getLogger(DeviceTypeResource.class);
 
     private static final String ENTITY_NAME = "deviceType";
-        
+
     private final DeviceTypeRepository deviceTypeRepository;
 
     public DeviceTypeResource(DeviceTypeRepository deviceTypeRepository) {
@@ -43,6 +45,7 @@ public class DeviceTypeResource {
      */
     @PostMapping("/device-types")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<DeviceType> createDeviceType(@Valid @RequestBody DeviceType deviceType) throws URISyntaxException {
         log.debug("REST request to save DeviceType : {}", deviceType);
         if (deviceType.getId() != null) {

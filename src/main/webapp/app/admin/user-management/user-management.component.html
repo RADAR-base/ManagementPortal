@@ -43,12 +43,11 @@
                 <td>{{user.createdDate | date:'dd/MM/yy HH:mm'}}</td>
                 <td>{{user.lastModifiedBy}}</td>
                 <td>{{user.lastModifiedDate | date:'dd/MM/yy HH:mm'}}</td>
-                <td>{{user.project?.id}}</td>
-                <!--<td>
+                <td>
                     <div *ngIf="user.project">
-                        <a [routerLink]="['../project', user.project?.id ]" >{{project.project?.id}}</a>
+                        <a [routerLink]="['/project', user.project?.id ]" >{{user.project?.id}}</a>
                     </div>
-                </td>-->
+                </td>
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"
