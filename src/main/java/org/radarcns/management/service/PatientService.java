@@ -68,6 +68,7 @@ public class PatientService {
         user.setRoles(roles);
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
         user.setPassword(encryptedPassword);
+        user.setLangKey("en");
         user.setResetKey(RandomUtil.generateResetKey());
         user.setResetDate(ZonedDateTime.now());
         user.setActivated(false);

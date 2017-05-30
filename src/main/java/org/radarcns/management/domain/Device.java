@@ -37,7 +37,7 @@ public class Device implements Serializable {
     @Column(name = "activated", nullable = false)
     private Boolean activated;
 
-    @ManyToMany(mappedBy = "devices")
+    @ManyToMany(mappedBy = "devices", fetch = FetchType.EAGER)
     @JsonIgnore
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<Patient> patients = new HashSet<>();
