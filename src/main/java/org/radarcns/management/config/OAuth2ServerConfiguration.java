@@ -1,13 +1,20 @@
 package org.radarcns.management.config;
 
-import org.radarcns.management.security.AuthoritiesConstants;
-
-import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
 import io.github.jhipster.security.AjaxLogoutSuccessHandler;
-
+import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
+import java.security.KeyPair;
+import java.util.Arrays;
+import javax.sql.DataSource;
+import org.radarcns.management.security.AuthoritiesConstants;
+//import org.radarcns.management.security.ClaimsTokenEnhancer;
+import org.radarcns.management.security.ClaimsTokenEnhancer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+//import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,12 +31,16 @@ import org.springframework.security.oauth2.provider.approval.ApprovalStore;
 import org.springframework.security.oauth2.provider.approval.JdbcApprovalStore;
 import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
+import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
+import org.springframework.security.oauth2.provider.token.TokenEnhancer;
+import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
-
-import javax.sql.DataSource;
 
 @Configuration
 public class OAuth2ServerConfiguration {
@@ -108,19 +119,12 @@ public class OAuth2ServerConfiguration {
     @EnableAuthorizationServer
     protected static class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
 
-        private final AuthenticationManager authenticationManager;
+        @Autowired
+        @Qualifier("authenticationManagerBean")
+        private AuthenticationManager authenticationManager;
 
-        private final TokenStore tokenStore;
-
-        private final DataSource dataSource;
-
-        public AuthorizationServerConfiguration(@Qualifier("authenticationManagerBean") AuthenticationManager authenticationManager,
-                TokenStore tokenStore, DataSource dataSource) {
-
-            this.authenticationManager = authenticationManager;
-            this.tokenStore = tokenStore;
-            this.dataSource = dataSource;
-        }
+        @Autowired
+        private DataSource dataSource;
 
         @Bean
         protected AuthorizationCodeServices authorizationCodeServices() {
@@ -135,11 +139,26 @@ public class OAuth2ServerConfiguration {
         @Override
         public void configure(AuthorizationServerEndpointsConfigurer endpoints)
                 throws Exception {
+            TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+            tokenEnhancerChain.setTokenEnhancers(
+                Arrays.asList(tokenEnhancer(), accessTokenConverter()));
+
             endpoints
                 .authorizationCodeServices(authorizationCodeServices())
                 .approvalStore(approvalStore())
-                .tokenStore(tokenStore)
+                .tokenStore(tokenStore())
+                .tokenEnhancer(tokenEnhancerChain)
                 .authenticationManager(authenticationManager);
+        }
+
+        @Bean
+        public TokenEnhancer tokenEnhancer() {
+            return new ClaimsTokenEnhancer();
+        }
+
+        @Bean
+        public TokenStore tokenStore() {
+            return new JwtTokenStore(accessTokenConverter());
         }
 
         @Override
@@ -147,9 +166,32 @@ public class OAuth2ServerConfiguration {
             oauthServer.allowFormAuthenticationForClients();
         }
 
+        @Bean
+        public JwtAccessTokenConverter accessTokenConverter() {
+            JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+            converter.setSigningKey("123");
+
+            // TODO: use a keystore instead
+//            KeyPair keyPair = new KeyStoreKeyFactory(
+//                new ClassPathResource("keystore.jks"), "password".toCharArray())
+//                .getKeyPair("selfsigned");
+//            converter.setKeyPair(keyPair);
+
+            return converter;
+        }
+
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
             clients.jdbc(dataSource);
+        }
+
+        @Bean
+        @Primary
+        public DefaultTokenServices tokenServices() {
+            DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
+            defaultTokenServices.setTokenStore(tokenStore());
+            defaultTokenServices.setSupportRefreshToken(true);
+            return defaultTokenServices;
         }
     }
 }
