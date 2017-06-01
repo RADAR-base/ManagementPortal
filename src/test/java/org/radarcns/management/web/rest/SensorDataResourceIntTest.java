@@ -4,6 +4,9 @@ import org.radarcns.management.ManagementPortalApp;
 
 import org.radarcns.management.domain.SensorData;
 import org.radarcns.management.repository.SensorDataRepository;
+import org.radarcns.management.service.SensorDataService;
+import org.radarcns.management.service.dto.SensorDataDTO;
+import org.radarcns.management.service.mapper.SensorDataMapper;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -54,6 +57,12 @@ public class SensorDataResourceIntTest {
     private SensorDataRepository sensorDataRepository;
 
     @Autowired
+    private SensorDataMapper sensorDataMapper;
+
+    @Autowired
+    private SensorDataService sensorDataService;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -72,7 +81,7 @@ public class SensorDataResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        SensorDataResource sensorDataResource = new SensorDataResource(sensorDataRepository);
+        SensorDataResource sensorDataResource = new SensorDataResource(sensorDataService);
         this.restSensorDataMockMvc = MockMvcBuilders.standaloneSetup(sensorDataResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -105,9 +114,10 @@ public class SensorDataResourceIntTest {
         int databaseSizeBeforeCreate = sensorDataRepository.findAll().size();
 
         // Create the SensorData
+        SensorDataDTO sensorDataDTO = sensorDataMapper.sensorDataToSensorDataDTO(sensorData);
         restSensorDataMockMvc.perform(post("/api/sensor-data")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sensorData)))
+            .content(TestUtil.convertObjectToJsonBytes(sensorDataDTO)))
             .andExpect(status().isCreated());
 
         // Validate the SensorData in the database
@@ -127,11 +137,12 @@ public class SensorDataResourceIntTest {
 
         // Create the SensorData with an existing ID
         sensorData.setId(1L);
+        SensorDataDTO sensorDataDTO = sensorDataMapper.sensorDataToSensorDataDTO(sensorData);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restSensorDataMockMvc.perform(post("/api/sensor-data")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sensorData)))
+            .content(TestUtil.convertObjectToJsonBytes(sensorDataDTO)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -147,10 +158,11 @@ public class SensorDataResourceIntTest {
         sensorData.setSensorType(null);
 
         // Create the SensorData, which fails.
+        SensorDataDTO sensorDataDTO = sensorDataMapper.sensorDataToSensorDataDTO(sensorData);
 
         restSensorDataMockMvc.perform(post("/api/sensor-data")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sensorData)))
+            .content(TestUtil.convertObjectToJsonBytes(sensorDataDTO)))
             .andExpect(status().isBadRequest());
 
         List<SensorData> sensorDataList = sensorDataRepository.findAll();
@@ -213,10 +225,11 @@ public class SensorDataResourceIntTest {
             .dataType(UPDATED_DATA_TYPE)
             .dataFormat(UPDATED_DATA_FORMAT)
             .frequency(UPDATED_FREQUENCY);
+        SensorDataDTO sensorDataDTO = sensorDataMapper.sensorDataToSensorDataDTO(updatedSensorData);
 
         restSensorDataMockMvc.perform(put("/api/sensor-data")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(updatedSensorData)))
+            .content(TestUtil.convertObjectToJsonBytes(sensorDataDTO)))
             .andExpect(status().isOk());
 
         // Validate the SensorData in the database
@@ -235,11 +248,12 @@ public class SensorDataResourceIntTest {
         int databaseSizeBeforeUpdate = sensorDataRepository.findAll().size();
 
         // Create the SensorData
+        SensorDataDTO sensorDataDTO = sensorDataMapper.sensorDataToSensorDataDTO(sensorData);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restSensorDataMockMvc.perform(put("/api/sensor-data")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sensorData)))
+            .content(TestUtil.convertObjectToJsonBytes(sensorDataDTO)))
             .andExpect(status().isCreated());
 
         // Validate the SensorData in the database

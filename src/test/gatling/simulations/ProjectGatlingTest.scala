@@ -1,8 +1,6 @@
-import java.nio.charset.StandardCharsets
-import java.util.Base64
 
-import _root_.io.gatling.core.scenario.Simulation
-import ch.qos.logback.classic.{Level, LoggerContext}
+
+import ch.qos.logback.classic.LoggerContext
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import org.slf4j.LoggerFactory
@@ -80,7 +78,7 @@ class ProjectGatlingTest extends Simulation {
             .exec(http("Create new project")
             .post("/api/projects")
             .headers(headers_http_authenticated)
-            .body(StringBody("""{"id":null, "projectName":"SAMPLE_TEXT", "description":"SAMPLE_TEXT", "organization":"SAMPLE_TEXT", "location":"SAMPLE_TEXT", "startDate":"2020-01-01T00:00:00.000Z", "projectStatus":null, "endDate":"2020-01-01T00:00:00.000Z", "projectOwner":null}""")).asJSON
+            .body(StringBody("""{"id":null, "projectName":"SAMPLE_TEXT", "description":"SAMPLE_TEXT", "organization":"SAMPLE_TEXT", "location":"SAMPLE_TEXT", "startDate":"2020-01-01T00:00:00.000Z", "projectStatus":null, "endDate":"2020-01-01T00:00:00.000Z", "projectAdmin":null}""")).asJSON
             .check(status.is(201))
             .check(headerRegex("Location", "(.*)").saveAs("new_project_url"))).exitHereIfFailed
             .pause(10)

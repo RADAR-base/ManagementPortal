@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd
-                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
     <property name="now" value="now()" dbms="h2"/>
 
@@ -58,7 +56,7 @@
         </createTable>
         <dropDefaultValue tableName="project" columnName="start_date" columnDataType="datetime"/>
         <dropDefaultValue tableName="project" columnName="end_date" columnDataType="datetime"/>
-
+        
         <createTable tableName="project_device_type">
             <column name="device_types_id" type="bigint">
                 <constraints nullable="false"/>
@@ -69,6 +67,6 @@
         </createTable>
 
         <addPrimaryKey columnNames="projects_id, device_types_id" tableName="project_device_type"/>
-
+        
     </changeSet>
 </databaseChangeLog>

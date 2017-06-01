@@ -1,16 +1,21 @@
 package org.radarcns.management.service.dto;
 
+
+import javax.validation.constraints.*;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Objects;
 import org.radarcns.management.domain.enumeration.DataType;
 
 /**
- * Created by nivethika on 23-5-17.
+ * A DTO for the SensorData entity.
  */
-public class SensorDataDTO {
+public class SensorDataDTO implements Serializable {
 
     private Long id;
 
+    @NotNull
     private String sensorType;
 
     private DataType dataType;
@@ -19,8 +24,6 @@ public class SensorDataDTO {
 
     private String frequency;
 
-    private Set<DeviceTypeDTO> deviceTypes = new HashSet<>();
-
     public Long getId() {
         return id;
     }
@@ -28,7 +31,6 @@ public class SensorDataDTO {
     public void setId(Long id) {
         this.id = id;
     }
-
     public String getSensorType() {
         return sensorType;
     }
@@ -36,7 +38,6 @@ public class SensorDataDTO {
     public void setSensorType(String sensorType) {
         this.sensorType = sensorType;
     }
-
     public DataType getDataType() {
         return dataType;
     }
@@ -44,7 +45,6 @@ public class SensorDataDTO {
     public void setDataType(DataType dataType) {
         this.dataType = dataType;
     }
-
     public String getDataFormat() {
         return dataFormat;
     }
@@ -52,7 +52,6 @@ public class SensorDataDTO {
     public void setDataFormat(String dataFormat) {
         this.dataFormat = dataFormat;
     }
-
     public String getFrequency() {
         return frequency;
     }
@@ -61,11 +60,35 @@ public class SensorDataDTO {
         this.frequency = frequency;
     }
 
-    public Set<DeviceTypeDTO> getDeviceTypes() {
-        return deviceTypes;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        SensorDataDTO sensorDataDTO = (SensorDataDTO) o;
+
+        if ( ! Objects.equals(id, sensorDataDTO.id)) { return false; }
+
+        return true;
     }
 
-    public void setDeviceTypes(Set<DeviceTypeDTO> deviceTypes) {
-        this.deviceTypes = deviceTypes;
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "SensorDataDTO{" +
+            "id=" + id +
+            ", sensorType='" + sensorType + "'" +
+            ", dataType='" + dataType + "'" +
+            ", dataFormat='" + dataFormat + "'" +
+            ", frequency='" + frequency + "'" +
+            '}';
     }
 }

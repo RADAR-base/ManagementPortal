@@ -1,24 +1,40 @@
 package org.radarcns.management.service.mapper;
 
-import java.util.Set;
-import org.mapstruct.Mapper;
-import org.radarcns.management.domain.Project;
+import org.radarcns.management.domain.*;
 import org.radarcns.management.service.dto.ProjectDTO;
 
+import org.mapstruct.*;
+import java.util.List;
+
 /**
- * Created by nivethika on 23-5-17.
+ * Mapper for the entity Project and its DTO ProjectDTO.
  */
-@Mapper(componentModel = "spring", uses = {RoleMapper.class, DeviceTypeMapper.class})
+@Mapper(componentModel = "spring", uses = {DeviceTypeMapper.class, })
 public interface ProjectMapper {
 
-    Project projectDTOToProject( ProjectDTO projectDTO);
+    ProjectDTO projectToProjectDTO(Project project);
 
-    ProjectDTO projectToProjectDto (Project project);
+    List<ProjectDTO> projectsToProjectDTOs(List<Project> projects);
 
-    Set<Project> projectDtosToProjects (Set<ProjectDTO> projectDTOS);
+    Project projectDTOToProject(ProjectDTO projectDTO);
 
-    Set<ProjectDTO> projectsToProjectDtos( Set<Project> projects);
-
-
+    List<Project> projectDTOsToProjects(List<ProjectDTO> projectDTOs);
+    /**
+     * generating the fromId for all mappers if the databaseType is sql, as the class has relationship to it might need it, instead of
+     * creating a new attribute to know if the entity has any relationship from some other entity
+     *
+     * @param id id of the entity
+     * @return the entity instance
+     */
+     
+    default Project projectFromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        Project project = new Project();
+        project.setId(id);
+        return project;
+    }
+    
 
 }

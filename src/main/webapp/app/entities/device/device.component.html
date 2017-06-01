@@ -32,13 +32,13 @@
                 <td>{{device.deviceCategory}}</td>
                 <td>{{device.activated}}</td>
                 <td>
-                    <div *ngIf="device.deviceType">
-                        <a [routerLink]="['../device-type', device.deviceType?.id ]" >{{device.deviceType?.id}}</a>
+                    <div *ngIf="device.deviceTypeId">
+                        <a [routerLink]="['../device-type', device.deviceTypeId  ]" >{{device.deviceTypeId}}</a>
                     </div>
                 </td>
                 <td>
-                    <div *ngIf="device.project">
-                        <a [routerLink]="['../project', device.project?.id ]" >{{device.project?.id}}</a>
+                    <div *ngIf="device.projectId">
+                        <a [routerLink]="['../project', device.projectId ]" >{{device.projectId}}</a>
                     </div>
                 </td>
                 <td class="text-right">

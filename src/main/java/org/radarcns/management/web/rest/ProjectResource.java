@@ -1,24 +1,22 @@
 package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-
-import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.ProjectService;
-import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
+import org.radarcns.management.service.dto.ProjectDTO;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing Project.
@@ -30,26 +28,28 @@ public class ProjectResource {
     private final Logger log = LoggerFactory.getLogger(ProjectResource.class);
 
     private static final String ENTITY_NAME = "project";
+        
+    private final ProjectService projectService;
 
-    @Autowired
-    private ProjectService projectService;
+    public ProjectResource(ProjectService projectService) {
+        this.projectService = projectService;
+    }
 
     /**
      * POST  /projects : Create a new project.
      *
-     * @param project the project to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new project, or with status 400 (Bad Request) if the project has already an ID
+     * @param projectDTO the projectDTO to create
+     * @return the ResponseEntity with status 201 (Created) and with body the new projectDTO, or with status 400 (Bad Request) if the project has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/projects")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
-    public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO project) throws URISyntaxException {
-        log.debug("REST request to save Project : {}", project);
-        if (project.getId() != null) {
+    public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO) throws URISyntaxException {
+        log.debug("REST request to save Project : {}", projectDTO);
+        if (projectDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new project cannot already have an ID")).body(null);
         }
-        ProjectDTO result = projectService.createProject(project);
+        ProjectDTO result = projectService.save(projectDTO);
         return ResponseEntity.created(new URI("/api/projects/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -58,20 +58,22 @@ public class ProjectResource {
     /**
      * PUT  /projects : Updates an existing project.
      *
-     * @param project the project to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated project,
-     * or with status 400 (Bad Request) if the project is not valid,
-     * or with status 500 (Internal Server Error) if the project couldnt be updated
+     * @param projectDTO the projectDTO to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated projectDTO,
+     * or with status 400 (Bad Request) if the projectDTO is not valid,
+     * or with status 500 (Internal Server Error) if the projectDTO couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/projects")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
-    public ResponseEntity<ProjectDTO> updateProject(@Valid @RequestBody ProjectDTO project) throws URISyntaxException {
-        log.debug("REST request to update Project : {}", project);
-        ProjectDTO result =  projectService.updateProject(project);
+    public ResponseEntity<ProjectDTO> updateProject(@Valid @RequestBody ProjectDTO projectDTO) throws URISyntaxException {
+        log.debug("REST request to update Project : {}", projectDTO);
+        if (projectDTO.getId() == null) {
+            return createProject(projectDTO);
+        }
+        ProjectDTO result = projectService.save(projectDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, project.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, projectDTO.getId().toString()))
             .body(result);
     }
 
@@ -84,36 +86,34 @@ public class ProjectResource {
     @Timed
     public List<ProjectDTO> getAllProjects() {
         log.debug("REST request to get all Projects");
-        List<ProjectDTO> projects = projectService.getAllProjects();
-        return projects;
+        return projectService.findAll();
     }
 
     /**
      * GET  /projects/:id : get the "id" project.
      *
-     * @param id the id of the project to retrieve
-     * @return the ResponseEntity with status 200 (OK) and with body the project, or with status 404 (Not Found)
+     * @param id the id of the projectDTO to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the projectDTO, or with status 404 (Not Found)
      */
     @GetMapping("/projects/{id}")
     @Timed
     public ResponseEntity<ProjectDTO> getProject(@PathVariable Long id) {
         log.debug("REST request to get Project : {}", id);
-        ProjectDTO project = projectService.findProjectById(id);
-        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(project));
+        ProjectDTO projectDTO = projectService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(projectDTO));
     }
 
     /**
      * DELETE  /projects/:id : delete the "id" project.
      *
-     * @param id the id of the project to delete
+     * @param id the id of the projectDTO to delete
      * @return the ResponseEntity with status 200 (OK)
      */
     @DeleteMapping("/projects/{id}")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         log.debug("REST request to delete Project : {}", id);
-        projectService.deleteProject(id);
+        projectService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 

@@ -4,7 +4,6 @@ const enum DataType {
     'DERIVED'
 
 };
-import { DeviceType } from '../device-type';
 export class SensorData {
     constructor(
         public id?: number,
@@ -12,7 +11,7 @@ export class SensorData {
         public dataType?: DataType,
         public dataFormat?: string,
         public frequency?: string,
-        public deviceType?: DeviceType,
+        public deviceTypeId?: number,
     ) {
     }
 }

@@ -1,25 +1,29 @@
 package org.radarcns.management.service.dto;
 
+
+import javax.validation.constraints.*;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Objects;
 import org.radarcns.management.domain.enumeration.SourceType;
 
 /**
- * Created by nivethika on 23-5-17.
+ * A DTO for the DeviceType entity.
  */
-public class DeviceTypeDTO {
+public class DeviceTypeDTO implements Serializable {
 
     private Long id;
 
     private String deviceProducer;
 
+    @NotNull
     private String deviceModel;
 
+    @NotNull
     private SourceType sourceType;
 
     private Set<SensorDataDTO> sensorData = new HashSet<>();
-
-    private Set<ProjectDTO> projects = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -28,7 +32,6 @@ public class DeviceTypeDTO {
     public void setId(Long id) {
         this.id = id;
     }
-
     public String getDeviceProducer() {
         return deviceProducer;
     }
@@ -36,7 +39,6 @@ public class DeviceTypeDTO {
     public void setDeviceProducer(String deviceProducer) {
         this.deviceProducer = deviceProducer;
     }
-
     public String getDeviceModel() {
         return deviceModel;
     }
@@ -44,7 +46,6 @@ public class DeviceTypeDTO {
     public void setDeviceModel(String deviceModel) {
         this.deviceModel = deviceModel;
     }
-
     public SourceType getSourceType() {
         return sourceType;
     }
@@ -61,11 +62,34 @@ public class DeviceTypeDTO {
         this.sensorData = sensorData;
     }
 
-    public Set<ProjectDTO> getProjects() {
-        return projects;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        DeviceTypeDTO deviceTypeDTO = (DeviceTypeDTO) o;
+
+        if ( ! Objects.equals(id, deviceTypeDTO.id)) { return false; }
+
+        return true;
     }
 
-    public void setProjects(Set<ProjectDTO> projects) {
-        this.projects = projects;
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "DeviceTypeDTO{" +
+            "id=" + id +
+            ", deviceProducer='" + deviceProducer + "'" +
+            ", deviceModel='" + deviceModel + "'" +
+            ", sourceType='" + sourceType + "'" +
+            '}';
     }
 }

@@ -1,26 +1,31 @@
 package org.radarcns.management.service.dto;
 
+
+import javax.validation.constraints.*;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Objects;
 
 /**
- * Created by nivethika on 23-5-17.
+ * A DTO for the Device entity.
  */
-public class DeviceDTO {
+public class DeviceDTO implements Serializable {
 
     private Long id;
 
+    @NotNull
     private String devicePhysicalId;
 
+    @NotNull
     private String deviceCategory;
 
+    @NotNull
     private Boolean activated;
 
-    private Set<PatientDTO> patients = new HashSet<>();
+    private Long deviceTypeId;
 
-    private DeviceTypeDTO deviceType;
-
-    private ProjectDTO project;
+    private Long projectId;
 
     public Long getId() {
         return id;
@@ -29,7 +34,6 @@ public class DeviceDTO {
     public void setId(Long id) {
         this.id = id;
     }
-
     public String getDevicePhysicalId() {
         return devicePhysicalId;
     }
@@ -37,7 +41,6 @@ public class DeviceDTO {
     public void setDevicePhysicalId(String devicePhysicalId) {
         this.devicePhysicalId = devicePhysicalId;
     }
-
     public String getDeviceCategory() {
         return deviceCategory;
     }
@@ -45,7 +48,6 @@ public class DeviceDTO {
     public void setDeviceCategory(String deviceCategory) {
         this.deviceCategory = deviceCategory;
     }
-
     public Boolean getActivated() {
         return activated;
     }
@@ -54,27 +56,50 @@ public class DeviceDTO {
         this.activated = activated;
     }
 
-    public Set<PatientDTO> getPatients() {
-        return patients;
+    public Long getDeviceTypeId() {
+        return deviceTypeId;
     }
 
-    public void setPatients(Set<PatientDTO> patients) {
-        this.patients = patients;
+    public void setDeviceTypeId(Long deviceTypeId) {
+        this.deviceTypeId = deviceTypeId;
     }
 
-    public DeviceTypeDTO getDeviceType() {
-        return deviceType;
+    public Long getProjectId() {
+        return projectId;
     }
 
-    public void setDeviceType(DeviceTypeDTO deviceType) {
-        this.deviceType = deviceType;
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
     }
 
-    public ProjectDTO getProject() {
-        return project;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        DeviceDTO deviceDTO = (DeviceDTO) o;
+
+        if ( ! Objects.equals(id, deviceDTO.id)) { return false; }
+
+        return true;
     }
 
-    public void setProject(ProjectDTO project) {
-        this.project = project;
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "DeviceDTO{" +
+            "id=" + id +
+            ", devicePhysicalId='" + devicePhysicalId + "'" +
+            ", deviceCategory='" + deviceCategory + "'" +
+            ", activated='" + activated + "'" +
+            '}';
     }
 }
