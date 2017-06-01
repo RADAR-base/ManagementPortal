@@ -4,8 +4,8 @@ package org.radarcns.management.service.dto;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Objects;
+import java.util.Set;
 import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.Email;
 

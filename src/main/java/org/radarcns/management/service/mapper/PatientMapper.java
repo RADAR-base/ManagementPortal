@@ -1,13 +1,11 @@
 package org.radarcns.management.service.mapper;
 
-import java.time.ZonedDateTime;
-import org.radarcns.management.domain.*;
-import org.radarcns.management.service.dto.DeviceDTO;
-import org.radarcns.management.service.dto.PatientDTO;
-
-import org.mapstruct.*;
 import java.util.List;
-import org.radarcns.management.service.dto.ProjectDTO;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.radarcns.management.domain.Patient;
+import org.radarcns.management.service.dto.PatientDTO;
 
 /**
  * Mapper for the entity Patient and its DTO PatientDTO.
@@ -34,6 +32,9 @@ public interface PatientMapper {
     @Mapping(source = "lastModifiedBy", target = "user.lastModifiedBy")
     @Mapping(source = "lastModifiedDate", target = "user.lastModifiedDate")
     Patient patientDTOToPatient(PatientDTO patientDTO);
+
+    @Mapping(target = "user", ignore = true)
+    Patient safeUpdatePatientFromDTO(PatientDTO patientDTO, @MappingTarget Patient patient);
 
     List<Patient> patientDTOsToPatients(List<PatientDTO> patientDTOs);
     /**
