@@ -1,4 +1,6 @@
 
+import java.nio.charset.StandardCharsets
+import java.util.Base64
 
 import ch.qos.logback.classic.LoggerContext
 import io.gatling.core.Predef._

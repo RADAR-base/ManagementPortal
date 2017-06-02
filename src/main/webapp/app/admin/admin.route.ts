@@ -8,7 +8,7 @@ import {
     logsRoute,
     metricsRoute,
     userMgmtRoute,
-    userDialogRoute
+    userDialogRoute,
 } from './';
 
 import { UserRouteAccessService } from '../shared';

@@ -10,9 +10,7 @@ import org.radarcns.management.domain.Project;
 public class RoleDTO {
     private Long id;
 
-    private Set<UserDTO> users = new HashSet<>();
-
-    private Project project;
+    private Long projectId;
 
     private String authorityName;
 
@@ -24,20 +22,12 @@ public class RoleDTO {
         this.id = id;
     }
 
-    public Set<UserDTO> getUsers() {
-        return users;
+    public Long getProjectId() {
+        return projectId;
     }
 
-    public void setUsers(Set<UserDTO> users) {
-        this.users = users;
-    }
-
-    public Project getProject() {
-        return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
     }
 
     public String getAuthorityName() {

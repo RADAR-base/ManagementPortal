@@ -1,6 +1,5 @@
 package org.radarcns.management.service;
 
-import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
@@ -11,13 +10,13 @@ import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.security.SecurityUtils;
 import org.radarcns.management.service.mapper.ProjectMapper;
+import org.radarcns.management.service.mapper.RoleMapper;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
 import org.radarcns.management.service.dto.UserDTO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -52,11 +51,12 @@ public class UserService {
 
     private final UserMapper userMapper;
 
+    private final RoleMapper roleMapper;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
         JdbcTokenStore jdbcTokenStore, RoleRepository roleRepository,
         ProjectRepository projectRepository, ProjectMapper projectMapper,
-        UserMapper userMapper) {
+        UserMapper userMapper, RoleMapper roleMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jdbcTokenStore = jdbcTokenStore;
@@ -64,7 +64,7 @@ public class UserService {
         this.projectRepository = projectRepository;
         this.projectMapper = projectMapper;
         this.userMapper = userMapper;
-
+        this.roleMapper = roleMapper;
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -111,7 +111,7 @@ public class UserService {
         String langKey) {
 
         User newUser = new User();
-        Role role = roleRepository.findByAuthorityName(AuthoritiesConstants.USER);
+        Role role = roleRepository.findRoleByAuthorityName(AuthoritiesConstants.USER);
         Set<Role> roles = new HashSet<>();
         String encryptedPassword = passwordEncoder.encode(password);
         newUser.setLogin(login);
@@ -144,18 +144,7 @@ public class UserService {
         } else {
             user.setLangKey(userDTO.getLangKey());
         }
-        if (userDTO.getAuthorities() != null) {
-            Set<Role> roles = new HashSet<>();
-            userDTO.getAuthorities().forEach(
-                authority -> {
-                    Role role = roleRepository.findByAuthorityName(authority);
-                    if (role != null) {
-                        roles.add(role);
-                    }
-                }
-            );
-            user.setRoles(roles);
-        }
+        user.setRoles(roleMapper.roleDTOsToRoles(userDTO.getRoles()));
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
         user.setPassword(encryptedPassword);
         user.setResetKey(RandomUtil.generateResetKey());
@@ -164,10 +153,10 @@ public class UserService {
         if(userDTO.getProject()!= null && userDTO.getProject().getId() != null) {
             Project project = projectMapper.projectDTOToProject(userDTO.getProject());
             user.setProject(project);
-            if(userDTO.getAuthorities() != null && userDTO.getAuthorities().contains(AuthoritiesConstants.PROJECT_ADMIN)) {
-                project.setProjectAdmin(user.getId());
-                projectRepository.save(project);
-            }
+//            if(userDTO.getAuthorities() != null && userDTO.getAuthorities().contains(AuthoritiesConstants.PROJECT_ADMIN)) {
+//                project.setProjectAdmin(user.getId());
+//                projectRepository.save(project);
+//            }
         }
         userRepository.save(user);
         log.debug("Created Information for User: {}", user);
@@ -210,9 +199,7 @@ public class UserService {
                 user.setLangKey(userDTO.getLangKey());
                 Set<Role> managedRoles = user.getRoles();
                 managedRoles.clear();
-                userDTO.getAuthorities().stream()
-                    .map(roleRepository::findByAuthorityName)
-                    .forEach(managedRoles::add);
+                managedRoles.addAll(roleMapper.roleDTOsToRoles(userDTO.getRoles()));
                 if(userDTO.getProject()!=null && userDTO.getProject().getId() != null) {
                     Project project = projectMapper.projectDTOToProject(userDTO.getProject());
                     user.setProject(project);

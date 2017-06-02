@@ -49,6 +49,8 @@ public class UserDTO {
 
     private ZonedDateTime lastModifiedDate;
 
+    private Set<RoleDTO> roles;
+
     private Set<String> authorities;
 
     public UserDTO() {
@@ -66,7 +68,7 @@ public class UserDTO {
     public UserDTO(Long id, String login, String firstName, String lastName,
         String email, boolean activated, String langKey,
         String createdBy, ZonedDateTime createdDate, String lastModifiedBy, ZonedDateTime lastModifiedDate,
-        Set<String> authorities, ProjectDTO project) {
+        Set<RoleDTO> roles, ProjectDTO project) {
 
         this.id = id;
         this.login = login;
@@ -79,7 +81,7 @@ public class UserDTO {
         this.createdDate = createdDate;
         this.lastModifiedBy = lastModifiedBy;
         this.lastModifiedDate = lastModifiedDate;
-        this.authorities = authorities;
+        this.roles = roles;
         this.project = project;
     }
 
@@ -187,6 +189,14 @@ public class UserDTO {
         this.authorities = authorities;
     }
 
+    public Set<RoleDTO> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<RoleDTO> roles) {
+        this.roles = roles;
+    }
+
     @Override
     public String toString() {
         return "UserDTO{" +
@@ -200,7 +210,6 @@ public class UserDTO {
             ", createdDate=" + createdDate +
             ", lastModifiedBy='" + lastModifiedBy + '\'' +
             ", lastModifiedDate=" + lastModifiedDate +
-            ", authorities=" + authorities +
             "}";
     }
 }

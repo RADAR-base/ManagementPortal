@@ -1,6 +1,7 @@
 package org.radarcns.management.service.mapper;
 
 import org.radarcns.management.domain.Authority;
+import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.service.dto.UserDTO;
 import org.mapstruct.*;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring", uses = { ProjectMapper.class , RoleMapper.class})
 public interface UserMapper {
 
+    @Mapping(source = "roles", target = "authorities")
     UserDTO userToUserDTO(User user);
 
     List<UserDTO> usersToUserDTOs(List<User> users);
@@ -27,8 +29,15 @@ public interface UserMapper {
     @Mapping(target = "resetKey", ignore = true)
     @Mapping(target = "resetDate", ignore = true)
     @Mapping(target = "password", ignore = true)
-    @Mapping(source = "authorities" , target = "roles")
+    @Mapping(target = "authorities", ignore = true)
     User userDTOToUser(UserDTO userDTO);
+
+    default Set<String> rolesToAuthorities(Set<Role> roles) {
+        if(roles == null) {
+            return null;
+        }
+        return roles.stream().map(role -> role.getAuthority().getName()).collect(Collectors.toSet());
+    }
 
     List<User> userDTOsToUsers(List<UserDTO> userDTOs);
 

@@ -3,8 +3,10 @@ package org.radarcns.management.web.rest;
 import org.radarcns.management.ManagementPortalApp;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.UserRepository;
+import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.MailService;
 import org.radarcns.management.service.UserService;
+import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
 import org.radarcns.management.web.rest.vm.ManagedUserVM;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -127,8 +129,11 @@ public class UserResourceIntTest {
         int databaseSizeBeforeCreate = userRepository.findAll().size();
 
         // Create the User
-        Set<String> authorities = new HashSet<>();
-        authorities.add("ROLE_SYS_ADMIN");
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.SYS_ADMIN);
+        roles.add(role);
+
         ManagedUserVM managedUserVM = new ManagedUserVM(
             null,
             DEFAULT_LOGIN,
@@ -142,7 +147,7 @@ public class UserResourceIntTest {
             null,
             null,
             null,
-            authorities,
+            roles,
             null);
 
         restUserMockMvc.perform(post("/api/users")
@@ -166,8 +171,11 @@ public class UserResourceIntTest {
     public void createUserWithExistingId() throws Exception {
         int databaseSizeBeforeCreate = userRepository.findAll().size();
 
-        Set<String> authorities = new HashSet<>();
-        authorities.add("ROLE_USER");
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
+
         ManagedUserVM managedUserVM = new ManagedUserVM(
             1L,
             DEFAULT_LOGIN,
@@ -181,7 +189,7 @@ public class UserResourceIntTest {
             null,
             null,
             null,
-            authorities,
+            roles,
             null);
 
         // An entity with an existing ID cannot be created, so this API call must fail
@@ -202,8 +210,10 @@ public class UserResourceIntTest {
         userRepository.saveAndFlush(user);
         int databaseSizeBeforeCreate = userRepository.findAll().size();
 
-        Set<String> authorities = new HashSet<>();
-        authorities.add("ROLE_USER");
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
         ManagedUserVM managedUserVM = new ManagedUserVM(
             null,
             DEFAULT_LOGIN, // this login should already be used
@@ -217,7 +227,7 @@ public class UserResourceIntTest {
             null,
             null,
             null,
-            authorities,
+            roles,
             null);
 
         // Create the User
@@ -238,8 +248,10 @@ public class UserResourceIntTest {
         userRepository.saveAndFlush(user);
         int databaseSizeBeforeCreate = userRepository.findAll().size();
 
-        Set<String> authorities = new HashSet<>();
-        authorities.add("ROLE_USER");
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
         ManagedUserVM managedUserVM = new ManagedUserVM(
             null,
             "anotherlogin",
@@ -253,7 +265,7 @@ public class UserResourceIntTest {
             null,
             null,
             null,
-            authorities,
+            roles,
             null);
 
         // Create the User
@@ -319,8 +331,11 @@ public class UserResourceIntTest {
         // Update the user
         User updatedUser = userRepository.findOne(user.getId());
 
-        Set<String> authorities = new HashSet<>();
-        authorities.add("ROLE_USER");
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
+
         ManagedUserVM managedUserVM = new ManagedUserVM(
             updatedUser.getId(),
             updatedUser.getLogin(),
@@ -334,7 +349,7 @@ public class UserResourceIntTest {
             updatedUser.getCreatedDate(),
             updatedUser.getLastModifiedBy(),
             updatedUser.getLastModifiedDate(),
-            authorities,
+            roles,
             null);
 
         restUserMockMvc.perform(put("/api/users")
@@ -362,8 +377,11 @@ public class UserResourceIntTest {
         // Update the user
         User updatedUser = userRepository.findOne(user.getId());
 
-        Set<String> authorities = new HashSet<>();
-        authorities.add("ROLE_USER");
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
+
         ManagedUserVM managedUserVM = new ManagedUserVM(
             updatedUser.getId(),
             UPDATED_LOGIN,
@@ -377,7 +395,7 @@ public class UserResourceIntTest {
             updatedUser.getCreatedDate(),
             updatedUser.getLastModifiedBy(),
             updatedUser.getLastModifiedDate(),
-            authorities, null);
+            roles, null);
 
         restUserMockMvc.perform(put("/api/users")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -413,9 +431,11 @@ public class UserResourceIntTest {
 
         // Update the user
         User updatedUser = userRepository.findOne(user.getId());
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
 
-        Set<String> authorities = new HashSet<>();
-        authorities.add("ROLE_USER");
         ManagedUserVM managedUserVM = new ManagedUserVM(
             updatedUser.getId(),
             updatedUser.getLogin(),
@@ -429,7 +449,7 @@ public class UserResourceIntTest {
             updatedUser.getCreatedDate(),
             updatedUser.getLastModifiedBy(),
             updatedUser.getLastModifiedDate(),
-            authorities,
+            roles,
             null);
 
         restUserMockMvc.perform(put("/api/users")
@@ -457,8 +477,11 @@ public class UserResourceIntTest {
         // Update the user
         User updatedUser = userRepository.findOne(user.getId());
 
-        Set<String> authorities = new HashSet<>();
-        authorities.add("ROLE_USER");
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
+
         ManagedUserVM managedUserVM = new ManagedUserVM(
             updatedUser.getId(),
             "jhipster", // this login should already be used by anotherUser
@@ -472,7 +495,7 @@ public class UserResourceIntTest {
             updatedUser.getCreatedDate(),
             updatedUser.getLastModifiedBy(),
             updatedUser.getLastModifiedDate(),
-            authorities,
+            roles,
             null);
 
         restUserMockMvc.perform(put("/api/users")

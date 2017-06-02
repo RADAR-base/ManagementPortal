@@ -1,4 +1,5 @@
 import {Project} from "../../entities/project/project.model";
+import {Role} from "../../entities/role/role.model";
 export class User {
     public id?: any;
     public login?: string;
@@ -7,7 +8,7 @@ export class User {
     public email?: string;
     public activated?: Boolean;
     public langKey?: string;
-    public authorities?: any[];
+    public roles?: Role[];
     public createdBy?: string;
     public createdDate?: Date;
     public lastModifiedBy?: string;
@@ -23,7 +24,7 @@ export class User {
         email?: string,
         activated?: Boolean,
         langKey?: string,
-        authorities?: any[],
+        roles?: Role[],
         createdBy?: string,
         createdDate?: Date,
         lastModifiedBy?: string,
@@ -38,7 +39,7 @@ export class User {
         this.email = email ? email : null;
         this.activated = activated ? activated : false;
         this.langKey = langKey ? langKey : null;
-        this.authorities = authorities ? authorities : null;
+        this.roles = roles ? roles : null;
         this.createdBy = createdBy ? createdBy : null;
         this.createdDate = createdDate ? createdDate : null;
         this.lastModifiedBy = lastModifiedBy ? lastModifiedBy : null;

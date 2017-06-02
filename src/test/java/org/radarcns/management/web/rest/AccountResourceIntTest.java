@@ -9,6 +9,7 @@ import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.MailService;
 import org.radarcns.management.service.UserService;
+import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.web.rest.vm.ManagedUserVM;
@@ -153,6 +154,10 @@ public class AccountResourceIntTest {
     @Test
     @Transactional
     public void testRegisterValid() throws Exception {
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
         ManagedUserVM validUser = new ManagedUserVM(
             null,                   // id
             "joe",                  // login
@@ -166,7 +171,7 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)),
+            roles,
             null);
 
         restMvc.perform(
@@ -182,6 +187,10 @@ public class AccountResourceIntTest {
     @Test
     @Transactional
     public void testRegisterInvalidLogin() throws Exception {
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
         ManagedUserVM invalidUser = new ManagedUserVM(
             null,                   // id
             "funky-log!n",          // login <-- invalid
@@ -195,7 +204,7 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)),
+            roles,
             null);
 
         restUserMockMvc.perform(
@@ -211,6 +220,10 @@ public class AccountResourceIntTest {
     @Test
     @Transactional
     public void testRegisterInvalidEmail() throws Exception {
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
         ManagedUserVM invalidUser = new ManagedUserVM(
             null,               // id
             "bob",              // login
@@ -224,7 +237,7 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)),
+             roles,
             null);
 
         restUserMockMvc.perform(
@@ -240,6 +253,11 @@ public class AccountResourceIntTest {
     @Test
     @Transactional
     public void testRegisterInvalidPassword() throws Exception {
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
+
         ManagedUserVM invalidUser = new ManagedUserVM(
             null,               // id
             "bob",              // login
@@ -253,7 +271,7 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)),
+            roles,
             null);
 
         restUserMockMvc.perform(
@@ -269,6 +287,11 @@ public class AccountResourceIntTest {
     @Test
     @Transactional
     public void testRegisterDuplicateLogin() throws Exception {
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
+
         // Good
         ManagedUserVM validUser = new ManagedUserVM(
             null,                   // id
@@ -283,12 +306,12 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)),
+            roles,
             null);
 
         // Duplicate login, different email
         ManagedUserVM duplicatedUser = new ManagedUserVM(validUser.getId(), validUser.getLogin(), validUser.getPassword(), validUser.getFirstName(), validUser.getLastName(),
-            "alicejr@example.com", true, validUser.getLangKey(), validUser.getCreatedBy(), validUser.getCreatedDate(), validUser.getLastModifiedBy(), validUser.getLastModifiedDate(), validUser.getAuthorities(), validUser.getProject());
+            "alicejr@example.com", true, validUser.getLangKey(), validUser.getCreatedBy(), validUser.getCreatedDate(), validUser.getLastModifiedBy(), validUser.getLastModifiedDate(), validUser.getRoles(), validUser.getProject());
 
         // Good user
         restMvc.perform(
@@ -311,6 +334,11 @@ public class AccountResourceIntTest {
     @Test
     @Transactional
     public void testRegisterDuplicateEmail() throws Exception {
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
+
         // Good
         ManagedUserVM validUser = new ManagedUserVM(
             null,                   // id
@@ -325,12 +353,12 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)),
+            roles,
             null);
 
         // Duplicate email, different login
         ManagedUserVM duplicatedUser = new ManagedUserVM(validUser.getId(), "johnjr", validUser.getPassword(), validUser.getLogin(), validUser.getLastName(),
-            validUser.getEmail(), true, validUser.getLangKey(), validUser.getCreatedBy(), validUser.getCreatedDate(), validUser.getLastModifiedBy(), validUser.getLastModifiedDate(), validUser.getAuthorities() , validUser.getProject());
+            validUser.getEmail(), true, validUser.getLangKey(), validUser.getCreatedBy(), validUser.getCreatedDate(), validUser.getLastModifiedBy(), validUser.getLastModifiedDate(), validUser.getRoles() , validUser.getProject());
 
         // Good user
         restMvc.perform(
@@ -353,6 +381,11 @@ public class AccountResourceIntTest {
     @Test
     @Transactional
     public void testRegisterAdminIsIgnored() throws Exception {
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.SYS_ADMIN);
+        roles.add(role);
+
         ManagedUserVM validUser = new ManagedUserVM(
             null,                   // id
             "badguy",               // login
@@ -366,7 +399,7 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList( AuthoritiesConstants.SYS_ADMIN)),
+            roles,
             null);
 
         restMvc.perform(
@@ -384,6 +417,11 @@ public class AccountResourceIntTest {
     @Test
     @Transactional
     public void testSaveInvalidLogin() throws Exception {
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
+
         UserDTO invalidUser = new UserDTO(
             null,                   // id
             "funky-log!n",          // login <-- invalid
@@ -396,7 +434,7 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)),
+            roles,
             null);
 
         restUserMockMvc.perform(

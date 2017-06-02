@@ -30,8 +30,8 @@
         <dt><span jhiTranslate="userManagement.profiles">Profiles</span></dt>
         <dd>
             <ul class="list-unstyled">
-                <li *ngFor="let authority of user.authorities">
-                    <span class="badge badge-info">{{authority}}</span>
+                <li *ngFor="let role of user.roles">
+                    <span class="badge badge-info">{{role.authorityName}}</span>
                 </li>
             </ul>
         </dd>

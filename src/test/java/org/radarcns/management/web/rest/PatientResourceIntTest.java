@@ -4,6 +4,7 @@ import org.radarcns.management.ManagementPortalApp;
 
 import org.radarcns.management.domain.Patient;
 import org.radarcns.management.repository.PatientRepository;
+import org.radarcns.management.service.PatientService;
 import org.radarcns.management.service.dto.PatientDTO;
 import org.radarcns.management.service.mapper.PatientMapper;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
@@ -18,6 +19,7 @@ import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +57,9 @@ public class PatientResourceIntTest {
     private PatientMapper patientMapper;
 
     @Autowired
+    private PatientService patientService;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -73,7 +78,10 @@ public class PatientResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        PatientResource patientResource = new PatientResource(patientRepository, patientMapper);
+        PatientResource patientResource = new PatientResource();
+        ReflectionTestUtils.setField(patientResource , "patientService" , patientService);
+        ReflectionTestUtils.setField(patientResource , "patientRepository" , patientRepository);
+        ReflectionTestUtils.setField(patientResource , "patientMapper" , patientMapper);
         this.restPatientMockMvc = MockMvcBuilders.standaloneSetup(patientResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -89,7 +97,7 @@ public class PatientResourceIntTest {
     public static Patient createEntity(EntityManager em) {
         Patient patient = new Patient()
             .externalLink(DEFAULT_EXTERNAL_LINK)
-            .enternalId(DEFAULT_ENTERNAL_ID)
+            .externalId(DEFAULT_ENTERNAL_ID)
             .removed(DEFAULT_REMOVED);
         return patient;
     }
@@ -116,7 +124,7 @@ public class PatientResourceIntTest {
         assertThat(patientList).hasSize(databaseSizeBeforeCreate + 1);
         Patient testPatient = patientList.get(patientList.size() - 1);
         assertThat(testPatient.getExternalLink()).isEqualTo(DEFAULT_EXTERNAL_LINK);
-        assertThat(testPatient.getEnternalId()).isEqualTo(DEFAULT_ENTERNAL_ID);
+        assertThat(testPatient.getExternalId()).isEqualTo(DEFAULT_ENTERNAL_ID);
         assertThat(testPatient.isRemoved()).isEqualTo(DEFAULT_REMOVED);
     }
 
@@ -191,7 +199,7 @@ public class PatientResourceIntTest {
         Patient updatedPatient = patientRepository.findOne(patient.getId());
         updatedPatient
             .externalLink(UPDATED_EXTERNAL_LINK)
-            .enternalId(UPDATED_ENTERNAL_ID)
+            .externalId(UPDATED_ENTERNAL_ID)
             .removed(UPDATED_REMOVED);
         PatientDTO patientDTO = patientMapper.patientToPatientDTO(updatedPatient);
 
@@ -205,7 +213,7 @@ public class PatientResourceIntTest {
         assertThat(patientList).hasSize(databaseSizeBeforeUpdate);
         Patient testPatient = patientList.get(patientList.size() - 1);
         assertThat(testPatient.getExternalLink()).isEqualTo(UPDATED_EXTERNAL_LINK);
-        assertThat(testPatient.getEnternalId()).isEqualTo(UPDATED_ENTERNAL_ID);
+        assertThat(testPatient.getExternalId()).isEqualTo(UPDATED_ENTERNAL_ID);
         assertThat(testPatient.isRemoved()).isEqualTo(UPDATED_REMOVED);
     }
 

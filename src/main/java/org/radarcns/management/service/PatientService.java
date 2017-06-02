@@ -61,7 +61,7 @@ public class PatientService {
 
     private User setOtherPropertiesToPatientUser(User user) {
         Set<Role> roles = new HashSet<>();
-        Role role = roleRepository.findByAuthorityName(AuthoritiesConstants.PARTICIPANT);
+        Role role = roleRepository.findRoleByAuthorityName(AuthoritiesConstants.PARTICIPANT);
         if (role != null) {
             roles.add(role);
         }
