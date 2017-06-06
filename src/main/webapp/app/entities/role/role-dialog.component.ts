@@ -10,6 +10,7 @@ import {RolePopupService} from "./role-popup.service";
 import {RoleService} from "./role.service";
 import {Project} from "../project/project.model";
 import {ProjectService} from "../project/project.service";
+import {AuthorityService} from "../../shared/user/authority.service";
 
 @Component({
     selector: 'jhi-role-dialog',
@@ -27,6 +28,7 @@ export class RoleDialogComponent implements OnInit {
         private jhiLanguageService: JhiLanguageService,
         private alertService: AlertService,
         private roleService: RoleService,
+        private authorityService: AuthorityService,
         private projectService: ProjectService,
         private eventManager: EventManager
     ) {
@@ -35,7 +37,9 @@ export class RoleDialogComponent implements OnInit {
 
     ngOnInit() {
         this.isSaving = false;
-        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN' , 'ROLE_PROJECT_ADMIN'];
+        this.authorityService.findAll().subscribe( res => {
+            this.authorities = res.json();
+        });
         this.projectService.query().subscribe(
             (res) => {
                 this.projects = res.json();
