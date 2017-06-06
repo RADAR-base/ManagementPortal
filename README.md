@@ -1,5 +1,11 @@
 # ManagementPortal
+
 ManagementPortal is an application which is used to manage pilot studies for [RADAR-CNS](http://www.radar-cns.org/).
+
+## Configuration
+
+To add a new client to this API, add it to `src/main/resources/config/oauth_client_details.csv`.
+
 ## Development
 
 Before you can build this project, you must install and configure the following dependencies on your machine:
@@ -23,6 +29,8 @@ auto-refreshes when files change on your hard drive.
 
     ./gradlew
     yarn start
+
+Then open <http://localhost:8080/> to start the interface and sign in with admin/admin.
 
 [Yarn][] is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
 specifying a newer version in [package.json](package.json). You can also run `yarn update` and `yarn install` to manage dependencies.
