@@ -2,6 +2,7 @@ package org.radarcns.management.service;
 
 import java.time.ZonedDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.radarcns.management.domain.Patient;
 import org.radarcns.management.domain.Role;
@@ -61,9 +62,9 @@ public class PatientService {
 
     private User setOtherPropertiesToPatientUser(User user) {
         Set<Role> roles = new HashSet<>();
-        Role role = roleRepository.findRoleByAuthorityName(AuthoritiesConstants.PARTICIPANT);
+        List<Role> role = roleRepository.findRolesByAuthorityName(AuthoritiesConstants.PARTICIPANT);
         if (role != null) {
-            roles.add(role);
+            roles.addAll(role);
         }
         user.setRoles(roles);
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());

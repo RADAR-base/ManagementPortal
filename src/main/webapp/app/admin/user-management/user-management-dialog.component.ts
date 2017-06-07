@@ -34,7 +34,7 @@ export class UserMgmtDialogComponent implements OnInit {
 
     ngOnInit() {
         this.isSaving = false;
-        this.roleService.query().subscribe((res) => {
+        this.roleService.findAdminRoles().subscribe((res) => {
            this.roles = res.json();
         });
         // this.authorities = this.authorityService.findAll();
@@ -46,7 +46,6 @@ export class UserMgmtDialogComponent implements OnInit {
         this.projectService.query().subscribe(
             (res) => {
                 this.projects = res.json();
-                console.log('Projects ', this.projects);
             } );
     }
 
@@ -73,12 +72,19 @@ export class UserMgmtDialogComponent implements OnInit {
         }
         return option;
     }
+
     trackProjectById(index: number, item: Project) {
         return item.id;
     }
 
     trackRoleById(index: number, item: Role) {
         return item.id;
+    }
+
+    public onProjectChange(project: any) {
+        this.roleService.findByProject(project.id).subscribe((res) => {
+            this.roles = res.json();
+        });
     }
 
     private onSaveSuccess(result) {

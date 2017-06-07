@@ -111,7 +111,8 @@ public class UserService {
         String langKey) {
 
         User newUser = new User();
-        Role role = roleRepository.findRoleByAuthorityName(AuthoritiesConstants.USER);
+        // TODO check how this is used in the system, setting default user role?
+        Role role = roleRepository.findRolesByAuthorityName(AuthoritiesConstants.USER).get(0);
         Set<Role> roles = new HashSet<>();
         String encryptedPassword = passwordEncoder.encode(password);
         newUser.setLogin(login);

@@ -43,7 +43,6 @@ export class RoleDialogComponent implements OnInit {
         this.projectService.query().subscribe(
             (res) => {
                 this.projects = res.json();
-                // console.log('Projects ', this.projects);
             } );
 
     }

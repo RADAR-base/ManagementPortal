@@ -88,6 +88,30 @@ public class RoleResource {
     }
 
     /**
+     * GET  /roles : get all the roles.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of roles in body
+     */
+    @GetMapping("/roles/admin")
+    @Timed
+    public List<RoleDTO> getAllAdminRoles() {
+        log.debug("REST request to get all Admin Roles");
+        return roleService.findSuperAdminRoles();
+    }
+
+    /**
+     * GET  /roles : get all the roles created for this project.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of roles in body
+     */
+    @GetMapping("/roles/project/{id}")
+    @Timed
+    public List<RoleDTO> getRolesByProject(@PathVariable Long id) {
+        log.debug("REST request to get all Roles for this project");
+        return roleService.getRolesByProject(id);
+    }
+
+    /**
      * GET  /roles/:id : get the "id" role.
      *
      * @param id the id of the roleDTO to retrieve

@@ -30,10 +30,20 @@ export class RoleService {
         });
     }
 
+    findByProject(projectId: number): Observable<Response> {
+        return this.http.get(`${this.resourceUrl}/project/${projectId}`);
+    }
+
     query(req?: any): Observable<Response> {
         const options = this.createRequestOption(req);
         return this.http.get(this.resourceUrl, options)
         ;
+    }
+
+    findAdminRoles(req?: any): Observable<Response> {
+        const options = this.createRequestOption(req);
+        return this.http.get(`${this.resourceUrl}/admin`, options)
+            ;
     }
 
     delete(id: number): Observable<Response> {

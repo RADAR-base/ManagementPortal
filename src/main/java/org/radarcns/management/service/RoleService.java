@@ -2,6 +2,7 @@ package org.radarcns.management.service;
 
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.repository.RoleRepository;
+import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.service.mapper.RoleMapper;
 import org.slf4j.Logger;
@@ -61,6 +62,21 @@ public class RoleService {
     }
 
     /**
+     *  Get all Admin roles.
+     *
+     *  @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public List<RoleDTO> findSuperAdminRoles() {
+        log.debug("Request to get admin Roles");
+        List<RoleDTO> result = roleRepository.findRolesByAuthorityName(AuthoritiesConstants.SYS_ADMIN).stream()
+            .map(roleMapper::roleToRoleDTO)
+            .collect(Collectors.toCollection(LinkedList::new));
+
+        return result;
+    }
+
+    /**
      *  Get one role by id.
      *
      *  @param id the id of the entity
@@ -82,5 +98,14 @@ public class RoleService {
     public void delete(Long id) {
         log.debug("Request to delete Role : {}", id);
         roleRepository.delete(id);
+    }
+
+    public List<RoleDTO> getRolesByProject(Long projectId) {
+        log.debug("Request to get all Roles for projectId " +projectId);
+        List<RoleDTO> result = roleRepository.findAllRolesByProjectId(projectId).stream()
+            .map(roleMapper::roleToRoleDTO)
+            .collect(Collectors.toCollection(LinkedList::new));
+
+        return result;
     }
 }

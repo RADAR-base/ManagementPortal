@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {Component, OnInit, OnDestroy, Input} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Response } from '@angular/http';
 
@@ -23,6 +23,7 @@ export class PatientDialogComponent implements OnInit {
     authorities: any[];
     isSaving: boolean;
     projects: Project[];
+    login ?= 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
 
     devices: Device[];
     constructor(
@@ -44,6 +45,11 @@ export class PatientDialogComponent implements OnInit {
             (res) => {
                 this.projects = res.json();
             } );
+        this.patient.login = this.login.replace(/[xy]/g, function(c) {
+            var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+            return v.toString(16);
+        });
+
         // this.usrService.query({filter: 'patient-is-null'}).subscribe((res: Response) => {
         //     if (!this.patient.userId) {
         //         this.users = res.json();
