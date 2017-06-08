@@ -83,7 +83,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
     private ZonedDateTime resetDate = null;
 
     @JsonIgnore
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany()
     @JoinTable(
         name = "radar_user_authority",
         joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
@@ -102,7 +102,6 @@ public class User extends AbstractAuditingEntity implements Serializable {
     private Set<Role> roles = new HashSet<>();
 
     @ManyToOne
-//    @Cascade(CascadeType.ALL)
     private Project project;
 
     public Long getId() {

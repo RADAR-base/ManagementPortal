@@ -232,8 +232,20 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Page<UserDTO> getAllManagedUsers(Pageable pageable) {
-        return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER)
-            .map(userMapper::userToUserDTO);
+        User currentUser = getUserWithAuthorities();
+        List<String> currentUserAuthorities = currentUser.getAuthorities().stream().map(Authority::getName).collect(
+            Collectors.toList());
+        if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
+            log.debug("Request to get all Projects");
+            return userRepository.findAllByProjectId(pageable, currentUser.getProject().getId())
+                .map(userMapper::userToUserDTO);
+        }
+        else {
+            log.debug("Request to get all Users");
+            return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER)
+                .map(userMapper::userToUserDTO);
+        }
+
     }
 
     @Transactional(readOnly = true)
