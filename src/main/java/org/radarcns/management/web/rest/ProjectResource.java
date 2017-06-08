@@ -1,6 +1,7 @@
 package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.ProjectService;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.service.dto.ProjectDTO;
@@ -8,6 +9,7 @@ import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -28,7 +30,7 @@ public class ProjectResource {
     private final Logger log = LoggerFactory.getLogger(ProjectResource.class);
 
     private static final String ENTITY_NAME = "project";
-        
+
     private final ProjectService projectService;
 
     public ProjectResource(ProjectService projectService) {
@@ -44,6 +46,7 @@ public class ProjectResource {
      */
     @PostMapping("/projects")
     @Timed
+    @Secured(AuthoritiesConstants.SYS_ADMIN)
     public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO) throws URISyntaxException {
         log.debug("REST request to save Project : {}", projectDTO);
         if (projectDTO.getId() != null) {
@@ -84,8 +87,9 @@ public class ProjectResource {
      */
     @GetMapping("/projects")
     @Timed
+    @Secured( {AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.SYS_ADMIN})
     public List<ProjectDTO> getAllProjects() {
-        log.debug("REST request to get all Projects");
+        log.debug("REST request to get Projects");
         return projectService.findAll();
     }
 

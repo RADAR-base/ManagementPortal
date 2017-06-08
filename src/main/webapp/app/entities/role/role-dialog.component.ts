@@ -11,6 +11,7 @@ import {RoleService} from "./role.service";
 import {Project} from "../project/project.model";
 import {ProjectService} from "../project/project.service";
 import {AuthorityService} from "../../shared/user/authority.service";
+import {Principal} from "../../shared/auth/principal.service";
 
 @Component({
     selector: 'jhi-role-dialog',
@@ -22,6 +23,7 @@ export class RoleDialogComponent implements OnInit {
     authorities: any[];
     projects: Project[];
     isSaving: boolean;
+    currentAccount: any;
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -30,6 +32,7 @@ export class RoleDialogComponent implements OnInit {
         private roleService: RoleService,
         private authorityService: AuthorityService,
         private projectService: ProjectService,
+        private principal: Principal,
         private eventManager: EventManager
     ) {
         this.jhiLanguageService.setLocations(['role', 'dataType']);

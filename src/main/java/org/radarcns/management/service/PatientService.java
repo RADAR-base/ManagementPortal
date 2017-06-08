@@ -54,8 +54,7 @@ public class PatientService {
         patient.setUser(setOtherPropertiesToPatientUser(patient.getUser()));
         patient = patientRepository.save(patient);
         if (patient.getId() != null) {
-            patient.getUser().setEmail(patientDTO.getEmail());
-            mailService.sendCreationEmail(patient.getUser());
+            mailService.sendCreationEmailForGivenEmail(patient.getUser() , patientDTO.getEmail());
         }
         return patientMapper.patientToPatientDTO(patient);
     }

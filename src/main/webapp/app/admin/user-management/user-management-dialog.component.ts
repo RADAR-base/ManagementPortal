@@ -9,6 +9,7 @@ import { JhiLanguageHelper, User, UserService } from '../../shared';
 import { Project, ProjectService} from '../../entities/project';
 import {Role} from "../../entities/role/role.model";
 import {RoleService} from "../../entities/role/role.service";
+import {Principal} from "../../shared/auth/principal.service";
 
 @Component({
     selector: 'jhi-user-mgmt-dialog',
@@ -19,8 +20,10 @@ export class UserMgmtDialogComponent implements OnInit {
     user: User;
     languages: any[];
     roles: Role[];
+    defaultRoles: Role[];
     isSaving: Boolean;
     projects: Project[];
+    currentAccount: any;
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -29,14 +32,16 @@ export class UserMgmtDialogComponent implements OnInit {
         private userService: UserService,
         private roleService: RoleService,
         private projectService: ProjectService,
+        private principal: Principal,
         private eventManager: EventManager
     ) {}
 
     ngOnInit() {
         this.isSaving = false;
         this.roleService.findAdminRoles().subscribe((res) => {
-           this.roles = res.json();
+           this.defaultRoles = res.json();
         });
+        this.roles = this.defaultRoles;
         // this.authorities = this.authorityService.findAll();
         this.languageHelper.getAll().then((languages) => {
             this.languages = languages;
@@ -47,6 +52,10 @@ export class UserMgmtDialogComponent implements OnInit {
             (res) => {
                 this.projects = res.json();
             } );
+
+        this.principal.identity().then((account) => {
+            this.currentAccount = account;
+        });
     }
 
     clear() {
@@ -82,9 +91,15 @@ export class UserMgmtDialogComponent implements OnInit {
     }
 
     public onProjectChange(project: any) {
-        this.roleService.findByProject(project.id).subscribe((res) => {
-            this.roles = res.json();
-        });
+        console.log("changed " , project);
+        if(project==null) {
+           this.roles = this.defaultRoles;
+        }
+        else {
+            this.roleService.findByProject(project.id).subscribe((res) => {
+                this.roles = res.json();
+            });
+        }
     }
 
     private onSaveSuccess(result) {

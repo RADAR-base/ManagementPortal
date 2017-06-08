@@ -20,6 +20,7 @@ public interface PatientMapper {
     @Mapping(source = "user.createdDate", target = "createdDate")
     @Mapping(source = "user.lastModifiedBy", target = "lastModifiedBy")
     @Mapping(source = "user.lastModifiedDate", target = "lastModifiedDate")
+    @Mapping(target = "email", ignore = true)
     PatientDTO patientToPatientDTO(Patient patient);
 
     List<PatientDTO> patientsToPatientDTOs(List<Patient> patients);
@@ -31,6 +32,7 @@ public interface PatientMapper {
     @Mapping(source = "createdDate", target = "user.createdDate")
     @Mapping(source = "lastModifiedBy", target = "user.lastModifiedBy")
     @Mapping(source = "lastModifiedDate", target = "user.lastModifiedDate")
+    @Mapping(target = "user.email" , ignore = true)
     Patient patientDTOToPatient(PatientDTO patientDTO);
 
     @Mapping(target = "user", ignore = true)

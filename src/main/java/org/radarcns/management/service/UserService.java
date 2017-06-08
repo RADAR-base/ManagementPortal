@@ -1,5 +1,7 @@
 package org.radarcns.management.service;
 
+import java.util.stream.Collectors;
+import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;

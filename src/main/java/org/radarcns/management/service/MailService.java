@@ -95,6 +95,17 @@ public class MailService {
     }
 
     @Async
+    public void sendCreationEmailForGivenEmail(User user, String email) {
+        log.debug("Sending creation email to '{}'", email);
+        Locale locale = Locale.forLanguageTag(user.getLangKey());
+        Context context = new Context(locale);
+        context.setVariable(USER, user);
+        context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
+        String content = templateEngine.process("creationEmail", context);
+        String subject = messageSource.getMessage("email.activation.title", null, locale);
+        sendEmail(email, subject, content, false, true);
+    }
+    @Async
     public void sendPasswordResetMail(User user) {
         log.debug("Sending password reset email to '{}'", user.getEmail());
         Locale locale = Locale.forLanguageTag(user.getLangKey());

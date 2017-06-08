@@ -27,6 +27,7 @@
                 "main": "Administration",
                 "userManagement": "User management",
                 "role": "Role Management",
+                "project": "Project Management",
                 "tracker": "User tracker",
                 "metrics": "Metrics",
                 "health": "Health",
