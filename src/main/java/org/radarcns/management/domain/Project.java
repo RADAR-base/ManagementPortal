@@ -1,13 +1,20 @@
 package org.radarcns.management.domain;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Objects;
+
+import org.hibernate.annotations.Cache;
+import org.radarcns.management.domain.enumeration.ProjectStatus;
 
 /**
  * A Project.
@@ -34,11 +41,34 @@ public class Project implements Serializable {
     @Column(name = "jhi_organization")
     private String organization;
 
+    @NotNull
+    @Column(name = "location", nullable = false)
+    private String location;
+
     @Column(name = "start_date")
     private ZonedDateTime startDate;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "project_status")
+    private ProjectStatus projectStatus;
+
     @Column(name = "end_date")
     private ZonedDateTime endDate;
+
+    @Column(name = "project_admin")
+    private Long projectAdmin;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "project")
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    private Set<Role> roles;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @JoinTable(name = "project_device_type",
+               joinColumns = @JoinColumn(name="projects_id", referencedColumnName="id"),
+               inverseJoinColumns = @JoinColumn(name="device_types_id", referencedColumnName="id"))
+    private Set<DeviceType> deviceTypes = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -83,8 +113,29 @@ public class Project implements Serializable {
         return this;
     }
 
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
     public void setOrganization(String organization) {
         this.organization = organization;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public Project location(String location) {
+        this.location = location;
+        return this;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public ZonedDateTime getStartDate() {
@@ -100,6 +151,19 @@ public class Project implements Serializable {
         this.startDate = startDate;
     }
 
+    public ProjectStatus getProjectStatus() {
+        return projectStatus;
+    }
+
+    public Project projectStatus(ProjectStatus projectStatus) {
+        this.projectStatus = projectStatus;
+        return this;
+    }
+
+    public void setProjectStatus(ProjectStatus projectStatus) {
+        this.projectStatus = projectStatus;
+    }
+
     public ZonedDateTime getEndDate() {
         return endDate;
     }
@@ -111,6 +175,44 @@ public class Project implements Serializable {
 
     public void setEndDate(ZonedDateTime endDate) {
         this.endDate = endDate;
+    }
+
+    public Long getProjectAdmin() {
+        return projectAdmin;
+    }
+
+    public Project projectAdmin(Long projectAdmin) {
+        this.projectAdmin = projectAdmin;
+        return this;
+    }
+
+    public void setProjectAdmin(Long projectAdmin) {
+        this.projectAdmin = projectAdmin;
+    }
+
+    public Set<DeviceType> getDeviceTypes() {
+        return deviceTypes;
+    }
+
+    public Project deviceTypes(Set<DeviceType> deviceTypes) {
+        this.deviceTypes = deviceTypes;
+        return this;
+    }
+
+    public Project addDeviceType(DeviceType deviceType) {
+        this.deviceTypes.add(deviceType);
+        deviceType.getProjects().add(this);
+        return this;
+    }
+
+    public Project removeDeviceType(DeviceType deviceType) {
+        this.deviceTypes.remove(deviceType);
+        deviceType.getProjects().remove(this);
+        return this;
+    }
+
+    public void setDeviceTypes(Set<DeviceType> deviceTypes) {
+        this.deviceTypes = deviceTypes;
     }
 
     @Override
@@ -140,8 +242,11 @@ public class Project implements Serializable {
             ", projectName='" + projectName + "'" +
             ", description='" + description + "'" +
             ", organization='" + organization + "'" +
+            ", location='" + location + "'" +
             ", startDate='" + startDate + "'" +
+            ", projectStatus='" + projectStatus + "'" +
             ", endDate='" + endDate + "'" +
+            ", projectAdmin='" + projectAdmin + "'" +
             '}';
     }
 }

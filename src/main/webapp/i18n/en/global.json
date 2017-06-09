@@ -10,7 +10,8 @@
                 "device": "Device",
                 "deviceType": "Device Type",
                 "project": "Project",
-                "study": "Study",
+                "sensorData": "Sensor Data",
+                "patient": "Patient",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
             "account": {
@@ -25,6 +26,8 @@
             "admin": {
                 "main": "Administration",
                 "userManagement": "User management",
+                "role": "Role Management",
+                "project": "Project Management",
                 "tracker": "User tracker",
                 "metrics": "Metrics",
                 "health": "Health",

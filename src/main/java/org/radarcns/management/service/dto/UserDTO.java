@@ -3,6 +3,7 @@ package org.radarcns.management.service.dto;
 import org.radarcns.management.config.Constants;
 
 import org.radarcns.management.domain.Authority;
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.User;
 
 import org.hibernate.validator.constraints.Email;
@@ -40,11 +41,15 @@ public class UserDTO {
 
     private String createdBy;
 
+    private ProjectDTO project;
+
     private ZonedDateTime createdDate;
 
     private String lastModifiedBy;
 
     private ZonedDateTime lastModifiedDate;
+
+    private Set<RoleDTO> roles;
 
     private Set<String> authorities;
 
@@ -52,18 +57,18 @@ public class UserDTO {
         // Empty constructor needed for MapStruct.
     }
 
-    public UserDTO(User user) {
-        this(user.getId(), user.getLogin(), user.getFirstName(), user.getLastName(),
-            user.getEmail(), user.getActivated(), user.getLangKey(),
-            user.getCreatedBy(), user.getCreatedDate(), user.getLastModifiedBy(), user.getLastModifiedDate(),
-            user.getAuthorities().stream().map(Authority::getName)
-                .collect(Collectors.toSet()));
-    }
+//    public UserDTO(User user) {
+//        this(user.getId(), user.getLogin(), user.getFirstName(), user.getLastName(),
+//            user.getEmail(), user.getActivated(), user.getLangKey(),
+//            user.getCreatedBy(), user.getCreatedDate(), user.getLastModifiedBy(), user.getLastModifiedDate(),
+//            user.getAuthorities().stream().map(Authority::getName)
+//                .collect(Collectors.toSet()), user.getProject());
+//    }
 
     public UserDTO(Long id, String login, String firstName, String lastName,
         String email, boolean activated, String langKey,
         String createdBy, ZonedDateTime createdDate, String lastModifiedBy, ZonedDateTime lastModifiedDate,
-        Set<String> authorities) {
+        Set<RoleDTO> roles, ProjectDTO project) {
 
         this.id = id;
         this.login = login;
@@ -76,7 +81,8 @@ public class UserDTO {
         this.createdDate = createdDate;
         this.lastModifiedBy = lastModifiedBy;
         this.lastModifiedDate = lastModifiedDate;
-        this.authorities = authorities;
+        this.roles = roles;
+        this.project = project;
     }
 
     public Long getId() {
@@ -99,32 +105,72 @@ public class UserDTO {
         return firstName;
     }
 
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
     public String getLastName() {
         return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getEmail() {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public boolean isActivated() {
         return activated;
+    }
+
+    public void setActivated(boolean activated) {
+        this.activated = activated;
     }
 
     public String getLangKey() {
         return langKey;
     }
 
+    public void setLangKey(String langKey) {
+        this.langKey = langKey;
+    }
+
     public String getCreatedBy() {
         return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public ProjectDTO getProject() {
+        return project;
+    }
+
+    public void setProject(ProjectDTO project) {
+        this.project = project;
     }
 
     public ZonedDateTime getCreatedDate() {
         return createdDate;
     }
 
+    public void setCreatedDate(ZonedDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
     public String getLastModifiedBy() {
         return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(String lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
     }
 
     public ZonedDateTime getLastModifiedDate() {
@@ -137,6 +183,18 @@ public class UserDTO {
 
     public Set<String> getAuthorities() {
         return authorities;
+    }
+
+    public void setAuthorities(Set<String> authorities) {
+        this.authorities = authorities;
+    }
+
+    public Set<RoleDTO> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<RoleDTO> roles) {
+        this.roles = roles;
     }
 
     @Override
@@ -152,7 +210,6 @@ public class UserDTO {
             ", createdDate=" + createdDate +
             ", lastModifiedBy='" + lastModifiedBy + '\'' +
             ", lastModifiedDate=" + lastModifiedDate +
-            ", authorities=" + authorities +
             "}";
     }
 }

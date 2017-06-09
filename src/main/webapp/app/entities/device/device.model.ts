@@ -1,12 +1,12 @@
-import { DeviceType } from '../device-type';
-import { Study } from '../study';
 export class Device {
     constructor(
         public id?: number,
         public devicePhysicalId?: string,
         public deviceCategory?: string,
-        public deviceType?: DeviceType,
-        public study?: Study,
+        public activated?: boolean,
+        public deviceTypeId?: number,
+        public projectId?: number,
     ) {
+        this.activated = false;
     }
 }

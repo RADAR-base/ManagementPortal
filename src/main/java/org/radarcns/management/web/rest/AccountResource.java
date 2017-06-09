@@ -4,10 +4,12 @@ import com.codahale.metrics.annotation.Timed;
 
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.UserRepository;
+import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.security.SecurityUtils;
 import org.radarcns.management.service.MailService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.UserDTO;
+import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.web.rest.vm.KeyAndPasswordVM;
 import org.radarcns.management.web.rest.vm.ManagedUserVM;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -15,10 +17,12 @@ import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,19 +38,25 @@ public class AccountResource {
 
     private final Logger log = LoggerFactory.getLogger(AccountResource.class);
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    private final UserService userService;
+    @Autowired
+    private UserService userService;
 
-    private final MailService mailService;
+    @Autowired
+    private MailService mailService;
 
-    public AccountResource(UserRepository userRepository, UserService userService,
-            MailService mailService) {
+    @Autowired
+    private UserMapper userMapper;
 
-        this.userRepository = userRepository;
-        this.userService = userService;
-        this.mailService = mailService;
-    }
+//    public AccountResource(UserRepository userRepository, UserService userService,
+//            MailService mailService) {
+//
+//        this.userRepository = userRepository;
+//        this.userService = userService;
+//        this.mailService = mailService;
+//    }
 
     /**
      * POST  /register : register the user.
@@ -56,6 +66,7 @@ public class AccountResource {
      */
     @PostMapping(path = "/register",
                     produces={MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
+    @Secured({ AuthoritiesConstants.SYS_ADMIN})
     @Timed
     public ResponseEntity registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
 
@@ -114,7 +125,7 @@ public class AccountResource {
     @Timed
     public ResponseEntity<UserDTO> getAccount() {
         return Optional.ofNullable(userService.getUserWithAuthorities())
-            .map(user -> new ResponseEntity<>(new UserDTO(user), HttpStatus.OK))
+            .map(user -> new ResponseEntity<>(userMapper.userToUserDTO(user), HttpStatus.OK))
             .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 

@@ -1,8 +1,8 @@
+
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 
-import _root_.io.gatling.core.scenario.Simulation
-import ch.qos.logback.classic.{Level, LoggerContext}
+import ch.qos.logback.classic.LoggerContext
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import org.slf4j.LoggerFactory
@@ -80,7 +80,7 @@ class DeviceTypeGatlingTest extends Simulation {
             .exec(http("Create new deviceType")
             .post("/api/device-types")
             .headers(headers_http_authenticated)
-            .body(StringBody("""{"id":null, "deviceProducer":"SAMPLE_TEXT", "deviceModel":"SAMPLE_TEXT", "sensorType":"SAMPLE_TEXT"}""")).asJSON
+            .body(StringBody("""{"id":null, "deviceProducer":"SAMPLE_TEXT", "deviceModel":"SAMPLE_TEXT", "sourceType":null}""")).asJSON
             .check(status.is(201))
             .check(headerRegex("Location", "(.*)").saveAs("new_deviceType_url"))).exitHereIfFailed
             .pause(10)

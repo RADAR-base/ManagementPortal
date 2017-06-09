@@ -1,0 +1,19 @@
+---
+version: '2.1'
+
+networks:
+  mail:
+    driver: bridge
+    internal: true
+
+
+services:
+  smtp:
+    image: namshi/smtp:latest
+    networks:
+      - mail
+    volumes:
+      - /var/spool/exim
+    restart: always
+    env_file:
+      - ./etc/smtp.env

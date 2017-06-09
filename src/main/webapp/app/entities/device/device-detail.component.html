@@ -12,10 +12,19 @@
         <dd>
             <span>{{device.deviceCategory}}</span>
         </dd>
+        <dt><span jhiTranslate="managementPortalApp.device.activated">Activated</span></dt>
+        <dd>
+            <span>{{device.activated}}</span>
+        </dd>
         <dt><span jhiTranslate="managementPortalApp.device.deviceType">Device Type</span></dt>
         <dd>
-            <div *ngIf="device.deviceType">
-                <a [routerLink]="['/device-type', device.deviceType?.id]">{{device.deviceType?.id}}</a>
+            <div *ngIf="device.deviceTypeId">
+                <a [routerLink]="['/device-type', device.deviceTypeId]">{{device.deviceTypeId}}</a>
+            </div>
+        </dd>
+        <dd>
+            <div *ngIf="device.projectId">
+                <a [routerLink]="['/project', device.projectId]">{{device.projectId}}</a>
             </div>
         </dd>
     </dl>

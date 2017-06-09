@@ -10,7 +10,6 @@ import {
     AuthServerProvider,
     AccountService,
     UserService,
-    AuthorityService,
     StateStorageService,
     LoginService,
     LoginModalService,
@@ -18,6 +17,7 @@ import {
     HasAnyAuthorityDirective,
     JhiLoginModalComponent
 } from './';
+import {AuthorityService} from "./user/authority.service";
 
 @NgModule({
     imports: [

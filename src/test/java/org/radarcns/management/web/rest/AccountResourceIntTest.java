@@ -2,13 +2,16 @@ package org.radarcns.management.web.rest;
 
 import org.radarcns.management.ManagementPortalApp;
 import org.radarcns.management.domain.Authority;
+import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.MailService;
 import org.radarcns.management.service.UserService;
+import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.service.dto.UserDTO;
+import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.web.rest.vm.ManagedUserVM;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +55,9 @@ public class AccountResourceIntTest {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @Mock
     private UserService mockUserService;
 
@@ -66,11 +73,17 @@ public class AccountResourceIntTest {
         MockitoAnnotations.initMocks(this);
         doNothing().when(mockMailService).sendActivationEmail(anyObject());
 
-        AccountResource accountResource =
-            new AccountResource(userRepository, userService, mockMailService);
+        AccountResource accountResource = new AccountResource();
+        ReflectionTestUtils.setField(accountResource, "userService", userService);
+        ReflectionTestUtils.setField(accountResource, "userMapper", userMapper);
+        ReflectionTestUtils.setField(accountResource, "mailService", mockMailService);
+        ReflectionTestUtils.setField(accountResource, "userRepository", userRepository);
 
-        AccountResource accountUserMockResource =
-            new AccountResource(userRepository, mockUserService, mockMailService);
+        AccountResource accountUserMockResource = new AccountResource();
+        ReflectionTestUtils.setField(accountUserMockResource, "userService", mockUserService);
+        ReflectionTestUtils.setField(accountUserMockResource, "userMapper", userMapper);
+        ReflectionTestUtils.setField(accountUserMockResource, "mailService", mockMailService);
+        ReflectionTestUtils.setField(accountUserMockResource, "userRepository", userRepository);
 
         this.restMvc = MockMvcBuilders.standaloneSetup(accountResource).build();
         this.restUserMockMvc = MockMvcBuilders.standaloneSetup(accountUserMockResource).build();
@@ -98,19 +111,23 @@ public class AccountResourceIntTest {
 
     @Test
     public void testGetExistingAccount() throws Exception {
-        Set<Authority> authorities = new HashSet<>();
+        Set<Role> roles = new HashSet<>();
+        Role role = new Role();
         Authority authority = new Authority();
-        authority.setName(AuthoritiesConstants.ADMIN);
-        authorities.add(authority);
+        authority.setName(AuthoritiesConstants.SYS_ADMIN);
+        role.setAuthority(authority);
+//        Authority authority2 = new Authority();
+//        authority2.setName(AuthoritiesConstants.SYS_ADMIN);
+        roles.add(role);
+//        authorities.add(authority2);
 
         User user = new User();
         user.setLogin("test");
         user.setFirstName("john");
         user.setLastName("doe");
         user.setEmail("john.doe@jhipster.com");
-        user.setImageUrl("http://placehold.it/50x50");
         user.setLangKey("en");
-        user.setAuthorities(authorities);
+        user.setRoles(roles);
         when(mockUserService.getUserWithAuthorities()).thenReturn(user);
 
         restUserMockMvc.perform(get("/api/account")
@@ -121,9 +138,8 @@ public class AccountResourceIntTest {
             .andExpect(jsonPath("$.firstName").value("john"))
             .andExpect(jsonPath("$.lastName").value("doe"))
             .andExpect(jsonPath("$.email").value("john.doe@jhipster.com"))
-            .andExpect(jsonPath("$.imageUrl").value("http://placehold.it/50x50"))
             .andExpect(jsonPath("$.langKey").value("en"))
-            .andExpect(jsonPath("$.authorities").value(AuthoritiesConstants.ADMIN));
+            .andExpect(jsonPath("$.authorities").value(AuthoritiesConstants.SYS_ADMIN));
     }
 
     @Test
@@ -138,6 +154,10 @@ public class AccountResourceIntTest {
     @Test
     @Transactional
     public void testRegisterValid() throws Exception {
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
         ManagedUserVM validUser = new ManagedUserVM(
             null,                   // id
             "joe",                  // login
@@ -146,13 +166,13 @@ public class AccountResourceIntTest {
             "Shmoe",                // lastName
             "joe@example.com",      // email
             true,                   // activated
-            "http://placehold.it/50x50", //imageUrl
             "en",                   // langKey
             null,                   // createdBy
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)));
+            roles,
+            null);
 
         restMvc.perform(
             post("/api/register")
@@ -167,6 +187,10 @@ public class AccountResourceIntTest {
     @Test
     @Transactional
     public void testRegisterInvalidLogin() throws Exception {
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
         ManagedUserVM invalidUser = new ManagedUserVM(
             null,                   // id
             "funky-log!n",          // login <-- invalid
@@ -175,13 +199,13 @@ public class AccountResourceIntTest {
             "One",                  // lastName
             "funky@example.com",    // email
             true,                   // activated
-            "http://placehold.it/50x50", //imageUrl
             "en",                   // langKey
             null,                   // createdBy
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)));
+            roles,
+            null);
 
         restUserMockMvc.perform(
             post("/api/register")
@@ -196,6 +220,10 @@ public class AccountResourceIntTest {
     @Test
     @Transactional
     public void testRegisterInvalidEmail() throws Exception {
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
         ManagedUserVM invalidUser = new ManagedUserVM(
             null,               // id
             "bob",              // login
@@ -204,13 +232,13 @@ public class AccountResourceIntTest {
             "Green",            // lastName
             "invalid",          // email <-- invalid
             true,               // activated
-            "http://placehold.it/50x50", //imageUrl
             "en",                   // langKey
             null,                   // createdBy
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)));
+             roles,
+            null);
 
         restUserMockMvc.perform(
             post("/api/register")
@@ -225,6 +253,11 @@ public class AccountResourceIntTest {
     @Test
     @Transactional
     public void testRegisterInvalidPassword() throws Exception {
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
+
         ManagedUserVM invalidUser = new ManagedUserVM(
             null,               // id
             "bob",              // login
@@ -233,13 +266,13 @@ public class AccountResourceIntTest {
             "Green",            // lastName
             "bob@example.com",  // email
             true,               // activated
-            "http://placehold.it/50x50", //imageUrl
             "en",                   // langKey
             null,                   // createdBy
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)));
+            roles,
+            null);
 
         restUserMockMvc.perform(
             post("/api/register")
@@ -254,6 +287,11 @@ public class AccountResourceIntTest {
     @Test
     @Transactional
     public void testRegisterDuplicateLogin() throws Exception {
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
+
         // Good
         ManagedUserVM validUser = new ManagedUserVM(
             null,                   // id
@@ -263,17 +301,17 @@ public class AccountResourceIntTest {
             "Something",            // lastName
             "alice@example.com",    // email
             true,                   // activated
-            "http://placehold.it/50x50", //imageUrl
             "en",                   // langKey
             null,                   // createdBy
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)));
+            roles,
+            null);
 
         // Duplicate login, different email
         ManagedUserVM duplicatedUser = new ManagedUserVM(validUser.getId(), validUser.getLogin(), validUser.getPassword(), validUser.getFirstName(), validUser.getLastName(),
-            "alicejr@example.com", true, validUser.getImageUrl(), validUser.getLangKey(), validUser.getCreatedBy(), validUser.getCreatedDate(), validUser.getLastModifiedBy(), validUser.getLastModifiedDate(), validUser.getAuthorities());
+            "alicejr@example.com", true, validUser.getLangKey(), validUser.getCreatedBy(), validUser.getCreatedDate(), validUser.getLastModifiedBy(), validUser.getLastModifiedDate(), validUser.getRoles(), validUser.getProject());
 
         // Good user
         restMvc.perform(
@@ -296,6 +334,11 @@ public class AccountResourceIntTest {
     @Test
     @Transactional
     public void testRegisterDuplicateEmail() throws Exception {
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
+
         // Good
         ManagedUserVM validUser = new ManagedUserVM(
             null,                   // id
@@ -305,17 +348,17 @@ public class AccountResourceIntTest {
             "Doe",                  // lastName
             "john@example.com",     // email
             true,                   // activated
-            "http://placehold.it/50x50", //imageUrl
             "en",                   // langKey
             null,                   // createdBy
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER)));
+            roles,
+            null);
 
         // Duplicate email, different login
         ManagedUserVM duplicatedUser = new ManagedUserVM(validUser.getId(), "johnjr", validUser.getPassword(), validUser.getLogin(), validUser.getLastName(),
-            validUser.getEmail(), true, validUser.getImageUrl(), validUser.getLangKey(), validUser.getCreatedBy(), validUser.getCreatedDate(), validUser.getLastModifiedBy(), validUser.getLastModifiedDate(), validUser.getAuthorities());
+            validUser.getEmail(), true, validUser.getLangKey(), validUser.getCreatedBy(), validUser.getCreatedDate(), validUser.getLastModifiedBy(), validUser.getLastModifiedDate(), validUser.getRoles() , validUser.getProject());
 
         // Good user
         restMvc.perform(
@@ -338,6 +381,11 @@ public class AccountResourceIntTest {
     @Test
     @Transactional
     public void testRegisterAdminIsIgnored() throws Exception {
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.SYS_ADMIN);
+        roles.add(role);
+
         ManagedUserVM validUser = new ManagedUserVM(
             null,                   // id
             "badguy",               // login
@@ -346,13 +394,13 @@ public class AccountResourceIntTest {
             "Guy",                  // lastName
             "badguy@example.com",   // email
             true,                   // activated
-            "http://placehold.it/50x50", //imageUrl
             "en",                   // langKey
             null,                   // createdBy
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.ADMIN)));
+            roles,
+            null);
 
         restMvc.perform(
             post("/api/register")
@@ -369,6 +417,11 @@ public class AccountResourceIntTest {
     @Test
     @Transactional
     public void testSaveInvalidLogin() throws Exception {
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
+
         UserDTO invalidUser = new UserDTO(
             null,                   // id
             "funky-log!n",          // login <-- invalid
@@ -376,14 +429,13 @@ public class AccountResourceIntTest {
             "One",                  // lastName
             "funky@example.com",    // email
             true,                   // activated
-            "http://placehold.it/50x50", //imageUrl
             "en",                   // langKey
             null,                   // createdBy
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            new HashSet<>(Arrays.asList(AuthoritiesConstants.USER))
-        );
+            roles,
+            null);
 
         restUserMockMvc.perform(
             post("/api/account")

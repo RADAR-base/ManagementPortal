@@ -41,21 +41,21 @@
                         </a>
                     </li>
                     <li uiSrefActive="active">
-                        <a class="dropdown-item" routerLink="project" (click)="collapseNavbar()">
+                        <a class="dropdown-item" routerLink="sensor-data" (click)="collapseNavbar()">
                             <i class="fa fa-fw fa-asterisk" aria-hidden="true"></i>
-                            <span jhiTranslate="global.menu.entities.project">Project</span>
+                            <span jhiTranslate="global.menu.entities.sensorData">Sensor Data</span>
                         </a>
                     </li>
                     <li uiSrefActive="active">
-                        <a class="dropdown-item" routerLink="study" (click)="collapseNavbar()">
+                        <a class="dropdown-item" routerLink="patient" (click)="collapseNavbar()">
                             <i class="fa fa-fw fa-asterisk" aria-hidden="true"></i>
-                            <span jhiTranslate="global.menu.entities.study">Study</span>
+                            <span jhiTranslate="global.menu.entities.patient">Patient</span>
                         </a>
                     </li>
                     <!-- jhipster-needle-add-entity-to-menu - JHipster will add entities to the menu here -->
                 </ul>
             </li>
-            <li *jhiHasAnyAuthority="'ROLE_ADMIN'" ngbDropdown class="nav-item dropdown pointer">
+         <!--   <li *jhiHasAnyAuthority="['ROLE_PROJECT_ADMIN']" ngbDropdown class="nav-item dropdown pointer">
                 <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="admin-menu">
                     <span>
                         <i class="fa fa-user-plus" aria-hidden="true"></i>
@@ -68,6 +68,44 @@
                         <a class="dropdown-item" routerLink="user-management" routerLinkActive="active" (click)="collapseNavbar()">
                             <i class="fa fa-fw fa-user" aria-hidden="true"></i>
                             <span jhiTranslate="global.menu.admin.userManagement">User management</span>
+                        </a>
+                    </li>
+                    <li>
+                    <li>
+                        <a class="dropdown-item" routerLink="role" routerLinkActive="active" (click)="collapseNavbar()">
+                            <i class="fa fa-fw fa-user" aria-hidden="true"></i>
+                            <span jhiTranslate="global.menu.admin.role">Role</span>
+                        </a>
+                    </li>
+                </ul>
+
+            </li>-->
+
+            <li *jhiHasAnyAuthority="['ROLE_SYS_ADMIN' , 'ROLE_PROJECT_ADMIN']" ngbDropdown class="nav-item dropdown pointer">
+                <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="admin-menu">
+                    <span>
+                        <i class="fa fa-user-plus" aria-hidden="true"></i>
+                        <span jhiTranslate="global.menu.admin.main">Administration</span>
+                        <b class="caret"></b>
+                    </span>
+                </a>
+                <ul class="dropdown-menu" ngbDropdownMenu>
+                    <li>
+                        <a class="dropdown-item" routerLink="user-management" routerLinkActive="active" (click)="collapseNavbar()">
+                            <i class="fa fa-fw fa-user" aria-hidden="true"></i>
+                            <span jhiTranslate="global.menu.admin.userManagement">User management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" routerLink="role" routerLinkActive="active" (click)="collapseNavbar()">
+                            <i class="fa fa-fw fa-user" aria-hidden="true"></i>
+                            <span jhiTranslate="global.menu.admin.role">Role</span>
+                        </a>
+                    </li>
+                    <li >
+                        <a class="dropdown-item" routerLink="project" (click)="collapseNavbar()">
+                            <i class="fa fa-fw fa-desktop" aria-hidden="true"></i>
+                            <span jhiTranslate="global.menu.entities.project">Project</span>
                         </a>
                     </li>
                     <li>
@@ -115,6 +153,7 @@
                     </li>
                 </ul>
             </li>
+
             <li ngbDropdown class="nav-item dropdown pointer" *ngIf="languages">
                 <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="languagesnavBarDropdown" *ngIf="languages.length > 1">
                     <span>
@@ -167,12 +206,12 @@
                             <span jhiTranslate="global.menu.account.login">Sign in</span>
                         </a>
                     </li>
-                    <li *ngSwitchCase="false">
-                        <a class="dropdown-item" routerLink="register" routerLinkActive="active" (click)="collapseNavbar()">
-                            <i class="fa fa-fw fa-registered" aria-hidden="true"></i>
-                            <span jhiTranslate="global.menu.account.register">Register</span>
-                        </a>
-                    </li>
+                    <!--<li *ngSwitchCase="false">-->
+                        <!--<a class="dropdown-item" routerLink="register" routerLinkActive="active" (click)="collapseNavbar()">-->
+                            <!--<i class="fa fa-fw fa-registered" aria-hidden="true"></i>-->
+                            <!--<span jhiTranslate="global.menu.account.register">Register</span>-->
+                        <!--</a>-->
+                    <!--</li>-->
                 </ul>
             </li>
         </ul>

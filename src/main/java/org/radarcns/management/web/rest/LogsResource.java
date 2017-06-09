@@ -1,5 +1,6 @@
 package org.radarcns.management.web.rest;
 
+import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.web.rest.vm.LoggerVM;
 
 import ch.qos.logback.classic.Level;
@@ -7,6 +8,7 @@ import ch.qos.logback.classic.LoggerContext;
 import com.codahale.metrics.annotation.Timed;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +23,7 @@ public class LogsResource {
 
     @GetMapping("/logs")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN})
     public List<LoggerVM> getList() {
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         return context.getLoggerList()
@@ -32,6 +35,7 @@ public class LogsResource {
     @PutMapping("/logs")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN})
     public void changeLevel(@RequestBody LoggerVM jsonLogger) {
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         context.getLogger(jsonLogger.getName()).setLevel(Level.valueOf(jsonLogger.getLevel()));
