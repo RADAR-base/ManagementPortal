@@ -1,11 +1,14 @@
 package org.radarcns.management.domain;
 
+import java.util.stream.Collectors;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import org.hibernate.annotations.*;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CascadeType;
 import org.radarcns.management.config.Constants;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
@@ -17,6 +20,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.time.ZonedDateTime;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
  * A user.
@@ -54,7 +59,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
 
     @Email
     @Size(min = 5, max = 100)
-    @Column(length = 100, unique = true)
+    @Column(length = 100, unique = true, nullable = true)
     private String email;
 
     @NotNull
@@ -78,7 +83,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
     private ZonedDateTime resetDate = null;
 
     @JsonIgnore
-    @ManyToMany
+    @ManyToMany()
     @JoinTable(
         name = "radar_user_authority",
         joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
@@ -86,6 +91,18 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @BatchSize(size = 20)
     private Set<Authority> authorities = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "role_users",
+        joinColumns = {@JoinColumn(name = "users_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "roles_id", referencedColumnName = "id")})
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @BatchSize(size = 20)
+    private Set<Role> roles = new HashSet<>();
+
+    @ManyToOne
+    private Project project;
 
     public Long getId() {
         return id;
@@ -176,12 +193,37 @@ public class User extends AbstractAuditingEntity implements Serializable {
         this.langKey = langKey;
     }
 
+//    public Set<Authority> getAuthorities() {
+//        return authorities;
+//    }
+
+    public Set<Role> getRoles() { return roles; }
+
+    public void setRoles(Set<Role> roles) { this.roles = roles; }
+
     public Set<Authority> getAuthorities() {
-        return authorities;
+        return roles.stream()
+            .map(Role::getAuthority).collect(Collectors.toSet());
+            /*  .map(Authority::getName)
+            .map(SimpleGrantedAuthority::new)
+            .collect(Collectors.toSet());*/
     }
 
-    public void setAuthorities(Set<Authority> authorities) {
-        this.authorities = authorities;
+//    public void setAuthorities(Set<Authority> authorities) {
+//        this.authorities = authorities;
+//    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public User project(Project project) {
+        this.project = project;
+        return this;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 
     @Override

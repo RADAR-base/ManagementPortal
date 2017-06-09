@@ -12,9 +12,15 @@
         <dd>
             <span>{{deviceType.deviceModel}}</span>
         </dd>
-        <dt><span jhiTranslate="managementPortalApp.deviceType.sensorType">Sensor Type</span></dt>
+        <dt><span jhiTranslate="managementPortalApp.deviceType.sourceType">Source Type</span></dt>
         <dd>
-            <span>{{deviceType.sensorType}}</span>
+            <span jhiTranslate="{{'managementPortalApp.SourceType.' + deviceType.sourceType}}">{{deviceType.sourceType}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.deviceType.sensorData">Sensor Data</span></dt>
+        <dd>
+            <span *ngFor="let sensorData of deviceType.sensorData; let last = last">
+                <a [routerLink]="['/sensor-data', sensorData?.id ]">{{sensorData.sensorType}}</a>{{last ? '' : ', '}}
+            </span>
         </dd>
     </dl>
 

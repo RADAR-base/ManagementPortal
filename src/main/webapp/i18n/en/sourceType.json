@@ -1,0 +1,9 @@
+{
+    "managementPortalApp": {
+        "SourceType" : {
+            "null": "",
+            "ACTIVE": "ACTIVE",
+            "PASSIVE": "PASSIVE"
+        }
+    }
+}

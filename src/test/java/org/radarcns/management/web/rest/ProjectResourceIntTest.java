@@ -4,6 +4,9 @@ import org.radarcns.management.ManagementPortalApp;
 
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.repository.ProjectRepository;
+import org.radarcns.management.service.ProjectService;
+import org.radarcns.management.service.dto.ProjectDTO;
+import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -33,6 +36,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import org.radarcns.management.domain.enumeration.ProjectStatus;
 /**
  * Test class for the ProjectResource REST controller.
  *
@@ -51,14 +55,29 @@ public class ProjectResourceIntTest {
     private static final String DEFAULT_ORGANIZATION = "AAAAAAAAAA";
     private static final String UPDATED_ORGANIZATION = "BBBBBBBBBB";
 
+    private static final String DEFAULT_LOCATION = "AAAAAAAAAA";
+    private static final String UPDATED_LOCATION = "BBBBBBBBBB";
+
     private static final ZonedDateTime DEFAULT_START_DATE = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneOffset.UTC);
     private static final ZonedDateTime UPDATED_START_DATE = ZonedDateTime.now(ZoneId.systemDefault()).withNano(0);
+
+    private static final ProjectStatus DEFAULT_PROJECT_STATUS = ProjectStatus.PLANNING;
+    private static final ProjectStatus UPDATED_PROJECT_STATUS = ProjectStatus.ONGOING;
 
     private static final ZonedDateTime DEFAULT_END_DATE = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneOffset.UTC);
     private static final ZonedDateTime UPDATED_END_DATE = ZonedDateTime.now(ZoneId.systemDefault()).withNano(0);
 
+    private static final Long DEFAULT_PROJECT_ADMIN = 1L;
+    private static final Long UPDATED_PROJECT_ADMIN = 2L;
+
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private ProjectMapper projectMapper;
+
+    @Autowired
+    private ProjectService projectService;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -79,7 +98,7 @@ public class ProjectResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ProjectResource projectResource = new ProjectResource(projectRepository);
+        ProjectResource projectResource = new ProjectResource(projectService);
         this.restProjectMockMvc = MockMvcBuilders.standaloneSetup(projectResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -97,8 +116,11 @@ public class ProjectResourceIntTest {
             .projectName(DEFAULT_PROJECT_NAME)
             .description(DEFAULT_DESCRIPTION)
             .organization(DEFAULT_ORGANIZATION)
+            .location(DEFAULT_LOCATION)
             .startDate(DEFAULT_START_DATE)
-            .endDate(DEFAULT_END_DATE);
+            .projectStatus(DEFAULT_PROJECT_STATUS)
+            .endDate(DEFAULT_END_DATE)
+            .projectAdmin(DEFAULT_PROJECT_ADMIN);
         return project;
     }
 
@@ -113,9 +135,10 @@ public class ProjectResourceIntTest {
         int databaseSizeBeforeCreate = projectRepository.findAll().size();
 
         // Create the Project
+        ProjectDTO projectDTO = projectMapper.projectToProjectDTO(project);
         restProjectMockMvc.perform(post("/api/projects")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(project)))
+            .content(TestUtil.convertObjectToJsonBytes(projectDTO)))
             .andExpect(status().isCreated());
 
         // Validate the Project in the database
@@ -125,8 +148,11 @@ public class ProjectResourceIntTest {
         assertThat(testProject.getProjectName()).isEqualTo(DEFAULT_PROJECT_NAME);
         assertThat(testProject.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
         assertThat(testProject.getOrganization()).isEqualTo(DEFAULT_ORGANIZATION);
+        assertThat(testProject.getLocation()).isEqualTo(DEFAULT_LOCATION);
         assertThat(testProject.getStartDate()).isEqualTo(DEFAULT_START_DATE);
+        assertThat(testProject.getProjectStatus()).isEqualTo(DEFAULT_PROJECT_STATUS);
         assertThat(testProject.getEndDate()).isEqualTo(DEFAULT_END_DATE);
+        assertThat(testProject.getProjectAdmin()).isEqualTo(DEFAULT_PROJECT_ADMIN);
     }
 
     @Test
@@ -136,11 +162,12 @@ public class ProjectResourceIntTest {
 
         // Create the Project with an existing ID
         project.setId(1L);
+        ProjectDTO projectDTO = projectMapper.projectToProjectDTO(project);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restProjectMockMvc.perform(post("/api/projects")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(project)))
+            .content(TestUtil.convertObjectToJsonBytes(projectDTO)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -156,10 +183,11 @@ public class ProjectResourceIntTest {
         project.setProjectName(null);
 
         // Create the Project, which fails.
+        ProjectDTO projectDTO = projectMapper.projectToProjectDTO(project);
 
         restProjectMockMvc.perform(post("/api/projects")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(project)))
+            .content(TestUtil.convertObjectToJsonBytes(projectDTO)))
             .andExpect(status().isBadRequest());
 
         List<Project> projectList = projectRepository.findAll();
@@ -174,10 +202,30 @@ public class ProjectResourceIntTest {
         project.setDescription(null);
 
         // Create the Project, which fails.
+        ProjectDTO projectDTO = projectMapper.projectToProjectDTO(project);
 
         restProjectMockMvc.perform(post("/api/projects")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(project)))
+            .content(TestUtil.convertObjectToJsonBytes(projectDTO)))
+            .andExpect(status().isBadRequest());
+
+        List<Project> projectList = projectRepository.findAll();
+        assertThat(projectList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    public void checkLocationIsRequired() throws Exception {
+        int databaseSizeBeforeTest = projectRepository.findAll().size();
+        // set the field null
+        project.setLocation(null);
+
+        // Create the Project, which fails.
+        ProjectDTO projectDTO = projectMapper.projectToProjectDTO(project);
+
+        restProjectMockMvc.perform(post("/api/projects")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(projectDTO)))
             .andExpect(status().isBadRequest());
 
         List<Project> projectList = projectRepository.findAll();
@@ -198,8 +246,11 @@ public class ProjectResourceIntTest {
             .andExpect(jsonPath("$.[*].projectName").value(hasItem(DEFAULT_PROJECT_NAME.toString())))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
             .andExpect(jsonPath("$.[*].organization").value(hasItem(DEFAULT_ORGANIZATION.toString())))
+            .andExpect(jsonPath("$.[*].location").value(hasItem(DEFAULT_LOCATION.toString())))
             .andExpect(jsonPath("$.[*].startDate").value(hasItem(sameInstant(DEFAULT_START_DATE))))
-            .andExpect(jsonPath("$.[*].endDate").value(hasItem(sameInstant(DEFAULT_END_DATE))));
+            .andExpect(jsonPath("$.[*].projectStatus").value(hasItem(DEFAULT_PROJECT_STATUS.toString())))
+            .andExpect(jsonPath("$.[*].endDate").value(hasItem(sameInstant(DEFAULT_END_DATE))))
+            .andExpect(jsonPath("$.[*].projectAdmin").value(hasItem(DEFAULT_PROJECT_ADMIN.intValue())));
     }
 
     @Test
@@ -216,8 +267,11 @@ public class ProjectResourceIntTest {
             .andExpect(jsonPath("$.projectName").value(DEFAULT_PROJECT_NAME.toString()))
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
             .andExpect(jsonPath("$.organization").value(DEFAULT_ORGANIZATION.toString()))
+            .andExpect(jsonPath("$.location").value(DEFAULT_LOCATION.toString()))
             .andExpect(jsonPath("$.startDate").value(sameInstant(DEFAULT_START_DATE)))
-            .andExpect(jsonPath("$.endDate").value(sameInstant(DEFAULT_END_DATE)));
+            .andExpect(jsonPath("$.projectStatus").value(DEFAULT_PROJECT_STATUS.toString()))
+            .andExpect(jsonPath("$.endDate").value(sameInstant(DEFAULT_END_DATE)))
+            .andExpect(jsonPath("$.projectAdmin").value(DEFAULT_PROJECT_ADMIN.intValue()));
     }
 
     @Test
@@ -241,12 +295,16 @@ public class ProjectResourceIntTest {
             .projectName(UPDATED_PROJECT_NAME)
             .description(UPDATED_DESCRIPTION)
             .organization(UPDATED_ORGANIZATION)
+            .location(UPDATED_LOCATION)
             .startDate(UPDATED_START_DATE)
-            .endDate(UPDATED_END_DATE);
+            .projectStatus(UPDATED_PROJECT_STATUS)
+            .endDate(UPDATED_END_DATE)
+            .projectAdmin(UPDATED_PROJECT_ADMIN);
+        ProjectDTO projectDTO = projectMapper.projectToProjectDTO(updatedProject);
 
         restProjectMockMvc.perform(put("/api/projects")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(updatedProject)))
+            .content(TestUtil.convertObjectToJsonBytes(projectDTO)))
             .andExpect(status().isOk());
 
         // Validate the Project in the database
@@ -256,8 +314,11 @@ public class ProjectResourceIntTest {
         assertThat(testProject.getProjectName()).isEqualTo(UPDATED_PROJECT_NAME);
         assertThat(testProject.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(testProject.getOrganization()).isEqualTo(UPDATED_ORGANIZATION);
+        assertThat(testProject.getLocation()).isEqualTo(UPDATED_LOCATION);
         assertThat(testProject.getStartDate()).isEqualTo(UPDATED_START_DATE);
+        assertThat(testProject.getProjectStatus()).isEqualTo(UPDATED_PROJECT_STATUS);
         assertThat(testProject.getEndDate()).isEqualTo(UPDATED_END_DATE);
+        assertThat(testProject.getProjectAdmin()).isEqualTo(UPDATED_PROJECT_ADMIN);
     }
 
     @Test
@@ -266,11 +327,12 @@ public class ProjectResourceIntTest {
         int databaseSizeBeforeUpdate = projectRepository.findAll().size();
 
         // Create the Project
+        ProjectDTO projectDTO = projectMapper.projectToProjectDTO(project);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restProjectMockMvc.perform(put("/api/projects")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(project)))
+            .content(TestUtil.convertObjectToJsonBytes(projectDTO)))
             .andExpect(status().isCreated());
 
         // Validate the Project in the database

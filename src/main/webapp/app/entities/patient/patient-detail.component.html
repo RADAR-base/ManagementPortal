@@ -1,0 +1,45 @@
+
+<div *ngIf="patient">
+    <h2><span jhiTranslate="managementPortalApp.patient.detail.title">Patient</span> {{patient.id}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="managementPortalApp.patient.externalLink">External Link</span></dt>
+        <dd>
+            <span>{{patient.externalLink}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.patient.enternalId">Enternal Id</span></dt>
+        <dd>
+            <span>{{patient.enternalId}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.patient.removed">Removed</span></dt>
+        <dd>
+            <span>{{patient.removed}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.patient.user">User</span></dt>
+        <dd>
+            <div *ngIf="patient.userId">
+                <a [routerLink]="['/usr', patient.userId]">{{patient.userId}}</a>
+            </div>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.patient.devices">Devices</span></dt>
+        <dd>
+            <span *ngFor="let devices of patient.devices; let last = last">
+                <a [routerLink]="['/device', devices?.id ]">{{devices.id}}</a>{{last ? '' : ', '}}
+            </span>
+        </dd>
+    </dl>
+
+    <button type="submit"
+            (click)="previousState()"
+            class="btn btn-info">
+        <span class="fa fa-arrow-left"></span>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+    </button>
+
+    <button type="button"
+            [routerLink]="['/', { outlets: { popup: 'patient/'+ patient.id + '/edit'} }]"
+            replaceUrl="true"
+            class="btn btn-primary">
+        <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+    </button>
+</div>

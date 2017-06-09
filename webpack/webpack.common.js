@@ -108,11 +108,7 @@ module.exports = function (options) {
             new AddAssetHtmlPlugin([
                 { filepath: path.resolve('./build/www/vendor.dll.js'), includeSourcemap: false }
             ]),
-            new StringReplacePlugin(),
-            new WebpackNotifierPlugin({
-                title: 'JHipster',
-                contentImage: path.join(__dirname, 'logo-jhipster.png')
-            })
+            new StringReplacePlugin()
         ]
     };
 };

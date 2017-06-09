@@ -26,7 +26,7 @@ import {
     LogsService,
     UserResolvePagingParams,
     UserResolve,
-    UserModalService
+    UserModalService,
 } from './';
 
 @NgModule({
@@ -64,7 +64,7 @@ import {
         LogsService,
         UserResolvePagingParams,
         UserResolve,
-        UserModalService
+        UserModalService,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

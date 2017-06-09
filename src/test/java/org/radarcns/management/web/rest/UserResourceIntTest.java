@@ -3,8 +3,10 @@ package org.radarcns.management.web.rest;
 import org.radarcns.management.ManagementPortalApp;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.UserRepository;
+import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.MailService;
 import org.radarcns.management.service.UserService;
+import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
 import org.radarcns.management.web.rest.vm.ManagedUserVM;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -112,7 +114,6 @@ public class UserResourceIntTest {
         user.setEmail(DEFAULT_EMAIL);
         user.setFirstName(DEFAULT_FIRSTNAME);
         user.setLastName(DEFAULT_LASTNAME);
-        user.setImageUrl(DEFAULT_IMAGEURL);
         user.setLangKey(DEFAULT_LANGKEY);
         return user;
     }
@@ -128,8 +129,11 @@ public class UserResourceIntTest {
         int databaseSizeBeforeCreate = userRepository.findAll().size();
 
         // Create the User
-        Set<String> authorities = new HashSet<>();
-        authorities.add("ROLE_USER");
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.SYS_ADMIN);
+        roles.add(role);
+
         ManagedUserVM managedUserVM = new ManagedUserVM(
             null,
             DEFAULT_LOGIN,
@@ -138,13 +142,13 @@ public class UserResourceIntTest {
             DEFAULT_LASTNAME,
             DEFAULT_EMAIL,
             true,
-            DEFAULT_IMAGEURL,
             DEFAULT_LANGKEY,
             null,
             null,
             null,
             null,
-            authorities);
+            roles,
+            null);
 
         restUserMockMvc.perform(post("/api/users")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -159,7 +163,6 @@ public class UserResourceIntTest {
         assertThat(testUser.getFirstName()).isEqualTo(DEFAULT_FIRSTNAME);
         assertThat(testUser.getLastName()).isEqualTo(DEFAULT_LASTNAME);
         assertThat(testUser.getEmail()).isEqualTo(DEFAULT_EMAIL);
-        assertThat(testUser.getImageUrl()).isEqualTo(DEFAULT_IMAGEURL);
         assertThat(testUser.getLangKey()).isEqualTo(DEFAULT_LANGKEY);
     }
 
@@ -168,8 +171,11 @@ public class UserResourceIntTest {
     public void createUserWithExistingId() throws Exception {
         int databaseSizeBeforeCreate = userRepository.findAll().size();
 
-        Set<String> authorities = new HashSet<>();
-        authorities.add("ROLE_USER");
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
+
         ManagedUserVM managedUserVM = new ManagedUserVM(
             1L,
             DEFAULT_LOGIN,
@@ -178,13 +184,13 @@ public class UserResourceIntTest {
             DEFAULT_LASTNAME,
             DEFAULT_EMAIL,
             true,
-            DEFAULT_IMAGEURL,
             DEFAULT_LANGKEY,
             null,
             null,
             null,
             null,
-            authorities);
+            roles,
+            null);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restUserMockMvc.perform(post("/api/users")
@@ -204,8 +210,10 @@ public class UserResourceIntTest {
         userRepository.saveAndFlush(user);
         int databaseSizeBeforeCreate = userRepository.findAll().size();
 
-        Set<String> authorities = new HashSet<>();
-        authorities.add("ROLE_USER");
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
         ManagedUserVM managedUserVM = new ManagedUserVM(
             null,
             DEFAULT_LOGIN, // this login should already be used
@@ -214,13 +222,13 @@ public class UserResourceIntTest {
             DEFAULT_LASTNAME,
             "anothermail@localhost",
             true,
-            DEFAULT_IMAGEURL,
             DEFAULT_LANGKEY,
             null,
             null,
             null,
             null,
-            authorities);
+            roles,
+            null);
 
         // Create the User
         restUserMockMvc.perform(post("/api/users")
@@ -240,8 +248,10 @@ public class UserResourceIntTest {
         userRepository.saveAndFlush(user);
         int databaseSizeBeforeCreate = userRepository.findAll().size();
 
-        Set<String> authorities = new HashSet<>();
-        authorities.add("ROLE_USER");
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
         ManagedUserVM managedUserVM = new ManagedUserVM(
             null,
             "anotherlogin",
@@ -250,13 +260,13 @@ public class UserResourceIntTest {
             DEFAULT_LASTNAME,
             DEFAULT_EMAIL, // this email should already be used
             true,
-            DEFAULT_IMAGEURL,
             DEFAULT_LANGKEY,
             null,
             null,
             null,
             null,
-            authorities);
+            roles,
+            null);
 
         // Create the User
         restUserMockMvc.perform(post("/api/users")
@@ -284,7 +294,6 @@ public class UserResourceIntTest {
             .andExpect(jsonPath("$.[*].firstName").value(hasItem(DEFAULT_FIRSTNAME)))
             .andExpect(jsonPath("$.[*].lastName").value(hasItem(DEFAULT_LASTNAME)))
             .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
-            .andExpect(jsonPath("$.[*].imageUrl").value(hasItem(DEFAULT_IMAGEURL)))
             .andExpect(jsonPath("$.[*].langKey").value(hasItem(DEFAULT_LANGKEY)));
     }
 
@@ -302,7 +311,6 @@ public class UserResourceIntTest {
             .andExpect(jsonPath("$.firstName").value(DEFAULT_FIRSTNAME))
             .andExpect(jsonPath("$.lastName").value(DEFAULT_LASTNAME))
             .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL))
-            .andExpect(jsonPath("$.imageUrl").value(DEFAULT_IMAGEURL))
             .andExpect(jsonPath("$.langKey").value(DEFAULT_LANGKEY));
     }
 
@@ -323,8 +331,11 @@ public class UserResourceIntTest {
         // Update the user
         User updatedUser = userRepository.findOne(user.getId());
 
-        Set<String> authorities = new HashSet<>();
-        authorities.add("ROLE_USER");
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
+
         ManagedUserVM managedUserVM = new ManagedUserVM(
             updatedUser.getId(),
             updatedUser.getLogin(),
@@ -333,13 +344,13 @@ public class UserResourceIntTest {
             UPDATED_LASTNAME,
             UPDATED_EMAIL,
             updatedUser.getActivated(),
-            UPDATED_IMAGEURL,
             UPDATED_LANGKEY,
             updatedUser.getCreatedBy(),
             updatedUser.getCreatedDate(),
             updatedUser.getLastModifiedBy(),
             updatedUser.getLastModifiedDate(),
-            authorities);
+            roles,
+            null);
 
         restUserMockMvc.perform(put("/api/users")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -353,7 +364,6 @@ public class UserResourceIntTest {
         assertThat(testUser.getFirstName()).isEqualTo(UPDATED_FIRSTNAME);
         assertThat(testUser.getLastName()).isEqualTo(UPDATED_LASTNAME);
         assertThat(testUser.getEmail()).isEqualTo(UPDATED_EMAIL);
-        assertThat(testUser.getImageUrl()).isEqualTo(UPDATED_IMAGEURL);
         assertThat(testUser.getLangKey()).isEqualTo(UPDATED_LANGKEY);
     }
 
@@ -367,8 +377,11 @@ public class UserResourceIntTest {
         // Update the user
         User updatedUser = userRepository.findOne(user.getId());
 
-        Set<String> authorities = new HashSet<>();
-        authorities.add("ROLE_USER");
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
+
         ManagedUserVM managedUserVM = new ManagedUserVM(
             updatedUser.getId(),
             UPDATED_LOGIN,
@@ -377,13 +390,12 @@ public class UserResourceIntTest {
             UPDATED_LASTNAME,
             UPDATED_EMAIL,
             updatedUser.getActivated(),
-            UPDATED_IMAGEURL,
             UPDATED_LANGKEY,
             updatedUser.getCreatedBy(),
             updatedUser.getCreatedDate(),
             updatedUser.getLastModifiedBy(),
             updatedUser.getLastModifiedDate(),
-            authorities);
+            roles, null);
 
         restUserMockMvc.perform(put("/api/users")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -398,7 +410,6 @@ public class UserResourceIntTest {
         assertThat(testUser.getFirstName()).isEqualTo(UPDATED_FIRSTNAME);
         assertThat(testUser.getLastName()).isEqualTo(UPDATED_LASTNAME);
         assertThat(testUser.getEmail()).isEqualTo(UPDATED_EMAIL);
-        assertThat(testUser.getImageUrl()).isEqualTo(UPDATED_IMAGEURL);
         assertThat(testUser.getLangKey()).isEqualTo(UPDATED_LANGKEY);
     }
 
@@ -415,15 +426,16 @@ public class UserResourceIntTest {
         anotherUser.setEmail("jhipster@localhost");
         anotherUser.setFirstName("java");
         anotherUser.setLastName("hipster");
-        anotherUser.setImageUrl("");
         anotherUser.setLangKey("en");
         userRepository.saveAndFlush(anotherUser);
 
         // Update the user
         User updatedUser = userRepository.findOne(user.getId());
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
 
-        Set<String> authorities = new HashSet<>();
-        authorities.add("ROLE_USER");
         ManagedUserVM managedUserVM = new ManagedUserVM(
             updatedUser.getId(),
             updatedUser.getLogin(),
@@ -432,13 +444,13 @@ public class UserResourceIntTest {
             updatedUser.getLastName(),
             "jhipster@localhost",  // this email should already be used by anotherUser
             updatedUser.getActivated(),
-            updatedUser.getImageUrl(),
             updatedUser.getLangKey(),
             updatedUser.getCreatedBy(),
             updatedUser.getCreatedDate(),
             updatedUser.getLastModifiedBy(),
             updatedUser.getLastModifiedDate(),
-            authorities);
+            roles,
+            null);
 
         restUserMockMvc.perform(put("/api/users")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -459,15 +471,17 @@ public class UserResourceIntTest {
         anotherUser.setEmail("jhipster@localhost");
         anotherUser.setFirstName("java");
         anotherUser.setLastName("hipster");
-        anotherUser.setImageUrl("");
         anotherUser.setLangKey("en");
         userRepository.saveAndFlush(anotherUser);
 
         // Update the user
         User updatedUser = userRepository.findOne(user.getId());
 
-        Set<String> authorities = new HashSet<>();
-        authorities.add("ROLE_USER");
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(AuthoritiesConstants.USER);
+        roles.add(role);
+
         ManagedUserVM managedUserVM = new ManagedUserVM(
             updatedUser.getId(),
             "jhipster", // this login should already be used by anotherUser
@@ -476,13 +490,13 @@ public class UserResourceIntTest {
             updatedUser.getLastName(),
             updatedUser.getEmail(),
             updatedUser.getActivated(),
-            updatedUser.getImageUrl(),
             updatedUser.getLangKey(),
             updatedUser.getCreatedBy(),
             updatedUser.getCreatedDate(),
             updatedUser.getLastModifiedBy(),
             updatedUser.getLastModifiedDate(),
-            authorities);
+            roles,
+            null);
 
         restUserMockMvc.perform(put("/api/users")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)

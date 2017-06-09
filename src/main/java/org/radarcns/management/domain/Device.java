@@ -1,14 +1,14 @@
 package org.radarcns.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.HashSet;
+import java.util.Set;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Objects;
 
 /**
@@ -33,13 +33,20 @@ public class Device implements Serializable {
     @Column(name = "device_category", nullable = false)
     private String deviceCategory;
 
-    @ManyToOne
-    private DeviceType deviceType;
+    @NotNull
+    @Column(name = "activated", nullable = false)
+    private Boolean activated;
 
     @ManyToMany(mappedBy = "devices")
     @JsonIgnore
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    private Set<Study> studies = new HashSet<>();
+    private Set<Patient> patients = new HashSet<>();
+
+    @ManyToOne
+    private DeviceType deviceType;
+
+    @ManyToOne
+    private Project project;
 
     public Long getId() {
         return id;
@@ -75,6 +82,23 @@ public class Device implements Serializable {
         this.deviceCategory = deviceCategory;
     }
 
+    public Boolean isActivated() {
+        return activated;
+    }
+
+    public Device activated(Boolean activated) {
+        this.activated = activated;
+        return this;
+    }
+
+    public void setActivated(Boolean activated) {
+        this.activated = activated;
+    }
+
+    public void setDeviceType(DeviceType deviceType) {
+        this.deviceType = deviceType;
+    }
+
     public DeviceType getDeviceType() {
         return deviceType;
     }
@@ -84,33 +108,42 @@ public class Device implements Serializable {
         return this;
     }
 
-    public void setDeviceType(DeviceType deviceType) {
-        this.deviceType = deviceType;
+    public void setProject(Project project) {
+        this.project = project;
     }
 
-    public Set<Study> getStudies() {
-        return studies;
+    public Project getProject() {
+        return project;
     }
 
-    public Device studies(Set<Study> studies) {
-        this.studies = studies;
+    public Device project(Project project) {
+        this.project = project;
         return this;
     }
 
-    public Device addStudy(Study study) {
-        this.studies.add(study);
-        study.getDevices().add(this);
+    public Set<Patient> getPatients() {
+        return patients;
+    }
+
+    public Device patients(Set<Patient> patients) {
+        this.patients = patients;
         return this;
     }
 
-    public Device removeStudy(Study study) {
-        this.studies.remove(study);
-        study.getDevices().remove(this);
+    public Device addPatient(Patient patient) {
+        this.patients.add(patient);
+        patient.getDevices().add(this);
         return this;
     }
 
-    public void setStudies(Set<Study> studies) {
-        this.studies = studies;
+    public Device removePatient(Patient patient) {
+        this.patients.remove(patient);
+        patient.getDevices().remove(this);
+        return this;
+    }
+
+    public void setPatients(Set<Patient> patients) {
+        this.patients = patients;
     }
 
     @Override
@@ -139,6 +172,7 @@ public class Device implements Serializable {
             "id=" + id +
             ", devicePhysicalId='" + devicePhysicalId + "'" +
             ", deviceCategory='" + deviceCategory + "'" +
+            ", activated='" + activated + "'" +
             '}';
     }
 }

@@ -4,6 +4,9 @@ import org.radarcns.management.ManagementPortalApp;
 
 import org.radarcns.management.domain.DeviceType;
 import org.radarcns.management.repository.DeviceTypeRepository;
+import org.radarcns.management.service.DeviceTypeService;
+import org.radarcns.management.service.dto.DeviceTypeDTO;
+import org.radarcns.management.service.mapper.DeviceTypeMapper;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -28,6 +31,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import org.radarcns.management.domain.enumeration.SourceType;
 /**
  * Test class for the DeviceTypeResource REST controller.
  *
@@ -43,11 +47,17 @@ public class DeviceTypeResourceIntTest {
     private static final String DEFAULT_DEVICE_MODEL = "AAAAAAAAAA";
     private static final String UPDATED_DEVICE_MODEL = "BBBBBBBBBB";
 
-    private static final String DEFAULT_SENSOR_TYPE = "AAAAAAAAAA";
-    private static final String UPDATED_SENSOR_TYPE = "BBBBBBBBBB";
+    private static final SourceType DEFAULT_SOURCE_TYPE = SourceType.ACTIVE;
+    private static final SourceType UPDATED_SOURCE_TYPE = SourceType.PASSIVE;
 
     @Autowired
     private DeviceTypeRepository deviceTypeRepository;
+
+    @Autowired
+    private DeviceTypeMapper deviceTypeMapper;
+
+    @Autowired
+    private DeviceTypeService deviceTypeService;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -68,7 +78,7 @@ public class DeviceTypeResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        DeviceTypeResource deviceTypeResource = new DeviceTypeResource(deviceTypeRepository);
+        DeviceTypeResource deviceTypeResource = new DeviceTypeResource(deviceTypeService);
         this.restDeviceTypeMockMvc = MockMvcBuilders.standaloneSetup(deviceTypeResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -85,7 +95,7 @@ public class DeviceTypeResourceIntTest {
         DeviceType deviceType = new DeviceType()
             .deviceProducer(DEFAULT_DEVICE_PRODUCER)
             .deviceModel(DEFAULT_DEVICE_MODEL)
-            .sensorType(DEFAULT_SENSOR_TYPE);
+            .sourceType(DEFAULT_SOURCE_TYPE);
         return deviceType;
     }
 
@@ -100,9 +110,10 @@ public class DeviceTypeResourceIntTest {
         int databaseSizeBeforeCreate = deviceTypeRepository.findAll().size();
 
         // Create the DeviceType
+        DeviceTypeDTO deviceTypeDTO = deviceTypeMapper.deviceTypeToDeviceTypeDTO(deviceType);
         restDeviceTypeMockMvc.perform(post("/api/device-types")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(deviceType)))
+            .content(TestUtil.convertObjectToJsonBytes(deviceTypeDTO)))
             .andExpect(status().isCreated());
 
         // Validate the DeviceType in the database
@@ -111,7 +122,7 @@ public class DeviceTypeResourceIntTest {
         DeviceType testDeviceType = deviceTypeList.get(deviceTypeList.size() - 1);
         assertThat(testDeviceType.getDeviceProducer()).isEqualTo(DEFAULT_DEVICE_PRODUCER);
         assertThat(testDeviceType.getDeviceModel()).isEqualTo(DEFAULT_DEVICE_MODEL);
-        assertThat(testDeviceType.getSensorType()).isEqualTo(DEFAULT_SENSOR_TYPE);
+        assertThat(testDeviceType.getSourceType()).isEqualTo(DEFAULT_SOURCE_TYPE);
     }
 
     @Test
@@ -121,11 +132,12 @@ public class DeviceTypeResourceIntTest {
 
         // Create the DeviceType with an existing ID
         deviceType.setId(1L);
+        DeviceTypeDTO deviceTypeDTO = deviceTypeMapper.deviceTypeToDeviceTypeDTO(deviceType);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restDeviceTypeMockMvc.perform(post("/api/device-types")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(deviceType)))
+            .content(TestUtil.convertObjectToJsonBytes(deviceTypeDTO)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -141,10 +153,11 @@ public class DeviceTypeResourceIntTest {
         deviceType.setDeviceModel(null);
 
         // Create the DeviceType, which fails.
+        DeviceTypeDTO deviceTypeDTO = deviceTypeMapper.deviceTypeToDeviceTypeDTO(deviceType);
 
         restDeviceTypeMockMvc.perform(post("/api/device-types")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(deviceType)))
+            .content(TestUtil.convertObjectToJsonBytes(deviceTypeDTO)))
             .andExpect(status().isBadRequest());
 
         List<DeviceType> deviceTypeList = deviceTypeRepository.findAll();
@@ -153,16 +166,17 @@ public class DeviceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void checkSensorTypeIsRequired() throws Exception {
+    public void checkSourceTypeIsRequired() throws Exception {
         int databaseSizeBeforeTest = deviceTypeRepository.findAll().size();
         // set the field null
-        deviceType.setSensorType(null);
+        deviceType.setSourceType(null);
 
         // Create the DeviceType, which fails.
+        DeviceTypeDTO deviceTypeDTO = deviceTypeMapper.deviceTypeToDeviceTypeDTO(deviceType);
 
         restDeviceTypeMockMvc.perform(post("/api/device-types")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(deviceType)))
+            .content(TestUtil.convertObjectToJsonBytes(deviceTypeDTO)))
             .andExpect(status().isBadRequest());
 
         List<DeviceType> deviceTypeList = deviceTypeRepository.findAll();
@@ -182,7 +196,7 @@ public class DeviceTypeResourceIntTest {
             .andExpect(jsonPath("$.[*].id").value(hasItem(deviceType.getId().intValue())))
             .andExpect(jsonPath("$.[*].deviceProducer").value(hasItem(DEFAULT_DEVICE_PRODUCER.toString())))
             .andExpect(jsonPath("$.[*].deviceModel").value(hasItem(DEFAULT_DEVICE_MODEL.toString())))
-            .andExpect(jsonPath("$.[*].sensorType").value(hasItem(DEFAULT_SENSOR_TYPE.toString())));
+            .andExpect(jsonPath("$.[*].sourceType").value(hasItem(DEFAULT_SOURCE_TYPE.toString())));
     }
 
     @Test
@@ -198,7 +212,7 @@ public class DeviceTypeResourceIntTest {
             .andExpect(jsonPath("$.id").value(deviceType.getId().intValue()))
             .andExpect(jsonPath("$.deviceProducer").value(DEFAULT_DEVICE_PRODUCER.toString()))
             .andExpect(jsonPath("$.deviceModel").value(DEFAULT_DEVICE_MODEL.toString()))
-            .andExpect(jsonPath("$.sensorType").value(DEFAULT_SENSOR_TYPE.toString()));
+            .andExpect(jsonPath("$.sourceType").value(DEFAULT_SOURCE_TYPE.toString()));
     }
 
     @Test
@@ -221,11 +235,12 @@ public class DeviceTypeResourceIntTest {
         updatedDeviceType
             .deviceProducer(UPDATED_DEVICE_PRODUCER)
             .deviceModel(UPDATED_DEVICE_MODEL)
-            .sensorType(UPDATED_SENSOR_TYPE);
+            .sourceType(UPDATED_SOURCE_TYPE);
+        DeviceTypeDTO deviceTypeDTO = deviceTypeMapper.deviceTypeToDeviceTypeDTO(updatedDeviceType);
 
         restDeviceTypeMockMvc.perform(put("/api/device-types")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(updatedDeviceType)))
+            .content(TestUtil.convertObjectToJsonBytes(deviceTypeDTO)))
             .andExpect(status().isOk());
 
         // Validate the DeviceType in the database
@@ -234,7 +249,7 @@ public class DeviceTypeResourceIntTest {
         DeviceType testDeviceType = deviceTypeList.get(deviceTypeList.size() - 1);
         assertThat(testDeviceType.getDeviceProducer()).isEqualTo(UPDATED_DEVICE_PRODUCER);
         assertThat(testDeviceType.getDeviceModel()).isEqualTo(UPDATED_DEVICE_MODEL);
-        assertThat(testDeviceType.getSensorType()).isEqualTo(UPDATED_SENSOR_TYPE);
+        assertThat(testDeviceType.getSourceType()).isEqualTo(UPDATED_SOURCE_TYPE);
     }
 
     @Test
@@ -243,11 +258,12 @@ public class DeviceTypeResourceIntTest {
         int databaseSizeBeforeUpdate = deviceTypeRepository.findAll().size();
 
         // Create the DeviceType
+        DeviceTypeDTO deviceTypeDTO = deviceTypeMapper.deviceTypeToDeviceTypeDTO(deviceType);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restDeviceTypeMockMvc.perform(put("/api/device-types")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(deviceType)))
+            .content(TestUtil.convertObjectToJsonBytes(deviceTypeDTO)))
             .andExpect(status().isCreated());
 
         // Validate the DeviceType in the database

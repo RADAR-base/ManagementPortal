@@ -1,0 +1,14 @@
+{
+    "managementPortalApp": {
+        "Role" : {
+            "null": "",
+            "ROLE_SYS_SUPERUSER": "ROLE_SYS_SUPERUSER",
+            "ROLE_SYS_ADMIN": "ROLE_SYS_ADMIN",
+            "ROLE_SYS_USER": "ROLE_SYS_USER",
+            "ROLE_OWNER": "ROLE_OWNER",
+            "ROLE_AFFILIATE": "ROLE_AFFILIATE",
+            "ROLE_ANALYST": "ROLE_ANALYST",
+            "ROLE_PARTICIPANT": "ROLE_PARTICIPANT"
+        }
+    }
+}

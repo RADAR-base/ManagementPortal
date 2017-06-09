@@ -25,7 +25,7 @@ projects: Project[];
         private eventManager: EventManager,
         private principal: Principal
     ) {
-        this.jhiLanguageService.setLocations(['project']);
+        this.jhiLanguageService.setLocations(['project', 'projectStatus']);
     }
 
     loadAll() {

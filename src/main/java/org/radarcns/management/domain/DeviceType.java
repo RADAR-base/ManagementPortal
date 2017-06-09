@@ -1,12 +1,17 @@
 package org.radarcns.management.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Objects;
+
+import org.radarcns.management.domain.enumeration.SourceType;
 
 /**
  * A DeviceType.
@@ -30,8 +35,21 @@ public class DeviceType implements Serializable {
     private String deviceModel;
 
     @NotNull
-    @Column(name = "sensor_type", nullable = false)
-    private String sensorType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "source_type", nullable = false)
+    private SourceType sourceType;
+
+    @ManyToMany
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @JoinTable(name = "device_type_sensor_data",
+               joinColumns = @JoinColumn(name="device_types_id", referencedColumnName="id"),
+               inverseJoinColumns = @JoinColumn(name="sensor_data_id", referencedColumnName="id"))
+    private Set<SensorData> sensorData = new HashSet<>();
+
+    @ManyToMany(mappedBy = "deviceTypes")
+    @JsonIgnore
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Set<Project> projects = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -67,17 +85,67 @@ public class DeviceType implements Serializable {
         this.deviceModel = deviceModel;
     }
 
-    public String getSensorType() {
-        return sensorType;
+    public SourceType getSourceType() {
+        return sourceType;
     }
 
-    public DeviceType sensorType(String sensorType) {
-        this.sensorType = sensorType;
+    public DeviceType sourceType(SourceType sourceType) {
+        this.sourceType = sourceType;
         return this;
     }
 
-    public void setSensorType(String sensorType) {
-        this.sensorType = sensorType;
+    public void setSourceType(SourceType sourceType) {
+        this.sourceType = sourceType;
+    }
+
+    public Set<SensorData> getSensorData() {
+        return sensorData;
+    }
+
+    public DeviceType sensorData(Set<SensorData> sensorData) {
+        this.sensorData = sensorData;
+        return this;
+    }
+
+    public DeviceType addSensorData(SensorData sensorData) {
+        this.sensorData.add(sensorData);
+        sensorData.getDeviceTypes().add(this);
+        return this;
+    }
+
+    public DeviceType removeSensorData(SensorData sensorData) {
+        this.sensorData.remove(sensorData);
+        sensorData.getDeviceTypes().remove(this);
+        return this;
+    }
+
+    public void setSensorData(Set<SensorData> sensorData) {
+        this.sensorData = sensorData;
+    }
+
+    public Set<Project> getProjects() {
+        return projects;
+    }
+
+    public DeviceType projects(Set<Project> projects) {
+        this.projects = projects;
+        return this;
+    }
+
+    public DeviceType addProject(Project project) {
+        this.projects.add(project);
+        project.getDeviceTypes().add(this);
+        return this;
+    }
+
+    public DeviceType removeProject(Project project) {
+        this.projects.remove(project);
+        project.getDeviceTypes().remove(this);
+        return this;
+    }
+
+    public void setProjects(Set<Project> projects) {
+        this.projects = projects;
     }
 
     @Override
@@ -106,7 +174,7 @@ public class DeviceType implements Serializable {
             "id=" + id +
             ", deviceProducer='" + deviceProducer + "'" +
             ", deviceModel='" + deviceModel + "'" +
-            ", sensorType='" + sensorType + "'" +
+            ", sourceType='" + sourceType + "'" +
             '}';
     }
 }

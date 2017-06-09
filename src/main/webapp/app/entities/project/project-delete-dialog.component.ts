@@ -22,7 +22,7 @@ export class ProjectDeleteDialogComponent {
         public activeModal: NgbActiveModal,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['project']);
+        this.jhiLanguageService.setLocations(['project', 'projectStatus']);
     }
 
     clear() {

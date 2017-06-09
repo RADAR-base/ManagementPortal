@@ -18,8 +18,12 @@
             "projectName": "Project Name",
             "description": "Description",
             "organization": "Organization",
+            "location": "Location",
             "startDate": "Start Date",
-            "endDate": "End Date"
+            "projectStatus": "Project Status",
+            "endDate": "End Date",
+            "projectAdmin": "Project Admin",
+            "deviceType": "Device Type"
         }
     }
 }

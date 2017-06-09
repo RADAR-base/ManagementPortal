@@ -1,5 +1,11 @@
 # ManagementPortal
+
 ManagementPortal is an application which is used to manage pilot studies for [RADAR-CNS](http://www.radar-cns.org/).
+
+## Configuration
+
+To add a new client to this API, add it to `src/main/resources/config/oauth_client_details.csv`.
+
 ## Development
 
 Before you can build this project, you must install and configure the following dependencies on your machine:
@@ -8,6 +14,7 @@ Before you can build this project, you must install and configure the following 
    Depending on your system, you can install Node either from source or as a pre-packaged bundle.
 2. [Yarn][]: We use Yarn to manage Node dependencies.
    Depending on your system, you can install Yarn either from source or as a pre-packaged bundle.
+3. Local SMTP server: currently a simple docker-compose is provided with a local SMTP server. Create `smtp.env` from `smtp.env.template` and modify `application.yml` accordingly.  
 
 After installing Node, you should be able to run the following command to install development tools.
 You will only need to run this command when dependencies change in [package.json](package.json).
@@ -22,6 +29,8 @@ auto-refreshes when files change on your hard drive.
 
     ./gradlew
     yarn start
+
+Then open <http://localhost:8080/> to start the interface and sign in with admin/admin.
 
 [Yarn][] is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
 specifying a newer version in [package.json](package.json). You can also run `yarn update` and `yarn install` to manage dependencies.

@@ -46,10 +46,17 @@ spring:
             hibernate.cache.use_minimal_puts: true
             hibernate.cache.hazelcast.use_lite_member: true
     mail:
-        host: localhost
-        port: 25
-        username:
-        password:
+        host:  # for hotmail
+        port:
+        username: user@example.com
+        password: XXXXXXXX
+        protocol: smtp
+        tls: true
+        properties.mail.smtp:
+            auth: true
+            starttls.enable: true
+            ssl.trust:  # for hotmail
+        debug: true
     messages:
         cache-seconds: 1
     thymeleaf:
@@ -100,7 +107,7 @@ jhipster:
         allow-credentials: true
         max-age: 1800
     mail: # specific JHipster mail property, for standard properties see MailProperties
-        from: ManagementPortal@localhost
+        from: user@example.com
         base-url: http://127.0.0.1:8080
     metrics: # DropWizard Metrics configuration, used by MetricsConfiguration
         jmx.enabled: true

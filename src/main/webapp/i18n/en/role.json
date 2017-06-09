@@ -1,0 +1,33 @@
+{
+    "managementPortalApp": {
+        "Role" : {
+            "null": "",
+            "ROLE_SYS_SUPERUSER": "ROLE_SYS_SUPERUSER",
+            "ROLE_SYS_ADMIN": "ROLE_SYS_ADMIN",
+            "ROLE_SYS_USER": "ROLE_SYS_USER",
+            "ROLE_OWNER": "ROLE_OWNER",
+            "ROLE_AFFILIATE": "ROLE_AFFILIATE",
+            "ROLE_ANALYST": "ROLE_ANALYST",
+            "ROLE_PARTICIPANT": "ROLE_PARTICIPANT"
+        },
+        "role" : {
+            "home": {
+                "title": "Roles",
+                "createLabel": "Create a new Role",
+                "createOrEditLabel": "Create or edit a Role"
+            },
+            "created": "A new Role is created with identifier {{ param }}",
+            "updated": "A Role is updated with identifier {{ param }}",
+            "deleted": "A Role is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Role {{ id }}?"
+            },
+            "detail": {
+                "title": "Role"
+            },
+            "authorityName": "Authority Name",
+            "project": "Project"
+
+        }
+    }
+}
