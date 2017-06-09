@@ -1,7 +1,7 @@
 <div>
     <h2>
         <span jhiTranslate="managementPortalApp.role.home.title">Roles</span>
-        <button class="btn btn-primary float-right create-role" [routerLink]="['/', { outlets: { popup: ['role-new'] } }]">
+        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN' , 'ROLE_PROJECT_ADMIN']"  class="btn btn-primary float-right create-role" [routerLink]="['/', { outlets: { popup: ['role-new'] } }]">
             <span class="fa fa-plus"></span>
             <span  jhiTranslate="managementPortalApp.role.home.createLabel">
             Create new Role

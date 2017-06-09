@@ -86,9 +86,8 @@ public class PatientResource {
         if (patientDTO.getId() == null) {
             return createPatient(patientDTO);
         }
-        Patient patient = patientMapper.patientDTOToPatient(patientDTO);
-        patient = patientRepository.save(patient);
-        PatientDTO result = patientMapper.patientToPatientDTO(patient);
+
+        PatientDTO result = patientService.updatePatient(patientDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, patientDTO.getId().toString()))
             .body(result);

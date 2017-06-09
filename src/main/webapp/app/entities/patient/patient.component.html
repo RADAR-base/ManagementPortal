@@ -1,7 +1,7 @@
 <div>
     <h2>
         <span jhiTranslate="managementPortalApp.patient.home.title">Patients</span>
-        <button class="btn btn-primary float-right create-patient" [routerLink]="['/', { outlets: { popup: ['patient-new'] } }]">
+        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN' , 'ROLE_PROJECT_ADMIN']"  class="btn btn-primary float-right create-patient" [routerLink]="['/', { outlets: { popup: ['patient-new'] } }]">
             <span class="fa fa-plus"></span>
             <span  jhiTranslate="managementPortalApp.patient.home.createLabel">
             Create new Patient
