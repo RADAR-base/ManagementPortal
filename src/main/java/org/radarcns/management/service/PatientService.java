@@ -2,11 +2,15 @@ package org.radarcns.management.service;
 
 import java.time.ZonedDateTime;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Patient;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
+import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.repository.PatientRepository;
 import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
@@ -40,6 +44,9 @@ public class PatientService {
     private PatientRepository patientRepository;
 
     @Autowired
+    private AuthorityRepository authorityRepository;
+
+    @Autowired
     private RoleRepository roleRepository;
 
     @Autowired
@@ -48,22 +55,38 @@ public class PatientService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private UserService userService;
 
-    public PatientDTO createPatient(PatientDTO patientDTO) {
+
+    @Transactional
+    public PatientDTO createPatient(PatientDTO patientDTO) throws IllegalAccessException {
+        User currentUser = userService.getUserWithAuthorities();
         Patient patient = patientMapper.patientDTOToPatient(patientDTO);
-        patient.setUser(setOtherPropertiesToPatientUser(patient.getUser()));
-        patient = patientRepository.save(patient);
-        if (patient.getId() != null) {
-            mailService.sendCreationEmailForGivenEmail(patient.getUser() , patientDTO.getEmail());
+        List<String> currentUserAuthorities = currentUser.getAuthorities().stream()
+            .map(Authority::getName).collect(
+                Collectors.toList());
+        if (currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)
+            && !currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN) && !currentUser.getProject().equals(patient.getUser().getProject())) {
+            log.debug("Validate project admin");
+            throw new IllegalAccessException("This project-admin is not allowed to create Patients under this project");
         }
-        return patientMapper.patientToPatientDTO(patient);
-    }
 
-    private User setOtherPropertiesToPatientUser(User user) {
+
+        User user = patient.getUser();
         Set<Role> roles = new HashSet<>();
-        List<Role> role = roleRepository.findRolesByAuthorityName(AuthoritiesConstants.PARTICIPANT);
+        Role role = roleRepository
+            .findOneByAuthorityNameAndProjectId(AuthoritiesConstants.PARTICIPANT,
+                patient.getUser().getProject().getId());
         if (role != null) {
-            roles.addAll(role);
+            roles.add(role);
+        } else {
+            Role patientRole = new Role();
+            patientRole.setAuthority(
+                authorityRepository.findByAuthorityName(AuthoritiesConstants.PARTICIPANT));
+            patientRole.setProject(patient.getUser().getProject());
+            roleRepository.save(patientRole);
+            roles.add(patientRole);
         }
         user.setRoles(roles);
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
@@ -74,10 +97,16 @@ public class PatientService {
         user.setResetKey(RandomUtil.generateResetKey());
         user.setResetDate(ZonedDateTime.now());
         user.setActivated(false);
-        return user;
+        patient.setUser(user);
+        patient = patientRepository.save(patient);
+        if (patient.getId() != null) {
+            mailService.sendCreationEmailForGivenEmail(patient.getUser(), patientDTO.getEmail());
+        }
+        return patientMapper.patientToPatientDTO(patient);
     }
 
-    public PatientDTO updatePatient(PatientDTO patientDTO) {
+    @Transactional
+    public PatientDTO updatePatient(PatientDTO patientDTO) throws IllegalAccessException {
         if (patientDTO.getId() == null) {
             return createPatient(patientDTO);
         }

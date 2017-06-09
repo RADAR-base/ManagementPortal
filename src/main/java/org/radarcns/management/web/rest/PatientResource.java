@@ -53,7 +53,8 @@ public class PatientResource {
      */
     @PostMapping("/patients")
     @Timed
-    public ResponseEntity<PatientDTO> createPatient(@RequestBody PatientDTO patientDTO) throws URISyntaxException {
+    public ResponseEntity<PatientDTO> createPatient(@RequestBody PatientDTO patientDTO)
+        throws URISyntaxException, IllegalAccessException {
         log.debug("REST request to save Patient : {}", patientDTO);
         if (patientDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new patient cannot already have an ID")).body(null);
@@ -63,6 +64,9 @@ public class PatientResource {
         }
         if (patientDTO.getEmail() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "emailrequired", "A patient email is required")).body(null);
+        }
+        if (patientDTO.getProject().getId() == null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "projectrequired", "A patient should be assigned to a project")).body(null);
         }
         PatientDTO result = patientService.createPatient(patientDTO);
         return ResponseEntity.created(new URI("/api/patients/" + result.getId()))
@@ -81,7 +85,8 @@ public class PatientResource {
      */
     @PutMapping("/patients")
     @Timed
-    public ResponseEntity<PatientDTO> updatePatient(@RequestBody PatientDTO patientDTO) throws URISyntaxException {
+    public ResponseEntity<PatientDTO> updatePatient(@RequestBody PatientDTO patientDTO)
+        throws URISyntaxException, IllegalAccessException {
         log.debug("REST request to update Patient : {}", patientDTO);
         if (patientDTO.getId() == null) {
             return createPatient(patientDTO);

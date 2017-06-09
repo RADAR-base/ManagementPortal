@@ -33,13 +33,13 @@
         <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.patient.email">Email</label>
             <input type="email" class="form-control" name="email" #emailInput="ngModel"
-                   [(ngModel)]="patient.email" maxlength="100">
+                   [(ngModel)]="patient.email" maxlength="100" required>
 
             <div *ngIf="emailInput.dirty && emailInput.invalid">
-                <!--<small class="form-text text-danger"
+                <small class="form-text text-danger"
                    *ngIf="emailInput.errors.required" jhiTranslate="entity.validation.required">
                     This field is required.
-                </small>-->
+                </small>
 
                 <small class="form-text text-danger"
                        *ngIf="emailInput.errors.maxlength" jhiTranslate="entity.validation.maxlength"
@@ -73,10 +73,16 @@
         </div>
         <div class="form-group">
             <label jhiTranslate="managementPortalApp.patient.project" for="field_project">Project</label>
-            <select class="form-control" id="field_project" name="project" [(ngModel)]="patient.project" >
+            <select class="form-control" id="field_project" name="project" [(ngModel)]="patient.project" required>
                 <option [ngValue]="null"></option>
                 <option [ngValue]="projectOption.id === patient.project?.id ? patient.project : projectOption" *ngFor="let projectOption of projects; trackBy: trackProjectById">{{projectOption.id}}</option>
             </select>
+            <div [hidden]="!(editForm.controls.project?.dirty && editForm.controls.project?.invalid)">
+                <small class="form-text text-danger"
+                       [hidden]="!editForm.controls.project?.errors?.required" jhiTranslate="entity.validation.required">
+                    This field is required.
+                </small>
+            </div>
         </div>
         <div class="form-group">
             <label jhiTranslate="managementPortalApp.patient.devices" for="field_devices">Devices</label>
