@@ -164,7 +164,9 @@ public class OAuth2ServerConfiguration {
 
         @Override
         public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
-            oauthServer.allowFormAuthenticationForClients();
+            oauthServer.allowFormAuthenticationForClients()
+                       .checkTokenAccess("isAuthenticated()")
+                       .tokenKeyAccess("isAuthenticated()");
         }
 
         @Bean
