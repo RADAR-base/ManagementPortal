@@ -49,6 +49,10 @@ export class ProjectService {
         ;
     }
 
+    findDeviceTypesById(id: number): Observable<Response> {
+        return this.http.get(`${this.resourceUrl}/${id}/device-types`);
+    }
+
     delete(id: number): Observable<Response> {
         return this.http.delete(`${this.resourceUrl}/${id}`);
     }

@@ -3,6 +3,7 @@ package org.radarcns.management.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.ProjectService;
+import org.radarcns.management.service.dto.DeviceTypeDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.service.dto.ProjectDTO;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -106,6 +107,20 @@ public class ProjectResource {
         ProjectDTO projectDTO = projectService.findOne(id);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(projectDTO));
     }
+
+    /**
+     * GET  /projects/:id : get the "id" project.
+     *
+     * @param id the id of the projectDTO to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the projectDTO, or with status 404 (Not Found)
+     */
+    @GetMapping("/projects/{id}/device-types")
+    @Timed
+    public List<DeviceTypeDTO> getDeviceTypesOfProject(@PathVariable Long id) {
+        log.debug("REST request to get Project : {}", id);
+        return projectService.findDeviceTypesById(id);
+    }
+
 
     /**
      * DELETE  /projects/:id : delete the "id" project.

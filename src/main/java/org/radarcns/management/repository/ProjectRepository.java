@@ -1,5 +1,6 @@
 package org.radarcns.management.repository;
 
+import org.radarcns.management.domain.DeviceType;
 import org.radarcns.management.domain.Project;
 
 import org.springframework.data.jpa.repository.*;
@@ -18,5 +19,8 @@ public interface ProjectRepository extends JpaRepository<Project,Long> {
 
     @Query("select project from Project project left join fetch project.deviceTypes where project.id =:id")
     Project findOneWithEagerRelationships(@Param("id") Long id);
+
+    @Query("select project.deviceTypes from Project project WHERE project.id = :id")
+    List<DeviceType> findDeviceTypesByProjectId(@Param("id") Long id);
 
 }
