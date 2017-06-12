@@ -27,7 +27,7 @@
             </column>
 
             <column name="device_category" type="varchar(255)">
-                <constraints nullable="false" />
+                <constraints nullable="true" />
             </column>
 
             <column name="activated" type="bit">

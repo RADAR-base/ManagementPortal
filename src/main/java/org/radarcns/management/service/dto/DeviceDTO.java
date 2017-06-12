@@ -17,7 +17,6 @@ public class DeviceDTO implements Serializable {
     @NotNull
     private String devicePhysicalId;
 
-    @NotNull
     private String deviceCategory;
 
     @NotNull

@@ -53,9 +53,9 @@ export class UserMgmtDialogComponent implements OnInit {
                 this.projects = res.json();
             } );
 
-        this.principal.identity().then((account) => {
-            this.currentAccount = account;
-        });
+        // this.principal.identity().then((account) => {
+        //     this.currentAccount = account;
+        // });
     }
 
     clear() {

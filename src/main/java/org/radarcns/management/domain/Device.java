@@ -29,8 +29,7 @@ public class Device implements Serializable {
     @Column(name = "device_physical_id", nullable = false)
     private String devicePhysicalId;
 
-    @NotNull
-    @Column(name = "device_category", nullable = false)
+    @Column(name = "device_category")
     private String deviceCategory;
 
     @NotNull
