@@ -5,6 +5,7 @@
 /build/www/**
 /src/test/javascript/coverage/
 /src/test/javascript/PhantomJS*/
+keystore.jks
 
 ######################
 # Node
@@ -76,6 +77,7 @@ local.properties
 ######################
 .gradle/
 /build/
+.gradletasknamecache
 
 ######################
 # Package Files
