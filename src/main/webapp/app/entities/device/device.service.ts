@@ -36,6 +36,10 @@ export class DeviceService {
         ;
     }
 
+    findUnAssigned(): Observable<Response> {
+        return this.http.get(`${this.resourceUrl}/unassigned`);
+    }
+
     delete(id: number): Observable<Response> {
         return this.http.delete(`${this.resourceUrl}/${id}`);
     }

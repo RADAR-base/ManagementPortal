@@ -2,6 +2,7 @@ package org.radarcns.management.service;
 
 import org.radarcns.management.domain.Device;
 import org.radarcns.management.repository.DeviceRepository;
+import org.radarcns.management.service.dto.DescriptiveDeviceDTO;
 import org.radarcns.management.service.dto.DeviceDTO;
 import org.radarcns.management.service.mapper.DeviceMapper;
 import org.slf4j.Logger;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 public class DeviceService {
 
     private final Logger log = LoggerFactory.getLogger(DeviceService.class);
-    
+
     private final DeviceRepository deviceRepository;
 
     private final DeviceMapper deviceMapper;
@@ -47,7 +48,7 @@ public class DeviceService {
 
     /**
      *  Get all the devices.
-     *  
+     *
      *  @return the list of entities
      */
     @Transactional(readOnly = true)
@@ -60,6 +61,13 @@ public class DeviceService {
         return result;
     }
 
+    public List<DescriptiveDeviceDTO> findAllUnassignedDevices() {
+        log.debug("Request to get all unassigned devices");
+        List<DescriptiveDeviceDTO> result = deviceRepository.findAllDevicesByAssigned(false).stream()
+            .map(deviceMapper::deviceToDescriptiveDeviceDTO)
+            .collect(Collectors.toCollection(LinkedList::new));
+        return result;
+    }
     /**
      *  Get one device by id.
      *

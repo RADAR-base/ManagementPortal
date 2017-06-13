@@ -48,7 +48,7 @@
                 </td>
                 <td>
                     <span *ngFor="let devices of patient.devices; let last = last">
-                            <a class="form-control-static" [routerLink]="['../device', devices?.id ]">{{devices.id}}</a>{{last ? '' : ', '}}
+                            <a class="form-control-static" [routerLink]="['../device', devices?.id ]">{{devices.deviceTypeAndPhysicalId}}</a>{{last ? '' : ', '}}
                         </span>
                 </td>
                 <td>{{patient.langKey}}</td>

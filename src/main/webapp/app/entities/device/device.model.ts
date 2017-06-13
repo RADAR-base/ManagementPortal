@@ -10,3 +10,13 @@ export class Device {
         this.assigned = false;
     }
 }
+
+export class MinimalDevice {
+    constructor(
+        public id?: number,
+        public deviceTypeAndPhysicalId?: string,
+        public assigned?: boolean,
+    ) {
+        this.assigned = false;
+    }
+}

@@ -87,7 +87,7 @@
         <div class="form-group">
             <label jhiTranslate="managementPortalApp.patient.devices" for="field_devices">Devices</label>
             <select class="form-control" id="field_devices" multiple name="devices" [(ngModel)]="patient.devices">
-                <option [ngValue]="getSelected(patient.devices, deviceOption)" *ngFor="let deviceOption of devices; trackBy: trackDeviceById">{{deviceOption.id}}</option>
+                <option [ngValue]="getSelected(patient.devices, deviceOption)" *ngFor="let deviceOption of devices; trackBy: trackDeviceById">{{deviceOption.deviceTypeAndPhysicalId}}</option>
             </select>
         </div>
     </div>

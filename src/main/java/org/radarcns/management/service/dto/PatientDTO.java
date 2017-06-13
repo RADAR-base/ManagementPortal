@@ -40,7 +40,7 @@ public class PatientDTO implements Serializable {
 
     private ProjectDTO project;
 
-    private Set<DeviceDTO> devices = new HashSet<>();
+    private Set<DescriptiveDeviceDTO> devices = new HashSet<>();
 
     public boolean isActivated() {
         return activated;
@@ -128,11 +128,11 @@ public class PatientDTO implements Serializable {
         this.login = login;
     }
 
-    public Set<DeviceDTO> getDevices() {
+    public Set<DescriptiveDeviceDTO> getDevices() {
         return devices;
     }
 
-    public void setDevices(Set<DeviceDTO> devices) {
+    public void setDevices(Set<DescriptiveDeviceDTO> devices) {
         this.devices = devices;
     }
 

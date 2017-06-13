@@ -12,6 +12,7 @@ import { PatientService } from './patient.service';
 import { Device, DeviceService } from '../device';
 import {Project} from "../project/project.model";
 import {ProjectService} from "../project/project.service";
+import {MinimalDevice} from "../device/device.model";
 
 @Component({
     selector: 'jhi-patient-dialog',
@@ -25,7 +26,7 @@ export class PatientDialogComponent implements OnInit {
     projects: Project[];
     login ?= 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
 
-    devices: Device[];
+    devices: MinimalDevice[];
     constructor(
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
@@ -59,7 +60,7 @@ export class PatientDialogComponent implements OnInit {
         //         }, (subRes: Response) => this.onError(subRes.json()));
         //     }
         // }, (res: Response) => this.onError(res.json()));
-        this.deviceService.query().subscribe(
+        this.deviceService.findUnAssigned().subscribe(
             (res: Response) => { this.devices = res.json(); }, (res: Response) => this.onError(res.json()));
     }
     clear() {
@@ -99,7 +100,7 @@ export class PatientDialogComponent implements OnInit {
         this.alertService.error(error.message, null, null);
     }
 
-    trackDeviceById(index: number, item: Device) {
+    trackDeviceById(index: number, item: MinimalDevice) {
         return item.id;
     }
 

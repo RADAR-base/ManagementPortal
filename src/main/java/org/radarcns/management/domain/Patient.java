@@ -47,6 +47,7 @@ public class Patient implements Serializable {
     @JoinTable(name = "patient_devices",
                joinColumns = @JoinColumn(name="patients_id", referencedColumnName="id"),
                inverseJoinColumns = @JoinColumn(name="devices_id", referencedColumnName="id"))
+    @Cascade(CascadeType.ALL)
     private Set<Device> devices = new HashSet<>();
 
     public Long getId() {
