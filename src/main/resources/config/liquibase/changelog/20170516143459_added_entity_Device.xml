@@ -30,7 +30,7 @@
                 <constraints nullable="true" />
             </column>
 
-            <column name="activated" type="bit">
+            <column name="assigned" type="bit">
                 <constraints nullable="false" />
             </column>
 

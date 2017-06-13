@@ -20,7 +20,7 @@ public class DeviceDTO implements Serializable {
     private String deviceCategory;
 
     @NotNull
-    private Boolean activated;
+    private Boolean assigned;
 
     private Long deviceTypeId;
 
@@ -47,12 +47,12 @@ public class DeviceDTO implements Serializable {
     public void setDeviceCategory(String deviceCategory) {
         this.deviceCategory = deviceCategory;
     }
-    public Boolean getActivated() {
-        return activated;
+    public Boolean getAssigned() {
+        return assigned;
     }
 
-    public void setActivated(Boolean activated) {
-        this.activated = activated;
+    public void setAssigned(Boolean assigned) {
+        this.assigned = assigned;
     }
 
     public Long getDeviceTypeId() {
@@ -98,7 +98,7 @@ public class DeviceDTO implements Serializable {
             "id=" + id +
             ", devicePhysicalId='" + devicePhysicalId + "'" +
             ", deviceCategory='" + deviceCategory + "'" +
-            ", activated='" + activated + "'" +
+            ", activated='" + assigned + "'" +
             '}';
     }
 }

@@ -19,7 +19,7 @@
             <th><span jhiTranslate="global.field.id">ID</span></th>
             <th><span jhiTranslate="managementPortalApp.device.devicePhysicalId">Device Physical Id</span></th>
             <th><span jhiTranslate="managementPortalApp.device.deviceCategory">Device Category</span></th>
-            <th><span jhiTranslate="managementPortalApp.device.activated">Activated</span></th>
+            <th><span jhiTranslate="managementPortalApp.device.assigned">Assigned</span></th>
             <th><span jhiTranslate="managementPortalApp.device.deviceType">Device Type</span></th>
             <th><span jhiTranslate="managementPortalApp.device.project">Project</span></th>
             <th></th>
@@ -30,7 +30,7 @@
                 <td><a [routerLink]="['../device', device.id ]">{{device.id}}</a></td>
                 <td>{{device.devicePhysicalId}}</td>
                 <td>{{device.deviceCategory}}</td>
-                <td>{{device.activated}}</td>
+                <td>{{device.assigned}}</td>
                 <td>
                     <div *ngIf="device.deviceTypeId">
                         <a [routerLink]="['../device-type', device.deviceTypeId  ]" >{{device.deviceTypeId}}</a>

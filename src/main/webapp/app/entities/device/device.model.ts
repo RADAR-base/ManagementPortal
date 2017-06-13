@@ -3,10 +3,10 @@ export class Device {
         public id?: number,
         public devicePhysicalId?: string,
         public deviceCategory?: string,
-        public activated?: boolean,
+        public assigned?: boolean,
         public deviceTypeId?: number,
         public projectId?: number,
     ) {
-        this.activated = false;
+        this.assigned = false;
     }
 }
