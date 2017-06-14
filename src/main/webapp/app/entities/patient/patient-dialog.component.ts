@@ -108,6 +108,12 @@ export class PatientDialogComponent implements OnInit {
         return item.id;
     }
 
+    onSelectionChange(changeEvent: Array<MinimalDevice>) {
+        for (let i = 0; i < changeEvent.length; i++) {
+            changeEvent[i].assigned = true;
+        }
+    }
+
     getSelected(selectedVals: Array<any>, option: any) {
         if (selectedVals) {
             for (let i = 0; i < selectedVals.length; i++) {

@@ -18,7 +18,6 @@
             <tr>
             <th><span jhiTranslate="global.field.id">ID</span></th>
             <th><span jhiTranslate="managementPortalApp.patient.login">login</span></th>
-            <th><span jhiTranslate="managementPortalApp.patient.email">email</span></th>
             <th><span jhiTranslate="managementPortalApp.patient.externalLink">External Link</span></th>
             <th><span jhiTranslate="managementPortalApp.patient.externalId">Enternal Id</span></th>
             <th><span jhiTranslate="managementPortalApp.patient.removed">Removed</span></th>
@@ -36,14 +35,13 @@
             <tr *ngFor="let patient of patients ;trackBy: trackId">
                 <td><a [routerLink]="['../patient', patient.id ]">{{patient.id}}</a></td>
                 <td>{{patient.login}}</td>
-                <td>{{patient.email}}</td>
                 <td>{{patient.externalLink}}</td>
                 <td>{{patient.externalId}}</td>
                 <td>{{patient.removed}}</td>
                 <td>{{patient.activated}}</td>
                 <td>
                     <div *ngIf="patient.project">
-                        <a [routerLink]="['/project', patient.project?.id ]" >{{patient.project?.id}}</a>
+                        <a [routerLink]="['/project', patient.project?.id ]" >{{patient.project?.projectName}}</a>
                     </div>
                 </td>
                 <td>

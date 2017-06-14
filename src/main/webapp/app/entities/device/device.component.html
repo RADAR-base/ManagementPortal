@@ -30,7 +30,12 @@
                 <td><a [routerLink]="['../device', device.id ]">{{device.id}}</a></td>
                 <td>{{device.devicePhysicalId}}</td>
                 <td>{{device.deviceCategory}}</td>
-                <td>{{device.assigned}}</td>
+                <td>
+                    <span class="badge badge-danger" *ngIf="!device.assigned"
+                          jhiTranslate="managementPortalApp.device.unassigned">Unassigned</span>
+                    <span class="badge badge-success" *ngIf="device.assigned"
+                          jhiTranslate="managementPortalApp.device.assigned">Assigned</span>
+                </td>
                 <td>
                     <div *ngIf="device.deviceTypeId">
                         <a [routerLink]="['../device-type', device.deviceTypeId  ]" >{{device.deviceTypeId}}</a>

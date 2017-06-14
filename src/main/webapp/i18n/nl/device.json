@@ -18,6 +18,7 @@
             "devicePhysicalId": "Device Physical Id",
             "deviceCategory": "Device Category",
             "assigned": "Assigned",
+            "unassigned": "Unassigned",
             "deviceType": "Device Type",
             "project": "Project"
         }
