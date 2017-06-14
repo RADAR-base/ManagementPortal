@@ -6,6 +6,7 @@ import { PatientService } from './patient.service';
 @Injectable()
 export class PatientPopupService {
     private isOpen = false;
+    login ?= 'xxxyxxxx';
     constructor(
         private modalService: NgbModal,
         private router: Router,
@@ -24,7 +25,12 @@ export class PatientPopupService {
                 this.patientModalRef(component, patient);
             });
         } else {
-            return this.patientModalRef(component, new Patient());
+            var patient = new Patient();
+            patient.login = this.login.replace(/[xy]/g, function(c) {
+                var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+                return v.toString(16);
+            });
+            return this.patientModalRef(component, patient);
         }
     }
 

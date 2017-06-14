@@ -15,7 +15,7 @@
         <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.patient.login">Login</label>
             <input type="text" class="form-control" name="login" #loginInput="ngModel"
-                   [(ngModel)]="patient.login" required minlength=1 maxlength=50 pattern="^[_'.@A-Za-z0-9-]*$">
+                   [(ngModel)]="patient.login" required minlength=1 maxlength=50 pattern="^[_'.@A-Za-z0-9-]*$" [disabled]="patient.id">
 
             <div *ngIf="loginInput.dirty && loginInput.invalid">
                 <small class="form-text text-danger"
@@ -30,13 +30,13 @@
                 </small>
             </div>
         </div>
-        <div class="form-group">
+        <div class="form-group" [hidden]="patient.id">
             <label class="form-control-label" jhiTranslate="managementPortalApp.patient.email">Email</label>
             <input type="email" class="form-control" name="email" #emailInput="ngModel"
                    [(ngModel)]="patient.email" maxlength="100" >
 
             <div *ngIf="emailInput.dirty && emailInput.invalid">
-              <!--  <small class="form-text text-danger"
+            <!--    <small class="form-text text-danger"
                    *ngIf="emailInput.errors.required" jhiTranslate="entity.validation.required">
                     This field is required.
                 </small>-->

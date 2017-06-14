@@ -94,7 +94,7 @@ public class DeviceResource {
     }
 
     /**
-     * GET  /devices : get all the devices.
+     * GET  /devices : get all the unassigned devices.
      *
      * @return the ResponseEntity with status 200 (OK) and the list of devices in body
      */
@@ -104,6 +104,19 @@ public class DeviceResource {
         log.debug("REST request to get all Devices");
         return deviceService.findAllUnassignedDevices();
     }
+
+    /**
+     * GET  /devices : get all the devices.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of devices in body
+     */
+    @GetMapping("/devices/unassigned/patient/{id}")
+    @Timed
+    public List<DescriptiveDeviceDTO> getAllUnassignedDevicesAndOfPatients(@PathVariable Long id) {
+        log.debug("REST request to get all Devices");
+        return deviceService.findAllUnassignedDevicesAndOfPatient(id);
+    }
+
 
     /**
      * GET  /devices/:id : get the "id" device.

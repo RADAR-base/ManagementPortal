@@ -52,7 +52,7 @@
             <label jhiTranslate="managementPortalApp.device.project" for="field_project">Project</label>
             <select class="form-control" id="field_project" name="project" [(ngModel)]="device.projectId" (ngModelChange)="onProjectChange($event)" required>
                 <option [ngValue]="null"></option>
-                <option [ngValue]="projectOption.id" *ngFor="let projectOption of projects; trackBy: trackProjectById">{{projectOption.id}}</option>
+                <option [ngValue]="projectOption.id" *ngFor="let projectOption of projects; trackBy: trackProjectById">{{projectOption.projectName}}</option>
             </select>
             <div [hidden]="!(editForm.controls.project?.dirty && editForm.controls.project?.invalid)">
                 <small class="form-text text-danger"

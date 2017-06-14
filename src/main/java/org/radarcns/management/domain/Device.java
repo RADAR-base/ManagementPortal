@@ -26,7 +26,7 @@ public class Device implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "device_physical_id", nullable = false)
+    @Column(name = "device_physical_id", nullable = false , unique = true)
     private String devicePhysicalId;
 
     @Column(name = "device_category")

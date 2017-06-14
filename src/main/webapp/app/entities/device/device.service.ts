@@ -40,6 +40,10 @@ export class DeviceService {
         return this.http.get(`${this.resourceUrl}/unassigned`);
     }
 
+    findUnAssignedAndOfPatient(id: number): Observable<Response> {
+        return this.http.get(`${this.resourceUrl}/unassigned/patient/${id}`);
+    }
+
     delete(id: number): Observable<Response> {
         return this.http.delete(`${this.resourceUrl}/${id}`);
     }

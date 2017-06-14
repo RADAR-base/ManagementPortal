@@ -1,12 +1,15 @@
 package org.radarcns.management.service;
 
 import org.radarcns.management.domain.Device;
+import org.radarcns.management.domain.Patient;
 import org.radarcns.management.repository.DeviceRepository;
+import org.radarcns.management.repository.PatientRepository;
 import org.radarcns.management.service.dto.DescriptiveDeviceDTO;
 import org.radarcns.management.service.dto.DeviceDTO;
 import org.radarcns.management.service.mapper.DeviceMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -21,16 +24,21 @@ import java.util.stream.Collectors;
 @Transactional
 public class DeviceService {
 
-    private final Logger log = LoggerFactory.getLogger(DeviceService.class);
+    private Logger log = LoggerFactory.getLogger(DeviceService.class);
 
-    private final DeviceRepository deviceRepository;
+    @Autowired
+    private DeviceRepository deviceRepository;
 
-    private final DeviceMapper deviceMapper;
+    @Autowired
+    private DeviceMapper deviceMapper;
 
-    public DeviceService(DeviceRepository deviceRepository, DeviceMapper deviceMapper) {
-        this.deviceRepository = deviceRepository;
-        this.deviceMapper = deviceMapper;
-    }
+    @Autowired
+    private PatientRepository patientRepository;
+
+//    public DeviceService(DeviceRepository deviceRepository, DeviceMapper deviceMapper) {
+//        this.deviceRepository = deviceRepository;
+//        this.deviceMapper = deviceMapper;
+//    }
 
     /**
      * Save a device.
@@ -64,6 +72,16 @@ public class DeviceService {
     public List<DescriptiveDeviceDTO> findAllUnassignedDevices() {
         log.debug("Request to get all unassigned devices");
         List<DescriptiveDeviceDTO> result = deviceRepository.findAllDevicesByAssigned(false).stream()
+            .map(deviceMapper::deviceToDescriptiveDeviceDTO)
+            .collect(Collectors.toCollection(LinkedList::new));
+        return result;
+    }
+
+    public List<DescriptiveDeviceDTO> findAllUnassignedDevicesAndOfPatient(Long id) {
+        log.debug("Request to get all unassigned devices and assigned devices of a patient");
+        List<Patient> patients = new LinkedList<>();
+        patients.add(patientRepository.findOne(id));
+        List<DescriptiveDeviceDTO> result = deviceRepository.findAllDevicesByAssignedAndPatients(false, patients).stream()
             .map(deviceMapper::deviceToDescriptiveDeviceDTO)
             .collect(Collectors.toCollection(LinkedList::new));
         return result;

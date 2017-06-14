@@ -20,13 +20,13 @@
             <th><span jhiTranslate="managementPortalApp.patient.login">login</span></th>
             <th><span jhiTranslate="managementPortalApp.patient.externalLink">External Link</span></th>
             <th><span jhiTranslate="managementPortalApp.patient.externalId">Enternal Id</span></th>
-            <th><span jhiTranslate="managementPortalApp.patient.removed">Removed</span></th>
+            <!--<th><span jhiTranslate="managementPortalApp.patient.removed">Removed</span></th>-->
             <th><span jhiTranslate="managementPortalApp.patient.activated">Activated</span></th>
             <th><span jhiTranslate="managementPortalApp.patient.project">Project</span> <span class="fa fa-sort"></span></th>
             <th><span jhiTranslate="managementPortalApp.patient.devices">Devices</span></th>
-            <th><span jhiTranslate="managementPortalApp.patient.createdDate">Created Date</span> <span class="fa fa-sort"></span></th>
-            <th><span jhiTranslate="managementPortalApp.patient.lastModifiedBy">Last Modified By</span> <span class="fa fa-sort"></span></th>
-            <th><span jhiTranslate="managementPortalApp.patient.lastModifiedDate">Last Modified Date</span> <span class="fa fa-sort"></span></th>
+            <!--<th><span jhiTranslate="managementPortalApp.patient.createdDate">Created Date</span> <span class="fa fa-sort"></span></th>-->
+            <!--<th><span jhiTranslate="managementPortalApp.patient.lastModifiedBy">Last Modified By</span> <span class="fa fa-sort"></span></th>-->
+            <!--<th><span jhiTranslate="managementPortalApp.patient.lastModifiedDate">Last Modified Date</span> <span class="fa fa-sort"></span></th>-->
 
             <th></th>
             </tr>
@@ -37,8 +37,14 @@
                 <td>{{patient.login}}</td>
                 <td>{{patient.externalLink}}</td>
                 <td>{{patient.externalId}}</td>
-                <td>{{patient.removed}}</td>
-                <td>{{patient.activated}}</td>
+                <!--<td>-->
+                    <!--<span class="badge badge-danger" *ngIf="!patient.removed">false</span>-->
+                    <!--<span class="badge badge-success" *ngIf="patient.removed">true</span>-->
+                <!--</td>-->
+                <td>
+                    <span class="badge badge-danger" *ngIf="!patient.activated">false</span>
+                    <span class="badge badge-success" *ngIf="patient.activated">true</span>
+                </td>
                 <td>
                     <div *ngIf="patient.project">
                         <a [routerLink]="['/project', patient.project?.id ]" >{{patient.project?.projectName}}</a>
@@ -49,10 +55,9 @@
                             <a class="form-control-static" [routerLink]="['../device', devices?.id ]">{{devices.deviceTypeAndPhysicalId}}</a>{{last ? '' : ', '}}
                         </span>
                 </td>
-                <td>{{patient.langKey}}</td>
-                <td>{{patient.createdDate | date:'dd/MM/yy HH:mm'}}</td>
-                <td>{{patient.lastModifiedBy}}</td>
-                <td>{{patient.lastModifiedDate | date:'dd/MM/yy HH:mm'}}</td>
+                <!--<td>{{patient.createdDate | date:'dd/MM/yy HH:mm'}}</td>-->
+                <!--<td>{{patient.lastModifiedBy}}</td>-->
+                <!--<td>{{patient.lastModifiedDate | date:'dd/MM/yy HH:mm'}}</td>-->
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"
