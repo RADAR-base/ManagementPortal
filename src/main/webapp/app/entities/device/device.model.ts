@@ -3,10 +3,20 @@ export class Device {
         public id?: number,
         public devicePhysicalId?: string,
         public deviceCategory?: string,
-        public activated?: boolean,
+        public assigned?: boolean,
         public deviceTypeId?: number,
         public projectId?: number,
     ) {
-        this.activated = false;
+        this.assigned = false;
+    }
+}
+
+export class MinimalDevice {
+    constructor(
+        public id?: number,
+        public deviceTypeAndPhysicalId?: string,
+        public assigned?: boolean,
+    ) {
+        this.assigned = false;
     }
 }

@@ -40,10 +40,8 @@ export class RoleService {
         ;
     }
 
-    findAdminRoles(req?: any): Observable<Response> {
-        const options = this.createRequestOption(req);
-        return this.http.get(`${this.resourceUrl}/admin`, options)
-            ;
+    findAdminRoles(): Observable<Response> {
+        return this.http.get(`${this.resourceUrl}/admin`);
     }
 
     delete(id: number): Observable<Response> {

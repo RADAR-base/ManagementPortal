@@ -24,6 +24,7 @@
             "langKey": "Taal",
             "project": "Project",
             "devices": "Devices",
+            "createdBy": "Aanmaak door",
             "createdDate": "Aanmaak datum",
             "lastModifiedBy": "Laatst aangepast door",
             "lastModifiedDate": "Laatst aangepast datum"

@@ -3,6 +3,7 @@ package org.radarcns.management.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.DeviceService;
+import org.radarcns.management.service.dto.DescriptiveDeviceDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.service.dto.DeviceDTO;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -91,6 +92,31 @@ public class DeviceResource {
         log.debug("REST request to get all Devices");
         return deviceService.findAll();
     }
+
+    /**
+     * GET  /devices : get all the unassigned devices.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of devices in body
+     */
+    @GetMapping("/devices/unassigned")
+    @Timed
+    public List<DescriptiveDeviceDTO> getAllUnassignedDevices() {
+        log.debug("REST request to get all Devices");
+        return deviceService.findAllUnassignedDevices();
+    }
+
+    /**
+     * GET  /devices : get all the devices.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of devices in body
+     */
+    @GetMapping("/devices/unassigned/patient/{id}")
+    @Timed
+    public List<DescriptiveDeviceDTO> getAllUnassignedDevicesAndOfPatients(@PathVariable Long id) {
+        log.debug("REST request to get all Devices");
+        return deviceService.findAllUnassignedDevicesAndOfPatient(id);
+    }
+
 
     /**
      * GET  /devices/:id : get the "id" device.

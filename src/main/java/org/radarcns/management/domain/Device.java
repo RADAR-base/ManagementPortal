@@ -26,16 +26,15 @@ public class Device implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "device_physical_id", nullable = false)
+    @Column(name = "device_physical_id", nullable = false , unique = true)
     private String devicePhysicalId;
 
-    @NotNull
-    @Column(name = "device_category", nullable = false)
+    @Column(name = "device_category")
     private String deviceCategory;
 
     @NotNull
-    @Column(name = "activated", nullable = false)
-    private Boolean activated;
+    @Column(name = "assigned", nullable = false)
+    private Boolean assigned;
 
     @ManyToMany(mappedBy = "devices")
     @JsonIgnore
@@ -82,17 +81,17 @@ public class Device implements Serializable {
         this.deviceCategory = deviceCategory;
     }
 
-    public Boolean isActivated() {
-        return activated;
+    public Boolean isAssigned() {
+        return assigned;
     }
 
-    public Device activated(Boolean activated) {
-        this.activated = activated;
+    public Device assigned(Boolean assigned) {
+        this.assigned = assigned;
         return this;
     }
 
-    public void setActivated(Boolean activated) {
-        this.activated = activated;
+    public void setAssigned(Boolean assigned) {
+        this.assigned = assigned;
     }
 
     public void setDeviceType(DeviceType deviceType) {
@@ -172,7 +171,7 @@ public class Device implements Serializable {
             "id=" + id +
             ", devicePhysicalId='" + devicePhysicalId + "'" +
             ", deviceCategory='" + deviceCategory + "'" +
-            ", activated='" + activated + "'" +
+            ", assigned='" + assigned + "'" +
             '}';
     }
 }
