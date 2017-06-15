@@ -1,0 +1,177 @@
+package org.radarcns.security.filter;
+
+import com.auth0.jwt.interfaces.DecodedJWT;
+import org.radarcns.security.annotation.Secured;
+import org.radarcns.security.authorization.AuthorizationHandler;
+import org.radarcns.security.authorization.RadarAuthorizationHandler;
+import org.radarcns.security.config.ManagementPortalConfig;
+import org.radarcns.security.exceptions.NotConfiguredException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Priority;
+import javax.naming.ConfigurationException;
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.Priorities;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.ext.Provider;
+import java.io.IOException;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+
+@Secured
+@Provider
+@Priority(Priorities.AUTHENTICATION)
+/**
+ * Token Authentication filter for RADAR-CNS. This class expects three system environment
+ * variable to be present: IDENTITY_SERVER_CONFIG, which is a path to the yml file containing the
+ * configuration for the OAuth2.0 server token verification. This authentication filter will check
+ * the validity of the supplied 'Bearer' token, i.e., if it exists in the identity server AND if
+ * it has the appropriate scope. If the token is deemed valid, this filter will go on to override
+ * the request contexts security context, populating the principal with the username and user roles.
+ */
+public class TokenAuthenticationFilter implements ContainerRequestFilter {
+
+    private static final Logger log = LoggerFactory.getLogger(TokenAuthenticationFilter.class);
+
+    @Context
+    private ResourceInfo resourceInfo;
+
+    private final AuthorizationHandler authorizationHandler;
+
+    /**
+     * Default constructor. Will load the identity server configuration from the file defined in
+     * the environment variable IDENTITY_SERVER_CONFIG.
+     * @throws ConfigurationException If the relevant environment variables are not set
+     * @throws IOException If the configuration file is not accessible
+     */
+    public TokenAuthenticationFilter() throws ConfigurationException, IOException,
+        InvalidKeySpecException, NoSuchAlgorithmException, NotConfiguredException,
+        URISyntaxException {
+        authorizationHandler = new RadarAuthorizationHandler(new ManagementPortalConfig());
+    }
+
+
+    @Override
+    public void filter(ContainerRequestContext requestContext) {
+        String token = getToken(requestContext);
+        try {
+            // Validate the token
+            DecodedJWT jwt = authorizationHandler.validateAccessToken(token);
+            checkScopes(jwt);
+            requestContext.setSecurityContext(createSecurityContext(jwt));
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+        }
+    }
+
+    protected String getToken(ContainerRequestContext requestContext) {
+        // Check if the HTTP Authorization header is present and formatted correctly
+        String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            log.error("No authorization header provided in the request");
+            throw new NotAuthorizedException("Authorization header must be provided");
+        }
+
+        log.debug("Received bearer token from client");
+
+        // Extract the token from the HTTP Authorization header
+        return authorizationHeader.substring("Bearer".length()).trim();
+    }
+
+    protected void checkScopes(DecodedJWT token) {
+        Method resourceMethod = resourceInfo.getResourceMethod();
+        List<String> methodScopes = extractScopes(resourceMethod);
+        List<String> tokenScopes = token.getClaim("scope").asList(String.class);
+
+        if (methodScopes.isEmpty()) {
+            log.debug("Method is secured but no scopes defined, using scopes "
+                        + "defined on class level to check authorization");
+            // Get the resource class which matches with the requested URL
+            // Extract the scopes declared by it
+            Class<?> resourceClass = resourceInfo.getResourceClass();
+            List<String> classScopes = extractScopes(resourceClass);
+            checkTokenScope(classScopes, tokenScopes);
+        } else {
+            log.debug("Checking allowed method scopes against token scopes");
+            checkTokenScope(methodScopes, tokenScopes);
+        }
+
+        log.debug("Token is authorized to access this resource");
+    }
+
+    protected void checkTokenScope(List<String> scopesAllowed, List<String> tokenScopes)
+                throws NotAuthorizedException {
+        if (scopesAllowed.isEmpty()) {
+            log.debug("No allowed scopes defined, assuming any valid token is authorized.");
+            return;
+        }
+        for (String allowedScope : scopesAllowed) {
+            for (String tokenScope : tokenScopes) {
+                if (allowedScope.equalsIgnoreCase(tokenScope)) {
+                    log.debug("Found matching scope in token scopes and allowed scopes: "
+                                + tokenScope);
+                    return;
+                }
+            }
+        }
+        throw new NotAuthorizedException("Token does not have the appropriate scope. Token is "
+                    + "not valid for this resource!");
+    }
+
+    protected List<String> extractScopes(AnnotatedElement annotatedElement) {
+        if (annotatedElement == null) {
+            return new ArrayList<String>();
+        } else {
+            Secured secured = annotatedElement.getAnnotation(Secured.class);
+            if (secured == null) {
+                return new ArrayList<String>();
+            } else {
+                String[] scopesAllowed = secured.scopesAllowed();
+                return Arrays.asList(scopesAllowed);
+            }
+        }
+    }
+
+    protected SecurityContext createSecurityContext(DecodedJWT jwt) {
+        final String name = jwt.getClaim("user_name").asString();
+        final Set<String> roles = Collections.emptySet();
+        roles.addAll(jwt.getClaim("authorities").asList(String.class));
+        return new SecurityContext() {
+
+            public Principal getUserPrincipal() {
+                return () -> name;
+            }
+
+            public boolean isUserInRole(String role) {
+                return roles.contains(role);
+            }
+
+            public boolean isSecure() {
+                return authorizationHandler.getIdentityServerConfig().tokenValidationEndpoint()
+                    .getScheme().startsWith("https");
+            }
+
+            public String getAuthenticationScheme() {
+                return SecurityContext.BASIC_AUTH;
+            }
+        };
+    }
+}
