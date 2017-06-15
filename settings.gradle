@@ -1,1 +1,2 @@
 rootProject.name = 'management-portal'
+include 'security_annotation'
