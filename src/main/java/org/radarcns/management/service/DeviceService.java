@@ -79,9 +79,10 @@ public class DeviceService {
 
     public List<DescriptiveDeviceDTO> findAllUnassignedDevicesAndOfPatient(Long id) {
         log.debug("Request to get all unassigned devices and assigned devices of a patient");
-        List<Patient> patients = new LinkedList<>();
-        patients.add(patientRepository.findOne(id));
-        List<DescriptiveDeviceDTO> result = deviceRepository.findAllDevicesByAssignedAndPatients(false, patients).stream()
+        List<Device> patientDevices= patientRepository.findDevicesByPatientId(id);
+        List<Device> devices = deviceRepository.findAllDevicesByAssigned(false);
+        devices.addAll(patientDevices);
+        List<DescriptiveDeviceDTO> result = devices.stream()
             .map(deviceMapper::deviceToDescriptiveDeviceDTO)
             .collect(Collectors.toCollection(LinkedList::new));
         return result;

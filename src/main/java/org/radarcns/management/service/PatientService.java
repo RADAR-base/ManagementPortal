@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.radarcns.management.domain.Authority;
+import org.radarcns.management.domain.Device;
 import org.radarcns.management.domain.Patient;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.AuthorityRepository;
+import org.radarcns.management.repository.DeviceRepository;
 import org.radarcns.management.repository.PatientRepository;
 import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
@@ -45,6 +47,9 @@ public class PatientService {
 
     @Autowired
     private AuthorityRepository authorityRepository;
+
+    @Autowired
+    private DeviceRepository deviceRepository;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -102,6 +107,12 @@ public class PatientService {
         if (patient.getId() != null) {
             mailService.sendCreationEmailForGivenEmail(patient.getUser(), patientDTO.getEmail());
         }
+        //set if any devices are set as assigned
+        if(patient.getDevices() !=null && !patient.getDevices().isEmpty()) {
+            for (Device device: patient.getDevices()) {
+                device.setAssigned(true);
+            }
+        }
         return patientMapper.patientToPatientDTO(patient);
     }
 
@@ -112,8 +123,16 @@ public class PatientService {
         }
         //  TODO : add security and owner check for the resource
         Patient patient = patientRepository.findOne(patientDTO.getId());
-
+        //reset all the devices assigned to a patient to unassigned
+        for(Device device: patient.getDevices()) {
+            device.setAssigned(false);
+            deviceRepository.save(device);
+        }
+        //set only the devices assigned to a patient as assigned
         patientMapper.safeUpdatePatientFromDTO(patientDTO, patient);
+        for(Device device: patient.getDevices()) {
+            device.setAssigned(true);
+        }
         patient.getUser().setProject(projectMapper.projectDTOToProject(patientDTO.getProject()));
         patient = patientRepository.save(patient);
 
