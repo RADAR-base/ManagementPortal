@@ -21,15 +21,13 @@ export class DeviceDialogComponent implements OnInit {
     device: Device;
     authorities: any[];
     isSaving: boolean;
-
-    devicetypes: DeviceType[];
+    deviceTypes: DeviceType[];
     projects: Project[];
     constructor(
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
         private alertService: AlertService,
         private deviceService: DeviceService,
-        private deviceTypeService: DeviceTypeService,
         private projectService: ProjectService,
         private eventManager: EventManager
     ) {
@@ -39,11 +37,23 @@ export class DeviceDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
-        this.deviceTypeService.query().subscribe(
-            (res: Response) => { this.devicetypes = res.json(); }, (res: Response) => this.onError(res.json()));
+        // this.deviceTypeService.query().subscribe(
+        //     (res: Response) => { this.devicetypes = res.json(); }, (res: Response) => this.onError(res.json()));
         this.projectService.query().subscribe(
             (res: Response) => { this.projects = res.json(); }, (res: Response) => this.onError(res.json()));
     }
+
+    public onProjectChange(projectId: any) {
+        if(projectId!=null) {
+            this.projectService.findDeviceTypesById(projectId).subscribe((res: Response) => {
+                this.deviceTypes = res.json();
+            });
+        }
+        else {
+            this.deviceTypes = null;
+        }
+    }
+
     clear() {
         this.activeModal.dismiss('cancel');
     }

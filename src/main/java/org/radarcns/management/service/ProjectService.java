@@ -1,11 +1,14 @@
 package org.radarcns.management.service;
 
 import org.radarcns.management.domain.Authority;
+import org.radarcns.management.domain.DeviceType;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
+import org.radarcns.management.service.dto.DeviceTypeDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
+import org.radarcns.management.service.mapper.DeviceTypeMapper;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +34,9 @@ public class ProjectService {
 
     @Autowired
     private ProjectMapper projectMapper;
+
+    @Autowired
+    private DeviceTypeMapper deviceTypeMapper;
 
     @Autowired
     private UserService userService;
@@ -86,6 +92,19 @@ public class ProjectService {
         Project project = projectRepository.findOneWithEagerRelationships(id);
         ProjectDTO projectDTO = projectMapper.projectToProjectDTO(project);
         return projectDTO;
+    }
+
+    /**
+     *  Get one project by id.
+     *
+     *  @param id the id of the entity
+     *  @return the entity
+     */
+    @Transactional(readOnly = true)
+    public List<DeviceTypeDTO> findDeviceTypesById(Long id) {
+        log.debug("Request to get Project.deviceTypes of project: {}", id);
+        List<DeviceType> deviceTypes = projectRepository.findDeviceTypesByProjectId(id);
+        return deviceTypeMapper.deviceTypesToDeviceTypeDTOs(deviceTypes);
     }
 
     /**

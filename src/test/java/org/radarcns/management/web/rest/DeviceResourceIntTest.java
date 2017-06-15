@@ -94,7 +94,7 @@ public class DeviceResourceIntTest {
         Device device = new Device()
             .devicePhysicalId(DEFAULT_DEVICE_PHYSICAL_ID)
             .deviceCategory(DEFAULT_DEVICE_CATEGORY)
-            .activated(DEFAULT_ACTIVATED);
+            .assigned(DEFAULT_ACTIVATED);
         return device;
     }
 
@@ -121,7 +121,7 @@ public class DeviceResourceIntTest {
         Device testDevice = deviceList.get(deviceList.size() - 1);
         assertThat(testDevice.getDevicePhysicalId()).isEqualTo(DEFAULT_DEVICE_PHYSICAL_ID);
         assertThat(testDevice.getDeviceCategory()).isEqualTo(DEFAULT_DEVICE_CATEGORY);
-        assertThat(testDevice.isActivated()).isEqualTo(DEFAULT_ACTIVATED);
+        assertThat(testDevice.isAssigned()).isEqualTo(DEFAULT_ACTIVATED);
     }
 
     @Test
@@ -187,7 +187,7 @@ public class DeviceResourceIntTest {
     public void checkActivatedIsRequired() throws Exception {
         int databaseSizeBeforeTest = deviceRepository.findAll().size();
         // set the field null
-        device.setActivated(null);
+        device.setAssigned(null);
 
         // Create the Device, which fails.
         DeviceDTO deviceDTO = deviceMapper.deviceToDeviceDTO(device);
@@ -253,7 +253,7 @@ public class DeviceResourceIntTest {
         updatedDevice
             .devicePhysicalId(UPDATED_DEVICE_PHYSICAL_ID)
             .deviceCategory(UPDATED_DEVICE_CATEGORY)
-            .activated(UPDATED_ACTIVATED);
+            .assigned(UPDATED_ACTIVATED);
         DeviceDTO deviceDTO = deviceMapper.deviceToDeviceDTO(updatedDevice);
 
         restDeviceMockMvc.perform(put("/api/devices")
@@ -267,7 +267,7 @@ public class DeviceResourceIntTest {
         Device testDevice = deviceList.get(deviceList.size() - 1);
         assertThat(testDevice.getDevicePhysicalId()).isEqualTo(UPDATED_DEVICE_PHYSICAL_ID);
         assertThat(testDevice.getDeviceCategory()).isEqualTo(UPDATED_DEVICE_CATEGORY);
-        assertThat(testDevice.isActivated()).isEqualTo(UPDATED_ACTIVATED);
+        assertThat(testDevice.isAssigned()).isEqualTo(UPDATED_ACTIVATED);
     }
 
     @Test

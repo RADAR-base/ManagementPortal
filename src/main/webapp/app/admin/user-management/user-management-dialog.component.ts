@@ -1,5 +1,6 @@
 import {Component, OnInit, OnDestroy, OnChanges, SimpleChanges} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Response } from '@angular/http';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, JhiLanguageService } from 'ng-jhipster';
@@ -23,7 +24,6 @@ export class UserMgmtDialogComponent implements OnInit {
     defaultRoles: Role[];
     isSaving: Boolean;
     projects: Project[];
-    currentAccount: any;
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -38,10 +38,6 @@ export class UserMgmtDialogComponent implements OnInit {
 
     ngOnInit() {
         this.isSaving = false;
-        this.roleService.findAdminRoles().subscribe((res) => {
-           this.defaultRoles = res.json();
-        });
-        this.roles = this.defaultRoles;
         // this.authorities = this.authorityService.findAll();
         this.languageHelper.getAll().then((languages) => {
             this.languages = languages;
@@ -53,8 +49,13 @@ export class UserMgmtDialogComponent implements OnInit {
                 this.projects = res.json();
             } );
 
-        this.principal.identity().then((account) => {
-            this.currentAccount = account;
+        this.principal.hasAuthority("ROLE_SYS_ADMIN").then((account) => {
+            console.log("Is admin", account);
+            this.roleService.findAdminRoles().subscribe((res: Response) => {
+                this.defaultRoles = res.json();
+                this.roles = this.defaultRoles;
+                console.log("default role ", this.defaultRoles);
+            });
         });
     }
 
@@ -91,7 +92,6 @@ export class UserMgmtDialogComponent implements OnInit {
     }
 
     public onProjectChange(project: any) {
-        console.log("changed " , project);
         if(project==null) {
            this.roles = this.defaultRoles;
         }

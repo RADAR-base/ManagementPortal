@@ -23,14 +23,14 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="device_physical_id" type="varchar(255)">
-                <constraints nullable="false" />
+                <constraints unique="true" nullable="false" />
             </column>
 
             <column name="device_category" type="varchar(255)">
-                <constraints nullable="false" />
+                <constraints nullable="true" />
             </column>
 
-            <column name="activated" type="bit">
+            <column name="assigned" type="bit">
                 <constraints nullable="false" />
             </column>
 

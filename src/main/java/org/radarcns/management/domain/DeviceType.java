@@ -39,7 +39,7 @@ public class DeviceType implements Serializable {
     @Column(name = "source_type", nullable = false)
     private SourceType sourceType;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JoinTable(name = "device_type_sensor_data",
                joinColumns = @JoinColumn(name="device_types_id", referencedColumnName="id"),
