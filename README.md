@@ -4,6 +4,12 @@ ManagementPortal is an application which is used to manage pilot studies for [RA
 
 ## Configuration
 
+First create a keypair to sign JWT with:
+
+```shell
+keytool -genkey -alias selfsigned -keyalg RSA -keystore src/main/resources/config/keystore.jks -keysize 4048 -storepass radarbase
+```
+
 To add a new client to this API, add it to `src/main/resources/config/oauth_client_details.csv`.
 
 ## Development

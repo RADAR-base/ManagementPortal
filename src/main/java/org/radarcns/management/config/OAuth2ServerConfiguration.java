@@ -164,19 +164,19 @@ public class OAuth2ServerConfiguration {
 
         @Override
         public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
-            oauthServer.allowFormAuthenticationForClients();
+            oauthServer.allowFormAuthenticationForClients()
+                       .checkTokenAccess("isAuthenticated()")
+                       .tokenKeyAccess("isAnonymous() || isAuthenticated()");
         }
 
         @Bean
         public JwtAccessTokenConverter accessTokenConverter() {
             JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-            converter.setSigningKey("123");
 
-            // TODO: use a keystore instead
-//            KeyPair keyPair = new KeyStoreKeyFactory(
-//                new ClassPathResource("keystore.jks"), "password".toCharArray())
-//                .getKeyPair("selfsigned");
-//            converter.setKeyPair(keyPair);
+            KeyPair keyPair = new KeyStoreKeyFactory(
+                new ClassPathResource("/config/keystore.jks"), "radarbase".toCharArray())
+                .getKeyPair("selfsigned");
+            converter.setKeyPair(keyPair);
 
             return converter;
         }
