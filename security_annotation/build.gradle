@@ -1,0 +1,67 @@
+plugins {
+    // Apply the java plugin to add support for Java
+    id 'java-library'
+    id 'idea'
+    id 'pmd'
+    id 'checkstyle'
+    id 'maven'
+}
+
+group 'org.radarcns'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+ext.okhttpVersion = '3.6.0'
+ext.junitVersion = '4.12'
+ext.jacksonVersion='2.8.5'
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    api group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion
+
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.2'
+
+    compile group: 'com.auth0', name: 'java-jwt', version: '3.2.0'
+
+    compile group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.1-m05'
+    compile group: 'javax.annotation', name: 'javax.annotation-api', version: '1.2-b02'
+
+    // For POJO classes and ConfigLoader
+    implementation group: 'com.fasterxml.jackson.core' , name: 'jackson-databind' , version: jacksonVersion
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jacksonVersion
+
+    testCompile group: 'junit', name: 'junit', version: junitVersion
+    testCompile "com.github.tomakehurst:wiremock:2.5.1"
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.4.1'
+    distributionUrl distributionUrl.replace("bin", "all")
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+
+checkstyle {
+    toolVersion '6.16'
+    ignoreFailures false
+}
+
+pmd {
+    toolVersion = '5.5.2'
+    ignoreFailures = false
+
+    consoleOutput = true
+
+    ruleSets = []
+    ruleSetFiles = files("config/pmd/ruleset.xml")
+}
