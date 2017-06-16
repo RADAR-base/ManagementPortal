@@ -23,4 +23,7 @@ public interface PatientRepository extends JpaRepository<Patient,Long> {
     @Query("select patient.devices from Patient patient WHERE patient.id = :id")
     List<Device> findDevicesByPatientId(@Param("id") Long id);
 
+    @Query("select patient.devices from Patient patient WHERE patient.user.login = :login")
+    List<Device> findDevicesByPatientLogin(@Param("login") String login);
+
 }
