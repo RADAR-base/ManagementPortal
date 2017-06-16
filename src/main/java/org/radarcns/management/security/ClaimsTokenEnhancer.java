@@ -27,7 +27,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
         if (authentication.getAuthorities() != null && !authentication.getAuthorities().isEmpty()) {
             Map<String, Object> additionalInfo = new HashMap<>();
             Set<String> currentUserAuthorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
-            additionalInfo.put("authorities" , currentUserAuthorities);
+//            additionalInfo.put("authorities" , currentUserAuthorities);
             if(currentUserAuthorities.contains(AuthoritiesConstants.PARTICIPANT)) {
                 String userName = null;
                 if (authentication.getPrincipal() instanceof UserDetails) {
