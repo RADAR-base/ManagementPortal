@@ -6,21 +6,21 @@ import { Observable } from 'rxjs/Rx';
 import { DateUtils, DataUtils, EventManager } from 'ng-jhipster';
 import { ManagementPortalTestModule } from '../../../test.module';
 import { MockActivatedRoute } from '../../../helpers/mock-route.service';
-import { DeviceDetailComponent } from '../../../../../../main/webapp/app/entities/device/device-detail.component';
-import { DeviceService } from '../../../../../../main/webapp/app/entities/device/device.service';
-import { Device } from '../../../../../../main/webapp/app/entities/device/device.model';
+import { SourceDetailComponent } from '../../../../../../main/webapp/app/entities/source/source-detail.component';
+import { SourceService } from '../../../../../../main/webapp/app/entities/source/source.service';
+import { Source } from '../../../../../../main/webapp/app/entities/source/source.model';
 
 describe('Component Tests', () => {
 
-    describe('Device Management Detail Component', () => {
-        let comp: DeviceDetailComponent;
-        let fixture: ComponentFixture<DeviceDetailComponent>;
-        let service: DeviceService;
+    describe('Source Management Detail Component', () => {
+        let comp: SourceDetailComponent;
+        let fixture: ComponentFixture<SourceDetailComponent>;
+        let service: SourceService;
 
         beforeEach(async(() => {
             TestBed.configureTestingModule({
                 imports: [ManagementPortalTestModule],
-                declarations: [DeviceDetailComponent],
+                declarations: [SourceDetailComponent],
                 providers: [
                     DateUtils,
                     DataUtils,
@@ -29,10 +29,10 @@ describe('Component Tests', () => {
                         provide: ActivatedRoute,
                         useValue: new MockActivatedRoute({id: 123})
                     },
-                    DeviceService,
+                    SourceService,
                     EventManager
                 ]
-            }).overrideComponent(DeviceDetailComponent, {
+            }).overrideComponent(SourceDetailComponent, {
                 set: {
                     template: ''
                 }
@@ -40,9 +40,9 @@ describe('Component Tests', () => {
         }));
 
         beforeEach(() => {
-            fixture = TestBed.createComponent(DeviceDetailComponent);
+            fixture = TestBed.createComponent(SourceDetailComponent);
             comp = fixture.componentInstance;
-            service = fixture.debugElement.injector.get(DeviceService);
+            service = fixture.debugElement.injector.get(SourceService);
         });
 
 
@@ -50,14 +50,14 @@ describe('Component Tests', () => {
             it('Should call load all on init', () => {
             // GIVEN
 
-            spyOn(service, 'find').and.returnValue(Observable.of(new Device(10)));
+            spyOn(service, 'find').and.returnValue(Observable.of(new Source(10)));
 
             // WHEN
             comp.ngOnInit();
 
             // THEN
             expect(service.find).toHaveBeenCalledWith(123);
-            expect(comp.device).toEqual(jasmine.objectContaining({id:10}));
+            expect(comp.source).toEqual(jasmine.objectContaining({id:10}));
             });
         });
     });

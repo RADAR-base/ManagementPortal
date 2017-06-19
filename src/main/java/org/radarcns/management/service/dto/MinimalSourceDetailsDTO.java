@@ -3,11 +3,11 @@ package org.radarcns.management.service.dto;
 /**
  * Created by nivethika on 13-6-17.
  */
-public class DescriptiveDeviceDTO {
+public class MinimalSourceDetailsDTO {
 
     private Long id;
 
-    private String deviceTypeAndPhysicalId;
+    private String deviceTypeAndSourceId;
 
     private boolean assigned;
 
@@ -19,12 +19,12 @@ public class DescriptiveDeviceDTO {
         this.id = id;
     }
 
-    public String getDeviceTypeAndPhysicalId() {
-        return deviceTypeAndPhysicalId;
+    public String getDeviceTypeAndSourceId() {
+        return deviceTypeAndSourceId;
     }
 
-    public void setDeviceTypeAndPhysicalId(String deviceTypeAndPhysicalId) {
-        this.deviceTypeAndPhysicalId = deviceTypeAndPhysicalId;
+    public void setDeviceTypeAndSourceId(String deviceTypeAndSourceId) {
+        this.deviceTypeAndSourceId = deviceTypeAndSourceId;
     }
 
     public boolean isAssigned() {

@@ -44,11 +44,11 @@ public class Patient implements Serializable {
 
     @ManyToMany
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    @JoinTable(name = "patient_devices",
+    @JoinTable(name = "patient_sources",
                joinColumns = @JoinColumn(name="patients_id", referencedColumnName="id"),
-               inverseJoinColumns = @JoinColumn(name="devices_id", referencedColumnName="id"))
+               inverseJoinColumns = @JoinColumn(name="sources_id", referencedColumnName="id"))
     @Cascade(CascadeType.ALL)
-    private Set<Device> devices = new HashSet<>();
+    private Set<Source> sources = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -110,29 +110,29 @@ public class Patient implements Serializable {
         this.user = usr;
     }
 
-    public Set<Device> getDevices() {
-        return devices;
+    public Set<Source> getSources() {
+        return sources;
     }
 
-    public Patient devices(Set<Device> devices) {
-        this.devices = devices;
+    public Patient sources(Set<Source> sources) {
+        this.sources = sources;
         return this;
     }
 
-    public Patient addDevices(Device device) {
-        this.devices.add(device);
-        device.getPatients().add(this);
+    public Patient addSources(Source source) {
+        this.sources.add(source);
+        source.getPatients().add(this);
         return this;
     }
 
-    public Patient removeDevices(Device device) {
-        this.devices.remove(device);
-        device.getPatients().remove(this);
+    public Patient removeSources(Source source) {
+        this.sources.remove(source);
+        source.getPatients().remove(this);
         return this;
     }
 
-    public void setDevices(Set<Device> devices) {
-        this.devices = devices;
+    public void setSources(Set<Source> sources) {
+        this.sources = sources;
     }
 
     @Override

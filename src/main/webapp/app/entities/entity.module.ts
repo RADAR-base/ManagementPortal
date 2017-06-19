@@ -1,6 +1,6 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
-import { ManagementPortalDeviceModule } from './device/device.module';
+import { ManagementPortalSourceModule } from './source/source.module';
 import { ManagementPortalDeviceTypeModule } from './device-type/device-type.module';
 import { ManagementPortalProjectModule } from './project/project.module';
 // import { ManagementPortalStudyModule } from './study/study.module';
@@ -12,7 +12,7 @@ import {ManagementPortalRoleModule} from "./role/role.module";
 
 @NgModule({
     imports: [
-        ManagementPortalDeviceModule,
+        ManagementPortalSourceModule,
         ManagementPortalDeviceTypeModule,
         ManagementPortalProjectModule,
         // ManagementPortalStudyModule,

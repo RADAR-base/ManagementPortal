@@ -1,15 +1,15 @@
 import { Injectable, Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Device } from './device.model';
-import { DeviceService } from './device.service';
+import { Source } from './source.model';
+import { SourceService } from './source.service';
 @Injectable()
-export class DevicePopupService {
+export class SourcePopupService {
     private isOpen = false;
     constructor(
         private modalService: NgbModal,
         private router: Router,
-        private deviceService: DeviceService
+        private sourceService: SourceService
 
     ) {}
 
@@ -20,17 +20,17 @@ export class DevicePopupService {
         this.isOpen = true;
 
         if (id) {
-            this.deviceService.find(id).subscribe((device) => {
-                this.deviceModalRef(component, device);
+            this.sourceService.find(id).subscribe((source) => {
+                this.sourceModalRef(component, source);
             });
         } else {
-            return this.deviceModalRef(component, new Device());
+            return this.sourceModalRef(component, new Source());
         }
     }
 
-    deviceModalRef(component: Component, device: Device): NgbModalRef {
+    sourceModalRef(component: Component, source: Source): NgbModalRef {
         const modalRef = this.modalService.open(component, { size: 'lg', backdrop: 'static'});
-        modalRef.componentInstance.device = device;
+        modalRef.componentInstance.source = source;
         modalRef.result.then((result) => {
             this.router.navigate([{ outlets: { popup: null }}], { replaceUrl: true });
             this.isOpen = false;

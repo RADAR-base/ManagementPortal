@@ -2,29 +2,29 @@ import { Injectable } from '@angular/core';
 import { Http, Response, URLSearchParams, BaseRequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 
-import { Device } from './device.model';
+import { Source } from './source.model';
 @Injectable()
-export class DeviceService {
+export class SourceService {
 
-    private resourceUrl = 'api/devices';
+    private resourceUrl = 'api/sources';
 
     constructor(private http: Http) { }
 
-    create(device: Device): Observable<Device> {
-        const copy: Device = Object.assign({}, device);
+    create(source: Source): Observable<Source> {
+        const copy: Source = Object.assign({}, source);
         return this.http.post(this.resourceUrl, copy).map((res: Response) => {
             return res.json();
         });
     }
 
-    update(device: Device): Observable<Device> {
-        const copy: Device = Object.assign({}, device);
+    update(source: Source): Observable<Source> {
+        const copy: Source = Object.assign({}, source);
         return this.http.put(this.resourceUrl, copy).map((res: Response) => {
             return res.json();
         });
     }
 
-    find(id: number): Observable<Device> {
+    find(id: number): Observable<Source> {
         return this.http.get(`${this.resourceUrl}/${id}`).map((res: Response) => {
             return res.json();
         });

@@ -5,20 +5,20 @@ import { Response } from '@angular/http';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 
-import { Device } from './device.model';
-import { DevicePopupService } from './device-popup.service';
-import { DeviceService } from './device.service';
+import { Source } from './source.model';
+import { SourcePopupService } from './source-popup.service';
+import { SourceService } from './source.service';
 import { DeviceType, DeviceTypeService } from '../device-type';
 import {Project} from "../project/project.model";
 import {ProjectService} from "../project/project.service";
 
 @Component({
-    selector: 'jhi-device-dialog',
-    templateUrl: './device-dialog.component.html'
+    selector: 'jhi-source-dialog',
+    templateUrl: './source-dialog.component.html'
 })
-export class DeviceDialogComponent implements OnInit {
+export class SourceDialogComponent implements OnInit {
 
-    device: Device;
+    source: Source;
     authorities: any[];
     isSaving: boolean;
     deviceTypes: DeviceType[];
@@ -27,18 +27,18 @@ export class DeviceDialogComponent implements OnInit {
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
         private alertService: AlertService,
-        private deviceService: DeviceService,
+        private sourceService: SourceService,
         private projectService: ProjectService,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['device']);
+        this.jhiLanguageService.setLocations(['source']);
     }
 
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
-        // this.deviceTypeService.query().subscribe(
-        //     (res: Response) => { this.devicetypes = res.json(); }, (res: Response) => this.onError(res.json()));
+        // this.sourceTypeService.query().subscribe(
+        //     (res: Response) => { this.sourcetypes = res.json(); }, (res: Response) => this.onError(res.json()));
         this.projectService.query().subscribe(
             (res: Response) => { this.projects = res.json(); }, (res: Response) => this.onError(res.json()));
     }
@@ -60,19 +60,19 @@ export class DeviceDialogComponent implements OnInit {
 
     save() {
         this.isSaving = true;
-        if (this.device.id !== undefined) {
-            this.deviceService.update(this.device)
-                .subscribe((res: Device) =>
+        if (this.source.id !== undefined) {
+            this.sourceService.update(this.source)
+                .subscribe((res: Source) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         } else {
-            this.deviceService.create(this.device)
-                .subscribe((res: Device) =>
+            this.sourceService.create(this.source)
+                .subscribe((res: Source) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         }
     }
 
-    private onSaveSuccess(result: Device) {
-        this.eventManager.broadcast({ name: 'deviceListModification', content: 'OK'});
+    private onSaveSuccess(result: Source) {
+        this.eventManager.broadcast({ name: 'sourceListModification', content: 'OK'});
         this.isSaving = false;
         this.activeModal.dismiss(result);
     }
@@ -100,27 +100,27 @@ export class DeviceDialogComponent implements OnInit {
 }
 
 @Component({
-    selector: 'jhi-device-popup',
+    selector: 'jhi-source-popup',
     template: ''
 })
-export class DevicePopupComponent implements OnInit, OnDestroy {
+export class SourcePopupComponent implements OnInit, OnDestroy {
 
     modalRef: NgbModalRef;
     routeSub: any;
 
     constructor(
         private route: ActivatedRoute,
-        private devicePopupService: DevicePopupService
+        private sourcePopupService: SourcePopupService
     ) {}
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
             if ( params['id'] ) {
-                this.modalRef = this.devicePopupService
-                    .open(DeviceDialogComponent, params['id']);
+                this.modalRef = this.sourcePopupService
+                    .open(SourceDialogComponent, params['id']);
             } else {
-                this.modalRef = this.devicePopupService
-                    .open(DeviceDialogComponent);
+                this.modalRef = this.sourcePopupService
+                    .open(SourceDialogComponent);
             }
         });
     }

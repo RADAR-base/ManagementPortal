@@ -23,7 +23,7 @@
             <!--<th><span jhiTranslate="managementPortalApp.patient.removed">Removed</span></th>-->
             <th><span jhiTranslate="managementPortalApp.patient.activated">Activated</span></th>
             <th><span jhiTranslate="managementPortalApp.patient.project">Project</span> <span class="fa fa-sort"></span></th>
-            <th><span jhiTranslate="managementPortalApp.patient.devices">Devices</span></th>
+            <th><span jhiTranslate="managementPortalApp.patient.sources">Sources</span></th>
             <!--<th><span jhiTranslate="managementPortalApp.patient.createdDate">Created Date</span> <span class="fa fa-sort"></span></th>-->
             <!--<th><span jhiTranslate="managementPortalApp.patient.lastModifiedBy">Last Modified By</span> <span class="fa fa-sort"></span></th>-->
             <!--<th><span jhiTranslate="managementPortalApp.patient.lastModifiedDate">Last Modified Date</span> <span class="fa fa-sort"></span></th>-->
@@ -51,8 +51,8 @@
                     </div>
                 </td>
                 <td>
-                    <span *ngFor="let devices of patient.devices; let last = last">
-                            <a class="form-control-static" [routerLink]="['../device', devices?.id ]">{{devices.deviceTypeAndPhysicalId}}</a>{{last ? '' : ', '}}
+                    <span *ngFor="let sources of patient.sources; let last = last">
+                            <a class="form-control-static" [routerLink]="['../source', sources?.id ]">{{sources.deviceTypeAndSourceId}}</a>{{last ? '' : ', '}}
                         </span>
                 </td>
                 <!--<td>{{patient.createdDate | date:'dd/MM/yy HH:mm'}}</td>-->

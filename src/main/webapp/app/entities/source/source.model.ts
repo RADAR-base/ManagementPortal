@@ -1,7 +1,7 @@
-export class Device {
+export class Source {
     constructor(
         public id?: number,
-        public devicePhysicalId?: string,
+        public sourceId?: string,
         public deviceCategory?: string,
         public assigned?: boolean,
         public deviceTypeId?: number,
@@ -11,10 +11,10 @@ export class Device {
     }
 }
 
-export class MinimalDevice {
+export class MinimalSource {
     constructor(
         public id?: number,
-        public deviceTypeAndPhysicalId?: string,
+        public deviceTypeAndSourceId?: string,
         public assigned?: boolean,
     ) {
         this.assigned = false;

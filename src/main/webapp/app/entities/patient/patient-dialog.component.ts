@@ -9,10 +9,10 @@ import {Patient} from './patient.model';
 import {PatientPopupService} from './patient-popup.service';
 import {PatientService} from './patient.service';
 // import { Usr, UsrService } from '../usr';
-import {Device, DeviceService} from '../device';
+import {Source, SourceService} from '../source';
 import {Project} from "../project/project.model";
 import {ProjectService} from "../project/project.service";
-import {MinimalDevice} from "../device/device.model";
+import {MinimalSource} from "../source/source.model";
 
 @Component({
     selector: 'jhi-patient-dialog',
@@ -25,14 +25,14 @@ export class PatientDialogComponent implements OnInit {
     isSaving: boolean;
     projects: Project[];
 
-    devices: MinimalDevice[];
+    sources: MinimalSource[];
 
     constructor(public activeModal: NgbActiveModal,
                 private jhiLanguageService: JhiLanguageService,
                 private alertService: AlertService,
                 private patientService: PatientService,
                 private projectService: ProjectService,
-                private deviceService: DeviceService,
+                private deviceService: SourceService,
                 private eventManager: EventManager) {
         this.jhiLanguageService.setLocations(['patient']);
     }
@@ -47,12 +47,12 @@ export class PatientDialogComponent implements OnInit {
         if (this.patient.id !== null) {
             this.deviceService.findUnAssignedAndOfPatient(this.patient.id).subscribe(
                 (res: Response) => {
-                    this.devices = res.json();
+                    this.sources = res.json();
                 }, (res: Response) => this.onError(res.json()));
         } else {
             this.deviceService.findUnAssigned().subscribe(
                 (res: Response) => {
-                    this.devices = res.json();
+                    this.sources = res.json();
                 }, (res: Response) => this.onError(res.json()));
         }
     }
@@ -94,7 +94,7 @@ export class PatientDialogComponent implements OnInit {
         this.alertService.error(error.message, null, null);
     }
 
-    trackDeviceById(index: number, item: MinimalDevice) {
+    trackDeviceById(index: number, item: MinimalSource) {
         return item.id;
     }
 

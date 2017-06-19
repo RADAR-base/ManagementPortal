@@ -1,5 +1,5 @@
 import {Project} from "../project/project.model";
-import {Device, MinimalDevice} from "../device/device.model";
+import {Source, MinimalSource} from "../source/source.model";
 export class Patient {
     public id?: any;
     public login?: string;
@@ -14,7 +14,7 @@ export class Patient {
     public lastModifiedDate?: Date;
     public password?: string;
     public project?: Project;
-    public device?: MinimalDevice = new MinimalDevice();
+    public source?: MinimalSource = new MinimalSource();
 
     constructor(
          id?: number,
@@ -30,7 +30,7 @@ export class Patient {
          lastModifiedDate?: Date,
          password?: string,
          project?: Project,
-         device?: Device
+         source?: Source
 
     ) {
         this.id = id ? id : null;
@@ -46,6 +46,6 @@ export class Patient {
         this.lastModifiedDate = lastModifiedDate ? lastModifiedDate : null;
         this.password = password ? password : null;
         this.project = project ? project: null;
-        this.device = device ? device: new MinimalDevice();
+        this.source = source ? source: new MinimalSource();
     }
 }

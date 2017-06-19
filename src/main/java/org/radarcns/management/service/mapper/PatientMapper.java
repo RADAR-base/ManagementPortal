@@ -10,7 +10,7 @@ import org.radarcns.management.service.dto.PatientDTO;
 /**
  * Mapper for the entity Patient and its DTO PatientDTO.
  */
-@Mapper(componentModel = "spring", uses = {UserMapper.class, ProjectMapper.class, DeviceMapper.class})
+@Mapper(componentModel = "spring", uses = {UserMapper.class, ProjectMapper.class, SourceMapper.class})
 public interface PatientMapper {
 
     @Mapping(source = "user.login", target = "login")

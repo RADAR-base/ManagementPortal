@@ -4,34 +4,34 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
 import { EventManager, ParseLinks, PaginationUtil, JhiLanguageService, AlertService } from 'ng-jhipster';
 
-import { Device } from './device.model';
-import { DeviceService } from './device.service';
+import { Source } from './source.model';
+import { SourceService } from './source.service';
 import { ITEMS_PER_PAGE, Principal } from '../../shared';
 import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
 
 @Component({
-    selector: 'jhi-device',
-    templateUrl: './device.component.html'
+    selector: 'jhi-source',
+    templateUrl: './source.component.html'
 })
-export class DeviceComponent implements OnInit, OnDestroy {
-devices: Device[];
+export class SourceComponent implements OnInit, OnDestroy {
+sources: Source[];
     currentAccount: any;
     eventSubscriber: Subscription;
 
     constructor(
         private jhiLanguageService: JhiLanguageService,
-        private deviceService: DeviceService,
+        private sourceService: SourceService,
         private alertService: AlertService,
         private eventManager: EventManager,
         private principal: Principal
     ) {
-        this.jhiLanguageService.setLocations(['device']);
+        this.jhiLanguageService.setLocations(['source']);
     }
 
     loadAll() {
-        this.deviceService.query().subscribe(
+        this.sourceService.query().subscribe(
             (res: Response) => {
-                this.devices = res.json();
+                this.sources = res.json();
             },
             (res: Response) => this.onError(res.json())
         );
@@ -48,11 +48,11 @@ devices: Device[];
         this.eventManager.destroy(this.eventSubscriber);
     }
 
-    trackId(index: number, item: Device) {
+    trackId(index: number, item: Source) {
         return item.id;
     }
     registerChangeInDevices() {
-        this.eventSubscriber = this.eventManager.subscribe('deviceListModification', (response) => this.loadAll());
+        this.eventSubscriber = this.eventManager.subscribe('sourceListModification', (response) => this.loadAll());
     }
 
     private onError(error) {

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.radarcns.management.domain.Device;
+import org.radarcns.management.domain.Source;
 import org.radarcns.management.repository.PatientRepository;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +37,12 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
                     userName = (String) authentication.getPrincipal();
                 }
                 if(userName!=null) {
-                    List<Device> assignedDevices = patientRepository
-                        .findDevicesByPatientLogin(userName);
+                    List<Source> assignedSources = patientRepository
+                        .findSourcesByPatientLogin(userName);
 
-                    List<String> deviceIds = assignedDevices.stream()
-                        .map(Device::getDevicePhysicalId).collect(Collectors.toList());
-                    additionalInfo.put("devices", deviceIds);
+                    List<String> sourceIds = assignedSources.stream()
+                        .map(Source::getSourceId).collect(Collectors.toList());
+                    additionalInfo.put("sources", sourceIds);
 
                 }
             }

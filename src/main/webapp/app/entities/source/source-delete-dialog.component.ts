@@ -4,25 +4,25 @@ import { ActivatedRoute } from '@angular/router';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, JhiLanguageService } from 'ng-jhipster';
 
-import { Device } from './device.model';
-import { DevicePopupService } from './device-popup.service';
-import { DeviceService } from './device.service';
+import { Source } from './source.model';
+import { SourcePopupService } from './source-popup.service';
+import { SourceService } from './source.service';
 
 @Component({
-    selector: 'jhi-device-delete-dialog',
-    templateUrl: './device-delete-dialog.component.html'
+    selector: 'jhi-source-delete-dialog',
+    templateUrl: './source-delete-dialog.component.html'
 })
-export class DeviceDeleteDialogComponent {
+export class SourceDeleteDialogComponent {
 
-    device: Device;
+    source: Source;
 
     constructor(
         private jhiLanguageService: JhiLanguageService,
-        private deviceService: DeviceService,
+        private sourceService: SourceService,
         public activeModal: NgbActiveModal,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['device']);
+        this.jhiLanguageService.setLocations(['source']);
     }
 
     clear() {
@@ -30,10 +30,10 @@ export class DeviceDeleteDialogComponent {
     }
 
     confirmDelete(id: number) {
-        this.deviceService.delete(id).subscribe((response) => {
+        this.sourceService.delete(id).subscribe((response) => {
             this.eventManager.broadcast({
-                name: 'deviceListModification',
-                content: 'Deleted an device'
+                name: 'sourceListModification',
+                content: 'Deleted an source'
             });
             this.activeModal.dismiss(true);
         });
@@ -41,23 +41,23 @@ export class DeviceDeleteDialogComponent {
 }
 
 @Component({
-    selector: 'jhi-device-delete-popup',
+    selector: 'jhi-source-delete-popup',
     template: ''
 })
-export class DeviceDeletePopupComponent implements OnInit, OnDestroy {
+export class SourceDeletePopupComponent implements OnInit, OnDestroy {
 
     modalRef: NgbModalRef;
     routeSub: any;
 
     constructor(
         private route: ActivatedRoute,
-        private devicePopupService: DevicePopupService
+        private sourcePopupService: SourcePopupService
     ) {}
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            this.modalRef = this.devicePopupService
-                .open(DeviceDeleteDialogComponent, params['id']);
+            this.modalRef = this.sourcePopupService
+                .open(SourceDeleteDialogComponent, params['id']);
         });
     }
 

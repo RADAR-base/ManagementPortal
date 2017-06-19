@@ -1,0 +1,77 @@
+<div>
+    <h2>
+        <span jhiTranslate="managementPortalApp.source.home.title">Devices</span>
+        <button class="btn btn-primary float-right create-source" [routerLink]="['/', { outlets: { popup: ['source-new'] } }]">
+            <span class="fa fa-plus"></span>
+            <span  jhiTranslate="managementPortalApp.source.home.createLabel">
+            Create new Device
+            </span>
+        </button>
+    </h2>
+    <jhi-alert></jhi-alert>
+    <div class="row">
+    </div>
+    <br/>
+    <div class="table-responsive" *ngIf="sources">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+            <th><span jhiTranslate="global.field.id">ID</span></th>
+            <th><span jhiTranslate="managementPortalApp.source.sourceId">Source Id</span></th>
+            <th><span jhiTranslate="managementPortalApp.source.deviceCategory">Device Category</span></th>
+            <th><span jhiTranslate="managementPortalApp.source.assigned">Assigned</span></th>
+            <th><span jhiTranslate="managementPortalApp.source.deviceType">Device Type</span></th>
+            <th><span jhiTranslate="managementPortalApp.source.project">Project</span></th>
+            <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let source of sources ;trackBy: trackId">
+                <td><a [routerLink]="['../source', source.id ]">{{source.id}}</a></td>
+                <td>{{source.sourceId}}</td>
+                <td>{{source.deviceCategory}}</td>
+                <td>
+                    <span class="badge badge-danger" *ngIf="!source.assigned"
+                          jhiTranslate="managementPortalApp.source.unassigned">Unassigned</span>
+                    <span class="badge badge-success" *ngIf="source.assigned"
+                          jhiTranslate="managementPortalApp.source.assigned">Assigned</span>
+                </td>
+                <td>
+                    <div *ngIf="source.deviceTypeId">
+                        <a [routerLink]="['../source-type', source.deviceTypeId  ]" >{{source.deviceTypeId}}</a>
+                    </div>
+                </td>
+                <td>
+                    <div *ngIf="source.projectId">
+                        <a [routerLink]="['../project', source.projectId ]" >{{source.projectId}}</a>
+                    </div>
+                </td>
+                <td class="text-right">
+                    <div class="btn-group flex-btn-group-container">
+                        <button type="submit"
+                                [routerLink]="['../source', source.id ]"
+                                class="btn btn-info btn-sm">
+                            <span class="fa fa-eye"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'source/'+ source.id + '/edit'} }]"
+                                replaceUrl="true"
+                                class="btn btn-primary btn-sm">
+                            <span class="fa fa-pencil"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'source/'+ source.id + '/delete'} }]"
+                                replaceUrl="true"
+                                class="btn btn-danger btn-sm">
+                            <span class="fa fa-remove"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.delete">Delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

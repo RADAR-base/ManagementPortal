@@ -85,9 +85,9 @@
             </div>
         </div>
         <div class="form-group">
-            <label jhiTranslate="managementPortalApp.patient.devices" for="field_devices">Devices</label>
-            <select class="form-control" id="field_devices" multiple name="devices" [(ngModel)]="patient.devices" >
-                <option [ngValue]="getSelected(patient.devices, deviceOption)" *ngFor="let deviceOption of devices; trackBy: trackDeviceById">{{deviceOption.deviceTypeAndPhysicalId}}</option>
+            <label jhiTranslate="managementPortalApp.patient.sources" for="field_devices">Devices</label>
+            <select class="form-control" id="field_devices" multiple name="sources" [(ngModel)]="patient.sources" >
+                <option [ngValue]="getSelected(patient.sources, deviceOption)" *ngFor="let deviceOption of sources; trackBy: trackDeviceById">{{deviceOption.deviceTypeAndSourceId}}</option>
             </select>
         </div>
     </div>

@@ -30,10 +30,10 @@
                   <a [routerLink]="['/project', patient.project?.id ]" >{{patient.project?.projectName}}</a>
             </span>
         </dd>
-        <dt><span jhiTranslate="managementPortalApp.patient.devices">Devices</span></dt>
+        <dt><span jhiTranslate="managementPortalApp.patient.sources">Devices</span></dt>
         <dd>
-            <span *ngFor="let devices of patient.devices; let last = last">
-                <a [routerLink]="['/device', devices?.id ]">{{devices.deviceTypeAndPhysicalId}}</a>{{last ? '' : ', '}}
+            <span *ngFor="let sources of patient.sources; let last = last">
+                <a [routerLink]="['/source', sources?.id ]">{{sources.deviceTypeAndSourceId}}</a>{{last ? '' : ', '}}
             </span>
         </dd>
         <dt><span jhiTranslate="managementPortalApp.patient.createdBy">Created By</span></dt>

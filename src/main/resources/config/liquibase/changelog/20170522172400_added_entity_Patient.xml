@@ -56,8 +56,8 @@
 
 
 
-        <createTable tableName="patient_devices">
-            <column name="devices_id" type="bigint">
+        <createTable tableName="patient_sources">
+            <column name="sources_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
             <column name="patients_id" type="bigint">
@@ -65,19 +65,19 @@
             </column>
         </createTable>
 
-        <addPrimaryKey columnNames="patients_id, devices_id" tableName="patient_devices"/>
+        <addPrimaryKey columnNames="patients_id, sources_id" tableName="patient_sources"/>
 
 
         <addForeignKeyConstraint baseColumnNames="patients_id"
-                                                baseTableName="patient_devices"
-                                                constraintName="fk_patient_devices_patients_id"
+                                                baseTableName="patient_sources"
+                                                constraintName="fk_patient_sources_patients_id"
                                                 referencedColumnNames="id"
                                                 referencedTableName="patient"/>
-        <addForeignKeyConstraint baseColumnNames="devices_id"
-                                                baseTableName="patient_devices"
-                                                constraintName="fk_patient_devices_devices_id"
+        <addForeignKeyConstraint baseColumnNames="sources_id"
+                                                baseTableName="patient_sources"
+                                                constraintName="fk_patient_sources_sources_id"
                                                 referencedColumnNames="id"
-                                                referencedTableName="device"/>
+                                                referencedTableName="radar_source"/>
 
     </changeSet>
 </databaseChangeLog>

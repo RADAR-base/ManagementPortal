@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 import scala.concurrent.duration._
 
 /**
- * Performance test for the Device entity.
+ * Performance test for the Source entity.
  */
 class DeviceGatlingTest extends Simulation {
 
@@ -48,7 +48,7 @@ class DeviceGatlingTest extends Simulation {
         "Authorization" -> "Bearer ${access_token}"
     )
 
-    val scn = scenario("Test the Device entity")
+    val scn = scenario("Test the Source entity")
         .exec(http("First unauthenticated request")
         .get("/api/account")
         .headers(headers_http)
@@ -80,7 +80,7 @@ class DeviceGatlingTest extends Simulation {
             .exec(http("Create new device")
             .post("/api/devices")
             .headers(headers_http_authenticated)
-            .body(StringBody("""{"id":null, "devicePhysicalId":"SAMPLE_TEXT", "deviceCategory":"SAMPLE_TEXT", "activated":null}""")).asJSON
+            .body(StringBody("""{"id":null, "sourceId":"SAMPLE_TEXT", "deviceCategory":"SAMPLE_TEXT", "activated":null}""")).asJSON
             .check(status.is(201))
             .check(headerRegex("Location", "(.*)").saveAs("new_device_url"))).exitHereIfFailed
             .pause(10)

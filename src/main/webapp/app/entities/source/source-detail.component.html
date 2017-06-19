@@ -1,0 +1,44 @@
+
+<div *ngIf="source">
+    <h2><span jhiTranslate="managementPortalApp.source.detail.title">Source</span> {{source.id}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="managementPortalApp.source.sourceId">Device Physical Id</span></dt>
+        <dd>
+            <span>{{source.sourceId}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.source.deviceCategory">Device Category</span></dt>
+        <dd>
+            <span>{{source.deviceCategory}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.source.assigned">Assigned</span></dt>
+        <dd>
+            <span>{{source.assigned}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.source.deviceType">Device Type</span></dt>
+        <dd>
+            <div *ngIf="source.deviceTypeId">
+                <a [routerLink]="['/source-type', source.deviceTypeId]">{{source.deviceTypeId}}</a>
+            </div>
+        </dd>
+        <dd>
+            <div *ngIf="source.projectId">
+                <a [routerLink]="['/project', source.projectId]">{{source.projectId}}</a>
+            </div>
+        </dd>
+    </dl>
+
+    <button type="submit"
+            (click)="previousState()"
+            class="btn btn-info">
+        <span class="fa fa-arrow-left"></span>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+    </button>
+
+    <button type="button"
+            [routerLink]="['/', { outlets: { popup: 'source/'+ source.id + '/edit'} }]"
+            replaceUrl="true"
+            class="btn btn-primary">
+        <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+    </button>
+</div>

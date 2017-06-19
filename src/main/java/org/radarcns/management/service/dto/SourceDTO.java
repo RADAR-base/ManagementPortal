@@ -3,19 +3,17 @@ package org.radarcns.management.service.dto;
 
 import javax.validation.constraints.*;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Objects;
 
 /**
- * A DTO for the Device entity.
+ * A DTO for the Source entity.
  */
-public class DeviceDTO implements Serializable {
+public class SourceDTO implements Serializable {
 
     private Long id;
 
     @NotNull
-    private String devicePhysicalId;
+    private String sourceId;
 
     private String deviceCategory;
 
@@ -33,12 +31,12 @@ public class DeviceDTO implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getDevicePhysicalId() {
-        return devicePhysicalId;
+    public String getSourceId() {
+        return sourceId;
     }
 
-    public void setDevicePhysicalId(String devicePhysicalId) {
-        this.devicePhysicalId = devicePhysicalId;
+    public void setSourceId(String sourceId) {
+        this.sourceId = sourceId;
     }
     public String getDeviceCategory() {
         return deviceCategory;
@@ -80,9 +78,9 @@ public class DeviceDTO implements Serializable {
             return false;
         }
 
-        DeviceDTO deviceDTO = (DeviceDTO) o;
+        SourceDTO sourceDTO = (SourceDTO) o;
 
-        if ( ! Objects.equals(id, deviceDTO.id)) { return false; }
+        if ( ! Objects.equals(id, sourceDTO.id)) { return false; }
 
         return true;
     }
@@ -94,9 +92,9 @@ public class DeviceDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "DeviceDTO{" +
+        return "SourceDTO{" +
             "id=" + id +
-            ", devicePhysicalId='" + devicePhysicalId + "'" +
+            ", sourceId='" + sourceId + "'" +
             ", deviceCategory='" + deviceCategory + "'" +
             ", activated='" + assigned + "'" +
             '}';

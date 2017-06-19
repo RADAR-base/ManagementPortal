@@ -1,6 +1,6 @@
 import { browser, element, by, $ } from 'protractor';
 
-describe('Device e2e test', () => {
+describe('Source e2e test', () => {
 
     const username = element(by.id('username'));
     const password = element(by.id('password'));
@@ -31,7 +31,7 @@ describe('Device e2e test', () => {
         });
     });
 
-    it('should load create Device dialog', function () {
+    it('should load create Source dialog', function () {
         element(by.css('button.create-device')).click().then(() => {
             const expectVal = /managementPortalApp.device.home.createOrEditLabel/;
             element.all(by.css('h4.modal-title')).first().getAttribute('jhiTranslate').then((value) => {

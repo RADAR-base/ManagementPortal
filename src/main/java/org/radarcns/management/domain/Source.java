@@ -12,12 +12,12 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * A Device.
+ * A Source.
  */
 @Entity
-@Table(name = "device")
+@Table(name = "radar_source")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Device implements Serializable {
+public class Source implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -26,8 +26,8 @@ public class Device implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "device_physical_id", nullable = false , unique = true)
-    private String devicePhysicalId;
+    @Column(name = "source_id", nullable = false , unique = true)
+    private String sourceId;
 
     @Column(name = "device_category")
     private String deviceCategory;
@@ -36,7 +36,7 @@ public class Device implements Serializable {
     @Column(name = "assigned", nullable = false)
     private Boolean assigned;
 
-    @ManyToMany(mappedBy = "devices")
+    @ManyToMany(mappedBy = "sources")
     @JsonIgnore
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<Patient> patients = new HashSet<>();
@@ -55,24 +55,24 @@ public class Device implements Serializable {
         this.id = id;
     }
 
-    public String getDevicePhysicalId() {
-        return devicePhysicalId;
+    public String getSourceId() {
+        return sourceId;
     }
 
-    public Device devicePhysicalId(String devicePhysicalId) {
-        this.devicePhysicalId = devicePhysicalId;
+    public Source devicePhysicalId(String devicePhysicalId) {
+        this.sourceId = devicePhysicalId;
         return this;
     }
 
-    public void setDevicePhysicalId(String devicePhysicalId) {
-        this.devicePhysicalId = devicePhysicalId;
+    public void setSourceId(String sourceId) {
+        this.sourceId = sourceId;
     }
 
     public String getDeviceCategory() {
         return deviceCategory;
     }
 
-    public Device deviceCategory(String deviceCategory) {
+    public Source deviceCategory(String deviceCategory) {
         this.deviceCategory = deviceCategory;
         return this;
     }
@@ -85,7 +85,7 @@ public class Device implements Serializable {
         return assigned;
     }
 
-    public Device assigned(Boolean assigned) {
+    public Source assigned(Boolean assigned) {
         this.assigned = assigned;
         return this;
     }
@@ -102,7 +102,7 @@ public class Device implements Serializable {
         return deviceType;
     }
 
-    public Device deviceType(DeviceType deviceType) {
+    public Source deviceType(DeviceType deviceType) {
         this.deviceType = deviceType;
         return this;
     }
@@ -115,7 +115,7 @@ public class Device implements Serializable {
         return project;
     }
 
-    public Device project(Project project) {
+    public Source project(Project project) {
         this.project = project;
         return this;
     }
@@ -124,20 +124,20 @@ public class Device implements Serializable {
         return patients;
     }
 
-    public Device patients(Set<Patient> patients) {
+    public Source patients(Set<Patient> patients) {
         this.patients = patients;
         return this;
     }
 
-    public Device addPatient(Patient patient) {
+    public Source addPatient(Patient patient) {
         this.patients.add(patient);
-        patient.getDevices().add(this);
+        patient.getSources().add(this);
         return this;
     }
 
-    public Device removePatient(Patient patient) {
+    public Source removePatient(Patient patient) {
         this.patients.remove(patient);
-        patient.getDevices().remove(this);
+        patient.getSources().remove(this);
         return this;
     }
 
@@ -153,11 +153,11 @@ public class Device implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Device device = (Device) o;
-        if (device.id == null || id == null) {
+        Source source = (Source) o;
+        if (source.id == null || id == null) {
             return false;
         }
-        return Objects.equals(id, device.id);
+        return Objects.equals(id, source.id);
     }
 
     @Override
@@ -167,9 +167,9 @@ public class Device implements Serializable {
 
     @Override
     public String toString() {
-        return "Device{" +
+        return "Source{" +
             "id=" + id +
-            ", devicePhysicalId='" + devicePhysicalId + "'" +
+            ", sourceId='" + sourceId + "'" +
             ", deviceCategory='" + deviceCategory + "'" +
             ", assigned='" + assigned + "'" +
             '}';

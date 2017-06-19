@@ -3,26 +3,26 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
 import { EventManager , JhiLanguageService  } from 'ng-jhipster';
 
-import { Device } from './device.model';
-import { DeviceService } from './device.service';
+import { Source } from './source.model';
+import { SourceService } from './source.service';
 
 @Component({
-    selector: 'jhi-device-detail',
-    templateUrl: './device-detail.component.html'
+    selector: 'jhi-source-detail',
+    templateUrl: './source-detail.component.html'
 })
-export class DeviceDetailComponent implements OnInit, OnDestroy {
+export class SourceDetailComponent implements OnInit, OnDestroy {
 
-    device: Device;
+    source: Source;
     private subscription: any;
     private eventSubscriber: Subscription;
 
     constructor(
         private eventManager: EventManager,
         private jhiLanguageService: JhiLanguageService,
-        private deviceService: DeviceService,
+        private sourceService: SourceService,
         private route: ActivatedRoute
     ) {
-        this.jhiLanguageService.setLocations(['device']);
+        this.jhiLanguageService.setLocations(['source']);
     }
 
     ngOnInit() {
@@ -33,8 +33,8 @@ export class DeviceDetailComponent implements OnInit, OnDestroy {
     }
 
     load(id) {
-        this.deviceService.find(id).subscribe((device) => {
-            this.device = device;
+        this.sourceService.find(id).subscribe((source) => {
+            this.source = source;
         });
     }
     previousState() {
@@ -47,6 +47,6 @@ export class DeviceDetailComponent implements OnInit, OnDestroy {
     }
 
     registerChangeInDevices() {
-        this.eventSubscriber = this.eventManager.subscribe('deviceListModification', (response) => this.load(this.device.id));
+        this.eventSubscriber = this.eventManager.subscribe('sourceListModification', (response) => this.load(this.source.id));
     }
 }
