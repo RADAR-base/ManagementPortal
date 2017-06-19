@@ -4,8 +4,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import org.radarcns.security.annotation.Secured;
 import org.radarcns.security.authorization.AuthorizationHandler;
 import org.radarcns.security.authorization.RadarAuthorizationHandler;
-import org.radarcns.security.config.ManagementPortalConfig;
-import org.radarcns.security.exceptions.NotConfiguredException;
+import org.radarcns.security.config.YamlServerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +23,6 @@ import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.spec.InvalidKeySpecException;
@@ -61,10 +59,9 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
      * @throws ConfigurationException If the relevant environment variables are not set
      * @throws IOException If the configuration file is not accessible
      */
-    public TokenAuthenticationFilter() throws ConfigurationException, IOException,
-        InvalidKeySpecException, NoSuchAlgorithmException, NotConfiguredException,
-        URISyntaxException {
-        authorizationHandler = new RadarAuthorizationHandler(new ManagementPortalConfig());
+    public TokenAuthenticationFilter() throws IOException, InvalidKeySpecException,
+        NoSuchAlgorithmException {
+        authorizationHandler = new RadarAuthorizationHandler(YamlServerConfig.readFromClasspath());
     }
 
 
@@ -165,8 +162,8 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
             }
 
             public boolean isSecure() {
-                return authorizationHandler.getIdentityServerConfig().tokenValidationEndpoint()
-                    .getScheme().startsWith("https");
+                return authorizationHandler.getIdentityServerConfig().getTokenValidationEndpoint()
+                    .startsWith("https");
             }
 
             public String getAuthenticationScheme() {

@@ -1,10 +1,27 @@
 package org.radarcns.security.config;
 
-import java.net.URI;
-
 public interface ServerConfig {
-    URI tokenValidationEndpoint();
-    URI publicKeyEndpoint();
-    String username();
-    String password();
+    /**
+     *
+     * @return The URL of the identity server's token validation endpoint
+     */
+    String getTokenValidationEndpoint();
+
+    /**
+     *
+     * @return The URL of the identity server's public key endpoint.
+     */
+    String getPublicKeyEndpoint();
+
+    /**
+     *
+     * @return The username used to access the identity server.
+     */
+    String getUsername();
+
+    /**
+     *
+     * @return The password used to access the identity server.
+     */
+    String getPassword();
 }

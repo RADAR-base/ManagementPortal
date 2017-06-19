@@ -12,11 +12,8 @@ import org.junit.Test;
 import org.radarcns.security.authorization.RadarAuthorizationHandler;
 import org.radarcns.security.config.ServerConfig;
 import org.radarcns.security.exceptions.NotAuthorizedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URI;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -45,14 +42,12 @@ import static org.junit.Assert.assertEquals;
 
 public class RadarAuthorizationHandlerTest {
 
-    private Logger log = LoggerFactory.getLogger(RadarAuthorizationHandlerTest.class);
-
     private static final String OAUTH2_INTROSPECT = "/oauth2/check_token";
     private static final String PUBLIC_KEY = "/oauth2/token_key";
     private static String PUBLIC_KEY_BODY;
     private static String TOKEN;
     private static RadarAuthorizationHandler HANDLER;
-    private static String SUCCESSFULL_RESPONSE;
+    private static String SUCCESSFUL_RESPONSE;
 
     private static final String INVALID_RESPONSE = "{\"scope\":\"read_user\", "
                 + "\"token_type\":\"Bearer\",\"exp\":1491492693,\"iat\":1491489093, "
@@ -97,7 +92,7 @@ public class RadarAuthorizationHandlerTest {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                        .withBody(SUCCESSFULL_RESPONSE)));
+                        .withBody(SUCCESSFUL_RESPONSE)));
 
         DecodedJWT jwt = HANDLER.validateAccessToken(TOKEN);
         assertEquals(2, jwt.getClaim("scope").asList(String.class).size());
@@ -138,34 +133,22 @@ public class RadarAuthorizationHandlerTest {
     private static ServerConfig createMockServerConfig() {
         return new ServerConfig() {
             @Override
-            public URI tokenValidationEndpoint() {
-                try {
-                    return new URI("http://localhost:" + WIREMOCK_PORT + OAUTH2_INTROSPECT);
-                }
-                catch (Exception e) {
-                    // should not happen
-                    return null;
-                }
+            public String getTokenValidationEndpoint() {
+                return "http://localhost:" + WIREMOCK_PORT + OAUTH2_INTROSPECT;
             }
 
             @Override
-            public URI publicKeyEndpoint() {
-                try {
-                    return new URI("http://localhost:" + WIREMOCK_PORT + PUBLIC_KEY);
-                }
-                catch (Exception e) {
-                    // should not happen
-                    return null;
-                }
+            public String getPublicKeyEndpoint() {
+                return "http://localhost:" + WIREMOCK_PORT + PUBLIC_KEY;
             }
 
             @Override
-            public String username() {
+            public String getUsername() {
                 return "oauth_client";
             }
 
             @Override
-            public String password() {
+            public String getPassword() {
                 return "oauth_client_secret";
             }
         };
@@ -190,7 +173,7 @@ public class RadarAuthorizationHandlerTest {
             .withExpiresAt(Date.from(exp))
             .sign(algorithm);
 
-        SUCCESSFULL_RESPONSE = "{\n"
+        SUCCESSFUL_RESPONSE = "{\n"
             + "  \"aud\" : [ \"oauth_client\" ],\n"
             + "  \"user_name\" : \"admin\",\n"
             + "  \"scope\" : [ \"scope1\", \"scope2\" ],\n"

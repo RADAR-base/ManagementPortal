@@ -19,7 +19,6 @@ import okhttp3.Response;
 import okhttp3.Route;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.radarcns.security.config.ServerConfig;
-import org.radarcns.security.exceptions.InvalidSigningKeyException;
 import org.radarcns.security.exceptions.NotAuthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.net.URL;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
@@ -55,13 +55,7 @@ public class RadarAuthorizationHandler implements AuthorizationHandler {
     public RadarAuthorizationHandler(ServerConfig config) throws NoSuchAlgorithmException,
             IOException, InvalidKeySpecException {
         this.config = config;
-        String pk = System.getenv("RADAR_IS_SIGNING_KEY");
-        if (pk != null) {
-            publicKey = publicKeyFromString(pk);
-        }
-        else {
-            publicKey = publicKeyFromServer();
-        }
+        publicKey = publicKeyFromServer();
         tokenCache = new HashMap<>();
     }
 
@@ -98,8 +92,8 @@ public class RadarAuthorizationHandler implements AuthorizationHandler {
                         @Override
                         public Request authenticate(Route route, Response response) throws
                                     IOException {
-                            String credential = Credentials.basic(config.username(), config
-                                        .password());
+                            String credential = Credentials.basic(config.getUsername(), config
+                                        .getPassword());
                             return response.request().newBuilder().header("Authorization",
                                         credential).build();
                         }
@@ -110,11 +104,11 @@ public class RadarAuthorizationHandler implements AuthorizationHandler {
                     .build();
 
         Request request = new Request.Builder()
-                    .url(config.tokenValidationEndpoint().toURL())
+                    .url(config.getTokenValidationEndpoint())
                     .post(form)
                     .build();
 
-        log.debug("Checking validity of token at URL " + config.tokenValidationEndpoint().toString());
+        log.debug("Checking validity of token at URL " + config.getTokenValidationEndpoint());
 
         // Call the endpoint
         Response response = client.newCall(request).execute();
@@ -140,8 +134,7 @@ public class RadarAuthorizationHandler implements AuthorizationHandler {
                         + tokenInfo.get("error").toString());
         }
 
-        String[] expectedFields = {"aud", "scope", "authorities", "client_id", "user_name",
-                "exp", "jti"};
+        String[] expectedFields = {"aud", "scope", "authorities", "user_name", "exp", "jti"};
         for (String field : expectedFields) {
             if (!tokenInfo.containsKey(field)) {
                 throw new NotAuthorizedException("Expected field " + field
@@ -155,10 +148,6 @@ public class RadarAuthorizationHandler implements AuthorizationHandler {
             throw new NotAuthorizedException("Token is no longer valid");
         }
 
-        if (!tokenInfo.get("client_id").equals(config.username())) {
-            throw new NotAuthorizedException("Supplied token was issued for a different client");
-        }
-
         if (!tokenInfo.get("jti").equals(jwt.getId())) {
             throw new NotAuthorizedException("Embedded ID of supplied token does not match ID of "
                 + "server response");
@@ -166,9 +155,9 @@ public class RadarAuthorizationHandler implements AuthorizationHandler {
     }
 
     private RSAPublicKey publicKeyFromServer() {
-        log.debug("Getting the public key at " + config.publicKeyEndpoint().toString());
+        log.debug("Getting the public key at " + config.getPublicKeyEndpoint());
         try {
-            final InputStream inputStream = config.publicKeyEndpoint().toURL().openStream();
+            final InputStream inputStream = new URL(config.getPublicKeyEndpoint()).openStream();
             final JsonFactory factory = new JsonFactory();
             final JsonParser parser = factory.createParser(inputStream);
             final TypeReference<Map<String, Object>> typeReference =
@@ -180,7 +169,7 @@ public class RadarAuthorizationHandler implements AuthorizationHandler {
             // we expect RSA algorithm, and deny to trust the public key otherwise
             // see also https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
             if (!publicKeyInfo.get("alg").equals("SHA256withRSA")) {
-                throw new InvalidSigningKeyException("The identity server reported the following "
+                throw new NotAuthorizedException("The identity server reported the following "
                     + "signing algorithm: " + publicKeyInfo.get("alg") + ". Expected SHA256withRSA.");
             }
 
