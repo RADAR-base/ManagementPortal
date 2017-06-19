@@ -5,6 +5,7 @@ plugins {
     id 'pmd'
     id 'checkstyle'
     id 'maven'
+    id 'maven-publish'
 }
 
 group 'org.radarcns'
@@ -45,11 +46,6 @@ task wrapper(type: Wrapper) {
 }
 
 sourceCompatibility = 1.8
-
-repositories {
-    mavenCentral()
-}
-
 
 checkstyle {
     toolVersion '6.16'
