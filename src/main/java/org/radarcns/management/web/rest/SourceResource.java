@@ -46,7 +46,7 @@ public class SourceResource {
     @PostMapping("/sources")
     @Timed
     @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
-    public ResponseEntity<SourceDTO> createDevice(@Valid @RequestBody SourceDTO sourceDTO) throws URISyntaxException {
+    public ResponseEntity<SourceDTO> createSource(@Valid @RequestBody SourceDTO sourceDTO) throws URISyntaxException {
         log.debug("REST request to save Source : {}", sourceDTO);
         if (sourceDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new source cannot already have an ID")).body(null);
@@ -68,10 +68,10 @@ public class SourceResource {
      */
     @PutMapping("/sources")
     @Timed
-    public ResponseEntity<SourceDTO> updateDevice(@Valid @RequestBody SourceDTO sourceDTO) throws URISyntaxException {
+    public ResponseEntity<SourceDTO> updateSource(@Valid @RequestBody SourceDTO sourceDTO) throws URISyntaxException {
         log.debug("REST request to update Source : {}", sourceDTO);
         if (sourceDTO.getId() == null) {
-            return createDevice(sourceDTO);
+            return createSource(sourceDTO);
         }
         SourceDTO result = sourceService.save(sourceDTO);
         return ResponseEntity.ok()
@@ -86,8 +86,8 @@ public class SourceResource {
      */
     @GetMapping("/sources")
     @Timed
-    public List<SourceDTO> getAllDevices() {
-        log.debug("REST request to get all Devices");
+    public List<SourceDTO> getAllSources() {
+        log.debug("REST request to get all Sources");
         return sourceService.findAll();
     }
 
@@ -98,9 +98,9 @@ public class SourceResource {
      */
     @GetMapping("/sources/unassigned")
     @Timed
-    public List<MinimalSourceDetailsDTO> getAllUnassignedDevices() {
-        log.debug("REST request to get all Devices");
-        return sourceService.findAllUnassignedDevices();
+    public List<MinimalSourceDetailsDTO> getAllUnassignedSources() {
+        log.debug("REST request to get all Sources");
+        return sourceService.findAllUnassignedSources();
     }
 
     /**
@@ -108,11 +108,11 @@ public class SourceResource {
      *
      * @return the ResponseEntity with status 200 (OK) and the list of sources in body
      */
-    @GetMapping("/sources/unassigned/patient/{id}")
+    @GetMapping("/sources/unassigned/subject/{id}")
     @Timed
-    public List<MinimalSourceDetailsDTO> getAllUnassignedDevicesAndOfPatients(@PathVariable Long id) {
-        log.debug("REST request to get all Devices");
-        return sourceService.findAllUnassignedDevicesAndOfPatient(id);
+    public List<MinimalSourceDetailsDTO> getAllUnassignedSourcesAndOfSubject(@PathVariable Long id) {
+        log.debug("REST request to get all Sources");
+        return sourceService.findAllUnassignedSourcesAndOfSubject(id);
     }
 
 
@@ -124,7 +124,7 @@ public class SourceResource {
      */
     @GetMapping("/sources/{id}")
     @Timed
-    public ResponseEntity<SourceDTO> getDevice(@PathVariable Long id) {
+    public ResponseEntity<SourceDTO> getSource(@PathVariable Long id) {
         log.debug("REST request to get Source : {}", id);
         SourceDTO sourceDTO = sourceService.findOne(id);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(sourceDTO));
@@ -139,7 +139,7 @@ public class SourceResource {
     @DeleteMapping("/sources/{id}")
     @Timed
     @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
-    public ResponseEntity<Void> deleteDevice(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteSource(@PathVariable Long id) {
         log.debug("REST request to delete Source : {}", id);
         sourceService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();

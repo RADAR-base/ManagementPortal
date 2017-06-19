@@ -11,7 +11,7 @@
                 "deviceType": "Device Type",
                 "project": "Project",
                 "sensorData": "Sensor Data",
-                "patient": "Patient",
+                "subject": "Subject",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
             "account": {

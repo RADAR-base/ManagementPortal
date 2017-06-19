@@ -1,0 +1,89 @@
+<div>
+    <h2>
+        <span jhiTranslate="managementPortalApp.subject.home.title">Subjects</span>
+        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN' , 'ROLE_PROJECT_ADMIN']"  class="btn btn-primary float-right create-subject" [routerLink]="['/', { outlets: { popup: ['subject-new'] } }]">
+            <span class="fa fa-plus"></span>
+            <span  jhiTranslate="managementPortalApp.subject.home.createLabel">
+            Create new Subject
+            </span>
+        </button>
+    </h2>
+    <jhi-alert></jhi-alert>
+    <div class="row">
+    </div>
+    <br/>
+    <div class="table-responsive" *ngIf="subjects">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+            <th><span jhiTranslate="global.field.id">ID</span></th>
+            <th><span jhiTranslate="managementPortalApp.subject.login">login</span></th>
+            <th><span jhiTranslate="managementPortalApp.subject.externalLink">External Link</span></th>
+            <th><span jhiTranslate="managementPortalApp.subject.externalId">Enternal Id</span></th>
+            <!--<th><span jhiTranslate="managementPortalsubjectient.removed">Removed</span></th>-->
+            <th><span jhiTranslate="managementPortalApp.subject.activated">Activated</span></th>
+            <th><span jhiTranslate="managementPortalApp.subject.project">Project</span> <span class="fa fa-sort"></span></th>
+            <th><span jhiTranslate="managementPortalApp.subject.sources">Sources</span></th>
+            <!--<th><span jhiTranslate="managementPortalsubjectient.createdDate">Created Date</span> <span class="fa fa-sort"></span></th>-->
+            <!--<th><span jhiTranslate="managementPortalsubjectient.lastModifiedBy">Last Modified By</span> <span class="fa fa-sort"></span></th>-->
+            <!--<th><span jhiTranslate="managementPortalsubjectient.lastModifiedDate">Last Modified Date</span> <span class="fa fa-sort"></span></th>-->
+
+            <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let subject of subjects ;trackBy: trackId">
+                <td><a [routerLink]="['../subject', subject.id ]">{{subject.id}}</a></td>
+                <td>{{subject.login}}</td>
+                <td>{{subject.externalLink}}</td>
+                <td>{{subject.externalId}}</td>
+                <!--<td>-->
+                    <!--<span class="badge badge-danger" *ngIsubjectient.removed">false</span>-->
+                    <!--<span class="badge badge-success" *ngsubjectient.removed">true</span>-->
+                <!--</td>-->
+                <td>
+                    <span class="badge badge-danger" *ngIf="!subject.activated">false</span>
+                    <span class="badge badge-success" *ngIf="subject.activated">true</span>
+                </td>
+                <td>
+                    <div *ngIf="subject.project">
+                        <a [routerLink]="['/project', subject.project?.id ]" >{{subject.project?.projectName}}</a>
+                    </div>
+                </td>
+                <td>
+                    <span *ngFor="let sources of subject.sources; let last = last">
+                            <a class="form-control-static" [routerLink]="['../source', sources?.id ]">{{sources.deviceTypeAndSourceId}}</a>{{last ? '' : ', '}}
+                        </span>
+                </td>
+                <!--<tsubjectient.createdDate | date:'dd/MM/yy HH:mm'}}</td>-->
+                <!--<tsubjectient.lastModifiedBy}}</td>-->
+                <!--<tsubjectient.lastModifiedDate | date:'dd/MM/yy HH:mm'}}</td>-->
+                <td class="text-right">
+                    <div class="btn-group flex-btn-group-container">
+                        <button type="submit"
+                                [routerLink]="['../subject', subject.id ]"
+                                class="btn btn-info btn-sm">
+                            <span class="fa fa-eye"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.id + '/edit'} }]"
+                                replaceUrl="true"
+                                class="btn btn-primary btn-sm">
+                            <span class="fa fa-pencil"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.id + '/delete'} }]"
+                                replaceUrl="true"
+                                class="btn btn-danger btn-sm">
+                            <span class="fa fa-remove"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.delete">Delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

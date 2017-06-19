@@ -39,7 +39,7 @@ public class Source implements Serializable {
     @ManyToMany(mappedBy = "sources")
     @JsonIgnore
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    private Set<Patient> patients = new HashSet<>();
+    private Set<Subject> subjects = new HashSet<>();
 
     @ManyToOne
     private DeviceType deviceType;
@@ -120,29 +120,29 @@ public class Source implements Serializable {
         return this;
     }
 
-    public Set<Patient> getPatients() {
-        return patients;
+    public Set<Subject> getSubjects() {
+        return subjects;
     }
 
-    public Source patients(Set<Patient> patients) {
-        this.patients = patients;
+    public Source subjects(Set<Subject> subjects) {
+        this.subjects = subjects;
         return this;
     }
 
-    public Source addPatient(Patient patient) {
-        this.patients.add(patient);
-        patient.getSources().add(this);
+    public Source addPubject(Subject subject) {
+        this.subjects.add(subject);
+        subject.getSources().add(this);
         return this;
     }
 
-    public Source removePatient(Patient patient) {
-        this.patients.remove(patient);
-        patient.getSources().remove(this);
+    public Source removePubject(Subject subject) {
+        this.subjects.remove(subject);
+        subject.getSources().remove(this);
         return this;
     }
 
-    public void setPatients(Set<Patient> patients) {
-        this.patients = patients;
+    public void setSubjects(Set<Subject> subjects) {
+        this.subjects = subjects;
     }
 
     @Override

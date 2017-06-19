@@ -2,7 +2,7 @@ package org.radarcns.management.service;
 
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.repository.SourceRepository;
-import org.radarcns.management.repository.PatientRepository;
+import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.service.mapper.SourceMapper;
@@ -32,7 +32,7 @@ public class SourceService {
     private SourceMapper sourceMapper;
 
     @Autowired
-    private PatientRepository patientRepository;
+    private SubjectRepository subjectRepository;
 
 //    public SourceService(SourceRepository sourceRepository, SourceMapper sourceMapper) {
 //        this.sourceRepository = sourceRepository;
@@ -40,7 +40,7 @@ public class SourceService {
 //    }
 
     /**
-     * Save a device.
+     * Save a Source.
      *
      * @param sourceDTO the entity to save
      * @return the persisted entity
@@ -54,13 +54,13 @@ public class SourceService {
     }
 
     /**
-     *  Get all the devices.
+     *  Get all the Sources.
      *
      *  @return the list of entities
      */
     @Transactional(readOnly = true)
     public List<SourceDTO> findAll() {
-        log.debug("Request to get all Devices");
+        log.debug("Request to get all Sources");
         List<SourceDTO> result = sourceRepository.findAll().stream()
             .map(sourceMapper::sourceToSourceDTO)
             .collect(Collectors.toCollection(LinkedList::new));
@@ -68,19 +68,19 @@ public class SourceService {
         return result;
     }
 
-    public List<MinimalSourceDetailsDTO> findAllUnassignedDevices() {
-        log.debug("Request to get all unassigned devices");
+    public List<MinimalSourceDetailsDTO> findAllUnassignedSources() {
+        log.debug("Request to get all unassigned sources");
         List<MinimalSourceDetailsDTO> result = sourceRepository.findAllSourcesByAssigned(false).stream()
             .map(sourceMapper::sourceToMinimalSourceDetailsDTO)
             .collect(Collectors.toCollection(LinkedList::new));
         return result;
     }
 
-    public List<MinimalSourceDetailsDTO> findAllUnassignedDevicesAndOfPatient(Long id) {
-        log.debug("Request to get all unassigned sources and assigned sources of a patient");
-        List<Source> patientSources = patientRepository.findSourcesByPatientId(id);
+    public List<MinimalSourceDetailsDTO> findAllUnassignedSourcesAndOfSubject(Long id) {
+        log.debug("Request to get all unassigned sources and assigned sources of a subject");
+        List<Source> subjectSources = subjectRepository.findSourcesBySubjectId(id);
         List<Source> sources = sourceRepository.findAllSourcesByAssigned(false);
-        sources.addAll(patientSources);
+        sources.addAll(subjectSources);
         List<MinimalSourceDetailsDTO> result = sources.stream()
             .map(sourceMapper::sourceToMinimalSourceDetailsDTO)
             .collect(Collectors.toCollection(LinkedList::new));

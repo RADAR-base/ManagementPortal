@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.radarcns.management.domain.Source;
-import org.radarcns.management.repository.PatientRepository;
+import org.radarcns.management.repository.SubjectRepository;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -19,7 +19,7 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
     @Autowired
-    private PatientRepository patientRepository;
+    private SubjectRepository subjectRepository;
 
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken,
@@ -37,8 +37,8 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
                     userName = (String) authentication.getPrincipal();
                 }
                 if(userName!=null) {
-                    List<Source> assignedSources = patientRepository
-                        .findSourcesByPatientLogin(userName);
+                    List<Source> assignedSources = subjectRepository
+                        .findSourcesBySubjectLogin(userName);
 
                     List<String> sourceIds = assignedSources.stream()
                         .map(Source::getSourceId).collect(Collectors.toList());

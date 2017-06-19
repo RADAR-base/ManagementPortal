@@ -32,7 +32,7 @@ public interface SourceMapper {
 
     @Mapping(source = "deviceTypeId", target = "deviceType")
     @Mapping(source = "projectId", target = "project")
-    @Mapping(target = "patients" , ignore = false)
+    @Mapping(target = "subjects" , ignore = false)
     Source sourceDTOToSource(SourceDTO sourceDTO);
 
     List<Source> sourceDTOsToSources(List<SourceDTO> sourceDTOS);

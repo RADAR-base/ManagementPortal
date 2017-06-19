@@ -2,29 +2,29 @@ import { Injectable } from '@angular/core';
 import { Http, Response, URLSearchParams, BaseRequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 
-import { Source } from './source.model';
+import { Subject } from './subject.model';
 @Injectable()
-export class SourceService {
+export class SubjectService {
 
-    private resourceUrl = 'api/sources';
+    private resourceUrl = 'api/subjects';
 
     constructor(private http: Http) { }
 
-    create(source: Source): Observable<Source> {
-        const copy: Source = Object.assign({}, source);
+    create(subject: Subject): Observable<Subject> {
+        const copy: Subject = Object.assign({}, subject);
         return this.http.post(this.resourceUrl, copy).map((res: Response) => {
             return res.json();
         });
     }
 
-    update(source: Source): Observable<Source> {
-        const copy: Source = Object.assign({}, source);
+    update(subject: Subject): Observable<Subject> {
+        const copy: Subject = Object.assign({}, subject);
         return this.http.put(this.resourceUrl, copy).map((res: Response) => {
             return res.json();
         });
     }
 
-    find(id: number): Observable<Source> {
+    find(id: number): Observable<Subject> {
         return this.http.get(`${this.resourceUrl}/${id}`).map((res: Response) => {
             return res.json();
         });
@@ -34,14 +34,6 @@ export class SourceService {
         const options = this.createRequestOption(req);
         return this.http.get(this.resourceUrl, options)
         ;
-    }
-
-    findUnAssigned(): Observable<Response> {
-        return this.http.get(`${this.resourceUrl}/unassigned`);
-    }
-
-    findUnAssignedAndOfSubject(id: number): Observable<Response> {
-        return this.http.get(`${this.resourceUrl}/unassigned/subject/${id}`);
     }
 
     delete(id: number): Observable<Response> {
