@@ -34,9 +34,12 @@
                 <constraints nullable="false" />
             </column>
 
+            <column name="has_dynamic_id" type="boolean" valueBoolean="false">
+                <constraints nullable="false" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
-        
+
         <createTable tableName="device_type_sensor_data">
             <column name="sensor_data_id" type="bigint">
                 <constraints nullable="false"/>
@@ -47,6 +50,6 @@
         </createTable>
 
         <addPrimaryKey columnNames="device_types_id, sensor_data_id" tableName="device_type_sensor_data"/>
-        
+
     </changeSet>
 </databaseChangeLog>

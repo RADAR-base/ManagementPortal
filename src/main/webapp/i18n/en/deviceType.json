@@ -19,7 +19,9 @@
             "deviceModel": "Device Model",
             "sourceType": "Source Type",
             "sensorData": "Sensor Data",
-            "project": "Project"
+            "project": "Project",
+            "hasDynamicId": "Allows Dynamic device Identifier",
+            "hasStaticId": "Uses Static device Identifier"
         }
     }
 }

@@ -39,6 +39,10 @@ public class DeviceType implements Serializable {
     @Column(name = "source_type", nullable = false)
     private SourceType sourceType;
 
+    @NotNull
+    @Column(name = "has_dynamic_id" , nullable = false)
+    private Boolean hasDynamicId = false;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JoinTable(name = "device_type_sensor_data",
@@ -142,6 +146,14 @@ public class DeviceType implements Serializable {
         this.projects.remove(project);
         project.getDeviceTypes().remove(this);
         return this;
+    }
+
+    public Boolean getHasDynamicId() {
+        return hasDynamicId;
+    }
+
+    public void setHasDynamicId(Boolean hasDynamicId) {
+        this.hasDynamicId = hasDynamicId;
     }
 
     public void setProjects(Set<Project> projects) {
