@@ -96,16 +96,16 @@
 
         <div class="form-group">
             <label jhiTranslate="userManagement.project" for="field_project">Project</label>
-            <select class="form-control" id="field_project" name="project" [(ngModel)]="user.project" (ngModelChange)="onProjectChange($event)" required>
+            <select class="form-control" id="field_project" name="project" [(ngModel)]="user.project" (ngModelChange)="onProjectChange($event)" >
                 <option [ngValue]="null"></option>
                 <option [ngValue]="projectOption.id === user.project?.id ? user.project : projectOption" *ngFor="let projectOption of projects; trackBy: trackProjectById">{{projectOption.projectName}}</option>
             </select>
-            <div [hidden]="!(editForm.controls.project?.dirty && editForm.controls.project?.invalid)">
+           <!-- <div [hidden]="!(editForm.controls.project?.dirty && editForm.controls.project?.invalid)">
                 <small class="form-text text-danger"
                        [hidden]="!editForm.controls.project?.errors?.required" jhiTranslate="entity.validation.required">
                     This field is required.
                 </small>
-            </div>
+            </div>-->
         </div>
 
         <!--<div class="form-group">-->
@@ -114,11 +114,17 @@
                 <!--<option *ngFor="let authority of authorities" [value]="authority">{{authority}}</option>-->
             <!--</select>-->
         <!--</div>-->
-        <div class="form-group" >
-            <label jhiTranslate="userManagement.profiles" for="field_roles">Profiles</label>
-            <select class="form-control" id="field_roles" multiple name="role" [(ngModel)]="user.roles">
-                <option [ngValue]="getSelected(user.roles, roleOption)" *ngFor="let roleOption of roles; trackBy: trackRoleById">{{roleOption.authorityName}}</option>
+        <div class="form-group">
+            <label jhiTranslate="userManagement.profiles" for="field_authorites">Authorities</label>
+            <select class="form-control" id="field_authorites" multiple name="field_authorites" [(ngModel)]="user.authorities" required>
+                <option [ngValue]="getSelected(user.roles, authorityOption)" *ngFor="let authority of authorities;" [value]="authority">{{authority}}</option>
             </select>
+            <div [hidden]="!(editForm.controls.authority?.dirty && editForm.controls.authority?.invalid)">
+                <small class="form-text text-danger"
+                       [hidden]="!editForm.controls.authority?.errors?.required" jhiTranslate="entity.validation.required">
+                    This field is required.
+                </small>
+            </div>
         </div>
     </div>
     <div class="modal-footer">

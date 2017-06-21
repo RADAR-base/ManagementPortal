@@ -65,7 +65,7 @@ public class SensorData implements Serializable {
     @Column(name = "enabled")
     private boolean enabled = true;
 
-    @ManyToMany(mappedBy = "sensorData")
+    @ManyToMany(mappedBy = "sensorData" , fetch = FetchType.EAGER)
     @JsonIgnore
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<DeviceType> deviceTypes = new HashSet<>();

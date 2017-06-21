@@ -11,6 +11,8 @@ import { Project, ProjectService} from '../../entities/project';
 import {Role} from "../../entities/role/role.model";
 import {RoleService} from "../../entities/role/role.service";
 import {Principal} from "../../shared/auth/principal.service";
+import {Authority} from "../../shared/user/authority.model";
+import {AuthorityService} from "../../shared/user/authority.service";
 
 @Component({
     selector: 'jhi-user-mgmt-dialog',
@@ -24,6 +26,7 @@ export class UserMgmtDialogComponent implements OnInit {
     defaultRoles: Role[];
     isSaving: Boolean;
     projects: Project[];
+    authorities: Authority[];
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -31,14 +34,17 @@ export class UserMgmtDialogComponent implements OnInit {
         private jhiLanguageService: JhiLanguageService,
         private userService: UserService,
         private roleService: RoleService,
+        private authorityService: AuthorityService,
         private projectService: ProjectService,
-        private principal: Principal,
+        // private principal: Principal,
         private eventManager: EventManager
     ) {}
 
     ngOnInit() {
         this.isSaving = false;
-        // this.authorities = this.authorityService.findAll();
+        this.authorityService.findAll().subscribe((res: Response) => {
+            this.authorities = res.json();
+        });
         this.languageHelper.getAll().then((languages) => {
             this.languages = languages;
         });
@@ -49,14 +55,14 @@ export class UserMgmtDialogComponent implements OnInit {
                 this.projects = res.json();
             } );
 
-        this.principal.hasAuthority("ROLE_SYS_ADMIN").then((account) => {
-            console.log("Is admin", account);
-            this.roleService.findAdminRoles().subscribe((res: Response) => {
-                this.defaultRoles = res.json();
-                this.roles = this.defaultRoles;
-                console.log("default role ", this.defaultRoles);
-            });
-        });
+        // this.principal.hasAuthority("ROLE_SYS_ADMIN").then((account) => {
+        //     console.log("Is admin", account);
+        //     this.roleService.findAdminRoles().subscribe((res: Response) => {
+        //         this.defaultRoles = res.json();
+        //         this.roles = this.defaultRoles;
+        //         console.log("default role ", this.defaultRoles);
+        //     });
+        // });
     }
 
     clear() {
@@ -75,7 +81,7 @@ export class UserMgmtDialogComponent implements OnInit {
     getSelected(selectedVals: Array<any>, option: any) {
         if (selectedVals) {
             for (let i = 0; i < selectedVals.length; i++) {
-                if (option.id === selectedVals[i].id) {
+                if (option == selectedVals[i]) {
                     return selectedVals[i];
                 }
             }

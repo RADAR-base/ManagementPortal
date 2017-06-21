@@ -105,6 +105,10 @@ public class UserResource {
             return ResponseEntity.badRequest()
                 .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "emailexists", "Email already in use"))
                 .body(null);
+        } else if (managedUserVM.getAuthorities() == null || managedUserVM.getAuthorities().isEmpty()) {
+            return ResponseEntity.badRequest()
+                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "authoritiesRequired", "One or more authorities are required"))
+                .body(null);
         } else {
             User newUser = userService.createUser(managedUserVM);
             mailService.sendCreationEmail(newUser);
