@@ -64,7 +64,7 @@
         <div class="form-group">
             <label jhiTranslate="managementPortalApp.deviceType.sensorData" for="field_sensorData">Sensor Data</label>
             <select class="form-control" id="field_sensorData" multiple name="sensorData" [(ngModel)]="deviceType.sensorData">
-                <option [ngValue]="getSelected(deviceType.sensorData, sensorDataOption)" *ngFor="let sensorDataOption of sensordata; trackBy: trackSensorDataById">{{sensorDataOption.sensorType}}</option>
+                <option [ngValue]="getSelected(deviceType.sensorData, sensorDataOption)" *ngFor="let sensorDataOption of sensordata; trackBy: trackSensorDataById">{{sensorDataOption.sensorName}}</option>
             </select>
         </div>
     </div>

@@ -1,6 +1,12 @@
 package org.radarcns.management.service.dto;
 
 
+import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -15,14 +21,31 @@ public class SensorDataDTO implements Serializable {
 
     private Long id;
 
+    //Sensor name.
     @NotNull
-    private String sensorType;
+    private String sensorName;
 
+    //Default data frequency
+    private String frequency;
+
+    //Measurement unit.
+    private String unit;
+
+    // Define if the samples are RAW data or instead they the result of some computation
     private DataType dataType;
 
-    private String dataFormat;
+    //  the storage
+    private DataType dataClass;
 
-    private String frequency;
+    private String keySchema;
+
+    private String valueSchema;
+
+    private String topic;
+
+    private String provider;
+
+    private boolean enabled = true;
 
     public Long getId() {
         return id;
@@ -31,13 +54,31 @@ public class SensorDataDTO implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getSensorType() {
-        return sensorType;
+
+    public String getFrequency() {
+        return frequency;
     }
 
-    public void setSensorType(String sensorType) {
-        this.sensorType = sensorType;
+    public void setFrequency(String frequency) {
+        this.frequency = frequency;
     }
+
+    public String getSensorName() {
+        return sensorName;
+    }
+
+    public void setSensorName(String sensorName) {
+        this.sensorName = sensorName;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
     public DataType getDataType() {
         return dataType;
     }
@@ -45,19 +86,53 @@ public class SensorDataDTO implements Serializable {
     public void setDataType(DataType dataType) {
         this.dataType = dataType;
     }
-    public String getDataFormat() {
-        return dataFormat;
+
+    public DataType getDataClass() {
+        return dataClass;
     }
 
-    public void setDataFormat(String dataFormat) {
-        this.dataFormat = dataFormat;
-    }
-    public String getFrequency() {
-        return frequency;
+    public void setDataClass(DataType dataClass) {
+        this.dataClass = dataClass;
     }
 
-    public void setFrequency(String frequency) {
-        this.frequency = frequency;
+    public String getKeySchema() {
+        return keySchema;
+    }
+
+    public void setKeySchema(String keySchema) {
+        this.keySchema = keySchema;
+    }
+
+    public String getValueSchema() {
+        return valueSchema;
+    }
+
+    public void setValueSchema(String valueSchema) {
+        this.valueSchema = valueSchema;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     @Override
@@ -85,10 +160,16 @@ public class SensorDataDTO implements Serializable {
     public String toString() {
         return "SensorDataDTO{" +
             "id=" + id +
-            ", sensorType='" + sensorType + "'" +
-            ", dataType='" + dataType + "'" +
-            ", dataFormat='" + dataFormat + "'" +
-            ", frequency='" + frequency + "'" +
+            ", sensorName='" + sensorName + '\'' +
+            ", frequency='" + frequency + '\'' +
+            ", unit='" + unit + '\'' +
+            ", dataType=" + dataType +
+            ", dataClass=" + dataClass +
+            ", keySchema='" + keySchema + '\'' +
+            ", valueSchema='" + valueSchema + '\'' +
+            ", topic='" + topic + '\'' +
+            ", provider='" + provider + '\'' +
+            ", enabled=" + enabled +
             '}';
     }
 }

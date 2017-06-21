@@ -124,9 +124,9 @@ public class SensorDataResourceIntTest {
         List<SensorData> sensorDataList = sensorDataRepository.findAll();
         assertThat(sensorDataList).hasSize(databaseSizeBeforeCreate + 1);
         SensorData testSensorData = sensorDataList.get(sensorDataList.size() - 1);
-        assertThat(testSensorData.getSensorType()).isEqualTo(DEFAULT_SENSOR_TYPE);
+        assertThat(testSensorData.getSensorName()).isEqualTo(DEFAULT_SENSOR_TYPE);
         assertThat(testSensorData.getDataType()).isEqualTo(DEFAULT_DATA_TYPE);
-        assertThat(testSensorData.getDataFormat()).isEqualTo(DEFAULT_DATA_FORMAT);
+        assertThat(testSensorData.getKeySchema()).isEqualTo(DEFAULT_DATA_FORMAT);
         assertThat(testSensorData.getFrequency()).isEqualTo(DEFAULT_FREQUENCY);
     }
 
@@ -155,7 +155,7 @@ public class SensorDataResourceIntTest {
     public void checkSensorTypeIsRequired() throws Exception {
         int databaseSizeBeforeTest = sensorDataRepository.findAll().size();
         // set the field null
-        sensorData.setSensorType(null);
+        sensorData.setSensorName(null);
 
         // Create the SensorData, which fails.
         SensorDataDTO sensorDataDTO = sensorDataMapper.sensorDataToSensorDataDTO(sensorData);
@@ -236,9 +236,9 @@ public class SensorDataResourceIntTest {
         List<SensorData> sensorDataList = sensorDataRepository.findAll();
         assertThat(sensorDataList).hasSize(databaseSizeBeforeUpdate);
         SensorData testSensorData = sensorDataList.get(sensorDataList.size() - 1);
-        assertThat(testSensorData.getSensorType()).isEqualTo(UPDATED_SENSOR_TYPE);
+        assertThat(testSensorData.getSensorName()).isEqualTo(UPDATED_SENSOR_TYPE);
         assertThat(testSensorData.getDataType()).isEqualTo(UPDATED_DATA_TYPE);
-        assertThat(testSensorData.getDataFormat()).isEqualTo(UPDATED_DATA_FORMAT);
+        assertThat(testSensorData.getKeySchema()).isEqualTo(UPDATED_DATA_FORMAT);
         assertThat(testSensorData.getFrequency()).isEqualTo(UPDATED_FREQUENCY);
     }
 

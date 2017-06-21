@@ -39,7 +39,7 @@
                 <td jhiTranslate="{{'managementPortalApp.SourceType.' + deviceType.sourceType}}">{{deviceType.sourceType}}</td>
                 <td>
                     <span *ngFor="let sensorData of deviceType.sensorData; let last = last">
-                            <a class="form-control-static" [routerLink]="['../sensor-data', sensorData?.id ]">{{sensorData.sensorType}}</a>{{last ? '' : ', '}}
+                            <a class="form-control-static" [routerLink]="['../sensor-data', sensorData?.id ]">{{sensorData.sensorName}}</a>{{last ? '' : ', '}}
                         </span>
                 </td>
                 <td class="text-right">
