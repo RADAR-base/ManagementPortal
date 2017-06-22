@@ -7,6 +7,7 @@ import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
@@ -14,7 +15,7 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 
-import java.util.Collections;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,9 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Value("${spring.application.name}")
+    private String appName;
 
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken,
@@ -45,23 +49,26 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
                 userName = (String) authentication.getPrincipal();
             }
 
-            Optional<User> optUser = userRepository.findOneByLogin(userName);
-            if (optUser.isPresent()) {
-                List<Role> roles = optUser.get().getRoles().stream().collect(Collectors.toList());
-                additionalInfo.put("roles", roles);
-            }
+            if(userName!=null) {
+                // add the 'sub' claim in accordance with JWT spec
+                additionalInfo.put("sub", userName);
 
-            if(currentUserAuthorities.contains(AuthoritiesConstants.PARTICIPANT)) {
-                if(userName!=null) {
-                    List<Source> assignedSources = subjectRepository
-                        .findSourcesBySubjectLogin(userName);
-
-                    List<String> sourceIds = assignedSources.stream()
-                        .map(Source::getSourceId).collect(Collectors.toList());
-                    additionalInfo.put("sources", sourceIds);
-
+                Optional<User> optUser = userRepository.findOneByLogin(userName);
+                if (optUser.isPresent()) {
+                    List<Role> roles = optUser.get().getRoles().stream().collect(Collectors.toList());
+                    additionalInfo.put("roles", roles);
                 }
+
+                List<Source> assignedSources = subjectRepository
+                    .findSourcesBySubjectLogin(userName);
+
+                List<String> sourceIds = assignedSources.stream()
+                    .map(Source::getSourceId).collect(Collectors.toList());
+                additionalInfo.put("sources", sourceIds);
             }
+            // add iat and iss optional JWT claims
+            additionalInfo.put("iat", Instant.now().getEpochSecond());
+            additionalInfo.put("iss", appName);
             ((DefaultOAuth2AccessToken) accessToken)
                 .setAdditionalInformation(additionalInfo);
         }
