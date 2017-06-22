@@ -1,0 +1,62 @@
+
+<div *ngIf="subject">
+    <h2><span jhiTranslate="managementPortalApp.subject.detail.title">Subject</span> {{subject.id}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="managementPortalApp.subject.login">Login</span></dt>
+        <dd>
+            <span>{{subject.login}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.externalLink">External Link</span></dt>
+        <dd>
+            <span>{{subject.externalLink}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.externalId">External Id</span></dt>
+        <dd>
+            <span>{{subject.externalId}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.removed">Removed</span></dt>
+        <dd>
+            <span>{{subject.removed}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.activated">Activated</span></dt>
+        <dd>
+            <span>{{subject.activated}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.project">Project</span></dt>
+        <dd>
+            <span *ngIf="subject.project">
+                  <a [routerLink]="['/project', subject.project?.id ]" >{{subject.project?.projectName}}</a>
+            </span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.sources">Sources</span></dt>
+        <dd>
+            <span *ngFor="let sources of subject.sources; let last = last">
+                <a [routerLink]="['/source', sources?.id ]">{{sources.deviceTypeAndSourceId}}</a>{{last ? '' : ', '}}
+            </span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.createdBy">Created By</span></dt>
+        <dd>{{subject.createdBy}}</dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.createdDate">Created Date</span></dt>
+        <dd>{{subject.createdDate | date:'dd/MM/yy HH:mm' }}</dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.lastModifiedBy">Last Modified By</span></dt>
+        <dd>{{subject.lastModifiedBy}}</dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.lastModifiedDate">Last Modified Date</span></dt>
+        <dd>{{subject.lastModifiedDate | date:'dd/MM/yy HH:mm'}}</dd>
+
+    </dl>
+
+    <button type="submit"
+            (click)="previousState()"
+            class="btn btn-info">
+        <span class="fa fa-arrow-left"></span>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+    </button>
+
+    <button type="button"
+            [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.id + '/edit'} }]"
+            replaceUrl="true"
+            class="btn btn-primary">
+        <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+    </button>
+</div>

@@ -1,0 +1,33 @@
+{
+    "managementPortalApp": {
+        "subject" : {
+            "home": {
+                "title": "Subjects",
+                "createLabel": "Maak een nieuwe Subject",
+                "createOrEditLabel": "Maak of wijzig een Subject"
+            },
+            "created": "A new Subject is created with identifier {{ param }}",
+            "updated": "A Subject is updated with identifier {{ param }}",
+            "deleted": "A Subject is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Bent u zeker dat u Subject {{ id }} wilt verwijderen?"
+            },
+            "detail": {
+                "title": "Subject"
+            },
+            "login": "Login",
+            "email": "Email",
+            "externalLink": "External Link",
+            "externalId": "External Id",
+            "removed": "Removed",
+            "activated": "Activated",
+            "langKey": "Taal",
+            "project": "Project",
+            "sources": "Sources",
+            "createdBy": "Aanmaak door",
+            "createdDate": "Aanmaak datum",
+            "lastModifiedBy": "Laatst aangepast door",
+            "lastModifiedDate": "Laatst aangepast datum"
+        }
+    }
+}

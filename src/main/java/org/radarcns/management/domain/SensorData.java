@@ -27,21 +27,45 @@ public class SensorData implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    //Sensor name.
     @NotNull
-    @Column(name = "sensor_type", nullable = false)
-    private String sensorType;
+    @Column(name = "sensor_name", nullable = false)
+    private String sensorName;
 
+    //Default data frequency
+    @Column(name = "frequency")
+    private String frequency;
+
+    //Measurement unit.
+    @Column(name = "unit")
+    private String unit;
+
+    // Define if the samples are RAW data or instead they the result of some computation
     @Enumerated(EnumType.STRING)
     @Column(name = "data_type")
     private DataType dataType;
 
-    @Column(name = "data_format")
-    private String dataFormat;
+    //  the storage
+    @Column(name = "data_class")
+    private String dataClass;
 
-    @Column(name = "frequency")
-    private String frequency;
 
-    @ManyToMany(mappedBy = "sensorData")
+    @Column(name = "key_schema")
+    private String keySchema;
+
+    @Column(name = "value_schema")
+    private String valueSchema;
+
+    @Column(name = "topic")
+    private String topic;
+
+    @Column(name = "provider")
+    private String provider;
+
+    @Column(name = "enabled")
+    private boolean enabled = true;
+
+    @ManyToMany(mappedBy = "sensorData" , fetch = FetchType.EAGER)
     @JsonIgnore
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<DeviceType> deviceTypes = new HashSet<>();
@@ -54,17 +78,17 @@ public class SensorData implements Serializable {
         this.id = id;
     }
 
-    public String getSensorType() {
-        return sensorType;
+    public String getSensorName() {
+        return sensorName;
     }
 
     public SensorData sensorType(String sensorType) {
-        this.sensorType = sensorType;
+        this.sensorName = sensorType;
         return this;
     }
 
-    public void setSensorType(String sensorType) {
-        this.sensorType = sensorType;
+    public void setSensorName(String sensorName) {
+        this.sensorName = sensorName;
     }
 
     public DataType getDataType() {
@@ -80,17 +104,17 @@ public class SensorData implements Serializable {
         this.dataType = dataType;
     }
 
-    public String getDataFormat() {
-        return dataFormat;
+    public String getKeySchema() {
+        return keySchema;
     }
 
     public SensorData dataFormat(String dataFormat) {
-        this.dataFormat = dataFormat;
+        this.keySchema = dataFormat;
         return this;
     }
 
-    public void setDataFormat(String dataFormat) {
-        this.dataFormat = dataFormat;
+    public void setKeySchema(String keySchema) {
+        this.keySchema = keySchema;
     }
 
     public String getFrequency() {
@@ -127,6 +151,54 @@ public class SensorData implements Serializable {
         return this;
     }
 
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
+    public String  getDataClass() {
+        return dataClass;
+    }
+
+    public void setDataClass(String dataClass) {
+        this.dataClass = dataClass;
+    }
+
+    public String getValueSchema() {
+        return valueSchema;
+    }
+
+    public void setValueSchema(String valueSchema) {
+        this.valueSchema = valueSchema;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     public void setDeviceTypes(Set<DeviceType> deviceTypes) {
         this.deviceTypes = deviceTypes;
     }
@@ -155,10 +227,17 @@ public class SensorData implements Serializable {
     public String toString() {
         return "SensorData{" +
             "id=" + id +
-            ", sensorType='" + sensorType + "'" +
-            ", dataType='" + dataType + "'" +
-            ", dataFormat='" + dataFormat + "'" +
-            ", frequency='" + frequency + "'" +
+            ", sensorName='" + sensorName + '\'' +
+            ", frequency='" + frequency + '\'' +
+            ", unit='" + unit + '\'' +
+            ", dataType=" + dataType +
+            ", dataClass='" + dataClass + '\'' +
+            ", keySchema='" + keySchema + '\'' +
+            ", valueSchema='" + valueSchema + '\'' +
+            ", topic='" + topic + '\'' +
+            ", provider='" + provider + '\'' +
+            ", enabled=" + enabled +
+            ", deviceTypes=" + deviceTypes +
             '}';
     }
 }

@@ -15,9 +15,9 @@
             "detail": {
                 "title": "Sensor Data"
             },
-            "sensorType": "Sensor Type",
+            "sensorName": "Sensor Name",
             "dataType": "Data Type",
-            "dataFormat": "Data Format",
+            "keySchema": "keySchema",
             "frequency": "Frequency",
             "deviceType": "Device Type"
         }

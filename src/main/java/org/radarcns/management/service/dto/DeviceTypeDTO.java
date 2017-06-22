@@ -23,6 +23,9 @@ public class DeviceTypeDTO implements Serializable {
     @NotNull
     private SourceType sourceType;
 
+    @NotNull
+    private Boolean hasDynamicId = false;
+
     private Set<SensorDataDTO> sensorData = new HashSet<>();
 
     public Long getId() {
@@ -62,6 +65,14 @@ public class DeviceTypeDTO implements Serializable {
         this.sensorData = sensorData;
     }
 
+    public Boolean getHasDynamicId() {
+        return hasDynamicId;
+    }
+
+    public void setHasDynamicId(Boolean hasDynamicId) {
+        this.hasDynamicId = hasDynamicId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -90,6 +101,7 @@ public class DeviceTypeDTO implements Serializable {
             ", deviceProducer='" + deviceProducer + "'" +
             ", deviceModel='" + deviceModel + "'" +
             ", sourceType='" + sourceType + "'" +
+            ", hasDynamicId='" + hasDynamicId + "'" +
             '}';
     }
 }

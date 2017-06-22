@@ -147,12 +147,32 @@ public class UserService {
         } else {
             user.setLangKey(userDTO.getLangKey());
         }
-        user.setRoles(roleMapper.roleDTOsToRoles(userDTO.getRoles()));
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
         user.setPassword(encryptedPassword);
         user.setResetKey(RandomUtil.generateResetKey());
         user.setResetDate(ZonedDateTime.now());
         user.setActivated(false);
+
+        List<Role> roles = new ArrayList<>();
+        if(userDTO.getAuthorities().contains(AuthoritiesConstants.SYS_ADMIN)) {
+            roles.addAll(roleRepository.findRolesByAuthorityName(AuthoritiesConstants.SYS_ADMIN));
+        }
+
+        for (String authority : userDTO.getAuthorities()) {
+            if(authority != AuthoritiesConstants.SYS_ADMIN && userDTO.getProject().getId() !=null) {
+
+                Role role = roleRepository.findOneByAuthorityNameAndProjectId(authority , userDTO.getProject().getId());
+                if(role ==null) {
+                    role = new Role();
+                    role.setAuthority(new Authority(authority));
+                    role.setProject(projectMapper.projectDTOToProject(userDTO.getProject()));
+                }
+                roles.add(role);
+            }
+        }
+        Set<Role> userRolesSet = new HashSet<>();
+        userRolesSet.addAll(roles);
+        user.setRoles(userRolesSet);
         if(userDTO.getProject()!= null && userDTO.getProject().getId() != null) {
             Project project = projectMapper.projectDTOToProject(userDTO.getProject());
             user.setProject(project);
