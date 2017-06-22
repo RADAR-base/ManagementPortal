@@ -55,7 +55,9 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
                 Optional<User> optUser = userRepository.findOneByLogin(userName);
                 if (optUser.isPresent()) {
-                    List<Role> roles = optUser.get().getRoles().stream().collect(Collectors.toList());
+                    List<String> roles = optUser.get().getRoles().stream().map(role ->
+                        (role.getProject() == null ? "" : role.getProject().getProjectName()) +
+                            ":" + role.getAuthority().getName()).collect(Collectors.toList());
                     additionalInfo.put("roles", roles);
                 }
 
