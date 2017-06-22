@@ -18,13 +18,14 @@
         </dd>
         <dt><span jhiTranslate="managementPortalApp.source.deviceType">Device Type</span></dt>
         <dd>
-            <div *ngIf="source.deviceTypeId">
-                <a [routerLink]="['/source-type', source.deviceTypeId]">{{source.deviceTypeId}}</a>
+            <div *ngIf="source.deviceType">
+                <a [routerLink]="['/device-type', source.deviceType?.id]">{{source.deviceType.deviceModel}}</a>
             </div>
         </dd>
+        <dt><span jhiTranslate="managementPortalApp.source.project">Project</span></dt>
         <dd>
-            <div *ngIf="source.projectId">
-                <a [routerLink]="['/project', source.projectId]">{{source.projectId}}</a>
+            <div *ngIf="source.project">
+                <a [routerLink]="['/project', source.project?.id]">{{source.project.projectName}}</a>
             </div>
         </dd>
     </dl>

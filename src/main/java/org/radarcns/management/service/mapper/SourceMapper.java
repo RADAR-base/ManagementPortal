@@ -15,8 +15,8 @@ import org.radarcns.management.service.mapper.decorator.SourceMapperDecorator;
 @DecoratedWith(SourceMapperDecorator.class)
 public interface SourceMapper {
 
-    @Mapping(source = "deviceType.id", target = "deviceTypeId")
-    @Mapping(source = "project.id", target = "projectId")
+//    @Mapping(source = "deviceType.id", target = "deviceTypeId")
+//    @Mapping(source = "project", target = "project")
     SourceDTO sourceToSourceDTO(Source source);
 
 //    @Mapping(target = "deviceTypeAndSourceId" , ignore = true)
@@ -30,8 +30,8 @@ public interface SourceMapper {
 
     List<SourceDTO> sourcesToSourceDTOs(List<Source> sources);
 
-    @Mapping(source = "deviceTypeId", target = "deviceType")
-    @Mapping(source = "projectId", target = "project")
+//    @Mapping(source = "deviceTypeId", target = "deviceType")
+//    @Mapping(source = "project", target = "project")
     @Mapping(target = "subjects" , ignore = false)
     Source sourceDTOToSource(SourceDTO sourceDTO);
 

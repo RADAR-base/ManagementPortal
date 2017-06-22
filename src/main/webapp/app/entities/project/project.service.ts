@@ -49,6 +49,13 @@ export class ProjectService {
         ;
     }
 
+    findAll(fetchMinimal: boolean): Observable<Response> {
+
+        return this.http.get(`${this.resourceUrl}/minimized/${fetchMinimal}`)
+        .map((res: any) => this.convertResponse(res))
+            ;
+    }
+
     findDeviceTypesById(id: number): Observable<Response> {
         return this.http.get(`${this.resourceUrl}/${id}/device-types`);
     }

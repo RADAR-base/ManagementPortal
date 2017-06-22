@@ -39,7 +39,7 @@
         <dt><span jhiTranslate="managementPortalApp.project.deviceType">Device Type</span></dt>
         <dd>
             <span *ngFor="let deviceType of project.deviceTypes; let last = last">
-                <a [routerLink]="['/source-type', deviceType?.id ]">{{deviceType.deviceModel}}</a>{{last ? '' : ', '}}
+                <a [routerLink]="['/device-type', deviceType?.id ]">{{deviceType.deviceModel}}</a>{{last ? '' : ', '}}
             </span>
         </dd>
     </dl>
