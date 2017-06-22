@@ -2,8 +2,10 @@ package org.radarcns.security.test.authorization;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import net.minidev.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -14,20 +16,20 @@ import org.radarcns.security.config.ServerConfig;
 import org.radarcns.security.exceptions.NotAuthorizedException;
 
 import java.io.IOException;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
+import java.io.InputStream;
+import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.RSAPrivateKeySpec;
-import java.security.spec.RSAPublicKeySpec;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -45,7 +47,9 @@ public class RadarAuthorizationHandlerTest {
     private static final String OAUTH2_INTROSPECT = "/oauth2/check_token";
     private static final String PUBLIC_KEY = "/oauth2/token_key";
     private static String PUBLIC_KEY_BODY;
-    private static String TOKEN;
+    private static String VALID_TOKEN;
+    private static String EXPIRED_TOKEN;
+
     private static RadarAuthorizationHandler HANDLER;
     private static String SUCCESSFUL_RESPONSE;
 
@@ -63,15 +67,16 @@ public class RadarAuthorizationHandlerTest {
     @BeforeClass
     public static void setUp() throws NoSuchAlgorithmException, IOException,
             InvalidKeySpecException, KeyStoreException, CertificateException, UnrecoverableKeyException {
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(4096);
-        KeyPair kp = keyGen.generateKeyPair();
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        RSAPublicKeySpec publicKeySpec = kf.getKeySpec(kp.getPublic(), RSAPublicKeySpec.class);
-        RSAPrivateKeySpec privateKeySpec = kf.getKeySpec(kp.getPrivate(), RSAPrivateKeySpec.class);
-        RSAPublicKey publicKey = (RSAPublicKey) kf.generatePublic(publicKeySpec);
-        RSAPrivateKey privateKey = (RSAPrivateKey) kf.generatePrivate(privateKeySpec);
+        KeyStore ks = KeyStore.getInstance("JKS");
+        InputStream keyStream = RadarAuthorizationHandlerTest.class.getClassLoader()
+            .getResourceAsStream("keystore.jks");
+        ks.load(keyStream, "radarbase".toCharArray());
+        RSAPrivateKey privateKey = (RSAPrivateKey) ks.getKey("selfsigned",
+            "radarbase".toCharArray());
+        Certificate cert = ks.getCertificate("selfsigned");
+        RSAPublicKey publicKey = (RSAPublicKey) cert.getPublicKey();
 
+        keyStream.close();
         initVars(new String(new Base64().encode(publicKey.getEncoded())),
                 Algorithm.RSA256(publicKey, privateKey));
     }
@@ -94,7 +99,7 @@ public class RadarAuthorizationHandlerTest {
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                         .withBody(SUCCESSFUL_RESPONSE)));
 
-        DecodedJWT jwt = HANDLER.validateAccessToken(TOKEN);
+        DecodedJWT jwt = HANDLER.validateAccessToken(VALID_TOKEN);
         assertEquals(2, jwt.getClaim("scope").asList(String.class).size());
         assertEquals("admin", jwt.getClaim("user_name").asString());
     }
@@ -107,7 +112,7 @@ public class RadarAuthorizationHandlerTest {
                                 .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                                 .withBody(INVALID_RESPONSE)));
 
-        HANDLER.validateAccessToken(TOKEN);
+        HANDLER.validateAccessToken(VALID_TOKEN);
     }
 
     @Test(expected = NotAuthorizedException.class)
@@ -116,7 +121,7 @@ public class RadarAuthorizationHandlerTest {
                     .willReturn(aResponse()
                                 .withStatus(500)));
 
-        HANDLER.validateAccessToken(TOKEN);
+        HANDLER.validateAccessToken(VALID_TOKEN);
     }
 
     @Test(expected = NotAuthorizedException.class)
@@ -127,7 +132,15 @@ public class RadarAuthorizationHandlerTest {
                                 .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                                 .withBody("{\"error\":\"invalid token\"}")));
 
-        HANDLER.validateAccessToken(TOKEN);
+        HANDLER.validateAccessToken(VALID_TOKEN);
+    }
+
+    @Test(expected = JWTVerificationException.class)
+    public void testExpiredToken() throws IOException, NotAuthorizedException,
+            JWTVerificationException {
+        // no need for a check_token stub, token is validated before cache is checked, since the
+        // token is expired, a JWTVerificationException should be thrown
+        HANDLER.validateAccessToken(EXPIRED_TOKEN);
     }
 
     private static ServerConfig createMockServerConfig() {
@@ -161,26 +174,64 @@ public class RadarAuthorizationHandlerTest {
             + "KEY-----\"\n"
             + "}";
 
+        Instant past = Instant.now().minusSeconds(1);
+        Instant iatpast = Instant.now().minusSeconds(30*60+1);
         Instant exp = Instant.now().plusSeconds(30*60);
-        TOKEN = JWT.create()
-            .withIssuer("RADAR")
-            .withAudience("oauth_client")
-            .withArrayClaim("scope", new String[]{"scope1", "scope2"})
-            .withArrayClaim("authorities", new String[]{"ROLE_ADMIN"})
-            .withClaim("client_id","oauth_client")
-            .withClaim("user_name","admin")
-            .withClaim("jti","some-jwt-id")
+        Instant iat = Instant.now();
+        String[] scopes = {"scope1", "scope2"};
+        String[] authorities = {"ROLE_SYS_ADMIN", "ROLE_USER"};
+        String[] roles = {":ROLE_SYS_ADMIN", ":ROLE_USER",
+            "PROJECT1:ROLE_PROJECT_ADMIN", "PROJECT2:ROLE_PARTICIPANT"};
+        String[] sources = {};
+        String client = "oauth_client";
+        String user = "admin";
+        String iss = "RADAR";
+        String jti = "some-jwt-id";
+
+        VALID_TOKEN = JWT.create()
+            .withIssuer(iss)
+            .withIssuedAt(Date.from(iat))
             .withExpiresAt(Date.from(exp))
+            .withAudience(client)
+            .withSubject(user)
+            .withArrayClaim("scope", scopes)
+            .withArrayClaim("authorities", authorities)
+            .withArrayClaim("roles", roles)
+            .withArrayClaim("sources", sources)
+            .withClaim("client_id", client)
+            .withClaim("user_name", user)
+            .withClaim("jti", jti)
             .sign(algorithm);
 
-        SUCCESSFUL_RESPONSE = "{\n"
-            + "  \"aud\" : [ \"oauth_client\" ],\n"
-            + "  \"user_name\" : \"admin\",\n"
-            + "  \"scope\" : [ \"scope1\", \"scope2\" ],\n"
-            + "  \"exp\" : " + exp.getEpochSecond() + ",\n"
-            + "  \"authorities\" : [ \"ROLE_ADMIN\" ],\n"
-            + "  \"jti\" : \"some-jwt-id\",\n"
-            + "  \"client_id\" : \"oauth_client\"\n"
-            + "}";
+        EXPIRED_TOKEN = JWT.create()
+            .withIssuer(iss)
+            .withIssuedAt(Date.from(iatpast))
+            .withExpiresAt(Date.from(past))
+            .withAudience(client)
+            .withSubject(user)
+            .withArrayClaim("scope", scopes)
+            .withArrayClaim("authorities", authorities)
+            .withArrayClaim("roles", roles)
+            .withArrayClaim("sources", sources)
+            .withClaim("client_id", client)
+            .withClaim("user_name", user)
+            .withClaim("jti", jti)
+            .sign(algorithm);
+
+        Map<String, Object> checkTokenResponseObject = new HashMap<>();
+        checkTokenResponseObject.put("iss", iss);
+        checkTokenResponseObject.put("iat", iat.getEpochSecond());
+        checkTokenResponseObject.put("exp", exp.getEpochSecond());
+        checkTokenResponseObject.put("aud", client);
+        checkTokenResponseObject.put("sub", user);
+        checkTokenResponseObject.put("scope", scopes);
+        checkTokenResponseObject.put("authorities", authorities);
+        checkTokenResponseObject.put("roles", roles);
+        checkTokenResponseObject.put("sources", sources);
+        checkTokenResponseObject.put("client_id", client);
+        checkTokenResponseObject.put("user_name", user);
+        checkTokenResponseObject.put("jti", jti);
+
+        SUCCESSFUL_RESPONSE = JSONObject.toJSONString(checkTokenResponseObject);
     }
 }
