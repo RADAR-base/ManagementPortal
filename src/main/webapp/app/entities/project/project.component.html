@@ -42,7 +42,7 @@
                 <td>{{project.projectAdmin}}</td>
                 <td>
                     <span *ngFor="let deviceType of project.deviceTypes; let last = last">
-                            <a class="form-control-static" [routerLink]="['../source-type', deviceType?.id ]">{{deviceType.deviceModel}}</a>{{last ? '' : ', '}}
+                            <a class="form-control-static" [routerLink]="['../device-type', deviceType?.id ]">{{deviceType.deviceModel}}</a>{{last ? '' : ', '}}
                         </span>
                 </td>
                 <td class="text-right">

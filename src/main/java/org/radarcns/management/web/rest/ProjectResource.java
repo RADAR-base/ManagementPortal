@@ -91,7 +91,20 @@ public class ProjectResource {
     @Secured( {AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.SYS_ADMIN})
     public List<ProjectDTO> getAllProjects() {
         log.debug("REST request to get Projects");
-        return projectService.findAll();
+        return projectService.findAll(false);
+    }
+
+    /**
+     * GET  /projects : get all the projects.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of projects in body
+     */
+    @GetMapping("/projects/minimized/{fetch-minimal}")
+    @Timed
+    @Secured( {AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.SYS_ADMIN})
+    public List<ProjectDTO> getAllProjects(@PathVariable("fetch-minimal") Boolean fetchMinimal) {
+        log.debug("REST request to get Projects");
+        return projectService.findAll(fetchMinimal);
     }
 
     /**

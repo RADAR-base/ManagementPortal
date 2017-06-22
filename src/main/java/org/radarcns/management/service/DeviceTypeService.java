@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class DeviceTypeService {
 
     private final Logger log = LoggerFactory.getLogger(DeviceTypeService.class);
-    
+
     private final DeviceTypeRepository deviceTypeRepository;
 
     private final DeviceTypeMapper deviceTypeMapper;
@@ -47,7 +47,7 @@ public class DeviceTypeService {
 
     /**
      *  Get all the deviceTypes.
-     *  
+     *
      *  @return the list of entities
      */
     @Transactional(readOnly = true)

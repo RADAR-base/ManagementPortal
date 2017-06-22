@@ -37,13 +37,13 @@
                           jhiTranslate="managementPortalApp.source.assigned">Assigned</span>
                 </td>
                 <td>
-                    <div *ngIf="source.deviceTypeId">
-                        <a [routerLink]="['../source-type', source.deviceTypeId  ]" >{{source.deviceTypeId}}</a>
+                    <div *ngIf="source.deviceType">
+                        <a [routerLink]="['../device-type', source.deviceType?.id  ]" >{{source.deviceType.deviceModel}}</a>
                     </div>
                 </td>
                 <td>
-                    <div *ngIf="source.projectId">
-                        <a [routerLink]="['../project', source.projectId ]" >{{source.projectId}}</a>
+                    <div *ngIf="source.project">
+                        <a [routerLink]="['../project', source.project?.id ]" >{{source.project.projectName}}</a>
                     </div>
                 </td>
                 <td class="text-right">

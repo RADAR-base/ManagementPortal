@@ -20,3 +20,11 @@ export class Project {
     ) {
     }
 }
+
+export class MinimalProject {
+    constructor(
+        public id?: number,
+        public projectName?: string,
+    ) {
+    }
+}

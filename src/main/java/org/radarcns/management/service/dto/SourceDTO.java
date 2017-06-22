@@ -20,9 +20,9 @@ public class SourceDTO implements Serializable {
     @NotNull
     private Boolean assigned;
 
-    private Long deviceTypeId;
+    private DeviceTypeDTO deviceType;
 
-    private Long projectId;
+    private MinimalProjectDetailsDTO project;
 
     public Long getId() {
         return id;
@@ -53,20 +53,20 @@ public class SourceDTO implements Serializable {
         this.assigned = assigned;
     }
 
-    public Long getDeviceTypeId() {
-        return deviceTypeId;
+    public DeviceTypeDTO getDeviceType() {
+        return deviceType;
     }
 
-    public void setDeviceTypeId(Long deviceTypeId) {
-        this.deviceTypeId = deviceTypeId;
+    public void setDeviceType(DeviceTypeDTO deviceType) {
+        this.deviceType= deviceType;
     }
 
-    public Long getProjectId() {
-        return projectId;
+    public MinimalProjectDetailsDTO getProject() {
+        return project;
     }
 
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
+    public void setProject(MinimalProjectDetailsDTO project) {
+        this.project = project;
     }
 
     @Override

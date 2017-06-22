@@ -46,7 +46,7 @@
                 <td>{{user.lastModifiedDate | date:'dd/MM/yy HH:mm'}}</td>
                 <td>
                     <div *ngIf="user.project">
-                        <a [routerLink]="['/project', user.project?.id ]" >{{user.project?.id}}</a>
+                        <a [routerLink]="['/project', user.project?.id ]" >{{user.project?.projectName}}</a>
                     </div>
                 </td>
                 <td class="text-right">

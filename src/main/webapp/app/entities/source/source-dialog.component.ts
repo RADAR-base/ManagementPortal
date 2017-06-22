@@ -9,7 +9,7 @@ import { Source } from './source.model';
 import { SourcePopupService } from './source-popup.service';
 import { SourceService } from './source.service';
 import { DeviceType, DeviceTypeService } from '../device-type';
-import {Project} from "../project/project.model";
+import {MinimalProject, Project} from "../project/project.model";
 import {ProjectService} from "../project/project.service";
 
 @Component({
@@ -22,7 +22,7 @@ export class SourceDialogComponent implements OnInit {
     authorities: any[];
     isSaving: boolean;
     deviceTypes: DeviceType[];
-    projects: Project[];
+    projects: MinimalProject[];
     constructor(
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
@@ -39,13 +39,14 @@ export class SourceDialogComponent implements OnInit {
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         // this.sourceTypeService.query().subscribe(
         //     (res: Response) => { this.sourcetypes = res.json(); }, (res: Response) => this.onError(res.json()));
-        this.projectService.query().subscribe(
+        this.projectService.findAll(true).subscribe(
             (res: Response) => { this.projects = res.json(); }, (res: Response) => this.onError(res.json()));
     }
 
-    public onProjectChange(projectId: any) {
-        if(projectId!=null) {
-            this.projectService.findDeviceTypesById(projectId).subscribe((res: Response) => {
+    public onProjectChange(project: any) {
+        if(project!=null) {
+            // console.log(project);
+            this.projectService.findDeviceTypesById(project.id).subscribe((res: Response) => {
                 this.deviceTypes = res.json();
             });
         }
@@ -94,7 +95,7 @@ export class SourceDialogComponent implements OnInit {
     trackDeviceTypeById(index: number, item: DeviceType) {
         return item.id;
     }
-    trackProjectById(index: number, item: Project) {
+    trackProjectById(index: number, item: MinimalProject) {
         return item.id;
     }
 }
