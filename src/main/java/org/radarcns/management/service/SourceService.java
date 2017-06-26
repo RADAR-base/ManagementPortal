@@ -1,8 +1,12 @@
 package org.radarcns.management.service;
 
+import org.radarcns.management.domain.Authority;
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Source;
+import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
+import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.service.mapper.SourceMapper;
@@ -34,6 +38,9 @@ public class SourceService {
     @Autowired
     private SubjectRepository subjectRepository;
 
+    @Autowired
+    private UserService userService;
+
 //    public SourceService(SourceRepository sourceRepository, SourceMapper sourceMapper) {
 //        this.sourceRepository = sourceRepository;
 //        this.sourceMapper = sourceMapper;
@@ -60,26 +67,60 @@ public class SourceService {
      */
     @Transactional(readOnly = true)
     public List<SourceDTO> findAll() {
-        log.debug("Request to get all Sources");
-        List<SourceDTO> result = sourceRepository.findAll().stream()
+        List<Source> sources = new LinkedList<>();
+//        List result = new LinkedList();
+        User currentUser = userService.getUserWithAuthorities();
+        List<String> currentUserAuthorities = currentUser.getAuthorities().stream().map(Authority::getName).collect(
+            Collectors.toList());
+        if(currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN)) {
+            log.debug("Request to get all Sources");
+            sources = sourceRepository.findAll();/*.stream()
+                .map(projectMapper::projectToProjectDTO)
+                .collect(Collectors.toCollection(LinkedList::new));*/
+        }
+        else if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
+            log.debug("Request to get Sources of admin's project ");
+            sources= sourceRepository.findAllSourcesByProjectId(currentUser.getProject().getId());
+        }
+//        log.debug("Request to get all Sources");
+        List<SourceDTO> result = sources.stream()
             .map(sourceMapper::sourceToSourceDTO)
             .collect(Collectors.toCollection(LinkedList::new));
 
         return result;
     }
 
-    public List<MinimalSourceDetailsDTO> findAllUnassignedSources() {
-        log.debug("Request to get all unassigned sources");
-        List<MinimalSourceDetailsDTO> result = sourceRepository.findAllSourcesByAssigned(false).stream()
+    public List<Source> findAllUnassignedSources() {
+
+
+        List<Source> sources = new LinkedList<>();
+//        List result = new LinkedList();
+        User currentUser = userService.getUserWithAuthorities();
+        List<String> currentUserAuthorities = currentUser.getAuthorities().stream().map(Authority::getName).collect(
+            Collectors.toList());
+        if(currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN)) {
+            log.debug("Request to get all unassigned sources");
+            sources = sourceRepository.findAllSourcesByAssigned(false);/*.stream()
+                .map(projectMapper::projectToProjectDTO)
+                .collect(Collectors.toCollection(LinkedList::new));*/
+        }
+        else if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
+            log.debug("Request to get Sources of admin's project ");
+            sources = sourceRepository.findAllSourcesByProjectIdAndAssigned(currentUser.getProject().getId(), false);
+        }
+        return sources;
+    }
+    public List<MinimalSourceDetailsDTO> findAllUnassignedSourcesMinimalDTO() {
+
+        return findAllUnassignedSources().stream()
             .map(sourceMapper::sourceToMinimalSourceDetailsDTO)
             .collect(Collectors.toCollection(LinkedList::new));
-        return result;
     }
 
     public List<MinimalSourceDetailsDTO> findAllUnassignedSourcesAndOfSubject(Long id) {
         log.debug("Request to get all unassigned sources and assigned sources of a subject");
         List<Source> subjectSources = subjectRepository.findSourcesBySubjectId(id);
-        List<Source> sources = sourceRepository.findAllSourcesByAssigned(false);
+        List<Source> sources = findAllUnassignedSources();
         sources.addAll(subjectSources);
         List<MinimalSourceDetailsDTO> result = sources.stream()
             .map(sourceMapper::sourceToMinimalSourceDetailsDTO)

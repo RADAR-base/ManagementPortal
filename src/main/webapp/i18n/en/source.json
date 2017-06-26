@@ -15,12 +15,15 @@
             "detail": {
                 "title": "Source"
             },
-            "sourceId": "Source Id",
+            "sourceId": "Source Name",
             "deviceCategory": "Device Category",
             "assigned": "Assigned",
             "unassigned": "Unassigned",
             "deviceType": "Device Type",
             "project": "Project"
         }
+    },
+    "error": {
+        "sourceNameExists": " Source Name is already registered"
     }
 }

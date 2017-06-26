@@ -1,5 +1,6 @@
 package org.radarcns.management.repository;
 
+import java.util.Optional;
 import org.radarcns.management.domain.Source;
 
 import java.util.List;
@@ -14,4 +15,9 @@ public interface SourceRepository extends JpaRepository<Source,Long> {
 
     List<Source> findAllSourcesByAssigned(@Param("assigned") Boolean assigned);
 
+    List<Source> findAllSourcesByProjectId(@Param("projectId") Long projectId);
+
+    List<Source> findAllSourcesByProjectIdAndAssigned(@Param("projectId") Long projectId , @Param("assigned") Boolean assigned);
+
+    Optional<Source> findOneBySourceId(String sourceId);
 }

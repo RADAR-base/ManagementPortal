@@ -1,6 +1,7 @@
 package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
@@ -9,6 +10,7 @@ import org.radarcns.management.service.dto.SourceDTO;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -28,13 +30,17 @@ public class SourceResource {
 
     private final Logger log = LoggerFactory.getLogger(SourceResource.class);
 
-    private static final String ENTITY_NAME = "soruce";
+    private static final String ENTITY_NAME = "source";
 
-    private final SourceService sourceService;
+    @Autowired
+    private  SourceService sourceService;
 
-    public SourceResource(SourceService sourceService) {
-        this.sourceService = sourceService;
-    }
+    @Autowired
+    private  SourceRepository sourceRepository;
+
+//    public SourceResource(SourceService sourceService) {
+//        this.sourceService = sourceService;
+//    }
 
     /**
      * POST  /sources : Create a new source.
@@ -50,11 +56,17 @@ public class SourceResource {
         log.debug("REST request to save Source : {}", sourceDTO);
         if (sourceDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new source cannot already have an ID")).body(null);
+        } else if (sourceRepository.findOneBySourceId(sourceDTO.getSourceId()).isPresent()) {
+            return ResponseEntity.badRequest()
+                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceNameExists", "Source name already in use"))
+                .body(null);
+        } else {
+            SourceDTO result = sourceService.save(sourceDTO);
+            return ResponseEntity.created(new URI("/api/sources/" + result.getId()))
+                .headers(
+                    HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+                .body(result);
         }
-        SourceDTO result = sourceService.save(sourceDTO);
-        return ResponseEntity.created(new URI("/api/sources/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
-            .body(result);
     }
 
     /**
@@ -100,7 +112,7 @@ public class SourceResource {
     @Timed
     public List<MinimalSourceDetailsDTO> getAllUnassignedSources() {
         log.debug("REST request to get all Sources");
-        return sourceService.findAllUnassignedSources();
+        return sourceService.findAllUnassignedSourcesMinimalDTO();
     }
 
     /**
