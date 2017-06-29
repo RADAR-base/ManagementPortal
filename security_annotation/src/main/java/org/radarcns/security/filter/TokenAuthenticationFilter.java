@@ -148,9 +148,9 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
     }
 
     protected SecurityContext createSecurityContext(DecodedJWT jwt) {
-        final String name = jwt.getClaim("user_name").asString();
+        final String name = jwt.getClaim("sub").asString();
         final Set<String> roles = Collections.emptySet();
-        roles.addAll(jwt.getClaim("authorities").asList(String.class));
+        roles.addAll(jwt.getClaim("roles").asList(String.class));
         return new SecurityContext() {
 
             public Principal getUserPrincipal() {

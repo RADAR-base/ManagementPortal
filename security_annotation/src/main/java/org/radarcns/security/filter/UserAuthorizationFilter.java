@@ -19,6 +19,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -38,6 +39,9 @@ public class UserAuthorizationFilter implements ContainerRequestFilter {
 
     @Context
     private ResourceInfo resourceInfo;
+
+    private static final String PROJECT_PATH_PARAM = "studyID";
+    private static final String USERID_PATH_PARAM = "userID";
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
@@ -87,8 +91,8 @@ public class UserAuthorizationFilter implements ContainerRequestFilter {
     }
 
 
-    private void checkUserRoles(Set<String> rolesAllowed, SecurityContext securityContext)
-                throws NotAuthorizedException {
+    private void checkUserRoles(Set<String> rolesAllowed, String projectID, SecurityContext
+            securityContext) throws NotAuthorizedException {
         log.debug("Checking user roles");
         if (rolesAllowed.isEmpty()) {
             log.debug("No allowed roles defined, assuming any role is authorized "
@@ -96,22 +100,12 @@ public class UserAuthorizationFilter implements ContainerRequestFilter {
             return;
         }
         for (String role : rolesAllowed) {
-            if (securityContext.isUserInRole(role)) {
+            if (securityContext.isUserInRole(projectID + ":" + role)) {
                 log.debug("User role " + role + " matched allowed role");
                 return;
             }
         }
         throw new NotAuthorizedException("User does not have the appropriate role for this method");
-    }
-
-    private boolean isUserInStudy(String userId, String studyId) {
-        //TODO this needs to be implemented
-        return true;
-    }
-
-    private boolean areUsersInSameStudy(String userId1, String userId2) {
-        //TODO
-        return true;
     }
 
     /**
@@ -127,39 +121,19 @@ public class UserAuthorizationFilter implements ContainerRequestFilter {
     private void isUserAuthorized(SecurityContext securityContext, Set<String> rolesAllowed,
                 MultivaluedMap<String, String> pathParameters) throws NotAuthorizedException {
         String authorizedUserId = securityContext.getUserPrincipal().getName();
-        if (pathParameters.keySet().contains("userID")) {
-            String requestedUserId = pathParameters.getFirst("userID");
-            if (requestedUserId.equals(authorizedUserId)) {
-                log.debug("User requested own data, this is authorized");
-                return;
-            } else {
-                if (areUsersInSameStudy(authorizedUserId, requestedUserId)) {
-                    log.debug("User " + authorizedUserId + " requested data for other user "
-                                + requestedUserId + " in the same study");
-                    checkUserRoles(rolesAllowed, securityContext);
-                    return;
-                } else {
-                    throw new NotAuthorizedException("User " + authorizedUserId + " requested "
-                                + "data for user " + requestedUserId + " but they are not in the "
-                                + "same study. Not granting access.");
-                }
-            }
-        } else {
-            if (pathParameters.keySet().contains("studyID")) {
-                String requestedStudyId = pathParameters.getFirst("studyID");
-                if (isUserInStudy(authorizedUserId, requestedStudyId)) {
-                    checkUserRoles(rolesAllowed, securityContext);
-                    return;
-                } else {
-                    throw new NotAuthorizedException("User " + authorizedUserId + " requested "
-                                + "access " + "to information regarding " + " study "
-                                + requestedStudyId + ", but is not a member of this study. Not "
-                                + "granting access.");
-                }
-            } else {
-                checkUserRoles(rolesAllowed, securityContext);
-                return;
-            }
+        String projectID = pathParameters.getFirst(PROJECT_PATH_PARAM);
+        String userID = pathParameters.getFirst(USERID_PATH_PARAM);
+
+        if (projectID == null) {
+            throw new NotAuthorizedException(PROJECT_PATH_PARAM + " path parameter must be "
+                + "supplied.");
         }
+
+        if (userID != null && userID.equals(authorizedUserId)) {
+            // user requested own data, this is allowed
+            return;
+        }
+
+        checkUserRoles(rolesAllowed, projectID, securityContext);
     }
 }
