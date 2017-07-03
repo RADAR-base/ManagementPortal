@@ -1,2 +1,2 @@
 rootProject.name = 'management-portal'
-include 'security_annotation'
+include 'auth-annotation'
