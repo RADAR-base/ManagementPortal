@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Priority;
-import javax.naming.ConfigurationException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -28,7 +27,7 @@ import java.security.Principal;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -46,21 +45,21 @@ import java.util.Set;
  */
 public class TokenAuthenticationFilter implements ContainerRequestFilter {
 
-    private static final Logger log = LoggerFactory.getLogger(TokenAuthenticationFilter.class);
+    protected static final Logger log = LoggerFactory.getLogger(TokenAuthenticationFilter.class);
 
     @Context
-    private ResourceInfo resourceInfo;
+    protected ResourceInfo resourceInfo;
 
-    private final AuthorizationHandler authorizationHandler;
+    protected final AuthorizationHandler authorizationHandler;
 
     /**
-     * Default constructor. Will load the identity server configuration from the file defined in
-     * the environment variable IDENTITY_SERVER_CONFIG.
-     * @throws ConfigurationException If the relevant environment variables are not set
-     * @throws IOException If the configuration file is not accessible
+     * Default constructor. Will load the identity server configuration from a file called
+     * radar_is_config.yml that should be on the classpath
+     * @throws IOException The configuration file is not accessible
+     * @throws InvalidKeySpecException
      */
     public TokenAuthenticationFilter() throws IOException, InvalidKeySpecException,
-        NoSuchAlgorithmException {
+        NoSuchAlgorithmException, NotAuthorizedException {
         authorizationHandler = new RadarAuthorizationHandler(YamlServerConfig.readFromClasspath());
     }
 
@@ -72,19 +71,22 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
             // Validate the token
             DecodedJWT jwt = authorizationHandler.validateAccessToken(token);
             checkScopes(jwt);
-            requestContext.setSecurityContext(createSecurityContext(jwt));
+            requestContext.setSecurityContext(
+                createSecurityContext(jwt.getClaim("sub").asString(),
+                                      jwt.getClaim("roles").asList(String.class)));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
         }
     }
 
-    protected String getToken(ContainerRequestContext requestContext) {
+    public String getToken(ContainerRequestContext requestContext) {
         // Check if the HTTP Authorization header is present and formatted correctly
         String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             log.error("No authorization header provided in the request");
-            throw new NotAuthorizedException("Authorization header must be provided");
+            throw new NotAuthorizedException("Authorization header must be provided", Response
+                .status(Response.Status.FORBIDDEN));
         }
 
         log.debug("Received bearer token from client");
@@ -93,7 +95,7 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
         return authorizationHeader.substring("Bearer".length()).trim();
     }
 
-    protected void checkScopes(DecodedJWT token) {
+    public void checkScopes(DecodedJWT token) {
         Method resourceMethod = resourceInfo.getResourceMethod();
         List<String> methodScopes = extractScopes(resourceMethod);
         List<String> tokenScopes = token.getClaim("scope").asList(String.class);
@@ -114,7 +116,7 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
         log.debug("Token is authorized to access this resource");
     }
 
-    protected void checkTokenScope(List<String> scopesAllowed, List<String> tokenScopes)
+    public void checkTokenScope(List<String> scopesAllowed, List<String> tokenScopes)
                 throws NotAuthorizedException {
         if (scopesAllowed.isEmpty()) {
             log.debug("No allowed scopes defined, assuming any valid token is authorized.");
@@ -129,11 +131,11 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
                 }
             }
         }
-        throw new NotAuthorizedException("Token does not have the appropriate scope. Token is "
-                    + "not valid for this resource!");
+        throw new NotAuthorizedException("Token does not have the appropriate scope. Token is not "
+            + "valid for this resource!", Response.status(Response.Status.FORBIDDEN));
     }
 
-    protected List<String> extractScopes(AnnotatedElement annotatedElement) {
+    public List<String> extractScopes(AnnotatedElement annotatedElement) {
         if (annotatedElement == null) {
             return new ArrayList<String>();
         } else {
@@ -142,15 +144,17 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
                 return new ArrayList<String>();
             } else {
                 String[] scopesAllowed = secured.scopesAllowed();
-                return Arrays.asList(scopesAllowed);
+                if (scopesAllowed != null) {
+                    return Arrays.asList(scopesAllowed);
+                }
+                else {
+                    return new ArrayList<>();
+                }
             }
         }
     }
 
-    protected SecurityContext createSecurityContext(DecodedJWT jwt) {
-        final String name = jwt.getClaim("sub").asString();
-        final Set<String> roles = Collections.emptySet();
-        roles.addAll(jwt.getClaim("roles").asList(String.class));
+    public SecurityContext createSecurityContext(String name, List<String> roles) {
         return new SecurityContext() {
 
             public Principal getUserPrincipal() {

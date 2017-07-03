@@ -32,12 +32,13 @@ dependencies {
     compile group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.1-m05'
     compile group: 'javax.annotation', name: 'javax.annotation-api', version: '1.2-b02'
 
-    // For POJO classes and ConfigLoader
     implementation group: 'com.fasterxml.jackson.core' , name: 'jackson-databind' , version: jacksonVersion
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jacksonVersion
 
     testCompile group: 'junit', name: 'junit', version: junitVersion
-    testCompile "com.github.tomakehurst:wiremock:2.5.1"
+    testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.5.1'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.8.47'
+    testCompile 'org.glassfish.jersey.core:jersey-common:2.22.2'
 }
 
 task wrapper(type: Wrapper) {
@@ -60,4 +61,17 @@ pmd {
 
     ruleSets = []
     ruleSetFiles = files("config/pmd/ruleset.xml")
+}
+
+sourceSets {
+    integrationTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integrationTest/java')
+        }
+        resources {
+            srcDir 'src/integrationTest/resources'
+        }
+    }
 }

@@ -17,10 +17,9 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by dverbeec on 17/03/2017.
@@ -40,21 +39,21 @@ public class UserAuthorizationFilter implements ContainerRequestFilter {
     @Context
     private ResourceInfo resourceInfo;
 
-    private static final String PROJECT_PATH_PARAM = "studyID";
-    private static final String USERID_PATH_PARAM = "userID";
+    public static final String PROJECT_PATH_PARAM = "studyID";
+    public static final String USERID_PATH_PARAM = "userID";
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
 
         SecurityContext securityContext = requestContext.getSecurityContext();
 
-        MultivaluedMap<String, String> pathParameters = requestContext.getUriInfo()
-                    .getPathParameters();
+        MultivaluedMap<String, String> pathParameters =
+            requestContext.getUriInfo().getPathParameters();
 
         // Get the resource method which matches with the requested URL
         // Extract the scopes declared by it
         Method resourceMethod = resourceInfo.getResourceMethod();
-        Set<String> allowedRoles = extractRoles(resourceMethod);
+        List<String> allowedRoles = extractRoles(resourceMethod);
 
         if (allowedRoles.isEmpty()) {
             log.debug("Method is secured but no roles defined, using roles "
@@ -68,30 +67,34 @@ public class UserAuthorizationFilter implements ContainerRequestFilter {
         try {
             isUserAuthorized(securityContext, allowedRoles, pathParameters);
         } catch (Exception e) {
-            log.error(e.getMessage());
-            requestContext.abortWith(
-                    Response.status(Response.Status.FORBIDDEN).build());
+            log.error(e.getMessage(), e);
+            requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
         }
         log.debug("User is authorized for this resource");
     }
 
     // Extract the scopes from the annotated element
-    private Set<String> extractRoles(AnnotatedElement annotatedElement) {
+    public List<String> extractRoles(AnnotatedElement annotatedElement) {
         if (annotatedElement == null) {
-            return new HashSet<>();
+            return new ArrayList<>();
         } else {
             Secured secured = annotatedElement.getAnnotation(Secured.class);
             if (secured == null) {
-                return new HashSet<>();
+                return new ArrayList<>();
             } else {
                 String[] rolesAllowed = secured.rolesAllowed();
-                return new HashSet<>(Arrays.asList(rolesAllowed));
+                if (rolesAllowed != null) {
+                    return Arrays.asList(rolesAllowed);
+                }
+                else {
+                    return new ArrayList<>();
+                }
             }
         }
     }
 
 
-    private void checkUserRoles(Set<String> rolesAllowed, String projectID, SecurityContext
+    private void checkUserRoles(List<String> rolesAllowed, String projectID, SecurityContext
             securityContext) throws NotAuthorizedException {
         log.debug("Checking user roles");
         if (rolesAllowed.isEmpty()) {
@@ -105,7 +108,8 @@ public class UserAuthorizationFilter implements ContainerRequestFilter {
                 return;
             }
         }
-        throw new NotAuthorizedException("User does not have the appropriate role for this method");
+        throw new NotAuthorizedException("User does not have the appropriate role for this method",
+            Response.status(Response.Status.FORBIDDEN));
     }
 
     /**
@@ -118,7 +122,7 @@ public class UserAuthorizationFilter implements ContainerRequestFilter {
      *                       certain conditions this is checked. See the flowchart for more details.
      * @throws NotAuthorizedException When the user is not authorized to access the resource
      */
-    private void isUserAuthorized(SecurityContext securityContext, Set<String> rolesAllowed,
+    public void isUserAuthorized(SecurityContext securityContext, List<String> rolesAllowed,
                 MultivaluedMap<String, String> pathParameters) throws NotAuthorizedException {
         String authorizedUserId = securityContext.getUserPrincipal().getName();
         String projectID = pathParameters.getFirst(PROJECT_PATH_PARAM);
@@ -126,7 +130,7 @@ public class UserAuthorizationFilter implements ContainerRequestFilter {
 
         if (projectID == null) {
             throw new NotAuthorizedException(PROJECT_PATH_PARAM + " path parameter must be "
-                + "supplied.");
+                + "supplied.", Response.status(Response.Status.FORBIDDEN));
         }
 
         if (userID != null && userID.equals(authorizedUserId)) {

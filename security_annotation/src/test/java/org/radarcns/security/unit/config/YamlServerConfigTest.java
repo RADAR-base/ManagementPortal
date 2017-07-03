@@ -1,13 +1,13 @@
-package org.radarcns.security.test.config;
+package org.radarcns.security.unit.config;
 
 import org.junit.Test;
 import org.radarcns.security.config.ServerConfig;
 import org.radarcns.security.config.YamlServerConfig;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by dverbeec on 19/06/2017.
