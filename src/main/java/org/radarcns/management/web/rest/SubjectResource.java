@@ -59,7 +59,7 @@ public class SubjectResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "loginrequired", "A subject login is required")).body(null);
         }
         if (subjectDTO.getEmail() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "emailrequired", "A subject email is required")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "patientEmailRequired", "A subject email is required")).body(null);
         }
         if (subjectDTO.getProject().getId() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "projectrequired", "A subject should be assigned to a project")).body(null);
@@ -102,9 +102,8 @@ public class SubjectResource {
     @GetMapping("/subjects")
     @Timed
     public List<SubjectDTO> getAllSubjects() {
-        log.debug("REST request to get all Subjects");
-        List<Subject> subjects = subjectRepository.findAllWithEagerRelationships();
-        return subjectMapper.subjectsToSubjectDTOs(subjects);
+       log.debug("REST request to get all Subjects");
+       return subjectService.findAll();
     }
 
     /**

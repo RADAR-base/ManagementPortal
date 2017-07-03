@@ -29,5 +29,8 @@
             "lastModifiedBy": "Last Modified By",
             "lastModifiedDate": "Last Modified Date"
         }
+    },
+    "error": {
+        "patientEmailRequired": "A valid email is required to activate the subject account"
     }
 }

@@ -17,6 +17,9 @@ public interface SubjectRepository extends JpaRepository<Subject,Long> {
     @Query("select distinct subject from Subject subject left join fetch subject.sources")
     List<Subject> findAllWithEagerRelationships();
 
+    @Query("select distinct subject from Subject subject left join fetch subject.sources where subject.user.project.id = :projectId")
+    List<Subject> findAllByProjectId(@Param("projectId") Long projectId);
+
     @Query("select subject from Subject subject left join fetch subject.sources where subject.id =:id")
     Subject findOneWithEagerRelationships(@Param("id") Long id);
 

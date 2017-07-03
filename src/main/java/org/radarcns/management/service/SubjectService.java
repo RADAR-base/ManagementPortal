@@ -2,6 +2,7 @@ package org.radarcns.management.service;
 
 import java.time.ZonedDateTime;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -140,4 +141,23 @@ public class SubjectService {
     }
 
 
+    public List<SubjectDTO> findAll() {
+
+        List<Subject> subjects = new LinkedList<>();
+//        List result = new LinkedList();
+        User currentUser = userService.getUserWithAuthorities();
+        List<String> currentUserAuthorities = currentUser.getAuthorities().stream().map(Authority::getName).collect(
+            Collectors.toList());
+        if(currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN)) {
+            log.debug("Request to get all subjects");
+            subjects = subjectRepository.findAllWithEagerRelationships();/*.stream()
+                .map(projectMapper::projectToProjectDTO)
+                .collect(Collectors.toCollection(LinkedList::new));*/
+        }
+        else if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
+            log.debug("Request to get Sources of admin's project ");
+            subjects = subjectRepository.findAllByProjectId(currentUser.getProject().getId());
+        }
+        return subjectMapper.subjectsToSubjectDTOs(subjects);
+    }
 }
