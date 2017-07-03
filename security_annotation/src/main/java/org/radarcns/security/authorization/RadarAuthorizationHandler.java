@@ -19,14 +19,16 @@ import okhttp3.Response;
 import okhttp3.Route;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.radarcns.security.config.ServerConfig;
-import org.radarcns.security.exceptions.NotAuthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
@@ -53,9 +55,12 @@ public class RadarAuthorizationHandler implements AuthorizationHandler {
 
 
     public RadarAuthorizationHandler(ServerConfig config) throws NoSuchAlgorithmException,
-            IOException, InvalidKeySpecException {
+        IOException, InvalidKeySpecException, NotAuthorizedException {
         this.config = config;
         publicKey = publicKeyFromServer();
+        if (publicKey == null) {
+            throw new IOException("Unable to fetch the server's public key");
+        }
         tokenCache = new HashMap<>();
     }
 
@@ -115,7 +120,8 @@ public class RadarAuthorizationHandler implements AuthorizationHandler {
 
         if (!response.isSuccessful()) {
             throw new NotAuthorizedException("Identity server returned code " + response + ", "
-                + "with body: " + response.body().toString());
+                + "with body: " + response.body().toString(),
+                javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.FORBIDDEN));
         }
 
         // Parse the response
@@ -131,54 +137,57 @@ public class RadarAuthorizationHandler implements AuthorizationHandler {
         // Do some checks on the data structure
         if (tokenInfo.containsKey("error")) {
             throw new NotAuthorizedException("Received error from identity server: "
-                        + tokenInfo.get("error").toString());
+                + tokenInfo.get("error").toString(),
+                javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.FORBIDDEN));
         }
 
         String[] expectedFields = {"aud", "scope", "authorities", "user_name", "exp", "jti"};
         for (String field : expectedFields) {
             if (!tokenInfo.containsKey(field)) {
                 throw new NotAuthorizedException("Expected field " + field
-                            + " to be present in the returned JSON");
+                    + " to be present in the returned JSON",
+                    javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.FORBIDDEN));
             }
         }
 
         // Check the values of the token_type and active field
         Long exp = new Long((Integer) tokenInfo.get("exp"));
         if (Instant.ofEpochSecond(exp.longValue()).isBefore(Instant.now())) {
-            throw new NotAuthorizedException("Token is no longer valid");
+            throw new NotAuthorizedException("Token is no longer valid",
+                javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.FORBIDDEN));
         }
 
         if (!tokenInfo.get("jti").equals(jwt.getId())) {
             throw new NotAuthorizedException("Embedded ID of supplied token does not match ID of "
-                + "server response");
+                + "server response", javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.FORBIDDEN));
         }
     }
 
-    private RSAPublicKey publicKeyFromServer() {
+    private RSAPublicKey publicKeyFromServer() throws NoSuchAlgorithmException, IOException,
+            InvalidKeySpecException, NotAuthorizedException {
         log.debug("Getting the public key at " + config.getPublicKeyEndpoint());
-        try {
-            final InputStream inputStream = new URL(config.getPublicKeyEndpoint()).openStream();
-            final JsonFactory factory = new JsonFactory();
-            final JsonParser parser = factory.createParser(inputStream);
-            final TypeReference<Map<String, Object>> typeReference =
-                new TypeReference<Map<String, Object>>() {
-                };
-            Map<String, Object> publicKeyInfo = new ObjectMapper().reader().
-                readValue(parser, typeReference);
 
-            // we expect RSA algorithm, and deny to trust the public key otherwise
-            // see also https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
-            if (!publicKeyInfo.get("alg").equals("SHA256withRSA")) {
-                throw new NotAuthorizedException("The identity server reported the following "
-                    + "signing algorithm: " + publicKeyInfo.get("alg") + ". Expected SHA256withRSA.");
-            }
+        URLConnection connection = new URL(config.getPublicKeyEndpoint()).openConnection();
+        connection.setRequestProperty(HttpHeaders.ACCEPT, "application/json");
+        final InputStream inputStream = connection.getInputStream();
+        final JsonFactory factory = new JsonFactory();
+        final JsonParser parser = factory.createParser(inputStream);
+        final TypeReference<Map<String, Object>> typeReference =
+            new TypeReference<Map<String, Object>>() {
+            };
+        Map<String, Object> publicKeyInfo = new ObjectMapper().reader().
+            readValue(parser, typeReference);
 
-            String keyString = (String) publicKeyInfo.get("value");
-            return publicKeyFromString(keyString);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return null;
+        // we expect RSA algorithm, and deny to trust the public key otherwise
+        // see also https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
+        if (!publicKeyInfo.get("alg").equals("SHA256withRSA")) {
+            throw new NotAuthorizedException("The identity server reported the following "
+                + "signing algorithm: " + publicKeyInfo.get("alg") + ". Expected SHA256withRSA.",
+                javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.FORBIDDEN));
         }
+
+        String keyString = (String) publicKeyInfo.get("value");
+        return publicKeyFromString(keyString);
     }
 
     private RSAPublicKey publicKeyFromString(String keyString) throws IOException,

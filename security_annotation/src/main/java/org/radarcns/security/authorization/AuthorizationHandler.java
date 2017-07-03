@@ -2,8 +2,8 @@ package org.radarcns.security.authorization;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.radarcns.security.config.ServerConfig;
-import org.radarcns.security.exceptions.NotAuthorizedException;
 
+import javax.ws.rs.NotAuthorizedException;
 import java.io.IOException;
 
 /**
