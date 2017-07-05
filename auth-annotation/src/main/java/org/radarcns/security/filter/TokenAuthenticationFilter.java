@@ -27,9 +27,7 @@ import java.security.Principal;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 @Secured
@@ -54,13 +52,14 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
 
     /**
      * Default constructor. Will load the identity server configuration from a file called
-     * radar_is_config.yml that should be on the classpath
+     * radar-is.yml that should be on the classpath, or its location defined in the
+     * RADAR_IS_CONFIG_LOCATION environment variable.
      * @throws IOException The configuration file is not accessible
      * @throws InvalidKeySpecException
      */
     public TokenAuthenticationFilter() throws IOException, InvalidKeySpecException,
         NoSuchAlgorithmException, NotAuthorizedException {
-        authorizationHandler = new RadarAuthorizationHandler(YamlServerConfig.readFromClasspath());
+        authorizationHandler = new RadarAuthorizationHandler(YamlServerConfig.readFromFileOrClasspath());
     }
 
 

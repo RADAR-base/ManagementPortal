@@ -10,10 +10,9 @@ You can annotate classes or methods with the `@Secured` annotation. A class anno
 Configuration
 -------------
 
-The library expects a file called `radar_is_config.yml` to be present on the classpath. The file 
-should define the following variables:
+The library expects the identity server configuration in a file called `radar-is.yml`. Either set the environment variable `RADAR_IS_CONFIG_LOCATION` to the full path of the file, or put the file somewhere on the classpath. The file should define the following variables:
 
-| Environment variable name | Description                                                                                                                                                                                                                                                                                             |
+| Variable name             | Description                                                                                                                                                                                                                                                                                 |
 |---------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | username                  | The OAuth client id for accessing the identity server.                                                                                                                                                                                                                                                  |
 | password                  | The OAuth client secret for accessing the identity server.                                                                                                                                                                                                                                              |
