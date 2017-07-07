@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.thymeleaf.org ">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Confirm Access</title>
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+    <style>
+        html {
+            padding: 30px 10px;
+            font-size: 20px;
+            line-height: 1.4;
+            color: #737373;
+            background: #f0f0f0;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        body {
+            max-width: 500px;
+            _width: 500px;
+            padding: 30px 20px 50px;
+            border: 1px solid #b3b3b3;
+            border-radius: 4px;
+            margin: 0 auto;
+            box-shadow: 0 1px 10px #a7a7a7, inset 0 1px 0 #fff;
+            background: #fcfcfc;
+        }
+    </style>
+    <script type="text/javascript" th:src="@{/js/oauth.js}"></script>
+</head>
+<body>
+<img th:src="@{/images/project-logo.png}" style="height: 45px;" class="pull-right"/>
+<div class="modal-header">
+    <h4 class="modal-title">Confirm Access</h4>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-12">
+
+            Do you authorize <b th:text="${authorizationRequest.getClientId()}"></b> at
+            <b th:text="${authorizationRequest.getRedirectUri()}"></b> to access your
+            protected resources? Check the resources for which you want to grant access:
+            <form action="authorize" method="post">
+                <div class="checkbox" th:each="scope : ${authorizationRequest.getScope()}">
+                    <label>
+                        <input type="checkbox" th:text="${scope}" th:name="'scope.' + ${scope}"
+                               th:value="true" checked="checked"/>
+                    </label>
+                </div>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input name="user_oauth_approval" value="true" type="hidden" />
+                <button class="btn btn-primary" type="submit">Approve</button>
+                <button class="btn btn-danger" onclick="uncheckAll()" type="submit">Deny</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
