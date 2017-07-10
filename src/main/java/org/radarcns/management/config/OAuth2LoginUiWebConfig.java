@@ -32,8 +32,13 @@ public class OAuth2LoginUiWebConfig {
     private Logger log = LoggerFactory.getLogger(OAuth2LoginUiWebConfig.class);
 
     @RequestMapping("/login")
-    public String getLogin() {
-        return "login";
+    public ModelAndView getLogin(HttpServletRequest request, HttpServletResponse response) throws
+            Exception {
+        TreeMap<String, Object> model = new TreeMap<String, Object>();
+        if (request.getParameterMap().containsKey("error")) {
+            model.put("loginError", new Boolean(true));
+        }
+        return new ModelAndView("login", model);
     }
 
 
@@ -42,9 +47,6 @@ public class OAuth2LoginUiWebConfig {
         throws Exception {
 
         Map<String, String[]> params = request.getParameterMap();
-        for (String param : params.keySet()) {
-            log.info("Received param " + param + ": [" + String.join(",", params.get(param)) + "]");
-        }
 
         Map<String, String> authorizationParameters = new HashMap<>();
         Arrays.asList(OAuth2Utils.CLIENT_ID, OAuth2Utils.REDIRECT_URI, OAuth2Utils.STATE,
