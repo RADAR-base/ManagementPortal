@@ -64,12 +64,13 @@ public class UserAuthorizationFilter implements ContainerRequestFilter {
             allowedRoles = extractRoles(resourceClass);
         }
 
+        /* disregard user roles until implementation of project/collection is ready
         try {
             isUserAuthorized(securityContext, allowedRoles, pathParameters);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
-        }
+        }*/
         log.debug("User is authorized for this resource");
     }
 
