@@ -37,9 +37,9 @@ bootRepackage {
    mainClass = 'org.radarcns.management.ManagementPortalApp'
 }
 
-war {
-
-}
+//war {
+//
+//}
 
 springBoot {
     mainClass = 'org.radarcns.management.ManagementPortalApp'
@@ -201,7 +201,8 @@ dependencies {
         exclude module: 'mapstruct'
     }
     compile "io.springfox:springfox-bean-validators:${springfox_version}"
-    compile "mysql:mysql-connector-java"
+//    compile "mysql:mysql-connector-java"
+    compile "org.postgresql:postgresql"
     compile "com.h2database:h2"
     compile "org.mapstruct:mapstruct-jdk8:${mapstruct_version}"
     testCompile "org.awaitility:awaitility:${awaitility_version}"

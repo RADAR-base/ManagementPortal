@@ -7,9 +7,12 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <property name="now" value="now()" dbms="h2"/>
-    <property name="now" value="now()" dbms="mysql"/>
+    <property name="now" value="current_timestamp" dbms="postgresql"/>
     <property name="autoIncrement" value="true"/>
 
+    <changeSet id="00000000000000" author="jhipster" dbms="postgresql,oracle">
+        <createSequence sequenceName="hibernate_sequence" startValue="1000" incrementBy="50"/>
+    </changeSet>
     <!--
         JHipster core tables.
         The initial schema has the '00000000000001' id, so that it is over-written if we re-generate it.
@@ -165,7 +168,7 @@
 
         <createTable tableName="oauth_client_token">
             <column name="token_id" type="varchar(255)"/>
-            <column name="token" type="BLOB"/>
+            <column name="token" type="LONGBLOB"/>
             <column name="authentication_id" type="varchar(255)"/>
             <column name="user_name" type="varchar(50)"/>
             <column name="client_id" type="varchar(255)"/>
@@ -179,13 +182,13 @@
 
         <createTable tableName="oauth_access_token">
             <column name="token_id" type="varchar(255)"/>
-            <column name="token" type="BLOB"/>
+            <column name="token" type="LONGBLOB"/>
             <column name="authentication_id" type="varchar(255)">
                  <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="user_name" type="varchar(50)"/>
             <column name="client_id" type="varchar(255)"/>
-            <column name="authentication" type="BLOB"/>
+            <column name="authentication" type="LONGBLOB"/>
             <column name="refresh_token" type="varchar(255)"/>
         </createTable>
 
@@ -197,13 +200,13 @@
 
         <createTable tableName="oauth_refresh_token">
             <column name="token_id" type="varchar(255)"/>
-            <column name="token" type="BLOB"/>
-            <column name="authentication" type="BLOB"/>
+            <column name="token" type="LONGBLOB"/>
+            <column name="authentication" type="LONGBLOB"/>
         </createTable>
 
         <createTable tableName="oauth_code">
             <column name="code" type="varchar(255)"/>
-            <column name="authentication" type="BLOB"/>
+            <column name="authentication" type="LONGBLOB"/>
         </createTable>
 
         <createTable tableName="oauth_approvals">
