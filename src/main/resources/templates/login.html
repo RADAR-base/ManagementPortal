@@ -6,28 +6,8 @@
     <title>RADAR-CNS Central Login</title>
     <link rel="stylesheet"
           href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
-    <style>
-        html {
-            padding: 30px 10px;
-            font-size: 20px;
-            line-height: 1.4;
-            color: #737373;
-            background: #f0f0f0;
-            -webkit-text-size-adjust: 100%;
-            -ms-text-size-adjust: 100%;
-        }
-
-        body {
-            max-width: 500px;
-            _width: 500px;
-            padding: 30px 20px 50px;
-            border: 1px solid #b3b3b3;
-            border-radius: 4px;
-            margin: 0 auto;
-            box-shadow: 0 1px 10px #a7a7a7, inset 0 1px 0 #fff;
-            background: #fcfcfc;
-        }
-    </style>
+    <link rel="stylesheet"
+          th:href="@{/css/oauth.css}" />
 </head>
 <body>
 <img th:src="@{/images/project-logo.png}" style="height: 45px;" class="pull-right"/>
@@ -37,7 +17,7 @@
 <div class="modal-body">
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
-            <p th:if="${loginError}" class="error">Wrong user or password</p>
+            <div th:if="${loginError}" class="alert alert-danger">Wrong username or password</div>
         </div>
         <div class="col-md-10 col-md-offset-1">
             <form th:action="@{/login}" method="post">
