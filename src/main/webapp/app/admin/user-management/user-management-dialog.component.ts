@@ -10,9 +10,9 @@ import { JhiLanguageHelper, User, UserService } from '../../shared';
 import { Project, ProjectService} from '../../entities/project';
 import {Role} from "../../entities/role/role.model";
 import {RoleService} from "../../entities/role/role.service";
-import {Principal} from "../../shared/auth/principal.service";
 import {Authority} from "../../shared/user/authority.model";
 import {AuthorityService} from "../../shared/user/authority.service";
+import {ADMIN_AUTHORITY} from "../../shared/constants/common.constants";
 
 @Component({
     selector: 'jhi-user-mgmt-dialog',
@@ -21,6 +21,7 @@ import {AuthorityService} from "../../shared/user/authority.service";
 export class UserMgmtDialogComponent implements OnInit {
 
     user: User;
+    isAdmin: boolean;
     languages: any[];
     roles: Role[];
     defaultRoles: Role[];
@@ -42,9 +43,13 @@ export class UserMgmtDialogComponent implements OnInit {
 
     ngOnInit() {
         this.isSaving = false;
-        this.authorityService.findAll().subscribe((res: Response) => {
-            this.authorities = res.json();
-        });
+        if(this.isAdmin) {
+            this.authorities = [ADMIN_AUTHORITY];
+        } else {
+            this.authorityService.findAll().subscribe((res: Response) => {
+                this.authorities = res.json();
+            });
+        }
         this.languageHelper.getAll().then((languages) => {
             this.languages = languages;
         });
@@ -135,10 +140,16 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
+            this.route.url.subscribe(url =>{
+                if('user-management-new-admin'==(url[0].path)){
+                    this.modalRef = this.userModalService.open(UserMgmtDialogComponent , true);
+                }
+                return;
+            });
             if ( params['login'] ) {
-                this.modalRef = this.userModalService.open(UserMgmtDialogComponent, params['login']);
+                this.modalRef = this.userModalService.open(UserMgmtDialogComponent, false, params['login']);
             } else {
-                this.modalRef = this.userModalService.open(UserMgmtDialogComponent);
+                this.modalRef = this.userModalService.open(UserMgmtDialogComponent , false);
             }
         });
     }

@@ -1,5 +1,6 @@
 package org.radarcns.management.repository;
 
+import java.util.List;
 import org.radarcns.management.domain.Authority;
 
 import org.radarcns.management.domain.Role;
@@ -14,4 +15,6 @@ public interface AuthorityRepository extends JpaRepository<Authority, String> {
 
     @Query("select authority from Authority authority where authority.name = :authorityName")
     Authority findByAuthorityName(@Param("authorityName") String authorityName);
+
+    List<Authority> findAllByNameNotIn(String name);
 }
