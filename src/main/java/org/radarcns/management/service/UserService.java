@@ -1,6 +1,7 @@
 package org.radarcns.management.service;
 
 import java.util.stream.Collectors;
+import javax.validation.constraints.NotNull;
 import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
@@ -153,13 +154,13 @@ public class UserService {
         user.setResetDate(ZonedDateTime.now());
         user.setActivated(false);
 
-        List<Role> roles = new ArrayList<>();
+        Set<Role> roles = new HashSet<>();
         if(userDTO.getAuthorities().contains(AuthoritiesConstants.SYS_ADMIN)) {
             roles.addAll(roleRepository.findRolesByAuthorityName(AuthoritiesConstants.SYS_ADMIN));
         }
 
         for (String authority : userDTO.getAuthorities()) {
-            if(authority != AuthoritiesConstants.SYS_ADMIN && userDTO.getProject().getId() !=null) {
+            if(!AuthoritiesConstants.SYS_ADMIN.equals(authority )  && userDTO.getProject().getId() !=null) {
 
                 Role role = roleRepository.findOneByAuthorityNameAndProjectId(authority , userDTO.getProject().getId());
                 if(role ==null) {
@@ -170,9 +171,7 @@ public class UserService {
                 roles.add(role);
             }
         }
-        Set<Role> userRolesSet = new HashSet<>();
-        userRolesSet.addAll(roles);
-        user.setRoles(userRolesSet);
+        user.setRoles(roles);
         if(userDTO.getProject()!= null && userDTO.getProject().getId() != null) {
             Project project = projectMapper.projectDTOToProject(userDTO.getProject());
             user.setProject(project);
@@ -222,11 +221,28 @@ public class UserService {
                 user.setLangKey(userDTO.getLangKey());
                 Set<Role> managedRoles = user.getRoles();
                 managedRoles.clear();
-                managedRoles.addAll(roleMapper.roleDTOsToRoles(userDTO.getRoles()));
                 if(userDTO.getProject()!=null && userDTO.getProject().getId() != null) {
                     Project project = projectMapper.projectDTOToProject(userDTO.getProject());
                     user.setProject(project);
                 }
+                if(userDTO.getAuthorities().contains(AuthoritiesConstants.SYS_ADMIN)) {
+                    managedRoles.addAll(roleRepository.findRolesByAuthorityName(AuthoritiesConstants.SYS_ADMIN));
+                }
+                else {
+                    for (String authority : userDTO.getAuthorities()) {
+                        if(!AuthoritiesConstants.SYS_ADMIN.equals(authority )  && userDTO.getProject().getId() !=null) {
+
+                            Role role = roleRepository.findOneByAuthorityNameAndProjectId(authority , userDTO.getProject().getId());
+                            if(role ==null) {
+                                role = new Role();
+                                role.setAuthority(new Authority(authority));
+                                role.setProject(projectMapper.projectDTOToProject(userDTO.getProject()));
+                            }
+                            managedRoles.add(role);
+                        }
+                    }
+                }
+
                 log.debug("Changed Information for User: {}", user);
                 return user;
             })

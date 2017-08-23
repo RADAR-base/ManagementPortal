@@ -1,6 +1,9 @@
 <div>
     <h2>
         <span jhiTranslate="userManagement.home.title">Users</span>
+        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']" class="btn btn-primary float-right" style="margin-left: 5px" [routerLink]="['/', { outlets: { popup: ['user-management-new-admin'] } }]">
+            <span class="fa fa-plus"></span> <span jhiTranslate="userManagement.home.createAdminLabel">Create an admin User</span>
+        </button>
         <button class="btn btn-primary float-right" [routerLink]="['/', { outlets: { popup: ['user-management-new'] } }]">
             <span class="fa fa-plus"></span> <span jhiTranslate="userManagement.home.createLabel">Create a new User</span>
         </button>

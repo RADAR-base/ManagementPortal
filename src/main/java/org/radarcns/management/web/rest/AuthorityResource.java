@@ -39,9 +39,8 @@ public class AuthorityResource {
     @Secured({ AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public List<String> getAllAuthorities() {
         log.debug("REST request to get all Authorities");
-        List<String> authorities = authorityRepository.findAll().stream().map( auth -> auth.getName()).collect(
+        return authorityRepository.findAllByNameNotIn(AuthoritiesConstants.SYS_ADMIN).stream().map( auth -> auth.getName()).collect(
             Collectors.toList());
-        return authorities;
     }
 
 }

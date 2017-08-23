@@ -1,0 +1,14 @@
+version: '2'
+services:
+    managementportal-postgresql:
+        image: postgres:9.6.2
+        # volumes:
+        #     - ~/volumes/jhipster/managementportal/postgresql/:/var/lib/postgresql/
+        environment:
+            - POSTGRES_USER=<username>
+            - POSTGRES_PASSWORD=<password>
+            - POSTGRES_DB=managementportal
+        ports:
+            - 5432:5432
+
+

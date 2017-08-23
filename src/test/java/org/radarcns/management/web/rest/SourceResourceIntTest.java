@@ -77,8 +77,7 @@ public class SourceResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        SourceResource sourceResource = new SourceResource(sourceService);
-        this.restDeviceMockMvc = MockMvcBuilders.standaloneSetup(sourceResource)
+        this.restDeviceMockMvc = MockMvcBuilders.standaloneSetup(sourceService)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
             .setMessageConverters(jacksonMessageConverter).build();

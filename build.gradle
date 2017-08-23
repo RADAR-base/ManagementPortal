@@ -11,7 +11,7 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.1"
+//        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.1"
         classpath "net.ltgt.gradle:gradle-apt-plugin:0.9"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${spring_boot_version}"
         classpath "org.springframework.build.gradle:propdeps-plugin:0.0.7"
@@ -35,10 +35,6 @@ defaultTasks 'bootRun'
 
 bootRepackage {
    mainClass = 'org.radarcns.management.ManagementPortalApp'
-}
-
-war {
-
 }
 
 springBoot {
@@ -103,7 +99,7 @@ task testReport(type: TestReport) {
 
 cucumberTest.finalizedBy(testReport)
 
-apply from: 'gradle/sonar.gradle'
+//apply from: 'gradle/sonar.gradle'
 apply from: 'gradle/liquibase.gradle'
 apply from: 'gradle/gatling.gradle'
 apply from: 'gradle/mapstruct.gradle'
@@ -120,9 +116,9 @@ if (project.hasProperty('graphite')) {
     apply from: 'gradle/graphite.gradle'
 }
 
-if (project.hasProperty('prometheus')) {
-    apply from: 'gradle/prometheus.gradle'
-}
+//if (project.hasProperty('prometheus')) {
+//    apply from: 'gradle/prometheus.gradle'
+//}
 
 group = 'org.radarcns.management'
 version = '0.0.1-SNAPSHOT'
@@ -201,7 +197,8 @@ dependencies {
         exclude module: 'mapstruct'
     }
     compile "io.springfox:springfox-bean-validators:${springfox_version}"
-    compile "mysql:mysql-connector-java"
+//    compile "mysql:mysql-connector-java"
+    compile "org.postgresql:postgresql"
     compile "com.h2database:h2"
     compile "org.mapstruct:mapstruct-jdk8:${mapstruct_version}"
     testCompile "org.awaitility:awaitility:${awaitility_version}"

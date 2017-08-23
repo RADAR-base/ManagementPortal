@@ -21,18 +21,20 @@ spring:
             enabled: false
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:mysql://localhost:3306/ManagementPortal?useUnicode=true&characterEncoding=utf8&useSSL=false
-        username: root
-        password:
-        hikari:
-            data-source-properties:
-                cachePrepStmts: true
-                prepStmtCacheSize: 250
-                prepStmtCacheSqlLimit: 2048
-                useServerPrepStmts: true
+        driverClassName: org.postgresql.Driver
+        url: jdbc:postgresql://localhost:5432/managementportal
+#        name: managementportal
+        username: <username>
+        password: <password>
+#        hikari:
+#            data-source-properties:
+#                cachePrepStmts: true
+#                prepStmtCacheSize: 250
+#                prepStmtCacheSqlLimit: 2048
+#                useServerPrepStmts: true
     jpa:
-        database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-        database: MYSQL
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
+        database: POSTGRESQL
         show-sql: false
         properties:
             hibernate.id.new_generator_mappings: true
@@ -44,10 +46,17 @@ spring:
             hibernate.cache.use_minimal_puts: true
             hibernate.cache.hazelcast.use_lite_member: true
     mail:
-        host: localhost
-        port: 25
-        username:
-        password:
+        host: smtp.gmail.com
+        port: 587
+        username: <email-username>
+        password: <email-password>
+        protocol: smtp
+        tls: true
+        properties.mail.smtp:
+            auth: true
+            starttls.enable: true
+            ssl.trust: smtp.gmail.com
+        debug: true
     thymeleaf:
         cache: true
 

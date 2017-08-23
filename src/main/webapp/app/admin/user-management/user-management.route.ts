@@ -63,6 +63,11 @@ export const userDialogRoute: Routes = [
     outlet: 'popup'
   },
   {
+    path: 'user-management-new-admin',
+    component: UserDialogComponent,
+    outlet: 'popup'
+  },
+  {
     path: 'user-management/:login/edit',
     component: UserDialogComponent,
     outlet: 'popup'
