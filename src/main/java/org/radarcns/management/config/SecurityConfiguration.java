@@ -1,8 +1,8 @@
 package org.radarcns.management.config;
 
 
-import io.github.jhipster.security.*;
-
+import io.github.jhipster.security.AjaxLogoutSuccessHandler;
+import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -86,12 +86,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .httpBasic().realmName("ManagementPortal")
             .and()
                 .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-                .requestMatchers().antMatchers("/oauth/authorize")
-            .and()
-                .authorizeRequests()
-                .antMatchers("/oauth/authorize").authenticated();
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
     @Override
