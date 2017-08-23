@@ -1,6 +1,7 @@
 package org.radarcns.management.service.dto;
 
 
+import java.util.Map;
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.Objects;
@@ -23,6 +24,8 @@ public class SourceDTO implements Serializable {
     private DeviceTypeDTO deviceType;
 
     private MinimalProjectDetailsDTO project;
+
+    private Map<String, String> attributes;
 
     public Long getId() {
         return id;
@@ -67,6 +70,14 @@ public class SourceDTO implements Serializable {
 
     public void setProject(MinimalProjectDetailsDTO project) {
         this.project = project;
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
     }
 
     @Override

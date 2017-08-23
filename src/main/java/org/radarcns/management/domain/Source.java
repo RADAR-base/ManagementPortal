@@ -1,7 +1,9 @@
 package org.radarcns.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -46,6 +48,12 @@ public class Source implements Serializable {
 
     @ManyToOne
     private Project project;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @MapKeyColumn(name="attribute_key")
+    @Column(name="attribute_value")
+    @CollectionTable(name="source_metadata" ,  joinColumns = @JoinColumn(name = "id"))
+    Map<String, String> attributes = new HashMap<String, String>(); // maps from attribute name to value
 
     public Long getId() {
         return id;
@@ -139,6 +147,14 @@ public class Source implements Serializable {
         this.subjects.remove(subject);
         subject.getSources().remove(this);
         return this;
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
     }
 
     public void setSubjects(Set<Subject> subjects) {
