@@ -10,11 +10,11 @@
 
 
 
-        <addForeignKeyConstraint baseColumnNames="project_id"
-                                 baseTableName="radar_user"
-                                 constraintName="fk_user_device_type_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="project"/>
+        <!--<addForeignKeyConstraint baseColumnNames="project_id"-->
+                                 <!--baseTableName="radar_user"-->
+                                 <!--constraintName="fk_user_device_type_id"-->
+                                 <!--referencedColumnNames="id"-->
+                                 <!--referencedTableName="project"/>-->
 
     </changeSet>
 </databaseChangeLog>

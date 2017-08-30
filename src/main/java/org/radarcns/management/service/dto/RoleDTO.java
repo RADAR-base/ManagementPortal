@@ -12,6 +12,8 @@ public class RoleDTO {
 
     private Long projectId;
 
+    private String projectName;
+
     private String authorityName;
 
     public Long getId() {
@@ -36,5 +38,13 @@ public class RoleDTO {
 
     public void setAuthorityName(String authorityName) {
         this.authorityName = authorityName;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 }

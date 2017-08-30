@@ -1,8 +1,8 @@
 import { Injectable, Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Role } from './role.model';
 import { RoleService } from './role.service';
+import {Role} from "../../admin/user-management/role.model";
 @Injectable()
 export class RolePopupService {
     private isOpen = false;

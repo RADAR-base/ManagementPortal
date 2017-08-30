@@ -9,7 +9,7 @@
                 "main": "Entities",
                 "source": "Source",
                 "deviceType": "Device Type",
-                "project": "Project",
+                "project": "Projects",
                 "sensorData": "Sensor Data",
                 "subject": "Subject",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"

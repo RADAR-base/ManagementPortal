@@ -41,11 +41,6 @@ public class SourceService {
     @Autowired
     private UserService userService;
 
-//    public SourceService(SourceRepository sourceRepository, SourceMapper sourceMapper) {
-//        this.sourceRepository = sourceRepository;
-//        this.sourceMapper = sourceMapper;
-//    }
-
     /**
      * Save a Source.
      *
@@ -67,27 +62,10 @@ public class SourceService {
      */
     @Transactional(readOnly = true)
     public List<SourceDTO> findAll() {
-        List<Source> sources = new LinkedList<>();
-//        List result = new LinkedList();
-        User currentUser = userService.getUserWithAuthorities();
-        List<String> currentUserAuthorities = currentUser.getAuthorities().stream().map(Authority::getName).collect(
-            Collectors.toList());
-        if(currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN)) {
-            log.debug("Request to get all Sources");
-            sources = sourceRepository.findAll();/*.stream()
-                .map(projectMapper::projectToProjectDTO)
-                .collect(Collectors.toCollection(LinkedList::new));*/
-        }
-        else if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
-            log.debug("Request to get Sources of admin's project ");
-            sources= sourceRepository.findAllSourcesByProjectId(currentUser.getProject().getId());
-        }
-//        log.debug("Request to get all Sources");
-        List<SourceDTO> result = sources.stream()
+        return sourceRepository.findAll()
+            .stream()
             .map(sourceMapper::sourceToSourceDTO)
             .collect(Collectors.toCollection(LinkedList::new));
-
-        return result;
     }
 
     public List<Source> findAllUnassignedSources() {
@@ -106,7 +84,7 @@ public class SourceService {
         }
         else if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
             log.debug("Request to get Sources of admin's project ");
-            sources = sourceRepository.findAllSourcesByProjectIdAndAssigned(currentUser.getProject().getId(), false);
+//            sources = sourceRepository.findAllSourcesByProjectIdAndAssigned(currentUser.getProject().getId(), false);
         }
         return sources;
     }

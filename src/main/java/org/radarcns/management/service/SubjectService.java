@@ -71,30 +71,30 @@ public class SubjectService {
         List<String> currentUserAuthorities = currentUser.getAuthorities().stream()
             .map(Authority::getName).collect(
                 Collectors.toList());
-        if (currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)
-            && !currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN) && !currentUser.getProject().equals(
-            subject.getUser().getProject())) {
-            log.debug("Validate project admin");
-            throw new IllegalAccessException("This project-admin is not allowed to create Subjects under this project");
-        }
+//        if (currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)
+//            && !currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN) && !currentUser.getProject().equals(
+//            subject.getUser().getProject())) {
+//            log.debug("Validate project admin");
+//            throw new IllegalAccessException("This project-admin is not allowed to create Subjects under this project");
+//        }
 
 
         User user = subject.getUser();
         Set<Role> roles = new HashSet<>();
-        Role role = roleRepository
-            .findOneByAuthorityNameAndProjectId(AuthoritiesConstants.PARTICIPANT,
-                subject.getUser().getProject().getId());
-        if (role != null) {
-            roles.add(role);
-        } else {
-            Role subjectrole = new Role();
-            subjectrole.setAuthority(
-                authorityRepository.findByAuthorityName(AuthoritiesConstants.PARTICIPANT));
-            subjectrole.setProject(subject.getUser().getProject());
-            roleRepository.save(subjectrole);
-            roles.add(subjectrole);
-        }
-        user.setRoles(roles);
+//        Role role = roleRepository
+//            .findOneByAuthorityNameAndProjectId(AuthoritiesConstants.PARTICIPANT,
+//                subject.getUser().getProject().getId());
+//        if (role != null) {
+//            roles.add(role);
+//        } else {
+//            Role subjectrole = new Role();
+//            subjectrole.setAuthority(
+//                authorityRepository.findByAuthorityName(AuthoritiesConstants.PARTICIPANT));
+//            subjectrole.setProject(subject.getUser().getProject());
+//            roleRepository.save(subjectrole);
+//            roles.add(subjectrole);
+//        }
+//        user.setRoles(roles);
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
         user.setPassword(encryptedPassword);
         user.setLangKey(
@@ -134,7 +134,7 @@ public class SubjectService {
         for(Source source : subject.getSources()) {
             source.setAssigned(true);
         }
-        subject.getUser().setProject(projectMapper.projectDTOToProject(subjectDTO.getProject()));
+//        subject.getUser().setProject(projectMapper.projectDTOToProject(subjectDTO.getProject()));
         subject = subjectRepository.save(subject);
 
         return subjectMapper.subjectToSubjectDTO(subject);
@@ -156,7 +156,7 @@ public class SubjectService {
         }
         else if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
             log.debug("Request to get Sources of admin's project ");
-            subjects = subjectRepository.findAllByProjectId(currentUser.getProject().getId());
+//            subjects = subjectRepository.findAllByProjectId(currentUser.getProject().getId());
         }
         return subjectMapper.subjectsToSubjectDTOs(subjects);
     }

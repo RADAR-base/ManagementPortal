@@ -33,7 +33,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @EntityGraph(attributePaths = "authorities")
     Optional<User> findOneWithAuthoritiesByLogin(String login);
 
-    Page<User> findAllByLoginNot(Pageable pageable, String login);
+    @EntityGraph(attributePaths = "roles")
+    Optional<User> findOneWithRolesByLogin(String login);
 
-    Page<User> findAllByProjectId(Pageable pageable , Long projectId);
+    Page<User> findAllByLoginNot(Pageable pageable, String login);
 }

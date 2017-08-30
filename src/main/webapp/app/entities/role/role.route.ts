@@ -3,21 +3,20 @@ import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Routes, CanActiva
 
 import { UserRouteAccessService } from '../../shared';
 
-import { RoleComponent } from './role.component';
 import { RolePopupComponent } from './role-dialog.component';
 
 import {RoleDetailComponent} from "./role-detail.component";
 
 export const roleRoute: Routes = [
-  {
-    path: 'role',
-    component: RoleComponent,
-    data: {
-        authorities: ['ROLE_USER'],
-        pageTitle: 'managementPortalApp.role.home.title'
-    },
-    canActivate: [UserRouteAccessService]
-  },
+  // {
+  //   path: 'role',
+  //   component: RoleComponent,
+  //   data: {
+  //       authorities: ['ROLE_USER'],
+  //       pageTitle: 'managementPortalApp.role.home.title'
+  //   },
+  //   canActivate: [UserRouteAccessService]
+  // },
   {
     path: 'role/:id',
     component: RoleDetailComponent,

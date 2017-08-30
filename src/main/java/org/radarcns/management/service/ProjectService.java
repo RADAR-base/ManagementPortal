@@ -62,31 +62,12 @@ public class ProjectService {
      */
     @Transactional(readOnly = true)
     public List findAll(Boolean fetchMinimal) {
-        List<Project> projects = new LinkedList<>();
-//        List result = new LinkedList();
-        User currentUser = userService.getUserWithAuthorities();
-        List<String> currentUserAuthorities = currentUser.getAuthorities().stream().map(Authority::getName).collect(
-            Collectors.toList());
-
-
-
-        if(currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN)) {
-            log.debug("Request to get all Projects");
-            projects = projectRepository.findAllWithEagerRelationships();/*.stream()
-                .map(projectMapper::projectToProjectDTO)
-                .collect(Collectors.toCollection(LinkedList::new));*/
-        }
-        else if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
-            log.debug("Request to get project admin's project Projects");
-            projects.add(projectRepository.findOneWithEagerRelationships(currentUser.getProject().getId()));
-        }
-
+        List<Project> projects = projectRepository.findAllWithEagerRelationships();
         if(!fetchMinimal){
             return projectMapper.projectsToProjectDTOs(projects);
         } else {
             return projectMapper.projectsToMinimalProjectDetailsDTOs(projects);
         }
-//        return result;
     }
 
     /**

@@ -7,6 +7,7 @@ import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.MailService;
 import org.radarcns.management.service.UserService;
+import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.web.rest.vm.ManagedUserVM;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -105,9 +106,9 @@ public class UserResource {
             return ResponseEntity.badRequest()
                 .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "emailexists", "Email already in use"))
                 .body(null);
-        } else if (managedUserVM.getAuthorities() == null || managedUserVM.getAuthorities().isEmpty()) {
+        } else if (managedUserVM.getRoles() == null || managedUserVM.getRoles().isEmpty()) {
             return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "authoritiesRequired", "One or more authorities are required"))
+                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "rolesRequired", "One or more roles are required"))
                 .body(null);
         } else {
             User newUser = userService.createUser(managedUserVM);
@@ -138,6 +139,11 @@ public class UserResource {
         existingUser = userRepository.findOneByLogin(managedUserVM.getLogin().toLowerCase());
         if (existingUser.isPresent() && (!existingUser.get().getId().equals(managedUserVM.getId()))) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "userexists", "Login already in use")).body(null);
+        }
+        if (managedUserVM.getRoles() == null || managedUserVM.getRoles().isEmpty()) {
+            return ResponseEntity.badRequest()
+                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, "rolesRequired"))
+                .body(null);
         }
         Optional<UserDTO> updatedUser = userService.updateUser(managedUserVM);
 
@@ -172,6 +178,18 @@ public class UserResource {
         log.debug("REST request to get User : {}", login);
         return ResponseUtil.wrapOrNotFound(
             userService.getUserWithAuthoritiesByLogin(login));
+    }
+
+    /**
+     * Returns all project if the user is s `SYS_ADMIN`. Otherwise projects that are assigned to a user using roles.
+     * @param login
+     * @return
+     */
+    @GetMapping("/users/{login:" + Constants.LOGIN_REGEX + "}/projects")
+    @Timed
+    public List<ProjectDTO> getUserProjects(@PathVariable String login) {
+        log.debug("REST request to get User's project : {}", login);
+        return userService.getProjectsAssignedToUser(login);
     }
 
     /**

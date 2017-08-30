@@ -3,5 +3,6 @@ export class Role {
         public id?: number,
         public authorityName?: string,
         public projectId?: number,
+        public projectName? : string
     ) { }
 }
