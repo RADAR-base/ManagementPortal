@@ -1,5 +1,7 @@
 package org.radarcns.management.domain;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -49,6 +51,12 @@ public class Subject implements Serializable {
                inverseJoinColumns = @JoinColumn(name="sources_id", referencedColumnName="id"))
     @Cascade(CascadeType.ALL)
     private Set<Source> sources = new HashSet<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @MapKeyColumn(name="attribute_key")
+    @Column(name="attribute_value")
+    @CollectionTable(name="subject_metadata" ,  joinColumns = @JoinColumn(name = "id"))
+    Map<String, String> attributes = new HashMap<>();
 
     public Long getId() {
         return id;
@@ -133,6 +141,14 @@ public class Subject implements Serializable {
 
     public void setSources(Set<Source> sources) {
         this.sources = sources;
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
     }
 
     @Override

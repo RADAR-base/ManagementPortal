@@ -3,7 +3,9 @@ package org.radarcns.management.service.dto;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import javax.validation.constraints.Size;
@@ -41,6 +43,8 @@ public class SubjectDTO implements Serializable {
     private ProjectDTO project;
 
     private Set<MinimalSourceDetailsDTO> sources = new HashSet<>();
+
+    private Map<String, String> attributes = new HashMap<>();
 
     public boolean isActivated() {
         return activated;
@@ -144,13 +148,13 @@ public class SubjectDTO implements Serializable {
         this.email = email;
     }
 
-//    public String getLangKey() {
-//        return langKey;
-//    }
-//
-//    public void setLangKey(String langKey) {
-//        this.langKey = langKey;
-//    }
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
+    }
 
     @Override
     public boolean equals(Object o) {
