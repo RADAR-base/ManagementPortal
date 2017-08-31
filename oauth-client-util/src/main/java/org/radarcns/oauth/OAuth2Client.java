@@ -23,6 +23,8 @@ public class OAuth2Client {
     private Set<String> scope;
     private OAuth2AccessToken currentToken;
 
+    private static OkHttpClient HTTP_CLIENT;
+
     public OAuth2Client() {
         this.managementPortalUrl = "";
         this.clientId = "";
@@ -74,6 +76,34 @@ public class OAuth2Client {
         return currentToken;
     }
 
+    public OkHttpClient getHttpClient() {
+        if (HTTP_CLIENT == null) {
+            // create a client which will supply OAuth client id and secret as HTTP basic authentication
+            HTTP_CLIENT = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .authenticator(new Authenticator() {
+
+                    private int retries = 0;
+                    private int maxRetries = 5;
+
+                    @Override
+                    public Request authenticate(Route route, Response response) throws IOException {
+                        if (retries >= maxRetries) {
+                            return null;
+                        }
+                        retries++;
+                        String credential = Credentials.basic(getClientId(), getClientSecret());
+                        return response.request().newBuilder()
+                            .header("Authorization", credential)
+                            .build();
+                    }
+                }).build();
+        }
+        return HTTP_CLIENT;
+    }
+
     private void getNewToken() {
         // build the form to post to the token endpoint
         FormBody body = new FormBody.Builder().add("grant_type", "client_credentials")
@@ -86,32 +116,9 @@ public class OAuth2Client {
             .post(body)
             .build();
 
-        // create a client which will supply OAuth client id and secret as HTTP basic authentication
-        OkHttpClient client = new OkHttpClient.Builder()
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .writeTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .authenticator(new Authenticator() {
-
-                private int retries = 0;
-                private int maxRetries = 5;
-
-                @Override
-                public Request authenticate(Route route, Response response) throws IOException {
-                    if (retries >= maxRetries) {
-                        return null;
-                    }
-                    retries++;
-                    String credential = Credentials.basic(getClientId(), getClientSecret());
-                    return response.request().newBuilder()
-                        .header("Authorization", credential)
-                        .build();
-                }
-            }).build();
-
         // make the client execute the POST request
         try {
-            Response response = client.newCall(request).execute();
+            Response response = getHttpClient().newCall(request).execute();
             currentToken = OAuth2AccessToken.getObject(response);
         }
         catch (IOException e) {
