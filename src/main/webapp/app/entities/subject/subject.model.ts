@@ -1,5 +1,6 @@
 import {Project} from "../project/project.model";
 import {Source, MinimalSource} from "../source/source.model";
+import {Attribute} from "../../shared/attribute-mapper/attribute-mapper.model";
 export class Subject {
     public id?: any;
     public login?: string;
@@ -15,6 +16,7 @@ export class Subject {
     public password?: string;
     public project?: Project;
     public source?: MinimalSource = new MinimalSource();
+    public attributes: Attribute[];
 
     constructor(
          id?: number,

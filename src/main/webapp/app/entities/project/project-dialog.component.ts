@@ -21,6 +21,8 @@ export class ProjectDialogComponent implements OnInit {
     isSaving: boolean;
 
     devicetypes: DeviceType[];
+    keys : string[];
+    attributeComponentEventPrefix : 'projectAttributes';
     constructor(
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
@@ -37,6 +39,8 @@ export class ProjectDialogComponent implements OnInit {
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN' , 'ROLE_PROJECT_ADMIN'];
         this.deviceTypeService.query().subscribe(
             (res: Response) => { this.devicetypes = res.json(); }, (res: Response) => this.onError(res.json()));
+        this.keys = ['Work-package', 'Phase' , 'External-Project-Url' , 'External-Project-Id'];
+        this.registerChangesInProject();
     }
     clear() {
         this.activeModal.dismiss('cancel');
@@ -88,6 +92,12 @@ export class ProjectDialogComponent implements OnInit {
             }
         }
         return option;
+    }
+
+    private registerChangesInProject() {
+        this.eventManager.subscribe(this.attributeComponentEventPrefix+'ListModification', (response ) => {
+            this.project.attributes= response.content;
+        });
     }
 }
 

@@ -27,7 +27,9 @@
             "createdBy": "Created By",
             "createdDate": "Created Date",
             "lastModifiedBy": "Last Modified By",
-            "lastModifiedDate": "Last Modified Date"
+            "lastModifiedDate": "Last Modified Date",
+            "attributeDataKey" : "Tag",
+            "attributeDataValue" : "Value"
         }
     },
     "error": {

@@ -90,6 +90,16 @@
         },
         "ribbon": {
             "dev":"Development"
+        },
+        "attribute" : {
+            "title" : "Attributes",
+            "key" : "Attribute Key",
+            "value" : "Attribute Value",
+            "add" : "Add",
+            "error" : {
+                "alreadyExist" : "This attribute key already exist in the list"
+            }
+
         }
     },
     "entity": {

@@ -44,7 +44,7 @@ public class SubjectDTO implements Serializable {
 
     private Set<MinimalSourceDetailsDTO> sources = new HashSet<>();
 
-    private Map<String, String> attributes = new HashMap<>();
+    private Set<AttributeMapDTO> attributes = new HashSet<>();
 
     public boolean isActivated() {
         return activated;
@@ -148,11 +148,11 @@ public class SubjectDTO implements Serializable {
         this.email = email;
     }
 
-    public Map<String, String> getAttributes() {
+    public Set<AttributeMapDTO> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(Map<String, String> attributes) {
+    public void setAttributes(Set<AttributeMapDTO> attributes) {
         this.attributes = attributes;
     }
 
