@@ -11,6 +11,7 @@ import okhttp3.Route;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Class for handling OAuth2 client credentials grant
@@ -87,6 +88,9 @@ public class OAuth2Client {
 
         // create a client which will supply OAuth client id and secret as HTTP basic authentication
         OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
             .authenticator(new Authenticator() {
 
                 private int retries = 0;
