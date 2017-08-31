@@ -17,11 +17,10 @@ package org.radarcns.oauth;
  */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.Response;
+import org.radarcns.exception.TokenException;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -159,7 +158,7 @@ public class OAuth2AccessToken {
         return accessToken != null && error == null;
     }
 
-    public static OAuth2AccessToken getObject(Response response) {
+    public static OAuth2AccessToken getObject(Response response) throws TokenException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         String responseBody;
@@ -167,32 +166,26 @@ public class OAuth2AccessToken {
             responseBody = response.body().string();
         }
         catch (IOException e) {
-            return new OAuth2AccessToken(null, null, 0, null, null, null, 0, null,
-                "io_error", e.getMessage(), null);
+            throw new TokenException(e);
         }
 
         try {
             OAuth2AccessToken result = mapper.readValue(responseBody, OAuth2AccessToken.class);
-            if (result.getError() == null && result.getAccessToken() == null) {
+            if (result.getError() != null) {
+                throw new TokenException(result.getError() + ": " + result.getErrorDescription());
+            }
+            if (result.getAccessToken() == null) {
                 // we didn't catch an error but also didn't get a token (this could happen e.g. when
                 // we receive an empty JSON entity as a response, or a JSON entity which does not have
                 // the right fields
-                return new OAuth2AccessToken(null, null, 0, null, null, null, 0, null,
-                    "unexpected_error", "HTTP status was " + response.code() + ": " + response.message() + ". Response body was: " + responseBody, null);
+                throw new TokenException("An unexpected error occured. " + "HTTP status was "
+                    + response.code() + ": " + response.message()
+                    + ". Response body was: " + responseBody);
             }
             return result;
         }
-        catch (JsonParseException e) {
-            return new OAuth2AccessToken(null, null, 0, null, null, null, 0, null,
-                "json_parse_error", e.getMessage(), null);
-        }
-        catch (JsonMappingException e) {
-            return new OAuth2AccessToken(null, null, 0, null, null, null, 0, null,
-                "json_mapping_error", e.getMessage(), null);
-        }
-        catch (IOException e) {
-            return new OAuth2AccessToken(null, null, 0, null, null, null, 0, null,
-                "io_error", e.getMessage(), null);
+        catch (Exception e) {
+            throw new TokenException(e);
         }
     }
 }

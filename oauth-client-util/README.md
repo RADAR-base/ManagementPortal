@@ -14,6 +14,7 @@ dependencies {
 }
 ```
 
+Initializing the client:
 ```Java
 OAuth2Client client = new OAuth2Client()
             .clientId("client")
@@ -21,18 +22,25 @@ OAuth2Client client = new OAuth2Client()
             .managementPortalUrl("http://localhost:8089")
             .addScope("read")
             .addScope("write");
-
-OAuth2AccessToken token = client.getAccessToken();
-
-if (!token.isValid()) {
-    // check token.getError() and token.getErrorDescription() and handle error appropriately
+```
+Getting a token:
+```Java
+try {
+    OAuth2AccessToken token = client.getAccessToken();
 }
-
+catch (TokenException e) {
+    // handle error
+}
+```
+Checking expiry:
+```Java
 if (token.isExpired()) {
     // get a new token
     token = client.getAccessToken();
 }
-
+```
+Using the token:
+```Java
 String authorizationHeader = "Authorization: " + token.getTokenType() + " " token.getAccessToken();
 ```
 

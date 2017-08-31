@@ -7,8 +7,10 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.Route;
+import org.radarcns.exception.TokenException;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * Class for handling OAuth2 client credentials grant
  */
 public class OAuth2Client {
-    private String managementPortalUrl;
+    private URL tokenEndpoint;
     private String clientId;
     private String clientSecret;
     private Set<String> scope;
@@ -26,15 +28,15 @@ public class OAuth2Client {
     private static OkHttpClient HTTP_CLIENT;
 
     public OAuth2Client() {
-        this.managementPortalUrl = "";
+        this.tokenEndpoint = null;
         this.clientId = "";
         this.clientSecret = "";
         this.scope = new HashSet<>();
         this.currentToken = new OAuth2AccessToken();
     }
 
-    public String getManagementPortalUrl() {
-        return managementPortalUrl;
+    public URL getTokenEndpoint() {
+        return tokenEndpoint;
     }
 
     public String getClientId() {
@@ -49,8 +51,8 @@ public class OAuth2Client {
         return scope;
     }
 
-    public OAuth2Client managementPortalUrl(String managementPortalUrl) {
-        this.managementPortalUrl = managementPortalUrl;
+    public OAuth2Client tokenEndpoint(URL tokenEndpoint) {
+        this.tokenEndpoint = tokenEndpoint;
         return this;
     }
 
@@ -69,7 +71,7 @@ public class OAuth2Client {
         return this;
     }
 
-    public OAuth2AccessToken getAccessToken() {
+    public OAuth2AccessToken getAccessToken() throws TokenException {
         if (currentToken.isExpired()) {
             getNewToken();
         }
@@ -104,7 +106,7 @@ public class OAuth2Client {
         return HTTP_CLIENT;
     }
 
-    private void getNewToken() {
+    private void getNewToken() throws TokenException {
         // build the form to post to the token endpoint
         FormBody body = new FormBody.Builder().add("grant_type", "client_credentials")
             .add("scope", String.join(" ", scope)).build();
@@ -112,7 +114,7 @@ public class OAuth2Client {
         // build the POST request to the token endpoint with the form data
         Request request = new Request.Builder()
             .addHeader("Accept", "application/json")
-            .url(getManagementPortalUrl() + "/oauth/token")
+            .url(getTokenEndpoint())
             .post(body)
             .build();
 
@@ -122,8 +124,7 @@ public class OAuth2Client {
             currentToken = OAuth2AccessToken.getObject(response);
         }
         catch (IOException e) {
-            currentToken = new  OAuth2AccessToken(null, null, 0, null, null, null, 0, null,
-                "io_error", e.getMessage(), null);
+            throw new TokenException(e);
         }
     }
 }

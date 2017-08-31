@@ -4,11 +4,13 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.radarcns.exception.TokenException;
 import org.radarcns.oauth.OAuth2AccessToken;
 import org.radarcns.oauth.OAuth2Client;
 
 import javax.ws.rs.core.HttpHeaders;
-import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Instant;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -27,10 +29,13 @@ public class OAuth2ClientTest {
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(8089);
 
+    private URL tokenEndpoint;
+
 
     @Before
-    public void init() {
+    public void init() throws MalformedURLException {
         tokenIssueDate = Instant.now().getEpochSecond();
+        tokenEndpoint = new URL("http://localhost:8089/oauth/token");
     }
 
 
@@ -44,7 +49,7 @@ public class OAuth2ClientTest {
         OAuth2Client client = new OAuth2Client()
             .clientId("client")
             .clientSecret("secret")
-            .managementPortalUrl("http://localhost:8089")
+            .tokenEndpoint(tokenEndpoint)
             .addScope("read");
         OAuth2AccessToken token = client.getAccessToken();
         assertTrue(token.isValid());
@@ -59,7 +64,7 @@ public class OAuth2ClientTest {
         assertEquals("ManagementPortal", token.getIssuer());
     }
 
-    @Test
+    @Test(expected = TokenException.class)
     public void testInvalidScope() {
         stubFor(post(urlEqualTo("/oauth/token"))
             .willReturn(aResponse()
@@ -69,16 +74,12 @@ public class OAuth2ClientTest {
         OAuth2Client client = new OAuth2Client()
             .clientId("client")
             .clientSecret("secret")
-            .managementPortalUrl("http://localhost:8089")
+            .tokenEndpoint(tokenEndpoint)
             .addScope("write");
-        OAuth2AccessToken token = client.getAccessToken();
-        assertFalse(token.isValid());
-        assertTrue(token.isExpired());
-        assertEquals("invalid_scope", token.getError());
-        assertEquals("Invalid scope: write", token.getErrorDescription());
+        client.getAccessToken();
     }
 
-    @Test
+    @Test(expected = TokenException.class)
     public void testInvalidCredentials() {
         stubFor(post(urlEqualTo("/oauth/token"))
             .willReturn(aResponse()
@@ -88,16 +89,12 @@ public class OAuth2ClientTest {
         OAuth2Client client = new OAuth2Client()
             .clientId("client")
             .clientSecret("secret")
-            .managementPortalUrl("http://localhost:8089")
+            .tokenEndpoint(tokenEndpoint)
             .addScope("read");
-        OAuth2AccessToken token = client.getAccessToken();
-        assertFalse(token.isValid());
-        assertTrue(token.isExpired());
-        assertEquals("Unauthorized", token.getError());
-        assertEquals("Bad credentials", token.getErrorDescription());
+        client.getAccessToken();
     }
 
-    @Test
+    @Test(expected = TokenException.class)
     public void testInvalidGrantType() {
         stubFor(post(urlEqualTo("/oauth/token"))
             .willReturn(aResponse()
@@ -107,16 +104,12 @@ public class OAuth2ClientTest {
         OAuth2Client client = new OAuth2Client()
             .clientId("client")
             .clientSecret("secret")
-            .managementPortalUrl("http://localhost:8089")
+            .tokenEndpoint(tokenEndpoint)
             .addScope("read");
-        OAuth2AccessToken token = client.getAccessToken();
-        assertFalse(token.isValid());
-        assertTrue(token.isExpired());
-        assertEquals("invalid_client", token.getError());
-        assertEquals("Unauthorized grant type: client_credentials", token.getErrorDescription());
+        client.getAccessToken();
     }
 
-    @Test
+    @Test(expected = TokenException.class)
     public void testInvalidMapping() {
         stubFor(post(urlEqualTo("/oauth/token"))
             .willReturn(aResponse()
@@ -126,32 +119,24 @@ public class OAuth2ClientTest {
         OAuth2Client client = new OAuth2Client()
             .clientId("client")
             .clientSecret("secret")
-            .managementPortalUrl("http://localhost:8089")
+            .tokenEndpoint(tokenEndpoint)
             .addScope("read");
-        OAuth2AccessToken token = client.getAccessToken();
-        assertFalse(token.isValid());
-        assertTrue(token.isExpired());
-        assertEquals("json_mapping_error", token.getError());
+        client.getAccessToken();
     }
 
-    @Test
-    public void testUnreachableServer() {
+    @Test(expected = TokenException.class)
+    public void testUnreachableServer() throws MalformedURLException {
         // no http stub here so the location will be unreachable
         OAuth2Client client = new OAuth2Client()
             .clientId("client")
             .clientSecret("secret")
             // different port in case wiremock is not cleaned up yet
-            .managementPortalUrl("http://localhost:9000")
+            .tokenEndpoint(new URL("http://localhost:9000"))
             .addScope("read");
-        OAuth2AccessToken token = client.getAccessToken();
-        assertFalse(token.isValid());
-        assertTrue(token.isExpired());
-        assertEquals("io_error", token.getError());
+        client.getAccessToken();
     }
 
-
-
-    @Test
+    @Test(expected = TokenException.class)
     public void testParseError() {
         stubFor(post(urlEqualTo("/oauth/token"))
             .willReturn(aResponse()
@@ -161,15 +146,12 @@ public class OAuth2ClientTest {
         OAuth2Client client = new OAuth2Client()
             .clientId("client")
             .clientSecret("secret")
-            .managementPortalUrl("http://localhost:8089")
+            .tokenEndpoint(tokenEndpoint)
             .addScope("read");
-        OAuth2AccessToken token = client.getAccessToken();
-        assertFalse(token.isValid());
-        assertTrue(token.isExpired());
-        assertEquals("json_parse_error", token.getError());
+        client.getAccessToken();
     }
 
-    @Test
+    @Test(expected = TokenException.class)
     public void testNotFound() {
         stubFor(post(urlEqualTo("/oauth/token"))
             .willReturn(aResponse()
@@ -179,12 +161,9 @@ public class OAuth2ClientTest {
         OAuth2Client client = new OAuth2Client()
             .clientId("client")
             .clientSecret("secret")
-            .managementPortalUrl("http://localhost:8089")
+            .tokenEndpoint(tokenEndpoint)
             .addScope("read");
-        OAuth2AccessToken token = client.getAccessToken();
-        assertFalse(token.isValid());
-        assertTrue(token.isExpired());
-        assertEquals("Not Found", token.getError());
+        client.getAccessToken();
     }
 
     private String successfulResponse() {
