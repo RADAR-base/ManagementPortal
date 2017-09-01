@@ -45,6 +45,7 @@ spring:
             hibernate.cache.hazelcast.instance_name: ManagementPortal
             hibernate.cache.use_minimal_puts: true
             hibernate.cache.hazelcast.use_lite_member: true
+            hibernate.hbm2ddl.auto: update
     mail:
         host:  # for hotmail
         port:
