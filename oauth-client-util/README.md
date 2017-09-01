@@ -36,7 +36,12 @@ Checking expiry:
 ```Java
 if (token.isExpired()) {
     // get a new token
-    token = client.getAccessToken();
+    try {
+        token = client.getAccessToken();
+    }
+    catch (TokenException e) {
+        // handle error
+    }
 }
 ```
 Using the token:
