@@ -49,7 +49,7 @@ public class Subject implements Serializable {
     @JoinTable(name = "subject_sources",
                joinColumns = @JoinColumn(name="subjects_id", referencedColumnName="id"),
                inverseJoinColumns = @JoinColumn(name="sources_id", referencedColumnName="id"))
-    @Cascade(CascadeType.ALL)
+    @Cascade(CascadeType.SAVE_UPDATE)
     private Set<Source> sources = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)

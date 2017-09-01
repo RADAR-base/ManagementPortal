@@ -28,6 +28,9 @@ public class Project implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    public static final String EXTERNAL_PROJECT_URL_KEY = "External-project-url";
+    public static final String EXTERNAL_PROJECT_ID_KEY = "External-project-id";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

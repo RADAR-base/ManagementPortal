@@ -1,5 +1,9 @@
 package org.radarcns.management.service;
 
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.DeviceType;
 import org.radarcns.management.domain.Project;
@@ -13,12 +17,8 @@ import org.radarcns.management.service.mapper.ProjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing Project.

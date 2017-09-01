@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import org.radarcns.management.domain.Subject;
 
 import org.radarcns.management.repository.SubjectRepository;
+import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.SubjectService;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -49,6 +51,7 @@ public class SubjectResource {
      */
     @PostMapping("/subjects")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN , AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
     public ResponseEntity<SubjectDTO> createSubject(@RequestBody SubjectDTO subjectDTO)
         throws URISyntaxException, IllegalAccessException {
         log.debug("REST request to save Subject : {}", subjectDTO);
@@ -81,6 +84,7 @@ public class SubjectResource {
      */
     @PutMapping("/subjects")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN , AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
     public ResponseEntity<SubjectDTO> updateSubject(@RequestBody SubjectDTO subjectDTO)
         throws URISyntaxException, IllegalAccessException {
         log.debug("REST request to update Subject : {}", subjectDTO);

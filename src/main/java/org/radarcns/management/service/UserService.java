@@ -20,6 +20,7 @@ import org.radarcns.management.service.dto.UserDTO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -40,35 +41,29 @@ public class UserService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    private final ProjectRepository projectRepository;
+    @Autowired
+    private ProjectRepository projectRepository;
 
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    public final JdbcTokenStore jdbcTokenStore;
+    @Autowired
+    public JdbcTokenStore jdbcTokenStore;
 
-    private final RoleRepository roleRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
-    private final ProjectMapper projectMapper;
+    @Autowired
+    private ProjectMapper projectMapper;
 
-    private final UserMapper userMapper;
+    @Autowired
+    private UserMapper userMapper;
 
-    private final RoleMapper roleMapper;
-
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-        JdbcTokenStore jdbcTokenStore, RoleRepository roleRepository,
-        ProjectRepository projectRepository, ProjectMapper projectMapper,
-        UserMapper userMapper, RoleMapper roleMapper) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jdbcTokenStore = jdbcTokenStore;
-        this.roleRepository = roleRepository;
-        this.projectRepository = projectRepository;
-        this.projectMapper = projectMapper;
-        this.userMapper = userMapper;
-        this.roleMapper = roleMapper;
-    }
+    @Autowired
+    private RoleMapper roleMapper;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);

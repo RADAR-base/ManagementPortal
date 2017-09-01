@@ -9,6 +9,7 @@ import org.radarcns.management.service.dto.ProjectDTO;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.actuate.autoconfigure.ShellProperties.Auth;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +48,7 @@ public class ProjectResource {
      */
     @PostMapping("/projects")
     @Timed
-    @Secured(AuthoritiesConstants.SYS_ADMIN)
+    @Secured(AuthoritiesConstants.SYS_ADMIN )
     public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO) throws URISyntaxException {
         log.debug("REST request to save Project : {}", projectDTO);
         if (projectDTO.getId() != null) {
@@ -70,6 +71,7 @@ public class ProjectResource {
      */
     @PutMapping("/projects")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN , AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
     public ResponseEntity<ProjectDTO> updateProject(@Valid @RequestBody ProjectDTO projectDTO) throws URISyntaxException {
         log.debug("REST request to update Project : {}", projectDTO);
         if (projectDTO.getId() == null) {
@@ -115,6 +117,7 @@ public class ProjectResource {
      */
     @GetMapping("/projects/{id}")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN , AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
     public ResponseEntity<ProjectDTO> getProject(@PathVariable Long id) {
         log.debug("REST request to get Project : {}", id);
         ProjectDTO projectDTO = projectService.findOne(id);
@@ -129,6 +132,7 @@ public class ProjectResource {
      */
     @GetMapping("/projects/{id}/device-types")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN })
     public List<DeviceTypeDTO> getDeviceTypesOfProject(@PathVariable Long id) {
         log.debug("REST request to get Project : {}", id);
         return projectService.findDeviceTypesById(id);
@@ -143,6 +147,7 @@ public class ProjectResource {
      */
     @DeleteMapping("/projects/{id}")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN })
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         log.debug("REST request to delete Project : {}", id);
         projectService.delete(id);

@@ -39,7 +39,7 @@ export class ProjectDialogComponent implements OnInit {
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN' , 'ROLE_PROJECT_ADMIN'];
         this.deviceTypeService.query().subscribe(
             (res: Response) => { this.devicetypes = res.json(); }, (res: Response) => this.onError(res.json()));
-        this.keys = ['Work-package', 'Phase' , 'External-Project-Url' , 'External-Project-Id'];
+        this.keys = ['Work-package', 'Phase' , 'External-project-url' , 'External-project-id'];
         this.registerChangesInProject();
     }
     clear() {

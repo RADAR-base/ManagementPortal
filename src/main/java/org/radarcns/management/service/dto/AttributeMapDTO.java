@@ -4,6 +4,15 @@ package org.radarcns.management.service.dto;
  * Created by nivethika on 30-8-17.
  */
 public class AttributeMapDTO {
+
+    public AttributeMapDTO () {
+        //default constructor
+    }
+
+    public AttributeMapDTO(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
     private String key;
 
     private String value;

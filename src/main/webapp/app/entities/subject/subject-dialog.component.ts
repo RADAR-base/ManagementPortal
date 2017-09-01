@@ -102,9 +102,10 @@ export class SubjectDialogComponent implements OnInit {
     }
 
     getSelected(selectedVals: Array<any>, option: any) {
+        console.log('selected values',selectedVals);
         if (selectedVals) {
             for (let i = 0; i < selectedVals.length; i++) {
-                if (option.id === selectedVals[i].id) {
+                if (selectedVals[i] && option.id === selectedVals[i].id) {
                     return selectedVals[i];
                 }
             }
