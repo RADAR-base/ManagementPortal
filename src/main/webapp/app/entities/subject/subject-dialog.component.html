@@ -65,12 +65,14 @@
                 [(ngModel)]="subject.externalId"
              />
         </div>
+
         <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.subject.removed" for="field_removed">Removed</label>
             <input type="checkbox" class="form-control" name="removed" id="field_removed"
                 [(ngModel)]="subject.removed"
              />
         </div>
+
         <div class="form-group">
             <label jhiTranslate="managementPortalApp.subject.project" for="field_project">Project</label>
             <select class="form-control" id="field_project" name="project" [(ngModel)]="subject.project" required>
@@ -84,12 +86,14 @@
                 </small>
             </div>
         </div>
+
         <div class="form-group">
             <label jhiTranslate="managementPortalApp.subject.sources" for="field_devices">Sources</label>
             <select class="form-control" id="field_devices" multiple name="sources" [(ngModel)]="subject.sources" >
                 <option [ngValue]="getSelected(subject.sources, deviceOption)" *ngFor="let deviceOption of sources; trackBy: trackDeviceById">{{deviceOption.deviceTypeAndSourceId}}</option>
             </select>
         </div>
+
         <attribute-mapper [attributes]='subject.attributes' [keys]='keys' [eventPrefix]='attributeComponentEventPrefix'></attribute-mapper>
     </div>
     <div class="modal-footer">

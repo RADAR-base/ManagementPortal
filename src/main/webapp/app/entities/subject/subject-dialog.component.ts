@@ -57,6 +57,13 @@ export class SubjectDialogComponent implements OnInit {
                     this.sources = res.json();
                 }, (res: Response) => this.onError(res.json()));
         }
+        this.registerChangesInSubject();
+    }
+
+    private registerChangesInSubject() {
+        this.eventManager.subscribe(this.attributeComponentEventPrefix+'ListModification', (response ) => {
+            this.subject.attributes= response.content;
+        });
     }
 
     clear() {
