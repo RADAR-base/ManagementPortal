@@ -66,17 +66,17 @@ public class SubjectService {
 
     @Transactional
     public SubjectDTO createSubject(SubjectDTO subjectDTO) throws IllegalAccessException {
-        User currentUser = userService.getUserWithAuthorities();
+//        User currentUser = userService.getUserWithAuthorities();
         Subject subject = subjectMapper.subjectDTOToSubject(subjectDTO);
-        List<String> currentUserAuthorities = currentUser.getAuthorities().stream()
-            .map(Authority::getName).collect(
-                Collectors.toList());
-        if (currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)
-            && !currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN) && !currentUser.getProject().equals(
-            subject.getUser().getProject())) {
-            log.debug("Validate project admin");
-            throw new IllegalAccessException("This project-admin is not allowed to create Subjects under this project");
-        }
+//        List<String> currentUserAuthorities = currentUser.getAuthorities().stream()
+//            .map(Authority::getName).collect(
+//                Collectors.toList());
+//        if (currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)
+//            && !currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN) && !currentUser.getProject().equals(
+//            subject.getUser().getProject())) {
+//            log.debug("Validate project admin");
+//            throw new IllegalAccessException("This project-admin is not allowed to create Subjects under this project");
+//        }
 
 
         User user = subject.getUser();
