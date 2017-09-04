@@ -14,7 +14,7 @@ export class SubjectPopupService {
 
     ) {}
 
-    open(component: Component, id?: number | any): NgbModalRef {
+    open(component: Component, id?: number | any , isDelete?: boolean): NgbModalRef {
         if (this.isOpen) {
             return;
         }
@@ -22,7 +22,7 @@ export class SubjectPopupService {
 
         if (id) {
             this.subjectService.find(id).subscribe((subject) => {
-                this.subjectModalRef(component, subject);
+                this.subjectModalRef(component, subject , isDelete);
             });
         } else {
             var subject = new Subject();
@@ -30,13 +30,14 @@ export class SubjectPopupService {
                 var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
                 return v.toString(16);
             });
-            return this.subjectModalRef(component, subject);
+            return this.subjectModalRef(component, subject , isDelete);
         }
     }
 
-    subjectModalRef(component: Component, subject: Subject): NgbModalRef {
+    subjectModalRef(component: Component, subject: Subject , isDelete?: boolean): NgbModalRef {
         const modalRef = this.modalService.open(component, { size: 'lg', backdrop: 'static'});
         modalRef.componentInstance.subject = subject;
+        modalRef.componentInstance.isDelete = isDelete;
         modalRef.result.then((result) => {
             this.router.navigate([{ outlets: { popup: null }}], { replaceUrl: true });
             this.isOpen = false;

@@ -20,12 +20,13 @@
             <th><span jhiTranslate="managementPortalApp.subject.login">login</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.externalLink">External Link</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.externalId">Enternal Id</span></th>
-            <!--<th><span jhiTranslate="managementPortalsubjectient.removed">Removed</span></th>-->
+
             <th><span jhiTranslate="managementPortalApp.subject.activated">Activated</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.project">Project</span> <span class="fa fa-sort"></span></th>
             <th><span jhiTranslate="managementPortalApp.subject.sources">Sources</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.attributeDataKey">Key</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.attributeDataValue">Value</span></th>
+            <th><span jhiTranslate="managementPortalApp.subject.removed">Removed</span></th>
             <!--<th><span jhiTranslate="managementPortalsubjectient.createdDate">Created Date</span> <span class="fa fa-sort"></span></th>-->
             <!--<th><span jhiTranslate="managementPortalsubjectient.lastModifiedBy">Last Modified By</span> <span class="fa fa-sort"></span></th>-->
             <!--<th><span jhiTranslate="managementPortalsubjectient.lastModifiedDate">Last Modified Date</span> <span class="fa fa-sort"></span></th>-->
@@ -67,25 +68,44 @@
                         <span class="form-control-static">{{attribute.value}}</span>
                     </div>
                 </td>
+                <td>
+                    <span class="badge badge-warning" *ngIf="subject.removed"
+                          jhiTranslate="managementPortalApp.subject.status.discontinued">Discontinued</span>
+                    <span class="badge badge-success" *ngIf="!subject.removed"
+                          jhiTranslate="managementPortalApp.subject.status.active">Active</span>
+                </td>
                 <!--<tsubjectient.createdDate | date:'dd/MM/yy HH:mm'}}</td>-->
                 <!--<tsubjectient.lastModifiedBy}}</td>-->
                 <!--<tsubjectient.lastModifiedDate | date:'dd/MM/yy HH:mm'}}</td>-->
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
-                        <button type="submit"
+                        <button [disabled]="subject.removed"
+                                type="submit"
                                 [routerLink]="['../subject', subject.id ]"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
                         </button>
-                        <button type="submit"
+                        <button [disabled]="subject.removed"
+                                type="submit"
                                 [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.id + '/edit'} }]"
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
                         </button>
-                        <button type="submit"
+                        <button
+                                [disabled]="subject.removed"
+                                type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.id + '/discontinue'} }]"
+                                replaceUrl="true"
+                                class="btn btn-warning btn-sm">
+                            <span class="fa fa-stop"></span>
+                            <span class="hidden-md-down" jhiTranslate="managementPortalApp.subject.discontinue.operation">Discontinue</span>
+                        </button>
+                        <button
+                                *jhiHasAnyAuthority="['ROLE_SYS_ADMIN' ]"
+                                type="submit"
                                 [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.id + '/delete'} }]"
                                 replaceUrl="true"
                                 class="btn btn-danger btn-sm">

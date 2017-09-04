@@ -15,6 +15,7 @@ import { SubjectService } from './subject.service';
 export class SubjectDeleteDialogComponent {
 
     subject: Subject;
+    isDelete : boolean;
 
     constructor(
         private jhiLanguageService: JhiLanguageService,
@@ -30,13 +31,23 @@ export class SubjectDeleteDialogComponent {
     }
 
     confirmDelete(id: number) {
-        this.subjectService.delete(id).subscribe((response) => {
-            this.eventManager.broadcast({
-                name: 'subjectListModification',
-                content: 'Deleted an subject'
+        if(this.isDelete) {
+            this.subjectService.delete(id).subscribe((response) => {
+                this.eventManager.broadcast({
+                    name: 'subjectListModification',
+                    content: 'Deleted an subject'
+                });
+                this.activeModal.dismiss(true);
             });
-            this.activeModal.dismiss(true);
-        });
+        }
+        else {
+            this.subject.removed = true;
+            this.subjectService.update(this.subject).subscribe((res: Subject) => {
+                this.eventManager.broadcast({name: 'subjectListModification', content: 'OK'});
+                this.activeModal.dismiss(true);
+            });
+
+        }
     }
 }
 
@@ -56,8 +67,18 @@ export class SubjectDeletePopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            this.modalRef = this.subjectPopupService
-                .open(SubjectDeleteDialogComponent, params['id']);
+            this.route.url.subscribe(url =>{
+                if('discontinue'==(url[2].path)) {
+                    this.modalRef = this.subjectPopupService
+                    .open(SubjectDeleteDialogComponent, params['id'] , false);
+                }
+                else if('delete'==(url[2].path)) {
+                    this.modalRef = this.subjectPopupService
+                    .open(SubjectDeleteDialogComponent, params['id'] , true);
+                }
+            });
+
+
         });
     }
 

@@ -29,7 +29,17 @@
             "lastModifiedBy": "Last Modified By",
             "lastModifiedDate": "Last Modified Date",
             "attributeDataKey" : "Tag",
-            "attributeDataValue" : "Value"
+            "attributeDataValue" : "Value",
+            "status" : {
+                "discontinued" : "Discontinued",
+                "active" : "Active"
+            },
+            "discontinue" : {
+                "operation" : "Discontinue",
+                "title" : "Confirm discontinue operation",
+                "question" : "Are you sure you want to discontinue Subject {{ id }}?"
+            },
+            "discontinued": "A Subject is discontinued with identifier {{ param }}"
         }
     },
     "error": {
