@@ -24,7 +24,7 @@
             "endDate": "End Date",
             "projectAdmin": "Project Admin",
             "deviceType": "Device Type",
-            "attributeDataKey" : "Key",
+            "attributeDataKey" : "Tag",
             "attributeDataValue" : "Value"
         }
     }

@@ -1,10 +1,10 @@
 package org.radarcns.management.service.dto;
 
 
-import java.util.Map;
-import javax.validation.constraints.*;
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Objects;
+import javax.validation.constraints.NotNull;
 
 /**
  * A DTO for the Source entity.

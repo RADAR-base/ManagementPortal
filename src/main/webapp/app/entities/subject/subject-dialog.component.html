@@ -90,6 +90,7 @@
                 <option [ngValue]="getSelected(subject.sources, deviceOption)" *ngFor="let deviceOption of sources; trackBy: trackDeviceById">{{deviceOption.deviceTypeAndSourceId}}</option>
             </select>
         </div>
+        <attribute-mapper [attributes]='subject.attributes' [keys]='keys' [eventPrefix]='attributeComponentEventPrefix'></attribute-mapper>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">

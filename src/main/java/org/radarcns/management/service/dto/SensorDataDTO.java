@@ -1,17 +1,9 @@
 package org.radarcns.management.service.dto;
 
 
-import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.validation.constraints.*;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Objects;
+import javax.validation.constraints.NotNull;
 import org.radarcns.management.domain.enumeration.DataType;
 
 /**

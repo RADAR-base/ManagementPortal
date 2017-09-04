@@ -3,19 +3,32 @@ package org.radarcns.management.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.HashMap;
 import java.util.Map;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import org.hibernate.annotations.*;
-
-import javax.persistence.*;
-import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Objects;
 
+import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
 import org.radarcns.management.domain.enumeration.ProjectStatus;
 
 /**
@@ -27,9 +40,6 @@ import org.radarcns.management.domain.enumeration.ProjectStatus;
 public class Project implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    public static final String EXTERNAL_PROJECT_URL_KEY = "External-project-url";
-    public static final String EXTERNAL_PROJECT_ID_KEY = "External-project-id";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

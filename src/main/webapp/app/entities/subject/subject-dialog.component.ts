@@ -25,6 +25,8 @@ export class SubjectDialogComponent implements OnInit {
     projects: Project[];
 
     sources: MinimalSource[];
+    keys : string[];
+    attributeComponentEventPrefix : 'subjectAttributes';
 
     constructor(public activeModal: NgbActiveModal,
                 private jhiLanguageService: JhiLanguageService,
@@ -39,6 +41,7 @@ export class SubjectDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
+        this.keys = ['Human-readable-identifier'];
         this.projectService.query().subscribe(
             (res) => {
                 this.projects = res.json();

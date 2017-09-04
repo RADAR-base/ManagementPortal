@@ -3,24 +3,22 @@ package org.radarcns.management.service.dto;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import javax.validation.constraints.Size;
-import org.hibernate.validator.constraints.Email;
 
 /**
  * A DTO for the Subject entity.
  */
 public class SubjectDTO implements Serializable {
 
+    public static final String HUMAN_READABLE_IDENTIFIER_KEY = "Human-readable-identifier";
+
     private Long id;
 
     private String login;
 
-    @Email
     @Size(min = 5, max = 100)
     private String email;
 
@@ -28,7 +26,7 @@ public class SubjectDTO implements Serializable {
 
     private String externalId;
 
-    private Boolean removed ;
+    private Boolean removed =false ;
 
     private boolean activated = false;
 

@@ -65,7 +65,7 @@ public class SubjectService {
 
 
     @Transactional
-    public SubjectDTO createSubject(SubjectDTO subjectDTO) throws IllegalAccessException {
+    public SubjectDTO createSubject(SubjectDTO subjectDTO) {
 //        User currentUser = userService.getUserWithAuthorities();
         Subject subject = subjectMapper.subjectDTOToSubject(subjectDTO);
 //        List<String> currentUserAuthorities = currentUser.getAuthorities().stream()
