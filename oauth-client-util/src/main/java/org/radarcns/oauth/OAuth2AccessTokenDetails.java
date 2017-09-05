@@ -25,6 +25,16 @@ import org.radarcns.exception.TokenException;
 import java.io.IOException;
 import java.time.Instant;
 
+/**
+ * This class captures the response from ManagementPortal's /oauth/token endpoint. The actual access
+ * token can be retrieved with the {@link #getAccessToken()} method. This is a token in JWT format,
+ * and can be parsed with a JWT library of your preference. You can ise {@link #isValid()} to check
+ * if you got a valid token, or an error response. If {@link #isValid()} returns <code>false</code>,
+ * you can use {@link #getError()} and {@link #getErrorDescription()} to find the error message
+ * that was returned by ManagementPortal. You can also use {@link #isExpired()} to find out if the
+ * token has expired or not. However it is advised to use the {@link OAuth2Client} class, as it will
+ * automatically manage token refreshing and checking validity.
+ */
 public class OAuth2AccessTokenDetails {
 
     @JsonProperty("access_token")

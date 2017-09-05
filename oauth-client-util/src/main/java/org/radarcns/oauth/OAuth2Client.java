@@ -16,7 +16,18 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Class for handling OAuth2 client credentials grant
+ * Class for handling OAuth2 client credentials grant with the RADAR platform's ManagementPortal.
+ * Altough it is designed with the ManagementPortal in mind, any identity server based on the Spring
+ * OAuth library and using JWT as a token should be compatible. The {@link #getAccessToken()}
+ * method provides access to the {@link OAuth2AccessTokenDetails} instance, and will request a new
+ * access token if the current one is expired. It will throw a {@link TokenException} if anything
+ * went wrong. So to get the actual token you will call
+ * <code>client.getAccessToken().getAccessToken()</code>. This token is in JWT format and can be
+ * parsed by a JWT library of your preference. Note: by default, the public key endpoint on
+ * ManagementPortal is located at <code>/oauth/token_key</code>.
+ *
+ * See the test cases for this class for examples on usage. Also see
+ * {@link OAuth2AccessTokenDetails} for more info on how to use it.
  */
 public class OAuth2Client {
     private URL tokenEndpoint;
