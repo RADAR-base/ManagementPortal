@@ -1,26 +1,32 @@
 package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import io.github.jhipster.web.util.ResponseUtil;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
 import org.radarcns.management.domain.Subject;
-
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.SubjectService;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.util.HeaderUtil;
-import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * REST controller for managing Subject.
@@ -121,6 +127,24 @@ public class SubjectResource {
     public ResponseEntity<SubjectDTO> getSubject(@PathVariable Long id) {
         log.debug("REST request to get Subject : {}", id);
         Subject subject = subjectRepository.findOneWithEagerRelationships(id);
+        SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(subjectDTO));
+    }
+
+
+    /**
+     *  GET /subject?projectId=<projectId></>&externalId=<externalId></>
+     * @param projectId project id of MP
+     * @param externalId external id
+     * @return the ResponseEntity with status 200 (OK) and with body the subjectDTO, or with status 404 (Not Found)
+     */
+    @GetMapping("/subject/")
+    @Timed
+    public ResponseEntity<SubjectDTO> getSubjectByProjectIdAndExternalId(
+        @RequestParam(value = "projectId") Long projectId,
+        @RequestParam(value = "externalId") String externalId) {
+        log.debug("REST request to get Subject with projectId: {} and externalId: {}", projectId, externalId);
+        Subject subject = subjectRepository.findOneByProjectIdAndExternalId(projectId, externalId);
         SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(subjectDTO));
     }
