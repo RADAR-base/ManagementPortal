@@ -23,7 +23,7 @@ public class OAuth2Client {
     private String clientId;
     private String clientSecret;
     private Set<String> scope;
-    private OAuth2AccessToken currentToken;
+    private OAuth2AccessTokenDetails currentToken;
 
     private static OkHttpClient HTTP_CLIENT;
 
@@ -32,7 +32,7 @@ public class OAuth2Client {
         this.clientId = "";
         this.clientSecret = "";
         this.scope = new HashSet<>();
-        this.currentToken = new OAuth2AccessToken();
+        this.currentToken = new OAuth2AccessTokenDetails();
     }
 
     public URL getTokenEndpoint() {
@@ -71,7 +71,7 @@ public class OAuth2Client {
         return this;
     }
 
-    public OAuth2AccessToken getAccessToken() throws TokenException {
+    public OAuth2AccessTokenDetails getAccessToken() throws TokenException {
         if (currentToken.isExpired()) {
             getNewToken();
         }
@@ -121,7 +121,7 @@ public class OAuth2Client {
         // make the client execute the POST request
         try {
             Response response = getHttpClient().newCall(request).execute();
-            currentToken = OAuth2AccessToken.getObject(response);
+            currentToken = OAuth2AccessTokenDetails.getObject(response);
         }
         catch (IOException e) {
             throw new TokenException(e);

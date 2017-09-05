@@ -1,7 +1,7 @@
 package org.radarcns.oauth.unit;
 
 import org.junit.Test;
-import org.radarcns.oauth.OAuth2AccessToken;
+import org.radarcns.oauth.OAuth2AccessTokenDetails;
 
 import java.time.Instant;
 
@@ -11,23 +11,23 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by dverbeec on 31/08/2017.
  */
-public class OAuth2AccessTokenTest {
+public class OAuth2AccessTokenDetailsTest {
 
     @Test
     public void testNewTokenIsExpired() {
-        OAuth2AccessToken token = new OAuth2AccessToken();
+        OAuth2AccessTokenDetails token = new OAuth2AccessTokenDetails();
         assertTrue(token.isExpired());
     }
 
     @Test
     public void testNewTokenIsInvalid() {
-        OAuth2AccessToken token = new OAuth2AccessToken();
+        OAuth2AccessTokenDetails token = new OAuth2AccessTokenDetails();
         assertFalse(token.isValid());
     }
 
     @Test
     public void testTokenNotExpired() {
-        OAuth2AccessToken token = new OAuth2AccessToken(null, null, 10,
+        OAuth2AccessTokenDetails token = new OAuth2AccessTokenDetails(null, null, 10,
             null, null, null, Instant.now().getEpochSecond(), null, null, null, null);
         assertFalse(token.isExpired());
     }

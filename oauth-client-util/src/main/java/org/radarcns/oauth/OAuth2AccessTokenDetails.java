@@ -25,7 +25,7 @@ import org.radarcns.exception.TokenException;
 import java.io.IOException;
 import java.time.Instant;
 
-public class OAuth2AccessToken {
+public class OAuth2AccessTokenDetails {
 
     @JsonProperty("access_token")
     private final String accessToken;
@@ -71,7 +71,7 @@ public class OAuth2AccessToken {
      * @param issueDate time in millisecond when the token has been issued
      * @param jsonWebTokenId {@link String} useful to validate the token
      */
-    public OAuth2AccessToken(String accessToken, String tokenType, long expiresIn, String scope,
+    public OAuth2AccessTokenDetails(String accessToken, String tokenType, long expiresIn, String scope,
         String subject, String issuer, long issueDate, String jsonWebTokenId, String error,
         String errorDescription, String message) {
         this.accessToken = accessToken;
@@ -87,7 +87,7 @@ public class OAuth2AccessToken {
         this.message = message;
     }
 
-    public OAuth2AccessToken() {
+    public OAuth2AccessTokenDetails() {
         this.accessToken = null;
         this.tokenType = null;
         this.expiresIn = 0;
@@ -158,7 +158,7 @@ public class OAuth2AccessToken {
         return accessToken != null && error == null;
     }
 
-    public static OAuth2AccessToken getObject(Response response) throws TokenException {
+    public static OAuth2AccessTokenDetails getObject(Response response) throws TokenException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         String responseBody;
@@ -170,7 +170,7 @@ public class OAuth2AccessToken {
         }
 
         try {
-            OAuth2AccessToken result = mapper.readValue(responseBody, OAuth2AccessToken.class);
+            OAuth2AccessTokenDetails result = mapper.readValue(responseBody, OAuth2AccessTokenDetails.class);
             if (result.getError() != null) {
                 throw new TokenException(result.getError() + ": " + result.getErrorDescription());
             }

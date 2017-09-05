@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.radarcns.exception.TokenException;
-import org.radarcns.oauth.OAuth2AccessToken;
+import org.radarcns.oauth.OAuth2AccessTokenDetails;
 import org.radarcns.oauth.OAuth2Client;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -51,7 +51,7 @@ public class OAuth2ClientTest {
             .clientSecret("secret")
             .tokenEndpoint(tokenEndpoint)
             .addScope("read");
-        OAuth2AccessToken token = client.getAccessToken();
+        OAuth2AccessTokenDetails token = client.getAccessToken();
         assertTrue(token.isValid());
         assertFalse(token.isExpired());
         assertEquals(accessToken, token.getAccessToken());
