@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import org.mapstruct.MappingTarget;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.service.dto.AttributeMapDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
+import org.radarcns.management.service.dto.SubjectDTO.SubjectStatus;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,6 +40,7 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
             }
             dto.setAttributes(attributeMapDTOList);
         }
+        dto.setStatus(getSubjectStatus(subject));
         return dto;
     }
 
@@ -48,15 +51,10 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
             return null;
         }
 
-        Subject project = delegate.subjectDTOToSubject(subjectDTO);
-        if(subjectDTO.getAttributes()!=null && !subjectDTO.getAttributes().isEmpty()) {
-            Map<String, String> attributeMap = new HashMap<>();
-            for (AttributeMapDTO attributeMapDTO : subjectDTO.getAttributes()) {
-                attributeMap.put(attributeMapDTO.getKey(), attributeMapDTO.getValue());
-            }
-            project.setAttributes(attributeMap);
-        }
-        return project;
+        Subject subject = delegate.subjectDTOToSubject(subjectDTO);
+        extractAttributeData(subjectDTO, subject);
+        setSubjectStatus(subjectDTO,subject);
+        return subject;
     }
 
     @Override
@@ -86,6 +84,56 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
         }
 
         return list;
+    }
+
+    @Override
+    public Subject safeUpdateSubjectFromDTO(SubjectDTO subjectDTO, @MappingTarget Subject subject) {
+        Subject subjectRetrieved = delegate.safeUpdateSubjectFromDTO(subjectDTO,subject);
+        extractAttributeData(subjectDTO , subjectRetrieved);
+        setSubjectStatus(subjectDTO,subjectRetrieved);
+        return subjectRetrieved;
+    }
+
+    private void extractAttributeData(SubjectDTO subjectDTO, Subject subject) {
+        if(subjectDTO.getAttributes()!=null && !subjectDTO.getAttributes().isEmpty()) {
+            Map<String, String> attributeMap = new HashMap<>();
+            for (AttributeMapDTO attributeMapDTO : subjectDTO.getAttributes()) {
+                attributeMap.put(attributeMapDTO.getKey(), attributeMapDTO.getValue());
+            }
+            subject.setAttributes(attributeMap);
+        }
+    }
+
+    private SubjectStatus getSubjectStatus(Subject subject) {
+        if(!subject.getUser().getActivated() && !subject.isRemoved()) {
+            return SubjectStatus.DEACTIVATED;
+        }
+        else if( subject.getUser().getActivated() && !subject.isRemoved()) {
+            return SubjectStatus.ACTIVATED;
+        }
+        else if(subject.getUser().getActivated() && subject.isRemoved()) {
+            return SubjectStatus.DISCONTINUED;
+        }
+        return SubjectStatus.DEACTIVATED;
+    }
+
+    private Subject setSubjectStatus (SubjectDTO subjectDTO, Subject subject) {
+        switch (subjectDTO.getStatus()) {
+            case DEACTIVATED:
+                subject.getUser().setActivated(false);
+                subject.setRemoved(false);
+                break;
+            case ACTIVATED:
+                subject.getUser().setActivated(true);
+                subject.setRemoved(false);
+                break;
+            case DISCONTINUED:
+                subject.getUser().setActivated(true);
+                subject.setRemoved(true);
+                break;
+
+        }
+        return subject;
     }
 
 }

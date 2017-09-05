@@ -6,12 +6,19 @@ import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import javax.validation.constraints.Size;
 
 /**
  * A DTO for the Subject entity.
  */
 public class SubjectDTO implements Serializable {
+
+    public enum SubjectStatus {
+        DEACTIVATED, // activated = false, removed=false
+        ACTIVATED, //activated = true, removed=false
+        DISCONTINUED // activated = true, removed = true
+         }
 
     public static final String HUMAN_READABLE_IDENTIFIER_KEY = "Human-readable-identifier";
 
@@ -26,9 +33,7 @@ public class SubjectDTO implements Serializable {
 
     private String externalId;
 
-    private Boolean removed =false ;
-
-    private boolean activated = false;
+    private SubjectStatus status = SubjectStatus.DEACTIVATED;
 
     private String createdBy;
 
@@ -44,13 +49,14 @@ public class SubjectDTO implements Serializable {
 
     private Set<AttributeMapDTO> attributes = new HashSet<>();
 
-    public boolean isActivated() {
-        return activated;
+    public SubjectStatus getStatus() {
+        return status;
     }
 
-    public void setActivated(boolean activated) {
-        this.activated = activated;
+    public void setStatus(SubjectStatus status) {
+        this.status = status;
     }
+
 
     public String getCreatedBy() {
         return createdBy;
@@ -114,15 +120,11 @@ public class SubjectDTO implements Serializable {
     public void setExternalId(String externalId) {
         this.externalId = externalId;
     }
-    public Boolean getRemoved() {
-        return removed;
-    }
-
-    public void setRemoved(Boolean removed) {
-        this.removed = removed;
-    }
 
     public String getLogin() {
+        if (this.login == null) {
+            this.login = UUID.randomUUID().toString();
+        }
         return login;
     }
 
@@ -180,8 +182,8 @@ public class SubjectDTO implements Serializable {
         return "SubjectDTO{" +
             "id=" + id +
             ", externalLink='" + externalLink + "'" +
-            ", enternalId='" + externalId + "'" +
-            ", removed='" + removed + "'" +
+            ", externalId='" + externalId + "'" +
+            ", status='" + status+ "'" +
             '}';
     }
 }

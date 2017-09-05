@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, JhiLanguageService } from 'ng-jhipster';
 
-import { Subject } from './subject.model';
+import {Subject, SubjectStatus} from './subject.model';
 import { SubjectPopupService } from './subject-popup.service';
 import { SubjectService } from './subject.service';
 
@@ -41,12 +41,11 @@ export class SubjectDeleteDialogComponent {
             });
         }
         else {
-            this.subject.removed = true;
+            this.subject.status = SubjectStatus.DISCONTINUED;
             this.subjectService.update(this.subject).subscribe((res: Subject) => {
                 this.eventManager.broadcast({name: 'subjectListModification', content: 'OK'});
                 this.activeModal.dismiss(true);
             });
-
         }
     }
 }

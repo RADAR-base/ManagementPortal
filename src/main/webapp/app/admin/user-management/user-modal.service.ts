@@ -14,7 +14,7 @@ export class UserModalService {
         private userService: UserService
     ) {}
 
-    open(component: Component, admin?: boolean, login?: string): NgbModalRef {
+    open(component: Component, login?: string , admin?: boolean, ): NgbModalRef {
         if (this.isOpen) {
             return;
         }

@@ -162,6 +162,7 @@ public class UserService {
                     role = new Role();
                     role.setAuthority(new Authority(authority));
                     role.setProject(projectMapper.projectDTOToProject(userDTO.getProject()));
+                    roleRepository.save(role);
                 }
                 roles.add(role);
             }
@@ -232,6 +233,7 @@ public class UserService {
                                 role = new Role();
                                 role.setAuthority(new Authority(authority));
                                 role.setProject(projectMapper.projectDTOToProject(userDTO.getProject()));
+                                roleRepository.save(role);
                             }
                             managedRoles.add(role);
                         }

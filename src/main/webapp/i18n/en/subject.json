@@ -31,8 +31,10 @@
             "attributeDataKey" : "Tag",
             "attributeDataValue" : "Value",
             "status" : {
-                "discontinued" : "Discontinued",
-                "active" : "Active"
+                "title" : "Status",
+                "discontinued" : "DISCONTINUED",
+                "active" : "ACTIVATED",
+                "deactivated" : "DEACTIVATED"
             },
             "discontinue" : {
                 "operation" : "Discontinue",
