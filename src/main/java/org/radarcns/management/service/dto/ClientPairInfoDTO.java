@@ -4,30 +4,20 @@ package org.radarcns.management.service.dto;
  * Created by dverbeec on 29/08/2017.
  */
 public class ClientPairInfoDTO {
-    private String managementPortalRefreshToken;
-    private String clientRefreshToken;
+    private String refreshToken;
     private String subjectId;
 
-    public ClientPairInfoDTO(String managementPortalRefreshToken, String clientRefreshToken, String subjectId) {
-        this.managementPortalRefreshToken = managementPortalRefreshToken;
-        this.clientRefreshToken = clientRefreshToken;
+    public ClientPairInfoDTO(String refreshToken, String subjectId) {
+        this.refreshToken = refreshToken;
         this.subjectId = subjectId;
     }
 
-    public String getManagementPortalRefreshToken() {
-        return managementPortalRefreshToken;
+    public String getRefreshToken() {
+        return refreshToken;
     }
 
-    public void setManagementPortalRefreshToken(String managementPortalRefreshToken) {
-        this.managementPortalRefreshToken = managementPortalRefreshToken;
-    }
-
-    public String getClientRefreshToken() {
-        return clientRefreshToken;
-    }
-
-    public void setClientRefreshToken(String clientRefreshToken) {
-        this.clientRefreshToken = clientRefreshToken;
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public String getSubjectId() {
@@ -45,15 +35,13 @@ public class ClientPairInfoDTO {
 
         ClientPairInfoDTO that = (ClientPairInfoDTO) o;
 
-        if (!managementPortalRefreshToken.equals(that.managementPortalRefreshToken)) return false;
-        if (!clientRefreshToken.equals(that.clientRefreshToken)) return false;
+        if (!refreshToken.equals(that.refreshToken)) return false;
         return subjectId.equals(that.subjectId);
     }
 
     @Override
     public int hashCode() {
-        int result = managementPortalRefreshToken.hashCode();
-        result = 31 * result + clientRefreshToken.hashCode();
+        int result = refreshToken.hashCode();
         result = 31 * result + subjectId.hashCode();
         return result;
     }
@@ -61,8 +49,7 @@ public class ClientPairInfoDTO {
     @Override
     public String toString() {
         return "ClientPairInfoDTO{" +
-            "managementPortalRefreshToken='" + managementPortalRefreshToken + '\'' +
-            ", clientRefreshToken='" + clientRefreshToken + '\'' +
+            "refreshToken='" + refreshToken + '\'' +
             ", subjectId='" + subjectId + '\'' +
             '}';
     }

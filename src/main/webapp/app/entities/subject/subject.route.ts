@@ -8,6 +8,7 @@ import { SubjectComponent} from './subject.component';
 import { SubjectDetailComponent } from './subject-detail.component';
 import { SubjectPopupComponent } from './subject-dialog.component';
 import { SubjectDeletePopupComponent } from './subject-delete-dialog.component';
+import { SubjectPairPopupComponent } from './subject-pair-dialog.component';
 
 import { Principal } from '../../shared';
 
@@ -61,5 +62,16 @@ export const subjectPopupRoute: Routes = [
     },
     canActivate: [UserRouteAccessService],
     outlet: 'popup'
+  },
+  {
+    path: 'subject/:id/pairApp',
+    component: SubjectPairPopupComponent,
+    data: {
+    authorities: ['ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN'],
+    pageTitle: 'managementPortalApp.subject.home.title'
+    },
+    canActivate: [UserRouteAccessService],
+    outlet: 'popup'
   }
+
 ];

@@ -4,7 +4,8 @@
             "home": {
                 "title": "Subjects",
                 "createLabel": "Maak een nieuwe Subject",
-                "createOrEditLabel": "Maak of wijzig een Subject"
+                "createOrEditLabel": "Maak of wijzig een Subject",
+                "pairAppLabel": "Koppel een app"
             },
             "created": "A new Subject is created with identifier {{ param }}",
             "updated": "A Subject is updated with identifier {{ param }}",
@@ -27,7 +28,10 @@
             "createdBy": "Aanmaak door",
             "createdDate": "Aanmaak datum",
             "lastModifiedBy": "Laatst aangepast door",
-            "lastModifiedDate": "Laatst aangepast datum"
+            "lastModifiedDate": "Laatst aangepast datum",
+            "pairApp": "App koppelen",
+            "clientApp": "Client app",
+            "resource": "Beveiligde gegevensbron"
         }
     }
 }

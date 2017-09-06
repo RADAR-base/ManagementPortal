@@ -61,6 +61,13 @@
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'subject/' + subject.id + '/pairApp' } }]"
+                                replaceUrl="true"
+                                class="btn btn-success btn-sm">
+                            <span class="fa fa-qrcode"></span>
+                            <span jhiTranslate="managementPortalApp.subject.pairApp">Pair App</span>
+                        </button>
+                        <button type="submit"
                                 [routerLink]="['../subject', subject.id ]"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>

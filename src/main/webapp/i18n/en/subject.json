@@ -4,7 +4,8 @@
             "home": {
                 "title": "Subjects",
                 "createLabel": "Create a new Subject",
-                "createOrEditLabel": "Create or edit a Subject"
+                "createOrEditLabel": "Create or edit a Subject",
+                "pairAppLabel": "Pair an application"
             },
             "created": "A new Subject is created with identifier {{ param }}",
             "updated": "A Subject is updated with identifier {{ param }}",
@@ -27,7 +28,10 @@
             "createdBy": "Created By",
             "createdDate": "Created Date",
             "lastModifiedBy": "Last Modified By",
-            "lastModifiedDate": "Last Modified Date"
+            "lastModifiedDate": "Last Modified Date",
+            "pairApp": "Pair App",
+            "clientApp": "Client app",
+            "resource": "Protected resource"
         }
     },
     "error": {
