@@ -38,64 +38,37 @@ import java.time.Instant;
 public class OAuth2AccessTokenDetails {
 
     @JsonProperty("access_token")
-    private final String accessToken;
+    private String accessToken;
 
     @JsonProperty("token_type")
-    private final String tokenType;
+    private String tokenType;
 
     @JsonProperty("expires_in")
-    private final long expiresIn;
+    private long expiresIn;
 
     @JsonProperty("scope")
-    private final String scope;
+    private String scope;
 
     @JsonProperty("sub")
-    private final String subject;
+    private String subject;
 
     @JsonProperty("iss")
-    private final String issuer;
+    private String issuer;
 
     @JsonProperty("iat")
-    private final long issueDate;
+    private long issueDate;
 
     @JsonProperty("jti")
-    private final String jsonWebTokenId;
+    private String jsonWebTokenId;
 
     @JsonProperty("error")
-    private final String error;
+    private String error;
 
     @JsonProperty("error_description")
-    private final String errorDescription;
+    private String errorDescription;
 
     @JsonProperty("message")
-    private final String message;
-
-    /**
-     * Constructor.
-     * @param accessToken {@link String} representing an Access Token
-     * @param tokenType {@link String} defining the Token Type
-     * @param expiresIn time in millisecond after which the token will be no longer valid
-     * @param scope {@link String} defining the scope for using the token
-     * @param subject {@link String} identifying the subject associated to the token
-     * @param issuer {@link String} stating the identity that has issued the token
-     * @param issueDate time in millisecond when the token has been issued
-     * @param jsonWebTokenId {@link String} useful to validate the token
-     */
-    public OAuth2AccessTokenDetails(String accessToken, String tokenType, long expiresIn, String scope,
-        String subject, String issuer, long issueDate, String jsonWebTokenId, String error,
-        String errorDescription, String message) {
-        this.accessToken = accessToken;
-        this.tokenType = tokenType;
-        this.expiresIn = expiresIn;
-        this.scope = scope;
-        this.subject = subject;
-        this.issuer = issuer;
-        this.issueDate = issueDate;
-        this.jsonWebTokenId = jsonWebTokenId;
-        this.error = error;
-        this.errorDescription = errorDescription;
-        this.message = message;
-    }
+    private String message;
 
     public OAuth2AccessTokenDetails() {
         this.accessToken = null;
@@ -166,6 +139,50 @@ public class OAuth2AccessTokenDetails {
 
     public boolean isValid() {
         return accessToken != null && error == null;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public void setTokenType(String tokenType) {
+        this.tokenType = tokenType;
+    }
+
+    public void setExpiresIn(long expiresIn) {
+        this.expiresIn = expiresIn;
+    }
+
+    public void setScope(String scope) {
+        this.scope = scope;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public void setIssuer(String issuer) {
+        this.issuer = issuer;
+    }
+
+    public void setIssueDate(long issueDate) {
+        this.issueDate = issueDate;
+    }
+
+    public void setJsonWebTokenId(String jsonWebTokenId) {
+        this.jsonWebTokenId = jsonWebTokenId;
+    }
+
+    public void setError(String error) {
+        this.error = error;
+    }
+
+    public void setErrorDescription(String errorDescription) {
+        this.errorDescription = errorDescription;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public static OAuth2AccessTokenDetails getObject(Response response) throws TokenException {

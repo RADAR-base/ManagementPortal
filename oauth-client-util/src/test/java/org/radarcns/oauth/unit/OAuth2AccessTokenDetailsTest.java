@@ -27,8 +27,9 @@ public class OAuth2AccessTokenDetailsTest {
 
     @Test
     public void testTokenNotExpired() {
-        OAuth2AccessTokenDetails token = new OAuth2AccessTokenDetails(null, null, 10,
-            null, null, null, Instant.now().getEpochSecond(), null, null, null, null);
+        OAuth2AccessTokenDetails token = new OAuth2AccessTokenDetails();
+        token.setIssueDate(Instant.now().getEpochSecond());
+        token.setExpiresIn(30);
         assertFalse(token.isExpired());
     }
 }
