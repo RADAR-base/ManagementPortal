@@ -45,6 +45,7 @@
         }
     },
     "error": {
-        "patientEmailRequired": "A valid email is required to activate the subject account"
+        "patientEmailRequired": "A valid email is required to activate the subject account",
+        "subjectExists" : "A subject with given project-id and external-id already exists"
     }
 }

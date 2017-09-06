@@ -16,6 +16,7 @@ import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -73,6 +74,13 @@ public class SubjectResource {
         if (subjectDTO.getProject().getId() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "projectrequired", "A subject should be assigned to a project")).body(null);
         }
+        if (subjectDTO.getExternalId() != null && !subjectDTO.getExternalId().isEmpty() &&
+            subjectRepository.findOneByProjectIdAndExternalId(subjectDTO.getProject().getId() , subjectDTO.getExternalId()).isPresent()) {
+            return ResponseEntity.badRequest().headers(HeaderUtil
+                .createFailureAlert(ENTITY_NAME, "subjectExists",
+                    "A subject with given project-id and external-id already exists")).body(null);
+        }
+
         SubjectDTO result = subjectService.createSubject(subjectDTO);
         return ResponseEntity.created(new URI("/api/subjects/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
@@ -111,9 +119,25 @@ public class SubjectResource {
      */
     @GetMapping("/subjects")
     @Timed
-    public List<SubjectDTO> getAllSubjects() {
-       log.debug("REST request to get all Subjects");
-       return subjectService.findAll();
+    public ResponseEntity getAllSubjects(
+        @RequestParam(value = "projectId" , required = false) Long projectId,
+        @RequestParam(value = "externalId" , required = false) String externalId) {
+        log.error("ProjectID {} and external {}" , projectId, externalId);
+        if(projectId!=null && externalId!=null) {
+            Subject subject = subjectRepository.findOneByProjectIdAndExternalId(projectId, externalId).get();
+            SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
+            return ResponseUtil.wrapOrNotFound(Optional.ofNullable(subjectDTO));
+        }
+        else if (projectId==null && externalId!=null) {
+            List<Subject> subjects = subjectRepository.findAllByExternalId(externalId);
+            return ResponseUtil.wrapOrNotFound(Optional.of(subjectMapper.subjectsToSubjectDTOs(subjects)));
+        }
+        else if( projectId!=null) {
+            List<Subject> subjects = subjectRepository.findAllByProjectId(projectId);
+            return ResponseUtil.wrapOrNotFound(Optional.of(subjectMapper.subjectsToSubjectDTOs(subjects)));
+        }
+        log.debug("REST request to get all Subjects");
+       return ResponseEntity.ok(subjectService.findAll());
     }
 
     /**
@@ -127,24 +151,6 @@ public class SubjectResource {
     public ResponseEntity<SubjectDTO> getSubject(@PathVariable Long id) {
         log.debug("REST request to get Subject : {}", id);
         Subject subject = subjectRepository.findOneWithEagerRelationships(id);
-        SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
-        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(subjectDTO));
-    }
-
-
-    /**
-     *  GET /subject?projectId=<projectId></>&externalId=<externalId></>
-     * @param projectId project id of MP
-     * @param externalId external id
-     * @return the ResponseEntity with status 200 (OK) and with body the subjectDTO, or with status 404 (Not Found)
-     */
-    @GetMapping("/subject/")
-    @Timed
-    public ResponseEntity<SubjectDTO> getSubjectByProjectIdAndExternalId(
-        @RequestParam(value = "projectId") Long projectId,
-        @RequestParam(value = "externalId") String externalId) {
-        log.debug("REST request to get Subject with projectId: {} and externalId: {}", projectId, externalId);
-        Subject subject = subjectRepository.findOneByProjectIdAndExternalId(projectId, externalId);
         SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(subjectDTO));
     }
