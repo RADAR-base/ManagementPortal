@@ -55,20 +55,35 @@ task wrapper(type: Wrapper) {
 
 sourceCompatibility = 1.8
 
+//---------------------------------------------------------------------------//
+// Style checking                                                            //
+//---------------------------------------------------------------------------//
 checkstyle {
+    // codacy version
     toolVersion '6.16'
     ignoreFailures false
+
+    // ignore tests
+    sourceSets = [sourceSets.main, sourceSets.test]
 }
 
 pmd {
+    // pmd version
     toolVersion = '5.5.2'
     ignoreFailures = false
+
+    sourceSets = [sourceSets.main, sourceSets.test]
 
     consoleOutput = true
 
     ruleSets = []
     ruleSetFiles = files("config/pmd/ruleset.xml")
 }
+
+pmdTest {
+    ruleSetFiles = files("config/pmd/test_ruleset.xml")
+}
+
 
 sourceSets {
     integrationTest {
