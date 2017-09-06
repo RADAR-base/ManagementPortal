@@ -1,6 +1,7 @@
 package org.radarcns.management.service;
 
 import java.util.stream.Collectors;
+import javax.validation.constraints.NotNull;
 import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +49,7 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-  
+
     @Autowired
     public JdbcTokenStore jdbcTokenStore;
 
@@ -245,6 +247,8 @@ public class UserService {
     }
 
     public void deleteUser(String login) {
+        jdbcTokenStore.findTokensByUserName(login).forEach(token ->
+            jdbcTokenStore.removeAccessToken(token));
         userRepository.findOneByLogin(login).ifPresent(user -> {
             userRepository.delete(user);
             log.debug("Deleted User: {}", user);
