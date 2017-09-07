@@ -117,6 +117,11 @@ public class OAuth2Client {
         return HTTP_CLIENT;
     }
 
+    public static void setHttpClient(OkHttpClient httpClient) {
+        // If we had an existing OkHttpClient, it will release its resources automatically
+        HTTP_CLIENT = httpClient;
+    }
+
     private void getNewToken() throws TokenException {
         // build the form to post to the token endpoint
         FormBody body = new FormBody.Builder().add("grant_type", "client_credentials")
