@@ -26,7 +26,7 @@
             </select>
         </div>
 
-        <div class="form-group" *ngIf="selectedClient">
+        <div class="form-group" *ngIf="showQRCode">
             <div class="text-center">
                 <qr-code [value]="oauthClientPairInfo" [size]="450"></qr-code>
             </div>

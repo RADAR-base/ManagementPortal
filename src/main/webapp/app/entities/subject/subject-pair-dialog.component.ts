@@ -25,6 +25,7 @@ export class SubjectPairDialogComponent implements OnInit {
     oauthClients: OAuthClient[];
     oauthClientPairInfo: string;
     selectedClient: OAuthClient;
+    showQRCode = false;
 
     sources: MinimalSource[];
 
@@ -62,9 +63,11 @@ export class SubjectPairDialogComponent implements OnInit {
             this.oauthClientPairInfoService.get(this.selectedClient, this.subject).subscribe(
                 (res) => {
                     this.oauthClientPairInfo = res.text();
+                    this.showQRCode = true;
                 });
         }
         else {
+            this.showQRCode = false;
             this.oauthClientPairInfo = "";
         }
     }
