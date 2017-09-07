@@ -96,23 +96,7 @@ public class OAuth2Client {
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(10, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
-                .authenticator(new Authenticator() {
-
-                    private int retries = 0;
-                    private int maxRetries = 5;
-
-                    @Override
-                    public Request authenticate(Route route, Response response) throws IOException {
-                        if (retries >= maxRetries) {
-                            return null;
-                        }
-                        retries++;
-                        String credential = Credentials.basic(getClientId(), getClientSecret());
-                        return response.request().newBuilder()
-                            .header("Authorization", credential)
-                            .build();
-                    }
-                }).build();
+                .build();
         }
         return HTTP_CLIENT;
     }
@@ -134,8 +118,32 @@ public class OAuth2Client {
             .post(body)
             .build();
 
+        // We perhaps share our OkHttpClient instance with other OAuth2Client instances, or with an
+        // instance gotten from somewhere else through the setHttpClient() method, so we copy the
+        // shared instance's configuration and the authorization handler based on our instance
+        // variables to it
+        // See https://github.com/square/okhttp/wiki/Recipes#per-call-configuration
+        OkHttpClient client = getHttpClient().newBuilder()
+            .authenticator(new Authenticator() {
+
+            private int retries = 0;
+            private int maxRetries = 5;
+
+            @Override
+            public Request authenticate(Route route, Response response) throws IOException {
+                if (retries >= maxRetries) {
+                    return null;
+                }
+                retries++;
+                String credential = Credentials.basic(getClientId(), getClientSecret());
+                return response.request().newBuilder()
+                    .header("Authorization", credential)
+                    .build();
+            }
+        }).build();
+
         // make the client execute the POST request
-        try (Response response = getHttpClient().newCall(request).execute()) {
+        try (Response response = client.newCall(request).execute()) {
             currentToken = OAuth2AccessTokenDetails.getObject(response);
         }
         catch (IOException e) {
