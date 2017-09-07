@@ -42,7 +42,10 @@ export class SubjectPairDialogComponent implements OnInit {
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.oauthClientService.query().subscribe(
             (res) => {
-                this.oauthClients = res.json();
+                // only keep clients that allow authorization_code and refresh_token
+                this.oauthClients = res.json()
+                    .filter(c => c.authorizedGrantTypes.includes('authorization_code') &&
+                                 c.authorizedGrantTypes.includes('refresh_token'));
             });
     }
 
