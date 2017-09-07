@@ -130,10 +130,8 @@ public class OAuth2Client {
             .build();
 
         // make the client execute the POST request
-        try {
-            Response response = getHttpClient().newCall(request).execute();
+        try (Response response = getHttpClient().newCall(request).execute()) {
             currentToken = OAuth2AccessTokenDetails.getObject(response);
-            response.close();
         }
         catch (IOException e) {
             throw new TokenException(e);
