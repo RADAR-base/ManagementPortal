@@ -133,6 +133,7 @@ public class OAuth2Client {
         try {
             Response response = getHttpClient().newCall(request).execute();
             currentToken = OAuth2AccessTokenDetails.getObject(response);
+            response.close();
         }
         catch (IOException e) {
             throw new TokenException(e);
