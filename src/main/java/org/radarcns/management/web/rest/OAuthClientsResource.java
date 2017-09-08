@@ -98,10 +98,8 @@ public class OAuthClientsResource {
      * GET /subjects/:id/pair_client
      *
      * Generates OAuth2 refresh tokens for the given user, to be used to bootstrap the
-     * authentication of client apps. This will generate a refresh token which can be used to
-     * access ManagementPortal and a different one for the given resource ids. This allows for a
-     * client to use the MP token to add some information to the user during setup, but use a
-     * different token for the resources it actually needs access to, thus increasing security.
+     * authentication of client apps. This will generate a refresh token which can be used at the
+     * /oauth/token endpoint to get a new access token and refresh token.
      *
      * @param login the login of the subject for whom to generate pairing information
      * @param clientId the OAuth client id
