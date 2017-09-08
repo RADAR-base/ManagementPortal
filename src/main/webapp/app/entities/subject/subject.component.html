@@ -37,7 +37,9 @@
             <tr *ngFor="let subject of subjects ;trackBy: trackId">
                 <td><a [routerLink]="['../subject', subject.id ]">{{subject.id}}</a></td>
                 <td>{{subject.login}}</td>
-                <td>{{subject.externalLink}}</td>
+                <td>
+                    <a target="_blank" [href]=subject.externalLink>{{subject.externalLink}}</a>
+                </td>
                 <td>{{subject.externalId}}</td>
                 <!--<td>-->
                     <!--<span class="badge badge-danger" *ngIsubjectient.removed">false</span>-->
