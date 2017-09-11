@@ -27,6 +27,7 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.approval.ApprovalStore;
 import org.springframework.security.oauth2.provider.approval.JdbcApprovalStore;
+import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
@@ -75,6 +76,11 @@ public class OAuth2ServerConfiguration {
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth.parentAuthenticationManager(authenticationManager);
         }
+    }
+
+    @Bean
+    public JdbcClientDetailsService jdbcClientDetailsService() {
+        return new JdbcClientDetailsService(dataSource);
     }
 
     @Configuration
@@ -148,6 +154,9 @@ public class OAuth2ServerConfiguration {
         @Autowired
         private DataSource dataSource;
 
+        @Autowired
+        private JdbcClientDetailsService jdbcClientDetailsService;
+
         @Bean
         protected AuthorizationCodeServices authorizationCodeServices() {
             return new JdbcAuthorizationCodeServices(dataSource);
@@ -204,7 +213,7 @@ public class OAuth2ServerConfiguration {
 
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-            clients.jdbc(dataSource);
+            clients.withClientDetails(jdbcClientDetailsService);
         }
 
         @Bean

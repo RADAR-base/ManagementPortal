@@ -2,11 +2,7 @@ package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
@@ -29,6 +25,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * REST controller for managing Subject.
@@ -169,5 +171,4 @@ public class SubjectResource {
         subjectRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
-
 }

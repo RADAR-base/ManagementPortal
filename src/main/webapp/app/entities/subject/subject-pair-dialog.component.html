@@ -1,0 +1,35 @@
+<form name="pairForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+
+    <div class="modal-header">
+        <h4 class="modal-title" id="mySubjectLabel" jhiTranslate="managementPortalApp.subject.home.pairAppLabel">Pair an application</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                (click)="clear()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" [hidden]="!subject.id">
+            <label for="id" jhiTranslate="global.field.id">ID</label>
+            <input type="text" class="form-control" id="id" name="id"
+                   [(ngModel)]="subject.id" readonly />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.subject.login">Login</label>
+            <input type="text" class="form-control" name="login" #loginInput="ngModel"
+                   [(ngModel)]="subject.login" required minlength=1 maxlength=50 pattern="^[_'.@A-Za-z0-9-]*$" [disabled]="subject.id">
+        </div>
+
+        <div class="form-group">
+            <label jhiTranslate="managementPortalApp.subject.clientApp" for="field_clientApp">Client app</label>
+            <select class="form-control" id="field_clientApp" name="client" [(ngModel)]="selectedClient" (change)="updateQRCode()" required>
+                <option [ngValue]="null"></option>
+                <option [ngValue]="clientOption" *ngFor="let clientOption of oauthClients; trackBy: trackOAuthClientById">{{clientOption.clientId}}</option>
+            </select>
+        </div>
+
+        <div class="form-group" *ngIf="showQRCode">
+            <div class="text-center">
+                <qr-code [value]="oauthClientPairInfo" [size]="450"></qr-code>
+            </div>
+        </div>
+    </div>
+</form>
