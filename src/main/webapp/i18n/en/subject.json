@@ -31,7 +31,7 @@
             "lastModifiedDate": "Last Modified Date",
             "pairApp": "Pair App",
             "clientApp": "Client app",
-            "resource": "Protected resource"
+            "resource": "Protected resource",
             "attributeDataKey" : "Tag",
             "attributeDataValue" : "Value",
             "status" : {

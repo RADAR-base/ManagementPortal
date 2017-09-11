@@ -31,7 +31,7 @@
             "lastModifiedDate": "Laatst aangepast datum",
             "pairApp": "App koppelen",
             "clientApp": "Client app",
-            "resource": "Beveiligde gegevensbron"
+            "resource": "Beveiligde gegevensbron",
             "attributeDataKey" : "Tag",
             "attributeDataValue" : "Value",
             "status" : {
