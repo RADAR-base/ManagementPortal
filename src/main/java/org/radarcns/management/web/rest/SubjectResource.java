@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.radarcns.management.domain.Subject;
@@ -119,14 +120,14 @@ public class SubjectResource {
      */
     @GetMapping("/subjects")
     @Timed
-    public ResponseEntity getAllSubjects(
+    public ResponseEntity<List<SubjectDTO>> getAllSubjects(
         @RequestParam(value = "projectId" , required = false) Long projectId,
         @RequestParam(value = "externalId" , required = false) String externalId) {
         log.error("ProjectID {} and external {}" , projectId, externalId);
         if(projectId!=null && externalId!=null) {
             Subject subject = subjectRepository.findOneByProjectIdAndExternalId(projectId, externalId).get();
             SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
-            return ResponseUtil.wrapOrNotFound(Optional.ofNullable(subjectDTO));
+            return ResponseUtil.wrapOrNotFound(Optional.of(Collections.singletonList(subjectDTO)));
         }
         else if (projectId==null && externalId!=null) {
             List<Subject> subjects = subjectRepository.findAllByExternalId(externalId);
