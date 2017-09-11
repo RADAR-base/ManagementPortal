@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.SubjectRepository;
+import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.SubjectService;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,10 +21,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,6 +59,7 @@ public class SubjectResource {
      */
     @PostMapping("/subjects")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN , AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
     public ResponseEntity<SubjectDTO> createSubject(@RequestBody SubjectDTO subjectDTO)
         throws URISyntaxException, IllegalAccessException {
         log.debug("REST request to save Subject : {}", subjectDTO);
@@ -70,6 +75,13 @@ public class SubjectResource {
         if (subjectDTO.getProject().getId() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "projectrequired", "A subject should be assigned to a project")).body(null);
         }
+        if (subjectDTO.getExternalId() != null && !subjectDTO.getExternalId().isEmpty() &&
+            subjectRepository.findOneByProjectIdAndExternalId(subjectDTO.getProject().getId() , subjectDTO.getExternalId()).isPresent()) {
+            return ResponseEntity.badRequest().headers(HeaderUtil
+                .createFailureAlert(ENTITY_NAME, "subjectExists",
+                    "A subject with given project-id and external-id already exists")).body(null);
+        }
+
         SubjectDTO result = subjectService.createSubject(subjectDTO);
         return ResponseEntity.created(new URI("/api/subjects/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
@@ -87,6 +99,7 @@ public class SubjectResource {
      */
     @PutMapping("/subjects")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN , AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
     public ResponseEntity<SubjectDTO> updateSubject(@RequestBody SubjectDTO subjectDTO)
         throws URISyntaxException, IllegalAccessException {
         log.debug("REST request to update Subject : {}", subjectDTO);
@@ -107,9 +120,25 @@ public class SubjectResource {
      */
     @GetMapping("/subjects")
     @Timed
-    public List<SubjectDTO> getAllSubjects() {
-       log.debug("REST request to get all Subjects");
-       return subjectService.findAll();
+    public ResponseEntity<List<SubjectDTO>> getAllSubjects(
+        @RequestParam(value = "projectId" , required = false) Long projectId,
+        @RequestParam(value = "externalId" , required = false) String externalId) {
+        log.error("ProjectID {} and external {}" , projectId, externalId);
+        if(projectId!=null && externalId!=null) {
+            Subject subject = subjectRepository.findOneByProjectIdAndExternalId(projectId, externalId).get();
+            SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
+            return ResponseUtil.wrapOrNotFound(Optional.of(Collections.singletonList(subjectDTO)));
+        }
+        else if (projectId==null && externalId!=null) {
+            List<Subject> subjects = subjectRepository.findAllByExternalId(externalId);
+            return ResponseUtil.wrapOrNotFound(Optional.of(subjectMapper.subjectsToSubjectDTOs(subjects)));
+        }
+        else if( projectId!=null) {
+            List<Subject> subjects = subjectRepository.findAllByProjectId(projectId);
+            return ResponseUtil.wrapOrNotFound(Optional.of(subjectMapper.subjectsToSubjectDTOs(subjects)));
+        }
+        log.debug("REST request to get all Subjects");
+       return ResponseEntity.ok(subjectService.findAll());
     }
 
     /**

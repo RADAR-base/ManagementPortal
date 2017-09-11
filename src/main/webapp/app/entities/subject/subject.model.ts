@@ -1,5 +1,6 @@
 import {Project} from "../project/project.model";
 import {Source, MinimalSource} from "../source/source.model";
+import {Attribute} from "../../shared/attribute-mapper/attribute-mapper.model";
 export class Subject {
     public id?: any;
     public login?: string;
@@ -15,6 +16,8 @@ export class Subject {
     public password?: string;
     public project?: Project;
     public source?: MinimalSource = new MinimalSource();
+    public attributes: Attribute[];
+    public status: SubjectStatus;
 
     constructor(
          id?: number,
@@ -22,6 +25,7 @@ export class Subject {
          email?: string,
          externalLink?: string,
          externalId?: string,
+         status?: SubjectStatus,
          removed?: boolean,
          activated?: boolean,
          createdBy?: string,
@@ -47,5 +51,11 @@ export class Subject {
         this.password = password ? password : null;
         this.project = project ? project: null;
         this.source = source ? source: new MinimalSource();
+        this.status = status ? status: SubjectStatus.DEACTIVATED;
     }
+}
+export const enum SubjectStatus {
+    'DEACTIVATED',
+    'ACTIVATED',
+    'DISCONTINUED'
 }

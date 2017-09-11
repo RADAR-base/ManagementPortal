@@ -32,6 +32,25 @@
             "pairApp": "App koppelen",
             "clientApp": "Client app",
             "resource": "Beveiligde gegevensbron"
+            "attributeDataKey" : "Tag",
+            "attributeDataValue" : "Value",
+            "status" : {
+                "title" : "Staat",
+                "discontinued" : "Stopgezet",
+                "active" : "Geactiveerd",
+                "deactivated" : "Gedeactiveerd"
+            },
+            "discontinue" : {
+                "operation" : "Staken",
+                "title" : "Bevestig de werking stoppen",
+                "question" : "Weet u zeker dat u het onderwerp wilt stoppen {{ id }}?"
+            },
+            "discontinued": "Een onderwerp wordt beëindigd met een identificatiecode {{ param }}"
         }
+    },
+    "error": {
+        "patientEmailRequired": "Er is een geldige e-mail nodig om het vakaccount te activeren",
+        "subjectExists" : "Er bestaat al een onderwerp met een gegeven project-id en extern id"
     }
+
 }

@@ -1,4 +1,5 @@
 
+import {Attribute} from "../../shared/attribute-mapper/attribute-mapper.model";
 const enum ProjectStatus {
     'PLANNING',
     'ONGOING',
@@ -15,8 +16,8 @@ export class Project {
         public startDate?: any,
         public projectStatus?: ProjectStatus,
         public endDate?: any,
-        public projectAdmin?: number,
         public deviceTypeId?: number,
+        public attributes ?: Attribute[]
     ) {
     }
 }

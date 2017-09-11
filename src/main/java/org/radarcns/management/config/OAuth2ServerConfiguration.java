@@ -222,7 +222,6 @@ public class OAuth2ServerConfiguration {
             DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
             defaultTokenServices.setTokenStore(tokenStore());
             defaultTokenServices.setSupportRefreshToken(true);
-            defaultTokenServices.setReuseRefreshToken(false);
             return defaultTokenServices;
         }
     }

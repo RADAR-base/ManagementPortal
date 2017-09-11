@@ -25,6 +25,8 @@ export class SubjectDialogComponent implements OnInit {
     projects: Project[];
 
     sources: MinimalSource[];
+    keys : string[];
+    attributeComponentEventPrefix : 'subjectAttributes';
 
     constructor(public activeModal: NgbActiveModal,
                 private jhiLanguageService: JhiLanguageService,
@@ -39,6 +41,7 @@ export class SubjectDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
+        this.keys = ['Human-readable-identifier'];
         this.projectService.query().subscribe(
             (res) => {
                 this.projects = res.json();
@@ -54,6 +57,13 @@ export class SubjectDialogComponent implements OnInit {
                     this.sources = res.json();
                 }, (res: Response) => this.onError(res.json()));
         }
+        this.registerChangesInSubject();
+    }
+
+    private registerChangesInSubject() {
+        this.eventManager.subscribe(this.attributeComponentEventPrefix+'ListModification', (response ) => {
+            this.subject.attributes= response.content;
+        });
     }
 
     clear() {
@@ -104,7 +114,7 @@ export class SubjectDialogComponent implements OnInit {
     getSelected(selectedVals: Array<any>, option: any) {
         if (selectedVals) {
             for (let i = 0; i < selectedVals.length; i++) {
-                if (option.id === selectedVals[i].id) {
+                if (selectedVals[i] && option.id === selectedVals[i].id) {
                     return selectedVals[i];
                 }
             }

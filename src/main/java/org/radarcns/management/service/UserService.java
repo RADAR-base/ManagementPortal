@@ -1,24 +1,23 @@
 package org.radarcns.management.service;
 
-import java.util.stream.Collectors;
+import org.radarcns.management.config.Constants;
 import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
-import org.radarcns.management.config.Constants;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.security.SecurityUtils;
+import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.RoleMapper;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
-import org.radarcns.management.service.dto.UserDTO;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,7 +26,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Service class for managing users.
@@ -38,32 +41,26 @@ public class UserService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    private final ProjectRepository projectRepository;
+    @Autowired
+    private ProjectRepository projectRepository;
 
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    private final RoleRepository roleRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
-    private final ProjectMapper projectMapper;
+    @Autowired
+    private ProjectMapper projectMapper;
 
-    private final UserMapper userMapper;
+    @Autowired
+    private UserMapper userMapper;
 
-    private final RoleMapper roleMapper;
-
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-        RoleRepository roleRepository,
-        ProjectRepository projectRepository, ProjectMapper projectMapper,
-        UserMapper userMapper, RoleMapper roleMapper) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.roleRepository = roleRepository;
-        this.projectRepository = projectRepository;
-        this.projectMapper = projectMapper;
-        this.userMapper = userMapper;
-        this.roleMapper = roleMapper;
-    }
+    @Autowired
+    private RoleMapper roleMapper;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -162,6 +159,7 @@ public class UserService {
                     role = new Role();
                     role.setAuthority(new Authority(authority));
                     role.setProject(projectMapper.projectDTOToProject(userDTO.getProject()));
+                    roleRepository.save(role);
                 }
                 roles.add(role);
             }
@@ -232,6 +230,7 @@ public class UserService {
                                 role = new Role();
                                 role.setAuthority(new Authority(authority));
                                 role.setProject(projectMapper.projectDTOToProject(userDTO.getProject()));
+                                roleRepository.save(role);
                             }
                             managedRoles.add(role);
                         }

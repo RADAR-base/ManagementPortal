@@ -18,6 +18,7 @@ import {
     JhiLoginModalComponent
 } from './';
 import {AuthorityService} from "./user/authority.service";
+import {AttributeMapperComponent} from "./attribute-mapper/attribute-mapper.component";
 
 @NgModule({
     imports: [
@@ -26,7 +27,8 @@ import {AuthorityService} from "./user/authority.service";
     ],
     declarations: [
         JhiLoginModalComponent,
-        HasAnyAuthorityDirective
+        HasAnyAuthorityDirective,
+        AttributeMapperComponent
     ],
     providers: [
         CookieService,
@@ -47,6 +49,7 @@ import {AuthorityService} from "./user/authority.service";
         ManagementPortalSharedCommonModule,
         JhiLoginModalComponent,
         HasAnyAuthorityDirective,
+        AttributeMapperComponent,
         DatePipe
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]

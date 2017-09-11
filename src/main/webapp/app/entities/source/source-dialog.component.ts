@@ -41,11 +41,15 @@ export class SourceDialogComponent implements OnInit {
         //     (res: Response) => { this.sourcetypes = res.json(); }, (res: Response) => this.onError(res.json()));
         this.projectService.findAll(true).subscribe(
             (res: Response) => { this.projects = res.json(); }, (res: Response) => this.onError(res.json()));
+        if(this.source.project) {
+            this.projectService.findDeviceTypesById(this.source.project.id).subscribe((res: Response) => {
+                this.deviceTypes = res.json();
+            });
+        }
     }
 
     public onProjectChange(project: any) {
         if(project!=null) {
-            // console.log(project);
             this.projectService.findDeviceTypesById(project.id).subscribe((res: Response) => {
                 this.deviceTypes = res.json();
             });
@@ -97,6 +101,18 @@ export class SourceDialogComponent implements OnInit {
     }
     trackProjectById(index: number, item: MinimalProject) {
         return item.id;
+    }
+
+    getSelected(selectedVals: any, option: any) {
+        console.log('selected', selectedVals);
+        if (selectedVals) {
+            for (let i = 0; i < selectedVals.length; i++) {
+                if (selectedVals[i] && option.id === selectedVals[i].id) {
+                    return selectedVals[i];
+                }
+            }
+        }
+        return option;
     }
 }
 

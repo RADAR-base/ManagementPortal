@@ -3,3 +3,4 @@ ManagementPortalapp;res_ManagementPortal;my-secret-token-to-change-in-production
 pRMT;res_ManagementPortal;;read,write;refresh_token,authorization_code;http://localhost:8080;ROLE_USER;43200;5184000;{};true
 radar_restapi;res_ManagementPortal;my-secret-token-to-change-in-production;read;client_credentials;;ROLE_USER;1800;3600;{};true
 THINC-IT;res_gateway,res_ManagementPortal;secret;read,write;password,refresh_token,authorization_code,implicit;;ROLE_PROJECT_ADMIN,ROLE_USER,ROLE_SYS_ADMIN;43200;5184000;{};true
+radar_redcap_integrator;res_ManagementPortal;my-secrect_token;read,write;client_credentials;;ROLE_EXTERNAL_ERF_INTEGRATOR;1800;2000;{};true

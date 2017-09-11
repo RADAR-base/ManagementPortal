@@ -63,6 +63,7 @@ export const subjectPopupRoute: Routes = [
     canActivate: [UserRouteAccessService],
     outlet: 'popup'
   },
+
   {
     path: 'subject/:id/pairApp',
     component: SubjectPairPopupComponent,
@@ -73,5 +74,17 @@ export const subjectPopupRoute: Routes = [
     canActivate: [UserRouteAccessService],
     outlet: 'popup'
   }
+
+
+    {
+        path: 'subject/:id/discontinue',
+        component: SubjectDeletePopupComponent,
+        data: {
+            authorities: ['ROLE_USER'],
+            pageTitle: 'managementPortalApp.subject.home.title'
+        },
+        canActivate: [UserRouteAccessService],
+        outlet: 'popup'
+    }
 
 ];

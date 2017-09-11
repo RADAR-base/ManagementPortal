@@ -6,17 +6,22 @@ import org.radarcns.management.service.dto.ProjectDTO;
 
 import org.mapstruct.*;
 import java.util.List;
+import org.radarcns.management.service.mapper.decorator.ProjectMapperDecorator;
+import org.radarcns.management.service.mapper.decorator.SourceMapperDecorator;
 
 /**
  * Mapper for the entity Project and its DTO ProjectDTO.
  */
 @Mapper(componentModel = "spring", uses = {DeviceTypeMapper.class, })
+@DecoratedWith(ProjectMapperDecorator.class)
 public interface ProjectMapper {
 
+    @Mapping(target = "attributes" , ignore = true)
     ProjectDTO projectToProjectDTO(Project project);
 
     List<ProjectDTO> projectsToProjectDTOs(List<Project> projects);
 
+    @Mapping(target = "attributes"  , ignore = true)
     Project projectDTOToProject(ProjectDTO projectDTO);
 
     List<Project> projectDTOsToProjects(List<ProjectDTO> projectDTOs);
