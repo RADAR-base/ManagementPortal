@@ -153,6 +153,11 @@ public class SourceResource {
     @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<Void> deleteSource(@PathVariable Long id) {
         log.debug("REST request to delete Source : {}", id);
+        if (sourceRepository.findOne(id).isAssigned()) {
+            return ResponseEntity.badRequest()
+                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceIsAssigned", "Cannot delete an assigned source"))
+                .body(null);
+        }
         sourceService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }

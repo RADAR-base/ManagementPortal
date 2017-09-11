@@ -24,6 +24,7 @@
         }
     },
     "error": {
-        "sourceNameExists": " Source Name is already registered"
+        "sourceNameExists": " Source Name is already registered",
+        "sourceIsAssigned": "Cannot delete a currently assigned source."
     }
 }

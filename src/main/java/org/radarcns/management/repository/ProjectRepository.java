@@ -1,12 +1,11 @@
 package org.radarcns.management.repository;
 
+import java.util.List;
 import org.radarcns.management.domain.DeviceType;
 import org.radarcns.management.domain.Project;
-
-import org.springframework.data.jpa.repository.*;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.util.List;
 
 /**
  * Spring Data JPA repository for the Project entity.

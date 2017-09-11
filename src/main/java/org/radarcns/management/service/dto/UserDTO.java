@@ -1,17 +1,11 @@
 package org.radarcns.management.service.dto;
 
-import org.radarcns.management.config.Constants;
-
-import org.radarcns.management.domain.Authority;
-import org.radarcns.management.domain.Project;
-import org.radarcns.management.domain.User;
-
-import org.hibernate.validator.constraints.Email;
-
-import javax.validation.constraints.*;
 import java.time.ZonedDateTime;
 import java.util.Set;
-import java.util.stream.Collectors;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.Email;
+import org.radarcns.management.config.Constants;
 
 /**
  * A DTO representing a user, with his authorities.

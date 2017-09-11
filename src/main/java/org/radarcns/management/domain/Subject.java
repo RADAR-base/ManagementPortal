@@ -1,16 +1,29 @@
 package org.radarcns.management.domain;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import org.hibernate.annotations.*;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Objects;
 import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 /**
@@ -47,8 +60,14 @@ public class Subject implements Serializable {
     @JoinTable(name = "subject_sources",
                joinColumns = @JoinColumn(name="subjects_id", referencedColumnName="id"),
                inverseJoinColumns = @JoinColumn(name="sources_id", referencedColumnName="id"))
-    @Cascade(CascadeType.ALL)
+    @Cascade(CascadeType.SAVE_UPDATE)
     private Set<Source> sources = new HashSet<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @MapKeyColumn(name="attribute_key")
+    @Column(name="attribute_value")
+    @CollectionTable(name="subject_metadata" ,  joinColumns = @JoinColumn(name = "id"))
+    Map<String, String> attributes = new HashMap<>();
 
     public Long getId() {
         return id;
@@ -133,6 +152,14 @@ public class Subject implements Serializable {
 
     public void setSources(Set<Source> sources) {
         this.sources = sources;
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
     }
 
     @Override

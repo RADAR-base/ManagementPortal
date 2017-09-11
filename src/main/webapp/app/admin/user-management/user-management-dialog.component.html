@@ -97,7 +97,7 @@
         <div class="form-group"   [hidden]="isAdmin">
             <label jhiTranslate="userManagement.project" for="field_project">Project</label>
             <select class="form-control" id="field_project" name="project" [(ngModel)]="user.project" (ngModelChange)="onProjectChange($event)" required>
-                <option [ngValue]="null" [hidden]="isAdmin"></option>
+                <option [ngValue]="null"></option>
                 <option [ngValue]="projectOption.id === user.project?.id ? user.project : projectOption" *ngFor="let projectOption of projects; trackBy: trackProjectById">{{projectOption.projectName}}</option>
             </select>
             <!--<div [hidden]="!(editForm.controls.project?.dirty && editForm.controls.project?.invalid)">-->

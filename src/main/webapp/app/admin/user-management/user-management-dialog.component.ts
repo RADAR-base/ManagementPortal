@@ -142,14 +142,14 @@ export class UserDialogComponent implements OnInit, OnDestroy {
         this.routeSub = this.route.params.subscribe((params) => {
             this.route.url.subscribe(url =>{
                 if('user-management-new-admin'==(url[0].path)){
-                    this.modalRef = this.userModalService.open(UserMgmtDialogComponent , true);
+                    this.modalRef = this.userModalService.open(UserMgmtDialogComponent , null, true);
                 }
                 return;
             });
             if ( params['login'] ) {
-                this.modalRef = this.userModalService.open(UserMgmtDialogComponent, false, params['login']);
+                this.modalRef = this.userModalService.open(UserMgmtDialogComponent,params['login'], false );
             } else {
-                this.modalRef = this.userModalService.open(UserMgmtDialogComponent , false);
+                this.modalRef = this.userModalService.open(UserMgmtDialogComponent, null , false);
             }
         });
     }

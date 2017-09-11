@@ -1,9 +1,5 @@
 package org.radarcns.management.service.dto;
 
-import java.util.HashSet;
-import java.util.Set;
-import org.radarcns.management.domain.Project;
-
 /**
  * Created by nivethika on 23-5-17.
  */

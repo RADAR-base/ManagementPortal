@@ -1,18 +1,23 @@
 package org.radarcns.management.service.dto;
 
 
-import java.time.ZonedDateTime;
-import javax.validation.constraints.*;
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Objects;
+import java.util.Set;
+import javax.validation.constraints.NotNull;
 import org.radarcns.management.domain.enumeration.ProjectStatus;
 
 /**
  * A DTO for the Project entity.
  */
 public class ProjectDTO implements Serializable {
+
+    public static final String EXTERNAL_PROJECT_URL_KEY = "External-project-url";
+    public static final String EXTERNAL_PROJECT_ID_KEY = "External-project-id";
+    public static final String WORK_PACKAGE_KEY = "Work-package";
+    public static final String PHASE_KEY = "Phase";
 
     private Long id;
 
@@ -36,6 +41,8 @@ public class ProjectDTO implements Serializable {
     private Long projectAdmin;
 
     private Set<DeviceTypeDTO> deviceTypes = new HashSet<>();
+
+    private Set<AttributeMapDTO> attributes = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -107,6 +114,14 @@ public class ProjectDTO implements Serializable {
 
     public void setDeviceTypes(Set<DeviceTypeDTO> deviceTypes) {
         this.deviceTypes = deviceTypes;
+    }
+
+    public Set<AttributeMapDTO> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Set<AttributeMapDTO> attributes) {
+        this.attributes = attributes;
     }
 
     @Override

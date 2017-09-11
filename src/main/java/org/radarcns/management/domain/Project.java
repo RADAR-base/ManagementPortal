@@ -1,19 +1,34 @@
 package org.radarcns.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.HashMap;
+import java.util.Map;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import org.hibernate.annotations.*;
-
-import javax.persistence.*;
-import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Objects;
 
+import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
 import org.radarcns.management.domain.enumeration.ProjectStatus;
 
 /**
@@ -69,6 +84,12 @@ public class Project implements Serializable {
                joinColumns = @JoinColumn(name="projects_id", referencedColumnName="id"),
                inverseJoinColumns = @JoinColumn(name="device_types_id", referencedColumnName="id"))
     private Set<DeviceType> deviceTypes = new HashSet<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @MapKeyColumn(name="attribute_key")
+    @Column(name="attribute_value")
+    @CollectionTable(name="project_metadata" ,  joinColumns = @JoinColumn(name = "id"))
+    Map<String, String> attributes = new HashMap<>();
 
     public Long getId() {
         return id;
@@ -213,6 +234,14 @@ public class Project implements Serializable {
 
     public void setDeviceTypes(Set<DeviceType> deviceTypes) {
         this.deviceTypes = deviceTypes;
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
     }
 
     @Override
