@@ -165,8 +165,7 @@ public class OAuthClientsResource {
         OAuth2AccessToken token = createToken(clientId, user.getLogin(), authorities,
             details.getScope(), details.getResourceIds());
 
-        ClientPairInfoDTO cpi = new ClientPairInfoDTO(token.getRefreshToken().getValue(),
-            user.getLogin());
+        ClientPairInfoDTO cpi = new ClientPairInfoDTO(token.getRefreshToken().getValue());
 
         return new ResponseEntity<>(cpi, HttpStatus.OK);
     }
