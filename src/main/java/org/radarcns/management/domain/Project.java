@@ -1,6 +1,8 @@
 package org.radarcns.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.HashMap;
+import java.util.Map;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import org.hibernate.annotations.*;
@@ -69,6 +71,12 @@ public class Project implements Serializable {
                joinColumns = @JoinColumn(name="projects_id", referencedColumnName="id"),
                inverseJoinColumns = @JoinColumn(name="device_types_id", referencedColumnName="id"))
     private Set<DeviceType> deviceTypes = new HashSet<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @MapKeyColumn(name="attribute_key")
+    @Column(name="attribute_value")
+    @CollectionTable(name="project_metadata" ,  joinColumns = @JoinColumn(name = "id"))
+    Map<String, String> attributes = new HashMap<>();
 
     public Long getId() {
         return id;
@@ -213,6 +221,14 @@ public class Project implements Serializable {
 
     public void setDeviceTypes(Set<DeviceType> deviceTypes) {
         this.deviceTypes = deviceTypes;
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
     }
 
     @Override

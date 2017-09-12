@@ -2,6 +2,8 @@ package org.radarcns.management.service.dto;
 
 
 import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -36,6 +38,8 @@ public class ProjectDTO implements Serializable {
     private Long projectAdmin;
 
     private Set<DeviceTypeDTO> deviceTypes = new HashSet<>();
+
+    private Map<String, String> attributes = new HashMap<>();
 
     public Long getId() {
         return id;
@@ -107,6 +111,14 @@ public class ProjectDTO implements Serializable {
 
     public void setDeviceTypes(Set<DeviceTypeDTO> deviceTypes) {
         this.deviceTypes = deviceTypes;
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
     }
 
     @Override
