@@ -14,6 +14,8 @@ import {
     projectRoute,
     projectPopupRoute,
 } from './';
+import {ManagementPortalSourceModule} from "../source/source.module";
+import {ManagementPortalSubjectModule} from "../subject/subject.module";
 
 const ENTITY_STATES = [
     ...projectRoute,
@@ -23,6 +25,8 @@ const ENTITY_STATES = [
 @NgModule({
     imports: [
         ManagementPortalSharedModule,
+        ManagementPortalSourceModule,
+        ManagementPortalSubjectModule,
         RouterModule.forRoot(ENTITY_STATES, { useHash: true })
     ],
     declarations: [

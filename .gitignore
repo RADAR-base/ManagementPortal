@@ -6,6 +6,11 @@
 /src/test/javascript/coverage/
 /src/test/javascript/PhantomJS*/
 keystore.jks
+/src/main/docker/etc/smtp.env
+######################
+# Patch files
+######################
+*.patch
 
 ######################
 # Node
@@ -114,6 +119,7 @@ Desktop.ini
 ######################
 /bin/
 /deploy/
+.jhipster/
 
 ######################
 # Logs

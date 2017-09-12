@@ -44,6 +44,9 @@ const ENTITY_STATES = [
         SubjectService,
         SubjectPopupService,
     ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    exports: [
+        SubjectComponent
+    ],
 })
 export class ManagementPortalSubjectModule {}

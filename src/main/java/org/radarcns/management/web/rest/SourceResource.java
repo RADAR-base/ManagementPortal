@@ -98,9 +98,15 @@ public class SourceResource {
      */
     @GetMapping("/sources")
     @Timed
-    public List<SourceDTO> getAllSources() {
+    public ResponseEntity getAllSources(
+        @RequestParam(value = "projectId" , required = false) Long projectId) {
+
+        if( projectId!=null) {
+            log.debug("REST request to get all Sources by project id {}" , projectId);
+            return ResponseUtil.wrapOrNotFound(Optional.of(sourceService.findAllByProjectId(projectId)));
+        }
         log.debug("REST request to get all Sources");
-        return sourceService.findAll();
+        return ResponseUtil.wrapOrNotFound(Optional.of(sourceService.findAll()));
     }
 
     /**

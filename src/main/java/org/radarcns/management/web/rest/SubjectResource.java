@@ -101,9 +101,14 @@ public class SubjectResource {
      */
     @GetMapping("/subjects")
     @Timed
-    public List<SubjectDTO> getAllSubjects() {
-       log.debug("REST request to get all Subjects");
-       return subjectService.findAll();
+    public ResponseEntity<List<SubjectDTO>> getAllSubjects( @RequestParam(value = "projectId" , required = false) Long projectId) {
+        if( projectId!=null) {
+            log.info("Requesting subjects for project-id {}" , projectId);
+            List<Subject> subjects = subjectRepository.findAllByProjectId(projectId);
+            return ResponseUtil.wrapOrNotFound(Optional.of(subjectMapper.subjectsToSubjectDTOs(subjects)));
+        }
+        log.debug("REST request to get all Subjects");
+        return ResponseEntity.ok(subjectService.findAll());
     }
 
     /**

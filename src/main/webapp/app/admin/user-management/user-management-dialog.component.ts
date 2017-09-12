@@ -44,8 +44,6 @@ export class UserMgmtDialogComponent implements OnInit {
         });
         this.jhiLanguageService.setLocations(['user-management']);
         this.registerChangeInRoles();
-        // console.log("user roles" , this.user.roles);
-        // this.eventManager.broadcast({name: 'roleEditListModification', content: this.user.roles});
     }
 
     registerChangeInRoles() {

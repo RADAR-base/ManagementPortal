@@ -1,8 +1,11 @@
-import { Injectable, Component } from '@angular/core';
+import {Injectable, Component, ComponentFactoryResolver, ViewContainerRef} from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
+import {Project} from "../project/project.model";
+import {ProjectService} from "../project/project.service";
+import {SubjectDialogComponent} from "./subject-dialog.component";
 @Injectable()
 export class SubjectPopupService {
     private isOpen = false;
@@ -10,11 +13,12 @@ export class SubjectPopupService {
     constructor(
         private modalService: NgbModal,
         private router: Router,
-        private subjectService: SubjectService
+        private subjectService: SubjectService,
+        private projectService: ProjectService,
 
     ) {}
 
-    open(component: Component, id?: number | any): NgbModalRef {
+    open(component: Component, id?: number | any , projectId?: number | any): NgbModalRef {
         if (this.isOpen) {
             return;
         }
@@ -22,7 +26,7 @@ export class SubjectPopupService {
 
         if (id) {
             this.subjectService.find(id).subscribe((subject) => {
-                this.subjectModalRef(component, subject);
+                this.subjectModalRef(component, subject , projectId);
             });
         } else {
             var subject = new Subject();
@@ -30,13 +34,20 @@ export class SubjectPopupService {
                 var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
                 return v.toString(16);
             });
-            return this.subjectModalRef(component, subject);
+            return this.subjectModalRef(component, subject, projectId);
         }
     }
 
-    subjectModalRef(component: Component, subject: Subject): NgbModalRef {
+    subjectModalRef(component: Component, subjects: Subject , projectId?: number ): NgbModalRef {
         const modalRef = this.modalService.open(component, { size: 'lg', backdrop: 'static'});
-        modalRef.componentInstance.subject = subject;
+        modalRef.componentInstance.subject = subjects;
+        if(projectId) {
+            this.projectService.find(projectId).subscribe((project) => {
+                let projects = [project];
+                modalRef.componentInstance.projects = projects;
+                console.log('hereh',modalRef.componentInstance.projects)
+            });
+        }
         modalRef.result.then((result) => {
             this.router.navigate([{ outlets: { popup: null }}], { replaceUrl: true });
             this.isOpen = false;

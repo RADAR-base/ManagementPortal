@@ -44,6 +44,9 @@ const ENTITY_STATES = [
         SourceService,
         SourcePopupService,
     ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    exports: [
+        SourceComponent
+    ],
 })
 export class ManagementPortalSourceModule {}

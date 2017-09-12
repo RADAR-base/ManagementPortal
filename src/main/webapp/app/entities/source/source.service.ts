@@ -62,4 +62,15 @@ export class SourceService {
         }
         return options;
     }
+
+    findAllByProject(req?: any) :  Observable<Response> {
+        const params: URLSearchParams = new URLSearchParams();
+        if (req) {
+            params.set('projectId', req.projectId);
+        }
+        const options = {
+            search: params
+        };
+        return this.http.get(this.resourceUrl, options);
+    }
 }

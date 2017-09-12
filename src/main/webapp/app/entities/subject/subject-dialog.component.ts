@@ -1,5 +1,8 @@
-import {Component, OnInit, OnDestroy, Input} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {
+    Component, OnInit, OnDestroy, Input, ViewChild, ViewContainerRef,
+    ComponentFactoryResolver, ComponentFactory, ComponentRef
+} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Response} from '@angular/http';
 
 import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
@@ -12,6 +15,7 @@ import {SourceService} from '../source';
 import {Project} from "../project/project.model";
 import {ProjectService} from "../project/project.service";
 import {MinimalSource} from "../source/source.model";
+import {ContainerRef} from "angular2-infinite-scroll";
 
 @Component({
     selector: 'jhi-subject-dialog',
@@ -33,16 +37,18 @@ export class SubjectDialogComponent implements OnInit {
                 private projectService: ProjectService,
                 private sourceService: SourceService,
                 private eventManager: EventManager) {
-        this.jhiLanguageService.setLocations(['subject']);
+        this.jhiLanguageService.setLocations(['subject' , 'project' , 'projectStatus']);
     }
 
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
+        if(this.projects==null) {
         this.projectService.query().subscribe(
             (res) => {
                 this.projects = res.json();
             });
+        }
         if (this.subject.id !== null) {
             this.sourceService.findUnAssignedAndOfSubject(this.subject.id).subscribe(
                 (res: Response) => {
@@ -123,19 +129,37 @@ export class SubjectPopupComponent implements OnInit, OnDestroy {
     routeSub: any;
 
     constructor(private route: ActivatedRoute,
-                private subjectPopupService: SubjectPopupService) {
+                private router : Router,
+                private subjectPopupService: SubjectPopupService,
+    ) {
     }
 
     ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            if (params['id']) {
-                this.modalRef = this.subjectPopupService
-                .open(SubjectDialogComponent, params['id']);
-            } else {
-                this.modalRef = this.subjectPopupService
-                .open(SubjectDialogComponent);
+        this.router.routerState.root.firstChild.url.subscribe(url => {
+            if(url[0].path === 'project' && url[1].path) {
+                this.routeSub = this.route.params.subscribe((params) => {
+                    if (params['id']) {
+                        this.modalRef = this.subjectPopupService
+                        .open(SubjectDialogComponent, params['id'] , url[1].path);
+                    } else {
+                        this.modalRef = this.subjectPopupService
+                        .open(SubjectDialogComponent , null ,  url[1].path);
+                    }
+                });
+            }
+            else {
+                this.routeSub = this.route.params.subscribe((params) => {
+                    if (params['id']) {
+                        this.modalRef = this.subjectPopupService
+                        .open(SubjectDialogComponent, params['id']);
+                    } else {
+                        this.modalRef = this.subjectPopupService
+                        .open(SubjectDialogComponent);
+                    }
+                });
             }
         });
+
     }
 
     ngOnDestroy() {

@@ -128,4 +128,11 @@ public class SourceService {
         log.debug("Request to delete Source : {}", id);
         sourceRepository.delete(id);
     }
+
+    public List<SourceDTO> findAllByProjectId(Long projectId) {
+        return sourceRepository.findAllSourcesByProjectId(projectId)
+            .stream()
+            .map(sourceMapper::sourceToSourceDTO)
+            .collect(Collectors.toCollection(LinkedList::new));
+    }
 }

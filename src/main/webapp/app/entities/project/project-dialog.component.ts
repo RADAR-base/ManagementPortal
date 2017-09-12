@@ -14,7 +14,7 @@ import { DeviceType, DeviceTypeService } from '../device-type';
     selector: 'jhi-project-dialog',
     templateUrl: './project-dialog.component.html'
 })
-export class ProjectDialogComponent implements OnInit {
+export class ProjectDialogComponent implements OnInit  {
 
     project: Project;
     authorities: any[];
@@ -29,7 +29,7 @@ export class ProjectDialogComponent implements OnInit {
         private deviceTypeService: DeviceTypeService,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['project', 'projectStatus']);
+        this.jhiLanguageService.setLocations(['project', 'projectStatus' , 'source']);
     }
 
     ngOnInit() {

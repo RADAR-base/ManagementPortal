@@ -1,59 +1,97 @@
+<div id="wrapper" [ngClass]="{'toggled': true}">
+    <div id="sidebar-wrapper">
+        <div class="sidebar-nav" *ngIf="project">
+            <p class="status-header">
+                {{project.projectName}}
+            </p>
+            <ul class="status-list">
+                <ng-container>
+                    <li class="status-group" (click)="viewSources()">
+                        <span>
+                            Sources
+                        </span>
+                    </li>
+                    <li class="status-group" (click)="viewSubjects()">
+                        <span>
+                            Subjects
+                        </span>
+                    </li>
+                    <li class="status-group">
+                        <span>
+                            Device Types
+                        </span>
+                    </li>
+                    <li class="status-group">
+                        <span>
+                            Project Admins
+                        </span>
+                    </li>
+                    <li class="status-group">
+                        <span>
+                            Researchers
+                        </span>
+                    </li>
+                </ng-container>
+            </ul>
+        </div>
+    </div>
+    <div id="project-content-wrapper">
+        <div *ngIf="project">
+            <jhi-alert-error></jhi-alert-error>
+            <h2>
+                <span jhiTranslate="managementPortalApp.project.home.title">Projects</span>
+                <button type="button"
+                        [routerLink]="['/', { outlets: { popup: 'project/'+ project.id + '/edit'} }]"
+                        replaceUrl="true"
+                        class="btn btn-primary float-right">
+                    <span class="fa fa-pencil"></span>&nbsp;<span
+                    jhiTranslate="entity.action.edit"> Edit</span>
+                </button>
+            </h2>
 
-<div *ngIf="project">
-    <h2><span jhiTranslate="managementPortalApp.project.detail.title">Project</span> {{project.id}}</h2>
-    <hr>
-    <jhi-alert-error></jhi-alert-error>
-    <dl class="row-md jh-entity-details">
-        <dt><span jhiTranslate="managementPortalApp.project.projectName">Project Name</span></dt>
-        <dd>
-            <span>{{project.projectName}}</span>
-        </dd>
-        <dt><span jhiTranslate="managementPortalApp.project.description">Description</span></dt>
-        <dd>
-            <span>{{project.description}}</span>
-        </dd>
-        <dt><span jhiTranslate="managementPortalApp.project.organization">Organization</span></dt>
-        <dd>
-            <span>{{project.organization}}</span>
-        </dd>
-        <dt><span jhiTranslate="managementPortalApp.project.location">Location</span></dt>
-        <dd>
-            <span>{{project.location}}</span>
-        </dd>
-        <dt><span jhiTranslate="managementPortalApp.project.startDate">Start Date</span></dt>
-        <dd>
-            <span>{{project.startDate | date:'medium'}}</span>
-        </dd>
-        <dt><span jhiTranslate="managementPortalApp.project.projectStatus">Project Status</span></dt>
-        <dd>
-            <span jhiTranslate="{{'managementPortalApp.ProjectStatus.' + project.projectStatus}}">{{project.projectStatus}}</span>
-        </dd>
-        <dt><span jhiTranslate="managementPortalApp.project.endDate">End Date</span></dt>
-        <dd>
-            <span>{{project.endDate | date:'medium'}}</span>
-        </dd>
-        <dt><span jhiTranslate="managementPortalApp.project.projectAdmin">Project Admin</span></dt>
-        <dd>
-            <span>{{project.projectAdmin}}</span>
-        </dd>
-        <dt><span jhiTranslate="managementPortalApp.project.deviceType">Device Type</span></dt>
-        <dd>
-            <span *ngFor="let deviceType of project.deviceTypes; let last = last">
-                <a [routerLink]="['/device-type', deviceType?.id ]">{{deviceType.deviceModel}}</a>{{last ? '' : ', '}}
-            </span>
-        </dd>
-    </dl>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <!--<th><span jhiTranslate="global.field.id">ID</span></th>-->
+                    <th><span
+                        jhiTranslate="managementPortalApp.project.projectName">Project Name</span>
+                    </th>
+                    <th><span
+                        jhiTranslate="managementPortalApp.project.description">Description</span>
+                    </th>
+                    <th><span
+                        jhiTranslate="managementPortalApp.project.organization">Organization</span>
+                    </th>
+                    <th><span jhiTranslate="managementPortalApp.project.location">Location</span>
+                    </th>
+                    <th><span jhiTranslate="managementPortalApp.project.startDate">Start Date</span>
+                    </th>
+                    <th><span jhiTranslate="managementPortalApp.project.projectStatus">Project Status</span>
+                    </th>
+                    <th><span jhiTranslate="managementPortalApp.project.endDate">End Date</span>
+                    </th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngIf="project">
+                    <!--<td><a [routerLink]="['../project', project.id ]">{{project.id}}</a></td>-->
+                    <td>{{project.projectName}}</td>
+                    <td>{{project.description}}</td>
+                    <td>{{project.organization}}</td>
+                    <td>{{project.location}}</td>
+                    <td>{{project.startDate | date:'medium'}}</td>
+                    <td jhiTranslate="{{'managementPortalApp.ProjectStatus.' + project.projectStatus}}">
+                        {{project.projectStatus}}
+                    </td>
+                    <td>{{project.endDate | date:'medium'}}</td>
+                </tr>
+                </tbody>
+            </table>
 
-    <button type="submit"
-            (click)="previousState()"
-            class="btn btn-info">
-        <span class="fa fa-arrow-left"></span>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
-    </button>
+            <jhi-source *ngIf="showSources" [project]='project'></jhi-source>
+            <jhi-subject *ngIf="showSubjects" [project]='project'></jhi-subject>
 
-    <button type="button"
-            [routerLink]="['/', { outlets: { popup: 'project/'+ project.id + '/edit'} }]"
-            replaceUrl="true"
-            class="btn btn-primary">
-        <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
-    </button>
+        </div>
+    </div>
 </div>

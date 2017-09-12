@@ -31,7 +31,7 @@ export class SourceDialogComponent implements OnInit {
         private projectService: ProjectService,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['source']);
+        this.jhiLanguageService.setLocations(['source' , 'project' , 'projectStatus']);
     }
 
     ngOnInit() {
