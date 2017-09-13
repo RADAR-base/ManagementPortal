@@ -17,7 +17,7 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
 
-    <changeSet id="201708301031-1" author="dverbeec@its.jnj.com">
+    <changeSet id="201709131507-1" author="dverbeec@its.jnj.com">
         <createIndex indexName="idx_device_type_producer_model"
                      tableName="device_type"
                      unique="true">
