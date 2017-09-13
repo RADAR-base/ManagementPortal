@@ -47,6 +47,13 @@ public class ExceptionTranslator {
         return ex.getErrorVM();
     }
 
+    @ExceptionHandler(CustomNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public ParameterizedErrorVM processParameterizedNotFound(CustomNotFoundException ex) {
+        return ex.getErrorVM();
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody

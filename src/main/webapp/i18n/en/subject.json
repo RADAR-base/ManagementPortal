@@ -4,7 +4,8 @@
             "home": {
                 "title": "Subjects",
                 "createLabel": "Create a new Subject",
-                "createOrEditLabel": "Create or edit a Subject"
+                "createOrEditLabel": "Create or edit a Subject",
+                "pairAppLabel": "Pair an application"
             },
             "created": "A new Subject is created with identifier {{ param }}",
             "updated": "A Subject is updated with identifier {{ param }}",
@@ -27,10 +28,28 @@
             "createdBy": "Created By",
             "createdDate": "Created Date",
             "lastModifiedBy": "Last Modified By",
-            "lastModifiedDate": "Last Modified Date"
+            "lastModifiedDate": "Last Modified Date",
+            "pairApp": "Pair App",
+            "clientApp": "Client app",
+            "resource": "Protected resource",
+            "attributeDataKey" : "Tag",
+            "attributeDataValue" : "Value",
+            "status" : {
+                "title" : "Status",
+                "discontinued" : "DISCONTINUED",
+                "active" : "ACTIVATED",
+                "deactivated" : "DEACTIVATED"
+            },
+            "discontinue" : {
+                "operation" : "Discontinue",
+                "title" : "Confirm discontinue operation",
+                "question" : "Are you sure you want to discontinue Subject {{ id }}?"
+            },
+            "discontinued": "A Subject is discontinued with identifier {{ param }}"
         }
     },
     "error": {
-        "patientEmailRequired": "A valid email is required to activate the subject account"
+        "patientEmailRequired": "A valid email is required to activate the subject account",
+        "subjectExists" : "A subject with given project-id and external-id already exists"
     }
 }

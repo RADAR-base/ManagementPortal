@@ -1,5 +1,6 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { QRCodeModule } from 'angular2-qrcode';
 
 import { ManagementPortalSharedModule } from '../../shared';
 import {
@@ -11,6 +12,8 @@ import {
     SubjectPopupComponent,
     SubjectDeletePopupComponent,
     SubjectDeleteDialogComponent,
+    SubjectPairPopupComponent,
+    SubjectPairDialogComponent,
     subjectRoute,
     subjectPopupRoute,
 } from './';
@@ -23,15 +26,18 @@ const ENTITY_STATES = [
 @NgModule({
     imports: [
         ManagementPortalSharedModule,
-        RouterModule.forRoot(ENTITY_STATES, { useHash: true })
+        RouterModule.forRoot(ENTITY_STATES, { useHash: true }),
+        QRCodeModule
     ],
     declarations: [
         SubjectComponent,
         SubjectDetailComponent,
         SubjectDialogComponent,
         SubjectDeleteDialogComponent,
+        SubjectPairDialogComponent,
         SubjectPopupComponent,
         SubjectDeletePopupComponent,
+        SubjectPairPopupComponent
     ],
     entryComponents: [
         SubjectComponent,
@@ -39,6 +45,8 @@ const ENTITY_STATES = [
         SubjectPopupComponent,
         SubjectDeleteDialogComponent,
         SubjectDeletePopupComponent,
+        SubjectPairDialogComponent,
+        SubjectPairPopupComponent
     ],
     providers: [
         SubjectService,

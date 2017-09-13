@@ -15,7 +15,6 @@ import {SourceService} from '../source';
 import {Project} from "../project/project.model";
 import {ProjectService} from "../project/project.service";
 import {MinimalSource} from "../source/source.model";
-import {ContainerRef} from "angular2-infinite-scroll";
 
 @Component({
     selector: 'jhi-subject-dialog',
@@ -29,6 +28,8 @@ export class SubjectDialogComponent implements OnInit {
     projects: Project[];
 
     sources: MinimalSource[];
+    keys : string[];
+    attributeComponentEventPrefix : 'subjectAttributes';
 
     constructor(public activeModal: NgbActiveModal,
                 private jhiLanguageService: JhiLanguageService,
@@ -43,12 +44,11 @@ export class SubjectDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
-        if(this.projects==null) {
+        this.keys = ['Human-readable-identifier'];
         this.projectService.query().subscribe(
             (res) => {
                 this.projects = res.json();
             });
-        }
         if (this.subject.id !== null) {
             this.sourceService.findUnAssignedAndOfSubject(this.subject.id).subscribe(
                 (res: Response) => {
@@ -60,6 +60,13 @@ export class SubjectDialogComponent implements OnInit {
                     this.sources = res.json();
                 }, (res: Response) => this.onError(res.json()));
         }
+        this.registerChangesInSubject();
+    }
+
+    private registerChangesInSubject() {
+        this.eventManager.subscribe(this.attributeComponentEventPrefix+'ListModification', (response ) => {
+            this.subject.attributes= response.content;
+        });
     }
 
     clear() {
@@ -110,7 +117,7 @@ export class SubjectDialogComponent implements OnInit {
     getSelected(selectedVals: Array<any>, option: any) {
         if (selectedVals) {
             for (let i = 0; i < selectedVals.length; i++) {
-                if (option.id === selectedVals[i].id) {
+                if (selectedVals[i] && option.id === selectedVals[i].id) {
                     return selectedVals[i];
                 }
             }
@@ -135,6 +142,15 @@ export class SubjectPopupComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        // this.routeSub = this.route.params.subscribe((params) => {
+        //     if (params['id']) {
+        //         this.modalRef = this.subjectPopupService
+        //         .open(SubjectDialogComponent, params['id']);
+        //     } else {
+        //         this.modalRef = this.subjectPopupService
+        //         .open(SubjectDialogComponent);
+        //     }
+        // });
         this.router.routerState.root.firstChild.url.subscribe(url => {
             if(url[0].path === 'project' && url[1].path) {
                 this.routeSub = this.route.params.subscribe((params) => {

@@ -110,9 +110,9 @@ export class UserDialogComponent implements OnInit, OnDestroy {
                 return;
             });
             if ( params['login'] ) {
-                this.modalRef = this.userModalService.open(UserMgmtDialogComponent,  params['login'] , false,);
+                this.modalRef = this.userModalService.open(UserMgmtDialogComponent,params['login'], false );
             } else {
-                this.modalRef = this.userModalService.open(UserMgmtDialogComponent ,null ,false);
+                this.modalRef = this.userModalService.open(UserMgmtDialogComponent, null , false);
             }
         });
     }

@@ -23,7 +23,9 @@
             "projectStatus": "Project Status",
             "endDate": "End Date",
             "projectAdmin": "Project Admin",
-            "deviceType": "Device Type"
+            "deviceType": "Device Type",
+            "attributeDataKey" : "Tag",
+            "attributeDataValue" : "Value"
         }
     }
 }

@@ -6,7 +6,6 @@ import org.radarcns.management.service.dto.DeviceTypeDTO;
 import org.mapstruct.*;
 import java.util.List;
 import org.radarcns.management.service.dto.MinimalDeviceTypeDTO;
-import org.radarcns.management.service.dto.MinimalProjectDetailsDTO;
 
 /**
  * Mapper for the entity DeviceType and its DTO DeviceTypeDTO.

@@ -90,6 +90,16 @@
         },
         "ribbon": {
             "dev":"Development"
+        },
+        "attribute" : {
+            "title" : "Attributes",
+            "key" : "Attribute Key",
+            "value" : "Attribute Value",
+            "add" : "Add",
+            "error" : {
+                "alreadyExist" : "This attribute key already exist in the list"
+            }
+
         }
     },
     "entity": {
@@ -102,7 +112,8 @@
             "edit": "Edit",
             "open": "Open",
             "save": "Save",
-            "view": "View"
+            "view": "View",
+            "close": "Close"
         },
         "detail": {
             "field": "Field",

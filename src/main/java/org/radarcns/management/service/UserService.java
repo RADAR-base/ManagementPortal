@@ -1,5 +1,6 @@
 package org.radarcns.management.service;
 
+import org.radarcns.management.config.Constants;
 import java.util.stream.Collectors;
 import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Project;
@@ -12,26 +13,29 @@ import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.security.SecurityUtils;
+import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.RoleMapper;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
-import org.radarcns.management.service.dto.UserDTO;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Service class for managing users.
@@ -42,38 +46,29 @@ public class UserService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    private final ProjectRepository projectRepository;
+    @Autowired
+    private ProjectRepository projectRepository;
 
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    public final JdbcTokenStore jdbcTokenStore;
+    @Autowired
+    private RoleRepository roleRepository;
 
-    private final RoleRepository roleRepository;
+    @Autowired
+    private ProjectMapper projectMapper;
 
-    private final AuthorityRepository authorityRepository;
+    @Autowired
+    private UserMapper userMapper;
 
-    private final ProjectMapper projectMapper;
+    @Autowired
+    private  AuthorityRepository authorityRepository;
 
-    private final UserMapper userMapper;
-
-    private final RoleMapper roleMapper;
-
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-        JdbcTokenStore jdbcTokenStore, RoleRepository roleRepository,
-        ProjectRepository projectRepository, ProjectMapper projectMapper,
-        UserMapper userMapper, RoleMapper roleMapper, AuthorityRepository authorityRepository) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jdbcTokenStore = jdbcTokenStore;
-        this.roleRepository = roleRepository;
-        this.projectRepository = projectRepository;
-        this.projectMapper = projectMapper;
-        this.userMapper = userMapper;
-        this.roleMapper = roleMapper;
-        this.authorityRepository = authorityRepository;
-    }
+    @Autowired
+    private RoleMapper roleMapper;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -228,8 +223,6 @@ public class UserService {
     }
 
     public void deleteUser(String login) {
-        jdbcTokenStore.findTokensByUserName(login).forEach(token ->
-            jdbcTokenStore.removeAccessToken(token));
         userRepository.findOneByLogin(login).ifPresent(user -> {
             userRepository.delete(user);
             log.debug("Deleted User: {}", user);

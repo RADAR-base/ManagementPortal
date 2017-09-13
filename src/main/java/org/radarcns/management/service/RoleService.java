@@ -58,6 +58,11 @@ public class RoleService {
     public List<RoleDTO> findAll() {
         List<RoleDTO> result = new LinkedList<>();
         User currentUser = userService.getUserWithAuthorities();
+        if (currentUser == null) {
+            // return an empty list if we do not have a current user (e.g. with client credentials
+            // oauth2 grant)
+            return result;
+        }
         List<String> currentUserAuthorities = currentUser.getAuthorities().stream().map(Authority::getName).collect(
             Collectors.toList());
         if(currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN)) {
