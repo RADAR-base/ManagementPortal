@@ -169,7 +169,6 @@ public class OAuthClientsResource {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Client ID not found");
             errorParams.put("clientId", clientId);
-            errorParams.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
             throw new CustomNotFoundException("Client ID not found", errorParams);
         }
     }
@@ -182,7 +181,6 @@ public class OAuthClientsResource {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Subject ID not found");
             errorParams.put("subjectLogin", login);
-            errorParams.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
             throw new CustomNotFoundException("Subject ID not found", errorParams);
         }
 

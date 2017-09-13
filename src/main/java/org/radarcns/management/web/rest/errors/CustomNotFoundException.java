@@ -1,5 +1,7 @@
 package org.radarcns.management.web.rest.errors;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +19,7 @@ public class CustomNotFoundException extends RuntimeException {
         super(message);
         this.message = message;
         this.paramMap.putAll(paramMap);
+        this.paramMap.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
     }
 
     public ParameterizedErrorVM getErrorVM() {
