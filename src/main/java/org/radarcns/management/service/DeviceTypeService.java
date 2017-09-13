@@ -1,7 +1,9 @@
 package org.radarcns.management.service;
 
 import org.radarcns.management.domain.DeviceType;
+import org.radarcns.management.domain.SensorData;
 import org.radarcns.management.repository.DeviceTypeRepository;
+import org.radarcns.management.repository.SensorDataRepository;
 import org.radarcns.management.service.dto.DeviceTypeDTO;
 import org.radarcns.management.service.mapper.DeviceTypeMapper;
 import org.slf4j.Logger;
@@ -10,8 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -29,6 +34,8 @@ public class DeviceTypeService {
     @Autowired
     private  DeviceTypeMapper deviceTypeMapper;
 
+    @Autowired
+    private SensorDataRepository sensorDataRepository;
 
     /**
      * Save a deviceType.
@@ -39,6 +46,8 @@ public class DeviceTypeService {
     public DeviceTypeDTO save(DeviceTypeDTO deviceTypeDTO) {
         log.debug("Request to save DeviceType : {}", deviceTypeDTO);
         DeviceType deviceType = deviceTypeMapper.deviceTypeDTOToDeviceType(deviceTypeDTO);
+        List<SensorData> savedSensorData = sensorDataRepository.save(deviceType.getSensorData());
+        deviceType.setSensorData(new HashSet<>(savedSensorData));
         deviceType = deviceTypeRepository.save(deviceType);
         DeviceTypeDTO result = deviceTypeMapper.deviceTypeToDeviceTypeDTO(deviceType);
         return result;
@@ -81,5 +90,37 @@ public class DeviceTypeService {
     public void delete(Long id) {
         log.debug("Request to delete DeviceType : {}", id);
         deviceTypeRepository.delete(id);
+    }
+
+    /**
+     * Fetch DeviceType by producer and model
+     */
+    public DeviceTypeDTO findByProducerAndModel(String producer, String model) {
+        log.debug("Request to get DeviceType by producer and model: {}, {}", producer, model);
+        DeviceType deviceType = deviceTypeRepository
+            .findOneWithEagerRelationshipsByProducerAndModel(producer, model);
+        DeviceTypeDTO deviceTypeDTO = deviceTypeMapper.deviceTypeToDeviceTypeDTO(deviceType);
+        return deviceTypeDTO;
+    }
+
+    /**
+     * Fetch DeviceType by producer
+     */
+    public List<DeviceTypeDTO> findByProducer(String producer) {
+        log.debug("Request to get DeviceType by producer: {}", producer);
+        List<DeviceType> deviceTypes = deviceTypeRepository
+            .findWithEagerRelationshipsByProducer(producer);
+        List<DeviceTypeDTO> deviceTypeDTOs = deviceTypeMapper.deviceTypesToDeviceTypeDTOs(deviceTypes);
+        return deviceTypeDTOs;
+    }
+
+    /**
+     * Fetch DeviceType by producer and model
+     */
+    public List<DeviceTypeDTO> findByModel(String model) {
+        log.debug("Request to get DeviceType by model: {}", model);
+        List<DeviceType> deviceTypes = deviceTypeRepository.findWithEagerRelationshipsByModel(model);
+        List<DeviceTypeDTO> deviceTypeDTOs = deviceTypeMapper.deviceTypesToDeviceTypeDTOs(deviceTypes);
+        return deviceTypeDTOs;
     }
 }
