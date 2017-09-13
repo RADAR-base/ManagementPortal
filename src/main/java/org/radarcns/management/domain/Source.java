@@ -42,6 +42,10 @@ public class Source implements Serializable {
     @Column(name = "source_id", nullable = false , unique = true)
     private String sourceId;
 
+    @NotNull
+    @Column(name = "source_name", nullable = false, unique = true)
+    private String sourceName;
+
     @Column(name = "device_category")
     private String deviceCategory;
 
@@ -148,16 +152,24 @@ public class Source implements Serializable {
         return this;
     }
 
-    public Source addPubject(Subject subject) {
+    public Source addSubject(Subject subject) {
         this.subjects.add(subject);
         subject.getSources().add(this);
         return this;
     }
 
-    public Source removePubject(Subject subject) {
+    public Source removeSubject(Subject subject) {
         this.subjects.remove(subject);
         subject.getSources().remove(this);
         return this;
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
     }
 
     public Map<String, String> getAttributes() {
@@ -174,31 +186,32 @@ public class Source implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (!(o instanceof Source)) return false;
+
         Source source = (Source) o;
-        if (source.id == null || id == null) {
-            return false;
-        }
-        return Objects.equals(id, source.id);
+
+        if (!sourceId.equals(source.sourceId)) return false;
+        return sourceName.equals(source.sourceName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        int result = sourceId.hashCode();
+        result = 31 * result + sourceName.hashCode();
+        return result;
     }
 
     @Override
     public String toString() {
         return "Source{" +
             "id=" + id +
-            ", sourceId='" + sourceId + "'" +
-            ", deviceCategory='" + deviceCategory + "'" +
-            ", assigned='" + assigned + "'" +
+            ", sourceId='" + sourceId + '\'' +
+            ", sourceName='" + sourceName + '\'' +
+            ", deviceCategory='" + deviceCategory + '\'' +
+            ", assigned=" + assigned +
+            ", deviceType=" + deviceType +
+            ", project=" + project +
             '}';
     }
 }
