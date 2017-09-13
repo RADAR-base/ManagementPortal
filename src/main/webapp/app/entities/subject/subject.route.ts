@@ -33,26 +33,26 @@ export const subjectRoute: Routes = [
 ];
 
 export const subjectPopupRoute: Routes = [
-  {
-    path: 'subject-new',
-    component: SubjectPopupComponent,
-    data: {
-        authorities: ['ROLE_USER'],
-        pageTitle: 'managementPortalApp.subject.home.title'
-    },
-    canActivate: [UserRouteAccessService],
-    outlet: 'popup'
-  },
-  {
-    path: 'subject/:id/edit',
-    component: SubjectPopupComponent,
-    data: {
-        authorities: ['ROLE_USER'],
-        pageTitle: 'managementPortalApp.subject.home.title'
-    },
-    canActivate: [UserRouteAccessService],
-    outlet: 'popup'
-  },
+  // {
+  //   path: 'subject-new',
+  //   component: SubjectPopupComponent,
+  //   data: {
+  //       authorities: ['ROLE_USER'],
+  //       pageTitle: 'managementPortalApp.subject.home.title'
+  //   },
+  //   canActivate: [UserRouteAccessService],
+  //   outlet: 'popup'
+  // },
+  // {
+  //   path: 'subject/:id/edit',
+  //   component: SubjectPopupComponent,
+  //   data: {
+  //       authorities: ['ROLE_USER'],
+  //       pageTitle: 'managementPortalApp.subject.home.title'
+  //   },
+  //   canActivate: [UserRouteAccessService],
+  //   outlet: 'popup'
+  // },
   {
     path: 'subject/:id/delete',
     component: SubjectDeletePopupComponent,

@@ -33,8 +33,7 @@ public interface SubjectRepository extends JpaRepository<Subject,Long> {
     @Query("select subject.sources from Subject subject WHERE subject.user.login = :login")
     List<Source> findSourcesBySubjectLogin(@Param("login") String login);
 
-    @Query("select distinct subject from Subject subject left join fetch subject.sources"
-        +  " where subject.user.project.id = :projectId and subject.externalId = :externalId")
+    @Query("select distinct subject from Subject subject left join fetch subject.user user join user.roles roles where roles.project.id = :projectId and subject.externalId = :externalId")
     Optional<Subject> findOneByProjectIdAndExternalId(@Param("projectId") Long projectId,
         @Param("externalId") String externalId);
 

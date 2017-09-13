@@ -32,6 +32,17 @@ export class SubjectPopupService {
 
     subjectModalRef(component: Component, subject: Subject , isDelete?: boolean): NgbModalRef {
         const modalRef = this.modalService.open(component, { size: 'lg', backdrop: 'static'});
+
+        // modalRef.componentInstance.isProjectSpecific = true;
+        // modalRef.componentInstance.subject = subjects;
+        //
+        // if(projectId) {
+        //     this.projectService.find(projectId).subscribe((project) => {
+        //         let projects = [project];
+        //         modalRef.componentInstance.projects = projects;
+        //         console.log('hereh',modalRef.componentInstance.projects)
+        //     });
+        // }
         modalRef.componentInstance.subject = subject;
         modalRef.componentInstance.isDelete = isDelete;
         modalRef.result.then((result) => {

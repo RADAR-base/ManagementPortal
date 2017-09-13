@@ -1,5 +1,6 @@
 package org.radarcns.management.service;
 
+import java.util.ArrayList;
 import org.radarcns.management.config.Constants;
 import java.util.stream.Collectors;
 import org.radarcns.management.domain.Authority;

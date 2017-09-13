@@ -16,6 +16,8 @@ import {
 } from './';
 import {ManagementPortalSourceModule} from "../source/source.module";
 import {ManagementPortalSubjectModule} from "../subject/subject.module";
+import {ProjectSubjectDialogComponent, ProjectSubjectPopupComponent} from "./subject/subject-dialog.component";
+import {ProjectSubjectPopupService} from "./subject/subject-popup.service";
 
 const ENTITY_STATES = [
     ...projectRoute,
@@ -36,6 +38,8 @@ const ENTITY_STATES = [
         ProjectDeleteDialogComponent,
         ProjectPopupComponent,
         ProjectDeletePopupComponent,
+        ProjectSubjectDialogComponent,
+        ProjectSubjectPopupComponent
     ],
     entryComponents: [
         ProjectComponent,
@@ -43,10 +47,12 @@ const ENTITY_STATES = [
         ProjectPopupComponent,
         ProjectDeleteDialogComponent,
         ProjectDeletePopupComponent,
+        ProjectSubjectDialogComponent
     ],
     providers: [
         ProjectService,
         ProjectPopupService,
+        ProjectSubjectPopupService
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

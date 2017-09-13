@@ -90,20 +90,20 @@ public class SubjectService {
 
         User user = subject.getUser();
         Set<Role> roles = new HashSet<>();
-        Role role = roleRepository
-            .findOneByAuthorityNameAndProjectId(AuthoritiesConstants.PARTICIPANT,
-                subject.getUser().getProject().getId());
-        if (role != null) {
-            roles.add(role);
-        } else {
-            Role subjectrole = new Role();
-            subjectrole.setAuthority(
-                authorityRepository.findByAuthorityName(AuthoritiesConstants.PARTICIPANT));
-            subjectrole.setProject(subject.getUser().getProject());
-            roleRepository.save(subjectrole);
-            roles.add(subjectrole);
-        }
-        user.setRoles(roles);
+//        Role role = roleRepository
+//            .findOneByAuthorityNameAndProjectId(AuthoritiesConstants.PARTICIPANT,
+//                subject.getUser().getRoles().toArray()[0].getProject().getId());
+//        if (role != null) {
+//            roles.add(role);
+//        } else {
+//            Role subjectrole = new Role();
+//            subjectrole.setAuthority(
+//                authorityRepository.findByAuthorityName(AuthoritiesConstants.PARTICIPANT));
+//            subjectrole.setProject(subject.getUser().getProject());
+//            roleRepository.save(subjectrole);
+//            roles.add(subjectrole);
+//        }
+//        user.setRoles(roles);
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
         user.setPassword(encryptedPassword);
         user.setLangKey(
