@@ -129,23 +129,41 @@ public class SensorDataDTO implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
+        if (this == o) return true;
+        if (!(o instanceof SensorDataDTO)) return false;
+
+        SensorDataDTO that = (SensorDataDTO) o;
+
+        if (enabled != that.enabled) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (!sensorName.equals(that.sensorName)) return false;
+        if (frequency != null ? !frequency.equals(that.frequency) : that.frequency != null)
             return false;
-        }
-
-        SensorDataDTO sensorDataDTO = (SensorDataDTO) o;
-
-        if ( ! Objects.equals(id, sensorDataDTO.id)) { return false; }
-
-        return true;
+        if (unit != null ? !unit.equals(that.unit) : that.unit != null) return false;
+        if (dataType != that.dataType) return false;
+        if (dataClass != that.dataClass) return false;
+        if (keySchema != null ? !keySchema.equals(that.keySchema) : that.keySchema != null)
+            return false;
+        if (valueSchema != null ? !valueSchema.equals(that.valueSchema) : that.valueSchema != null)
+            return false;
+        if (topic != null ? !topic.equals(that.topic) : that.topic != null) return false;
+        return provider != null ? provider.equals(that.provider) : that.provider == null;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + sensorName.hashCode();
+        result = 31 * result + (frequency != null ? frequency.hashCode() : 0);
+        result = 31 * result + (unit != null ? unit.hashCode() : 0);
+        result = 31 * result + (dataType != null ? dataType.hashCode() : 0);
+        result = 31 * result + (dataClass != null ? dataClass.hashCode() : 0);
+        result = 31 * result + (keySchema != null ? keySchema.hashCode() : 0);
+        result = 31 * result + (valueSchema != null ? valueSchema.hashCode() : 0);
+        result = 31 * result + (topic != null ? topic.hashCode() : 0);
+        result = 31 * result + (provider != null ? provider.hashCode() : 0);
+        result = 31 * result + (enabled ? 1 : 0);
+        return result;
     }
 
     @Override
