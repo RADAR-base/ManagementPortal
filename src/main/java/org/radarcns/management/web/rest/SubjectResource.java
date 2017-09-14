@@ -125,6 +125,36 @@ public class SubjectResource {
     }
 
     /**
+     * PUT  /subjects : Updates an existing subject.
+     *
+     * @param subjectDTO the subjectDTO to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated subjectDTO,
+     * or with status 400 (Bad Request) if the subjectDTO is not valid,
+     * or with status 500 (Internal Server Error) if the subjectDTO couldnt be updated
+     * @throws URISyntaxException if the Location URI syntax is incorrect
+     */
+    @PutMapping("/subjects/discontinue")
+    @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN , AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
+    public ResponseEntity<SubjectDTO> discontinueSubject(@RequestBody SubjectDTO subjectDTO )
+        throws URISyntaxException, IllegalAccessException {
+        log.debug("REST request to update Subject : {}", subjectDTO);
+        if (subjectDTO.getId() == null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "subjectNotAvailable", "No subject found")).body(null);
+        }
+
+        if (subjectDTO.getProject()==null || subjectDTO.getProject().getId() == null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "projectrequired", "A subject should be assigned to a project")).body(null);
+        }
+
+        SubjectDTO result = subjectService.discontinueSubject(subjectDTO);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getId().toString()))
+            .body(result);
+    }
+
+
+    /**
      * GET  /subjects : get all the subjects.
      *
      * @return the ResponseEntity with status 200 (OK) and the list of subjects in body

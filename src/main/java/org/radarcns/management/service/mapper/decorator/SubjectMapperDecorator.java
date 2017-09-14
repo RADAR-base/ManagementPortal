@@ -121,7 +121,7 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
         else if( subject.getUser().getActivated() && !subject.isRemoved()) {
             return SubjectStatus.ACTIVATED;
         }
-        else if(subject.getUser().getActivated() && subject.isRemoved()) {
+        else if(subject.isRemoved()) {
             return SubjectStatus.DISCONTINUED;
         }
         return SubjectStatus.DEACTIVATED;
@@ -138,7 +138,6 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
                 subject.setRemoved(false);
                 break;
             case DISCONTINUED:
-                subject.getUser().setActivated(true);
                 subject.setRemoved(true);
                 break;
 

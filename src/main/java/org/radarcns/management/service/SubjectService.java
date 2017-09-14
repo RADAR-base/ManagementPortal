@@ -199,4 +199,16 @@ public class SubjectService {
         }
         return subjectMapper.subjectsToSubjectDTOs(subjects);
     }
+
+    public SubjectDTO discontinueSubject(SubjectDTO subjectDTO) {
+        Subject subject = subjectRepository.findOne(subjectDTO.getId());
+        //reset all the sources assigned to a subject to unassigned
+        for(Source source : subject.getSources()) {
+            source.setAssigned(false);
+            sourceRepository.save(source);
+        }
+
+        subject.setRemoved(true);
+        return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subject));
+    }
 }

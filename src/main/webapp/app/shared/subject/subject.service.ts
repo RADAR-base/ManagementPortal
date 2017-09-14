@@ -24,6 +24,13 @@ export class SubjectService {
         });
     }
 
+    discontinue(subject: Subject): Observable<Subject> {
+        const copy: Subject = Object.assign({}, subject);
+        return this.http.put(`${this.resourceUrl}/discontinue`, copy).map((res: Response) => {
+            return res.json();
+        });
+    }
+
     find(id: number): Observable<Subject> {
         return this.http.get(`${this.resourceUrl}/${id}`).map((res: Response) => {
             return res.json();

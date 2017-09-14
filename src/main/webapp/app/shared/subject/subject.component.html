@@ -75,7 +75,8 @@
                 </td>
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
-                        <button type="submit"
+                        <button [disabled]="subject.status == 'DISCONTINUED'"
+                                type="submit"
                                 [routerLink]="['/', { outlets: { popup: 'subject/' + subject.id + '/pairApp' } }]"
                                 replaceUrl="true"
                                 class="btn btn-success btn-sm">

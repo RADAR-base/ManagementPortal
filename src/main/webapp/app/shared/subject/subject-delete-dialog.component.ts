@@ -41,8 +41,7 @@ export class SubjectDeleteDialogComponent {
             });
         }
         else {
-            this.subject.status = SubjectStatus.DISCONTINUED;
-            this.subjectService.update(this.subject).subscribe((res: Subject) => {
+            this.subjectService.discontinue(this.subject).subscribe((res: Subject) => {
                 this.eventManager.broadcast({name: 'subjectListModification', content: 'OK'});
                 this.activeModal.dismiss(true);
             });
