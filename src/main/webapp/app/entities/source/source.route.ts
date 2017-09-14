@@ -10,13 +10,14 @@ import { SourcePopupComponent } from './source-dialog.component';
 import { SourceDeletePopupComponent } from './source-delete-dialog.component';
 
 import { Principal } from '../../shared';
+import {PROJECT_ADMIN, SYSTEM_ADMIN} from "../../shared/constants/common.constants";
 
 export const sourceRoute: Routes = [
   {
     path: 'source',
     component: SourceComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN],
         pageTitle: 'managementPortalApp.source.home.title'
     },
     canActivate: [UserRouteAccessService]
@@ -24,7 +25,7 @@ export const sourceRoute: Routes = [
     path: 'source/:id',
     component: SourceDetailComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.source.home.title'
     },
     canActivate: [UserRouteAccessService]
@@ -36,7 +37,7 @@ export const sourcePopupRoute: Routes = [
     path: 'source-new',
     component: SourcePopupComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.source.home.title'
     },
     canActivate: [UserRouteAccessService],
@@ -46,7 +47,7 @@ export const sourcePopupRoute: Routes = [
     path: 'source/:id/edit',
     component: SourcePopupComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.source.home.title'
     },
     canActivate: [UserRouteAccessService],
@@ -56,7 +57,7 @@ export const sourcePopupRoute: Routes = [
     path: 'source/:id/delete',
     component: SourceDeletePopupComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.source.home.title'
     },
     canActivate: [UserRouteAccessService],

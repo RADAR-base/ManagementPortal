@@ -135,7 +135,7 @@ public class SubjectResource {
      */
     @PutMapping("/subjects/discontinue")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN , AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN })
     public ResponseEntity<SubjectDTO> discontinueSubject(@RequestBody SubjectDTO subjectDTO )
         throws URISyntaxException, IllegalAccessException {
         log.debug("REST request to update Subject : {}", subjectDTO);
@@ -161,6 +161,7 @@ public class SubjectResource {
      */
     @GetMapping("/subjects")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN , AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(
         @RequestParam(value = "projectId" , required = false) Long projectId,
         @RequestParam(value = "externalId" , required = false) String externalId) {

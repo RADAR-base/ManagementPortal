@@ -11,7 +11,7 @@ import { Project, ProjectService} from '../../entities/project';
 import {RoleService} from "../../entities/role/role.service";
 import {Authority} from "../../shared/user/authority.model";
 import {AuthorityService} from "../../shared/user/authority.service";
-import {ADMIN_AUTHORITY} from "../../shared/constants/common.constants";
+import {SYSTEM_ADMIN} from "../../shared/constants/common.constants";
 import {Role} from "./role.model";
 
 @Component({

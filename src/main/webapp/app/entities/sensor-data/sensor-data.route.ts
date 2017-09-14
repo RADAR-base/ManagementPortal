@@ -10,13 +10,14 @@ import { SensorDataPopupComponent } from './sensor-data-dialog.component';
 import { SensorDataDeletePopupComponent } from './sensor-data-delete-dialog.component';
 
 import { Principal } from '../../shared';
+import {PROJECT_ADMIN, SYSTEM_ADMIN} from "../../shared/constants/common.constants";
 
 export const sensorDataRoute: Routes = [
   {
     path: 'sensor-data',
     component: SensorDataComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.sensorData.home.title'
     },
     canActivate: [UserRouteAccessService]
@@ -24,7 +25,7 @@ export const sensorDataRoute: Routes = [
     path: 'sensor-data/:id',
     component: SensorDataDetailComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.sensorData.home.title'
     },
     canActivate: [UserRouteAccessService]
@@ -36,7 +37,7 @@ export const sensorDataPopupRoute: Routes = [
     path: 'sensor-data-new',
     component: SensorDataPopupComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.sensorData.home.title'
     },
     canActivate: [UserRouteAccessService],
@@ -46,7 +47,7 @@ export const sensorDataPopupRoute: Routes = [
     path: 'sensor-data/:id/edit',
     component: SensorDataPopupComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.sensorData.home.title'
     },
     canActivate: [UserRouteAccessService],
@@ -56,7 +57,7 @@ export const sensorDataPopupRoute: Routes = [
     path: 'sensor-data/:id/delete',
     component: SensorDataDeletePopupComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.sensorData.home.title'
     },
     canActivate: [UserRouteAccessService],
