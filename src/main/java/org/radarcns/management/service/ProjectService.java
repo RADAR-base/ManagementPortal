@@ -129,6 +129,20 @@ public class ProjectService {
     }
 
     /**
+     *  Get one project by name.
+     *
+     *  @param name the name of the entity
+     *  @return the entity
+     */
+    @Transactional(readOnly = true)
+    public ProjectDTO findOneByName(String name) {
+        log.debug("Request to get Project by name: {}", name);
+        Project project = projectRepository.findOneWithEagerRelationshipsByName(name);
+        ProjectDTO projectDTO = projectMapper.projectToProjectDTO(project);
+        return projectDTO;
+    }
+
+    /**
      *  Get one project by id.
      *
      *  @param id the id of the entity

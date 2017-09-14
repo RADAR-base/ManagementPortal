@@ -1,11 +1,11 @@
 package org.radarcns.management.repository;
 
-import java.util.Optional;
 import org.radarcns.management.domain.Source;
-
-import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Spring Data JPA repository for the Source entity.
@@ -20,4 +20,6 @@ public interface SourceRepository extends JpaRepository<Source,Long> {
     List<Source> findAllSourcesByProjectIdAndAssigned(@Param("projectId") Long projectId , @Param("assigned") Boolean assigned);
 
     Optional<Source> findOneBySourceId(String sourceId);
+
+    Optional<Source> findOneBySourceName(String sourceName);
 }

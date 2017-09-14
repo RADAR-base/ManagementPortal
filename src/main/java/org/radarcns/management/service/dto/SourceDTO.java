@@ -1,10 +1,9 @@
 package org.radarcns.management.service.dto;
 
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Map;
-import java.util.Objects;
-import javax.validation.constraints.NotNull;
 
 /**
  * A DTO for the Source entity.
@@ -13,10 +12,8 @@ public class SourceDTO implements Serializable {
 
     private Long id;
 
-    @NotNull
     private String sourceId;
 
-    @NotNull
     private String sourceName;
 
     private String deviceCategory;
