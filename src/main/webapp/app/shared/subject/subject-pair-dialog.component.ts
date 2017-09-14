@@ -4,11 +4,11 @@ import {ActivatedRoute} from '@angular/router';
 import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {EventManager, AlertService, JhiLanguageService} from 'ng-jhipster';
 
-import {Subject} from './subject.model';
 import {SubjectPopupService} from './subject-popup.service';
-import {OAuthClient} from '../oauth-client/oauth-client.model';
-import {OAuthClientService} from '../oauth-client/oauth-client.service';
-import {OAuthClientPairInfoService} from '../oauth-client/oauth-client-pair-info.service';
+import {OAuthClientService} from "../../entities/oauth-client/oauth-client.service";
+import {OAuthClientPairInfoService} from "../../entities/oauth-client/oauth-client-pair-info.service";
+import {OAuthClient} from "../../entities/oauth-client/oauth-client.model";
+import {Subject} from "./subject.model";
 
 @Component({
     selector: 'jhi-subject-pair-dialog',

@@ -15,9 +15,7 @@ import {
     projectPopupRoute,
 } from './';
 import {ManagementPortalSourceModule} from "../source/source.module";
-import {ManagementPortalSubjectModule} from "../subject/subject.module";
-import {ProjectSubjectDialogComponent, ProjectSubjectPopupComponent} from "./subject/subject-dialog.component";
-import {ProjectSubjectPopupService} from "./subject/subject-popup.service";
+import {ManagementPortalSharedSubjectModule} from "../../shared/subject/subject.module";
 
 const ENTITY_STATES = [
     ...projectRoute,
@@ -28,7 +26,7 @@ const ENTITY_STATES = [
     imports: [
         ManagementPortalSharedModule,
         ManagementPortalSourceModule,
-        ManagementPortalSubjectModule,
+        ManagementPortalSharedSubjectModule,
         RouterModule.forRoot(ENTITY_STATES, { useHash: true })
     ],
     declarations: [
@@ -38,8 +36,6 @@ const ENTITY_STATES = [
         ProjectDeleteDialogComponent,
         ProjectPopupComponent,
         ProjectDeletePopupComponent,
-        ProjectSubjectDialogComponent,
-        ProjectSubjectPopupComponent
     ],
     entryComponents: [
         ProjectComponent,
@@ -47,12 +43,10 @@ const ENTITY_STATES = [
         ProjectPopupComponent,
         ProjectDeleteDialogComponent,
         ProjectDeletePopupComponent,
-        ProjectSubjectDialogComponent
     ],
     providers: [
         ProjectService,
         ProjectPopupService,
-        ProjectSubjectPopupService
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

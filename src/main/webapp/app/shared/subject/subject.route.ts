@@ -13,15 +13,16 @@ import { SubjectPairPopupComponent } from './subject-pair-dialog.component';
 import { Principal } from '../../shared';
 
 export const subjectRoute: Routes = [
+  // {
+  //   path: 'subject',
+  //   component: SubjectComponent,
+  //   data: {
+  //       authorities: ['ROLE_USER'],
+  //       pageTitle: 'managementPortalApp.subject.home.title'
+  //   },
+  //   canActivate: [UserRouteAccessService]
+  // },
   {
-    path: 'subject',
-    component: SubjectComponent,
-    data: {
-        authorities: ['ROLE_USER'],
-        pageTitle: 'managementPortalApp.subject.home.title'
-    },
-    canActivate: [UserRouteAccessService]
-  }, {
     path: 'subject/:id',
     component: SubjectDetailComponent,
     data: {
@@ -29,30 +30,30 @@ export const subjectRoute: Routes = [
         pageTitle: 'managementPortalApp.subject.home.title'
     },
     canActivate: [UserRouteAccessService]
-  }
+  },
 ];
 
 export const subjectPopupRoute: Routes = [
-  // {
-  //   path: 'subject-new',
-  //   component: SubjectPopupComponent,
-  //   data: {
-  //       authorities: ['ROLE_USER'],
-  //       pageTitle: 'managementPortalApp.subject.home.title'
-  //   },
-  //   canActivate: [UserRouteAccessService],
-  //   outlet: 'popup'
-  // },
-  // {
-  //   path: 'subject/:id/edit',
-  //   component: SubjectPopupComponent,
-  //   data: {
-  //       authorities: ['ROLE_USER'],
-  //       pageTitle: 'managementPortalApp.subject.home.title'
-  //   },
-  //   canActivate: [UserRouteAccessService],
-  //   outlet: 'popup'
-  // },
+  {
+    path: 'subject-new',
+    component: SubjectPopupComponent,
+    data: {
+        authorities: ['ROLE_USER'],
+        pageTitle: 'managementPortalApp.subject.home.title'
+    },
+    canActivate: [UserRouteAccessService],
+    outlet: 'popup'
+  },
+  {
+    path: 'subject/:id/edit',
+    component: SubjectPopupComponent,
+    data: {
+        authorities: ['ROLE_USER'],
+        pageTitle: 'managementPortalApp.subject.home.title'
+    },
+    canActivate: [UserRouteAccessService],
+    outlet: 'popup'
+  },
   {
     path: 'subject/:id/delete',
     component: SubjectDeletePopupComponent,
@@ -73,14 +74,14 @@ export const subjectPopupRoute: Routes = [
     canActivate: [UserRouteAccessService],
     outlet: 'popup'
   },
-    {
-        path: 'subject/:id/discontinue',
-        component: SubjectDeletePopupComponent,
-        data: {
-            authorities: ['ROLE_USER'],
-            pageTitle: 'managementPortalApp.subject.home.title'
-        },
-        canActivate: [UserRouteAccessService],
-        outlet: 'popup'
-    }
+  {
+    path: 'subject/:id/discontinue',
+    component: SubjectDeletePopupComponent,
+    data: {
+        authorities: ['ROLE_USER'],
+        pageTitle: 'managementPortalApp.subject.home.title'
+    },
+    canActivate: [UserRouteAccessService],
+    outlet: 'popup'
+  }
 ];

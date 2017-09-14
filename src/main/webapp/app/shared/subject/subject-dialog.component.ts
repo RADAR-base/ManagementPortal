@@ -11,10 +11,10 @@ import {EventManager, AlertService, JhiLanguageService} from 'ng-jhipster';
 import {Subject} from './subject.model';
 import {SubjectPopupService} from './subject-popup.service';
 import {SubjectService} from './subject.service';
-import {SourceService} from '../source';
-import {Project} from "../project/project.model";
-import {ProjectService} from "../project/project.service";
-import {MinimalSource} from "../source/source.model";
+import {Project} from "../../entities/project/project.model";
+import {MinimalSource} from "../../entities/source/source.model";
+import {ProjectService} from "../../entities/project/project.service";
+import {SourceService} from "../../entities/source/source.service";
 @Component({
     selector: 'jhi-subject-dialog',
     templateUrl: './subject-dialog.component.html'
@@ -24,7 +24,6 @@ export class SubjectDialogComponent implements OnInit {
     subject: Subject;
     authorities: any[];
     isSaving: boolean;
-    projects: Project[];
 
     sources: MinimalSource[];
     keys : string[];
@@ -44,10 +43,6 @@ export class SubjectDialogComponent implements OnInit {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.keys = ['Human-readable-identifier'];
-        this.projectService.query().subscribe(
-            (res) => {
-                this.projects = res.json();
-            });
         if (this.subject.id !== null) {
             this.sourceService.findUnAssignedAndOfSubject(this.subject.id).subscribe(
                 (res: Response) => {
@@ -109,10 +104,6 @@ export class SubjectDialogComponent implements OnInit {
         return item.id;
     }
 
-    trackProjectById(index: number, item: Project) {
-        return item.id;
-    }
-
     getSelected(selectedVals: Array<any>, option: any) {
         if (selectedVals) {
             for (let i = 0; i < selectedVals.length; i++) {
@@ -141,39 +132,31 @@ export class SubjectPopupComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        // this.routeSub = this.route.params.subscribe((params) => {
-        //     if (params['id']) {
-        //         this.modalRef = this.subjectPopupService
-        //         .open(SubjectDialogComponent, params['id']);
-        //     } else {
-        //         this.modalRef = this.subjectPopupService
-        //         .open(SubjectDialogComponent);
+        console.log('exected')
+        // this.router.routerState.root.firstChild.url.subscribe(url => {
+        //     if(url[0].path === 'project' && url[1].path) {
+                this.routeSub = this.route.params.subscribe((params) => {
+                    if (params['id']) {
+                        this.modalRef = this.subjectPopupService
+                        .open(SubjectDialogComponent, params['id'] ,  false  );
+                    } else {
+                        this.modalRef = this.subjectPopupService
+                        .open(SubjectDialogComponent , null , false );
+                    }
+                });
+            // }
+            // else {
+        //         this.routeSub = this.route.params.subscribe((params) => {
+        //             if (params['id']) {
+        //                 this.modalRef = this.subjectPopupService
+        //                 .open(SubjectDialogComponent, params['id']);
+        //             } else {
+        //                 this.modalRef = this.subjectPopupService
+        //                 .open(SubjectDialogComponent);
+        //             }
+        //         });
         //     }
         // });
-        this.router.routerState.root.firstChild.url.subscribe(url => {
-            if(url[0].path === 'project' && url[1].path) {
-                this.routeSub = this.route.params.subscribe((params) => {
-                    if (params['id']) {
-                        this.modalRef = this.subjectPopupService
-                        .open(SubjectDialogComponent, params['id'] , /*url[1].path*/ false);
-                    } else {
-                        this.modalRef = this.subjectPopupService
-                        .open(SubjectDialogComponent , null ,  /*url[1].path*/ false);
-                    }
-                });
-            }
-            else {
-                this.routeSub = this.route.params.subscribe((params) => {
-                    if (params['id']) {
-                        this.modalRef = this.subjectPopupService
-                        .open(SubjectDialogComponent, params['id']);
-                    } else {
-                        this.modalRef = this.subjectPopupService
-                        .open(SubjectDialogComponent);
-                    }
-                });
-            }
-        });
 
     }
 

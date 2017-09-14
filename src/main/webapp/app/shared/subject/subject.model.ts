@@ -1,14 +1,12 @@
-import {Project} from "../project/project.model";
-import {Source, MinimalSource} from "../source/source.model";
 import {Attribute} from "../../shared/attribute-mapper/attribute-mapper.model";
+import {Project} from "../../entities/project/project.model";
+import {MinimalSource, Source} from "../../entities/source/source.model";
 export class Subject {
     public id?: any;
     public login?: string;
     public email?: string;
     public externalLink?: string;
     public externalId?: string;
-    public removed?: boolean;
-    public activated?: Boolean;
     public createdBy?: string;
     public createdDate?: Date;
     public lastModifiedBy?: string;
@@ -26,8 +24,6 @@ export class Subject {
          externalLink?: string,
          externalId?: string,
          status?: SubjectStatus,
-         removed?: boolean,
-         activated?: boolean,
          createdBy?: string,
          createdDate?: Date,
          lastModifiedBy?: string,
@@ -42,8 +38,6 @@ export class Subject {
         this.email = email ? email : null;
         this.externalLink = externalLink ? externalLink : null;
         this.externalId = externalId ? externalId : null;
-        this.removed = removed ? removed: false;
-        this.activated = activated ? activated : false;
         this.createdBy = createdBy ? createdBy : null;
         this.createdDate = createdDate ? createdDate : null;
         this.lastModifiedBy = lastModifiedBy ? lastModifiedBy : null;

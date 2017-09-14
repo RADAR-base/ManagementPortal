@@ -19,10 +19,6 @@
                    [(ngModel)]="subject.email" maxlength="100" >
 
             <div *ngIf="emailInput.dirty && emailInput.invalid">
-            <!--    <small class="form-text text-danger"
-                   *ngIf="emailInput.errors.required" jhiTranslate="entity.validation.required">
-                    This field is required.
-                </small>-->
 
                 <small class="form-text text-danger"
                        *ngIf="emailInput.errors.maxlength" jhiTranslate="entity.validation.maxlength"

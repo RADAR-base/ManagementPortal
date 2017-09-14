@@ -6,16 +6,17 @@
             </p>
             <ul class="status-list">
                 <ng-container>
-                    <li class="status-group" (click)="viewSources()">
-                        <span>
-                            Sources
-                        </span>
-                    </li>
                     <li class="status-group" (click)="viewSubjects()">
                         <span>
                             Subjects
                         </span>
                     </li>
+                    <li class="status-group" (click)="viewSources()">
+                        <span>
+                            Sources
+                        </span>
+                    </li>
+
                     <li class="status-group">
                         <span>
                             Device Types
@@ -88,9 +89,9 @@
                 </tr>
                 </tbody>
             </table>
-
+            <subjects *ngIf="showSubjects" [project]='project' [showProject]="false"></subjects>
             <jhi-source *ngIf="showSources" [project]='project'></jhi-source>
-            <jhi-subject *ngIf="showSubjects" [project]='project'></jhi-subject>
+
 
         </div>
     </div>

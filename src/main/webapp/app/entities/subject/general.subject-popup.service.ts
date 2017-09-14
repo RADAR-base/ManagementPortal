@@ -1,10 +1,10 @@
 import { Injectable, Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Subject } from './subject.model';
-import { SubjectService } from './subject.service';
+import {SubjectService} from "../../shared/subject/subject.service";
+import {Subject} from "../../shared/subject/subject.model";
 @Injectable()
-export class SubjectPopupService {
+export class GeneralSubjectPopupService {
     private isOpen = false;
     login ?= 'xxxyxxxx';
     constructor(

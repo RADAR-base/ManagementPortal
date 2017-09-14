@@ -74,7 +74,7 @@ public class SubjectResource {
         if (subjectDTO.getEmail() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "patientEmailRequired", "A subject email is required")).body(null);
         }
-        if (subjectDTO.getProject().getId() == null) {
+        if (subjectDTO.getProject()==null || subjectDTO.getProject().getId() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "projectrequired", "A subject should be assigned to a project")).body(null);
         }
         if (subjectDTO.getExternalId() != null && !subjectDTO.getExternalId().isEmpty() &&
@@ -109,6 +109,15 @@ public class SubjectResource {
             return createSubject(subjectDTO);
         }
 
+        if (subjectDTO.getProject()==null || subjectDTO.getProject().getId() == null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "projectrequired", "A subject should be assigned to a project")).body(null);
+        }
+        if (subjectDTO.getExternalId() != null && !subjectDTO.getExternalId().isEmpty() &&
+            subjectRepository.findOneByProjectIdAndExternalId(subjectDTO.getProject().getId() , subjectDTO.getExternalId()).isPresent()) {
+            return ResponseEntity.badRequest().headers(HeaderUtil
+                .createFailureAlert(ENTITY_NAME, "subjectExists",
+                    "A subject with given project-id and external-id already exists")).body(null);
+        }
         SubjectDTO result = subjectService.updateSubject(subjectDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getId().toString()))

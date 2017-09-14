@@ -45,7 +45,8 @@
                 "title" : "Confirm discontinue operation",
                 "question" : "Are you sure you want to discontinue Subject {{ id }}?"
             },
-            "discontinued": "A Subject is discontinued with identifier {{ param }}"
+            "discontinued": "A Subject is discontinued with identifier {{ param }}",
+            "subjectId" : "Subject Id"
         }
     },
     "error": {

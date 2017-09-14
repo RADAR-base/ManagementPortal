@@ -3,7 +3,7 @@ import { Http, Response, URLSearchParams, BaseRequestOptions } from '@angular/ht
 import { Observable } from 'rxjs/Rx';
 
 import { OAuthClient } from './oauth-client.model';
-import { Subject } from '../subject/subject.model';
+import {Subject} from "../../shared/subject/subject.model";
 @Injectable()
 export class OAuthClientPairInfoService {
 

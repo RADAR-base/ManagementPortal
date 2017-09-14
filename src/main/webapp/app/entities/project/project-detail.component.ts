@@ -46,7 +46,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy , OnChanges {
             this.load(params['id']);
         });
         this.registerChangeInProjects();
-        this.viewSources();
+        this.viewSubjects();
         // this.sourceComponent.ngOnInit();
     }
 

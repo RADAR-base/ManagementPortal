@@ -10,7 +10,6 @@ import { ProjectPopupComponent } from './project-dialog.component';
 import { ProjectDeletePopupComponent } from './project-delete-dialog.component';
 
 import { Principal } from '../../shared';
-import {ProjectSubjectPopupComponent} from "./subject/subject-dialog.component";
 
 export const projectRoute: Routes = [
   {
@@ -62,25 +61,5 @@ export const projectPopupRoute: Routes = [
     },
     canActivate: [UserRouteAccessService],
     outlet: 'popup'
-  },
-    {
-        path: 'subject-new',
-        component: ProjectSubjectPopupComponent,
-        data: {
-            authorities: ['ROLE_USER'],
-            pageTitle: 'managementPortalApp.subject.home.title'
-        },
-        canActivate: [UserRouteAccessService],
-        outlet: 'popup'
-    },
-    {
-        path: 'subject/:id/edit',
-        component: ProjectSubjectPopupComponent,
-        data: {
-            authorities: ['ROLE_USER'],
-            pageTitle: 'managementPortalApp.subject.home.title'
-        },
-        canActivate: [UserRouteAccessService],
-        outlet: 'popup'
-    },
+  }
 ];

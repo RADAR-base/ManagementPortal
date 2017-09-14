@@ -3,18 +3,16 @@ import {
     SimpleChange
 } from '@angular/core';
 import { Response } from '@angular/http';
-import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
-import { EventManager, ParseLinks, PaginationUtil, JhiLanguageService, AlertService } from 'ng-jhipster';
+import { EventManager, JhiLanguageService, AlertService } from 'ng-jhipster';
 
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
-import { ITEMS_PER_PAGE, Principal } from '../../shared';
-import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
-import {Project} from "../project/project.model";
+import { Principal } from '../../shared';
+import {Project} from "../../entities/project/index";
 
 @Component({
-    selector: 'jhi-subject',
+    selector: 'subjects',
     templateUrl: './subject.component.html'
 })
 export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
@@ -24,6 +22,7 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
     currentAccount: any;
     eventSubscriber: Subscription;
 
+    @Input() showProject : boolean;
     constructor(
         private jhiLanguageService: JhiLanguageService,
         private subjectService: SubjectService,
@@ -34,6 +33,15 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
         this.jhiLanguageService.setLocations(['subject' , 'project' , 'projectStatus']);
     }
 
+    loadSubjects() {
+        console.log('loading')
+        if(this.project) {
+            this.loadAllFromProject();
+        }
+        else {
+            this.loadAll();
+        }
+    }
     loadAll() {
         this.subjectService.query().subscribe(
             (res: Response) => {
@@ -43,12 +51,8 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
         );
     }
     ngOnInit() {
-        if(this.project) {
-            this.loadAllFromProject();
-        }
-        else {
-            this.loadAll();
-        }
+        console.log(this.showProject);
+        this.loadSubjects();
         this.principal.identity().then((account) => {
             this.currentAccount = account;
         });
@@ -63,7 +67,7 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
         return item.id;
     }
     registerChangeInSubjects() {
-        this.eventSubscriber = this.eventManager.subscribe('subjectListModification', (response) => this.loadAll());
+        this.eventSubscriber = this.eventManager.subscribe('subjectListModification', (response) => this.loadSubjects());
     }
 
     private onError(error) {
@@ -71,9 +75,11 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        const project: SimpleChange = changes.project;
-        this.project = project.currentValue;
-        this.loadAllFromProject();
+        const project: SimpleChange = changes.project? changes.project: null;
+        if(project){
+            this.project = project.currentValue;
+            this.loadAllFromProject();
+        }
     }
 
     private loadAllFromProject() {

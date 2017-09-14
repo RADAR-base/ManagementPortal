@@ -57,4 +57,4 @@ const ENTITY_STATES = [
         SubjectComponent
     ],
 })
-export class ManagementPortalSubjectModule {}
+export class ManagementPortalSharedSubjectModule {}

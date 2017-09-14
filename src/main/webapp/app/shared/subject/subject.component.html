@@ -16,41 +16,32 @@
         <table class="table table-striped">
             <thead>
             <tr>
-            <th><span jhiTranslate="global.field.id">ID</span></th>
-            <th><span jhiTranslate="managementPortalApp.subject.login">login</span></th>
+            <th><span jhiTranslate="global.field.id">ID</span><span class="fa fa-sort"></span></th>
+            <th><span jhiTranslate="managementPortalApp.subject.subjectId">subjectId</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.externalLink">External Link</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.externalId">Enternal Id</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.status.title">Status</span></th>
-            <th><span jhiTranslate="managementPortalApp.subject.project">Project</span> <span class="fa fa-sort"></span></th>
+            <th *ngIf="showProject"><span jhiTranslate="managementPortalApp.subject.project">Project</span> <span class="fa fa-sort"></span></th>
             <th><span jhiTranslate="managementPortalApp.subject.sources">Sources</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.attributeDataKey">Key</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.attributeDataValue">Value</span></th>
-            <!--<th><span jhiTranslate="managementPortalApp.subject.removed">Removed</span></th>-->
-            <!--<th><span jhiTranslate="managementPortalsubjectient.createdDate">Created Date</span> <span class="fa fa-sort"></span></th>-->
-            <!--<th><span jhiTranslate="managementPortalsubjectient.lastModifiedBy">Last Modified By</span> <span class="fa fa-sort"></span></th>-->
-            <!--<th><span jhiTranslate="managementPortalsubjectient.lastModifiedDate">Last Modified Date</span> <span class="fa fa-sort"></span></th>-->
-
             <th></th>
             </tr>
             </thead>
             <tbody>
             <tr *ngFor="let subject of subjects ;trackBy: trackId">
-                <td><a [routerLink]="['../subject', subject.id ]">{{subject.id}}</a></td>
+                <td><a [routerLink]="['/subject', subject.id ]">{{subject.id}}</a></td>
                 <td>{{subject.login}}</td>
                 <td>
                     <a target="_blank" [href]=subject.externalLink>{{subject.externalLink}}</a>
                 </td>
                 <td>{{subject.externalId}}</td>
-                <!--<td>-->
-                    <!--<span class="badge badge-danger" *ngIsubjectient.removed">false</span>-->
-                    <!--<span class="badge badge-success" *ngsubjectient.removed">true</span>-->
-                <!--</td>-->
                 <td>
                     <span class="badge badge-danger" *ngIf="subject.status == 'DEACTIVATED'">DEACTIVATED</span>
                     <span class="badge badge-success" *ngIf="subject.status == 'ACTIVATED'">ACTIVATED</span>
                     <span class="badge badge-warning" *ngIf="subject.status == 'DISCONTINUED'">DISCONTINUED</span>
                 </td>
-                <td>
+                <td  *ngIf="showProject">
                     <div *ngIf="subject.project">
                         <a [routerLink]="['/project', subject.project?.id ]" >{{subject.project?.projectName}}</a>
                     </div>
@@ -70,9 +61,6 @@
                         <span class="form-control-static">{{attribute.value}}</span>
                     </div>
                 </td>
-                <!--<tsubjectient.createdDate | date:'dd/MM/yy HH:mm'}}</td>-->
-                <!--<tsubjectient.lastModifiedBy}}</td>-->
-                <!--<tsubjectient.lastModifiedDate | date:'dd/MM/yy HH:mm'}}</td>-->
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"
@@ -82,20 +70,27 @@
                             <span class="fa fa-qrcode"></span>
                             <span jhiTranslate="managementPortalApp.subject.pairApp">Pair App</span>
                         </button>
-                        <button [disabled]="subject.status == 'DISCONTINUED'"
+                        <button *ngIf='showProject' [disabled]="subject.status == 'DISCONTINUED'"
                                 type="submit"
-                                [routerLink]="['../subject', subject.id ]"
+                                [routerLink]="['/subject', subject.id ]"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
                         </button>
-                        <button [disabled]="subject.status == 'DISCONTINUED'"
+                        <button *ngIf='showProject' [disabled]="subject.status == 'DISCONTINUED'"
                                 type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.id + '/edit'} }]"
+                                [routerLink]="['/', { outlets: { popup: 'generalSubject/'+ subject.id + '/edit'} }]"
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
+                        </button>
+                        <button *ngIf='!showProject' [disabled]="subject.status == 'DISCONTINUED'"
+                                type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.id + '/edit'} }]"
+                                replaceUrl="true"
+                                class="btn btn-primary btn-sm">
+                            <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
                         </button>
                         <button
                                 [disabled]="subject.status == 'DISCONTINUED'"
