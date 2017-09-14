@@ -136,12 +136,16 @@ export class SubjectPopupComponent implements OnInit, OnDestroy {
         // this.router.routerState.root.firstChild.url.subscribe(url => {
         //     if(url[0].path === 'project' && url[1].path) {
                 this.routeSub = this.route.params.subscribe((params) => {
+                    let projectId : number;
+                    if (params['projectId']) {
+                        projectId = params['projectId'];
+                    }
                     if (params['id']) {
                         this.modalRef = this.subjectPopupService
-                        .open(SubjectDialogComponent, params['id'] ,  false  );
+                        .open(SubjectDialogComponent, params['id'] ,  false , projectId );
                     } else {
                         this.modalRef = this.subjectPopupService
-                        .open(SubjectDialogComponent , null , false );
+                        .open(SubjectDialogComponent , null , false , projectId);
                     }
                 });
             // }

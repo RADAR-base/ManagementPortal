@@ -10,6 +10,7 @@ import java.util.Set;
 import org.mapstruct.MappingTarget;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Subject;
+import org.radarcns.management.domain.User;
 import org.radarcns.management.service.dto.AttributeMapDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.SubjectDTO.SubjectStatus;
@@ -101,6 +102,7 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
         setSubjectStatus(subjectDTO,subjectRetrieved);
         return subjectRetrieved;
     }
+
 
     private void extractAttributeData(SubjectDTO subjectDTO, Subject subject) {
         if(subjectDTO.getAttributes()!=null && !subjectDTO.getAttributes().isEmpty()) {

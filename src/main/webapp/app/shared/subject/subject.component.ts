@@ -22,7 +22,7 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
     currentAccount: any;
     eventSubscriber: Subscription;
 
-    @Input() showProject : boolean;
+    @Input() isProjectSpecific : boolean;
     constructor(
         private jhiLanguageService: JhiLanguageService,
         private subjectService: SubjectService,
@@ -51,7 +51,7 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
         );
     }
     ngOnInit() {
-        console.log(this.showProject);
+        console.log('is project specific',this.isProjectSpecific);
         this.loadSubjects();
         this.principal.identity().then((account) => {
             this.currentAccount = account;

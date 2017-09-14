@@ -18,8 +18,18 @@ export const subjectRoute: Routes = [
 ];
 
 export const subjectPopupRoute: Routes = [
-  {
-    path: 'generalSubject/:id/edit',
+    {
+        path: 'general-subject-new',
+        component: GeneralSubjectPopupComponent,
+        data: {
+            authorities: ['ROLE_USER'],
+            pageTitle: 'managementPortalApp.subject.home.title'
+        },
+        canActivate: [UserRouteAccessService],
+        outlet: 'popup'
+    },
+    {
+    path: 'general-subject/:id/edit',
     component: GeneralSubjectPopupComponent,
     data: {
         authorities: ['ROLE_USER'],

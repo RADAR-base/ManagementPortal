@@ -28,13 +28,13 @@ export class SubjectPopupService {
                 this.subjectModalRef(component, subject , isDelete );
             });
         } else {
-            // if(projectId) {
-            //     this.projectService.find(projectId).subscribe((project) => {
+            if(projectId) {
+                this.projectService.find(projectId).subscribe((project) => {
                     var subject = new Subject();
-                    // subject.project = project;
+                    subject.project = project;
                     return this.subjectModalRef(component, subject , isDelete);
-                // })
-            // }
+                })
+            }
         }
     }
 

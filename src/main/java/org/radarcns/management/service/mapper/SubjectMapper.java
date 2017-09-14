@@ -39,7 +39,7 @@ public interface SubjectMapper {
     @Mapping(target = "removed" , ignore = true)
     Subject subjectDTOToSubject(SubjectDTO subjectDTO);
 
-    @Mapping(target = "user.login", ignore = true)
+    @Mapping(target = "user", ignore = true)
     @Mapping(target = "attributes" , ignore = true)
     @Mapping(target = "removed" , ignore = true)
     Subject safeUpdateSubjectFromDTO(SubjectDTO subjectDTO, @MappingTarget Subject subject);

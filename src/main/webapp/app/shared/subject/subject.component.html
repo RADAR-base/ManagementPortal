@@ -1,7 +1,19 @@
 <div>
     <h4>
         <span jhiTranslate="managementPortalApp.subject.home.title">Subjects</span>
-        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN' , 'ROLE_PROJECT_ADMIN']"  class="btn btn-primary float-right create-subject" [routerLink]="['/', { outlets: { popup: ['subject-new'] } }]">
+        <button
+                class="btn btn-primary float-right create-subject"
+                *ngIf='isProjectSpecific'
+                [routerLink]="['/', { outlets: { popup: ['project-subject-new' , project.id] } }]">
+            <span class="fa fa-plus"></span>
+            <span  jhiTranslate="managementPortalApp.subject.home.createLabel">
+            Create new Subject
+            </span>
+        </button>
+        <button
+                class="btn btn-primary float-right create-subject"
+                *ngIf='!isProjectSpecific'
+                [routerLink]="['/', { outlets: { popup: ['general-subject-new'] } }]">
             <span class="fa fa-plus"></span>
             <span  jhiTranslate="managementPortalApp.subject.home.createLabel">
             Create new Subject
@@ -21,7 +33,7 @@
             <th><span jhiTranslate="managementPortalApp.subject.externalLink">External Link</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.externalId">Enternal Id</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.status.title">Status</span></th>
-            <th *ngIf="showProject"><span jhiTranslate="managementPortalApp.subject.project">Project</span> <span class="fa fa-sort"></span></th>
+            <th *ngIf="!isProjectSpecific"><span jhiTranslate="managementPortalApp.subject.project">Project</span> <span class="fa fa-sort"></span></th>
             <th><span jhiTranslate="managementPortalApp.subject.sources">Sources</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.attributeDataKey">Key</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.attributeDataValue">Value</span></th>
@@ -41,7 +53,7 @@
                     <span class="badge badge-success" *ngIf="subject.status == 'ACTIVATED'">ACTIVATED</span>
                     <span class="badge badge-warning" *ngIf="subject.status == 'DISCONTINUED'">DISCONTINUED</span>
                 </td>
-                <td  *ngIf="showProject">
+                <td  *ngIf="!isProjectSpecific">
                     <div *ngIf="subject.project">
                         <a [routerLink]="['/project', subject.project?.id ]" >{{subject.project?.projectName}}</a>
                     </div>
@@ -70,24 +82,24 @@
                             <span class="fa fa-qrcode"></span>
                             <span jhiTranslate="managementPortalApp.subject.pairApp">Pair App</span>
                         </button>
-                        <button *ngIf='showProject' [disabled]="subject.status == 'DISCONTINUED'"
+                        <button *ngIf='!isProjectSpecific' [disabled]="subject.status == 'DISCONTINUED'"
                                 type="submit"
                                 [routerLink]="['/subject', subject.id ]"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
                         </button>
-                        <button *ngIf='showProject' [disabled]="subject.status == 'DISCONTINUED'"
+                        <button *ngIf='!isProjectSpecific' [disabled]="subject.status == 'DISCONTINUED'"
                                 type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'generalSubject/'+ subject.id + '/edit'} }]"
+                                [routerLink]="['/', { outlets: { popup: 'general-subject/'+ subject.id + '/edit'} }]"
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
                         </button>
-                        <button *ngIf='!showProject' [disabled]="subject.status == 'DISCONTINUED'"
+                        <button *ngIf='isProjectSpecific' [disabled]="subject.status == 'DISCONTINUED'"
                                 type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.id + '/edit'} }]"
+                                [routerLink]="['/', { outlets: { popup: 'project-subject/'+ project.id + '/' +subject.id + '/edit'} }]"
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>

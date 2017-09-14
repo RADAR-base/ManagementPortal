@@ -18,5 +18,5 @@ import {SubjectService} from "../../shared/subject/subject.service";
     templateUrl: './general.subject.component.html'
 })
 export class GeneralSubjectComponent {
-    showProject =true;
+    isProjectSpecific =false;
 }
