@@ -2,7 +2,6 @@ package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
-import org.radarcns.management.domain.DeviceType;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.DeviceTypeService;
 import org.radarcns.management.service.dto.DeviceTypeDTO;
@@ -92,6 +91,14 @@ public class DeviceTypeResource {
     @Timed
     public ResponseEntity<DeviceTypeDTO> updateDeviceType(@Valid @RequestBody DeviceTypeDTO deviceTypeDTO) throws URISyntaxException {
         log.debug("REST request to update DeviceType : {}", deviceTypeDTO);
+        // we will also allow updating with no id, but with producer and model specified
+        if (deviceTypeDTO.getDeviceProducer() != null && deviceTypeDTO.getDeviceModel() != null) {
+            DeviceTypeDTO existing = deviceTypeService.findByProducerAndModel(
+                deviceTypeDTO.getDeviceProducer(), deviceTypeDTO.getDeviceModel());
+            if (existing != null) {
+                deviceTypeDTO.setId(existing.getId());
+            }
+        }
         if (deviceTypeDTO.getId() == null) {
             return createDeviceType(deviceTypeDTO);
         }

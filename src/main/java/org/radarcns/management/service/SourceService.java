@@ -75,6 +75,20 @@ public class SourceService {
      */
     public SourceDTO save(SourceDTO sourceDTO) {
         log.debug("Request to save Source : {}", sourceDTO);
+        // make sure we update the correct entity if id is not specified but sourceName or sourceId
+        // is, by setting the id of the object we're going to save
+        if (sourceDTO.getSourceName() != null && sourceDTO.getId() == null) {
+            Optional<Source> sourceOptional = sourceRepository.findOneBySourceName(sourceDTO.getSourceName());
+            if (sourceOptional.isPresent()) {
+                sourceDTO.setId(sourceOptional.get().getId());
+            }
+        }
+        if (sourceDTO.getSourceId() != null && sourceDTO.getId() == null) {
+            Optional<Source> sourceOptional = sourceRepository.findOneBySourceId(sourceDTO.getSourceId());
+            if (sourceOptional.isPresent()) {
+                sourceDTO.setId(sourceOptional.get().getId());
+            }
+        }
         Source source = sourceMapper.sourceDTOToSource(sourceDTO);
 
         // Find the full device type based on the supplied id

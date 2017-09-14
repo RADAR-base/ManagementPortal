@@ -1,18 +1,19 @@
 package org.radarcns.management.web.rest;
 
-import org.radarcns.management.ManagementPortalApp;
-
-import org.radarcns.management.domain.DeviceType;
-import org.radarcns.management.repository.DeviceTypeRepository;
-import org.radarcns.management.service.DeviceTypeService;
-import org.radarcns.management.service.dto.DeviceTypeDTO;
-import org.radarcns.management.service.mapper.DeviceTypeMapper;
-import org.radarcns.management.web.rest.errors.ExceptionTranslator;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
+import org.radarcns.management.ManagementPortalApp;
+import org.radarcns.management.domain.DeviceType;
+import org.radarcns.management.domain.SensorData;
+import org.radarcns.management.domain.enumeration.SourceType;
+import org.radarcns.management.repository.DeviceTypeRepository;
+import org.radarcns.management.repository.SensorDataRepository;
+import org.radarcns.management.service.DeviceTypeService;
+import org.radarcns.management.service.dto.DeviceTypeDTO;
+import org.radarcns.management.service.mapper.DeviceTypeMapper;
+import org.radarcns.management.web.rest.errors.ExceptionTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -24,14 +25,18 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import org.radarcns.management.domain.enumeration.SourceType;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 /**
  * Test class for the DeviceTypeResource REST controller.
  *
@@ -58,6 +63,9 @@ public class DeviceTypeResourceIntTest {
 
     @Autowired
     private DeviceTypeService deviceTypeService;
+
+    @Autowired
+    private SensorDataRepository sensorDataRepository;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -292,5 +300,46 @@ public class DeviceTypeResourceIntTest {
     @Transactional
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(DeviceType.class);
+    }
+
+    @Test
+    @Transactional
+    public void idempotentPutWithoutId() throws Exception {
+        int databaseSizeBeforeUpdate = deviceTypeRepository.findAll().size();
+        int sensorsSizeBeforeUpdate = sensorDataRepository.findAll().size();
+
+        deviceType.setSensorData(Collections.singleton(SensorDataResourceIntTest.createEntity(em)));
+        // Create the DeviceType
+        DeviceTypeDTO deviceTypeDTO = deviceTypeMapper.deviceTypeToDeviceTypeDTO(deviceType);
+
+        // If the entity doesn't have an ID, it will be created instead of just being updated
+        restDeviceTypeMockMvc.perform(put("/api/device-types")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(deviceTypeDTO)))
+            .andExpect(status().isCreated());
+
+        // Validate the DeviceType in the database
+        List<DeviceType> deviceTypeList = deviceTypeRepository.findAll();
+        assertThat(deviceTypeList).hasSize(databaseSizeBeforeUpdate + 1);
+
+        // Validate the SensorData in the database
+        List<SensorData> sensorDataList = sensorDataRepository.findAll();
+        assertThat(sensorDataList).hasSize(sensorsSizeBeforeUpdate + 1);
+
+        // Test doing a put with only producer and model, no id, does not create a new device
+        // assert that the id is still unset
+        assertThat(deviceTypeDTO.getId()).isNull();
+        restDeviceTypeMockMvc.perform(put("/api/device-types")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(deviceTypeDTO)))
+            .andExpect(status().isOk());
+
+        // Validate no change in database size
+        deviceTypeList = deviceTypeRepository.findAll();
+        assertThat(deviceTypeList).hasSize(databaseSizeBeforeUpdate + 1);
+
+        // Validate no change in sensordata database size
+        sensorDataList = sensorDataRepository.findAll();
+        assertThat(sensorDataList).hasSize(sensorsSizeBeforeUpdate + 1);
     }
 }

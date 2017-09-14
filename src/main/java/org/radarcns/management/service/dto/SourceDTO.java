@@ -12,8 +12,10 @@ public class SourceDTO implements Serializable {
 
     private Long id;
 
+    @NotNull
     private String sourceId;
 
+    @NotNull
     private String sourceName;
 
     private String deviceCategory;
