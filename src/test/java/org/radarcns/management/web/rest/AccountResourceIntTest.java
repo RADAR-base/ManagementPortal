@@ -171,8 +171,7 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            roles,
-            null);
+            roles);
 
         restMvc.perform(
             post("/api/register")
@@ -204,8 +203,7 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            roles,
-            null);
+            roles);
 
         restUserMockMvc.perform(
             post("/api/register")
@@ -237,8 +235,7 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-             roles,
-            null);
+             roles);
 
         restUserMockMvc.perform(
             post("/api/register")
@@ -271,8 +268,7 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            roles,
-            null);
+            roles);
 
         restUserMockMvc.perform(
             post("/api/register")
@@ -306,12 +302,11 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            roles,
-            null);
+            roles);
 
         // Duplicate login, different email
         ManagedUserVM duplicatedUser = new ManagedUserVM(validUser.getId(), validUser.getLogin(), validUser.getPassword(), validUser.getFirstName(), validUser.getLastName(),
-            "alicejr@example.com", true, validUser.getLangKey(), validUser.getCreatedBy(), validUser.getCreatedDate(), validUser.getLastModifiedBy(), validUser.getLastModifiedDate(), validUser.getRoles(), validUser.getProject());
+            "alicejr@example.com", true, validUser.getLangKey(), validUser.getCreatedBy(), validUser.getCreatedDate(), validUser.getLastModifiedBy(), validUser.getLastModifiedDate(), validUser.getRoles());
 
         // Good user
         restMvc.perform(
@@ -353,12 +348,11 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            roles,
-            null);
+            roles);
 
         // Duplicate email, different login
         ManagedUserVM duplicatedUser = new ManagedUserVM(validUser.getId(), "johnjr", validUser.getPassword(), validUser.getLogin(), validUser.getLastName(),
-            validUser.getEmail(), true, validUser.getLangKey(), validUser.getCreatedBy(), validUser.getCreatedDate(), validUser.getLastModifiedBy(), validUser.getLastModifiedDate(), validUser.getRoles() , validUser.getProject());
+            validUser.getEmail(), true, validUser.getLangKey(), validUser.getCreatedBy(), validUser.getCreatedDate(), validUser.getLastModifiedBy(), validUser.getLastModifiedDate(), validUser.getRoles() );
 
         // Good user
         restMvc.perform(
@@ -399,8 +393,7 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            roles,
-            null);
+            roles);
 
         restMvc.perform(
             post("/api/register")
@@ -434,8 +427,7 @@ public class AccountResourceIntTest {
             null,                   // createdDate
             null,                   // lastModifiedBy
             null,                   // lastModifiedDate
-            roles,
-            null);
+            roles);
 
         restUserMockMvc.perform(
             post("/api/account")

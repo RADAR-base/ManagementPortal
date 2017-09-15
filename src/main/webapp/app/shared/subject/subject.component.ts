@@ -12,7 +12,7 @@ import { Principal } from '../../shared';
 import {Project} from "../../entities/project/index";
 
 @Component({
-    selector: 'jhi-subjects',
+    selector: 'subjects',
     templateUrl: './subject.component.html'
 })
 export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
