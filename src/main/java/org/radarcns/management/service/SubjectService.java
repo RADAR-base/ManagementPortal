@@ -1,6 +1,5 @@
 package org.radarcns.management.service;
 
-import java.util.Collections;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.Subject;

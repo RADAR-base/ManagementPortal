@@ -2,9 +2,8 @@ package org.radarcns.management.repository;
 
 import org.radarcns.management.domain.SensorData;
 
-import org.springframework.data.jpa.repository.*;
 
-import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * Spring Data JPA repository for the SensorData entity.

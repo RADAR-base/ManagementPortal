@@ -1,6 +1,5 @@
 package org.radarcns.management.security;
 
-import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
