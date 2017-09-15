@@ -34,7 +34,6 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
     }
 
     loadSubjects() {
-        console.log('loading')
         if(this.project) {
             this.loadAllFromProject();
         }
@@ -51,7 +50,6 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
         );
     }
     ngOnInit() {
-        console.log('is project specific',this.isProjectSpecific);
         this.loadSubjects();
         this.principal.identity().then((account) => {
             this.currentAccount = account;

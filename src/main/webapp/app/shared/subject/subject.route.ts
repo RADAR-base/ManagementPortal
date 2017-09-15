@@ -1,16 +1,11 @@
-import { Injectable } from '@angular/core';
-import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Routes, CanActivate } from '@angular/router';
+import { Routes, CanActivate } from '@angular/router';
 
 import { UserRouteAccessService } from '../../shared';
-import { PaginationUtil } from 'ng-jhipster';
-
-import { SubjectComponent} from './subject.component';
 import { SubjectDetailComponent } from './subject-detail.component';
 import { SubjectPopupComponent } from './subject-dialog.component';
 import { SubjectDeletePopupComponent } from './subject-delete-dialog.component';
 import { SubjectPairPopupComponent } from './subject-pair-dialog.component';
 
-import { Principal } from '../../shared';
 import {PROJECT_ADMIN, SYSTEM_ADMIN} from "../constants/common.constants";
 
 export const subjectRoute: Routes = [

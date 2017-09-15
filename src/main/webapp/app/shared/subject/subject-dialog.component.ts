@@ -26,17 +26,16 @@ export class SubjectDialogComponent implements OnInit {
     isSaving: boolean;
 
     sources: MinimalSource[];
-    keys : string[];
-    attributeComponentEventPrefix : 'subjectAttributes';
+    keys: string[];
+    attributeComponentEventPrefix: 'subjectAttributes';
 
     constructor(public activeModal: NgbActiveModal,
                 private jhiLanguageService: JhiLanguageService,
                 private alertService: AlertService,
                 private subjectService: SubjectService,
-                private projectService: ProjectService,
                 private sourceService: SourceService,
                 private eventManager: EventManager) {
-        this.jhiLanguageService.setLocations(['subject' , 'project' , 'projectStatus']);
+        this.jhiLanguageService.setLocations(['subject', 'project', 'projectStatus']);
     }
 
     ngOnInit() {
@@ -58,8 +57,8 @@ export class SubjectDialogComponent implements OnInit {
     }
 
     private registerChangesInSubject() {
-        this.eventManager.subscribe(this.attributeComponentEventPrefix+'ListModification', (response ) => {
-            this.subject.attributes= response.content;
+        this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
+            this.subject.attributes = response.content;
         });
     }
 
@@ -126,42 +125,23 @@ export class SubjectPopupComponent implements OnInit, OnDestroy {
     routeSub: any;
 
     constructor(private route: ActivatedRoute,
-                private router : Router,
-                private subjectPopupService: SubjectPopupService,
-    ) {
+                private subjectPopupService: SubjectPopupService,) {
     }
 
     ngOnInit() {
-        console.log('exected')
-        // this.router.routerState.root.firstChild.url.subscribe(url => {
-        //     if(url[0].path === 'project' && url[1].path) {
-                this.routeSub = this.route.params.subscribe((params) => {
-                    let projectId : number;
-                    if (params['projectId']) {
-                        projectId = params['projectId'];
-                    }
-                    if (params['id']) {
-                        this.modalRef = this.subjectPopupService
-                        .open(SubjectDialogComponent, params['id'] ,  false , projectId );
-                    } else {
-                        this.modalRef = this.subjectPopupService
-                        .open(SubjectDialogComponent , null , false , projectId);
-                    }
-                });
-            // }
-            // else {
-        //         this.routeSub = this.route.params.subscribe((params) => {
-        //             if (params['id']) {
-        //                 this.modalRef = this.subjectPopupService
-        //                 .open(SubjectDialogComponent, params['id']);
-        //             } else {
-        //                 this.modalRef = this.subjectPopupService
-        //                 .open(SubjectDialogComponent);
-        //             }
-        //         });
-        //     }
-        // });
-
+        this.routeSub = this.route.params.subscribe((params) => {
+            let projectId: number;
+            if (params['projectId']) {
+                projectId = params['projectId'];
+            }
+            if (params['id']) {
+                this.modalRef = this.subjectPopupService
+                .open(SubjectDialogComponent, params['id'], false, projectId);
+            } else {
+                this.modalRef = this.subjectPopupService
+                .open(SubjectDialogComponent, null, false, projectId);
+            }
+        });
     }
 
     ngOnDestroy() {

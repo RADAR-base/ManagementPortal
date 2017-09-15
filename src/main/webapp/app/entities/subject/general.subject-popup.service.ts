@@ -6,7 +6,6 @@ import {Subject} from "../../shared/subject/subject.model";
 @Injectable()
 export class GeneralSubjectPopupService {
     private isOpen = false;
-    login ?= 'xxxyxxxx';
     constructor(
         private modalService: NgbModal,
         private router: Router,
@@ -25,7 +24,7 @@ export class GeneralSubjectPopupService {
                 this.subjectModalRef(component, subject , isDelete);
             });
         } else {
-            var subject = new Subject();
+            let subject = new Subject();
             return this.subjectModalRef(component, subject , isDelete);
         }
     }
@@ -33,16 +32,6 @@ export class GeneralSubjectPopupService {
     subjectModalRef(component: Component, subject: Subject , isDelete?: boolean): NgbModalRef {
         const modalRef = this.modalService.open(component, { size: 'lg', backdrop: 'static'});
 
-        // modalRef.componentInstance.isProjectSpecific = true;
-        // modalRef.componentInstance.subject = subjects;
-        //
-        // if(projectId) {
-        //     this.projectService.find(projectId).subscribe((project) => {
-        //         let projects = [project];
-        //         modalRef.componentInstance.projects = projects;
-        //         console.log('hereh',modalRef.componentInstance.projects)
-        //     });
-        // }
         modalRef.componentInstance.subject = subject;
         modalRef.componentInstance.isDelete = isDelete;
         modalRef.result.then((result) => {

@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, JhiLanguageService } from 'ng-jhipster';
 
-import {Subject, SubjectStatus} from './subject.model';
+import {Subject} from './subject.model';
 import { SubjectPopupService } from './subject-popup.service';
 import { SubjectService } from './subject.service';
 

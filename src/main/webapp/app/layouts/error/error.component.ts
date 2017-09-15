@@ -1,6 +1,5 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { JhiLanguageService } from 'ng-jhipster';
-import {NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {ActivatedRoute} from "@angular/router";
 
 @Component({
