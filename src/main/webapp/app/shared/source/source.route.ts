@@ -1,27 +1,15 @@
-import { Injectable } from '@angular/core';
-import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Routes, CanActivate } from '@angular/router';
+import { Routes, CanActivate } from '@angular/router';
 
 import { UserRouteAccessService } from '../../shared';
-import { PaginationUtil } from 'ng-jhipster';
 
-import { SourceComponent } from './source.component';
 import { SourceDetailComponent } from './source-detail.component';
 import { SourcePopupComponent } from './source-dialog.component';
 import { SourceDeletePopupComponent } from './source-delete-dialog.component';
 
-import { Principal } from '../../shared';
 import {PROJECT_ADMIN, SYSTEM_ADMIN} from "../../shared/constants/common.constants";
 
 export const sourceRoute: Routes = [
   {
-    path: 'source',
-    component: SourceComponent,
-    data: {
-        authorities: [SYSTEM_ADMIN],
-        pageTitle: 'managementPortalApp.source.home.title'
-    },
-    canActivate: [UserRouteAccessService]
-  }, {
     path: 'source/:id',
     component: SourceDetailComponent,
     data: {
@@ -34,7 +22,7 @@ export const sourceRoute: Routes = [
 
 export const sourcePopupRoute: Routes = [
   {
-    path: 'source-new',
+    path: 'project-source-new/:projectId',
     component: SourcePopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],
@@ -44,7 +32,7 @@ export const sourcePopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'source/:id/edit',
+    path: 'project-source/:projectId/:id/edit',
     component: SourcePopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],

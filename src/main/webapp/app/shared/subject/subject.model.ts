@@ -1,6 +1,6 @@
 import {Attribute} from "../../shared/attribute-mapper/attribute-mapper.model";
 import {Project} from "../../entities/project/project.model";
-import {MinimalSource, Source} from "../../entities/source/source.model";
+import {MinimalSource, Source} from "../source/source.model";
 export class Subject {
     public id?: any;
     public login?: string;

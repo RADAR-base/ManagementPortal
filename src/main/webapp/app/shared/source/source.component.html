@@ -1,12 +1,23 @@
 <div>
     <h4>
         <span jhiTranslate="managementPortalApp.source.home.title">Devices</span>
-        <button class="btn btn-primary float-right create-source" [routerLink]="['/', { outlets: { popup: ['source-new'] } }]">
+        <button  *ngIf='!isProjectSpecific'
+                class="btn btn-primary float-right create-source"
+                [routerLink]="['/', { outlets: { popup: ['general-source-new'] } }]">
             <span class="fa fa-plus"></span>
             <span  jhiTranslate="managementPortalApp.source.home.createLabel">
             Create new Device
             </span>
         </button>
+        <button  *ngIf='isProjectSpecific'
+                 class="btn btn-primary float-right create-source"
+                 [routerLink]="['/', { outlets: { popup: ['project-source-new' , project.id] } }]">
+            <span class="fa fa-plus"></span>
+            <span  jhiTranslate="managementPortalApp.source.home.createLabel">
+            Create new Device
+            </span>
+        </button>
+
     </h4>
     <jhi-alert></jhi-alert>
     <div class="row">
@@ -21,13 +32,13 @@
             <th><span jhiTranslate="managementPortalApp.source.deviceCategory">Device Category</span></th>
             <th><span jhiTranslate="managementPortalApp.source.assigned">Assigned</span></th>
             <th><span jhiTranslate="managementPortalApp.source.deviceType">Device Type</span></th>
-            <th><span jhiTranslate="managementPortalApp.source.project">Project</span></th>
+            <th *ngIf="!isProjectSpecific"><span jhiTranslate="managementPortalApp.source.project">Project</span></th>
             <th></th>
             </tr>
             </thead>
             <tbody>
             <tr *ngFor="let source of sources ;trackBy: trackId">
-                <td><a [routerLink]="['../source', source.id ]">{{source.id}}</a></td>
+                <td><a [routerLink]="['/source', source.id ]">{{source.id}}</a></td>
                 <td>{{source.sourceId}}</td>
                 <td>{{source.deviceCategory}}</td>
                 <td>
@@ -38,24 +49,33 @@
                 </td>
                 <td>
                     <div *ngIf="source.deviceType">
-                        <a [routerLink]="['../device-type', source.deviceType?.id  ]" >{{source.deviceType.deviceModel}}</a>
+                        <a [routerLink]="['/device-type', source.deviceType?.id  ]" >{{source.deviceType.deviceModel}}</a>
                     </div>
                 </td>
-                <td>
+                <td *ngIf="!isProjectSpecific">
                     <div *ngIf="source.project">
-                        <a [routerLink]="['../project', source.project?.id ]" >{{source.project.projectName}}</a>
+                        <a [routerLink]="['/project', source.project?.id ]" >{{source.project.projectName}}</a>
                     </div>
                 </td>
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"
-                                [routerLink]="['../source', source.id ]"
+                                [routerLink]="['/source', source.id ]"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
                         </button>
-                        <button type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'source/'+ source.id + '/edit'} }]"
+                        <button *ngIf='isProjectSpecific'
+                                type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'project-source/'+ project.id + '/' +source.id + '/edit'} }]"
+                                replaceUrl="true"
+                                class="btn btn-primary btn-sm">
+                            <span class="fa fa-pencil"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
+                        </button>
+                        <button *ngIf='!isProjectSpecific'
+                                type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'general-source/'+ source.id + '/edit'} }]"
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>

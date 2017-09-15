@@ -3,24 +3,23 @@ import {
     SimpleChange
 } from '@angular/core';
 import { Response } from '@angular/http';
-import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
-import { EventManager, ParseLinks, PaginationUtil, JhiLanguageService, AlertService } from 'ng-jhipster';
+import { EventManager, JhiLanguageService, AlertService } from 'ng-jhipster';
 
 import { Source } from './source.model';
 import { SourceService } from './source.service';
-import { ITEMS_PER_PAGE, Principal } from '../../shared';
-import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
-import {Project} from "../project/project.model";
+import { Principal } from '../../shared';
+import {Project} from "../../entities/project/project.model";
 
 @Component({
-    selector: 'jhi-source',
+    selector: 'sources',
     templateUrl: './source.component.html'
 })
 export class SourceComponent implements OnInit, OnDestroy , OnChanges {
 
     @Input() project: Project;
-    private _project: Project;
+    @Input() isProjectSpecific : boolean;
+
     sources: Source[];
     currentAccount: any;
     eventSubscriber: Subscription;
@@ -36,16 +35,21 @@ export class SourceComponent implements OnInit, OnDestroy , OnChanges {
     }
 
     ngOnInit() {
+        console.log('init child')
+        this.loadSources();
+        this.principal.identity().then((account) => {
+            this.currentAccount = account;
+        });
+        this.registerChangeInDevices();
+    }
+
+    private loadSources() {
         if(this.project) {
             this.loadAllFromProject();
         }
         else {
             this.loadAll();
         }
-        this.principal.identity().then((account) => {
-            this.currentAccount = account;
-        });
-        this.registerChangeInDevices();
     }
 
     ngOnDestroy() {
@@ -56,7 +60,7 @@ export class SourceComponent implements OnInit, OnDestroy , OnChanges {
         return item.id;
     }
     registerChangeInDevices() {
-        this.eventSubscriber = this.eventManager.subscribe('sourceListModification', (response) => this.loadAll());
+        this.eventSubscriber = this.eventManager.subscribe('sourceListModification', (response) => this.loadSources());
     }
 
     private onError(error) {
@@ -81,8 +85,10 @@ export class SourceComponent implements OnInit, OnDestroy , OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        const project: SimpleChange = changes.project;
-        this.project = project.currentValue;
-        this.loadAllFromProject();
+        const project: SimpleChange = changes.project? changes.project: null;
+        if(project){
+            this.project = project.currentValue;
+            this.loadAllFromProject();
+        }
     }
 }

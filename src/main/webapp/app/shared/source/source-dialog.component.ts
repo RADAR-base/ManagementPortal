@@ -8,9 +8,8 @@ import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 import { Source } from './source.model';
 import { SourcePopupService } from './source-popup.service';
 import { SourceService } from './source.service';
-import { DeviceType, DeviceTypeService } from '../device-type';
-import {MinimalProject, Project} from "../project/project.model";
-import {ProjectService} from "../project/project.service";
+import {DeviceType} from "../../entities/device-type/device-type.model";
+import {ProjectService} from "../../entities/project/project.service";
 
 @Component({
     selector: 'jhi-source-dialog',
@@ -22,7 +21,7 @@ export class SourceDialogComponent implements OnInit {
     authorities: any[];
     isSaving: boolean;
     deviceTypes: DeviceType[];
-    projects: MinimalProject[];
+
     constructor(
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
@@ -37,25 +36,10 @@ export class SourceDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
-        // this.sourceTypeService.query().subscribe(
-        //     (res: Response) => { this.sourcetypes = res.json(); }, (res: Response) => this.onError(res.json()));
-        this.projectService.findAll(true).subscribe(
-            (res: Response) => { this.projects = res.json(); }, (res: Response) => this.onError(res.json()));
         if(this.source.project) {
             this.projectService.findDeviceTypesById(this.source.project.id).subscribe((res: Response) => {
                 this.deviceTypes = res.json();
             });
-        }
-    }
-
-    public onProjectChange(project: any) {
-        if(project!=null) {
-            this.projectService.findDeviceTypesById(project.id).subscribe((res: Response) => {
-                this.deviceTypes = res.json();
-            });
-        }
-        else {
-            this.deviceTypes = null;
         }
     }
 
@@ -99,12 +83,8 @@ export class SourceDialogComponent implements OnInit {
     trackDeviceTypeById(index: number, item: DeviceType) {
         return item.id;
     }
-    trackProjectById(index: number, item: MinimalProject) {
-        return item.id;
-    }
 
     getSelected(selectedVals: any, option: any) {
-        console.log('selected', selectedVals);
         if (selectedVals) {
             for (let i = 0; i < selectedVals.length; i++) {
                 if (selectedVals[i] && option.id === selectedVals[i].id) {
@@ -132,12 +112,16 @@ export class SourcePopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
+            let projectId: number;
+            if (params['projectId']) {
+                projectId = params['projectId'];
+            }
             if ( params['id'] ) {
                 this.modalRef = this.sourcePopupService
-                    .open(SourceDialogComponent, params['id']);
+                    .open(SourceDialogComponent, params['id'] , projectId);
             } else {
                 this.modalRef = this.sourcePopupService
-                    .open(SourceDialogComponent);
+                    .open(SourceDialogComponent , null,  projectId);
             }
         });
     }

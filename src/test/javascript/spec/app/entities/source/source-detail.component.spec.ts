@@ -6,9 +6,9 @@ import { Observable } from 'rxjs/Rx';
 import { DateUtils, DataUtils, EventManager } from 'ng-jhipster';
 import { ManagementPortalTestModule } from '../../../test.module';
 import { MockActivatedRoute } from '../../../helpers/mock-route.service';
-import { SourceDetailComponent } from '../../../../../../main/webapp/app/entities/source/source-detail.component';
-import { SourceService } from '../../../../../../main/webapp/app/entities/source/source.service';
-import { Source } from '../../../../../../main/webapp/app/entities/source/source.model';
+import {SourceDetailComponent} from "../../../../../../main/webapp/app/shared/source/source-detail.component";
+import {SourceService} from "../../../../../../main/webapp/app/shared/source/source.service";
+import {Source} from "../../../../../../main/webapp/app/shared/source/source.model";
 
 describe('Component Tests', () => {
 

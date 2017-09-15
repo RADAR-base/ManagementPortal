@@ -1,6 +1,5 @@
 import {
-    Component, OnInit, OnDestroy, ComponentFactoryResolver, ViewChild,
-    OnChanges
+    Component, OnInit, OnDestroy
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
@@ -8,25 +7,20 @@ import { EventManager , JhiLanguageService  } from 'ng-jhipster';
 
 import { Project } from './project.model';
 import { ProjectService } from './project.service';
-import {Source} from "../source/source.model";
-import {SourceComponent} from "../source/source.component";
+import {Source} from "../../shared/source/source.model";
 
 @Component({
     selector: 'jhi-project-detail',
     templateUrl: './project-detail.component.html',
     styleUrls: ['project-detail.component.scss'],
 })
-export class ProjectDetailComponent implements OnInit, OnDestroy , OnChanges {
+export class ProjectDetailComponent implements OnInit, OnDestroy {
 
     project: Project;
     private subscription: any;
     private eventSubscriber: Subscription;
 
     sources: Source[];
-
-    @ViewChild(SourceComponent)
-    private sourceComponent: SourceComponent;
-
 
     showSources : boolean;
     showSubjects : boolean;
@@ -80,8 +74,5 @@ export class ProjectDetailComponent implements OnInit, OnDestroy , OnChanges {
         this.showSubjects = true;
         this.showDeviceTypes = false;
         this.showProjectAdmins = false;
-    }
-    ngOnChanges() {
-        console.log('parent changed');
     }
 }

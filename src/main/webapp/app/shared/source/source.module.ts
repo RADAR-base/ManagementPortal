@@ -49,4 +49,4 @@ const ENTITY_STATES = [
         SourceComponent
     ],
 })
-export class ManagementPortalSourceModule {}
+export class ManagementPortalSharedSourceModule {}

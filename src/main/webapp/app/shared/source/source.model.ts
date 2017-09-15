@@ -1,5 +1,5 @@
-import {MinimalProject} from "../project/project.model";
-import {DeviceType} from "../device-type/device-type.model";
+import {DeviceType} from "../../entities/device-type/device-type.model";
+import {MinimalProject} from "../../entities/project/project.model";
 export class Source {
     constructor(
         public id?: number,

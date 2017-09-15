@@ -1,10 +1,10 @@
 import { Injectable, Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Source } from './source.model';
-import { SourceService } from './source.service';
+import {SourceService} from "../../shared/source/source.service";
+import {Source} from "../../shared/source/source.model";
 @Injectable()
-export class SourcePopupService {
+export class GeneralSourcePopupService {
     private isOpen = false;
     constructor(
         private modalService: NgbModal,
@@ -20,6 +20,7 @@ export class SourcePopupService {
         this.isOpen = true;
 
         if (id) {
+            console.log('fine in general')
             this.sourceService.find(id).subscribe((source) => {
                 this.sourceModalRef(component, source);
             });

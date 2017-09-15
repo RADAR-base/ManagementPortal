@@ -7,13 +7,13 @@ import {Response} from '@angular/http';
 import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {EventManager, AlertService, JhiLanguageService} from 'ng-jhipster';
 
-import {SourceService} from '../source';
 import {Project} from "../project/project.model";
 import {ProjectService} from "../project/project.service";
-import {MinimalSource} from "../source/source.model";
 import {Subject} from "../../shared/subject/subject.model";
 import {SubjectService} from "../../shared/subject/subject.service";
 import {GeneralSubjectPopupService} from "./general.subject-popup.service";
+import {MinimalSource} from "../../shared/source/source.model";
+import {SourceService} from "../../shared/source/source.service";
 @Component({
     selector: 'jhi-subject-dialog',
     templateUrl: './general.subject-dialog.component.html'

@@ -29,25 +29,7 @@
             <input type="text" class="form-control" name="deviceCategory" id="field_deviceCategory"
                 [(ngModel)]="source.deviceCategory"
              />
-           <!-- <div [hidden]="!(editForm.controls.deviceCategory?.dirty && editForm.controls.deviceCategory?.invalid)">
-                <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.deviceCategory?.errors?.required" jhiTranslate="entity.validation.required">
-                   This field is required.
-                </small>
-            </div>-->
         </div>
-       <!-- <div clsourceorm-group">
-            <label class="form-control-label" jhiTranslate="managementPortalsourcevice.activated" for="field_activated">Activated</label>
-            <input type="checkbox" class="form-control" name="activated" id="field_activated"
-                [(ngModel)]="device.activated"
-             />
-            <div [hidden]="!(editForm.controls.activated?.dirty && editForm.controls.activated?.invalid)">
-                <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.activated?.errors?.required" jhiTranslate="entity.validation.required">
-                   This field is required.
-                </small>
-            </div>
-        </div>-->
         <div class="form-group">
             <label jhiTranslate="managementPortalApp.source.project" for="field_project">Project</label>
             <select class="form-control" id="field_project" name="project" [(ngModel)]="source.project" (ngModelChange)="onProjectChange($event)" required>
@@ -64,8 +46,7 @@
 
         <div class="form-group">
             <label jhiTranslate="managementPortalApp.source.deviceType" for="field_deviceType">Device Type</label>
-            <select class="form-control" id="field_deviceType" name="deviceType" [(ngModel)]="source.deviceType" >
-                <option [ngValue]="null"></option>
+            <select class="form-control" id="field_deviceType" name="deviceType" [(ngModel)]="source.deviceType" required>
                 <option [ngValue]="deviceTypeOption.id === source.deviceType?.id ? source.deviceType : deviceTypeOption" *ngFor="let deviceTypeOption of deviceTypes; trackBy: trackDeviceTypeById">{{deviceTypeOption.deviceModel}}</option>
             </select>
         </div>
