@@ -216,7 +216,8 @@ public class SubjectResource {
         }
         subject = subjectRepository.findOneWithEagerRelationships(subject.getId());
         SubjectDTO result = subjectService.assignSourcesToSubject(subject, sourceDTOS);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(
+            ENTITY_NAME, subject.getId().toString())).body(result);
     }
 
     /**
