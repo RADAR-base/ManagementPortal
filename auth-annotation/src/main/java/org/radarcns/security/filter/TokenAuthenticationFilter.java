@@ -165,7 +165,7 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
             }
 
             public boolean isSecure() {
-                return authorizationHandler.getIdentityServerConfig().getTokenValidationEndpoint()
+                return authorizationHandler.getIdentityServerConfig().getPublicKeyEndpoint()
                     .startsWith("https");
             }
 

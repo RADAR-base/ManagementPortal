@@ -24,7 +24,6 @@ public class YamlServerConfigTest {
         ServerConfig config = YamlServerConfig.readFromFileOrClasspath();
         assertEquals("test_username", config.getUsername());
         assertEquals("test_password", config.getPassword());
-        assertEquals("http://localhost:8089/oauth/check_token", config.getTokenValidationEndpoint());
         assertEquals("http://localhost:8089/oauth/token_key", config.getPublicKeyEndpoint());
     }
 
@@ -36,7 +35,6 @@ public class YamlServerConfigTest {
         ServerConfig config = YamlServerConfig.readFromFileOrClasspath();
         assertEquals("test_username", config.getUsername());
         assertEquals("test_password", config.getPassword());
-        assertEquals("http://localhost:8089/oauth/check_token", config.getTokenValidationEndpoint());
         assertEquals("http://localhost:8089/oauth/token_key", config.getPublicKeyEndpoint());
     }
 }

@@ -1,14 +1,11 @@
 package org.radarcns.security.unit.filter;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.radarcns.security.annotation.Secured;
-import org.radarcns.security.authorization.AuthorizationHandler;
-import org.radarcns.security.authorization.RadarAuthorizationHandler;
 import org.radarcns.security.filter.TokenAuthenticationFilter;
 import org.radarcns.security.unit.util.TokenTestUtils;
 
@@ -26,7 +23,6 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.Assert.assertEquals;

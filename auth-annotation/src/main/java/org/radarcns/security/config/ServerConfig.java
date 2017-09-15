@@ -1,11 +1,6 @@
 package org.radarcns.security.config;
 
 public interface ServerConfig {
-    /**
-     *
-     * @return The URL of the identity server's token validation endpoint
-     */
-    String getTokenValidationEndpoint();
 
     /**
      *

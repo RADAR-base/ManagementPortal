@@ -36,8 +36,6 @@ public class TokenTestUtils {
     public static final String ISS = "RADAR";
     public static final String JTI = "some-jwt-id";
 
-    public static String SUCCESSFUL_RESPONSE;
-
     public static final String INVALID_RESPONSE = "{\"scope\":\"read_user\", "
         + "\"token_type\":\"Bearer\",\"exp\":1491492693,\"iat\":1491489093, "
         + "\"client_id\":\"35GaiYHy_7o5Vj3Qi3IaN1Iqnfwa\","
@@ -101,31 +99,10 @@ public class TokenTestUtils {
             .withClaim("user_name", USER)
             .withClaim("jti", JTI)
             .sign(algorithm);
-
-        Map<String, Object> checkTokenResponseObject = new HashMap<>();
-        checkTokenResponseObject.put("iss", ISS);
-        checkTokenResponseObject.put("iat", iat.getEpochSecond());
-        checkTokenResponseObject.put("exp", exp.getEpochSecond());
-        checkTokenResponseObject.put("aud", CLIENT);
-        checkTokenResponseObject.put("sub", USER);
-        checkTokenResponseObject.put("scope", SCOPES);
-        checkTokenResponseObject.put("authorities", AUTHORITIES);
-        checkTokenResponseObject.put("roles", ROLES);
-        checkTokenResponseObject.put("sources", SOURCES);
-        checkTokenResponseObject.put("client_id", CLIENT);
-        checkTokenResponseObject.put("user_name", USER);
-        checkTokenResponseObject.put("jti", JTI);
-
-        SUCCESSFUL_RESPONSE = JSONObject.toJSONString(checkTokenResponseObject);
     }
 
     public static ServerConfig createMockServerConfig() {
         return new ServerConfig() {
-            @Override
-            public String getTokenValidationEndpoint() {
-                return "http://localhost:" + WIREMOCK_PORT + OAUTH2_INTROSPECT;
-            }
-
             @Override
             public String getPublicKeyEndpoint() {
                 return "http://localhost:" + WIREMOCK_PORT + PUBLIC_KEY;

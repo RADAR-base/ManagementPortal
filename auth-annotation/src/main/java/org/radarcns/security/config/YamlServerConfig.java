@@ -15,7 +15,6 @@ import java.io.InputStream;
 public class YamlServerConfig implements ServerConfig {
     public static final String LOCATION_ENV = "RADAR_IS_CONFIG_LOCATION";
     public static final String CONFIG_FILE_NAME = "radar-is.yml";
-    private String tokenValidationEndpoint;
     private String publicKeyEndpoint;
     private String username;
     private String password;
@@ -34,8 +33,7 @@ public class YamlServerConfig implements ServerConfig {
             log.info(LOCATION_ENV + " environment variable set, loading config from " +
                 customLocation);
             stream = new FileInputStream(customLocation);
-        }
-        else {
+        } else {
             // if config location not defined, look for it on the classpath
             log.info(LOCATION_ENV + " environment variable not set, looking for it on"
                 + " the classpath");
@@ -44,16 +42,6 @@ public class YamlServerConfig implements ServerConfig {
         }
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         return mapper.readValue(stream, YamlServerConfig.class);
-    }
-
-    @Override
-    public String getTokenValidationEndpoint() {
-        return tokenValidationEndpoint;
-    }
-
-    public void setTokenValidationEndpoint(String tokenValidationEndpoint) {
-        log.info("Token Validation Endpoint set to " + tokenValidationEndpoint);
-        this.tokenValidationEndpoint = tokenValidationEndpoint;
     }
 
     public String getPublicKeyEndpoint() {
@@ -92,21 +80,16 @@ public class YamlServerConfig implements ServerConfig {
 
         YamlServerConfig that = (YamlServerConfig) o;
 
-        if (tokenValidationEndpoint != null ? !tokenValidationEndpoint.equals(that.tokenValidationEndpoint) : that.tokenValidationEndpoint != null)
-            return false;
-        if (publicKeyEndpoint != null ? !publicKeyEndpoint.equals(that.publicKeyEndpoint) : that.publicKeyEndpoint != null)
-            return false;
-        if (username != null ? !username.equals(that.username) : that.username != null)
-            return false;
-        return password != null ? password.equals(that.password) : that.password == null;
+        if (!publicKeyEndpoint.equals(that.publicKeyEndpoint)) return false;
+        if (!username.equals(that.username)) return false;
+        return password.equals(that.password);
     }
 
     @Override
     public int hashCode() {
-        int result = tokenValidationEndpoint != null ? tokenValidationEndpoint.hashCode() : 0;
-        result = 31 * result + (publicKeyEndpoint != null ? publicKeyEndpoint.hashCode() : 0);
-        result = 31 * result + (username != null ? username.hashCode() : 0);
-        result = 31 * result + (password != null ? password.hashCode() : 0);
+        int result = publicKeyEndpoint.hashCode();
+        result = 31 * result + username.hashCode();
+        result = 31 * result + password.hashCode();
         return result;
     }
 }
