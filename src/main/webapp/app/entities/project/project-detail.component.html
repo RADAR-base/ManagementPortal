@@ -19,7 +19,8 @@
                         </span>
                     </li>
 
-                    <li class="status-group">
+                    <li [ngClass]="{'status-group-selected': showDeviceTypes , 'status-group': !showDeviceTypes}"
+                        (click)="viewDeviceTypes()">
                         <span>
                             Device Types
                         </span>

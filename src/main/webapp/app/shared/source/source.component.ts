@@ -35,7 +35,6 @@ export class SourceComponent implements OnInit, OnDestroy , OnChanges {
     }
 
     ngOnInit() {
-        console.log('init child')
         this.loadSources();
         this.principal.identity().then((account) => {
             this.currentAccount = account;

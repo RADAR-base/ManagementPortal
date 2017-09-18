@@ -20,7 +20,6 @@ export class GeneralSourcePopupService {
         this.isOpen = true;
 
         if (id) {
-            console.log('fine in general')
             this.sourceService.find(id).subscribe((source) => {
                 this.sourceModalRef(component, source);
             });

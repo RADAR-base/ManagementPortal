@@ -22,7 +22,6 @@ export class SourcePopupService {
         this.isOpen = true;
 
         if (id) {
-            console.log('find in source popup')
             this.sourceService.find(id).subscribe((source) => {
                 this.sourceModalRef(component, source);
             });

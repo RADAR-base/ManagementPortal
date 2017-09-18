@@ -75,4 +75,11 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         this.showDeviceTypes = false;
         this.showProjectAdmins = false;
     }
+
+    viewDeviceTypes() {
+        this.showSources = false;
+        this.showSubjects = false;
+        this.showDeviceTypes = true;
+        this.showProjectAdmins = false;
+    }
 }

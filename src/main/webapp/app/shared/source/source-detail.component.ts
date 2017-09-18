@@ -33,7 +33,6 @@ export class SourceDetailComponent implements OnInit, OnDestroy {
     }
 
     load(id) {
-        console.log('find in source detail')
         this.sourceService.find(id).subscribe((source) => {
             this.source = source;
         });

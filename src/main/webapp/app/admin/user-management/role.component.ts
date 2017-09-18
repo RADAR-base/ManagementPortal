@@ -47,7 +47,6 @@ export class RoleComponent implements OnInit {
     }
 
     ngOnInit() {
-        console.log('roles before ' , this.roles)
         if(this.roles ==null) {
             this.roles = new Array();
         }
@@ -55,14 +54,11 @@ export class RoleComponent implements OnInit {
         this.principal.identity().then((account) => {
             this.currentAccount = account;
         });
-        console.log('roles' , this.roles)
-        // this.registerChangeInRoles();
     }
 
     registerChangeInRoles() {
         this.eventManager.subscribe('roleEditListModification', (response ) => {
             this.roles = response.content ;
-            console.log('role component size ' ,this.roles.length);
         });
     }
 
