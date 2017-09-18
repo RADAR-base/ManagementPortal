@@ -2,6 +2,20 @@
 
 ManagementPortal is an application which is used to manage pilot studies for [RADAR-CNS](http://www.radar-cns.org/).
 
+## Quickstart
+
+The quickest way to get ManagementPortal up and running in production mode is by using the included
+docker-compose files. 
+1. First, we need to generate a key pair for signing JWT tokens as follows:
+```shell
+keytool -genkey -alias selfsigned -keyalg RSA -keystore src/main/resources/config/keystore.jks -keysize 4048 -storepass radarbase
+```
+**Make sure the key password and store password are the same!** This is a requirement for Spring Security.
+
+2. Then, make sure [Docker][], [Docker-Compose][], [Node.js][] and [Yarn][] are installed on your system.
+3. Finally, we can build the docker image with `./gradlew bootRepackage -Pprod buildDocker` and start the stack with `docker-compose -f src/main/docker/app.yml up -d`.
+
+
 ## Configuration
 
 First create a keypair to sign JWT with:
@@ -167,3 +181,5 @@ To configure CI for your project, run the ci-cd sub-generator (`yo jhipster:ci-c
 [Protractor]: https://angular.github.io/protractor/
 [Leaflet]: http://leafletjs.com/
 [DefinitelyTyped]: http://definitelytyped.org/
+[Docker]: https://docs.docker.com/
+[Docker-Compose]: https://docs.docker.com/compose/
