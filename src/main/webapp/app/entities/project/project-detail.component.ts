@@ -32,7 +32,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         private projectService: ProjectService,
         private route: ActivatedRoute
     ) {
-        this.jhiLanguageService.setLocations(['project', 'projectStatus' , 'source']);
+        this.jhiLanguageService.setLocations(['project', 'projectStatus' , 'source' , 'subject']);
     }
 
     ngOnInit() {

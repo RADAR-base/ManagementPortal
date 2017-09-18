@@ -71,6 +71,8 @@
                     </th>
                     <th><span jhiTranslate="managementPortalApp.project.endDate">End Date</span>
                     </th>
+                    <th><span jhiTranslate="managementPortalApp.project.attributeDataKey">MetaData Key</span></th>
+                    <th><span jhiTranslate="managementPortalApp.project.attributeDataValue">MetaData value</span></th>
                     <th></th>
                 </tr>
                 </thead>
@@ -86,6 +88,16 @@
                         {{project.projectStatus}}
                     </td>
                     <td>{{project.endDate | date:'medium'}}</td>
+                    <td>
+                        <div *ngFor="let attribute of project.attributes; ">
+                            <span class="form-control-static">{{attribute.key}}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngFor="let attribute of project.attributes; ">
+                            <span class="form-control-static">{{attribute.value}}</span>
+                        </div>
+                    </td>
                 </tr>
                 </tbody>
             </table>
