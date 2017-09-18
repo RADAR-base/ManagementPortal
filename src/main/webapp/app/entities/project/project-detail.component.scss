@@ -71,6 +71,19 @@ $separator-border: 1px solid rgba(0, 0, 0, 0.098);
             //    padding: 1px;
             //}
         }
+        .status-group-selected{
+            text-transform: uppercase;
+            padding: 10px 10px 10px 15px;
+            font-size: 13px;
+            font-weight: 500;
+            border-bottom: $separator-border;
+            background-color: rgba(0, 0, 0, 0.15);
+
+            -webkit-transition: padding 0.5s ease-out;
+            -moz-transition: padding 0.5s ease-out;
+            -o-transition: padding 0.5s ease-out;
+            transition: padding 0.5s ease-out;
+        }
     }
 
     .sidebar-brand {

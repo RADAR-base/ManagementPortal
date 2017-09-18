@@ -6,12 +6,14 @@
             </p>
             <ul class="status-list">
                 <ng-container>
-                    <li class="status-group" (click)="viewSubjects()">
+                    <li [ngClass]="{'status-group-selected': showSubjects , 'status-group': !showSubjects}"
+                        (click)="viewSubjects()">
                         <span>
                             Subjects
                         </span>
                     </li>
-                    <li class="status-group" (click)="viewSources()">
+                    <li [ngClass]="{'status-group-selected': showSources , 'status-group': !showSources}"
+                         (click)="viewSources()">
                         <span>
                             Sources
                         </span>
@@ -22,16 +24,16 @@
                             Device Types
                         </span>
                     </li>
-                    <li class="status-group">
-                        <span>
-                            Project Admins
-                        </span>
-                    </li>
-                    <li class="status-group">
-                        <span>
-                            Researchers
-                        </span>
-                    </li>
+                    <!--<li class="status-group">-->
+                        <!--<span>-->
+                            <!--Project Admins-->
+                        <!--</span>-->
+                    <!--</li>-->
+                    <!--<li class="status-group">-->
+                        <!--<span>-->
+                            <!--Researchers-->
+                        <!--</span>-->
+                    <!--</li>-->
                 </ng-container>
             </ul>
         </div>
