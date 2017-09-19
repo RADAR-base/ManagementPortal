@@ -44,6 +44,10 @@ public class DeviceType implements Serializable {
     private String deviceModel;
 
     @NotNull
+    @Column(name = "device_version", nullable = false)
+    private String deviceVersion;
+
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "source_type", nullable = false)
     private SourceType sourceType;
@@ -96,6 +100,14 @@ public class DeviceType implements Serializable {
 
     public void setDeviceModel(String deviceModel) {
         this.deviceModel = deviceModel;
+    }
+
+    public String getDeviceVersion() {
+        return deviceVersion;
+    }
+
+    public void setDeviceVersion(String deviceVersion) {
+        this.deviceVersion = deviceVersion;
     }
 
     public SourceType getSourceType() {

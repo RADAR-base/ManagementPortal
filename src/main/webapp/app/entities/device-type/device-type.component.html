@@ -19,6 +19,7 @@
             <th><span jhiTranslate="global.field.id">ID</span></th>
             <th><span jhiTranslate="managementPortalApp.deviceType.deviceProducer">Device Producer</span></th>
             <th><span jhiTranslate="managementPortalApp.deviceType.deviceModel">Device Model</span></th>
+            <th><span jhiTranslate="managementPortalApp.deviceType.deviceVersion">Device Version</span></th>
             <th><span jhiTranslate="managementPortalApp.deviceType.hasDynamicId">With dynamic id</span></th>
             <th><span jhiTranslate="managementPortalApp.deviceType.sourceType">Source Type</span></th>
             <th><span jhiTranslate="managementPortalApp.deviceType.sensorData">Sensor Data</span></th>
@@ -30,6 +31,7 @@
                 <td><a [routerLink]="['../device-type', deviceType.id ]">{{deviceType.id}}</a></td>
                 <td>{{deviceType.deviceProducer}}</td>
                 <td>{{deviceType.deviceModel}}</td>
+                <td>{{deviceType.deviceVersion}}</td>
                 <td>
                     <span class="badge badge-info" *ngIf="!deviceType.hasDynamicId"
                           jhiTranslate="managementPortalApp.deviceType.hasStaticId">Static Identifiers</span>

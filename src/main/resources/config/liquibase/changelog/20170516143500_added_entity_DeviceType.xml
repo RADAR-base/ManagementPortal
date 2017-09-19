@@ -30,6 +30,10 @@
                 <constraints nullable="false" />
             </column>
 
+            <column name="device_version" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+
             <column name="source_type" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
@@ -51,5 +55,12 @@
 
         <addPrimaryKey columnNames="device_types_id, sensor_data_id" tableName="device_type_sensor_data"/>
 
+        <createIndex indexName="idx_device_type_producer_model_version"
+                     tableName="device_type"
+                     unique="true">
+            <column name="device_producer" type="varchar(255)"/>
+            <column name="device_model" type="varchar(255)"/>
+            <column name="device_version" type="varchar(255)"/>
+        </createIndex>
     </changeSet>
 </databaseChangeLog>
