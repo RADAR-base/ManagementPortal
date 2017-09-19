@@ -46,4 +46,17 @@ export class UserService {
     delete(login: string): Observable<Response> {
         return this.http.delete(`${this.resourceUrl}/${login}`);
     }
+
+    findByProjectAndAuthority(req: any) : Observable<Response> {
+        const params: URLSearchParams = new URLSearchParams();
+        if (req) {
+            params.set('projectId', req.projectId);
+            params.set('authority', req.authority);
+        }
+        const options = {
+            search: params
+        };
+        return this.http.get('api/users-for-project', options);
+
+    }
 }

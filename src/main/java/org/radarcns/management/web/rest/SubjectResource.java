@@ -165,7 +165,7 @@ public class SubjectResource {
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(
         @RequestParam(value = "projectId" , required = false) Long projectId,
         @RequestParam(value = "externalId" , required = false) String externalId) {
-        log.error("ProjectID {} and external {}" , projectId, externalId);
+        log.debug("ProjectID {} and external {}" , projectId, externalId);
         if(projectId!=null && externalId!=null) {
             Subject subject = subjectRepository.findOneByProjectIdAndExternalId(projectId, externalId).get();
             SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);

@@ -25,16 +25,18 @@
                             Device Types
                         </span>
                     </li>
-                    <!--<li class="status-group">-->
-                        <!--<span>-->
-                            <!--Project Admins-->
-                        <!--</span>-->
-                    <!--</li>-->
-                    <!--<li class="status-group">-->
-                        <!--<span>-->
-                            <!--Researchers-->
-                        <!--</span>-->
-                    <!--</li>-->
+                    <li [ngClass]="{'status-group-selected': showProjectAdmins , 'status-group': !showProjectAdmins}"
+                        (click)="viewProjectAdmins()">
+                        <span>
+                            Project Admins
+                        </span>
+                    </li>
+                    <li [ngClass]="{'status-group-selected': showProjectAnalysts , 'status-group': !showProjectAnalysts}"
+                        (click)="viewProjectAnalysts()">
+                        <span>
+                            Project Analysts
+                        </span>
+                    </li>
                 </ng-container>
             </ul>
         </div>
@@ -106,6 +108,8 @@
             </table>
             <subjects *ngIf="showSubjects" [project]='project' [isProjectSpecific]="true"></subjects>
             <sources *ngIf="showSources" [project]='project' [isProjectSpecific]="true"></sources>
+            <common-user-mgmt *ngIf="showProjectAdmins" [project]='project' [authority]="'ROLE_PROJECT_ADMIN'"></common-user-mgmt>
+            <common-user-mgmt *ngIf="showProjectAnalysts" [project]='project' [authority]="'ROLE_PROJECT_ANALYST'"></common-user-mgmt>
 
 
         </div>

@@ -26,6 +26,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     showSubjects : boolean;
     showDeviceTypes : boolean;
     showProjectAdmins : boolean;
+    showProjectAnalysts : boolean;
     constructor(
         private eventManager: EventManager,
         private jhiLanguageService: JhiLanguageService,
@@ -67,6 +68,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         this.showSubjects = false;
         this.showDeviceTypes = false;
         this.showProjectAdmins = false;
+        this.showProjectAnalysts = false;
     }
 
     viewSubjects() {
@@ -74,6 +76,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         this.showSubjects = true;
         this.showDeviceTypes = false;
         this.showProjectAdmins = false;
+        this.showProjectAnalysts = false;
     }
 
     viewDeviceTypes() {
@@ -81,5 +84,22 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         this.showSubjects = false;
         this.showDeviceTypes = true;
         this.showProjectAdmins = false;
+        this.showProjectAnalysts = false;
+    }
+
+    viewProjectAdmins() {
+        this.showSources = false;
+        this.showSubjects = false;
+        this.showDeviceTypes = false;
+        this.showProjectAdmins = true;
+        this.showProjectAnalysts = false;
+    }
+
+    viewProjectAnalysts() {
+        this.showSources = false;
+        this.showSubjects = false;
+        this.showDeviceTypes = false;
+        this.showProjectAdmins = false;
+        this.showProjectAnalysts = true;
     }
 }
