@@ -8,10 +8,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.mapstruct.MappingTarget;
+import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Subject;
+import org.radarcns.management.domain.User;
 import org.radarcns.management.service.dto.AttributeMapDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.SubjectDTO.SubjectStatus;
+import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,6 +26,9 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
     @Autowired
     @Qualifier("delegate")
     private SubjectMapper delegate;
+
+    @Autowired
+    private ProjectMapper projectMapper;
 
     @Override
     public SubjectDTO subjectToSubjectDTO(Subject subject){
@@ -41,6 +47,9 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
             dto.setAttributes(attributeMapDTOList);
         }
         dto.setStatus(getSubjectStatus(subject));
+        for (Role role : subject.getUser().getRoles()) {
+            dto.setProject(projectMapper.projectToProjectDTO(role.getProject()));
+        }
         return dto;
     }
 
@@ -94,6 +103,7 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
         return subjectRetrieved;
     }
 
+
     private void extractAttributeData(SubjectDTO subjectDTO, Subject subject) {
         if(subjectDTO.getAttributes()!=null && !subjectDTO.getAttributes().isEmpty()) {
             Map<String, String> attributeMap = new HashMap<>();
@@ -111,7 +121,7 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
         else if( subject.getUser().getActivated() && !subject.isRemoved()) {
             return SubjectStatus.ACTIVATED;
         }
-        else if(subject.getUser().getActivated() && subject.isRemoved()) {
+        else if(subject.isRemoved()) {
             return SubjectStatus.DISCONTINUED;
         }
         return SubjectStatus.DEACTIVATED;
@@ -128,7 +138,6 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
                 subject.setRemoved(false);
                 break;
             case DISCONTINUED:
-                subject.getUser().setActivated(true);
                 subject.setRemoved(true);
                 break;
 

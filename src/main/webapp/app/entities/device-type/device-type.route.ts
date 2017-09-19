@@ -10,13 +10,14 @@ import { DeviceTypePopupComponent } from './device-type-dialog.component';
 import { DeviceTypeDeletePopupComponent } from './device-type-delete-dialog.component';
 
 import { Principal } from '../../shared';
+import {PROJECT_ADMIN, SYSTEM_ADMIN} from "../../shared/constants/common.constants";
 
 export const deviceTypeRoute: Routes = [
   {
     path: 'device-type',
     component: DeviceTypeComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN],
         pageTitle: 'managementPortalApp.deviceType.home.title'
     },
     canActivate: [UserRouteAccessService]
@@ -24,7 +25,7 @@ export const deviceTypeRoute: Routes = [
     path: 'device-type/:id',
     component: DeviceTypeDetailComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.deviceType.home.title'
     },
     canActivate: [UserRouteAccessService]
@@ -36,7 +37,7 @@ export const deviceTypePopupRoute: Routes = [
     path: 'device-type-new',
     component: DeviceTypePopupComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.deviceType.home.title'
     },
     canActivate: [UserRouteAccessService],
@@ -46,7 +47,7 @@ export const deviceTypePopupRoute: Routes = [
     path: 'device-type/:id/edit',
     component: DeviceTypePopupComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.deviceType.home.title'
     },
     canActivate: [UserRouteAccessService],
@@ -56,7 +57,7 @@ export const deviceTypePopupRoute: Routes = [
     path: 'device-type/:id/delete',
     component: DeviceTypeDeletePopupComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN ],
         pageTitle: 'managementPortalApp.deviceType.home.title'
     },
     canActivate: [UserRouteAccessService],

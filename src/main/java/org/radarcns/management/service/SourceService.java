@@ -51,10 +51,6 @@ public class SourceService {
     @Autowired
     private UserMapper userMapper;
 
-//    public SourceService(SourceRepository sourceRepository, SourceMapper sourceMapper) {
-//        this.sourceRepository = sourceRepository;
-//        this.sourceMapper = sourceMapper;
-//    }
 
     /**
      * Save a Source.
@@ -77,47 +73,47 @@ public class SourceService {
      */
     @Transactional(readOnly = true)
     public List<SourceDTO> findAll() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        List<String> currentUserAuthorities = authentication.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.toList());
-
-        List<Source> sources = new LinkedList<>();
-        if(currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN) ||
-            currentUserAuthorities.contains(AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR)) {
-            log.debug("Request to get all Sources");
-            sources = sourceRepository.findAll();
-        }
-        else if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
-            log.debug("Request to get Sources of admin's project ");
-            String name = authentication.getName();
-            Optional<UserDTO> user = userService.getUserWithAuthoritiesByLogin(name);
-            if (user.isPresent()) {
-                User currentUser = userMapper.userDTOToUser(user.get());
-                List<Role> pAdminRoles = currentUser.getRoles().stream()
-                    // get all roles that are a PROJECT_ADMIN role
-                    .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PROJECT_ADMIN))
-                    .collect(Collectors.toList());
-                pAdminRoles.stream()
-                    .forEach(r -> log.debug("Found PROJECT_ADMIN role for project with id {}",
-                        r.getProject().getId()));
-                sources.addAll(pAdminRoles.stream()
-                    // map them into a list of sources for that project
-                    .map(r -> sourceRepository.findAllSourcesByProjectId(r.getProject().getId()))
-                    // we have a list of lists of sources, so flatten them into a single list
-                    .flatMap(List::stream)
-                    .collect(Collectors.toList()));
-            }
-            else {
-                log.debug("Could find a user with name {}", name);
-            }
-        }
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        List<String> currentUserAuthorities = authentication.getAuthorities().stream()
+//            .map(GrantedAuthority::getAuthority)
+//            .collect(Collectors.toList());
+//
+//        List<Source> sources = new LinkedList<>();
+//        if(currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN) ||
+//            currentUserAuthorities.contains(AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR)) {
+//            log.debug("Request to get all Sources");
+//            sources = sourceRepository.findAll();
+//        }
+//        else if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
+//            log.debug("Request to get Sources of admin's project ");
+//            String name = authentication.getName();
+//            Optional<UserDTO> user = userService.getUserWithAuthoritiesByLogin(name);
+//            if (user.isPresent()) {
+//                User currentUser = userMapper.userDTOToUser(user.get());
+//                List<Role> pAdminRoles = currentUser.getRoles().stream()
+//                    // get all roles that are a PROJECT_ADMIN role
+//                    .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PROJECT_ADMIN))
+//                    .collect(Collectors.toList());
+//                pAdminRoles.stream()
+//                    .forEach(r -> log.debug("Found PROJECT_ADMIN role for project with id {}",
+//                        r.getProject().getId()));
+//                sources.addAll(pAdminRoles.stream()
+//                    // map them into a list of sources for that project
+//                    .map(r -> sourceRepository.findAllSourcesByProjectId(r.getProject().getId()))
+//                    // we have a list of lists of sources, so flatten them into a single list
+//                    .flatMap(List::stream)
+//                    .collect(Collectors.toList()));
+//            }
+//            else {
+//                log.debug("Could find a user with name {}", name);
+//            }
+//        }
 //        log.debug("Request to get all Sources");
-        List<SourceDTO> result = sources.stream()
+//        List<SourceDTO> result = sources.stream()
+        return sourceRepository.findAll()
+            .stream()
             .map(sourceMapper::sourceToSourceDTO)
             .collect(Collectors.toCollection(LinkedList::new));
-
-        return result;
     }
 
     public List<Source> findAllUnassignedSources() {
@@ -156,6 +152,7 @@ public class SourceService {
             else {
                 log.debug("Could find a user with name {}", name);
             }
+//            sources = sourceRepository.findAllSourcesByProjectIdAndAssigned(currentUser.getProject().getId(), false);
         }
         return sources;
     }
@@ -198,5 +195,12 @@ public class SourceService {
     public void delete(Long id) {
         log.debug("Request to delete Source : {}", id);
         sourceRepository.delete(id);
+    }
+
+    public List<SourceDTO> findAllByProjectId(Long projectId) {
+        return sourceRepository.findAllSourcesByProjectId(projectId)
+            .stream()
+            .map(sourceMapper::sourceToSourceDTO)
+            .collect(Collectors.toCollection(LinkedList::new));
     }
 }

@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring", uses = { ProjectMapper.class , RoleMapper.class})
 public interface UserMapper {
 
-    @Mapping(source = "roles", target = "authorities")
     UserDTO userToUserDTO(User user);
 
     List<UserDTO> usersToUserDTOs(List<User> users);

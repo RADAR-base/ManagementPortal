@@ -9,6 +9,7 @@ import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
+import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
@@ -75,56 +76,59 @@ public class SubjectService {
 
     @Transactional
     public SubjectDTO createSubject(SubjectDTO subjectDTO) {
-//        User currentUser = userService.getUserWithAuthorities();
         Subject subject = subjectMapper.subjectDTOToSubject(subjectDTO);
-//        List<String> currentUserAuthorities = currentUser.getAuthorities().stream()
-//            .map(Authority::getName).collect(
-//                Collectors.toList());
-//        if (currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)
-//            && !currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN) && !currentUser.getProject().equals(
-//            subject.getUser().getProject())) {
-//            log.debug("Validate project admin");
-//            throw new IllegalAccessException("This project-admin is not allowed to create Subjects under this project");
-//        }
-
-
+        //assign roles
         User user = subject.getUser();
-        Set<Role> roles = new HashSet<>();
-        Role role = roleRepository
-            .findOneByAuthorityNameAndProjectId(AuthoritiesConstants.PARTICIPANT,
-                subject.getUser().getProject().getId());
-        if (role != null) {
-            roles.add(role);
-        } else {
-            Role subjectrole = new Role();
-            subjectrole.setAuthority(
-                authorityRepository.findByAuthorityName(AuthoritiesConstants.PARTICIPANT));
-            subjectrole.setProject(subject.getUser().getProject());
-            roleRepository.save(subjectrole);
-            roles.add(subjectrole);
-        }
-        user.setRoles(roles);
+        user.setRoles(getProjectParticipantRole(subjectDTO.getProject()));
+
+        // set password and reset keys
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
         user.setPassword(encryptedPassword);
+        user.setResetKey(RandomUtil.generateResetKey());
         user.setLangKey(
             "en"); // setting default language key to "en", required to set email context,
         // Find a workaround
-        user.setResetKey(RandomUtil.generateResetKey());
         user.setResetDate(ZonedDateTime.now());
+        // default subject is deactivated. @TODO can be activated when the QRCode flow is finalized
         user.setActivated(false);
-        subject.setUser(user);
-        subject = subjectRepository.save(subject);
-        if (subject.getId() != null) {
-            mailService.sendCreationEmailForGivenEmail(subject.getUser(), subjectDTO.getEmail());
-        }
         //set if any devices are set as assigned
         if(subject.getSources() !=null && !subject.getSources().isEmpty()) {
             for (Source source : subject.getSources()) {
                 source.setAssigned(true);
             }
         }
+        subject = subjectRepository.save(subject);
+        if (subject.getId() != null) {
+            mailService.sendCreationEmailForGivenEmail(subject.getUser(), subjectDTO.getEmail());
+        }
         return subjectMapper.subjectToSubjectDTO(subject);
     }
+
+    /**
+     * fetch Participant role of the project if available, otherwise create a new Role and assign
+     * @param projectDTO project subject is assigned to
+     * @return relevant Participant role
+     */
+    private Set<Role> getProjectParticipantRole(ProjectDTO projectDTO) {
+
+        Set<Role> roles = new HashSet<>();
+
+        Role role = roleRepository
+            .findOneByAuthorityNameAndProjectId(AuthoritiesConstants.PARTICIPANT,
+                projectDTO.getId());
+        if (role != null) {
+            roles.add(role);
+        } else {
+            Role subjectRole = new Role();
+            subjectRole.setAuthority(
+                authorityRepository.findByAuthorityName(AuthoritiesConstants.PARTICIPANT));
+            subjectRole.setProject(projectMapper.projectDTOToProject(projectDTO));
+            roleRepository.save(subjectRole);
+            roles.add(subjectRole);
+        }
+        return roles;
+    }
+
 
     @Transactional
     public SubjectDTO updateSubject(SubjectDTO subjectDTO) throws IllegalAccessException {
@@ -143,7 +147,10 @@ public class SubjectService {
         for(Source source : subject.getSources()) {
             source.setAssigned(true);
         }
-        subject.getUser().setProject(projectMapper.projectDTOToProject(subjectDTO.getProject()));
+        // update role
+        Set<Role> managedRoles = subject.getUser().getRoles();
+        managedRoles.clear();
+        managedRoles.addAll(getProjectParticipantRole(subjectDTO.getProject()));
         subject = subjectRepository.save(subject);
 
         return subjectMapper.subjectToSubjectDTO(subject);
@@ -186,7 +193,21 @@ public class SubjectService {
             else {
                 log.debug("Could find a user with name {}", name);
             }
+            log.debug("Request to get Sources of admin's project ");
+//            subjects = subjectRepository.findAllByProjectId(currentUser.getProject().getId());
         }
         return subjectMapper.subjectsToSubjectDTOs(subjects);
+    }
+
+    public SubjectDTO discontinueSubject(SubjectDTO subjectDTO) {
+        Subject subject = subjectRepository.findOne(subjectDTO.getId());
+        //reset all the sources assigned to a subject to unassigned
+        for(Source source : subject.getSources()) {
+            source.setAssigned(false);
+            sourceRepository.save(source);
+        }
+
+        subject.setRemoved(true);
+        return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subject));
     }
 }

@@ -1,5 +1,5 @@
 import {Project} from "../../entities/project/project.model";
-import {Role} from "../../entities/role/role.model";
+import {Role} from "../../admin/user-management/role.model";
 export class User {
     public id?: any;
     public login?: string;

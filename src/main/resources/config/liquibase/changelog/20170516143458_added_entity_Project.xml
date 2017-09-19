@@ -56,7 +56,7 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liqui
         </createTable>
         <dropDefaultValue tableName="project" columnName="start_date" columnDataType="datetime"/>
         <dropDefaultValue tableName="project" columnName="end_date" columnDataType="datetime"/>
-        
+
         <createTable tableName="project_device_type">
             <column name="device_types_id" type="bigint">
                 <constraints nullable="false"/>
@@ -67,6 +67,11 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liqui
         </createTable>
 
         <addPrimaryKey columnNames="projects_id, device_types_id" tableName="project_device_type"/>
-        
+
+        <!--<loadData encoding="UTF-8"-->
+            <!--file="config/liquibase/project.csv"-->
+            <!--separator=";"-->
+            <!--tableName="project"/>-->
+
     </changeSet>
 </databaseChangeLog>

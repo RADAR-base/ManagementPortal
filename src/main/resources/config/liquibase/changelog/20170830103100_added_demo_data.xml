@@ -39,11 +39,15 @@
                   separator=";"
                   tableName="project_device_type"/>
         <loadData encoding="UTF-8"
-                  file="config/liquibase/test_subjects.csv"
-                  separator=";"
-                  tableName="radar_user"/>
+            file="config/liquibase/test_users.csv"
+            separator=";"
+            tableName="radar_user">
+            <column name="activated" type="boolean"/>
+            <column name="created_date" type="timestamp"/>
+        </loadData>
+        <dropDefaultValue tableName="radar_user" columnName="created_date" columnDataType="datetime"/>
         <loadData encoding="UTF-8"
-                  file="config/liquibase/roles_test_subjects.csv"
+                  file="config/liquibase/roles.csv"
                   separator=";"
                   tableName="radar_role"/>
         <loadData encoding="UTF-8"
@@ -51,7 +55,7 @@
                   separator=";"
                   tableName="subject"/>
         <loadData encoding="UTF-8"
-                  file="config/liquibase/role_users_test_subjects.csv"
+                  file="config/liquibase/role_users.csv"
                   separator=";"
                   tableName="role_users"/>
     </changeSet>

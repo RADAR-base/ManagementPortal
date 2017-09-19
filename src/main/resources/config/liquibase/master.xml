@@ -20,7 +20,7 @@
 
     <include file="classpath:config/liquibase/changelog/20170517155700_added_entity_constraints_Role.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20170517160300_added_project_and_roles_data.xml" relativeToChangelogFile="false"/>
-    <include file="classpath:config/liquibase/changelog/20170517173000_added_user_fields.xml" relativeToChangelogFile="false"/>
+    <!--<include file="classpath:config/liquibase/changelog/20170517173000_added_user_fields.xml" relativeToChangelogFile="false"/>-->
     <include file="classpath:config/liquibase/changelog/20170517172500_added_entity_constraints_User.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20170706160900_mofied_value_field_event_log.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20170822173200_added_source_metadata_entity.xml" relativeToChangelogFile="false"/>

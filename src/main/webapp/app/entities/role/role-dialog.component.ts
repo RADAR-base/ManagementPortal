@@ -5,13 +5,13 @@ import { Response } from '@angular/http';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 
-import { Role } from './role.model';
 import {RolePopupService} from "./role-popup.service";
 import {RoleService} from "./role.service";
 import {Project} from "../project/project.model";
 import {ProjectService} from "../project/project.service";
 import {AuthorityService} from "../../shared/user/authority.service";
 import {Principal} from "../../shared/auth/principal.service";
+import {Role} from "../../admin/user-management/role.model";
 
 @Component({
     selector: 'jhi-role-dialog',

@@ -74,7 +74,7 @@ public class SubjectResource {
         if (subjectDTO.getEmail() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "patientEmailRequired", "A subject email is required")).body(null);
         }
-        if (subjectDTO.getProject().getId() == null) {
+        if (subjectDTO.getProject()==null || subjectDTO.getProject().getId() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "projectrequired", "A subject should be assigned to a project")).body(null);
         }
         if (subjectDTO.getExternalId() != null && !subjectDTO.getExternalId().isEmpty() &&
@@ -109,11 +109,50 @@ public class SubjectResource {
             return createSubject(subjectDTO);
         }
 
+        if (subjectDTO.getProject()==null || subjectDTO.getProject().getId() == null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "projectrequired", "A subject should be assigned to a project")).body(null);
+        }
+        if (subjectDTO.getExternalId() != null && !subjectDTO.getExternalId().isEmpty() &&
+            subjectRepository.findOneByProjectIdAndExternalId(subjectDTO.getProject().getId() , subjectDTO.getExternalId()).isPresent()) {
+            return ResponseEntity.badRequest().headers(HeaderUtil
+                .createFailureAlert(ENTITY_NAME, "subjectExists",
+                    "A subject with given project-id and external-id already exists")).body(null);
+        }
         SubjectDTO result = subjectService.updateSubject(subjectDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getId().toString()))
             .body(result);
     }
+
+    /**
+     * PUT  /subjects : Updates an existing subject.
+     *
+     * @param subjectDTO the subjectDTO to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated subjectDTO,
+     * or with status 400 (Bad Request) if the subjectDTO is not valid,
+     * or with status 500 (Internal Server Error) if the subjectDTO couldnt be updated
+     * @throws URISyntaxException if the Location URI syntax is incorrect
+     */
+    @PutMapping("/subjects/discontinue")
+    @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN })
+    public ResponseEntity<SubjectDTO> discontinueSubject(@RequestBody SubjectDTO subjectDTO )
+        throws URISyntaxException, IllegalAccessException {
+        log.debug("REST request to update Subject : {}", subjectDTO);
+        if (subjectDTO.getId() == null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "subjectNotAvailable", "No subject found")).body(null);
+        }
+
+        if (subjectDTO.getProject()==null || subjectDTO.getProject().getId() == null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "projectrequired", "A subject should be assigned to a project")).body(null);
+        }
+
+        SubjectDTO result = subjectService.discontinueSubject(subjectDTO);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getId().toString()))
+            .body(result);
+    }
+
 
     /**
      * GET  /subjects : get all the subjects.
@@ -122,6 +161,7 @@ public class SubjectResource {
      */
     @GetMapping("/subjects")
     @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN , AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(
         @RequestParam(value = "projectId" , required = false) Long projectId,
         @RequestParam(value = "externalId" , required = false) String externalId) {

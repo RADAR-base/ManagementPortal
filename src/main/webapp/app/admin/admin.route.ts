@@ -12,6 +12,7 @@ import {
 } from './';
 
 import { UserRouteAccessService } from '../shared';
+import {PROJECT_ADMIN, SYSTEM_ADMIN} from "../shared/constants/common.constants";
 
 const ADMIN_ROUTES = [
     auditsRoute,
@@ -26,7 +27,7 @@ const ADMIN_ROUTES = [
 export const adminState: Routes = [{
     path: '',
     data: {
-        authorities: ['ROLE_SYS_ADMIN','ROLE_PROJECT_ADMIN']
+        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN]
     },
     canActivate: [UserRouteAccessService],
     children: ADMIN_ROUTES

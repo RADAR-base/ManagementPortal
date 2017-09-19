@@ -3,8 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
 import { EventManager , JhiLanguageService  } from 'ng-jhipster';
 
-import {Role} from "./role.model";
 import {RoleService} from "./role.service";
+import {Role} from "../../admin/user-management/role.model";
 
 @Component({
     selector: 'jhi-role-detail',

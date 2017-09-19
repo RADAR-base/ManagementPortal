@@ -35,8 +35,6 @@ public class UserDTO {
 
     private String createdBy;
 
-    private ProjectDTO project;
-
     private ZonedDateTime createdDate;
 
     private String lastModifiedBy;
@@ -51,18 +49,10 @@ public class UserDTO {
         // Empty constructor needed for MapStruct.
     }
 
-//    public UserDTO(User user) {
-//        this(user.getId(), user.getLogin(), user.getFirstName(), user.getLastName(),
-//            user.getEmail(), user.getActivated(), user.getLangKey(),
-//            user.getCreatedBy(), user.getCreatedDate(), user.getLastModifiedBy(), user.getLastModifiedDate(),
-//            user.getAuthorities().stream().map(Authority::getName)
-//                .collect(Collectors.toSet()), user.getProject());
-//    }
-
     public UserDTO(Long id, String login, String firstName, String lastName,
         String email, boolean activated, String langKey,
         String createdBy, ZonedDateTime createdDate, String lastModifiedBy, ZonedDateTime lastModifiedDate,
-        Set<RoleDTO> roles, ProjectDTO project) {
+        Set<RoleDTO> roles) {
 
         this.id = id;
         this.login = login;
@@ -76,7 +66,6 @@ public class UserDTO {
         this.lastModifiedBy = lastModifiedBy;
         this.lastModifiedDate = lastModifiedDate;
         this.roles = roles;
-        this.project = project;
     }
 
     public Long getId() {
@@ -141,14 +130,6 @@ public class UserDTO {
 
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
-    }
-
-    public ProjectDTO getProject() {
-        return project;
-    }
-
-    public void setProject(ProjectDTO project) {
-        this.project = project;
     }
 
     public ZonedDateTime getCreatedDate() {

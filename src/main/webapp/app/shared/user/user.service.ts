@@ -22,6 +22,10 @@ export class UserService {
         return this.http.get(`${this.resourceUrl}/${login}`).map((res: Response) => res.json());
     }
 
+    findProject(login: string): Observable<Response> {
+        return this.http.get(`${this.resourceUrl}/${login}/projects`);
+    }
+
     query(req?: any): Observable<Response> {
         const params: URLSearchParams = new URLSearchParams();
         if (req) {

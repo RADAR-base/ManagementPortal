@@ -72,46 +72,46 @@ public class ProjectService {
      */
     @Transactional(readOnly = true)
     public List findAll(Boolean fetchMinimal) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        List<String> currentUserAuthorities = authentication.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.toList());
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        List<String> currentUserAuthorities = authentication.getAuthorities().stream()
+//            .map(GrantedAuthority::getAuthority)
+//            .collect(Collectors.toList());
+//
+//        List<Project> projects = new LinkedList<>();
+//        if(currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN) ||
+//            currentUserAuthorities.contains(AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR)) {
+//            log.debug("Request to get all Projects");
+//            projects = projectRepository.findAllWithEagerRelationships();
+//        }
+//        else if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
+//            log.debug("Request to get project admin's project Projects");
+//            String name = authentication.getName();
+//            Optional<UserDTO> user = userService.getUserWithAuthoritiesByLogin(name);
+//            if (user.isPresent()) {
+//                User currentUser = userMapper.userDTOToUser(user.get());
+//                List<Role> pAdminRoles = currentUser.getRoles().stream()
+//                    // get all roles that are a PROJECT_ADMIN role
+//                    .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PROJECT_ADMIN))
+//                    .collect(Collectors.toList());
+//                pAdminRoles.stream()
+//                    .forEach(r -> log.debug("Found PROJECT_ADMIN role for project with id {}",
+//                        r.getProject().getId()));
+//                projects.addAll(pAdminRoles.stream()
+//                    // map them into projects
+//                    .map(r -> projectRepository.findOneWithEagerRelationships(r.getProject().getId()))
+//                    .collect(Collectors.toList()));
+//            }
+//            else {
+//                log.debug("Could find a user with name {}", name);
+//            }
+//        }
 
-        List<Project> projects = new LinkedList<>();
-        if(currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN) ||
-            currentUserAuthorities.contains(AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR)) {
-            log.debug("Request to get all Projects");
-            projects = projectRepository.findAllWithEagerRelationships();
-        }
-        else if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
-            log.debug("Request to get project admin's project Projects");
-            String name = authentication.getName();
-            Optional<UserDTO> user = userService.getUserWithAuthoritiesByLogin(name);
-            if (user.isPresent()) {
-                User currentUser = userMapper.userDTOToUser(user.get());
-                List<Role> pAdminRoles = currentUser.getRoles().stream()
-                    // get all roles that are a PROJECT_ADMIN role
-                    .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PROJECT_ADMIN))
-                    .collect(Collectors.toList());
-                pAdminRoles.stream()
-                    .forEach(r -> log.debug("Found PROJECT_ADMIN role for project with id {}",
-                        r.getProject().getId()));
-                projects.addAll(pAdminRoles.stream()
-                    // map them into projects
-                    .map(r -> projectRepository.findOneWithEagerRelationships(r.getProject().getId()))
-                    .collect(Collectors.toList()));
-            }
-            else {
-                log.debug("Could find a user with name {}", name);
-            }
-        }
-
+        List<Project> projects = projectRepository.findAllWithEagerRelationships();
         if(!fetchMinimal){
             return projectMapper.projectsToProjectDTOs(projects);
         } else {
             return projectMapper.projectsToMinimalProjectDetailsDTOs(projects);
         }
-//        return result;
     }
 
     /**

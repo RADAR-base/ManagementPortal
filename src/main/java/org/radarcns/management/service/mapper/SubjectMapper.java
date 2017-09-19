@@ -18,7 +18,6 @@ public interface SubjectMapper {
 
     @Mapping(source = "user.login", target = "login")
     @Mapping(source = "user.createdBy", target = "createdBy")
-    @Mapping(source = "user.project", target = "project")
     @Mapping(source = "user.createdDate", target = "createdDate")
     @Mapping(source = "user.lastModifiedBy", target = "lastModifiedBy")
     @Mapping(source = "user.lastModifiedDate", target = "lastModifiedDate")
@@ -31,7 +30,6 @@ public interface SubjectMapper {
 
     @Mapping(source = "login", target = "user.login")
     @Mapping(source = "createdBy", target = "user.createdBy")
-    @Mapping(source = "project", target = "user.project")
     @Mapping(source = "createdDate", target = "user.createdDate")
     @Mapping(source = "lastModifiedBy", target = "user.lastModifiedBy")
     @Mapping(source = "lastModifiedDate", target = "user.lastModifiedDate")

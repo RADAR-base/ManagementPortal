@@ -110,9 +110,6 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @Cascade(CascadeType.SAVE_UPDATE)
     private Set<Role> roles = new HashSet<>();
 
-    @ManyToOne
-    private Project project;
-
     public Long getId() {
         return id;
     }
@@ -202,10 +199,6 @@ public class User extends AbstractAuditingEntity implements Serializable {
         this.langKey = langKey;
     }
 
-//    public Set<Authority> getAuthorities() {
-//        return authorities;
-//    }
-
     public Set<Role> getRoles() { return roles; }
 
     public void setRoles(Set<Role> roles) { this.roles = roles; }
@@ -213,26 +206,6 @@ public class User extends AbstractAuditingEntity implements Serializable {
     public Set<Authority> getAuthorities() {
         return roles.stream()
             .map(Role::getAuthority).collect(Collectors.toSet());
-            /*  .map(Authority::getName)
-            .map(SimpleGrantedAuthority::new)
-            .collect(Collectors.toSet());*/
-    }
-
-//    public void setAuthorities(Set<Authority> authorities) {
-//        this.authorities = authorities;
-//    }
-
-    public Project getProject() {
-        return project;
-    }
-
-    public User project(Project project) {
-        this.project = project;
-        return this;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
     }
 
     @Override

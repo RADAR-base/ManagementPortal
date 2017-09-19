@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { JhiLanguageService } from 'ng-jhipster';
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
     selector: 'jhi-error',
@@ -10,11 +11,17 @@ export class ErrorComponent implements OnInit {
     error403: boolean;
 
     constructor(
-        private jhiLanguageService: JhiLanguageService
+        private jhiLanguageService: JhiLanguageService,
+        private route: ActivatedRoute,
     ) {
         this.jhiLanguageService.setLocations(['error']);
     }
 
     ngOnInit() {
+            this.route.url.subscribe((url) => {
+                if(url[0].path==='accessdenied') {
+                    this.error403 = true;
+                }
+            });
     }
 }

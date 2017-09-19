@@ -14,11 +14,11 @@
                                  referencedColumnNames="id"
                                  referencedTableName="device_type"/>
 
-        <addForeignKeyConstraint    baseColumnNames="project_id"
-                                    baseTableName="radar_source"
-                                    constraintName="fk_device_project_id"
-                                    referencedColumnNames="id"
-                                    referencedTableName="project"/>
+        <!--<addForeignKeyConstraint    baseColumnNames="project_id"-->
+                                    <!--baseTableName="radar_source"-->
+                                    <!--constraintName="fk_device_project_id"-->
+                                    <!--referencedColumnNames="id"-->
+                                    <!--referencedTableName="project"/>-->
 
     </changeSet>
 </databaseChangeLog>

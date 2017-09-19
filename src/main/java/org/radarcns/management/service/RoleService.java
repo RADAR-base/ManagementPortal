@@ -73,9 +73,9 @@ public class RoleService {
         }
         else if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
             log.debug("Request to get project admin's project Projects");
-            result =  roleRepository.findAllRolesByProjectId(currentUser.getProject().getId()).stream()
-                .map(roleMapper::roleToRoleDTO)
-                .collect(Collectors.toCollection(LinkedList::new));
+//            result =  roleRepository.findAllRolesByProjectId(currentUser.getProject().getId()).stream()
+//                .map(roleMapper::roleToRoleDTO)
+//                .collect(Collectors.toCollection(LinkedList::new));
         }
         return result;
     }

@@ -1,9 +1,10 @@
 package org.radarcns.management.web.rest;
 
+import static org.radarcns.management.security.AuthoritiesConstants.PROJECT_RELATED_AUTHORITIES;
+
 import com.codahale.metrics.annotation.Timed;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.radarcns.management.domain.Authority;
 import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.slf4j.Logger;
@@ -39,8 +40,7 @@ public class AuthorityResource {
     @Secured({ AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public List<String> getAllAuthorities() {
         log.debug("REST request to get all Authorities");
-        return authorityRepository.findAllByNameNotIn(AuthoritiesConstants.SYS_ADMIN).stream().map( auth -> auth.getName()).collect(
-            Collectors.toList());
+        return Arrays.asList(PROJECT_RELATED_AUTHORITIES);
     }
 
 }

@@ -1,16 +1,22 @@
 package org.radarcns.management.service;
 
+import java.util.ArrayList;
 import org.radarcns.management.config.Constants;
+import java.util.stream.Collectors;
 import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
+import org.radarcns.management.config.Constants;
+import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.security.SecurityUtils;
 import org.radarcns.management.service.dto.UserDTO;
+import org.radarcns.management.service.dto.ProjectDTO;
+import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.RoleMapper;
 import org.radarcns.management.service.mapper.UserMapper;
@@ -58,6 +64,9 @@ public class UserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private  AuthorityRepository authorityRepository;
 
     @Autowired
     private RoleMapper roleMapper;
@@ -129,7 +138,6 @@ public class UserService {
     }
 
     public User createUser(UserDTO userDTO) {
-        log.info("User project ----> "+userDTO.getProject());
         User user = new User();
         user.setLogin(userDTO.getLogin());
         user.setFirstName(userDTO.getFirstName());
@@ -146,36 +154,29 @@ public class UserService {
         user.setResetDate(ZonedDateTime.now());
         user.setActivated(false);
 
-        Set<Role> roles = new HashSet<>();
-        if(userDTO.getAuthorities().contains(AuthoritiesConstants.SYS_ADMIN)) {
-            roles.addAll(roleRepository.findRolesByAuthorityName(AuthoritiesConstants.SYS_ADMIN));
-        }
-
-        for (String authority : userDTO.getAuthorities()) {
-            if(!AuthoritiesConstants.SYS_ADMIN.equals(authority )  && userDTO.getProject().getId() !=null) {
-
-                Role role = roleRepository.findOneByAuthorityNameAndProjectId(authority , userDTO.getProject().getId());
-                if(role ==null) {
-                    role = new Role();
-                    role.setAuthority(new Authority(authority));
-                    role.setProject(projectMapper.projectDTOToProject(userDTO.getProject()));
-                    roleRepository.save(role);
-                }
-                roles.add(role);
-            }
-        }
-        user.setRoles(roles);
-        if(userDTO.getProject()!= null && userDTO.getProject().getId() != null) {
-            Project project = projectMapper.projectDTOToProject(userDTO.getProject());
-            user.setProject(project);
-//            if(userDTO.getAuthorities() != null && userDTO.getAuthorities().contains(AuthoritiesConstants.PROJECT_ADMIN)) {
-//                project.setProjectAdmin(user.getId());
-//                projectRepository.save(project);
-//            }
-        }
+        user.setRoles(getUserRoles(userDTO));
         userRepository.save(user);
         log.debug("Created Information for User: {}", user);
         return user;
+    }
+
+    private Set<Role> getUserRoles(UserDTO userDTO) {
+        Set<Role> roles = new HashSet<>();
+        for (RoleDTO roleDTO : userDTO.getRoles()) {
+            Role role = roleRepository
+                .findOneByAuthorityNameAndProjectId(roleDTO.getAuthorityName(),
+                    roleDTO.getProjectId());
+            if (role == null || role.getId() == null) {
+                Role currentRole = new Role();
+                currentRole.setAuthority(
+                    authorityRepository.findByAuthorityName(roleDTO.getAuthorityName()));
+                currentRole.setProject(projectRepository.getOne(roleDTO.getProjectId()));
+                roles.add(roleRepository.save(currentRole));
+            } else {
+                roles.add(role);
+            }
+        }
+        return roles;
     }
 
     /**
@@ -214,28 +215,7 @@ public class UserService {
                 user.setLangKey(userDTO.getLangKey());
                 Set<Role> managedRoles = user.getRoles();
                 managedRoles.clear();
-                if(userDTO.getProject()!=null && userDTO.getProject().getId() != null) {
-                    Project project = projectMapper.projectDTOToProject(userDTO.getProject());
-                    user.setProject(project);
-                }
-                if(userDTO.getAuthorities().contains(AuthoritiesConstants.SYS_ADMIN)) {
-                    managedRoles.addAll(roleRepository.findRolesByAuthorityName(AuthoritiesConstants.SYS_ADMIN));
-                }
-                else {
-                    for (String authority : userDTO.getAuthorities()) {
-                        if(!AuthoritiesConstants.SYS_ADMIN.equals(authority )  && userDTO.getProject().getId() !=null) {
-
-                            Role role = roleRepository.findOneByAuthorityNameAndProjectId(authority , userDTO.getProject().getId());
-                            if(role ==null) {
-                                role = new Role();
-                                role.setAuthority(new Authority(authority));
-                                role.setProject(projectMapper.projectDTOToProject(userDTO.getProject()));
-                                roleRepository.save(role);
-                            }
-                            managedRoles.add(role);
-                        }
-                    }
-                }
+                managedRoles.addAll(getUserRoles(userDTO));
 
                 log.debug("Changed Information for User: {}", user);
                 return user;
@@ -261,14 +241,17 @@ public class UserService {
     @Transactional(readOnly = true)
     public Page<UserDTO> getAllManagedUsers(Pageable pageable) {
         User currentUser = getUserWithAuthorities();
-        List<String> currentUserAuthorities = currentUser.getAuthorities().stream().map(Authority::getName).collect(
-            Collectors.toList());
-        if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
+        List<String> currentUserAuthorities = currentUser.getAuthorities().stream()
+            .map(Authority::getName).collect(
+                Collectors.toList());
+        if (currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
             log.debug("Request to get all Projects");
-            return userRepository.findAllByProjectId(pageable, currentUser.getProject().getId())
+//            return userRepository.findAllByProjectId(pageable, currentUser.getRoles()..getId())
+//                .map(userMapper::userToUserDTO);
+            // TODO these needs to be revisited
+            return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER)
                 .map(userMapper::userToUserDTO);
-        }
-        else {
+        } else {
             log.debug("Request to get all Users");
             return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER)
                 .map(userMapper::userToUserDTO);
@@ -279,6 +262,24 @@ public class UserService {
     @Transactional(readOnly = true)
     public Optional<UserDTO> getUserWithAuthoritiesByLogin(String login) {
         return userRepository.findOneWithAuthoritiesByLogin(login).map(userMapper::userToUserDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProjectDTO> getProjectsAssignedToUser(String login) {
+        User userByLogin = userRepository.findOneWithRolesByLogin(login).get();
+        List<Project> projectsOfUser = new ArrayList<>();
+        for ( Role role : userByLogin.getRoles())
+        {
+            // get all projects for admin
+            if(AuthoritiesConstants.SYS_ADMIN.equals(role.getAuthority().getName())) {
+                return projectMapper.projectsToProjectDTOs(projectRepository.findAll());
+            }
+            // get unique project from roles
+            if(!projectsOfUser.contains(role.getProject())){
+                projectsOfUser.add(role.getProject());
+            }
+        }
+        return projectMapper.projectsToProjectDTOs(projectsOfUser);
     }
 
     @Transactional(readOnly = true)
