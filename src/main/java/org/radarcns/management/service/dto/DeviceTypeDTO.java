@@ -15,10 +15,14 @@ public class DeviceTypeDTO implements Serializable {
 
     private Long id;
 
+    @NotNull
     private String deviceProducer;
 
     @NotNull
     private String deviceModel;
+
+    @NotNull
+    private String deviceVersion;
 
     @NotNull
     private SourceType sourceType;
@@ -44,6 +48,14 @@ public class DeviceTypeDTO implements Serializable {
     }
     public String getDeviceModel() {
         return deviceModel;
+    }
+
+    public String getDeviceVersion() {
+        return deviceVersion;
+    }
+
+    public void setDeviceVersion(String deviceVersion) {
+        this.deviceVersion = deviceVersion;
     }
 
     public void setDeviceModel(String deviceModel) {

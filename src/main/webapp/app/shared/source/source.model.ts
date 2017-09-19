@@ -4,6 +4,7 @@ export class Source {
     constructor(
         public id?: number,
         public sourceId?: string,
+        public sourceName?: string,
         public deviceCategory?: string,
         public assigned?: boolean,
         public deviceType?: DeviceType,

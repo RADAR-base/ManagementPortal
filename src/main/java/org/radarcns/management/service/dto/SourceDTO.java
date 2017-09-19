@@ -16,6 +16,9 @@ public class SourceDTO implements Serializable {
     @NotNull
     private String sourceId;
 
+    @NotNull
+    private String sourceName;
+
     private String deviceCategory;
 
     @NotNull
@@ -80,34 +83,42 @@ public class SourceDTO implements Serializable {
         this.attributes = attributes;
     }
 
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (!(o instanceof SourceDTO)) return false;
 
         SourceDTO sourceDTO = (SourceDTO) o;
 
-        if ( ! Objects.equals(id, sourceDTO.id)) { return false; }
-
-        return true;
+        if (!sourceId.equals(sourceDTO.sourceId)) return false;
+        return sourceName.equals(sourceDTO.sourceName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        int result = sourceId.hashCode();
+        result = 31 * result + sourceName.hashCode();
+        return result;
     }
 
     @Override
     public String toString() {
         return "SourceDTO{" +
             "id=" + id +
-            ", sourceId='" + sourceId + "'" +
-            ", deviceCategory='" + deviceCategory + "'" +
-            ", activated='" + assigned + "'" +
+            ", sourceId='" + sourceId + '\'' +
+            ", sourceName='" + sourceName + '\'' +
+            ", deviceCategory='" + deviceCategory + '\'' +
+            ", assigned=" + assigned +
+            ", deviceType=" + deviceType +
+            ", project=" + project +
             '}';
     }
 }

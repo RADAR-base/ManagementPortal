@@ -26,6 +26,10 @@
                 <constraints unique="true" nullable="false" />
             </column>
 
+            <column name="source_name" type="varchar(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+
             <column name="device_category" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
