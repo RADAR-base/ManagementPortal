@@ -95,15 +95,15 @@ public class SourceService {
         DeviceTypeDTO deviceTypeDTO = deviceTypeService.findOne(source.getDeviceType().getId());
 
         // Find the full project based on the supplied id or supplied name
-        ProjectDTO project = null;
-        if (source.getProject().getId() != null) {
-            project = projectService.findOne(source.getProject().getId());
+        if (source.getProject() != null ) {
+            ProjectDTO project = null;
+            if (source.getProject().getId() != null) {
+                project = projectService.findOne(source.getProject().getId());
+            } else if (source.getProject().getProjectName() != null) {
+                project = projectService.findOneByName(source.getProject().getProjectName());
+            }
+            source.setProject(projectMapper.projectDTOToProject(project));
         }
-        else if (source.getProject().getProjectName() != null) {
-            project = projectService.findOneByName(source.getProject().getProjectName());
-        }
-        source.setProject(projectMapper.projectDTOToProject(project));
-
         // generate defaults for source id and source name if they were not provided
         UUID uuid = UUID.randomUUID();
         if (source.getSourceName() == null) {
@@ -111,7 +111,7 @@ public class SourceService {
                 + "-" + uuid.toString().substring(0,5));
         }
         if (source.getSourceId() == null) {
-            source.setSourceId(uuid.toString());
+            source.setSourceId(uuid);
         }
 
         // save the source

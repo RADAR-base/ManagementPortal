@@ -63,9 +63,9 @@ public class SourceResource {
         log.debug("REST request to save Source : {}", sourceDTO);
         if (sourceDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new source cannot already have an ID")).body(null);
-        } else if (sourceRepository.findOneBySourceId(sourceDTO.getSourceId()).isPresent()) {
+        } else if (sourceDTO.getSourceId() != null) {
             return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceIdExists", "Source ID already in use"))
+                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceIdExists", "A new source cannot already have a Source ID"))
                 .body(null);
         } else if (sourceRepository.findOneBySourceName(sourceDTO.getSourceName()).isPresent()) {
             return ResponseEntity.badRequest()

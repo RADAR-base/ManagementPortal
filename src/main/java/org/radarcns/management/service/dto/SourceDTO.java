@@ -4,6 +4,7 @@ package org.radarcns.management.service.dto;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * A DTO for the Source entity.
@@ -12,8 +13,7 @@ public class SourceDTO implements Serializable {
 
     private Long id;
 
-    @NotNull
-    private String sourceId;
+    private UUID sourceId;
 
     @NotNull
     private String sourceName;
@@ -23,6 +23,7 @@ public class SourceDTO implements Serializable {
     @NotNull
     private Boolean assigned;
 
+    @NotNull
     private DeviceTypeDTO deviceType;
 
     private MinimalProjectDetailsDTO project;
@@ -36,11 +37,11 @@ public class SourceDTO implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getSourceId() {
+    public UUID getSourceId() {
         return sourceId;
     }
 
-    public void setSourceId(String sourceId) {
+    public void setSourceId(UUID sourceId) {
         this.sourceId = sourceId;
     }
     public String getDeviceCategory() {

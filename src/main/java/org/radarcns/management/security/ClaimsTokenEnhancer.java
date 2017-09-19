@@ -1,7 +1,7 @@
 package org.radarcns.management.security;
 
-import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Source;
+import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
@@ -61,13 +61,20 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
                             + role.getAuthority().getName())
                         .collect(Collectors.toList());
                     additionalInfo.put("roles", roles);
+
                 }
+
+                Subject subject = subjectRepository.findBySubjectLogin(userName);
+                if (subject != null) {
+                    additionalInfo.put("subject_id", subject.getId());
+                }
+
 
                 List<Source> assignedSources = subjectRepository
                     .findSourcesBySubjectLogin(userName);
 
                 List<String> sourceIds = assignedSources.stream()
-                    .map(Source::getSourceId).collect(Collectors.toList());
+                    .map(s -> s.getSourceId().toString()).collect(Collectors.toList());
                 additionalInfo.put("sources", sourceIds);
             }
             // add iat and iss optional JWT claims

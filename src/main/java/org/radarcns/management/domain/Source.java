@@ -1,12 +1,9 @@
 package org.radarcns.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -21,8 +18,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * A Source.
@@ -40,7 +41,7 @@ public class Source implements Serializable {
 
     @NotNull
     @Column(name = "source_id", nullable = false , unique = true)
-    private String sourceId;
+    private UUID sourceId;
 
     @NotNull
     @Column(name = "source_name", nullable = false, unique = true)
@@ -78,16 +79,16 @@ public class Source implements Serializable {
         this.id = id;
     }
 
-    public String getSourceId() {
+    public UUID getSourceId() {
         return sourceId;
     }
 
-    public Source devicePhysicalId(String devicePhysicalId) {
+    public Source devicePhysicalId(UUID devicePhysicalId) {
         this.sourceId = devicePhysicalId;
         return this;
     }
 
-    public void setSourceId(String sourceId) {
+    public void setSourceId(UUID sourceId) {
         this.sourceId = sourceId;
     }
 

@@ -3,7 +3,9 @@ package org.radarcns.management.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.radarcns.management.domain.Subject;
+import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
+import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.security.SecurityUtils;
 import org.radarcns.management.service.SourceService;
@@ -35,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing Subject.
@@ -61,6 +64,9 @@ public class SubjectResource {
 
     @Autowired
     private SourceMapper sourceMapper;
+
+    @Autowired
+    private UserRepository userRepository;
 
 
     /**
@@ -184,7 +190,7 @@ public class SubjectResource {
     }
 
     /**
-     * POST  /subjects/sources: Assign a list of sources to the currently logged in user
+     * POST  /subjects/:id/sources: Assign a list of sources to the currently logged in user
      *
      * The request body should contain a list of sources to be assigned to the currently logged in
      * user. If the currently authenticated user is not a subject, or not a user
@@ -201,44 +207,54 @@ public class SubjectResource {
      * @param sourceDTOS List of sources to assign
      * @return The updated Subject information
      */
-    @PostMapping("/subjects/sources")
+    @PostMapping("/subjects/{id}/sources")
     @Timed
-    public ResponseEntity<SubjectDTO> assignSources(@RequestBody List<SourceDTO> sourceDTOS) {
-        // find out if authenticated user is really a user
-        String currentUser = SecurityUtils.getCurrentUserLogin();
-        if (currentUser == null) {
-            throw new AccessDeniedException("Only a logged in user can assign sources this way");
-        }
-        // find out if the login user is really a subject
-        Subject subject = subjectRepository.findBySubjectLogin(currentUser);
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN,
+              AuthoritiesConstants.PARTICIPANT})
+    public ResponseEntity<List<SourceDTO>> assignSources(@PathVariable Long id,
+            @RequestBody List<SourceDTO> sourceDTOS) {
+        // check the subject id
+        Subject subject = subjectRepository.findOneWithEagerRelationships(id);
         if (subject == null) {
-            throw new AccessDeniedException("Only users that are subjects can be assigned sources");
+            return ResponseUtil.wrapOrNotFound(Optional.empty(), HeaderUtil.createFailureAlert(
+                ENTITY_NAME, "notfound", "Subject with id " + id.toString() +
+                " was not found."));
         }
-        subject = subjectRepository.findOneWithEagerRelationships(subject.getId());
-        SubjectDTO result = subjectService.assignSourcesToSubject(subject, sourceDTOS);
+
+        // check the currently logged in user
+        Optional<User> currentUser = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin());
+        if (!currentUser.isPresent()) {
+            throw new AccessDeniedException("A logged in user is required to perform this operation.");
+        }
+
+        if (!SecurityUtils.canUserModifySubject(currentUser.get(), subject)) {
+            throw new AccessDeniedException("You do not have sufficient privileges to perform this operation.");
+        }
+
+        SubjectDTO subjectDTO = subjectService.assignSourcesToSubject(subject, sourceDTOS);
+        List<SourceDTO> sources = subjectDTO.getSources().stream()
+            .map(sourceMapper::descriptiveDTOToSource)
+            .map(sourceMapper::sourceToSourceDTO)
+            .collect(Collectors.toList());
         return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(
-            ENTITY_NAME, subject.getId().toString())).body(result);
+            ENTITY_NAME, subject.getId().toString())).body(sources);
     }
 
     /**
-     * GET   /subjects/sources: Get the sources of the currently logged in user.
+     * GET   /subjects/:id/sources: Get the sources of the currently logged in user.
      *
      * @return The list of sources assigned to the currently logged in user
      */
-    @GetMapping("/subjects/sources")
+    @GetMapping("/subjects/{id}/sources")
     @Timed
-    public ResponseEntity<List<SourceDTO>> getSources() {
-        // find out if authenticated user is really a user
-        String currentUser = SecurityUtils.getCurrentUserLogin();
-        if (currentUser == null) {
-            throw new AccessDeniedException("Only a logged in user can get sources this way");
-        }
-        // find out if the login user is really a subject
-        Subject subject = subjectRepository.findBySubjectLogin(currentUser);
+    public ResponseEntity<List<SourceDTO>> getSources(@PathVariable Long id) {
+
+        Subject subject = subjectRepository.findOneWithEagerRelationships(id);
         if (subject == null) {
-            throw new AccessDeniedException("Only users that are subjects can be assigned sources");
+            return ResponseUtil.wrapOrNotFound(Optional.empty(), HeaderUtil.createFailureAlert(
+                ENTITY_NAME, "notfound", "Subject with id " + id.toString() +
+                    " was not found."));
         }
-        subject = subjectRepository.findOneWithEagerRelationships(subject.getId());
         List<SourceDTO> result = sourceMapper.sourcesToSourceDTOs(new ArrayList<>(subject.getSources()));
         return ResponseEntity.ok(result);
     }
