@@ -1,16 +1,17 @@
 package org.radarcns.management.service;
 
-import org.radarcns.management.domain.Authority;
-import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
+import org.radarcns.management.service.dto.DeviceTypeDTO;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
+import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.service.dto.UserDTO;
+import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.slf4j.Logger;
@@ -19,12 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -51,6 +53,14 @@ public class SourceService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private DeviceTypeService deviceTypeService;
+
+    @Autowired
+    private ProjectService projectService;
+
+    @Autowired
+    private ProjectMapper projectMapper;
 
     /**
      * Save a Source.
@@ -60,9 +70,53 @@ public class SourceService {
      */
     public SourceDTO save(SourceDTO sourceDTO) {
         log.debug("Request to save Source : {}", sourceDTO);
+        // make sure we update the correct entity if id is not specified but sourceName or sourceId
+        // is, by setting the id of the object we're going to save
+        if (sourceDTO.getSourceName() != null && sourceDTO.getId() == null) {
+            Optional<Source> sourceOptional = sourceRepository.findOneBySourceName(sourceDTO.getSourceName());
+            if (sourceOptional.isPresent()) {
+                sourceDTO.setId(sourceOptional.get().getId());
+            }
+        }
+        if (sourceDTO.getSourceId() != null && sourceDTO.getId() == null) {
+            Optional<Source> sourceOptional = sourceRepository.findOneBySourceId(sourceDTO.getSourceId());
+            if (sourceOptional.isPresent()) {
+                sourceDTO.setId(sourceOptional.get().getId());
+            }
+        }
         Source source = sourceMapper.sourceDTOToSource(sourceDTO);
+
+        // Find the full device type based on the supplied id
+        DeviceTypeDTO deviceTypeDTO = deviceTypeService.findOne(source.getDeviceType().getId());
+
+        // Find the full project based on the supplied id or supplied name
+        if (source.getProject() != null ) {
+            ProjectDTO project = null;
+            if (source.getProject().getId() != null) {
+                project = projectService.findOne(source.getProject().getId());
+            } else if (source.getProject().getProjectName() != null) {
+                project = projectService.findOneByName(source.getProject().getProjectName());
+            }
+            source.setProject(projectMapper.projectDTOToProject(project));
+        }
+        // generate defaults for source id and source name if they were not provided
+        UUID uuid = UUID.randomUUID();
+        if (source.getSourceName() == null) {
+            source.setSourceName(deviceTypeDTO.getDeviceModel()
+                + "-" + uuid.toString().substring(0,5));
+        }
+        if (source.getSourceId() == null) {
+            source.setSourceId(uuid);
+        }
+
+        // save the source
         source = sourceRepository.save(source);
+
+        // prepare the saved source to be returned to the client
         SourceDTO result = sourceMapper.sourceToSourceDTO(source);
+
+        // add the full details of the deviceType to the response
+        result.setDeviceType(deviceTypeDTO);
         return result;
     }
 

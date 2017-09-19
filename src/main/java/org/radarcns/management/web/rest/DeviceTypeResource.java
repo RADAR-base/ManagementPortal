@@ -1,24 +1,34 @@
 package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import io.github.jhipster.web.util.ResponseUtil;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.DeviceTypeService;
-import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.service.dto.DeviceTypeDTO;
-import io.github.jhipster.web.util.ResponseUtil;
+import org.radarcns.management.web.rest.errors.CustomConflictException;
+import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.LinkedList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * REST controller for managing DeviceType.
@@ -52,6 +62,16 @@ public class DeviceTypeResource {
         if (deviceTypeDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new deviceType cannot already have an ID")).body(null);
         }
+        DeviceTypeDTO existing = deviceTypeService.findByProducerAndModel(
+            deviceTypeDTO.getDeviceProducer(), deviceTypeDTO.getDeviceModel());
+        if (existing != null) {
+            Map<String, String> errorParams = new HashMap<>();
+            errorParams.put("message", "A DeviceType with the specified producer and model "
+                + "already exists. This combination needs to be unique.");
+            errorParams.put("producer", deviceTypeDTO.getDeviceProducer());
+            errorParams.put("model", deviceTypeDTO.getDeviceModel());
+            throw new CustomConflictException("Conflict", errorParams);
+        }
         DeviceTypeDTO result = deviceTypeService.save(deviceTypeDTO);
         return ResponseEntity.created(new URI("/api/device-types/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
@@ -71,6 +91,14 @@ public class DeviceTypeResource {
     @Timed
     public ResponseEntity<DeviceTypeDTO> updateDeviceType(@Valid @RequestBody DeviceTypeDTO deviceTypeDTO) throws URISyntaxException {
         log.debug("REST request to update DeviceType : {}", deviceTypeDTO);
+        // we will also allow updating with no id, but with producer and model specified
+        if (deviceTypeDTO.getDeviceProducer() != null && deviceTypeDTO.getDeviceModel() != null) {
+            DeviceTypeDTO existing = deviceTypeService.findByProducerAndModel(
+                deviceTypeDTO.getDeviceProducer(), deviceTypeDTO.getDeviceModel());
+            if (existing != null) {
+                deviceTypeDTO.setId(existing.getId());
+            }
+        }
         if (deviceTypeDTO.getId() == null) {
             return createDeviceType(deviceTypeDTO);
         }
@@ -83,13 +111,40 @@ public class DeviceTypeResource {
     /**
      * GET  /device-types : get all the deviceTypes.
      *
+     * @param producer If this parameter is supplied, return only the DeviceTypes for which the
+     *                 deviceProducer matches this value
+     * @param model If this parameter is supplied, return only the DeviceTypes for which the
+     *              deviceModel matches this value
      * @return the ResponseEntity with status 200 (OK) and the list of deviceTypes in body
      */
     @GetMapping("/device-types")
     @Timed
-    public List<DeviceTypeDTO> getAllDeviceTypes() {
-        log.debug("REST request to get all DeviceTypes");
-        return deviceTypeService.findAll();
+    public ResponseEntity<List<DeviceTypeDTO>> getAllDeviceTypes(@RequestParam(required = false) String producer,
+            @RequestParam(required = false) String model) {
+        List<DeviceTypeDTO> result;
+        if (producer != null && model != null) {
+            log.debug("REST request to get DeviceTypes for producer {} and model {}", producer, model);
+            DeviceTypeDTO deviceTypeDTO = deviceTypeService.findByProducerAndModel(producer, model);
+            if (deviceTypeDTO == null) {
+                result = Collections.emptyList();
+            }
+            else {
+                result = Collections.singletonList(deviceTypeDTO);
+            }
+        }
+        else if (producer != null) {
+            log.debug("REST request to get DeviceTypes for producer {}", producer);
+            result = deviceTypeService.findByProducer(producer);
+        }
+        else if (model != null) {
+            log.debug("REST request to get DeviceTypes for model {}", model);
+            result = deviceTypeService.findByModel(model);
+        }
+        else {
+            log.debug("REST request to get all DeviceTypes");
+            result = deviceTypeService.findAll();
+        }
+        return ResponseEntity.ok(result);
     }
 
     /**

@@ -1,5 +1,6 @@
 package org.radarcns.management.service;
 
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.Subject;
@@ -9,10 +10,13 @@ import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
+import org.radarcns.management.service.dto.MinimalProjectDetailsDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
+import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
+import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
@@ -27,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,7 +64,13 @@ public class SubjectService {
     private AuthorityRepository authorityRepository;
 
     @Autowired
+    private SourceService sourceService;
+
+    @Autowired
     private SourceRepository sourceRepository;
+
+    @Autowired
+    private SourceMapper sourceMapper;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -202,12 +213,44 @@ public class SubjectService {
     public SubjectDTO discontinueSubject(SubjectDTO subjectDTO) {
         Subject subject = subjectRepository.findOne(subjectDTO.getId());
         //reset all the sources assigned to a subject to unassigned
-        for(Source source : subject.getSources()) {
+        for (Source source : subject.getSources()) {
             source.setAssigned(false);
             sourceRepository.save(source);
         }
 
         subject.setRemoved(true);
         return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subject));
+    }
+
+    @Transactional
+    public SubjectDTO assignSourcesToSubject(Subject subject, List<SourceDTO> sourceDTOS) {
+        log.debug("User {} is registering {} sources", subject.getUser().getLogin(), sourceDTOS.size());
+
+        // find out project this subject is participant in
+        Optional<Project> project = subject.getUser().getRoles().stream()
+            .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PARTICIPANT))
+            .map(r -> r.getProject())
+            .findFirst();
+
+        if (project.isPresent()) {
+            MinimalProjectDetailsDTO minimalProjectDetailsDTO =
+                    projectMapper.projectToMinimalProjectDetailsDTO(project.get());
+            sourceDTOS.forEach(s -> s.setProject(minimalProjectDetailsDTO));
+        }
+
+        // set these sources assigned states before saving
+        sourceDTOS.forEach(s -> s.setAssigned(true));
+
+        // save the supplied sources
+        List<SourceDTO> savedSources = new ArrayList<>(sourceDTOS.size());
+        sourceDTOS.forEach(s -> savedSources.add(sourceService.save(s)));
+
+        // add the sources to the subject and save the subject
+        List<Source> sources = sourceMapper.sourceDTOsToSources(savedSources);
+        subject.setSources(new HashSet<>(sources));
+        subject = subjectRepository.save(subject);
+
+        // transform to DTO and return the result
+        return subjectMapper.subjectToSubjectDTO(subject);
     }
 }

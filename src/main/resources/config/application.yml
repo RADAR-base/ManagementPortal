@@ -16,7 +16,7 @@
 
 management:
     security:
-        roles: ADMIN
+        roles: ROLE_SYS_ADMIN
     context-path: /management
     health:
         mail:

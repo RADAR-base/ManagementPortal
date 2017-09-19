@@ -12,6 +12,11 @@
             <input type="text" class="form-control" id="id" name="id"
                    [(ngModel)]="source.id" readonly />
         </div>
+        <div class="form-group" [hidden]="!source.sourceId">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.source.sourceId" for="field_devicePhysicalId">Source Id</label>
+            <input type="text" class="form-control" name="sourceId" id="field_devicePhysicalId"
+                   [(ngModel)]="source.sourceId" readonly />
+        </div>
         <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.source.sourceName" for="field_sourceName">Source Name</label>
             <input type="text" class="form-control" name="sourceName" id="field_sourceName"
@@ -21,18 +26,6 @@
                 <small class="form-text text-danger"
                        [hidden]="!editForm.controls.sourceName?.errors?.required" jhiTranslate="entity.validation.required">
                     This field is required.
-                </small>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.source.sourceId" for="field_devicePhysicalId">Source Id</label>
-            <input type="text" class="form-control" name="sourceId" id="field_devicePhysicalId"
-                [(ngModel)]="source.sourceId"
-            required />
-            <div [hidden]="!(editForm.controls.sourceId?.dirty && editForm.controls.sourceId?.invalid)">
-                <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.sourceId?.errors?.required" jhiTranslate="entity.validation.required">
-                   This field is required.
                 </small>
             </div>
         </div>
