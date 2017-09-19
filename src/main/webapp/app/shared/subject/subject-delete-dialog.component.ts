@@ -23,7 +23,7 @@ export class SubjectDeleteDialogComponent {
         public activeModal: NgbActiveModal,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['subject']);
+        this.jhiLanguageService.setLocations(['subject' , 'project' , 'projectStatus']);
     }
 
     clear() {

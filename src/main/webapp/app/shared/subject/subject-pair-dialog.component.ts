@@ -30,7 +30,7 @@ export class SubjectPairDialogComponent implements OnInit {
                 private oauthClientService: OAuthClientService,
                 private oauthClientPairInfoService: OAuthClientPairInfoService,
                 private eventManager: EventManager) {
-        this.jhiLanguageService.setLocations(['subject']);
+        this.jhiLanguageService.setLocations(['subject' , 'project' , 'projectStatus']);
     }
 
     ngOnInit() {

@@ -60,6 +60,7 @@ $separator-border: 1px solid rgba(0, 0, 0, 0.098);
             font-weight: 500;
             border-bottom: $separator-border;
             background-color: rgba(0, 0, 0, 0.05);
+            cursor: pointer;
 
             -webkit-transition: padding 0.5s ease-out;
             -moz-transition: padding 0.5s ease-out;
@@ -83,6 +84,7 @@ $separator-border: 1px solid rgba(0, 0, 0, 0.098);
             -moz-transition: padding 0.5s ease-out;
             -o-transition: padding 0.5s ease-out;
             transition: padding 0.5s ease-out;
+            cursor: pointer;
         }
     }
 
