@@ -1,3 +1,0 @@
-username: test_username
-password: test_password
-publicKeyEndpoint: http://localhost:8089/oauth/token_key
