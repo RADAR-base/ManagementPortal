@@ -64,12 +64,6 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
                 }
 
-                Subject subject = subjectRepository.findBySubjectLogin(userName);
-                if (subject != null) {
-                    additionalInfo.put("subject_id", subject.getId());
-                }
-
-
                 List<Source> assignedSources = subjectRepository
                     .findSourcesBySubjectLogin(userName);
 

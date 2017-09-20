@@ -230,7 +230,7 @@ public class SubjectResource {
     }
 
     /**
-     * POST  /subjects/:id/sources: Assign a list of sources to the currently logged in user
+     * POST  /subjects/:login/sources: Assign a list of sources to the currently logged in user
      *
      * The request body should contain a list of sources to be assigned to the currently logged in
      * user. If the currently authenticated user is not a subject, or not a user
@@ -247,17 +247,17 @@ public class SubjectResource {
      * @param sourceDTOS List of sources to assign
      * @return The updated Subject information
      */
-    @PostMapping("/subjects/{id}/sources")
+    @PostMapping("/subjects/{login}/sources")
     @Timed
     @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN,
               AuthoritiesConstants.PARTICIPANT})
-    public ResponseEntity<List<SourceDTO>> assignSources(@PathVariable Long id,
+    public ResponseEntity<List<SourceDTO>> assignSources(@PathVariable String login,
             @RequestBody List<SourceDTO> sourceDTOS) {
         // check the subject id
-        Subject subject = subjectRepository.findOneWithEagerRelationships(id);
+        Subject subject = subjectRepository.findBySubjectLogin(login);
         if (subject == null) {
             return ResponseUtil.wrapOrNotFound(Optional.empty(), HeaderUtil.createFailureAlert(
-                ENTITY_NAME, "notfound", "Subject with id " + id.toString() +
+                ENTITY_NAME, "notfound", "Subject with subject-id " + login +
                 " was not found."));
         }
 

@@ -1,6 +1,7 @@
 package org.radarcns.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.persistence.PrePersist;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -83,15 +84,21 @@ public class Source implements Serializable {
         return sourceId;
     }
 
-    public Source devicePhysicalId(UUID devicePhysicalId) {
+    public Source sourceId(UUID devicePhysicalId) {
         this.sourceId = devicePhysicalId;
         return this;
     }
 
     public void setSourceId(UUID sourceId) {
-        this.sourceId = sourceId;
+        // pass
     }
 
+    @PrePersist
+    public void generateUuid() {
+        if (this.sourceId == null) {
+            this.sourceId = UUID.randomUUID();
+        }
+    }
     public String getDeviceCategory() {
         return deviceCategory;
     }

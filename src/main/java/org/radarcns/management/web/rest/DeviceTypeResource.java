@@ -62,8 +62,8 @@ public class DeviceTypeResource {
         if (deviceTypeDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new deviceType cannot already have an ID")).body(null);
         }
-        DeviceTypeDTO existing = deviceTypeService.findByProducerAndModel(
-            deviceTypeDTO.getDeviceProducer(), deviceTypeDTO.getDeviceModel());
+        DeviceTypeDTO existing = deviceTypeService.findByProducerAndModelAndVersion(
+            deviceTypeDTO.getDeviceProducer(), deviceTypeDTO.getDeviceModel() , deviceTypeDTO.getDeviceVersion());
         if (existing != null) {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "A DeviceType with the specified producer and model "
@@ -92,9 +92,10 @@ public class DeviceTypeResource {
     public ResponseEntity<DeviceTypeDTO> updateDeviceType(@Valid @RequestBody DeviceTypeDTO deviceTypeDTO) throws URISyntaxException {
         log.debug("REST request to update DeviceType : {}", deviceTypeDTO);
         // we will also allow updating with no id, but with producer and model specified
-        if (deviceTypeDTO.getDeviceProducer() != null && deviceTypeDTO.getDeviceModel() != null) {
-            DeviceTypeDTO existing = deviceTypeService.findByProducerAndModel(
-                deviceTypeDTO.getDeviceProducer(), deviceTypeDTO.getDeviceModel());
+        if (deviceTypeDTO.getDeviceProducer() != null && deviceTypeDTO.getDeviceModel()
+            != null && deviceTypeDTO.getDeviceVersion() !=null) {
+            DeviceTypeDTO existing = deviceTypeService.findByProducerAndModelAndVersion(
+                deviceTypeDTO.getDeviceProducer(), deviceTypeDTO.getDeviceModel(), deviceTypeDTO.getDeviceVersion());
             if (existing != null) {
                 deviceTypeDTO.setId(existing.getId());
             }
@@ -120,11 +121,11 @@ public class DeviceTypeResource {
     @GetMapping("/device-types")
     @Timed
     public ResponseEntity<List<DeviceTypeDTO>> getAllDeviceTypes(@RequestParam(required = false) String producer,
-            @RequestParam(required = false) String model) {
+            @RequestParam(required = false) String model ,  @RequestParam(required = false) String version) {
         List<DeviceTypeDTO> result;
-        if (producer != null && model != null) {
+        if (producer != null && model != null && version !=null) {
             log.debug("REST request to get DeviceTypes for producer {} and model {}", producer, model);
-            DeviceTypeDTO deviceTypeDTO = deviceTypeService.findByProducerAndModel(producer, model);
+            DeviceTypeDTO deviceTypeDTO = deviceTypeService.findByProducerAndModelAndVersion(producer, model, version);
             if (deviceTypeDTO == null) {
                 result = Collections.emptyList();
             }

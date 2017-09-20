@@ -20,6 +20,8 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.radarcns.management.domain.enumeration.SourceType;
 
 /**
@@ -61,6 +63,7 @@ public class DeviceType implements Serializable {
     @JoinTable(name = "device_type_sensor_data",
                joinColumns = @JoinColumn(name="device_types_id", referencedColumnName="id"),
                inverseJoinColumns = @JoinColumn(name="sensor_data_id", referencedColumnName="id"))
+    @Cascade(CascadeType.SAVE_UPDATE)
     private Set<SensorData> sensorData = new HashSet<>();
 
     @ManyToMany(mappedBy = "deviceTypes")

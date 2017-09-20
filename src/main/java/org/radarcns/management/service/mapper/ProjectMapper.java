@@ -29,8 +29,6 @@ public interface ProjectMapper {
 
     MinimalProjectDetailsDTO projectToMinimalProjectDetailsDTO(Project project);
 
-    MinimalProjectDetailsDTO projectDTOToMinimalProjectDetailsDTO(ProjectDTO projectDTO);
-
     List<MinimalProjectDetailsDTO> projectsToMinimalProjectDetailsDTOs(List<Project> projects);
 
     Project descriptiveDTOToProject(MinimalProjectDetailsDTO minimalProjectDetailsDTO);
