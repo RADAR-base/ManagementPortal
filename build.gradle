@@ -303,7 +303,7 @@ task generateJavaClient(dependsOn: 'generateOpenApiSpec', group: 'Swagger',
     doLast {
         def config = new CodegenConfigurator()
         config.setInputSpec(Paths.get(projectDir.absolutePath, swaggerFileLocation).toString())
-        config.setOutputDir(swaggerTargetFolder)
+        config.setOutputDir(Paths.get(projectDir.absolutePath, swaggerTargetFolder).toString())
         config.setLang("java")
         config.setArtifactId("managementportal-client")
         config.setGroupId("org.radarcns")
