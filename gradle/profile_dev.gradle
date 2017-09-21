@@ -5,6 +5,8 @@ apply plugin: 'com.moowork.node'
 
 ext {
     logbackLoglevel = "DEBUG"
+    apiDocsEndpoint = "http://localhost:8080/v2/api-docs"
+    swaggerFileLocation = "build/swagger/swagger.json"
 }
 
 dependencies {

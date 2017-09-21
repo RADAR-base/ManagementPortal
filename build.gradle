@@ -1,6 +1,8 @@
 import groovy.json.JsonSlurper
 import org.gradle.internal.os.OperatingSystem
 
+import java.nio.file.Paths
+
 buildscript {
     repositories {
         mavenLocal()
@@ -17,6 +19,7 @@ buildscript {
         classpath "org.springframework.build.gradle:propdeps-plugin:0.0.7"
         classpath "com.moowork.gradle:gradle-node-plugin:1.1.1"
         classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
+        classpath "io.swagger:swagger-codegen:2.2.3"
         //jhipster-needle-gradle-buildscript-dependency - JHipster will add additional gradle build script plugins here
     }
 }
@@ -247,3 +250,37 @@ processResources.dependsOn cleanResources,bootBuildInfo
 bootBuildInfo.mustRunAfter cleanResources
 
 idea.module.downloadSources = true
+
+task generateOpenApiSpec(dependsOn: 'classes') {
+    doLast {
+        String java_home = System.getenv("JAVA_HOME")
+        String java = Paths.get(java_home, "bin", "java").toAbsolutePath()
+        ProcessBuilder pb = new ProcessBuilder(java, "-cp",
+            sourceSets.main.runtimeClasspath.getAsPath(), "org.radarcns.management.ManagementPortalApp")
+        pb.directory(projectDir)
+        File outFile = File.createTempFile("managementportalrun", ".out")
+        // the redirect seems to be necessary for the process to be able to start properly
+        pb.redirectOutput(outFile)
+        Process mp = pb.start()
+        println("Waiting 20s for application to start up")
+        for (int i = 0; i < 20; ++i) {
+            System.out.print("#")
+            System.out.flush()
+            sleep(1000)
+        }
+        println()
+        // Create parent dir to swagger file
+        try {
+            File swaggerFile = new File(Paths.get(projectDir.absolutePath, swaggerFileLocation).toString());
+            swaggerFile.getParentFile().mkdirs();
+            ProcessBuilder curlPb = new ProcessBuilder("curl", apiDocsEndpoint, "-o",
+                swaggerFileLocation)
+            curlPb.directory(projectDir)
+            curlPb.start().waitFor()
+        }
+        finally {
+            mp.waitForOrKill(1)
+            outFile.delete()
+        }
+    }
+}
