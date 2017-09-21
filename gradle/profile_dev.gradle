@@ -1,12 +1,11 @@
-import org.gradle.internal.os.OperatingSystem
-
 apply plugin: 'org.springframework.boot'
 apply plugin: 'com.moowork.node'
 
 ext {
     logbackLoglevel = "DEBUG"
     apiDocsEndpoint = "http://localhost:8080/v2/api-docs"
-    swaggerFileLocation = "build/swagger/swagger.json"
+    swaggerFileLocation = "build/swagger-spec/swagger.json"
+    swaggerTargetFolder = "build/managementportal-client"
 }
 
 dependencies {
