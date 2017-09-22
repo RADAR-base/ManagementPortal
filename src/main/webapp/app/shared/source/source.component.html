@@ -28,6 +28,7 @@
             <thead>
             <tr>
             <th><span jhiTranslate="global.field.id">ID</span></th>
+            <th><span jhiTranslate="managementPortalApp.source.sourceName">Source Name</span></th>
             <th><span jhiTranslate="managementPortalApp.source.sourceId">Source Id</span></th>
             <th><span jhiTranslate="managementPortalApp.source.deviceCategory">Device Category</span></th>
             <th><span jhiTranslate="managementPortalApp.source.assigned">Assigned</span></th>
@@ -38,7 +39,8 @@
             </thead>
             <tbody>
             <tr *ngFor="let source of sources ;trackBy: trackId">
-                <td><a [routerLink]="['/source', source.id ]">{{source.id}}</a></td>
+                <td><a [routerLink]="['../source', source.id ]">{{source.id}}</a></td>
+                <td>{{source.sourceName}}</td>
                 <td>{{source.sourceId}}</td>
                 <td>{{source.deviceCategory}}</td>
                 <td>

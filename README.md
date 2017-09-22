@@ -2,6 +2,20 @@
 
 ManagementPortal is an application which is used to manage pilot studies for [RADAR-CNS](http://www.radar-cns.org/).
 
+## Quickstart
+
+The quickest way to get ManagementPortal up and running in production mode is by using the included
+docker-compose files. 
+1. First, we need to generate a key pair for signing JWT tokens as follows:
+```shell
+keytool -genkey -alias selfsigned -keyalg RSA -keystore src/main/resources/config/keystore.jks -keysize 4048 -storepass radarbase
+```
+**Make sure the key password and store password are the same!** This is a requirement for Spring Security.
+
+2. Then, make sure [Docker][], [Docker-Compose][], [Node.js][] and [Yarn][] are installed on your system.
+3. Finally, we can build the docker image with `./gradlew bootRepackage -Pprod buildDocker` and start the stack with `docker-compose -f src/main/docker/app.yml up -d`.
+
+
 ## Configuration
 
 First create a keypair to sign JWT with:
@@ -147,6 +161,17 @@ For more information refer to [Using Docker and Docker-Compose][], this page als
 
 To configure CI for your project, run the ci-cd sub-generator (`yo jhipster:ci-cd`), this will let you generate configuration files for a number of Continuous Integration systems. Consult the [Setting up Continuous Integration][] page for more information.
 
+## Client libraries
+
+This project provides a Gradle task to generate an [OpenAPI] specification from which client libraries can be automatically generated:
+```bash
+./gradlew generateOpenApiSpec
+```
+The resulting file can be imported into the [Swagger editor], or used with [Swagger codegen] to generate client libraries. A Gradle task for generating a Java client is also provided for convenience:
+```bash
+./gradlew generateJavaClient
+```
+
 [JHipster Homepage and latest documentation]: https://jhipster.github.io
 [JHipster 4.3.0 archive]: https://jhipster.github.io/documentation-archive/v4.3.0
 
@@ -167,3 +192,8 @@ To configure CI for your project, run the ci-cd sub-generator (`yo jhipster:ci-c
 [Protractor]: https://angular.github.io/protractor/
 [Leaflet]: http://leafletjs.com/
 [DefinitelyTyped]: http://definitelytyped.org/
+[Docker]: https://docs.docker.com/
+[Docker-Compose]: https://docs.docker.com/compose/
+[OpenAPI]: https://www.openapis.org/
+[Swagger editor]: http://editor.swagger.io/
+[Swagger codegen]: https://swagger.io/swagger-codegen/

@@ -9,10 +9,11 @@ export class DeviceType {
         public id?: number,
         public deviceProducer?: string,
         public deviceModel?: string,
+        public deviceVersion?: string,
         public sourceType?: SourceType,
         public sensorDataId?: number,
         public projectId?: number,
-        public hasDynamicId?: number,
+        public canRegisterDynamically?: boolean,
     ) {
     }
 }

@@ -1,10 +1,10 @@
 package org.radarcns.management.service.dto;
 
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Map;
-import java.util.Objects;
-import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
 /**
  * A DTO for the Source entity.
@@ -13,14 +13,17 @@ public class SourceDTO implements Serializable {
 
     private Long id;
 
+    private UUID sourceId;
+
     @NotNull
-    private String sourceId;
+    private String sourceName;
 
     private String deviceCategory;
 
     @NotNull
     private Boolean assigned;
 
+    @NotNull
     private DeviceTypeDTO deviceType;
 
     private MinimalProjectDetailsDTO project;
@@ -34,11 +37,11 @@ public class SourceDTO implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getSourceId() {
+    public UUID getSourceId() {
         return sourceId;
     }
 
-    public void setSourceId(String sourceId) {
+    public void setSourceId(UUID sourceId) {
         this.sourceId = sourceId;
     }
     public String getDeviceCategory() {
@@ -80,34 +83,42 @@ public class SourceDTO implements Serializable {
         this.attributes = attributes;
     }
 
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (!(o instanceof SourceDTO)) return false;
 
         SourceDTO sourceDTO = (SourceDTO) o;
 
-        if ( ! Objects.equals(id, sourceDTO.id)) { return false; }
-
-        return true;
+        if (!sourceId.equals(sourceDTO.sourceId)) return false;
+        return sourceName.equals(sourceDTO.sourceName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        int result = sourceId.hashCode();
+        result = 31 * result + sourceName.hashCode();
+        return result;
     }
 
     @Override
     public String toString() {
         return "SourceDTO{" +
             "id=" + id +
-            ", sourceId='" + sourceId + "'" +
-            ", deviceCategory='" + deviceCategory + "'" +
-            ", activated='" + assigned + "'" +
+            ", sourceId='" + sourceId + '\'' +
+            ", sourceName='" + sourceName + '\'' +
+            ", deviceCategory='" + deviceCategory + '\'' +
+            ", assigned=" + assigned +
+            ", deviceType=" + deviceType +
+            ", project=" + project +
             '}';
     }
 }

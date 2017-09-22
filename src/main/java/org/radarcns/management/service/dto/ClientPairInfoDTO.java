@@ -5,27 +5,16 @@ package org.radarcns.management.service.dto;
  */
 public class ClientPairInfoDTO {
     private String refreshToken;
-    private String subjectId;
 
-    public ClientPairInfoDTO(String refreshToken, String subjectId) {
+    public ClientPairInfoDTO(String refreshToken) {
+        if (refreshToken == null) {
+            throw new IllegalArgumentException("refreshToken can not be null");
+        }
         this.refreshToken = refreshToken;
-        this.subjectId = subjectId;
     }
 
     public String getRefreshToken() {
         return refreshToken;
-    }
-
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
-    public String getSubjectId() {
-        return subjectId;
-    }
-
-    public void setSubjectId(String subjectId) {
-        this.subjectId = subjectId;
     }
 
     @Override
@@ -35,22 +24,11 @@ public class ClientPairInfoDTO {
 
         ClientPairInfoDTO that = (ClientPairInfoDTO) o;
 
-        if (!refreshToken.equals(that.refreshToken)) return false;
-        return subjectId.equals(that.subjectId);
+        return refreshToken.equals(that.refreshToken);
     }
 
     @Override
     public int hashCode() {
-        int result = refreshToken.hashCode();
-        result = 31 * result + subjectId.hashCode();
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "ClientPairInfoDTO{" +
-            "refreshToken='" + refreshToken + '\'' +
-            ", subjectId='" + subjectId + '\'' +
-            '}';
+        return refreshToken.hashCode();
     }
 }

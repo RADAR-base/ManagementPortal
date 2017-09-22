@@ -54,6 +54,13 @@ public class ExceptionTranslator {
         return ex.getErrorVM();
     }
 
+    @ExceptionHandler(CustomConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public ParameterizedErrorVM processParameterizedConflict(CustomConflictException ex) {
+        return ex.getErrorVM();
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody

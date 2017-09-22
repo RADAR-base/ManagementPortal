@@ -1,12 +1,10 @@
 package org.radarcns.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import javax.persistence.PrePersist;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -21,8 +19,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * A Source.
@@ -40,7 +42,11 @@ public class Source implements Serializable {
 
     @NotNull
     @Column(name = "source_id", nullable = false , unique = true)
-    private String sourceId;
+    private UUID sourceId;
+
+    @NotNull
+    @Column(name = "source_name", nullable = false, unique = true)
+    private String sourceName;
 
     @Column(name = "device_category")
     private String deviceCategory;
@@ -74,19 +80,28 @@ public class Source implements Serializable {
         this.id = id;
     }
 
-    public String getSourceId() {
+    public UUID getSourceId() {
         return sourceId;
     }
 
-    public Source devicePhysicalId(String devicePhysicalId) {
+    public Source sourceId(UUID devicePhysicalId) {
         this.sourceId = devicePhysicalId;
         return this;
     }
 
-    public void setSourceId(String sourceId) {
-        this.sourceId = sourceId;
+    public void setSourceId(UUID sourceId) {
+        // pass
     }
 
+    @PrePersist
+    public void generateUuid() {
+        if (this.sourceId == null) {
+            this.sourceId = UUID.randomUUID();
+        }
+        if(this.sourceName == null) {
+            this.sourceName = this.sourceId.toString().substring(0,8);
+        }
+    }
     public String getDeviceCategory() {
         return deviceCategory;
     }
@@ -148,16 +163,24 @@ public class Source implements Serializable {
         return this;
     }
 
-    public Source addPubject(Subject subject) {
+    public Source addSubject(Subject subject) {
         this.subjects.add(subject);
         subject.getSources().add(this);
         return this;
     }
 
-    public Source removePubject(Subject subject) {
+    public Source removeSubject(Subject subject) {
         this.subjects.remove(subject);
         subject.getSources().remove(this);
         return this;
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
     }
 
     public Map<String, String> getAttributes() {
@@ -174,31 +197,32 @@ public class Source implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (!(o instanceof Source)) return false;
+
         Source source = (Source) o;
-        if (source.id == null || id == null) {
-            return false;
-        }
-        return Objects.equals(id, source.id);
+
+        if (!sourceId.equals(source.sourceId)) return false;
+        return sourceName.equals(source.sourceName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        int result = sourceId.hashCode();
+        result = 31 * result + sourceName.hashCode();
+        return result;
     }
 
     @Override
     public String toString() {
         return "Source{" +
             "id=" + id +
-            ", sourceId='" + sourceId + "'" +
-            ", deviceCategory='" + deviceCategory + "'" +
-            ", assigned='" + assigned + "'" +
+            ", sourceId='" + sourceId + '\'' +
+            ", sourceName='" + sourceName + '\'' +
+            ", deviceCategory='" + deviceCategory + '\'' +
+            ", assigned=" + assigned +
+            ", deviceType=" + deviceType +
+            ", project=" + project +
             '}';
     }
 }

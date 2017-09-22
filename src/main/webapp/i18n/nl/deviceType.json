@@ -17,9 +17,13 @@
             },
             "deviceProducer": "Device Producer",
             "deviceModel": "Device Model",
+            "deviceVersion": "Device Version",
             "sourceType": "Source Type",
             "sensorData": "Sensor Data",
             "project": "Project"
         }
+    },
+    "error": {
+        "deviceTypeAvailable" : "Een DeviceType met bepaalde producent, model en versie is al beschikbaar"
     }
 }

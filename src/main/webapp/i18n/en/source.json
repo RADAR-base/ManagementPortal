@@ -15,7 +15,8 @@
             "detail": {
                 "title": "Source"
             },
-            "sourceId": "Source Name",
+            "sourceId": "Source Id",
+            "sourceName": "Source Name",
             "deviceCategory": "Device Category",
             "assigned": "Assigned",
             "unassigned": "Unassigned",

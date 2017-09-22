@@ -1,5 +1,6 @@
 package org.radarcns.management.web.rest;
 
+import java.util.UUID;
 import org.radarcns.management.ManagementPortalApp;
 
 import org.radarcns.management.domain.Source;
@@ -40,8 +41,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = ManagementPortalApp.class)
 public class SourceResourceIntTest {
 
-    private static final String DEFAULT_DEVICE_PHYSICAL_ID = "AAAAAAAAAA";
-    private static final String UPDATED_DEVICE_PHYSICAL_ID = "BBBBBBBBBB";
+    private static final UUID DEFAULT_DEVICE_PHYSICAL_ID = UUID.randomUUID();
+    private static final UUID UPDATED_DEVICE_PHYSICAL_ID =DEFAULT_DEVICE_PHYSICAL_ID;
 
     private static final String DEFAULT_DEVICE_CATEGORY = "AAAAAAAAAA";
     private static final String UPDATED_DEVICE_CATEGORY = "BBBBBBBBBB";
@@ -91,7 +92,7 @@ public class SourceResourceIntTest {
      */
     public static Source createEntity(EntityManager em) {
         Source source = new Source()
-            .devicePhysicalId(DEFAULT_DEVICE_PHYSICAL_ID)
+            .sourceId(DEFAULT_DEVICE_PHYSICAL_ID)
             .deviceCategory(DEFAULT_DEVICE_CATEGORY)
             .assigned(DEFAULT_ACTIVATED);
         return source;
@@ -250,7 +251,7 @@ public class SourceResourceIntTest {
         // Update the source
         Source updatedSource = sourceRepository.findOne(source.getId());
         updatedSource
-            .devicePhysicalId(UPDATED_DEVICE_PHYSICAL_ID)
+            .sourceId(UPDATED_DEVICE_PHYSICAL_ID)
             .deviceCategory(UPDATED_DEVICE_CATEGORY)
             .assigned(UPDATED_ACTIVATED);
         SourceDTO sourceDTO = sourceMapper.sourceToSourceDTO(updatedSource);

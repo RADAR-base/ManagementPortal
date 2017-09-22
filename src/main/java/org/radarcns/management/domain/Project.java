@@ -46,7 +46,7 @@ public class Project implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "project_name", nullable = false)
+    @Column(name = "project_name", nullable = false , unique = true)
     private String projectName;
 
     @NotNull

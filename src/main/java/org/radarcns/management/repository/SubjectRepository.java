@@ -14,7 +14,7 @@ import java.util.List;
  * Spring Data JPA repository for the Subject entity.
  */
 @SuppressWarnings("unused")
-public interface SubjectRepository extends JpaRepository<Subject,Long> {
+public interface SubjectRepository extends JpaRepository<Subject, Long> {
 
     @Query("select distinct subject from Subject subject left join fetch subject.sources")
     List<Subject> findAllWithEagerRelationships();
@@ -30,6 +30,10 @@ public interface SubjectRepository extends JpaRepository<Subject,Long> {
 
     @Query("select subject from Subject subject WHERE subject.user.login = :login")
     Subject findBySubjectLogin(@Param("login") String login);
+
+    @Query("select subject from Subject subject left join fetch subject.sources "
+        + "WHERE subject.user.login = :login")
+    Subject findOneWithEagerBySubjectLogin(@Param("login") String login);
 
     @Query("select subject.sources from Subject subject WHERE subject.id = :id")
     List<Source> findSourcesBySubjectId(@Param("id") Long id);
@@ -47,4 +51,14 @@ public interface SubjectRepository extends JpaRepository<Subject,Long> {
     @Query("select subject.sources from Subject subject WHERE subject.externalId = :externalId")
     List<Subject> findAllByExternalId(@Param("externalId") String externalId);
 
-  }
+    @Query("select subject.sources from Subject subject left join subject.sources sources "
+        + "join sources.deviceType deviceType "
+        + "where deviceType.deviceProducer = :producer "
+        + "and deviceType.deviceModel = :model "
+        + "and deviceType.deviceVersion =:version "
+        + "and subject.user.login = :login")
+    List<Source> findSubjectSourcesBySourceType(@Param("login") String login,
+        @Param("producer") String producer, @Param("model") String model,
+        @Param("version") String version);
+
+}

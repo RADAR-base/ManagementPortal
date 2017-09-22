@@ -3,9 +3,17 @@ package org.radarcns.management.web.rest;
 import org.radarcns.management.ManagementPortalApp;
 
 import org.radarcns.management.domain.Subject;
+import org.radarcns.management.repository.DeviceTypeRepository;
+import org.radarcns.management.repository.ProjectRepository;
+import org.radarcns.management.repository.SensorDataRepository;
 import org.radarcns.management.repository.SubjectRepository;
+import org.radarcns.management.service.DeviceTypeService;
 import org.radarcns.management.service.SubjectService;
+import org.radarcns.management.service.dto.AttributeMapDTO;
+import org.radarcns.management.service.dto.ProjectDTO;
+import org.radarcns.management.service.dto.SourceRegistrationDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
+import org.radarcns.management.service.mapper.DeviceTypeMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
 
@@ -29,6 +37,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -50,6 +60,8 @@ public class SubjectResourceIntTest {
     private static final Boolean DEFAULT_REMOVED = false;
     private static final Boolean UPDATED_REMOVED = true;
 
+    private static final String DEFAULT_EMAIL= "someone@gmail.com";
+
     @Autowired
     private SubjectRepository subjectRepository;
 
@@ -58,6 +70,9 @@ public class SubjectResourceIntTest {
 
     @Autowired
     private SubjectService subjectService;
+
+    @Autowired
+    private SensorDataRepository sensorDataRepository;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -71,7 +86,21 @@ public class SubjectResourceIntTest {
     @Autowired
     private EntityManager em;
 
+    @Autowired
+    private DeviceTypeRepository deviceTypeRepository;
+
+    @Autowired
+    private DeviceTypeMapper deviceTypeMapper;
+
+    @Autowired
+    private DeviceTypeService deviceTypeService;
+
+    @Autowired
+    private ProjectRepository projectRepository;
+
     private MockMvc restSubjectMockMvc;
+
+    private MockMvc restDeviceTypeMockMvc;
 
     private Subject subject;
 
@@ -82,7 +111,16 @@ public class SubjectResourceIntTest {
         ReflectionTestUtils.setField(subjectResource, "subjectService" , subjectService);
         ReflectionTestUtils.setField(subjectResource, "subjectRepository" , subjectRepository);
         ReflectionTestUtils.setField(subjectResource, "subjectMapper" , subjectMapper);
+        ReflectionTestUtils.setField(subjectResource, "projectRepository" , projectRepository);
         this.restSubjectMockMvc = MockMvcBuilders.standaloneSetup(subjectResource)
+            .setCustomArgumentResolvers(pageableArgumentResolver)
+            .setControllerAdvice(exceptionTranslator)
+            .setMessageConverters(jacksonMessageConverter).build();
+
+        DeviceTypeResource deviceTypeResource = new DeviceTypeResource();
+        ReflectionTestUtils.setField(deviceTypeResource, "deviceTypeService" , deviceTypeService);
+        ReflectionTestUtils.setField(deviceTypeResource, "deviceTypeRepository" , deviceTypeRepository);
+        this.restDeviceTypeMockMvc = MockMvcBuilders.standaloneSetup(deviceTypeResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
             .setMessageConverters(jacksonMessageConverter).build();
@@ -102,6 +140,26 @@ public class SubjectResourceIntTest {
         return subject;
     }
 
+    /**
+     * Create an entity for this test.
+     *
+     * This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.
+     */
+    public static SubjectDTO createEntityDTO(EntityManager em) {
+        SubjectDTO subject = new SubjectDTO();
+        subject.setExternalLink(DEFAULT_EXTERNAL_LINK);
+        subject.setExternalId(DEFAULT_ENTERNAL_ID);
+        subject.setEmail(DEFAULT_EMAIL);
+        ProjectDTO projectDTO = new ProjectDTO();
+        projectDTO.setId(1L);
+        projectDTO.setProjectName("Radar");
+        projectDTO.setLocation("SOMEWHERE");
+        projectDTO.setDescription("test");
+        subject.setProject(projectDTO);
+        return subject;
+    }
+
     @Before
     public void initTest() {
         subject = createEntity(em);
@@ -113,7 +171,7 @@ public class SubjectResourceIntTest {
         int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
         // Create the Subject
-        SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
+        SubjectDTO subjectDTO = createEntityDTO(em);
         restSubjectMockMvc.perform(post("/api/subjects")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
@@ -126,6 +184,7 @@ public class SubjectResourceIntTest {
         assertThat(testSubject.getExternalLink()).isEqualTo(DEFAULT_EXTERNAL_LINK);
         assertThat(testSubject.getExternalId()).isEqualTo(DEFAULT_ENTERNAL_ID);
         assertThat(testSubject.isRemoved()).isEqualTo(DEFAULT_REMOVED);
+        assertEquals(testSubject.getUser().getRoles().size(),1);
     }
 
     @Test
@@ -257,5 +316,52 @@ public class SubjectResourceIntTest {
     @Transactional
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(Subject.class);
+    }
+
+
+    @Test
+    @Transactional
+    public void dynamicSourceRegistration() throws Exception {
+        int databaseSizeBeforeCreate = subjectRepository.findAll().size();
+
+        String deviceModel = "App";
+        String deviceProducer ="THINC-IT App";
+        String deviceVersion = "v1";
+
+        // Create the Subject
+        SubjectDTO subjectDTO = createEntityDTO(em);
+        restSubjectMockMvc.perform(post("/api/subjects")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
+            .andExpect(status().isCreated());
+
+        // Validate the Subject in the database
+        List<Subject> subjectList = subjectRepository.findAll();
+        assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1);
+        Subject testSubject = subjectList.get(subjectList.size() - 1);
+
+        String subjectLogin = testSubject.getUser().getLogin();
+        assertNotNull(subjectLogin);
+
+        AttributeMapDTO metadata = new AttributeMapDTO("some" , "value");
+
+        SourceRegistrationDTO sourceRegistrationDTO = new SourceRegistrationDTO();
+        sourceRegistrationDTO.setDeviceTypeModel(deviceModel);
+        sourceRegistrationDTO.setDeviceTypeProducer(deviceProducer);
+        sourceRegistrationDTO.setDeviceTypeVersion(deviceVersion);
+        sourceRegistrationDTO.getMetaData().add(metadata);
+        assertThat(sourceRegistrationDTO.getSourceId()).isNull();
+        // An entity with an existing ID cannot be created, so this API call must fail
+        restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDTO)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sourceId").isNotEmpty());
+
+        assertThat(sourceRegistrationDTO.getSourceId()).isNull();
+        restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDTO)))
+            .andExpect(status().is4xxClientError());
     }
 }

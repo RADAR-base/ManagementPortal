@@ -17,11 +17,16 @@
             },
             "deviceProducer": "Device Producer",
             "deviceModel": "Device Model",
+            "catalogVersion": "Catalog Version",
             "sourceType": "Source Type",
             "sensorData": "Sensor Data",
             "project": "Project",
-            "hasDynamicId": "Allows Dynamic device Identifier",
-            "hasStaticId": "Uses Static device Identifier"
+            "sourceRegistration" : "Source registration",
+            "dynamicRegistration": "Dynamic source registration",
+            "manualRegistration": "Manual Source registration"
         }
+    },
+    "error": {
+        "deviceTypeAvailable" : "A DeviceType with given producer,model and version is already available"
     }
 }
