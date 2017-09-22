@@ -26,7 +26,7 @@ public abstract class SourceMapperDecorator implements SourceMapper {
     public MinimalSourceDetailsDTO sourceToMinimalSourceDetailsDTO(Source source) {
         MinimalSourceDetailsDTO dto = delegate.sourceToMinimalSourceDetailsDTO(source);
         dto.setDeviceTypeAndSourceId( source.getDeviceType().getDeviceModel() + SEPARATOR + source
-            .getSourceId());
+            .getSourceName());
         return dto;
     }
 

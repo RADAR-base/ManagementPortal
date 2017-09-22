@@ -60,7 +60,7 @@
                 </td>
                 <td>
                     <span *ngFor="let sources of subject.sources; let last = last">
-                            <a class="form-control-static" [routerLink]="['../source', sources?.id ]">{{sources.deviceTypeAndSourceId}}</a>{{last ? '' : ', '}}
+                            <a class="form-control-static" [routerLink]="['/source', sources?.id ]">{{sources.deviceTypeAndSourceId}}</a>{{last ? '' : ', '}}
                     </span>
                 </td>
                 <td>

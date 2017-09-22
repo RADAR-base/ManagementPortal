@@ -91,6 +91,7 @@ public class Source implements Serializable {
 
     public void setSourceId(UUID sourceId) {
         // pass
+        this.sourceId = sourceId;
     }
 
     @PrePersist
