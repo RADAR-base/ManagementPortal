@@ -1,26 +1,15 @@
 package org.radarcns.auth;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.radarcns.auth.annotation.Secured;
+import org.radarcns.management.client.ApiException;
+import org.radarcns.management.client.api.UserResourceApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Priority;
 import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.Priorities;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.container.ResourceInfo;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.ext.Provider;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Authorization helper class for RADAR. This class is used to communicate with Management Portal to
@@ -30,13 +19,56 @@ import java.util.List;
 public class RadarAuthorization {
 
     private static final Logger log = LoggerFactory.getLogger(RadarAuthorization.class);
+    private static final UserResourceApi RESOURCE_API = new UserResourceApi();
+    private static final List<String> ROLES_READ_SUBJECT = Arrays.asList("ROLE_PROJECT_ADMIN",
+        "ROLE_PROJECT_OWNER", "ROLE_PROJECT_AFFILIATE", "ROLE_PROJECT_ANALYST");
+    private static final List<String> ROLES_ALTER_SUBJECT = Arrays.asList("ROLE_PROJECT_ADMIN",
+        "ROLE_PROJECT_OWNER", "ROLE_PROJECT_AFFILIATE");
 
-    public static boolean canUserAccessSubject(DecodedJWT token, String projectName) {
-        return false;
+    public static boolean canUserAccessSubject(DecodedJWT token, String subjectLogin) {
+        if (token.getClaim("authorities").asList(String.class).contains("ROLE_SYS_ADMIN")) {
+            return true;
+        }
+        String projectName = getProjectNameForSubject(subjectLogin);
+        return token.getClaim("roles").asList(String.class).stream()
+            .filter(s -> s.contains(":"))       // make sure we have correctly formatted roles only
+            .map(s -> s.split(":"))
+            .filter(s -> s[0].equals(projectName))         // find roles for the project
+            .filter(s -> ROLES_READ_SUBJECT.contains(s[1]))
+            .findAny()
+            .isPresent();
     }
 
-    public static boolean canUserModifySubject(DecodedJWT token, String projectName) {
-        return false;
+    public static boolean canUserModifySubject(DecodedJWT token, String subjectLogin) {
+        if (token.getClaim("authorities").asList(String.class).contains("ROLE_SYS_ADMIN")) {
+            return true;
+        }
+        String projectName = getProjectNameForSubject(subjectLogin);
+        return token.getClaim("roles").asList(String.class).stream()
+            .filter(s -> s.contains(":"))       // make sure we have correctly formatted roles only
+            .map(s -> s.split(":"))
+            .filter(s -> s[0].equals(projectName))         // find roles for the project
+            .filter(s -> ROLES_ALTER_SUBJECT.contains(s[1]))
+            .findAny()
+            .isPresent();
+    }
+
+    private static String getProjectNameForSubject(String subjectLogin) {
+        try {
+            Optional<String> projectName = RESOURCE_API.getUserUsingGET(subjectLogin).getRoles()
+                .stream()
+                .filter(r -> r.getAuthorityName().equals("ROLE_PARTICIPANT"))
+                .map(r -> r.getProjectName())
+                .findFirst();
+            if (!projectName.isPresent()) {
+                log.info("Access request for subject {}, but subject is not related to any project",
+                    subjectLogin);
+                throw new NotAuthorizedException("Subject {} is not related to any project", subjectLogin);
+            }
+            return projectName.get();
+        } catch (ApiException e) {
+            throw new NotAuthorizedException(e);
+        }
     }
 /*
     @Override
