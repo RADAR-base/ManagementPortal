@@ -2,10 +2,12 @@ package org.radarcns.auth.unit.util;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.apache.commons.codec.binary.Base64;
 import org.radarcns.auth.config.ServerConfig;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyStore;
@@ -19,25 +21,24 @@ import java.util.Date;
  * Created by dverbeec on 29/06/2017.
  */
 public class TokenTestUtils {
-    public static final String OAUTH2_INTROSPECT = "/oauth/check_token";
     public static final String PUBLIC_KEY = "/oauth/token_key";
     public static String PUBLIC_KEY_BODY;
     public static String VALID_TOKEN;
+    public static String INCORRECT_AUDIENCE_TOKEN;
     public static String EXPIRED_TOKEN;
+    public static String INCORRECT_ALGORITHM_TOKEN;
+    public static DecodedJWT PROJECT_ADMIN_TOKEN;
+    public static DecodedJWT SUPER_USER_TOKEN;
+
     public static final String[] SCOPES = {"scope1", "scope2"};
     public static final String[] AUTHORITIES = {"ROLE_SYS_ADMIN", "ROLE_USER"};
-    public static final String[] ROLES = {":ROLE_SYS_ADMIN", ":ROLE_USER",
-        "PROJECT1:ROLE_PROJECT_ADMIN", "PROJECT2:ROLE_PARTICIPANT"};
+    public static final String[] ROLES = {"PROJECT1:ROLE_PROJECT_ADMIN", "PROJECT2:ROLE_PARTICIPANT"};
     public static final String[] SOURCES = {};
-    public static final String CLIENT = "oauth_client";
+    public static final String CLIENT = "unit_test";
     public static final String USER = "admin";
     public static final String ISS = "RADAR";
     public static final String JTI = "some-jwt-id";
 
-    public static final String INVALID_RESPONSE = "{\"scope\":\"read_user\", "
-        + "\"token_type\":\"Bearer\",\"exp\":1491492693,\"iat\":1491489093, "
-        + "\"client_id\":\"35GaiYHy_7o5Vj3Qi3IaN1Iqnfwa\","
-        + "\"username\":\"testuser1\"}";
     public static final String APPLICATION_JSON = "application/json";
     public static final int WIREMOCK_PORT = 8089;
 
@@ -83,6 +84,61 @@ public class TokenTestUtils {
             .withClaim("jti", JTI)
             .sign(algorithm);
 
+        SUPER_USER_TOKEN = JWT.decode(VALID_TOKEN);
+
+        String projectAdminToken = JWT.create()
+            .withIssuer(ISS)
+            .withIssuedAt(Date.from(iat))
+            .withExpiresAt(Date.from(exp))
+            .withAudience(CLIENT)
+            .withSubject(USER)
+            .withArrayClaim("scope", SCOPES)
+            .withArrayClaim("authorities", new String[] {"ROLE_PROJECT_ADMIN"})
+            .withArrayClaim("roles", ROLES)
+            .withArrayClaim("sources", new String[] {})
+            .withClaim("client_id", CLIENT)
+            .withClaim("user_name", USER)
+            .withClaim("jti", JTI)
+            .sign(algorithm);
+
+        PROJECT_ADMIN_TOKEN = JWT.decode(projectAdminToken);
+
+        INCORRECT_AUDIENCE_TOKEN = JWT.create()
+            .withIssuer(ISS)
+            .withIssuedAt(Date.from(iat))
+            .withExpiresAt(Date.from(exp))
+            .withAudience("SOME_AUDIENCE")
+            .withSubject(USER)
+            .withArrayClaim("scope", SCOPES)
+            .withArrayClaim("authorities", new String[] {"ROLE_PROJECT_ADMIN"})
+            .withArrayClaim("roles", ROLES)
+            .withArrayClaim("sources", new String[] {})
+            .withClaim("client_id", CLIENT)
+            .withClaim("user_name", USER)
+            .withClaim("jti", JTI)
+            .sign(algorithm);
+
+        Algorithm psk = null;
+        try {
+            psk = Algorithm.HMAC256("super-secret-stuff");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        JWT.create()
+            .withIssuer(ISS)
+            .withIssuedAt(Date.from(iat))
+            .withExpiresAt(Date.from(exp))
+            .withAudience(CLIENT)
+            .withSubject(USER)
+            .withArrayClaim("scope", SCOPES)
+            .withArrayClaim("authorities", new String[] {"ROLE_PROJECT_ADMIN"})
+            .withArrayClaim("roles", ROLES)
+            .withArrayClaim("sources", new String[] {})
+            .withClaim("client_id", CLIENT)
+            .withClaim("user_name", USER)
+            .withClaim("jti", JTI)
+            .sign(psk);
+
         EXPIRED_TOKEN = JWT.create()
             .withIssuer(ISS)
             .withIssuedAt(Date.from(iatpast))
@@ -101,12 +157,13 @@ public class TokenTestUtils {
 
     public static ServerConfig createMockServerConfig() {
         return new ServerConfig() {
-            public URI getMpBaseURI() {
+            public URI getPublicKeyEndpoint() {
                 try {
                     return new URI("http://localhost:" + WIREMOCK_PORT + PUBLIC_KEY);
                 }
                 catch (URISyntaxException ex) {
-                    throw new RuntimeException(ex);
+                    // should not happen
+                    return null;
                 }
             }
 

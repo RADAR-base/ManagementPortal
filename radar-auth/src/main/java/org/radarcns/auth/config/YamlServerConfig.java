@@ -19,7 +19,7 @@ import java.net.URL;
 public class YamlServerConfig implements ServerConfig {
     public static final String LOCATION_ENV = "RADAR_IS_CONFIG_LOCATION";
     public static final String CONFIG_FILE_NAME = "radar-is.yml";
-    private URI mpBaseURI;
+    private URI publicKeyEndpoint;
     private String resourceName;
 
     private static YamlServerConfig config;
@@ -66,13 +66,13 @@ public class YamlServerConfig implements ServerConfig {
         return readFromFileOrClasspath();
     }
 
-    public URI getMpBaseURI() {
-        return mpBaseURI;
+    public URI getPublicKeyEndpoint() {
+        return publicKeyEndpoint;
     }
 
-    public void setMpBaseURI(URI mpBaseURI) {
-        log.info("Token public key endpoint set to " + mpBaseURI.toString());
-        this.mpBaseURI = mpBaseURI;
+    public void setPublicKeyEndpoint(URI publicKeyEndpoint) {
+        log.info("Token public key endpoint set to " + publicKeyEndpoint.toString());
+        this.publicKeyEndpoint = publicKeyEndpoint;
     }
 
     @Override
@@ -91,13 +91,13 @@ public class YamlServerConfig implements ServerConfig {
 
         YamlServerConfig that = (YamlServerConfig) o;
 
-        if (!mpBaseURI.equals(that.mpBaseURI)) return false;
+        if (!publicKeyEndpoint.equals(that.publicKeyEndpoint)) return false;
         return resourceName.equals(that.resourceName);
     }
 
     @Override
     public int hashCode() {
-        int result = mpBaseURI.hashCode();
+        int result = publicKeyEndpoint.hashCode();
         result = 31 * result + resourceName.hashCode();
         return result;
     }

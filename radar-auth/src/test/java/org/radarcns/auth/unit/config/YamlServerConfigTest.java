@@ -22,7 +22,7 @@ public class YamlServerConfigTest {
     @Test
     public void testLoadYamlFileFromClasspath() throws IOException {
         ServerConfig config = YamlServerConfig.readFromFileOrClasspath();
-        assertEquals("http://localhost:8089/oauth/token_key", config.getMpBaseURI().toString());
+        assertEquals("http://localhost:8089/oauth/token_key", config.getPublicKeyEndpoint().toString());
         assertEquals("unit_test", config.getResourceName());
     }
 
@@ -32,7 +32,7 @@ public class YamlServerConfigTest {
         File configFile = new File(loader.getResource(YamlServerConfig.CONFIG_FILE_NAME).getFile());
         environmentVariables.set(YamlServerConfig.LOCATION_ENV, configFile.getAbsolutePath());
         ServerConfig config = YamlServerConfig.readFromFileOrClasspath();
-        assertEquals("http://localhost:8089/oauth/token_key", config.getMpBaseURI().toString());
+        assertEquals("http://localhost:8089/oauth/token_key", config.getPublicKeyEndpoint().toString());
         assertEquals("unit_test", config.getResourceName());
     }
 }

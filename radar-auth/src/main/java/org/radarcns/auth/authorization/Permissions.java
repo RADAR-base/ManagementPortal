@@ -1,6 +1,7 @@
 package org.radarcns.auth.authorization;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -24,8 +25,12 @@ public class Permissions {
         initPermissions();
     }
 
-    Set<String> allowedAuthorities(Permission permission) {
+    public static Set<String> allowedAuthorities(Permission permission) {
         return PERMISSION_MATRIX.get(permission);
+    }
+
+    public static Map<Permission, Set<String>> getPermissionMatrix() {
+        return Collections.unmodifiableMap(PERMISSION_MATRIX);
     }
 
     private static void initPermissions() {
@@ -37,8 +42,11 @@ public class Permissions {
 
         // for all authorities except for SYS_ADMIN, the authority is scoped to a project, which
         // is checked elsewhere
-        // Project Admin - has all currently defined permissions
-        PERMISSION_MATRIX.values().forEach(s -> s.add(PROJECT_ADMIN));
+        // Project Admin - has all currently defined permissions except creating new projects
+        PERMISSION_MATRIX.entrySet().stream()
+            .filter(e -> !(e.getKey().getEntity() == Permission.ENTITY.PROJECT &&
+                    e.getKey().getOperation() == Permission.OPERATION.CREATE))
+            .forEach(e -> e.getValue().add(PROJECT_ADMIN));
 
         /* Project Owner */
         // CRUD operations on subjects to allow enrollment

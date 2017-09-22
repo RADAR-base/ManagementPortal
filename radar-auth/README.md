@@ -12,18 +12,14 @@ Configuration
 
 The library expects the identity server configuration in a file called `radar-is.yml`. Either set the environment variable `RADAR_IS_CONFIG_LOCATION` to the full path of the file, or put the file somewhere on the classpath. The file should define the following variables:
 
-| Variable name             | Description                                                                                                                                                                                                                                                                                 |
+| Variable name             | Description                                                                                                                                                                                                                                                                                             |
 |---------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| username                  | The OAuth client id for accessing the identity server.                                                                                                                                                                                                                                                  |
-| password                  | The OAuth client secret for accessing the identity server.                                                                                                                                                                                                                                              |
-| tokenValidationEndpoint   | The server's token validation endpoint. The expected response from this endpoint is a JSON structure containing at least the following fields: `aud`, `scope`, `authorities`, `user_name`, `exp` and `jti`                                                                                              |
-| publicKeyEndpoint         | Server endpoint that provides the public key of the keypair used to sign the JWTs. The expected response from this endpoint is a JSON structure containing two fields: `alg` and `value`, where `alg` should be equal to `SHA256withRSA`, and `value` should be equal to the public key in PEM format. |
+| `resourceName`            | The name of this resource. It has to appear in the `audience` claim of a JWT token in order for the token to be accepted.                                                                                                                                                                               |
+| `publicKeyEndpoint`       | Server endpoint that provides the public key of the keypair used to sign the JWTs. The expected response from this endpoint is a JSON structure containing two fields: `alg` and `value`, where `alg` should be equal to `SHA256withRSA`, and `value` should be equal to the public key in PEM format.  |
 
 For example:
 
 ```yaml
-username: test_username
-password: test_password
-tokenValidationEndpoint: http://localhost:8089/oauth/check_token
-publicKeyEndpoint: http://localhost:8089/oauth/token_key
+resourceName: resource_name
+publicKeyEndpoint: http://localhost:8080/oauth/token_key
 ```

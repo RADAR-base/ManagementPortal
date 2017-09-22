@@ -8,7 +8,7 @@ public interface ServerConfig {
      *
      * @return The Management Portal base URI
      */
-    URI getMpBaseURI();
+    URI getPublicKeyEndpoint();
 
     /**
      * The name of this resource. It should be in the list of allowed resources for the OAuth client

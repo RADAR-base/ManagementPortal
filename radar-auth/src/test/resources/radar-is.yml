@@ -1,2 +1,2 @@
-publicKeyEndpoint: http://localhost:8089/oauth/token_key
 resourceName: unit_test
+publicKeyEndpoint: http://localhost:8089/oauth/token_key

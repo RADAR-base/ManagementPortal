@@ -19,6 +19,7 @@ ext.jacksonVersion='2.8.5'
 
 repositories {
     jcenter()
+    mavenLocal()
     mavenCentral()
 }
 
@@ -42,6 +43,7 @@ dependencies {
 
     compile group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.1-m05'
     compile group: 'javax.annotation', name: 'javax.annotation-api', version: '1.2-b02'
+    compile group: 'org.radarcns', name: 'managementportal-client', version: '0.0.1-SNAPSHOT'
 
     implementation group: 'com.fasterxml.jackson.core' , name: 'jackson-databind' , version: jacksonVersion
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jacksonVersion

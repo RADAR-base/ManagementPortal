@@ -6,6 +6,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.radarcns.auth.annotation.Secured;
+import org.radarcns.auth.exception.TokenValidationException;
 import org.radarcns.auth.filter.AuthenticationFilter;
 import org.radarcns.auth.unit.util.TokenTestUtils;
 
@@ -66,6 +67,16 @@ public class AuthenticationFilterTest {
     }
 
     @Test
+    public void testValidateAccessToken() {
+        filter.validateAccessToken(TokenTestUtils.VALID_TOKEN);
+    }
+
+    @Test(expected = TokenValidationException.class)
+    public void testValidateAccessTokenForIncorrectAudience() {
+        filter.validateAccessToken(TokenTestUtils.INCORRECT_AUDIENCE_TOKEN);
+    }
+
+    @Test
     public void testCheckScopesEmpty() {
         List<String> allowed = new ArrayList<>();
         List<String> tokenScopes = Arrays.asList("scope1","scope2");
@@ -110,10 +121,10 @@ public class AuthenticationFilterTest {
             Arrays.asList(TokenTestUtils.ROLES));
 
         assertEquals(TokenTestUtils.USER, context.getUserPrincipal().getName());
-        for(String role : TokenTestUtils.ROLES) {
-            assertTrue(context.isUserInRole(role));
-        }
+        Arrays.stream(TokenTestUtils.ROLES)
+            .map(s -> s.split(":")[1])
+            .forEach(role -> assertTrue(context.isUserInRole(role)));
 
-        assertFalse(context.isUserInRole("NO_PROJECT:NO_ROLE"));
+        assertFalse(context.isUserInRole("NO_ROLE"));
     }
 }

@@ -188,7 +188,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
             }
 
             public boolean isSecure() {
-                return config.getMpBaseURI().getScheme().startsWith("https");
+                return config.getPublicKeyEndpoint().getScheme().startsWith("https");
             }
 
             public String getAuthenticationScheme() {
@@ -197,7 +197,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
         };
     }
 
-    private DecodedJWT validateAccessToken(String token) throws TokenValidationException {
+    public DecodedJWT validateAccessToken(String token) throws TokenValidationException {
         try {
             return verifier.verify(token);
         }
@@ -216,14 +216,16 @@ public class AuthenticationFilter implements ContainerRequestFilter {
     private void loadPublicKey() throws TokenValidationException {
         RSAPublicKey publicKey = publicKeyFromServer();
         Algorithm alg = Algorithm.RSA256(publicKey, null);
-        verifier = JWT.require(alg).build();
+        verifier = JWT.require(alg)
+            .withAudience(config.getResourceName())
+            .build();
     }
 
     private RSAPublicKey publicKeyFromServer() throws TokenValidationException {
-        log.debug("Getting the public key at " + config.getMpBaseURI());
+        log.debug("Getting the public key at " + config.getPublicKeyEndpoint());
 
         try {
-            URLConnection connection =  config.getMpBaseURI().toURL().openConnection();
+            URLConnection connection =  config.getPublicKeyEndpoint().toURL().openConnection();
             connection.setRequestProperty(HttpHeaders.ACCEPT, "application/json");
             try (InputStream inputStream = connection.getInputStream()) {
                 ObjectMapper mapper = new ObjectMapper();
