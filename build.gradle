@@ -1,5 +1,9 @@
 import groovy.json.JsonSlurper
 import org.gradle.internal.os.OperatingSystem
+import io.swagger.codegen.config.CodegenConfigurator
+import io.swagger.codegen.DefaultGenerator
+
+import java.nio.file.Paths
 
 buildscript {
     repositories {
@@ -17,6 +21,7 @@ buildscript {
         classpath "org.springframework.build.gradle:propdeps-plugin:0.0.7"
         classpath "com.moowork.gradle:gradle-node-plugin:1.1.1"
         classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
+        classpath "io.swagger:swagger-codegen:2.2.2"
         //jhipster-needle-gradle-buildscript-dependency - JHipster will add additional gradle build script plugins here
     }
 }
@@ -247,3 +252,73 @@ processResources.dependsOn cleanResources,bootBuildInfo
 bootBuildInfo.mustRunAfter cleanResources
 
 idea.module.downloadSources = true
+
+task generateOpenApiSpec(dependsOn: 'classes', group: 'Swagger',
+        description: 'Runs the application to fetch the OpenAPI spec from the Swagger endpoint') {
+    outputs.file(swaggerFileLocation)
+    doLast {
+        String java_home = System.getenv("JAVA_HOME")
+        String java = Paths.get(java_home, "bin", "java").toAbsolutePath()
+        ProcessBuilder pb = new ProcessBuilder(java, "-cp",
+            sourceSets.main.runtimeClasspath.getAsPath(), "org.radarcns.management.ManagementPortalApp")
+        pb.directory(projectDir)
+        File outFile = File.createTempFile("managementportalrun", ".out")
+        // the redirect seems to be necessary for the process to be able to start properly
+        pb.redirectOutput(outFile)
+        Process mp = pb.start()
+
+        // Create parent dir to swagger file
+        File swaggerFile = new File(swaggerFileLocation);
+        swaggerFile.getParentFile().mkdirs();
+
+        def generated = false
+        println("Waiting for application to start up")
+        try {
+            // try once every second to see if the application has started up
+            while (!generated) {
+                System.out.print("#")
+                System.out.flush()
+                ProcessBuilder curlPb = new ProcessBuilder("curl", apiDocsEndpoint, "-o",
+                    swaggerFileLocation, "--connect-timeout", "1")
+                curlPb.directory(projectDir)
+                Process curlProcess = curlPb.start()
+                curlProcess.waitFor()
+                generated = curlProcess.exitValue() == 0
+            }
+            println()
+            println("Swagger file generated at " + swaggerFileLocation)
+        }
+        finally {
+            // stop the managementportal process
+            mp.waitForOrKill(1)
+            outFile.delete()
+        }
+    }
+}
+
+task generateJavaClient(dependsOn: 'generateOpenApiSpec', group: 'Swagger',
+        description: 'Generate a Java client library for ManagementPortal') {
+    inputs.file(swaggerFileLocation)
+    outputs.dir(swaggerTargetFolder)
+    doLast {
+        // if gradle determined this task is out of date, first delete the directory
+        File targetFolder = new File(projectDir.absolutePath, swaggerTargetFolder)
+        if (targetFolder.exists()) {
+            targetFolder.deleteDir()
+        }
+        def config = new CodegenConfigurator()
+        config.setInputSpec(Paths.get(projectDir.absolutePath, swaggerFileLocation).toString())
+        config.setOutputDir(Paths.get(projectDir.absolutePath, swaggerTargetFolder).toString())
+        config.setLang("java")
+        config.setArtifactId("managementportal-client")
+        config.setGroupId("org.radarcns")
+        config.setArtifactVersion(version)
+        config.setAdditionalProperties([
+            'apiPackage'   : 'org.radarcns.management.client.api',
+            'modelPackage' : 'org.radarcns.management.client.model',
+
+        ])
+        new DefaultGenerator().opts(config.toClientOptInput()).generate()
+        println("Client generated at " + swaggerTargetFolder)
+    }
+}
