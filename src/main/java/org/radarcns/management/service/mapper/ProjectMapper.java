@@ -1,13 +1,14 @@
 package org.radarcns.management.service.mapper;
 
-import org.radarcns.management.domain.*;
+import org.mapstruct.DecoratedWith;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.service.dto.MinimalProjectDetailsDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
-
-import org.mapstruct.*;
-import java.util.List;
 import org.radarcns.management.service.mapper.decorator.ProjectMapperDecorator;
-import org.radarcns.management.service.mapper.decorator.SourceMapperDecorator;
+
+import java.util.List;
 
 /**
  * Mapper for the entity Project and its DTO ProjectDTO.

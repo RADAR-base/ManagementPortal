@@ -1,9 +1,13 @@
 package org.radarcns.management.security;
 
+import org.radarcns.management.domain.Subject;
+import org.radarcns.management.domain.User;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Optional;
 
 /**
  * Utility class for Spring Security.
@@ -64,5 +68,48 @@ public final class SecurityUtils {
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(authority));
         }
         return false;
+    }
+
+
+    /**
+     * Check if the given user has a project admin role in a given subject's project
+     * @param user The user
+     * @param subject The subject
+     * @return True if the user has a project admin role for the given subject, false otherwise.
+     *         Also returns false if user, subject, or both are <code>null</code>.
+     */
+    public static boolean isUserProjectAdminForSubject(User user, Subject subject) {
+        if (user == null || subject == null) {
+            return false;
+        }
+        Optional<String> subjectProject = subject.getUser().getRoles().stream()
+            .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PARTICIPANT))
+            .findFirst()
+            .map(r -> r.getProject().getProjectName());
+        if (!subjectProject.isPresent()) {
+            // there is no participant role for this subject
+            return false;
+        }
+        return user.getRoles().stream()
+            .anyMatch(r -> r.getProject().getProjectName().equals(subjectProject.get())
+                && r.getAuthority().getName().equals(AuthoritiesConstants.PROJECT_ADMIN));
+    }
+
+    /**
+     * Default permissions check if a user can modify a subject. The user can modify the subject if
+     * the user is the subject, or if the user is a SYS_ADMIN, or if the user is PROJECT_ADMIN for
+     * the subject's project
+     * @param user The user
+     * @param subject The subject
+     * @return true if the conditions are met, false otherwise. Also return false if user, subject
+     *  or both are <code>null</code>.
+     */
+    public static boolean canUserModifySubject(User user, Subject subject) {
+        if (user == null || subject == null) {
+            return false;
+        }
+        return subject.getUser().getId() == user.getId() ||
+            SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.SYS_ADMIN) ||
+            SecurityUtils.isUserProjectAdminForSubject(user, subject);
     }
 }

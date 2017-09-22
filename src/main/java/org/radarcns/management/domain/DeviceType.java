@@ -20,6 +20,8 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.radarcns.management.domain.enumeration.SourceType;
 
 /**
@@ -40,7 +42,7 @@ public class DeviceType implements Serializable {
     private String deviceProducer;
 
     @NotNull
-    @Column(name = "device_model", nullable = false)
+    @Column(name = "device_model", nullable = false )
     private String deviceModel;
 
     @NotNull
@@ -53,8 +55,8 @@ public class DeviceType implements Serializable {
     private SourceType sourceType;
 
     @NotNull
-    @Column(name = "has_dynamic_id" , nullable = false)
-    private Boolean hasDynamicId = false;
+    @Column(name = "dynamic_registration" , nullable = false)
+    private Boolean canRegisterDynamically = false;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -108,6 +110,11 @@ public class DeviceType implements Serializable {
 
     public void setDeviceVersion(String deviceVersion) {
         this.deviceVersion = deviceVersion;
+    }
+
+    public DeviceType deviceVersion(String deviceVersion) {
+        this.deviceVersion = deviceVersion;
+        return this;
     }
 
     public SourceType getSourceType() {
@@ -169,12 +176,12 @@ public class DeviceType implements Serializable {
         return this;
     }
 
-    public Boolean getHasDynamicId() {
-        return hasDynamicId;
+    public Boolean getCanRegisterDynamically() {
+        return canRegisterDynamically;
     }
 
-    public void setHasDynamicId(Boolean hasDynamicId) {
-        this.hasDynamicId = hasDynamicId;
+    public void setCanRegisterDynamically(Boolean canRegisterDynamically) {
+        this.canRegisterDynamically = canRegisterDynamically;
     }
 
     public void setProjects(Set<Project> projects) {

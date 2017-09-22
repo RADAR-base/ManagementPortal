@@ -1,5 +1,9 @@
 package org.radarcns.management.service;
 
+import java.util.HashMap;
+import java.util.Map;
+import org.radarcns.management.domain.DeviceType;
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.Subject;
@@ -9,13 +13,20 @@ import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
+import org.radarcns.management.service.dto.AttributeMapDTO;
+import org.radarcns.management.service.dto.MinimalProjectDetailsDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
+import org.radarcns.management.service.dto.SourceDTO;
+import org.radarcns.management.service.dto.SourceRegistrationDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
+import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
+import org.radarcns.management.web.rest.errors.CustomConflictException;
+import org.radarcns.management.web.rest.errors.CustomNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,7 +71,13 @@ public class SubjectService {
     private AuthorityRepository authorityRepository;
 
     @Autowired
+    private SourceService sourceService;
+
+    @Autowired
     private SourceRepository sourceRepository;
+
+    @Autowired
+    private SourceMapper sourceMapper;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -202,12 +220,85 @@ public class SubjectService {
     public SubjectDTO discontinueSubject(SubjectDTO subjectDTO) {
         Subject subject = subjectRepository.findOne(subjectDTO.getId());
         //reset all the sources assigned to a subject to unassigned
-        for(Source source : subject.getSources()) {
+        for (Source source : subject.getSources()) {
             source.setAssigned(false);
             sourceRepository.save(source);
         }
 
         subject.setRemoved(true);
         return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subject));
+    }
+
+    /**
+     * Creates and assigns a source of a for a dynamicallyRegister-able deviceType. Currently, it is
+     * allowed to create only once source of a dynamicallyRegistrable deviceType per subject.
+     * Otherwise finds the matching source and updates meta-data
+     */
+    @Transactional
+    public Source assignSource(Subject subject, DeviceType deviceType, Project project,
+        SourceRegistrationDTO sourceRegistrationDTO) {
+        Source assignedSource = null;
+
+        List<Source> sources = subjectRepository
+            .findSubjectSourcesBySourceType(subject.getUser().getLogin(),
+                deviceType.getDeviceProducer(),
+                deviceType.getDeviceModel(), deviceType.getDeviceVersion());
+        if (deviceType.getCanRegisterDynamically()) {
+
+            // create a source and register meta data
+
+            // we allow only one source of a device-type per subject
+            if (sources.isEmpty()) {
+                Source source1 = new Source();
+                source1.setProject(project);
+                source1.setAssigned(true);
+                source1.setDeviceType(deviceType);
+                for (AttributeMapDTO metaData : sourceRegistrationDTO.getMetaData()) {
+                    source1.getAttributes().put(metaData.getKey(), metaData.getValue());
+                }
+                try {
+                    sourceRepository.save(source1);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                assignedSource = source1;
+                subject.getSources().add(source1);
+            } else {
+                Map<String, String> errorParams = new HashMap<>();
+                errorParams
+                    .put("message", "A Source of DeviceType with the specified producer and model "
+                        + "already registered for subject login");
+                errorParams.put("producer", deviceType.getDeviceProducer());
+                errorParams.put("model", deviceType.getDeviceModel());
+                errorParams.put("subject-id", subject.getUser().getLogin());
+                throw new CustomConflictException("Conflict", errorParams);
+            }
+        } else {
+            // for manually registered devices only add meta-data
+            if (sources.isEmpty()) {
+                Map<String, String> errorParams = new HashMap<>();
+                errorParams.put("message",
+                    "Cannot find a Source of DeviceType with the specified producer and model "
+                        + "already registered for subject login");
+                errorParams.put("producer", deviceType.getDeviceProducer());
+                errorParams.put("model", deviceType.getDeviceModel());
+                errorParams.put("subject-id", subject.getUser().getLogin());
+                throw new CustomNotFoundException("Conflict", errorParams);
+            } else {
+                for (Source source : sources) {
+                    if (source.getDeviceType().getDeviceModel().concat(source.getSourceName())
+                        .contains(sourceRegistrationDTO.getExpectedSourceName())) {
+                        for (AttributeMapDTO metaData : sourceRegistrationDTO.getMetaData()) {
+                            source.getAttributes().put(metaData.getKey(), metaData.getValue());
+                        }
+                        sourceRepository.save(source);
+                        assignedSource = source;
+                        break; // assume one device
+                    }
+                }
+            }
+        }
+        subjectRepository.save(subject);
+        return assignedSource;
     }
 }

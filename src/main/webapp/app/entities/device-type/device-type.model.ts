@@ -13,7 +13,7 @@ export class DeviceType {
         public sourceType?: SourceType,
         public sensorDataId?: number,
         public projectId?: number,
-        public hasDynamicId?: number,
+        public canRegisterDynamically?: boolean,
     ) {
     }
 }

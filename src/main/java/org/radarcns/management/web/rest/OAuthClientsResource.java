@@ -76,26 +76,13 @@ public class OAuthClientsResource {
 
     @GetMapping("/oauthclients/:id")
     @Timed
-    public ResponseEntity<ClientDetailsDTO> getOAuthClientByClientId(
-        @PathVariable("id") String id) {
-
-        ClientDetails details;
-        try {
-            details = clientDetailsService.loadClientByClientId(id);
-            return ResponseEntity.ok().body(
-                clientDetailsMapper.clientDetailsToClientDetailsDTO(details));
-        }
-        catch (NoSuchClientException e) {
-            Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("message", "Client ID not found");
-            errorParams.put("clientId", id);
-            errorParams.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-            throw new CustomNotFoundException("Client ID not found", errorParams);
-        }
+    public ResponseEntity<ClientDetailsDTO> getOAuthClientById(@PathVariable("id") String id) {
+        return ResponseEntity.ok().body(
+            clientDetailsMapper.clientDetailsToClientDetailsDTO(getOAuthClient(id)));
     }
 
     /**
-     * GET /subjects/:id/pair_client
+     * GET /oauthclients/pair
      *
      * Generates OAuth2 refresh tokens for the given user, to be used to bootstrap the
      * authentication of client apps. This will generate a refresh token which can be used at the
@@ -128,30 +115,10 @@ public class OAuthClientsResource {
         }*/
 
         // lookup the OAuth client
-        ClientDetails details;
-        try {
-            details = clientDetailsService.loadClientByClientId(clientId);
-        }
-        catch (NoSuchClientException e) {
-            log.info("Pair client request for unknown client id: {}", clientId);
-            Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("message", "Client ID not found");
-            errorParams.put("clientId", clientId);
-            errorParams.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-            throw new CustomNotFoundException("Client ID not found", errorParams);
-        }
+        ClientDetails details = getOAuthClient(clientId);
 
         // lookup the subject
-        Subject subject = subjectRepository.findBySubjectLogin(login);
-
-        if (subject == null) {
-            log.info("Pair client request for unknown subject login: {}", login);
-            Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("message", "Subject ID not found");
-            errorParams.put("subjectLogin", login);
-            errorParams.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-            throw new CustomNotFoundException("Subject ID not found", errorParams);
-        }
+        Subject subject = getSubject(login);
         log.info("Pair client request for subject login: {}", login);
 
         // add the user's authorities
@@ -165,8 +132,7 @@ public class OAuthClientsResource {
         OAuth2AccessToken token = createToken(clientId, user.getLogin(), authorities,
             details.getScope(), details.getResourceIds());
 
-        ClientPairInfoDTO cpi = new ClientPairInfoDTO(token.getRefreshToken().getValue(),
-            user.getLogin());
+        ClientPairInfoDTO cpi = new ClientPairInfoDTO(token.getRefreshToken().getValue());
 
         return new ResponseEntity<>(cpi, HttpStatus.OK);
     }
@@ -192,5 +158,32 @@ public class OAuthClientsResource {
             authorizationServerEndpointsConfiguration.getEndpointsConfigurer().getTokenServices();
 
         return tokenServices.createAccessToken(auth);
+    }
+
+    private ClientDetails getOAuthClient(String clientId) throws CustomNotFoundException {
+        try {
+            return clientDetailsService.loadClientByClientId(clientId);
+        }
+        catch (NoSuchClientException e) {
+            log.info("Pair client request for unknown client id: {}", clientId);
+            Map<String, String> errorParams = new HashMap<>();
+            errorParams.put("message", "Client ID not found");
+            errorParams.put("clientId", clientId);
+            throw new CustomNotFoundException("Client ID not found", errorParams);
+        }
+    }
+
+    private Subject getSubject(String login) throws CustomNotFoundException {
+        Subject subject = subjectRepository.findBySubjectLogin(login);
+
+        if (subject == null) {
+            log.info("Pair client request for unknown subject login: {}", login);
+            Map<String, String> errorParams = new HashMap<>();
+            errorParams.put("message", "Subject ID not found");
+            errorParams.put("subjectLogin", login);
+            throw new CustomNotFoundException("Subject ID not found", errorParams);
+        }
+
+        return subject;
     }
 }
