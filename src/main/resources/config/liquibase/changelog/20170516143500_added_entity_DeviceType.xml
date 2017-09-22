@@ -38,7 +38,7 @@
                 <constraints nullable="false" />
             </column>
 
-            <column name="has_dynamic_id" type="boolean" valueBoolean="false">
+            <column name="dynamic_registration" type="boolean" valueBoolean="false">
                 <constraints nullable="false" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->

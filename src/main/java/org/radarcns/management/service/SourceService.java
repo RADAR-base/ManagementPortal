@@ -70,54 +70,9 @@ public class SourceService {
      */
     public SourceDTO save(SourceDTO sourceDTO) {
         log.debug("Request to save Source : {}", sourceDTO);
-        // make sure we update the correct entity if id is not specified but sourceName or sourceId
-        // is, by setting the id of the object we're going to save
-        if (sourceDTO.getSourceName() != null && sourceDTO.getId() == null) {
-            Optional<Source> sourceOptional = sourceRepository.findOneBySourceName(sourceDTO.getSourceName());
-            if (sourceOptional.isPresent()) {
-                sourceDTO.setId(sourceOptional.get().getId());
-            }
-        }
-        if (sourceDTO.getSourceId() != null && sourceDTO.getId() == null) {
-            Optional<Source> sourceOptional = sourceRepository.findOneBySourceId(sourceDTO.getSourceId());
-            if (sourceOptional.isPresent()) {
-                sourceDTO.setId(sourceOptional.get().getId());
-            }
-        }
         Source source = sourceMapper.sourceDTOToSource(sourceDTO);
-
-        // Find the full device type based on the supplied id
-        DeviceTypeDTO deviceTypeDTO = deviceTypeService.findOne(source.getDeviceType().getId());
-
-        // Find the full project based on the supplied id or supplied name
-        if (source.getProject() != null ) {
-            ProjectDTO project = null;
-            if (source.getProject().getId() != null) {
-                project = projectService.findOne(source.getProject().getId());
-            } else if (source.getProject().getProjectName() != null) {
-                project = projectService.findOneByName(source.getProject().getProjectName());
-            }
-            source.setProject(projectMapper.projectDTOToProject(project));
-        }
-        // generate defaults for source id and source name if they were not provided
-        UUID uuid = UUID.randomUUID();
-        if (source.getSourceName() == null) {
-            source.setSourceName(deviceTypeDTO.getDeviceModel()
-                + "-" + uuid.toString().substring(0,5));
-        }
-        if (source.getSourceId() == null) {
-            source.setSourceId(uuid);
-        }
-
-        // save the source
         source = sourceRepository.save(source);
-
-        // prepare the saved source to be returned to the client
-        SourceDTO result = sourceMapper.sourceToSourceDTO(source);
-
-        // add the full details of the deviceType to the response
-        result.setDeviceType(deviceTypeDTO);
-        return result;
+        return sourceMapper.sourceToSourceDTO(source);
     }
 
     /**
@@ -127,43 +82,6 @@ public class SourceService {
      */
     @Transactional(readOnly = true)
     public List<SourceDTO> findAll() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        List<String> currentUserAuthorities = authentication.getAuthorities().stream()
-//            .map(GrantedAuthority::getAuthority)
-//            .collect(Collectors.toList());
-//
-//        List<Source> sources = new LinkedList<>();
-//        if(currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN) ||
-//            currentUserAuthorities.contains(AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR)) {
-//            log.debug("Request to get all Sources");
-//            sources = sourceRepository.findAll();
-//        }
-//        else if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
-//            log.debug("Request to get Sources of admin's project ");
-//            String name = authentication.getName();
-//            Optional<UserDTO> user = userService.getUserWithAuthoritiesByLogin(name);
-//            if (user.isPresent()) {
-//                User currentUser = userMapper.userDTOToUser(user.get());
-//                List<Role> pAdminRoles = currentUser.getRoles().stream()
-//                    // get all roles that are a PROJECT_ADMIN role
-//                    .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PROJECT_ADMIN))
-//                    .collect(Collectors.toList());
-//                pAdminRoles.stream()
-//                    .forEach(r -> log.debug("Found PROJECT_ADMIN role for project with id {}",
-//                        r.getProject().getId()));
-//                sources.addAll(pAdminRoles.stream()
-//                    // map them into a list of sources for that project
-//                    .map(r -> sourceRepository.findAllSourcesByProjectId(r.getProject().getId()))
-//                    // we have a list of lists of sources, so flatten them into a single list
-//                    .flatMap(List::stream)
-//                    .collect(Collectors.toList()));
-//            }
-//            else {
-//                log.debug("Could find a user with name {}", name);
-//            }
-//        }
-//        log.debug("Request to get all Sources");
-//        List<SourceDTO> result = sources.stream()
         return sourceRepository.findAll()
             .stream()
             .map(sourceMapper::sourceToSourceDTO)

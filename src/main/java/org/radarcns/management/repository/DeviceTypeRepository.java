@@ -1,5 +1,6 @@
 package org.radarcns.management.repository;
 
+import java.util.Optional;
 import org.radarcns.management.domain.DeviceType;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,8 +24,8 @@ public interface DeviceTypeRepository extends JpaRepository<DeviceType,Long> {
     @Query("select deviceType from DeviceType deviceType left join fetch deviceType.sensorData "
         + "where deviceType.deviceProducer =:producer "
         + "and deviceType.deviceModel =:model "
-        + "and deviceType.deviceVersion = : version")
-    DeviceType findOneWithEagerRelationshipsByProducerAndModelAndVersion(
+        + "and deviceType.deviceVersion = :version")
+    Optional<DeviceType> findOneWithEagerRelationshipsByProducerAndModelAndVersion(
         @Param("producer") String producer, @Param("model") String model , @Param("version") String version);
 
     @Query("select deviceType from DeviceType deviceType left join fetch deviceType.sensorData "

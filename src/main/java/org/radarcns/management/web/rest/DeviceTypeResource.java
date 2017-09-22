@@ -2,6 +2,8 @@ package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
+import org.radarcns.management.domain.DeviceType;
+import org.radarcns.management.repository.DeviceTypeRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.DeviceTypeService;
 import org.radarcns.management.service.dto.DeviceTypeDTO;
@@ -9,6 +11,7 @@ import org.radarcns.management.web.rest.errors.CustomConflictException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -41,12 +44,11 @@ public class DeviceTypeResource {
 
     private static final String ENTITY_NAME = "deviceType";
 
-    private final DeviceTypeService deviceTypeService;
+    @Autowired
+    private DeviceTypeService deviceTypeService;
 
-    public DeviceTypeResource(DeviceTypeService deviceTypeService) {
-        this.deviceTypeService = deviceTypeService;
-    }
-
+    @Autowired
+    private DeviceTypeRepository deviceTypeRepository;
     /**
      * POST  /device-types : Create a new deviceType.
      *
@@ -62,15 +64,15 @@ public class DeviceTypeResource {
         if (deviceTypeDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new deviceType cannot already have an ID")).body(null);
         }
-        DeviceTypeDTO existing = deviceTypeService.findByProducerAndModelAndVersion(
-            deviceTypeDTO.getDeviceProducer(), deviceTypeDTO.getDeviceModel() , deviceTypeDTO.getDeviceVersion());
-        if (existing != null) {
+        Optional<DeviceType> existing = deviceTypeRepository
+            .findOneWithEagerRelationshipsByProducerAndModelAndVersion(deviceTypeDTO.getDeviceProducer(), deviceTypeDTO.getDeviceModel(), deviceTypeDTO.getDeviceVersion());
+        if (existing.isPresent()) {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "A DeviceType with the specified producer and model "
                 + "already exists. This combination needs to be unique.");
             errorParams.put("producer", deviceTypeDTO.getDeviceProducer());
             errorParams.put("model", deviceTypeDTO.getDeviceModel());
-            throw new CustomConflictException("Conflict", errorParams);
+            throw new CustomConflictException("deviceTypeAvailable", errorParams);
         }
         DeviceTypeDTO result = deviceTypeService.save(deviceTypeDTO);
         return ResponseEntity.created(new URI("/api/device-types/" + result.getId()))
@@ -91,15 +93,7 @@ public class DeviceTypeResource {
     @Timed
     public ResponseEntity<DeviceTypeDTO> updateDeviceType(@Valid @RequestBody DeviceTypeDTO deviceTypeDTO) throws URISyntaxException {
         log.debug("REST request to update DeviceType : {}", deviceTypeDTO);
-        // we will also allow updating with no id, but with producer and model specified
-        if (deviceTypeDTO.getDeviceProducer() != null && deviceTypeDTO.getDeviceModel()
-            != null && deviceTypeDTO.getDeviceVersion() !=null) {
-            DeviceTypeDTO existing = deviceTypeService.findByProducerAndModelAndVersion(
-                deviceTypeDTO.getDeviceProducer(), deviceTypeDTO.getDeviceModel(), deviceTypeDTO.getDeviceVersion());
-            if (existing != null) {
-                deviceTypeDTO.setId(existing.getId());
-            }
-        }
+
         if (deviceTypeDTO.getId() == null) {
             return createDeviceType(deviceTypeDTO);
         }

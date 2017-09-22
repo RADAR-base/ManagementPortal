@@ -2,15 +2,17 @@ package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
+import org.radarcns.management.domain.DeviceType;
+import org.radarcns.management.domain.Role;
+import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.Subject;
-import org.radarcns.management.domain.User;
+import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
-import org.radarcns.management.security.SecurityUtils;
-import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.SubjectService;
 import org.radarcns.management.service.dto.SourceDTO;
+import org.radarcns.management.service.dto.SourceRegistrationDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
@@ -18,8 +20,8 @@ import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -60,15 +62,13 @@ public class SubjectResource {
     private SubjectMapper subjectMapper;
 
     @Autowired
-    private SourceService sourceService;
-
-    @Autowired
     private SourceMapper sourceMapper;
 
     @Autowired
     private UserRepository userRepository;
 
-
+    @Autowired
+    private ProjectRepository projectRepository;
     /**
      * POST  /subjects : Create a new subject.
      *
@@ -244,40 +244,47 @@ public class SubjectResource {
      * If you need to assign existing sources, simply specify either of id, sourceId, or sourceName
      * in the source object.
      *
-     * @param sourceDTOS List of sources to assign
+     * @param sourceDTO List of sources to assign
      * @return The updated Subject information
      */
     @PostMapping("/subjects/{login}/sources")
     @Timed
     @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN,
-              AuthoritiesConstants.PARTICIPANT})
-    public ResponseEntity<List<SourceDTO>> assignSources(@PathVariable String login,
-            @RequestBody List<SourceDTO> sourceDTOS) {
+        AuthoritiesConstants.PARTICIPANT})
+    public ResponseEntity<SourceRegistrationDTO> assignSources(@PathVariable String login,
+        @RequestBody SourceRegistrationDTO sourceDTO) {
         // check the subject id
-        Subject subject = subjectRepository.findBySubjectLogin(login);
+        Subject subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         if (subject == null) {
             return ResponseUtil.wrapOrNotFound(Optional.empty(), HeaderUtil.createFailureAlert(
                 ENTITY_NAME, "notfound", "Subject with subject-id " + login +
-                " was not found."));
+                    " was not found."));
         }
 
-        // check the currently logged in user
-        Optional<User> currentUser = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin());
-        if (!currentUser.isPresent()) {
-            throw new AccessDeniedException("A logged in user is required to perform this operation.");
+        Role role =  subject.getUser().getRoles().stream().findFirst().get();
+        // find whether the relevant device-type is available in the subject's project
+        Optional<DeviceType> deviceType = projectRepository
+            .findDeviceTypeByProjectIdAndDeviceTypeProp(role.getProject().getId(),
+                sourceDTO.getDeviceTypeProducer(),
+                sourceDTO.getDeviceTypeModel(),
+                sourceDTO.getDeviceTypeVersion());
+        if (!deviceType.isPresent()) {
+            // return bad request
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(HeaderUtil
+                .createAlert("deviceTypeNotAvailable",
+                    "No device-type found for producer " + sourceDTO.getDeviceTypeProducer()
+                        + " , model " + sourceDTO.getDeviceTypeModel() + " and version " + sourceDTO
+                        .getDeviceTypeVersion()+" in relevant project")).body(null);
+
         }
 
-        if (!SecurityUtils.canUserModifySubject(currentUser.get(), subject)) {
-            throw new AccessDeniedException("You do not have sufficient privileges to perform this operation.");
-        }
+        // handle the source registration
+        Source source = subjectService.assignSource(subject, deviceType.get(), role.getProject(), sourceDTO);
 
-        SubjectDTO subjectDTO = subjectService.assignSourcesToSubject(subject, sourceDTOS);
-        List<SourceDTO> sources = subjectDTO.getSources().stream()
-            .map(sourceMapper::descriptiveDTOToSource)
-            .map(sourceMapper::sourceToSourceDTO)
-            .collect(Collectors.toList());
+        sourceDTO.setSourceId(source.getSourceId());
+        sourceDTO.setExpectedSourceName(source.getDeviceType().getDeviceModel().concat("_: "+source.getSourceName()));
         return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(
-            ENTITY_NAME, subject.getId().toString())).body(sources);
+            ENTITY_NAME, subject.getId().toString())).body(sourceDTO);
     }
 
     /**

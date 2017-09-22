@@ -17,9 +17,11 @@ import org.radarcns.management.web.rest.errors.ExceptionTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +53,9 @@ public class DeviceTypeResourceIntTest {
 
     private static final String DEFAULT_DEVICE_MODEL = "AAAAAAAAAA";
     private static final String UPDATED_DEVICE_MODEL = "BBBBBBBBBB";
+
+    private static final String DEFAULT_DEVICE_VERSION = "AAAAAAAAAA";
+    private static final String UPDATED_DEVICE_VERSION = "AAAAAAAAAA";
 
     private static final SourceType DEFAULT_SOURCE_TYPE = SourceType.ACTIVE;
     private static final SourceType UPDATED_SOURCE_TYPE = SourceType.PASSIVE;
@@ -86,7 +91,9 @@ public class DeviceTypeResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        DeviceTypeResource deviceTypeResource = new DeviceTypeResource(deviceTypeService);
+        DeviceTypeResource deviceTypeResource = new DeviceTypeResource();
+        ReflectionTestUtils.setField(deviceTypeResource, "deviceTypeService" , deviceTypeService);
+        ReflectionTestUtils.setField(deviceTypeResource, "deviceTypeRepository" , deviceTypeRepository);
         this.restDeviceTypeMockMvc = MockMvcBuilders.standaloneSetup(deviceTypeResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -103,6 +110,7 @@ public class DeviceTypeResourceIntTest {
         DeviceType deviceType = new DeviceType()
             .deviceProducer(DEFAULT_DEVICE_PRODUCER)
             .deviceModel(DEFAULT_DEVICE_MODEL)
+            .deviceVersion(DEFAULT_DEVICE_VERSION)
             .sourceType(DEFAULT_SOURCE_TYPE);
         return deviceType;
     }
@@ -131,6 +139,7 @@ public class DeviceTypeResourceIntTest {
         assertThat(testDeviceType.getDeviceProducer()).isEqualTo(DEFAULT_DEVICE_PRODUCER);
         assertThat(testDeviceType.getDeviceModel()).isEqualTo(DEFAULT_DEVICE_MODEL);
         assertThat(testDeviceType.getSourceType()).isEqualTo(DEFAULT_SOURCE_TYPE);
+        assertThat(testDeviceType.getDeviceVersion()).isEqualTo(DEFAULT_DEVICE_VERSION);
     }
 
     @Test
@@ -178,6 +187,25 @@ public class DeviceTypeResourceIntTest {
         int databaseSizeBeforeTest = deviceTypeRepository.findAll().size();
         // set the field null
         deviceType.setSourceType(null);
+
+        // Create the DeviceType, which fails.
+        DeviceTypeDTO deviceTypeDTO = deviceTypeMapper.deviceTypeToDeviceTypeDTO(deviceType);
+
+        restDeviceTypeMockMvc.perform(post("/api/device-types")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(deviceTypeDTO)))
+            .andExpect(status().isBadRequest());
+
+        List<DeviceType> deviceTypeList = deviceTypeRepository.findAll();
+        assertThat(deviceTypeList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    public void checkVersionIsRequired() throws Exception {
+        int databaseSizeBeforeTest = deviceTypeRepository.findAll().size();
+        // set the field null
+        deviceType.deviceVersion(null);
 
         // Create the DeviceType, which fails.
         DeviceTypeDTO deviceTypeDTO = deviceTypeMapper.deviceTypeToDeviceTypeDTO(deviceType);
@@ -326,20 +354,20 @@ public class DeviceTypeResourceIntTest {
         List<SensorData> sensorDataList = sensorDataRepository.findAll();
         assertThat(sensorDataList).hasSize(sensorsSizeBeforeUpdate + 1);
 
-        // Test doing a put with only producer and model, no id, does not create a new device
+        // Test doing a put with only producer and model, no id, does not create a new device-type
         // assert that the id is still unset
         assertThat(deviceTypeDTO.getId()).isNull();
         restDeviceTypeMockMvc.perform(put("/api/device-types")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(deviceTypeDTO)))
-            .andExpect(status().isOk());
+            .andExpect(status().is(HttpStatus.CONFLICT.value()));
 
         // Validate no change in database size
         deviceTypeList = deviceTypeRepository.findAll();
         assertThat(deviceTypeList).hasSize(databaseSizeBeforeUpdate + 1);
 
-        // Validate no change in sensordata database size
-        sensorDataList = sensorDataRepository.findAll();
-        assertThat(sensorDataList).hasSize(sensorsSizeBeforeUpdate + 1);
+//        // Validate no change in sensordata database size
+//        sensorDataList = sensorDataRepository.findAll();
+//        assertThat(sensorDataList).hasSize(sensorsSizeBeforeUpdate + 1);
     }
 }

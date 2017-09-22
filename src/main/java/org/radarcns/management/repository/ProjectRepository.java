@@ -1,7 +1,9 @@
 package org.radarcns.management.repository;
 
+import java.util.Optional;
 import org.radarcns.management.domain.DeviceType;
 import org.radarcns.management.domain.Project;
+import org.radarcns.management.domain.Source;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,5 +27,14 @@ public interface ProjectRepository extends JpaRepository<Project,Long> {
 
     @Query("select project.deviceTypes from Project project WHERE project.id = :id")
     List<DeviceType> findDeviceTypesByProjectId(@Param("id") Long id);
+
+    @Query("select distinct deviceType from Project project left join project.deviceTypes deviceType "
+        + "where project.id =:id "
+        + "and deviceType.deviceProducer = :producer "
+        + "and deviceType.deviceModel = :model "
+        + "and deviceType.deviceVersion =:version")
+    Optional<DeviceType> findDeviceTypeByProjectIdAndDeviceTypeProp(@Param("id") Long id,
+        @Param("producer") String producer, @Param("model") String model,
+        @Param("version") String version);
 
 }

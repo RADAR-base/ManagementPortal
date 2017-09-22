@@ -1,6 +1,7 @@
 package org.radarcns.management.service;
 
 import org.radarcns.management.domain.DeviceType;
+import org.radarcns.management.domain.SensorData;
 import org.radarcns.management.repository.DeviceTypeRepository;
 import org.radarcns.management.repository.SensorDataRepository;
 import org.radarcns.management.service.dto.DeviceTypeDTO;
@@ -42,6 +43,9 @@ public class DeviceTypeService {
     public DeviceTypeDTO save(DeviceTypeDTO deviceTypeDTO) {
         log.debug("Request to save DeviceType : {}", deviceTypeDTO);
         DeviceType deviceType = deviceTypeMapper.deviceTypeDTOToDeviceType(deviceTypeDTO);
+        for(SensorData data : deviceType.getSensorData()) {
+            sensorDataRepository.save(data);
+        }
         deviceType = deviceTypeRepository.save(deviceType);
         return deviceTypeMapper.deviceTypeToDeviceTypeDTO(deviceType);
     }
@@ -89,7 +93,7 @@ public class DeviceTypeService {
     public DeviceTypeDTO findByProducerAndModelAndVersion(String producer, String model , String version) {
         log.debug("Request to get DeviceType by producer and model: {}, {}", producer, model);
         DeviceType deviceType = deviceTypeRepository
-            .findOneWithEagerRelationshipsByProducerAndModelAndVersion(producer, model, version);
+            .findOneWithEagerRelationshipsByProducerAndModelAndVersion(producer, model, version).get();
         return deviceTypeMapper.deviceTypeToDeviceTypeDTO(deviceType);
     }
 

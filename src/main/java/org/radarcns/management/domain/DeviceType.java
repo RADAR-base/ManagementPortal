@@ -42,7 +42,7 @@ public class DeviceType implements Serializable {
     private String deviceProducer;
 
     @NotNull
-    @Column(name = "device_model", nullable = false)
+    @Column(name = "device_model", nullable = false )
     private String deviceModel;
 
     @NotNull
@@ -55,15 +55,14 @@ public class DeviceType implements Serializable {
     private SourceType sourceType;
 
     @NotNull
-    @Column(name = "has_dynamic_id" , nullable = false)
-    private Boolean hasDynamicId = false;
+    @Column(name = "dynamic_registration" , nullable = false)
+    private Boolean canRegisterDynamically = false;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JoinTable(name = "device_type_sensor_data",
                joinColumns = @JoinColumn(name="device_types_id", referencedColumnName="id"),
                inverseJoinColumns = @JoinColumn(name="sensor_data_id", referencedColumnName="id"))
-    @Cascade(CascadeType.SAVE_UPDATE)
     private Set<SensorData> sensorData = new HashSet<>();
 
     @ManyToMany(mappedBy = "deviceTypes")
@@ -111,6 +110,11 @@ public class DeviceType implements Serializable {
 
     public void setDeviceVersion(String deviceVersion) {
         this.deviceVersion = deviceVersion;
+    }
+
+    public DeviceType deviceVersion(String deviceVersion) {
+        this.deviceVersion = deviceVersion;
+        return this;
     }
 
     public SourceType getSourceType() {
@@ -172,12 +176,12 @@ public class DeviceType implements Serializable {
         return this;
     }
 
-    public Boolean getHasDynamicId() {
-        return hasDynamicId;
+    public Boolean getCanRegisterDynamically() {
+        return canRegisterDynamically;
     }
 
-    public void setHasDynamicId(Boolean hasDynamicId) {
-        this.hasDynamicId = hasDynamicId;
+    public void setCanRegisterDynamically(Boolean canRegisterDynamically) {
+        this.canRegisterDynamically = canRegisterDynamically;
     }
 
     public void setProjects(Set<Project> projects) {
