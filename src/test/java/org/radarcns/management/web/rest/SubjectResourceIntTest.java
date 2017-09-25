@@ -348,7 +348,7 @@ public class SubjectResourceIntTest {
         SourceRegistrationDTO sourceRegistrationDTO = new SourceRegistrationDTO();
         sourceRegistrationDTO.setDeviceTypeModel(deviceModel);
         sourceRegistrationDTO.setDeviceTypeProducer(deviceProducer);
-        sourceRegistrationDTO.setDeviceTypeVersion(deviceVersion);
+        sourceRegistrationDTO.setDeviceCatalogVersion(deviceVersion);
         sourceRegistrationDTO.getMetaData().add(metadata);
         assertThat(sourceRegistrationDTO.getSourceId()).isNull();
         // An entity with an existing ID cannot be created, so this API call must fail

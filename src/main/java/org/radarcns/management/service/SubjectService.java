@@ -14,12 +14,9 @@ import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.dto.AttributeMapDTO;
-import org.radarcns.management.service.dto.MinimalProjectDetailsDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
-import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.service.dto.SourceRegistrationDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
-import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
@@ -27,24 +24,19 @@ import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
+import org.radarcns.management.web.rest.errors.CustomParameterizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Created by nivethika on 26-5-17.
@@ -176,45 +168,7 @@ public class SubjectService {
 
 
     public List<SubjectDTO> findAll() {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        List<String> currentUserAuthorities = authentication.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.toList());
-
-        List<Subject> subjects = new LinkedList<>();
-        if(currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN) ||
-                currentUserAuthorities.contains(AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR)) {
-            log.debug("Request to get all subjects");
-            subjects = subjectRepository.findAllWithEagerRelationships();
-        }
-        else if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
-            log.debug("Request to get subjects of admin's project ");
-            String name = authentication.getName();
-            Optional<UserDTO> user = userService.getUserWithAuthoritiesByLogin(name);
-            if (user.isPresent()) {
-                User currentUser = userMapper.userDTOToUser(user.get());
-                List<Role> pAdminRoles = currentUser.getRoles().stream()
-                    // get all roles that are a PROJECT_ADMIN role
-                    .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PROJECT_ADMIN))
-                    .collect(Collectors.toList());
-                pAdminRoles.stream()
-                    .forEach(r -> log.debug("Found PROJECT_ADMIN role for project with id {}",
-                        r.getProject().getId()));
-                subjects.addAll(pAdminRoles.stream()
-                    // map them into a list of subjects for that project
-                    .map(r -> subjectRepository.findAllByProjectId(r.getProject().getId()))
-                    // we have a list of lists of subjects, so flatten them into a single list
-                    .flatMap(List::stream)
-                    .collect(Collectors.toList()));
-            }
-            else {
-                log.debug("Could find a user with name {}", name);
-            }
-            log.debug("Request to get Sources of admin's project ");
-//            subjects = subjectRepository.findAllByProjectId(currentUser.getProject().getId());
-        }
-        return subjectMapper.subjectsToSubjectDTOs(subjects);
+        return subjectMapper.subjectsToSubjectDTOs(subjectRepository.findAllWithEagerRelationships());
     }
 
     public SubjectDTO discontinueSubject(SubjectDTO subjectDTO) {
@@ -230,23 +184,47 @@ public class SubjectService {
     }
 
     /**
-     * Creates and assigns a source of a for a dynamicallyRegister-able deviceType. Currently, it is
+     * Creates or updates a source for a subject.It creates and assigns a source of a for a
+     * dynamicallyRegister-able deviceType. Currently, it is
      * allowed to create only once source of a dynamicallyRegistrable deviceType per subject.
      * Otherwise finds the matching source and updates meta-data
      */
     @Transactional
-    public Source assignSource(Subject subject, DeviceType deviceType, Project project,
+    public SourceRegistrationDTO assignOrUpdateSource(Subject subject, DeviceType deviceType, Project project,
         SourceRegistrationDTO sourceRegistrationDTO) {
         Source assignedSource = null;
 
         List<Source> sources = subjectRepository
             .findSubjectSourcesBySourceType(subject.getUser().getLogin(),
                 deviceType.getDeviceProducer(),
-                deviceType.getDeviceModel(), deviceType.getDeviceVersion());
-        if (deviceType.getCanRegisterDynamically()) {
+                deviceType.getDeviceModel(), deviceType.getCatalogVersion());
+
+        // update meta-data for existing sources
+        if(sourceRegistrationDTO.getSourceId()!=null) {
+            // for manually registered devices only add meta-data
+            Optional<Source> sourceToUpdate = subjectRepository.findSubjectSourcesBySourceId(subject.getUser().getLogin(), sourceRegistrationDTO.getSourceId());
+            if (sourceToUpdate.isPresent()) {
+                Source source = sourceToUpdate.get();
+                if(sourceRegistrationDTO.getSourceName()!=null) {
+                    source.setSourceName(sourceRegistrationDTO.getSourceName());
+                }
+                for(AttributeMapDTO metaData : sourceRegistrationDTO.getMetaData()) {
+                    source.getAttributes().put(metaData.getKey(), metaData.getValue());
+                }
+                sourceRepository.save(source);
+                assignedSource = source;
+            } else {
+                Map<String, String> errorParams = new HashMap<>();
+                errorParams.put("message",
+                    "Cannot find a Source of sourceId "
+                        + "already registered for subject login");
+                errorParams.put("sourceId", sourceRegistrationDTO.getSourceId().toString());
+                throw new CustomNotFoundException("Conflict", errorParams);
+            }
+        }
+        else if (deviceType.getCanRegisterDynamically()) {
 
             // create a source and register meta data
-
             // we allow only one source of a device-type per subject
             if (sources.isEmpty()) {
                 Source source1 = new Source();
@@ -256,10 +234,12 @@ public class SubjectService {
                 for (AttributeMapDTO metaData : sourceRegistrationDTO.getMetaData()) {
                     source1.getAttributes().put(metaData.getKey(), metaData.getValue());
                 }
-                try {
+
+                sourceRepository.save(source1);
+                // if source name is provided update source name
+                if(sourceRegistrationDTO.getSourceName() !=null ) {
+                    source1.setSourceName(sourceRegistrationDTO.getSourceName()+"_"+source1.getSourceName());
                     sourceRepository.save(source1);
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
                 assignedSource = source1;
                 subject.getSources().add(source1);
@@ -273,32 +253,32 @@ public class SubjectService {
                 errorParams.put("subject-id", subject.getUser().getLogin());
                 throw new CustomConflictException("Conflict", errorParams);
             }
-        } else {
-            // for manually registered devices only add meta-data
-            if (sources.isEmpty()) {
-                Map<String, String> errorParams = new HashMap<>();
-                errorParams.put("message",
-                    "Cannot find a Source of DeviceType with the specified producer and model "
-                        + "already registered for subject login");
-                errorParams.put("producer", deviceType.getDeviceProducer());
-                errorParams.put("model", deviceType.getDeviceModel());
-                errorParams.put("subject-id", subject.getUser().getLogin());
-                throw new CustomNotFoundException("Conflict", errorParams);
-            } else {
-                for (Source source : sources) {
-                    if (source.getDeviceType().getDeviceModel().concat(source.getSourceName())
-                        .contains(sourceRegistrationDTO.getExpectedSourceName())) {
-                        for (AttributeMapDTO metaData : sourceRegistrationDTO.getMetaData()) {
-                            source.getAttributes().put(metaData.getKey(), metaData.getValue());
-                        }
-                        sourceRepository.save(source);
-                        assignedSource = source;
-                        break; // assume one device
-                    }
-                }
-            }
+        }
+
+        if(assignedSource ==null) {
+            Map<String, String> errorParams = new HashMap<>();
+            errorParams
+                .put("message", "Cannot find assigned source with sourceId or a source of deviceType"
+                    + " with the specified producer and model "
+                    + " is already registered for subject login ");
+            errorParams.put("producer", deviceType.getDeviceProducer());
+            errorParams.put("model", deviceType.getDeviceModel());
+            errorParams.put("subject-id", subject.getUser().getLogin());
+            errorParams.put("sourceId", sourceRegistrationDTO.getSourceId().toString());
+            throw new CustomParameterizedException("InvalidRequest" , errorParams);
         }
         subjectRepository.save(subject);
-        return assignedSource;
+        return sourceMapper.sourceToSourceRegistrationDTO(assignedSource);
+    }
+
+    /**
+     * Gets all sources assigned to the subject identified by :login
+     * @param subject
+     * @return list of sources
+     */
+    public List<SourceRegistrationDTO> getSources(Subject subject) {
+        List<Source> sources = subjectRepository.findSourcesBySubjectLogin(subject.getUser().getLogin());
+
+        return sourceMapper.sourcesToSourceRegisterationDTOs(sources);
     }
 }

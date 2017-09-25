@@ -4,14 +4,12 @@ import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.radarcns.management.domain.DeviceType;
 import org.radarcns.management.domain.Role;
-import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.SubjectService;
-import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.service.dto.SourceRegistrationDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SourceMapper;
@@ -35,11 +33,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * REST controller for managing Subject.
@@ -69,33 +65,45 @@ public class SubjectResource {
 
     @Autowired
     private ProjectRepository projectRepository;
+
     /**
      * POST  /subjects : Create a new subject.
      *
      * @param subjectDTO the subjectDTO to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new subjectDTO, or with status 400 (Bad Request) if the subject has already an ID
+     * @return the ResponseEntity with status 201 (Created) and with body the new subjectDTO, or
+     * with status 400 (Bad Request) if the subject has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/subjects")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN , AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN,
+        AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
     public ResponseEntity<SubjectDTO> createSubject(@RequestBody SubjectDTO subjectDTO)
         throws URISyntaxException, IllegalAccessException {
         log.debug("REST request to save Subject : {}", subjectDTO);
         if (subjectDTO.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new subject cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil
+                .createFailureAlert(ENTITY_NAME, "idexists",
+                    "A new subject cannot already have an ID")).body(null);
         }
         if (subjectDTO.getLogin() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "loginrequired", "A subject login is required")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil
+                .createFailureAlert(ENTITY_NAME, "loginrequired", "A subject login is required"))
+                .body(null);
         }
         if (subjectDTO.getEmail() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "patientEmailRequired", "A subject email is required")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil
+                .createFailureAlert(ENTITY_NAME, "patientEmailRequired",
+                    "A subject email is required")).body(null);
         }
-        if (subjectDTO.getProject()==null || subjectDTO.getProject().getId() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "projectrequired", "A subject should be assigned to a project")).body(null);
+        if (subjectDTO.getProject() == null || subjectDTO.getProject().getId() == null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil
+                .createFailureAlert(ENTITY_NAME, "projectrequired",
+                    "A subject should be assigned to a project")).body(null);
         }
         if (subjectDTO.getExternalId() != null && !subjectDTO.getExternalId().isEmpty() &&
-            subjectRepository.findOneByProjectIdAndExternalId(subjectDTO.getProject().getId() , subjectDTO.getExternalId()).isPresent()) {
+            subjectRepository.findOneByProjectIdAndExternalId(subjectDTO.getProject().getId(),
+                subjectDTO.getExternalId()).isPresent()) {
             return ResponseEntity.badRequest().headers(HeaderUtil
                 .createFailureAlert(ENTITY_NAME, "subjectExists",
                     "A subject with given project-id and external-id already exists")).body(null);
@@ -111,14 +119,15 @@ public class SubjectResource {
      * PUT  /subjects : Updates an existing subject.
      *
      * @param subjectDTO the subjectDTO to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated subjectDTO,
-     * or with status 400 (Bad Request) if the subjectDTO is not valid,
-     * or with status 500 (Internal Server Error) if the subjectDTO couldnt be updated
+     * @return the ResponseEntity with status 200 (OK) and with body the updated subjectDTO, or with
+     * status 400 (Bad Request) if the subjectDTO is not valid, or with status 500 (Internal Server
+     * Error) if the subjectDTO couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/subjects")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN , AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN,
+        AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
     public ResponseEntity<SubjectDTO> updateSubject(@RequestBody SubjectDTO subjectDTO)
         throws URISyntaxException, IllegalAccessException {
         log.debug("REST request to update Subject : {}", subjectDTO);
@@ -126,11 +135,14 @@ public class SubjectResource {
             return createSubject(subjectDTO);
         }
 
-        if (subjectDTO.getProject()==null || subjectDTO.getProject().getId() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "projectrequired", "A subject should be assigned to a project")).body(null);
+        if (subjectDTO.getProject() == null || subjectDTO.getProject().getId() == null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil
+                .createFailureAlert(ENTITY_NAME, "projectrequired",
+                    "A subject should be assigned to a project")).body(null);
         }
         if (subjectDTO.getExternalId() != null && !subjectDTO.getExternalId().isEmpty() &&
-            subjectRepository.findOneByProjectIdAndExternalId(subjectDTO.getProject().getId() , subjectDTO.getExternalId()).isPresent()) {
+            subjectRepository.findOneByProjectIdAndExternalId(subjectDTO.getProject().getId(),
+                subjectDTO.getExternalId()).isPresent()) {
             return ResponseEntity.badRequest().headers(HeaderUtil
                 .createFailureAlert(ENTITY_NAME, "subjectExists",
                     "A subject with given project-id and external-id already exists")).body(null);
@@ -145,23 +157,27 @@ public class SubjectResource {
      * PUT  /subjects : Updates an existing subject.
      *
      * @param subjectDTO the subjectDTO to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated subjectDTO,
-     * or with status 400 (Bad Request) if the subjectDTO is not valid,
-     * or with status 500 (Internal Server Error) if the subjectDTO couldnt be updated
+     * @return the ResponseEntity with status 200 (OK) and with body the updated subjectDTO, or with
+     * status 400 (Bad Request) if the subjectDTO is not valid, or with status 500 (Internal Server
+     * Error) if the subjectDTO couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/subjects/discontinue")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN })
-    public ResponseEntity<SubjectDTO> discontinueSubject(@RequestBody SubjectDTO subjectDTO )
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
+    public ResponseEntity<SubjectDTO> discontinueSubject(@RequestBody SubjectDTO subjectDTO)
         throws URISyntaxException, IllegalAccessException {
         log.debug("REST request to update Subject : {}", subjectDTO);
         if (subjectDTO.getId() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "subjectNotAvailable", "No subject found")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil
+                .createFailureAlert(ENTITY_NAME, "subjectNotAvailable", "No subject found"))
+                .body(null);
         }
 
-        if (subjectDTO.getProject()==null || subjectDTO.getProject().getId() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "projectrequired", "A subject should be assigned to a project")).body(null);
+        if (subjectDTO.getProject() == null || subjectDTO.getProject().getId() == null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil
+                .createFailureAlert(ENTITY_NAME, "projectrequired",
+                    "A subject should be assigned to a project")).body(null);
         }
 
         SubjectDTO result = subjectService.discontinueSubject(subjectDTO);
@@ -178,23 +194,25 @@ public class SubjectResource {
      */
     @GetMapping("/subjects")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN , AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN,
+        AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(
-        @RequestParam(value = "projectId" , required = false) Long projectId,
-        @RequestParam(value = "externalId" , required = false) String externalId) {
-        log.debug("ProjectID {} and external {}" , projectId, externalId);
-        if(projectId!=null && externalId!=null) {
-            Subject subject = subjectRepository.findOneByProjectIdAndExternalId(projectId, externalId).get();
+        @RequestParam(value = "projectId", required = false) Long projectId,
+        @RequestParam(value = "externalId", required = false) String externalId) {
+        log.debug("ProjectID {} and external {}", projectId, externalId);
+        if (projectId != null && externalId != null) {
+            Subject subject = subjectRepository
+                .findOneByProjectIdAndExternalId(projectId, externalId).get();
             SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
             return ResponseUtil.wrapOrNotFound(Optional.of(Collections.singletonList(subjectDTO)));
-        }
-        else if (projectId==null && externalId!=null) {
+        } else if (projectId == null && externalId != null) {
             List<Subject> subjects = subjectRepository.findAllByExternalId(externalId);
-            return ResponseUtil.wrapOrNotFound(Optional.of(subjectMapper.subjectsToSubjectDTOs(subjects)));
-        }
-        else if( projectId!=null) {
+            return ResponseUtil
+                .wrapOrNotFound(Optional.of(subjectMapper.subjectsToSubjectDTOs(subjects)));
+        } else if (projectId != null) {
             List<Subject> subjects = subjectRepository.findAllByProjectId(projectId);
-            return ResponseUtil.wrapOrNotFound(Optional.of(subjectMapper.subjectsToSubjectDTOs(subjects)));
+            return ResponseUtil
+                .wrapOrNotFound(Optional.of(subjectMapper.subjectsToSubjectDTOs(subjects)));
         }
         log.debug("REST request to get all Subjects");
         return ResponseEntity.ok(subjectService.findAll());
@@ -204,7 +222,8 @@ public class SubjectResource {
      * GET  /subjects/:id : get the "id" subject.
      *
      * @param id the id of the subjectDTO to retrieve
-     * @return the ResponseEntity with status 200 (OK) and with body the subjectDTO, or with status 404 (Not Found)
+     * @return the ResponseEntity with status 200 (OK) and with body the subjectDTO, or with status
+     * 404 (Not Found)
      */
     @GetMapping("/subjects/{id}")
     @Timed
@@ -226,15 +245,15 @@ public class SubjectResource {
     public ResponseEntity<Void> deleteSubject(@PathVariable Long id) {
         log.debug("REST request to delete Subject : {}", id);
         subjectRepository.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 
     /**
      * POST  /subjects/:login/sources: Assign a list of sources to the currently logged in user
      *
-     * The request body should contain a list of sources to be assigned to the currently logged in
-     * user. If the currently authenticated user is not a subject, or not a user
-     * (e.g. client_credentials), an AccessDeniedException will be thrown. At minimum, each source
+     * The request body should contain a source-meta-data to be assigned to the a subject.
+     * At minimum, each source
      * should define it's device type, like so: <code>[{"deviceType": { "id": 3 }}]</code>. A
      * source name and source ID will be automatically generated. The source ID will be a new random
      * UUID, and the source name will be the device model, appended with a dash and the first six
@@ -261,48 +280,47 @@ public class SubjectResource {
                     " was not found."));
         }
 
-        Role role =  subject.getUser().getRoles().stream().findFirst().get();
+        Role role = subject.getUser().getRoles().stream().findFirst().get();
         // find whether the relevant device-type is available in the subject's project
         Optional<DeviceType> deviceType = projectRepository
             .findDeviceTypeByProjectIdAndDeviceTypeProp(role.getProject().getId(),
                 sourceDTO.getDeviceTypeProducer(),
                 sourceDTO.getDeviceTypeModel(),
-                sourceDTO.getDeviceTypeVersion());
+                sourceDTO.getDeviceCatalogVersion());
         if (!deviceType.isPresent()) {
             // return bad request
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(HeaderUtil
                 .createAlert("deviceTypeNotAvailable",
                     "No device-type found for producer " + sourceDTO.getDeviceTypeProducer()
                         + " , model " + sourceDTO.getDeviceTypeModel() + " and version " + sourceDTO
-                        .getDeviceTypeVersion()+" in relevant project")).body(null);
+                        .getDeviceCatalogVersion() + " in relevant project")).body(null);
 
         }
 
         // handle the source registration
-        Source source = subjectService.assignSource(subject, deviceType.get(), role.getProject(), sourceDTO);
+        SourceRegistrationDTO sourceRegistered = subjectService
+            .assignOrUpdateSource(subject, deviceType.get(), role.getProject(), sourceDTO);
 
-        sourceDTO.setSourceId(source.getSourceId());
-        sourceDTO.setExpectedSourceName(source.getDeviceType().getDeviceModel().concat("_: "+source.getSourceName()));
         return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(
-            ENTITY_NAME, subject.getId().toString())).body(sourceDTO);
+            ENTITY_NAME, subject.getId().toString())).body(sourceRegistered);
     }
 
-    /**
-     * GET   /subjects/:id/sources: Get the sources of the currently logged in user.
-     *
-     * @return The list of sources assigned to the currently logged in user
-     */
-    @GetMapping("/subjects/{id}/sources")
+    @GetMapping("/subjects/{login}/sources")
     @Timed
-    public ResponseEntity<List<SourceDTO>> getSources(@PathVariable Long id) {
-
-        Subject subject = subjectRepository.findOneWithEagerRelationships(id);
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN,
+        AuthoritiesConstants.PARTICIPANT})
+    public ResponseEntity<List<SourceRegistrationDTO>> getSubjectSources(
+        @PathVariable String login) {
+        // check the subject id
+        Subject subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         if (subject == null) {
             return ResponseUtil.wrapOrNotFound(Optional.empty(), HeaderUtil.createFailureAlert(
-                ENTITY_NAME, "notfound", "Subject with id " + id.toString() +
+                ENTITY_NAME, "notfound", "Subject with subject-id " + login +
                     " was not found."));
         }
-        List<SourceDTO> result = sourceMapper.sourcesToSourceDTOs(new ArrayList<>(subject.getSources()));
-        return ResponseEntity.ok(result);
+
+        // handle the source registration
+        List<SourceRegistrationDTO> sources = subjectService.getSources(subject);
+        return ResponseEntity.ok().body(sources);
     }
 }

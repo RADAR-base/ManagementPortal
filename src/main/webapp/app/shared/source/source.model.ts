@@ -5,6 +5,7 @@ export class Source {
         public id?: number,
         public sourceId?: string,
         public sourceName?: string,
+        public expectedSourceName?: string,
         public deviceCategory?: string,
         public assigned?: boolean,
         public deviceType?: DeviceType,

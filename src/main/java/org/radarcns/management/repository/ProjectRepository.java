@@ -32,7 +32,7 @@ public interface ProjectRepository extends JpaRepository<Project,Long> {
         + "where project.id =:id "
         + "and deviceType.deviceProducer = :producer "
         + "and deviceType.deviceModel = :model "
-        + "and deviceType.deviceVersion =:version")
+        + "and deviceType.catalogVersion =:version")
     Optional<DeviceType> findDeviceTypeByProjectIdAndDeviceTypeProp(@Param("id") Long id,
         @Param("producer") String producer, @Param("model") String model,
         @Param("version") String version);

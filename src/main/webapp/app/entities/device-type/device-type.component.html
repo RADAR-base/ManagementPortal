@@ -31,7 +31,7 @@
                 <td><a [routerLink]="['../device-type', deviceType.id ]">{{deviceType.id}}</a></td>
                 <td>{{deviceType.deviceProducer}}</td>
                 <td>{{deviceType.deviceModel}}</td>
-                <td>{{deviceType.deviceVersion}}</td>
+                <td>{{deviceType.catalogVersion}}</td>
                 <td>
                     <span class="badge badge-info" *ngIf="!deviceType.canRegisterDynamically"
                           jhiTranslate="managementPortalApp.deviceType.manualRegistration">Static Identifiers</span>

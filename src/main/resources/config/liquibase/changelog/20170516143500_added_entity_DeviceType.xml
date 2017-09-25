@@ -30,7 +30,7 @@
                 <constraints nullable="false" />
             </column>
 
-            <column name="device_version" type="varchar(255)">
+            <column name="catalog_version" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
 
@@ -60,7 +60,7 @@
                      unique="true">
             <column name="device_producer" type="varchar(255)"/>
             <column name="device_model" type="varchar(255)"/>
-            <column name="device_version" type="varchar(255)"/>
+            <column name="catalog_version" type="varchar(255)"/>
         </createIndex>
     </changeSet>
 </databaseChangeLog>

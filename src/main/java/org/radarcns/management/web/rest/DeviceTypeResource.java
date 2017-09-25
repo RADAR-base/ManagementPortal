@@ -65,7 +65,7 @@ public class DeviceTypeResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new deviceType cannot already have an ID")).body(null);
         }
         Optional<DeviceType> existing = deviceTypeRepository
-            .findOneWithEagerRelationshipsByProducerAndModelAndVersion(deviceTypeDTO.getDeviceProducer(), deviceTypeDTO.getDeviceModel(), deviceTypeDTO.getDeviceVersion());
+            .findOneWithEagerRelationshipsByProducerAndModelAndVersion(deviceTypeDTO.getDeviceProducer(), deviceTypeDTO.getDeviceModel(), deviceTypeDTO.getCatalogVersion());
         if (existing.isPresent()) {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "A DeviceType with the specified producer and model "

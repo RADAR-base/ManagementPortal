@@ -139,7 +139,7 @@ public class DeviceTypeResourceIntTest {
         assertThat(testDeviceType.getDeviceProducer()).isEqualTo(DEFAULT_DEVICE_PRODUCER);
         assertThat(testDeviceType.getDeviceModel()).isEqualTo(DEFAULT_DEVICE_MODEL);
         assertThat(testDeviceType.getSourceType()).isEqualTo(DEFAULT_SOURCE_TYPE);
-        assertThat(testDeviceType.getDeviceVersion()).isEqualTo(DEFAULT_DEVICE_VERSION);
+        assertThat(testDeviceType.getCatalogVersion()).isEqualTo(DEFAULT_DEVICE_VERSION);
     }
 
     @Test

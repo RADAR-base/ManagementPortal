@@ -29,8 +29,8 @@
             <tr>
             <th><span jhiTranslate="global.field.id">ID</span></th>
             <th><span jhiTranslate="managementPortalApp.source.sourceName">Source Name</span></th>
+            <th><span jhiTranslate="managementPortalApp.source.expectedSourceName">Expected Source Name</span></th>
             <th><span jhiTranslate="managementPortalApp.source.sourceId">Source Id</span></th>
-            <th><span jhiTranslate="managementPortalApp.source.deviceCategory">Device Category</span></th>
             <th><span jhiTranslate="managementPortalApp.source.assigned">Assigned</span></th>
             <th><span jhiTranslate="managementPortalApp.source.deviceType">Device Type</span></th>
             <th *ngIf="!isProjectSpecific"><span jhiTranslate="managementPortalApp.source.project">Project</span></th>
@@ -41,8 +41,8 @@
             <tr *ngFor="let source of sources ;trackBy: trackId">
                 <td><a [routerLink]="['../source', source.id ]">{{source.id}}</a></td>
                 <td>{{source.sourceName}}</td>
+                <td>{{source.expectedSourceName}}</td>
                 <td>{{source.sourceId}}</td>
-                <td>{{source.deviceCategory}}</td>
                 <td>
                     <span class="badge badge-danger" *ngIf="!source.assigned"
                           jhiTranslate="managementPortalApp.source.unassigned">Unassigned</span>

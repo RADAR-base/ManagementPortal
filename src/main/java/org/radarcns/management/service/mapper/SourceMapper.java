@@ -6,6 +6,7 @@ import org.radarcns.management.service.dto.SourceDTO;
 
 import org.mapstruct.*;
 import java.util.List;
+import org.radarcns.management.service.dto.SourceRegistrationDTO;
 import org.radarcns.management.service.mapper.decorator.SourceMapperDecorator;
 
 /**
@@ -29,6 +30,17 @@ public interface SourceMapper {
     List<Source> descriptiveDTOsToSources(List<MinimalSourceDetailsDTO> minimalSourceDetailsDTOS);
 
     List<SourceDTO> sourcesToSourceDTOs(List<Source> sources);
+
+    List<SourceRegistrationDTO> sourcesToSourceRegisterationDTOs(List<Source> sources);
+
+    @Mapping(source = "sourceId" , target = "sourceId")
+    @Mapping(source = "expectedSourceName" , target = "expectedSourceName")
+    @Mapping(source = "deviceType.deviceModel" , target = "deviceTypeModel")
+    @Mapping(source = "deviceType.deviceProducer" , target = "deviceTypeProducer")
+    @Mapping(source = "deviceType.catalogVersion" , target = "deviceCatalogVersion")
+    @Mapping(source = "project.id" , target = "projectId")
+    @Mapping(source = "assigned" , target = "assigned")
+    SourceRegistrationDTO sourceToSourceRegistrationDTO(Source source);
 
 //    @Mapping(source = "deviceTypeId", target = "deviceType")
 //    @Mapping(source = "project", target = "project")

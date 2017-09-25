@@ -24,7 +24,7 @@ public interface DeviceTypeRepository extends JpaRepository<DeviceType,Long> {
     @Query("select deviceType from DeviceType deviceType left join fetch deviceType.sensorData "
         + "where deviceType.deviceProducer =:producer "
         + "and deviceType.deviceModel =:model "
-        + "and deviceType.deviceVersion = :version")
+        + "and deviceType.catalogVersion = :version")
     Optional<DeviceType> findOneWithEagerRelationshipsByProducerAndModelAndVersion(
         @Param("producer") String producer, @Param("model") String model , @Param("version") String version);
 

@@ -13,11 +13,17 @@ public class SourceRegistrationDTO {
 
     private String expectedSourceName ;
 
+    private String sourceName;
+
     private String deviceTypeModel;
 
     private String deviceTypeProducer;
 
-    private String deviceTypeVersion;
+    private String deviceCatalogVersion;
+
+    private Long projectId;
+
+    private boolean assigned;
 
     private Set<AttributeMapDTO> metaData = new HashSet<>();
 
@@ -45,12 +51,12 @@ public class SourceRegistrationDTO {
         this.deviceTypeProducer = deviceTypeProducer;
     }
 
-    public String getDeviceTypeVersion() {
-        return deviceTypeVersion;
+    public String getDeviceCatalogVersion() {
+        return deviceCatalogVersion;
     }
 
-    public void setDeviceTypeVersion(String deviceTypeVersion) {
-        this.deviceTypeVersion = deviceTypeVersion;
+    public void setDeviceCatalogVersion(String deviceCatalogVersion) {
+        this.deviceCatalogVersion = deviceCatalogVersion;
     }
 
     public String getExpectedSourceName() {
@@ -67,5 +73,29 @@ public class SourceRegistrationDTO {
 
     public void setMetaData(Set<AttributeMapDTO> metaData) {
         this.metaData = metaData;
+    }
+
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
+    }
+
+    public boolean isAssigned() {
+        return assigned;
+    }
+
+    public void setAssigned(boolean assigned) {
+        this.assigned = assigned;
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
     }
 }

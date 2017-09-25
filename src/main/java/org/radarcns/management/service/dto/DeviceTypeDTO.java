@@ -22,7 +22,7 @@ public class DeviceTypeDTO implements Serializable {
     private String deviceModel;
 
     @NotNull
-    private String deviceVersion;
+    private String catalogVersion;
 
     @NotNull
     private SourceType sourceType;
@@ -50,12 +50,12 @@ public class DeviceTypeDTO implements Serializable {
         return deviceModel;
     }
 
-    public String getDeviceVersion() {
-        return deviceVersion;
+    public String getCatalogVersion() {
+        return catalogVersion;
     }
 
-    public void setDeviceVersion(String deviceVersion) {
-        this.deviceVersion = deviceVersion;
+    public void setCatalogVersion(String catalogVersion) {
+        this.catalogVersion = catalogVersion;
     }
 
     public void setDeviceModel(String deviceModel) {
@@ -112,6 +112,7 @@ public class DeviceTypeDTO implements Serializable {
             "id=" + id +
             ", deviceProducer='" + deviceProducer + "'" +
             ", deviceModel='" + deviceModel + "'" +
+            ", catalogVersion='" + catalogVersion + "'" +
             ", sourceType='" + sourceType + "'" +
             ", canRegisterDynamically='" + canRegisterDynamically + "'" +
             '}';
