@@ -210,9 +210,11 @@ public class DeviceType implements Serializable {
     public String toString() {
         return "DeviceType{" +
             "id=" + id +
-            ", deviceProducer='" + deviceProducer + "'" +
-            ", deviceModel='" + deviceModel + "'" +
-            ", sourceType='" + sourceType + "'" +
+            ", deviceProducer='" + deviceProducer + '\'' +
+            ", deviceModel='" + deviceModel + '\'' +
+            ", catalogVersion='" + catalogVersion + '\'' +
+            ", sourceType=" + sourceType +
+            ", canRegisterDynamically=" + canRegisterDynamically +
             '}';
     }
 }

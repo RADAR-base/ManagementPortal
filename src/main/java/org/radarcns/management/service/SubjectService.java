@@ -1,7 +1,5 @@
 package org.radarcns.management.service;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.radarcns.management.domain.DeviceType;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
@@ -33,10 +31,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by nivethika on 26-5-17.
@@ -89,7 +90,7 @@ public class SubjectService {
         Subject subject = subjectMapper.subjectDTOToSubject(subjectDTO);
         //assign roles
         User user = subject.getUser();
-        user.setRoles(getProjectParticipantRole(subjectDTO.getProject()));
+        user.setRoles(Collections.singleton(getProjectParticipantRole(subjectDTO.getProject())));
 
         // set password and reset keys
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
@@ -119,24 +120,21 @@ public class SubjectService {
      * @param projectDTO project subject is assigned to
      * @return relevant Participant role
      */
-    private Set<Role> getProjectParticipantRole(ProjectDTO projectDTO) {
-
-        Set<Role> roles = new HashSet<>();
+    private Role getProjectParticipantRole(ProjectDTO projectDTO) {
 
         Role role = roleRepository
             .findOneByAuthorityNameAndProjectId(AuthoritiesConstants.PARTICIPANT,
                 projectDTO.getId());
         if (role != null) {
-            roles.add(role);
+            return role;
         } else {
             Role subjectRole = new Role();
             subjectRole.setAuthority(
                 authorityRepository.findByAuthorityName(AuthoritiesConstants.PARTICIPANT));
             subjectRole.setProject(projectMapper.projectDTOToProject(projectDTO));
             roleRepository.save(subjectRole);
-            roles.add(subjectRole);
+            return subjectRole;
         }
-        return roles;
     }
 
 
@@ -157,10 +155,12 @@ public class SubjectService {
         for(Source source : subject.getSources()) {
             source.setAssigned(true);
         }
-        // update role
-        Set<Role> managedRoles = subject.getUser().getRoles();
-        managedRoles.clear();
-        managedRoles.addAll(getProjectParticipantRole(subjectDTO.getProject()));
+        // update participant role
+        Set<Role> managedRoles = subject.getUser().getRoles().stream()
+            .filter(r -> !r.getAuthority().equals(AuthoritiesConstants.PARTICIPANT))
+            .collect(Collectors.toSet());
+        managedRoles.add(getProjectParticipantRole(subjectDTO.getProject()));
+        subject.getUser().setRoles(managedRoles);
         subject = subjectRepository.save(subject);
 
         return subjectMapper.subjectToSubjectDTO(subject);
@@ -214,6 +214,8 @@ public class SubjectService {
                 sourceRepository.save(source);
                 assignedSource = source;
             } else {
+                log.error("Cannot find a Source of sourceId "
+                    + "already registered for subject login");
                 Map<String, String> errorParams = new HashMap<>();
                 errorParams.put("message",
                     "Cannot find a Source of sourceId "
@@ -223,7 +225,6 @@ public class SubjectService {
             }
         }
         else if (deviceType.getCanRegisterDynamically()) {
-
             // create a source and register meta data
             // we allow only one source of a device-type per subject
             if (sources.isEmpty()) {
@@ -235,15 +236,17 @@ public class SubjectService {
                     source1.getAttributes().put(metaData.getKey(), metaData.getValue());
                 }
 
-                sourceRepository.save(source1);
+                source1 = sourceRepository.save(source1);
                 // if source name is provided update source name
                 if(sourceRegistrationDTO.getSourceName() !=null ) {
                     source1.setSourceName(sourceRegistrationDTO.getSourceName()+"_"+source1.getSourceName());
-                    sourceRepository.save(source1);
+                    source1 = sourceRepository.save(source1);
                 }
                 assignedSource = source1;
                 subject.getSources().add(source1);
             } else {
+                log.error("A Source of DeviceType with the specified producer and model "
+                    + "already registered for subject login");
                 Map<String, String> errorParams = new HashMap<>();
                 errorParams
                     .put("message", "A Source of DeviceType with the specified producer and model "
@@ -256,6 +259,9 @@ public class SubjectService {
         }
 
         if(assignedSource ==null) {
+            log.error("Cannot find assigned source with sourceId or a source of deviceType"
+                + " with the specified producer and model "
+                + " is already registered for subject login ");
             Map<String, String> errorParams = new HashMap<>();
             errorParams
                 .put("message", "Cannot find assigned source with sourceId or a source of deviceType"
