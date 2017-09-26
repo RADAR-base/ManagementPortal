@@ -284,7 +284,6 @@ public class SubjectResource {
                     " is not assigned to any project. Could not find project for this subject."));
         }
         Role role = roleOptional.get();
-        log.info("Subject is in project {}", role.getProject().getProjectName());
         // find whether the relevant device-type is available in the subject's project
         Optional<DeviceType> deviceType = projectRepository
             .findDeviceTypeByProjectIdAndDeviceTypeProp(role.getProject().getId(),

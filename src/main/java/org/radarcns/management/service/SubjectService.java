@@ -90,7 +90,7 @@ public class SubjectService {
         Subject subject = subjectMapper.subjectDTOToSubject(subjectDTO);
         //assign roles
         User user = subject.getUser();
-        user.setRoles(Collections.singleton(getProjectParticipantRole(subjectDTO.getProject())));
+        user.getRoles().add(getProjectParticipantRole(subjectDTO.getProject()));
 
         // set password and reset keys
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());

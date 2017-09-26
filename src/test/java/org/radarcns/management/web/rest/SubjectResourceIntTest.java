@@ -8,8 +8,6 @@ import org.radarcns.management.ManagementPortalApp;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.DeviceTypeRepository;
 import org.radarcns.management.repository.ProjectRepository;
-import org.radarcns.management.repository.RoleRepository;
-import org.radarcns.management.repository.SensorDataRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.service.DeviceTypeService;
 import org.radarcns.management.service.SubjectService;
@@ -17,7 +15,6 @@ import org.radarcns.management.service.dto.AttributeMapDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SourceRegistrationDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
-import org.radarcns.management.service.mapper.DeviceTypeMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,9 +79,6 @@ public class SubjectResourceIntTest {
     private SubjectService subjectService;
 
     @Autowired
-    private SensorDataRepository sensorDataRepository;
-
-    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -100,16 +94,10 @@ public class SubjectResourceIntTest {
     private DeviceTypeRepository deviceTypeRepository;
 
     @Autowired
-    private DeviceTypeMapper deviceTypeMapper;
-
-    @Autowired
     private DeviceTypeService deviceTypeService;
 
     @Autowired
     private ProjectRepository projectRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
 
     private MockMvc restSubjectMockMvc;
 
