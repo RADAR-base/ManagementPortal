@@ -8,8 +8,6 @@ import org.radarcns.auth.authorization.Permission;
 import org.radarcns.auth.authorization.Permissions;
 import org.radarcns.auth.authorization.RadarAuthorization;
 import org.radarcns.auth.unit.util.TokenTestUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,8 +19,6 @@ import static org.junit.Assert.assertTrue;
  * Created by dverbeec on 25/09/2017.
  */
 public class RadarAuthorizationTest {
-
-    private static Logger log = LoggerFactory.getLogger(RadarAuthorizationTest.class);
 
     @BeforeClass
     public static void loadToken() throws Exception {
