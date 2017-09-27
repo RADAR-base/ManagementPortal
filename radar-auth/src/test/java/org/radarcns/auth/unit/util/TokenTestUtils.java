@@ -29,6 +29,7 @@ public class TokenTestUtils {
     public static String INCORRECT_ALGORITHM_TOKEN;
     public static DecodedJWT PROJECT_ADMIN_TOKEN;
     public static DecodedJWT SUPER_USER_TOKEN;
+    public static DecodedJWT MULTIPLE_ROLES_IN_PROJECT_TOKEN;
 
     public static final String[] SCOPES = {"scope1", "scope2"};
     public static final String[] AUTHORITIES = {"ROLE_SYS_ADMIN", "ROLE_USER"};
@@ -102,6 +103,23 @@ public class TokenTestUtils {
             .sign(algorithm);
 
         PROJECT_ADMIN_TOKEN = JWT.decode(projectAdminToken);
+
+        String multipleRolesInProjectToken = JWT.create()
+            .withIssuer(ISS)
+            .withIssuedAt(Date.from(iat))
+            .withExpiresAt(Date.from(exp))
+            .withAudience(CLIENT)
+            .withSubject(USER)
+            .withArrayClaim("scope", SCOPES)
+            .withArrayClaim("authorities", new String[] {"ROLE_PROJECT_ADMIN"})
+            .withArrayClaim("roles", new String[] {"PROJECT2:ROLE_PROJECT_ADMIN", "PROJECT2:ROLE_PARTICIPANT"})
+            .withArrayClaim("sources", new String[] {})
+            .withClaim("client_id", CLIENT)
+            .withClaim("user_name", USER)
+            .withClaim("jti", JTI)
+            .sign(algorithm);
+
+        MULTIPLE_ROLES_IN_PROJECT_TOKEN = JWT.decode(multipleRolesInProjectToken);
 
         INCORRECT_AUDIENCE_TOKEN = JWT.create()
             .withIssuer(ISS)

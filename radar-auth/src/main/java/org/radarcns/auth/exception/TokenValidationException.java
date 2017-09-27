@@ -12,7 +12,7 @@ public class TokenValidationException extends RuntimeException {
         super(message);
     }
 
-    public TokenValidationException(Exception cause) {
+    public TokenValidationException(Throwable cause) {
         super(cause);
     }
 }

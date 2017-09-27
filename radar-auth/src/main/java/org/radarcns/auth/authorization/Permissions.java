@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.radarcns.auth.authorization.AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR;
+import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PROJECT_ADMIN;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PROJECT_AFFILIATE;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PROJECT_ANALYST;
@@ -26,7 +27,12 @@ public class Permissions {
     }
 
     public static Set<String> allowedAuthorities(Permission permission) {
-        return PERMISSION_MATRIX.get(permission);
+        if (PERMISSION_MATRIX.containsKey(permission)) {
+            return PERMISSION_MATRIX.get(permission);
+        }
+        else {
+            return Collections.emptySet();
+        }
     }
 
     public static Map<Permission, Set<String>> getPermissionMatrix() {
@@ -43,9 +49,10 @@ public class Permissions {
         // for all authorities except for SYS_ADMIN, the authority is scoped to a project, which
         // is checked elsewhere
         // Project Admin - has all currently defined permissions except creating new projects
+        // and writing data
         PERMISSION_MATRIX.entrySet().stream()
-            .filter(e -> !(e.getKey().getEntity() == Permission.ENTITY.PROJECT &&
-                    e.getKey().getOperation() == Permission.OPERATION.CREATE))
+            .filter(e -> !Arrays.asList(Permission.PROJECT_CREATE, Permission.MEASUREMENT_CREATE)
+                .contains(e.getKey()))
             .forEach(e -> e.getValue().add(PROJECT_ADMIN));
 
         /* Project Owner */
@@ -87,7 +94,11 @@ public class Permissions {
         PERMISSION_MATRIX.get(Permission.SOURCE_UPDATE).add(PROJECT_ANALYST);
 
         /* Participant */
-        // Can read and update own data, is checked elsewhere
+        // Can update and read own data and can read and write own measurements
+        Arrays.asList(Permission.SUBJECT_READ, Permission.SUBJECT_UPDATE,
+            Permission.MEASUREMENT_CREATE, Permission.MEASUREMENT_READ).stream().forEach(
+                p -> PERMISSION_MATRIX.get(p).add(PARTICIPANT)
+        );
 
         /* External ERF integrator */
         // Read source, subject and project

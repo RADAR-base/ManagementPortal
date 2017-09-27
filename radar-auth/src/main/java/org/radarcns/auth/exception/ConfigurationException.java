@@ -12,7 +12,7 @@ public class ConfigurationException extends RuntimeException {
         super(message);
     }
 
-    public ConfigurationException(Exception cause) {
+    public ConfigurationException(Throwable cause) {
         super(cause);
     }
 }

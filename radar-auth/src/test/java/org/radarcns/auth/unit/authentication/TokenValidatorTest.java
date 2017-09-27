@@ -1,4 +1,4 @@
-package org.radarcns.auth.unit.filter;
+package org.radarcns.auth.unit.authentication;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.Before;
@@ -20,7 +20,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 
 public class TokenValidatorTest {
 
-    private TokenValidator filter;
+    private TokenValidator validator;
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(TokenTestUtils.WIREMOCK_PORT);
@@ -37,16 +37,26 @@ public class TokenValidatorTest {
                 .withStatus(200)
                 .withHeader("Content-type", TokenTestUtils.APPLICATION_JSON)
                 .withBody(TokenTestUtils.PUBLIC_KEY_BODY)));
-        filter = new TokenValidator();
+        validator = new TokenValidator();
     }
 
     @Test
-    public void testValidateAccessToken() {
-        filter.validateAccessToken(TokenTestUtils.VALID_TOKEN);
+    public void testValidToken() {
+        validator.validateAccessToken(TokenTestUtils.VALID_TOKEN);
     }
 
     @Test(expected = TokenValidationException.class)
-    public void testValidateAccessTokenForIncorrectAudience() {
-        filter.validateAccessToken(TokenTestUtils.INCORRECT_AUDIENCE_TOKEN);
+    public void testIncorrectAudienceToken() {
+        validator.validateAccessToken(TokenTestUtils.INCORRECT_AUDIENCE_TOKEN);
+    }
+
+    @Test(expected = TokenValidationException.class)
+    public void testExpiredToken() {
+        validator.validateAccessToken(TokenTestUtils.EXPIRED_TOKEN);
+    }
+
+    @Test(expected = TokenValidationException.class)
+    public void testIncorrectAlgorithmToken() {
+        validator.validateAccessToken(TokenTestUtils.INCORRECT_ALGORITHM_TOKEN);
     }
 }

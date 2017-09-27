@@ -16,6 +16,7 @@ public class Permission {
     private static final Logger log = LoggerFactory.getLogger(Permission.class);
 
     public enum ENTITY {
+        // ManagementPortal entities
         DEVICETYPE,
         SENSORDATA,
         SOURCE,
@@ -25,7 +26,10 @@ public class Permission {
         PROJECT,
         OAUTHCLIENTS,
         AUDIT,
-        AUTHORITY
+        AUTHORITY,
+
+        // RMT measurements
+        MEASUREMENT
     }
 
     public enum OPERATION {
@@ -66,6 +70,8 @@ public class Permission {
     public static final Permission OAUTHCLIENTS_READ = new Permission(ENTITY.OAUTHCLIENTS, OPERATION.READ);
     public static final Permission AUDIT_READ = new Permission(ENTITY.AUDIT, OPERATION.READ);
     public static final Permission AUTHORITY_READ = new Permission(ENTITY.AUTHORITY, OPERATION.READ);
+    public static final Permission MEASUREMENT_READ = new Permission(ENTITY.MEASUREMENT, OPERATION.READ);
+    public static final Permission MEASUREMENT_CREATE = new Permission(ENTITY.MEASUREMENT, OPERATION.CREATE);
 
     private final ENTITY entity;
     private final OPERATION operation;
