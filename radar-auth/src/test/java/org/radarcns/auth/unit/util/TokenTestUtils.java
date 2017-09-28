@@ -24,6 +24,7 @@ public class TokenTestUtils {
     public static String INCORRECT_AUDIENCE_TOKEN;
     public static String EXPIRED_TOKEN;
     public static String INCORRECT_ALGORITHM_TOKEN;
+    public static DecodedJWT SCOPE_TOKEN;
     public static DecodedJWT PROJECT_ADMIN_TOKEN;
     public static DecodedJWT SUPER_USER_TOKEN;
     public static DecodedJWT MULTIPLE_ROLES_IN_PROJECT_TOKEN;
@@ -74,6 +75,7 @@ public class TokenTestUtils {
         initProjectAdminToken(algorithm, exp, iat);
         initMultipleRolesToken(algorithm, exp, iat);
         initIncorrectAudienceToken(algorithm, exp, iat);
+        initTokenWithScopes(algorithm, exp, iat);
         initIncorrectAlgorithmToken(exp, iat);
 
         Instant past = Instant.now().minusSeconds(1);
@@ -194,5 +196,23 @@ public class TokenTestUtils {
                 .withClaim("jti", JTI)
                 .sign(algorithm);
         SUPER_USER_TOKEN = JWT.decode(VALID_TOKEN);
+    }
+
+    private static void initTokenWithScopes(Algorithm algorithm, Instant exp, Instant iat) {
+        String token = JWT.create()
+                .withIssuer(ISS)
+                .withIssuedAt(Date.from(iat))
+                .withExpiresAt(Date.from(exp))
+                .withAudience(CLIENT)
+                .withSubject("i'm a trusted oauth client")
+                .withArrayClaim("scope", new String[] {"PROJECT.READ", "SUBJECT.CREATE",
+                        "SUBJECT.READ"})
+                .withArrayClaim("authorities", new String[] {})
+                .withArrayClaim("roles", new String[] {})
+                .withArrayClaim("sources", new String[] {})
+                .withClaim("client_id", "i'm a trusted oauth client")
+                .withClaim("jti", JTI)
+                .sign(algorithm);
+        SCOPE_TOKEN = JWT.decode(token);
     }
 }

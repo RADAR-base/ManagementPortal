@@ -5,6 +5,7 @@ import org.radarcns.auth.exception.NotAuthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,7 +28,9 @@ public class RadarAuthorization {
      */
     public static void checkPermission(DecodedJWT token, Permission permission) {
         log.debug("Checking permission {} for user {}", permission.toString(), token.getSubject());
-
+        if (hasScope(token, permission)) {
+            return;
+        }
         Set<String> authsGranted = getAuthorities(token);
         // effectively takes intersection of both sets
         authsGranted.retainAll(Permissions.allowedAuthorities(permission));
@@ -49,7 +52,7 @@ public class RadarAuthorization {
             String projectName) {
         log.debug("Checking permission {} for user {} in project {}", permission.toString(),
                 token.getSubject(), projectName);
-        if (isSuperUser(token)) {
+        if (isSuperUser(token) || hasScope(token, permission)) {
             return;
         }
         Set<String> authsGranted = getAuthoritiesForProject(token, projectName);
@@ -74,7 +77,7 @@ public class RadarAuthorization {
             String projectName, String subjectName) {
         log.debug("Checking permission {} for user {} on subject {} in project {}",
                 permission.toString(), token.getSubject(), subjectName, projectName);
-        if (isSuperUser(token)) {
+        if (isSuperUser(token) || hasScope(token, permission)) {
             return;
         }
         // we're allowed to read our own data
@@ -94,6 +97,11 @@ public class RadarAuthorization {
         }
     }
 
+    /**
+     * Check if the given user is a super user.
+     * @param token The token of the user to check
+     * @return true if the user has a superuser authority, false otherwise
+     */
     public static boolean isSuperUser(DecodedJWT token) {
         return token.getClaim(AUTHORITIES_CLAIM).asList(String.class)
                 .contains(AuthoritiesConstants.SYS_ADMIN);
@@ -106,10 +114,11 @@ public class RadarAuthorization {
      * @return true if PARTICIPANT is the only authority of the user in the project, false otherwise
      */
     public static boolean isJustParticipant(DecodedJWT token, String projectName) {
-        return token.getClaim(ROLES_CLAIM).asList(String.class).stream()
+        List<String> roles = token.getClaim(ROLES_CLAIM).asList(String.class).stream()
                 .filter(r -> r.startsWith(projectName + ":"))
-                .allMatch(r -> r.equals(projectName + ":" + AuthoritiesConstants.PARTICIPANT));
-
+                .collect(Collectors.toList());
+        return roles.size() == 1 && roles.get(0).equals(projectName + ":"
+                + AuthoritiesConstants.PARTICIPANT);
     }
 
     private static Set<String> getAuthoritiesForProject(DecodedJWT token, String projectName) {
@@ -118,6 +127,12 @@ public class RadarAuthorization {
                 .filter(s -> s.startsWith(projectName + ":"))
                 .map(s -> s.split(":")[1])
                 .collect(Collectors.toSet());
+    }
+
+    private static boolean hasScope(DecodedJWT token, Permission permission) {
+        return token.getClaim("scope").asList(String.class).contains(
+                permission.getEntity().toString() + "." + permission.getOperation().toString()
+        );
     }
 
     private static Set<String> getAuthorities(DecodedJWT token) {

@@ -120,4 +120,61 @@ public class RadarAuthorizationTest {
             .filter(p -> p.getEntity() == Permission.Entity.SUBJECT)
             .forEach(p -> RadarAuthorization.checkPermissionOnSubject(token, p, project, subject));
     }
+
+    @Test
+    public void testScopeOnlyToken() {
+        DecodedJWT token = TokenTestUtils.SCOPE_TOKEN;
+        // test that we can do the things we have a scope for
+        Arrays.asList(Permission.SUBJECT_READ, Permission.SUBJECT_CREATE, Permission.PROJECT_READ)
+                .stream()
+                .forEach(p -> {
+                    RadarAuthorization.checkPermission(token, p);
+                    RadarAuthorization.checkPermissionOnProject(token, p, "");
+                    RadarAuthorization.checkPermissionOnSubject(token, p, "", "");
+                });
+
+        // test we can do nothing else, for each of the checkPermission methods
+        Permission.allPermissions().stream()
+                .filter(p -> !(p.equals(Permission.SUBJECT_READ)
+                        || p.equals(Permission.SUBJECT_CREATE)
+                        || p.equals(Permission.PROJECT_READ)))
+                .forEach(p -> {
+                    try {
+                        RadarAuthorization.checkPermission(token, p);
+                    } catch (NotAuthorizedException ex) {
+                        return;
+                    }
+                    fail();
+                });
+
+        Permission.allPermissions().stream()
+                .filter(p -> !(p.equals(Permission.SUBJECT_READ)
+                        || p.equals(Permission.SUBJECT_CREATE)
+                        || p.equals(Permission.PROJECT_READ)))
+                .forEach(p -> {
+                    try {
+                        RadarAuthorization.checkPermissionOnProject(token, p, "");
+                    } catch (NotAuthorizedException ex) {
+                        return;
+                    }
+                    fail();
+                });
+
+        Permission.allPermissions().stream()
+                .filter(p -> !(p.equals(Permission.SUBJECT_READ)
+                        || p.equals(Permission.SUBJECT_CREATE)
+                        || p.equals(Permission.PROJECT_READ)))
+                .forEach(p -> {
+                    try {
+                        RadarAuthorization.checkPermissionOnSubject(token, p, "", "");
+                    } catch (NotAuthorizedException ex) {
+                        return;
+                    }
+                    fail();
+                });
+
+        assertFalse(RadarAuthorization.isSuperUser(token));
+        assertFalse(RadarAuthorization.isJustParticipant(token, ""));
+    }
+
 }
