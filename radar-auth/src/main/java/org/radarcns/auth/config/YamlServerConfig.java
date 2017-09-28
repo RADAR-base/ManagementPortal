@@ -74,7 +74,7 @@ public class YamlServerConfig implements ServerConfig {
      * @return The new configuration
      * @throws ConfigurationException If there is any problem loading the configuration
      */
-    public static YamlServerConfig reloadConfig() throws IOException {
+    public static YamlServerConfig reloadConfig() {
         config = null;
         return readFromFileOrClasspath();
     }

@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,6 +21,7 @@ import java.net.URLConnection;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
+import java.time.Instant;
 
 public class TokenValidator {
 
@@ -27,6 +29,12 @@ public class TokenValidator {
 
     private final ServerConfig config;
     private JWTVerifier verifier;
+
+    // If a client presents a token with an invalid signature, it might be the keypair was changed.
+    // In that case we need to fetch it again, but we don't want a malicious client to be able to
+    // make us DOS our own identity server. Fetching it at maximum once per minute mitigates this.
+    private Instant lastFetch;
+    private static final long fetchPeriod = 60L;
 
     /**
      * Default constructor. Will load the identity server configuration from a file called
@@ -38,7 +46,14 @@ public class TokenValidator {
      */
     public TokenValidator() throws TokenValidationException {
         this.config = YamlServerConfig.readFromFileOrClasspath();
-        loadPublicKey();
+        try {
+            // Catch this exception here, as the identity server might not be online when this class
+            // is instantiated. We want this class to always be able to be instantiated, except for
+            // config file errors.
+            loadPublicKey();
+        } catch (TokenValidationException ex) {
+            log.error("Could not get server's public key.", ex);
+        }
     }
 
     /**
@@ -48,16 +63,26 @@ public class TokenValidator {
      * @throws TokenValidationException If the token can not be validated.
      */
     public DecodedJWT validateAccessToken(String token) throws TokenValidationException {
+        if (verifier == null) {
+            loadPublicKey();
+        }
         try {
             return verifier.verify(token);
-        } catch (JWTVerificationException ex) {
-            // perhaps the server's key changed, let's fetch it again and re-check
-            loadPublicKey();
-            try {
-                return verifier.verify(token);
-            } catch (JWTVerificationException ex2) {
-                throw new TokenValidationException(ex2);
+        } catch (SignatureVerificationException sve) {
+            if (Instant.now().isAfter(lastFetch.plusSeconds(fetchPeriod))) {
+                // perhaps the server's key changed, let's fetch it again and re-check
+                log.warn("Client presented a token with an incorrect signature, fetching public key"
+                        + " again. Token: {}", token);
+                loadPublicKey();
+                return validateAccessToken(token);
+            } else {
+                // it hasn't been long enough ago to fetch the key again, we deny access
+                log.warn("Client presented a token with an incorrect signature, fetched public key "
+                        + "less than {} seconds ago, denied access. Token: {}", fetchPeriod, token);
+                throw new TokenValidationException(sve);
             }
+        } catch (JWTVerificationException ex) {
+            throw new TokenValidationException(ex);
         }
     }
 
@@ -67,6 +92,8 @@ public class TokenValidator {
         verifier = JWT.require(alg)
             .withAudience(config.getResourceName())
             .build();
+        // we successfully fetched the public key, reset the timer
+        lastFetch = Instant.now();
     }
 
     private RSAPublicKey publicKeyFromServer() throws TokenValidationException {
