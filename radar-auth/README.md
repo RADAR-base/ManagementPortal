@@ -1,16 +1,21 @@
-Security Annotation
-===================
-This project provides an `@Secured` annotation for JAX-RS based REST APIs.
-
-Usage
------
-
-You can annotate classes or methods with the `@Secured` annotation. A class annotation applies to all methods defined in the class. However method annotations completely override class annotations. They are not additive. E.g. to indicate a method is accessible for tokens that either have the scope `read_thing_1` or `read_thing_2`, and that user must have either the `reader` or `project_owner` role, you would annotate the method with `@Secured(scopesAllowed = {"read_thing_1","read_thing_2"}, rolesAllowed = {"reader", "project_owner"})`
+RADAR-Auth 
+==========
+RADAR authentication and authorization library. This project provides classes for authentication and
+authorization of clients connecting to components of the RADAR platform.
 
 Configuration
 -------------
 
-The library expects the identity server configuration in a file called `radar-is.yml`. Either set the environment variable `RADAR_IS_CONFIG_LOCATION` to the full path of the file, or put the file somewhere on the classpath. The file should define the following variables:
+Add the dependency to your project.
+
+Gradle:
+```groovy
+compile group: 'org.radarcns', name: 'radar-auth', version: '1.0-SNAPSHOT'
+```
+
+The library expects the identity server configuration in a file called `radar-is.yml`. Either set 
+the environment variable `RADAR_IS_CONFIG_LOCATION` to the full path of the file, or put the file 
+somewhere on the classpath. The file should define the following variables:
 
 | Variable name             | Description                                                                                                                                                                                                                                                                                             |
 |---------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -23,3 +28,41 @@ For example:
 resourceName: resource_name
 publicKeyEndpoint: http://localhost:8080/oauth/token_key
 ```
+
+Usage
+-----
+
+Once you have configured your project and have your configuration file in place, you can use the 
+`TokenValidator` class to validate and decode incoming tokens. It is recommended to have only one
+instance of this class in your application. Use the `validateAccessToken()` method to validate and
+decode a client access token. This library builds on Auth0's [Java-JWT] library, and the
+`validateAccessToken()` method returns a [`DecodedJWT`] object that contains all the information of
+the original JWT.
+
+To check for permissions, you can use the `RadarAuthorization` class. You can check permissions in
+three ways, depending on your use case. You pass the `DecodedJWT` object obtained from the 
+`TokenValidator` to the the `checkPermission...` methods. These methods will throw a 
+`NotAuthorizedException` if a user, identified by the token, does not have the requested 
+permission. This allows you to handle a not authorized case any way you please. You could even add
+an `ExceptionTranslator` for this exception in your Spring application. The three checking methods
+are:
+- `checkPermission()`: to check a permission regardless of any affiliation to a project
+- `checkPermissionOnProject()`: to check a permission in the context of a project
+- `checkPermissionOnSubject()`: to check a permission in the context of a subject
+
+All of these methods will first check for a correct OAuth scope to be present. Scopes should have
+the following structure: `ENTITY.OPERATION`. Where `ENTITY` is any of `DEVICETYPE, SENSORDATA, 
+SOURCE, SUBJECT, USER, ROLE, PROJECT, OAUTHCLIENTS, AUDIT, AUTHORITY, MEASUREMENT` and `OPERATION`
+is any of `CREATE, UPDATE, READ, WRITE`. If a correct scope is present, access is granted 
+immediately. Therefore it is recommended only to use scopes when there is no user, as is the case
+with the `client_credentials` grant. If there are no scopes defined, the check continue on the level
+of user roles.
+
+Example
+-------
+Check the `AuthenticationFilter` class in the RADAR-Gateway project. It uses servlet filters to
+first validate and decode the token, and then add it to the servlet context. Subsequent filters can
+use the decoded token for further decision making.
+
+[Java-JWT]: https://github.com/auth0/java-jwt
+[`DecodedJWT`]: https://www.javadoc.io/doc/com.auth0/java-jwt/3.2.0/DecodedJWT.html
