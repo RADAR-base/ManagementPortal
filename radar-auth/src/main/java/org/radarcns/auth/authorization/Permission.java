@@ -9,13 +9,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by dverbeec on 22/09/2017.
+ * Class to represent the different permissions in the RADAR platform. A permission has an entity
+ * and an operation.
  */
 public class Permission {
 
     private static final Logger log = LoggerFactory.getLogger(Permission.class);
 
-    public enum ENTITY {
+    public enum Entity {
         // ManagementPortal entities
         DEVICETYPE,
         SENSORDATA,
@@ -32,51 +33,69 @@ public class Permission {
         MEASUREMENT
     }
 
-    public enum OPERATION {
+    public enum Operation {
         CREATE,
         READ,
         UPDATE,
         DELETE
     }
 
-    public static final Permission DEVICETYPE_CREATE = new Permission(ENTITY.DEVICETYPE, OPERATION.CREATE);
-    public static final Permission DEVICETYPE_READ = new Permission(ENTITY.DEVICETYPE, OPERATION.READ);
-    public static final Permission DEVICETYPE_UPDATE = new Permission(ENTITY.DEVICETYPE, OPERATION.UPDATE);
-    public static final Permission DEVICETYPE_DELETE = new Permission(ENTITY.DEVICETYPE, OPERATION.DELETE);
-    public static final Permission SENSORDATA_CREATE = new Permission(ENTITY.SENSORDATA, OPERATION.CREATE);
-    public static final Permission SENSORDATA_READ = new Permission(ENTITY.SENSORDATA, OPERATION.READ);
-    public static final Permission SENSORDATA_UPDATE = new Permission(ENTITY.SENSORDATA, OPERATION.UPDATE);
-    public static final Permission SENSORDATA_DELETE = new Permission(ENTITY.SENSORDATA, OPERATION.DELETE);
-    public static final Permission SOURCE_CREATE = new Permission(ENTITY.SOURCE, OPERATION.CREATE);
-    public static final Permission SOURCE_READ = new Permission(ENTITY.SOURCE, OPERATION.READ);
-    public static final Permission SOURCE_UPDATE = new Permission(ENTITY.SOURCE, OPERATION.UPDATE);
-    public static final Permission SOURCE_DELETE = new Permission(ENTITY.SOURCE, OPERATION.DELETE);
-    public static final Permission SUBJECT_CREATE = new Permission(ENTITY.SUBJECT, OPERATION.CREATE);
-    public static final Permission SUBJECT_READ = new Permission(ENTITY.SUBJECT, OPERATION.READ);
-    public static final Permission SUBJECT_UPDATE = new Permission(ENTITY.SUBJECT, OPERATION.UPDATE);
-    public static final Permission SUBJECT_DELETE = new Permission(ENTITY.SUBJECT, OPERATION.DELETE);
-    public static final Permission USER_CREATE = new Permission(ENTITY.USER, OPERATION.CREATE);
-    public static final Permission USER_READ = new Permission(ENTITY.USER, OPERATION.READ);
-    public static final Permission USER_UPDATE = new Permission(ENTITY.USER, OPERATION.UPDATE);
-    public static final Permission USER_DELETE = new Permission(ENTITY.USER, OPERATION.DELETE);
-    public static final Permission ROLE_CREATE = new Permission(ENTITY.ROLE, OPERATION.CREATE);
-    public static final Permission ROLE_READ = new Permission(ENTITY.ROLE, OPERATION.READ);
-    public static final Permission ROLE_UPDATE = new Permission(ENTITY.ROLE, OPERATION.UPDATE);
-    public static final Permission ROLE_DELETE = new Permission(ENTITY.ROLE, OPERATION.DELETE);
-    public static final Permission PROJECT_CREATE = new Permission(ENTITY.PROJECT, OPERATION.CREATE);
-    public static final Permission PROJECT_READ = new Permission(ENTITY.PROJECT, OPERATION.READ);
-    public static final Permission PROJECT_UPDATE = new Permission(ENTITY.PROJECT, OPERATION.UPDATE);
-    public static final Permission PROJECT_DELETE = new Permission(ENTITY.PROJECT, OPERATION.DELETE);
-    public static final Permission OAUTHCLIENTS_READ = new Permission(ENTITY.OAUTHCLIENTS, OPERATION.READ);
-    public static final Permission AUDIT_READ = new Permission(ENTITY.AUDIT, OPERATION.READ);
-    public static final Permission AUTHORITY_READ = new Permission(ENTITY.AUTHORITY, OPERATION.READ);
-    public static final Permission MEASUREMENT_READ = new Permission(ENTITY.MEASUREMENT, OPERATION.READ);
-    public static final Permission MEASUREMENT_CREATE = new Permission(ENTITY.MEASUREMENT, OPERATION.CREATE);
+    public static final Permission DEVICETYPE_CREATE =
+            new Permission(Entity.DEVICETYPE, Operation.CREATE);
+    public static final Permission DEVICETYPE_READ =
+            new Permission(Entity.DEVICETYPE, Operation.READ);
+    public static final Permission DEVICETYPE_UPDATE =
+            new Permission(Entity.DEVICETYPE, Operation.UPDATE);
+    public static final Permission DEVICETYPE_DELETE =
+            new Permission(Entity.DEVICETYPE, Operation.DELETE);
+    public static final Permission SENSORDATA_CREATE =
+            new Permission(Entity.SENSORDATA, Operation.CREATE);
+    public static final Permission SENSORDATA_READ =
+            new Permission(Entity.SENSORDATA, Operation.READ);
+    public static final Permission SENSORDATA_UPDATE =
+            new Permission(Entity.SENSORDATA, Operation.UPDATE);
+    public static final Permission SENSORDATA_DELETE =
+            new Permission(Entity.SENSORDATA, Operation.DELETE);
+    public static final Permission SOURCE_CREATE = new Permission(Entity.SOURCE, Operation.CREATE);
+    public static final Permission SOURCE_READ = new Permission(Entity.SOURCE, Operation.READ);
+    public static final Permission SOURCE_UPDATE = new Permission(Entity.SOURCE, Operation.UPDATE);
+    public static final Permission SOURCE_DELETE = new Permission(Entity.SOURCE, Operation.DELETE);
+    public static final Permission SUBJECT_CREATE =
+            new Permission(Entity.SUBJECT, Operation.CREATE);
+    public static final Permission SUBJECT_READ = new Permission(Entity.SUBJECT, Operation.READ);
+    public static final Permission SUBJECT_UPDATE =
+            new Permission(Entity.SUBJECT, Operation.UPDATE);
+    public static final Permission SUBJECT_DELETE =
+            new Permission(Entity.SUBJECT, Operation.DELETE);
+    public static final Permission USER_CREATE = new Permission(Entity.USER, Operation.CREATE);
+    public static final Permission USER_READ = new Permission(Entity.USER, Operation.READ);
+    public static final Permission USER_UPDATE = new Permission(Entity.USER, Operation.UPDATE);
+    public static final Permission USER_DELETE = new Permission(Entity.USER, Operation.DELETE);
+    public static final Permission ROLE_CREATE = new Permission(Entity.ROLE, Operation.CREATE);
+    public static final Permission ROLE_READ = new Permission(Entity.ROLE, Operation.READ);
+    public static final Permission ROLE_UPDATE = new Permission(Entity.ROLE, Operation.UPDATE);
+    public static final Permission ROLE_DELETE = new Permission(Entity.ROLE, Operation.DELETE);
+    public static final Permission PROJECT_CREATE = new
+            Permission(Entity.PROJECT, Operation.CREATE);
+    public static final Permission PROJECT_READ = new Permission(Entity.PROJECT, Operation.READ);
+    public static final Permission PROJECT_UPDATE =
+            new Permission(Entity.PROJECT, Operation.UPDATE);
+    public static final Permission PROJECT_DELETE =
+            new Permission(Entity.PROJECT, Operation.DELETE);
+    public static final Permission OAUTHCLIENTS_READ =
+            new Permission(Entity.OAUTHCLIENTS, Operation.READ);
+    public static final Permission AUDIT_READ = new Permission(Entity.AUDIT, Operation.READ);
+    public static final Permission AUTHORITY_READ =
+            new Permission(Entity.AUTHORITY, Operation.READ);
+    public static final Permission MEASUREMENT_READ =
+            new Permission(Entity.MEASUREMENT, Operation.READ);
+    public static final Permission MEASUREMENT_CREATE =
+            new Permission(Entity.MEASUREMENT, Operation.CREATE);
 
-    private final ENTITY entity;
-    private final OPERATION operation;
+    private final Entity entity;
+    private final Operation operation;
 
-    private Permission(ENTITY entity, OPERATION operation) {
+    private Permission(Entity entity, Operation operation) {
         if (entity == null || operation == null) {
             throw new IllegalArgumentException("Entity and operation can not be null");
         }
@@ -84,24 +103,28 @@ public class Permission {
         this.operation = operation;
     }
 
-    public ENTITY getEntity() {
+    public Entity getEntity() {
         return entity;
     }
 
-    public OPERATION getOperation() {
+    public Operation getOperation() {
         return operation;
     }
 
+    /**
+     * Get all currently defined permissions.
+     * @return A list containing all currently defined permissions
+     */
     public static List<Permission> allPermissions() {
-        return Arrays.stream(Permission.class.getDeclaredFields())  // get delcared fields
+        return Arrays.stream(Permission.class.getDeclaredFields())  // get declared fields
             .filter(f -> Modifier.isStatic(f.getModifiers()))       // that are static
             .filter(f -> f.getType() == Permission.class)           // and of type Permission
             .map(f -> {
                 try {
                     return (Permission) f.get(null);
-                } catch (IllegalAccessException e) {
+                } catch (IllegalAccessException ex) {
                     log.error("Could not get permissions through reflection. Fieldname: {}",
-                        f.getName());
+                            f.getName());
                     return null;
                 }
             })
@@ -109,13 +132,19 @@ public class Permission {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Permission)) return false;
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof Permission)) {
+            return false;
+        }
 
-        Permission that = (Permission) o;
+        Permission that = (Permission) other;
 
-        if (entity != that.entity) return false;
+        if (entity != that.entity) {
+            return false;
+        }
         return operation == that.operation;
     }
 
@@ -128,9 +157,6 @@ public class Permission {
 
     @Override
     public String toString() {
-        return "Permission{" +
-            "entity=" + entity +
-            ", operation=" + operation +
-            '}';
+        return "Permission{entity=" + entity + ", operation=" + operation + '}';
     }
 }

@@ -33,28 +33,27 @@ public class RadarAuthorizationTest {
         String project = "PROJECT1";
         // let's get all permissions a project admin has
         Set<Permission> permissions = Permissions.getPermissionMatrix().entrySet().stream()
-            .filter(e -> e.getValue().contains(AuthoritiesConstants.PROJECT_ADMIN))
-            .map(e -> e.getKey())
-            .collect(Collectors.toSet());
+                .filter(e -> e.getValue().contains(AuthoritiesConstants.PROJECT_ADMIN))
+                .map(e -> e.getKey())
+                .collect(Collectors.toSet());
         DecodedJWT token = TokenTestUtils.PROJECT_ADMIN_TOKEN;
         permissions.stream()
             .forEach(p -> RadarAuthorization.checkPermissionOnProject(token, p, project));
 
         Set<Permission> notPermitted = Permissions.getPermissionMatrix().entrySet().stream()
-            .filter(e -> !e.getValue().contains(AuthoritiesConstants.PROJECT_ADMIN))
-            .map(e -> e.getKey())
-            .collect(Collectors.toSet());
+                .filter(e -> !e.getValue().contains(AuthoritiesConstants.PROJECT_ADMIN))
+                .map(e -> e.getKey())
+                .collect(Collectors.toSet());
 
         notPermitted.stream()
-            .forEach(p -> {
-                try {
-                    RadarAuthorization.checkPermissionOnProject(token, p, project);
-                }
-                catch (NotAuthorizedException ex) {
-                    return;
-                }
-                fail();
-            });
+                .forEach(p -> {
+                    try {
+                        RadarAuthorization.checkPermissionOnProject(token, p, project);
+                    } catch (NotAuthorizedException ex) {
+                        return;
+                    }
+                    fail();
+                });
     }
 
     @Test
@@ -77,26 +76,27 @@ public class RadarAuthorizationTest {
         DecodedJWT token = TokenTestUtils.PROJECT_ADMIN_TOKEN;
         String subject = token.getSubject();
         Arrays.asList(Permission.MEASUREMENT_CREATE, Permission.MEASUREMENT_READ,
-            Permission.SUBJECT_UPDATE, Permission.SUBJECT_READ).stream().forEach(p ->
-            RadarAuthorization.checkPermissionOnSubject(token, p, project, subject));
+                Permission.SUBJECT_UPDATE, Permission.SUBJECT_READ).stream()
+                        .forEach(p -> RadarAuthorization.checkPermissionOnSubject(
+                                token, p, project, subject));
     }
 
     @Test
     public void testCheckPermissionOnOtherSubject() {
-        // token is only participant in project2, so should not have any permission on another subject
+        // is only participant in project2, so should not have any permission on another subject
         String project = "PROJECT2";
         // this token is participant in PROJECT2
         DecodedJWT token = TokenTestUtils.PROJECT_ADMIN_TOKEN;
-        String otherSubject = "other-subject";
+        String other = "other-subject";
         Permission.allPermissions().stream()
-            .forEach(p -> {
-                try {
-                    RadarAuthorization.checkPermissionOnSubject(token, p, project, otherSubject);
-                } catch (NotAuthorizedException ex) {
-                    return;
-                }
-                fail("Permission " + p.toString() + " is allowed");
-            });
+                .forEach(p -> {
+                    try {
+                        RadarAuthorization.checkPermissionOnSubject(token, p, project, other);
+                    } catch (NotAuthorizedException ex) {
+                        return;
+                    }
+                    fail("Permission " + p.toString() + " is allowed");
+                });
     }
 
     @Test
@@ -107,7 +107,7 @@ public class RadarAuthorizationTest {
         DecodedJWT token = TokenTestUtils.PROJECT_ADMIN_TOKEN;
         String subject = "some-subject";
         Permission.allPermissions().stream()
-            .filter(p -> p.getEntity() == Permission.ENTITY.SUBJECT)
+            .filter(p -> p.getEntity() == Permission.Entity.SUBJECT)
             .forEach(p -> RadarAuthorization.checkPermissionOnSubject(token, p, project, subject));
     }
 
@@ -117,7 +117,7 @@ public class RadarAuthorizationTest {
         DecodedJWT token = TokenTestUtils.MULTIPLE_ROLES_IN_PROJECT_TOKEN;
         String subject = "some-subject";
         Permission.allPermissions().stream()
-            .filter(p -> p.getEntity() == Permission.ENTITY.SUBJECT)
+            .filter(p -> p.getEntity() == Permission.Entity.SUBJECT)
             .forEach(p -> RadarAuthorization.checkPermissionOnSubject(token, p, project, subject));
     }
 }

@@ -26,19 +26,30 @@ public class Permissions {
         initPermissions();
     }
 
+    /**
+     * Look up the allowed authorities for a given permission. Authorities are String constants that
+     * appear in {@link AuthoritiesConstants}.
+     * @param permission The permission to look up.
+     * @return An unmodifiable view of the set of allowed authorities.
+     */
     public static Set<String> allowedAuthorities(Permission permission) {
         if (PERMISSION_MATRIX.containsKey(permission)) {
-            return PERMISSION_MATRIX.get(permission);
-        }
-        else {
+            return Collections.unmodifiableSet(PERMISSION_MATRIX.get(permission));
+        } else {
             return Collections.emptySet();
         }
     }
 
+    /**
+     * @return An unmodifiable view of the permission matrix.
+     */
     public static Map<Permission, Set<String>> getPermissionMatrix() {
         return Collections.unmodifiableMap(PERMISSION_MATRIX);
     }
 
+    /**
+     * Static permission matrix based on the currently agreed upon security rules.
+     */
     private static void initPermissions() {
         PERMISSION_MATRIX = new HashMap<>();
         Permission.allPermissions().forEach(p -> PERMISSION_MATRIX.put(p, new HashSet<>()));
@@ -58,36 +69,36 @@ public class Permissions {
         /* Project Owner */
         // CRUD operations on subjects to allow enrollment
         PERMISSION_MATRIX.entrySet().stream()
-            .filter(e -> e.getKey().getEntity() == Permission.ENTITY.SUBJECT)
+            .filter(e -> e.getKey().getEntity() == Permission.Entity.SUBJECT)
             .forEach(e -> e.getValue().add(PROJECT_OWNER));
 
         // can also read all other things except audits and authorities
         PERMISSION_MATRIX.entrySet().stream()
-            .filter(e -> !Arrays.asList(Permission.ENTITY.AUDIT, Permission.ENTITY.AUTHORITY)
+            .filter(e -> !Arrays.asList(Permission.Entity.AUDIT, Permission.Entity.AUTHORITY)
                 .contains(e.getKey().getEntity()))
-            .filter(e -> e.getKey().getOperation() == Permission.OPERATION.READ)
+            .filter(e -> e.getKey().getOperation() == Permission.Operation.READ)
             .forEach(e -> e.getValue().add(PROJECT_OWNER));
 
         /* Project affiliate */
         // Create, read and update participant (no delete), for this we need role, subject and user
         PERMISSION_MATRIX.entrySet().stream()
-            .filter(e -> e.getKey().getEntity() == Permission.ENTITY.SUBJECT)
-            .filter(e -> e.getKey().getOperation() != Permission.OPERATION.DELETE)
+            .filter(e -> e.getKey().getEntity() == Permission.Entity.SUBJECT)
+            .filter(e -> e.getKey().getOperation() != Permission.Operation.DELETE)
             .forEach(e -> e.getValue().add(PROJECT_AFFILIATE));
 
         // can also read all other things except audits and authorities
         PERMISSION_MATRIX.entrySet().stream()
-            .filter(e -> !Arrays.asList(Permission.ENTITY.AUDIT, Permission.ENTITY.AUTHORITY)
+            .filter(e -> !Arrays.asList(Permission.Entity.AUDIT, Permission.Entity.AUTHORITY)
                 .contains(e.getKey().getEntity()))
-            .filter(e -> e.getKey().getOperation() == Permission.OPERATION.READ)
+            .filter(e -> e.getKey().getOperation() == Permission.Operation.READ)
             .forEach(e -> e.getValue().add(PROJECT_AFFILIATE));
 
         /* Project analyst */
         // Can read everything execpt authorities and audits
         PERMISSION_MATRIX.entrySet().stream()
-            .filter(e -> !Arrays.asList(Permission.ENTITY.AUDIT, Permission.ENTITY.AUTHORITY)
+            .filter(e -> !Arrays.asList(Permission.Entity.AUDIT, Permission.Entity.AUTHORITY)
                 .contains(e.getKey().getEntity()))
-            .filter(e -> e.getKey().getOperation() == Permission.OPERATION.READ)
+            .filter(e -> e.getKey().getOperation() == Permission.Operation.READ)
             .forEach(e -> e.getValue().add(PROJECT_ANALYST));
 
         // Can add metadata to sources
@@ -96,23 +107,22 @@ public class Permissions {
         /* Participant */
         // Can update and read own data and can read and write own measurements
         Arrays.asList(Permission.SUBJECT_READ, Permission.SUBJECT_UPDATE,
-            Permission.MEASUREMENT_CREATE, Permission.MEASUREMENT_READ).stream().forEach(
-                p -> PERMISSION_MATRIX.get(p).add(PARTICIPANT)
-        );
+                Permission.MEASUREMENT_CREATE, Permission.MEASUREMENT_READ).stream()
+                        .forEach(p -> PERMISSION_MATRIX.get(p).add(PARTICIPANT));
 
         /* External ERF integrator */
         // Read source, subject and project
         PERMISSION_MATRIX.entrySet().stream()
-            .filter(e -> Arrays.asList(Permission.ENTITY.PROJECT, Permission.ENTITY.SUBJECT,
-                Permission.ENTITY.SOURCE).contains(e.getKey().getEntity()))
-            .filter(e -> e.getKey().getOperation() == Permission.OPERATION.READ)
+            .filter(e -> Arrays.asList(Permission.Entity.PROJECT, Permission.Entity.SUBJECT,
+                Permission.Entity.SOURCE).contains(e.getKey().getEntity()))
+            .filter(e -> e.getKey().getOperation() == Permission.Operation.READ)
             .forEach(e -> e.getValue().add(EXTERNAL_ERF_INTEGRATOR));
 
         // Update subject and project
         PERMISSION_MATRIX.entrySet().stream()
-            .filter(e -> Arrays.asList(Permission.ENTITY.PROJECT, Permission.ENTITY.SUBJECT)
+            .filter(e -> Arrays.asList(Permission.Entity.PROJECT, Permission.Entity.SUBJECT)
                 .contains(e.getKey().getEntity()))
-            .filter(e -> e.getKey().getOperation() == Permission.OPERATION.UPDATE)
+            .filter(e -> e.getKey().getOperation() == Permission.Operation.UPDATE)
             .forEach(e -> e.getValue().add(EXTERNAL_ERF_INTEGRATOR));
 
         // Create subject

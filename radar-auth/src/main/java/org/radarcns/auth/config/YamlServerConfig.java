@@ -29,6 +29,15 @@ public class YamlServerConfig implements ServerConfig {
         log.info("YamlServerConfig initializing...");
     }
 
+    /**
+     * Read the configuration from file. This method will first check if the environment variable
+     * <code>RADAR_IS_CONFIG_LOCATION</code> is set. If not set, it will look for a file called
+     * <code>radar_is.yml</code> on the classpath. The configuration will be kept in a static field,
+     * so subsequent calls to this method will return the same object. Use {@link #reloadConfig()}
+     * to forcibly reload the configuration from the configuration file.
+     * @return The initialized configuration object based on the contents of the configuration file
+     * @throws ConfigurationException If there is any problem loading the configuration
+     */
     public static YamlServerConfig readFromFileOrClasspath() {
         if (config != null) {
             return config;
@@ -38,29 +47,33 @@ public class YamlServerConfig implements ServerConfig {
         URL configFile;
         try {
             if (customLocation != null) {
-                log.info(LOCATION_ENV + " environment variable set, loading config from " +
-                    customLocation);
+                log.info(LOCATION_ENV + " environment variable set, loading config from {}",
+                        customLocation);
                 configFile = new File(customLocation).toURI().toURL();
             } else {
                 // if config location not defined, look for it on the classpath
                 log.info(LOCATION_ENV + " environment variable not set, looking for it on"
-                    + " the classpath");
+                        + " the classpath");
                 configFile = YamlServerConfig.class.getClassLoader().getResource(CONFIG_FILE_NAME);
-                log.info("Config file found at " + configFile.getPath());
+                log.info("Config file found at {}", configFile.getPath());
             }
-        }
-        catch (MalformedURLException ex) {
+        } catch (MalformedURLException ex) {
             throw new ConfigurationException(ex);
         }
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try (InputStream stream = configFile.openStream()) {
             return mapper.readValue(stream, YamlServerConfig.class);
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new ConfigurationException(ex);
         }
     }
 
+    /**
+     * Forcibly reload the configuration from file, and reinitialize the static field holding the
+     * configuration with the new object.
+     * @return The new configuration
+     * @throws ConfigurationException If there is any problem loading the configuration
+     */
     public static YamlServerConfig reloadConfig() throws IOException {
         config = null;
         return readFromFileOrClasspath();
@@ -85,13 +98,19 @@ public class YamlServerConfig implements ServerConfig {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof YamlServerConfig)) return false;
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof YamlServerConfig)) {
+            return false;
+        }
 
-        YamlServerConfig that = (YamlServerConfig) o;
+        YamlServerConfig that = (YamlServerConfig) other;
 
-        if (!publicKeyEndpoint.equals(that.publicKeyEndpoint)) return false;
+        if (!publicKeyEndpoint.equals(that.publicKeyEndpoint)) {
+            return false;
+        }
         return resourceName.equals(that.resourceName);
     }
 

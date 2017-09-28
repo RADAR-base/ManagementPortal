@@ -30,13 +30,17 @@ public class TokenValidatorTest {
         TokenTestUtils.setUp();
     }
 
+    /**
+     * Set up a stub public key endpoint and initialize a TokenValidator object.
+     * @throws Exception if anything went wrong during setup
+     */
     @Before
     public void setUp() throws Exception {
         stubFor(get(urlEqualTo(TokenTestUtils.PUBLIC_KEY))
-            .willReturn(aResponse()
-                .withStatus(200)
-                .withHeader("Content-type", TokenTestUtils.APPLICATION_JSON)
-                .withBody(TokenTestUtils.PUBLIC_KEY_BODY)));
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-type", TokenTestUtils.APPLICATION_JSON)
+                        .withBody(TokenTestUtils.PUBLIC_KEY_BODY)));
         validator = new TokenValidator();
     }
 

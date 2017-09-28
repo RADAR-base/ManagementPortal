@@ -14,13 +14,11 @@ import org.radarcns.auth.exception.TokenValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URLConnection;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 
 public class TokenValidator {
@@ -33,26 +31,31 @@ public class TokenValidator {
     /**
      * Default constructor. Will load the identity server configuration from a file called
      * radar-is.yml that should be on the classpath, or its location defined in the
-     * RADAR_IS_CONFIG_LOCATION environment variable.
-     * @throws IOException The configuration file is not accessible
-     * @throws InvalidKeySpecException
+     * RADAR_IS_CONFIG_LOCATION environment variable. Will also fetch the public key from the
+     * identity server for checkign token signatures.
+     * @throws TokenValidationException If the config file can not be loaded, is incorrect, or the
+     *     identity server's public key can not be fetched.
      */
     public TokenValidator() throws TokenValidationException {
         this.config = YamlServerConfig.readFromFileOrClasspath();
         loadPublicKey();
     }
 
+    /**
+     * Validates an access token and returns the decoded JWT as a {@link DecodedJWT} object.
+     * @param token The access token
+     * @return The decoded access token
+     * @throws TokenValidationException If the token can not be validated.
+     */
     public DecodedJWT validateAccessToken(String token) throws TokenValidationException {
         try {
             return verifier.verify(token);
-        }
-        catch (JWTVerificationException ex) {
+        } catch (JWTVerificationException ex) {
             // perhaps the server's key changed, let's fetch it again and re-check
             loadPublicKey();
             try {
                 return verifier.verify(token);
-            }
-            catch(JWTVerificationException ex2) {
+            } catch (JWTVerificationException ex2) {
                 throw new TokenValidationException(ex2);
             }
         }
@@ -76,32 +79,31 @@ public class TokenValidator {
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode publicKeyInfo = mapper.readTree(inputStream);
 
-                // we expect RSA algorithm, and deny to trust the public key otherwise
-                // see also https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
+                // We expect RSA algorithm, and deny to trust the public key otherwise, see also
+                // https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
                 if (!publicKeyInfo.get("alg").asText().equals("SHA256withRSA")) {
                     throw new TokenValidationException("The identity server reported the following "
-                        + "signing algorithm: " + publicKeyInfo.get("alg") + ". Expected SHA256withRSA.");
+                        + "signing algorithm: " + publicKeyInfo.get("alg")
+                        + ". Expected SHA256withRSA.");
                 }
 
                 String keyString = publicKeyInfo.get("value").asText();
                 return publicKeyFromString(keyString);
             }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new TokenValidationException(ex);
         }
     }
 
     private RSAPublicKey publicKeyFromString(String keyString) throws TokenValidationException {
         log.debug("Parsing public key: " + keyString);
-        try(PemReader pemReader = new PemReader(new StringReader(keyString))) {
+        try (PemReader pemReader = new PemReader(new StringReader(keyString))) {
             byte[] keyBytes = pemReader.readPemObject().getContent();
             pemReader.close();
             X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
             KeyFactory kf = KeyFactory.getInstance("RSA");
             return (RSAPublicKey) kf.generatePublic(spec);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new TokenValidationException(ex);
         }
     }
