@@ -87,7 +87,7 @@ liquibase:
 #        keyAlias: ManagementPortal
 # ===================================================================
 server:
-    port: 8089
+    port: 8080
 
 # ===================================================================
 # JHipster specific properties
