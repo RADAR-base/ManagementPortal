@@ -4,7 +4,7 @@ import org.radarcns.management.config.Constants;
 import com.codahale.metrics.annotation.Timed;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.UserRepository;
-import org.radarcns.management.security.AuthoritiesConstants;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.service.MailService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ProjectDTO;

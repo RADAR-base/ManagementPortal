@@ -1,9 +1,9 @@
 package org.radarcns.management.service.mapper.decorator;
 
 import org.mapstruct.MappingTarget;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Subject;
-import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.SubjectDTO.SubjectStatus;
 import org.radarcns.management.service.mapper.ProjectMapper;

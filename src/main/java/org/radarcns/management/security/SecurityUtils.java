@@ -1,5 +1,6 @@
 package org.radarcns.management.security;
 
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.springframework.security.core.Authentication;
@@ -47,7 +48,8 @@ public final class SecurityUtils {
         Authentication authentication = securityContext.getAuthentication();
         if (authentication != null) {
             return authentication.getAuthorities().stream()
-                .noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(AuthoritiesConstants.ANONYMOUS));
+                .noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(
+                        AuthoritiesConstants.ANONYMOUS));
         }
         return false;
     }

@@ -4,7 +4,7 @@ import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.RoleRepository;
-import org.radarcns.management.security.AuthoritiesConstants;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.service.mapper.RoleMapper;
 import org.slf4j.Logger;

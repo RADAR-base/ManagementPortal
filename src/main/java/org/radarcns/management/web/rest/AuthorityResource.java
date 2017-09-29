@@ -1,12 +1,10 @@
 package org.radarcns.management.web.rest;
 
-import static org.radarcns.management.security.AuthoritiesConstants.PROJECT_RELATED_AUTHORITIES;
-
 import com.codahale.metrics.annotation.Timed;
 import java.util.Arrays;
 import java.util.List;
 import org.radarcns.management.repository.AuthorityRepository;
-import org.radarcns.management.security.AuthoritiesConstants;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.annotation.Secured;
@@ -40,7 +38,8 @@ public class AuthorityResource {
     @Secured({ AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public List<String> getAllAuthorities() {
         log.debug("REST request to get all Authorities");
-        return Arrays.asList(PROJECT_RELATED_AUTHORITIES);
+        return Arrays.asList(AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.PROJECT_OWNER,
+                AuthoritiesConstants.PROJECT_AFFILIATE, AuthoritiesConstants.PROJECT_ANALYST);
     }
 
 }

@@ -11,7 +11,7 @@ import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.UserRepository;
-import org.radarcns.management.security.AuthoritiesConstants;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.security.SecurityUtils;
 import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.dto.ProjectDTO;

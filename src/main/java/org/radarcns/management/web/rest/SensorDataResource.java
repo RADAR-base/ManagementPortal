@@ -1,7 +1,7 @@
 package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import org.radarcns.management.security.AuthoritiesConstants;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.service.SensorDataService;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.service.dto.SensorDataDTO;

@@ -210,6 +210,7 @@ dependencies {
     compile "org.postgresql:postgresql"
     compile "com.h2database:h2"
     compile "org.mapstruct:mapstruct-jdk8:${mapstruct_version}"
+    compile "org.radarcns:radar-auth:1.0-SNAPSHOT"
     testCompile "org.awaitility:awaitility:${awaitility_version}"
     testCompile "com.jayway.jsonpath:json-path"
     testCompile "info.cukes:cucumber-junit:${cucumber_version}"

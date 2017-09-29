@@ -4,7 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.radarcns.management.domain.DeviceType;
 import org.radarcns.management.repository.DeviceTypeRepository;
-import org.radarcns.management.security.AuthoritiesConstants;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.service.DeviceTypeService;
 import org.radarcns.management.service.dto.DeviceTypeDTO;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
