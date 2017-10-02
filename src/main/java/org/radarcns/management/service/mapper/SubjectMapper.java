@@ -21,7 +21,6 @@ public interface SubjectMapper {
     @Mapping(source = "user.createdDate", target = "createdDate")
     @Mapping(source = "user.lastModifiedBy", target = "lastModifiedBy")
     @Mapping(source = "user.lastModifiedDate", target = "lastModifiedDate")
-    @Mapping(target = "email", ignore = true)
     @Mapping(target = "attributes" , ignore = true)
     @Mapping(target = "status" , ignore = true)
     SubjectDTO subjectToSubjectDTO(Subject subject);

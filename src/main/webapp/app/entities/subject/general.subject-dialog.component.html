@@ -13,25 +13,6 @@
                    [(ngModel)]="subject.id" readonly />
         </div>
 
-        <div class="form-group" [hidden]="subject.id">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.subject.email">Email</label>
-            <input type="email" class="form-control" name="email" #emailInput="ngModel"
-                   [(ngModel)]="subject.email" maxlength="100" >
-
-            <div *ngIf="emailInput.dirty && emailInput.invalid">
-
-                <small class="form-text text-danger"
-                       *ngIf="emailInput.errors.maxlength" jhiTranslate="entity.validation.maxlength"
-                       translate-value-max="100">
-                    This field cannot be longer than 100 characters.
-                </small>
-                <small class="form-text text-danger"
-                       *ngIf="emailInput.errors.email" jhiTranslate="global.messages.validate.email.invalid">
-                    Your email is invalid.
-                </small>
-            </div>
-        </div>
-
         <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.subject.externalLink" for="field_externalLink">External Link</label>
             <input type="text" class="form-control" name="externalLink" id="field_externalLink"

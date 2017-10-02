@@ -100,8 +100,8 @@ public class SubjectService {
             "en"); // setting default language key to "en", required to set email context,
         // Find a workaround
         user.setResetDate(ZonedDateTime.now());
-        // default subject is deactivated. @TODO can be activated when the QRCode flow is finalized
-        user.setActivated(false);
+        // default subject is activated.
+        user.setActivated(true);
         //set if any devices are set as assigned
         if(subject.getSources() !=null && !subject.getSources().isEmpty()) {
             for (Source source : subject.getSources()) {
@@ -109,9 +109,6 @@ public class SubjectService {
             }
         }
         subject = subjectRepository.save(subject);
-        if (subject.getId() != null) {
-            mailService.sendCreationEmailForGivenEmail(subject.getUser(), subjectDTO.getEmail());
-        }
         return subjectMapper.subjectToSubjectDTO(subject);
     }
 

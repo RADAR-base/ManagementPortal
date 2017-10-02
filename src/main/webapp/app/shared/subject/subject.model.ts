@@ -4,7 +4,6 @@ import {MinimalSource, Source} from "../source/source.model";
 export class Subject {
     public id?: any;
     public login?: string;
-    public email?: string;
     public externalLink?: string;
     public externalId?: string;
     public createdBy?: string;
@@ -20,7 +19,6 @@ export class Subject {
     constructor(
          id?: number,
          login?: string,
-         email?: string,
          externalLink?: string,
          externalId?: string,
          status?: SubjectStatus,
@@ -35,7 +33,6 @@ export class Subject {
     ) {
         this.id = id ? id : null;
         this.login = login ? login : null;
-        this.email = email ? email : null;
         this.externalLink = externalLink ? externalLink : null;
         this.externalId = externalId ? externalId : null;
         this.createdBy = createdBy ? createdBy : null;

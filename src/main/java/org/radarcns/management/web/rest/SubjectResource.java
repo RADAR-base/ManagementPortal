@@ -91,11 +91,6 @@ public class SubjectResource {
                 .createFailureAlert(ENTITY_NAME, "loginrequired", "A subject login is required"))
                 .body(null);
         }
-        if (subjectDTO.getEmail() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                .createFailureAlert(ENTITY_NAME, "patientEmailRequired",
-                    "A subject email is required")).body(null);
-        }
         if (subjectDTO.getProject() == null || subjectDTO.getProject().getId() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil
                 .createFailureAlert(ENTITY_NAME, "projectrequired",
