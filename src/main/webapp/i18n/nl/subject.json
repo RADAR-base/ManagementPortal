@@ -29,6 +29,8 @@
             "createdDate": "Aanmaak datum",
             "lastModifiedBy": "Laatst aangepast door",
             "lastModifiedDate": "Laatst aangepast datum",
+            "pairing": "Koppelen",
+            "actions": "Acties",
             "pairApp": "App koppelen",
             "pairSources": {
                 "button" : "Paar Sources",
