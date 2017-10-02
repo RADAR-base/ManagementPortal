@@ -22,10 +22,12 @@
             "unassigned": "Unassigned",
             "deviceType": "Device Type",
             "project": "Project",
-            "expectedSourceName" : "Expected source name"
+            "expectedSourceName" : "Expected source name",
+            "sourceAlreadyAdded" : "Deze source is al in uw lijst toegevoegd"
         }
     },
     "error": {
-        "sourceNameExists": "Current Source Name is already registered"
+        "sourceNameExists": "Huidige source naam is al geregistreerd",
+        "sourceIsAssigned": "Kan een momenteel toegewezen source niet bewerken / verwijderen."
     }
 }

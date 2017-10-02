@@ -37,7 +37,8 @@
             <th><span jhiTranslate="managementPortalApp.subject.sources">Sources</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.attributeDataKey">Key</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.attributeDataValue">Value</span></th>
-            <th></th>
+            <th class="text-center"><span jhiTranslate="managementPortalApp.subject.pairing">Pairing</span></th>
+            <th class="text-center"><span jhiTranslate="managementPortalApp.subject.actions">Actions</span></th>
             </tr>
             </thead>
             <tbody>
@@ -83,6 +84,18 @@
                             <span class="fa fa-qrcode"></span>
                             <span jhiTranslate="managementPortalApp.subject.pairApp">Pair App</span>
                         </button>
+                        <button [disabled]="subject.status == 'DISCONTINUED'"
+                                type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'subject/' + subject.id + '/sources' } }]"
+                                replaceUrl="true"
+                                class="btn btn-info btn-sm">
+                            <span class="fa fa-link"></span>
+                            <span jhiTranslate="managementPortalApp.subject.pairSources.button">Pair Sources</span>
+                        </button>
+                    </div>
+                </td>
+                <td class="text-right">
+                    <div class="btn-group flex-btn-group-container">
                         <button *ngIf='!isProjectSpecific' [disabled]="subject.status == 'DISCONTINUED'"
                                 type="submit"
                                 [routerLink]="['/subject', subject.id ]"

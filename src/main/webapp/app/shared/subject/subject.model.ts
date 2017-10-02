@@ -4,7 +4,6 @@ import {MinimalSource, Source} from "../source/source.model";
 export class Subject {
     public id?: any;
     public login?: string;
-    public email?: string;
     public externalLink?: string;
     public externalId?: string;
     public createdBy?: string;
@@ -13,14 +12,13 @@ export class Subject {
     public lastModifiedDate?: Date;
     public password?: string;
     public project?: Project;
-    public source?: MinimalSource = new MinimalSource();
+    public sources?: MinimalSource[];
     public attributes: Attribute[];
     public status: SubjectStatus;
 
     constructor(
          id?: number,
          login?: string,
-         email?: string,
          externalLink?: string,
          externalId?: string,
          status?: SubjectStatus,
@@ -30,12 +28,11 @@ export class Subject {
          lastModifiedDate?: Date,
          password?: string,
          project?: Project,
-         source?: Source
+         sources?: MinimalSource[]
 
     ) {
         this.id = id ? id : null;
         this.login = login ? login : null;
-        this.email = email ? email : null;
         this.externalLink = externalLink ? externalLink : null;
         this.externalId = externalId ? externalId : null;
         this.createdBy = createdBy ? createdBy : null;
@@ -44,7 +41,7 @@ export class Subject {
         this.lastModifiedDate = lastModifiedDate ? lastModifiedDate : null;
         this.password = password ? password : null;
         this.project = project ? project: null;
-        this.source = source ? source: new MinimalSource();
+        this.sources = sources ? sources: new Array();
         this.status = status ? status: SubjectStatus.DEACTIVATED;
     }
 }

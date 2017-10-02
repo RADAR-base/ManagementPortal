@@ -7,6 +7,7 @@ import { SubjectDeletePopupComponent } from './subject-delete-dialog.component';
 import { SubjectPairPopupComponent } from './subject-pair-dialog.component';
 
 import {PROJECT_ADMIN, SYSTEM_ADMIN} from "../constants/common.constants";
+import {SubjectSourceAssignerPopupComponent} from "./source-assigner/source-assigner.component";
 
 export const subjectRoute: Routes = [
   {
@@ -57,6 +58,16 @@ export const subjectPopupRoute: Routes = [
     data: {
     authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
     pageTitle: 'managementPortalApp.subject.home.title'
+    },
+    canActivate: [UserRouteAccessService],
+    outlet: 'popup'
+  },
+  {
+    path: 'subject/:id/sources',
+    component: SubjectSourceAssignerPopupComponent,
+    data: {
+        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
+        pageTitle: 'managementPortalApp.subject.home.title'
     },
     canActivate: [UserRouteAccessService],
     outlet: 'popup'

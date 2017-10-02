@@ -97,6 +97,11 @@ public class SourceResource {
         if (sourceDTO.getId() == null) {
             return createSource(sourceDTO);
         }
+        if (sourceRepository.findOne(sourceDTO.getId()).isAssigned()) {
+            return ResponseEntity.badRequest()
+                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceIsAssigned", "Cannot delete an assigned source"))
+                .body(null);
+        }
         SourceDTO result = sourceService.save(sourceDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceDTO.getId().toString()))
@@ -131,6 +136,22 @@ public class SourceResource {
     public List<MinimalSourceDetailsDTO> getAllUnassignedSources() {
         log.debug("REST request to get all Sources");
         return sourceService.findAllUnassignedSourcesMinimalDTO();
+    }
+
+    /**
+     * GET  /sources/project/{projectId} : get all the sources by project
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of sources in body
+     */
+    @GetMapping("/sources/project/{projectId}")
+    @Timed
+    public List<MinimalSourceDetailsDTO> getAllSourcesForProject(@PathVariable Long projectId,
+        @RequestParam(value = "assigned", required = false) Boolean assigned) {
+        log.debug("REST request to get all Sources");
+        if(assigned !=null) {
+            return sourceService.findAllByProjectAndAssigned(projectId, assigned);
+        }
+        return sourceService.findAllMinimalSourceDetailsByProject(projectId);
     }
 
     /**

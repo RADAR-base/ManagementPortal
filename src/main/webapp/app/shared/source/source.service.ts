@@ -3,6 +3,7 @@ import { Http, Response, URLSearchParams, BaseRequestOptions } from '@angular/ht
 import { Observable } from 'rxjs/Rx';
 
 import { Source } from './source.model';
+import {Project} from "../../entities/project/project.model";
 @Injectable()
 export class SourceService {
 
@@ -36,8 +37,15 @@ export class SourceService {
         ;
     }
 
-    findUnAssigned(): Observable<Response> {
-        return this.http.get(`${this.resourceUrl}/unassigned`);
+    findAvailable(req?: any): Observable<Response> {
+        const params: URLSearchParams = new URLSearchParams();
+        if (req) {
+            params.set('assigned', req.assigned);
+        }
+        const options = {
+            search: params
+        };
+        return this.http.get(`${this.resourceUrl}/project/${req.projectId}` , options);
     }
 
     findUnAssignedAndOfSubject(id: number): Observable<Response> {

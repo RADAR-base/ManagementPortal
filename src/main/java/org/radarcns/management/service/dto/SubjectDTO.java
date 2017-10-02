@@ -26,9 +26,6 @@ public class SubjectDTO implements Serializable {
 
     private String login;
 
-    @Size(min = 5, max = 100)
-    private String email;
-
     private String externalLink;
 
     private String externalId;
@@ -138,14 +135,6 @@ public class SubjectDTO implements Serializable {
 
     public void setSources(Set<MinimalSourceDetailsDTO> sources) {
         this.sources = sources;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public Set<AttributeMapDTO> getAttributes() {

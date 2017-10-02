@@ -23,7 +23,7 @@ export class SubjectDialogComponent implements OnInit {
     authorities: any[];
     isSaving: boolean;
 
-    sources: MinimalSource[];
+    // sources: MinimalSource[];
     keys: string[];
     attributeComponentEventPrefix: 'subjectAttributes';
 
@@ -40,17 +40,6 @@ export class SubjectDialogComponent implements OnInit {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.keys = ['Human-readable-identifier'];
-        if (this.subject.id !== null) {
-            this.sourceService.findUnAssignedAndOfSubject(this.subject.id).subscribe(
-                (res: Response) => {
-                    this.sources = res.json();
-                }, (res: Response) => this.onError(res.json()));
-        } else {
-            this.sourceService.findUnAssigned().subscribe(
-                (res: Response) => {
-                    this.sources = res.json();
-                }, (res: Response) => this.onError(res.json()));
-        }
         this.registerChangesInSubject();
     }
 
