@@ -1,0 +1,83 @@
+plugins {
+    // Apply the java plugin to add support for Java
+    id 'java-library'
+    id 'idea'
+    id 'pmd'
+    id 'checkstyle'
+    id 'maven'
+    id 'maven-publish'
+}
+
+group 'org.radarcns'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+ext.okhttpVersion = '3.6.0'
+ext.junitVersion = '4.12'
+ext.jacksonVersion='2.8.5'
+
+repositories {
+    jcenter()
+    mavenLocal()
+    mavenCentral()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}
+
+dependencies {
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.2'
+
+    compile group: 'com.auth0', name: 'java-jwt', version: '3.2.0'
+
+    implementation group: 'com.fasterxml.jackson.core' , name: 'jackson-databind' , version: jacksonVersion
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jacksonVersion
+
+    testCompile group: 'junit', name: 'junit', version: junitVersion
+    testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.5.1'
+    testCompile 'com.github.stefanbirkner:system-rules:1.16.0'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.4.1'
+    distributionUrl distributionUrl.replace("bin", "all")
+}
+
+sourceCompatibility = 1.8
+
+checkstyle {
+    toolVersion '6.16'
+    ignoreFailures false
+}
+
+pmd {
+    toolVersion = '5.5.2'
+    ignoreFailures = false
+
+    consoleOutput = true
+
+    ruleSets = []
+    ruleSetFiles = files("config/pmd/ruleset.xml")
+}
+
+sourceSets {
+    integrationTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integrationTest/java')
+        }
+        resources {
+            srcDir 'src/integrationTest/resources'
+        }
+    }
+}
