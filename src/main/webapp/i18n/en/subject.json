@@ -29,6 +29,8 @@
             "createdDate": "Created Date",
             "lastModifiedBy": "Last Modified By",
             "lastModifiedDate": "Last Modified Date",
+            "pairing": "Pairing",
+            "actions": "Actions",
             "pairApp": "Pair App",
             "pairSources": {
                 "button" : "Pair Sources",
