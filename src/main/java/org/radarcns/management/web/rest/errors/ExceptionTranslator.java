@@ -13,6 +13,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures.
@@ -38,6 +39,14 @@ public class ExceptionTranslator {
             dto.add(fieldError.getObjectName(), fieldError.getField(), fieldError.getCode());
         }
         return dto;
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorVM processValidationError(MethodArgumentTypeMismatchException ex) {
+        return new ErrorVM(ErrorConstants.ERR_VALIDATION,
+            ex.getName() + ": " + ex.getMessage());
     }
 
     @ExceptionHandler(CustomParameterizedException.class)

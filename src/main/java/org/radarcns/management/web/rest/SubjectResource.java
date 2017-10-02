@@ -140,13 +140,6 @@ public class SubjectResource {
                 .createFailureAlert(ENTITY_NAME, "projectrequired",
                     "A subject should be assigned to a project")).body(null);
         }
-        if (subjectDTO.getExternalId() != null && !subjectDTO.getExternalId().isEmpty() &&
-            subjectRepository.findOneByProjectIdAndExternalId(subjectDTO.getProject().getId(),
-                subjectDTO.getExternalId()).isPresent()) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                .createFailureAlert(ENTITY_NAME, "subjectExists",
-                    "A subject with given project-id and external-id already exists")).body(null);
-        }
         SubjectDTO result = subjectService.updateSubject(subjectDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getId().toString()))
@@ -280,7 +273,17 @@ public class SubjectResource {
                     " was not found."));
         }
 
-        Role role = subject.getUser().getRoles().stream().findFirst().get();
+        // find the PARTICIPANT role for this subject
+        Optional<Role> roleOptional = subject.getUser().getRoles().stream()
+                .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PARTICIPANT))
+                .findFirst();
+        if (!roleOptional.isPresent()) {
+            // no participant role found
+            return ResponseUtil.wrapOrNotFound(Optional.empty(), HeaderUtil.createFailureAlert(
+                ENTITY_NAME, "notfound", "Subject with subject-id " + login +
+                    " is not assigned to any project. Could not find project for this subject."));
+        }
+        Role role = roleOptional.get();
         // find whether the relevant device-type is available in the subject's project
         Optional<DeviceType> deviceType = projectRepository
             .findDeviceTypeByProjectIdAndDeviceTypeProp(role.getProject().getId(),
