@@ -1,6 +1,7 @@
 package org.radarcns.management.repository;
 
 import java.util.Optional;
+import java.util.UUID;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.Subject;
 
@@ -55,10 +56,16 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
         + "join sources.deviceType deviceType "
         + "where deviceType.deviceProducer = :producer "
         + "and deviceType.deviceModel = :model "
-        + "and deviceType.deviceVersion =:version "
+        + "and deviceType.catalogVersion =:version "
         + "and subject.user.login = :login")
     List<Source> findSubjectSourcesBySourceType(@Param("login") String login,
         @Param("producer") String producer, @Param("model") String model,
         @Param("version") String version);
+
+    @Query("select distinct subject.sources from Subject subject left join subject.sources sources "
+        + "where sources.sourceId= :sourceId "
+        + "and subject.user.login = :login")
+    Optional<Source> findSubjectSourcesBySourceId(@Param("login") String login,
+        @Param("sourceId") UUID sourceId);
 
 }

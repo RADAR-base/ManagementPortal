@@ -19,16 +19,20 @@ import {
 } from './';
 import {AuthorityService} from "./user/authority.service";
 import {AttributeMapperComponent} from "./attribute-mapper/attribute-mapper.component";
+import {CommonUserMgmtComponent} from "./user/common-user-management.component";
+import {RouterModule} from "@angular/router";
 
 @NgModule({
     imports: [
         ManagementPortalSharedLibsModule,
-        ManagementPortalSharedCommonModule
+        ManagementPortalSharedCommonModule,
+        RouterModule
     ],
     declarations: [
         JhiLoginModalComponent,
         HasAnyAuthorityDirective,
-        AttributeMapperComponent
+        AttributeMapperComponent,
+        CommonUserMgmtComponent
     ],
     providers: [
         CookieService,
@@ -50,6 +54,7 @@ import {AttributeMapperComponent} from "./attribute-mapper/attribute-mapper.comp
         JhiLoginModalComponent,
         HasAnyAuthorityDirective,
         AttributeMapperComponent,
+        CommonUserMgmtComponent,
         DatePipe
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]

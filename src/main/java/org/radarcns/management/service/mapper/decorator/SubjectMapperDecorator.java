@@ -1,16 +1,9 @@
 package org.radarcns.management.service.mapper.decorator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import org.mapstruct.MappingTarget;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Subject;
-import org.radarcns.management.domain.User;
+import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.dto.AttributeMapDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.SubjectDTO.SubjectStatus;
@@ -18,6 +11,15 @@ import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Created by nivethika on 30-8-17.
@@ -47,8 +49,11 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
             dto.setAttributes(attributeMapDTOList);
         }
         dto.setStatus(getSubjectStatus(subject));
-        for (Role role : subject.getUser().getRoles()) {
-            dto.setProject(projectMapper.projectToProjectDTO(role.getProject()));
+        Optional<Role> role = subject.getUser().getRoles().stream()
+                .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PARTICIPANT))
+                .findFirst();
+        if (role.isPresent()) {
+            dto.setProject(projectMapper.projectToProjectDTO(role.get().getProject()));
         }
         return dto;
     }

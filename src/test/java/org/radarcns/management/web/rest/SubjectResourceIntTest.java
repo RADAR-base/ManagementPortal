@@ -1,11 +1,13 @@
 package org.radarcns.management.web.rest;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.MockitoAnnotations;
 import org.radarcns.management.ManagementPortalApp;
-
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.DeviceTypeRepository;
 import org.radarcns.management.repository.ProjectRepository;
-import org.radarcns.management.repository.SensorDataRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.service.DeviceTypeService;
 import org.radarcns.management.service.SubjectService;
@@ -13,14 +15,8 @@ import org.radarcns.management.service.dto.AttributeMapDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SourceRegistrationDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
-import org.radarcns.management.service.mapper.DeviceTypeMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -39,8 +35,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Test class for the SubjectResource REST controller.
@@ -60,7 +61,13 @@ public class SubjectResourceIntTest {
     private static final Boolean DEFAULT_REMOVED = false;
     private static final Boolean UPDATED_REMOVED = true;
 
+    private static final SubjectDTO.SubjectStatus DEFAULT_STATUS = SubjectDTO.SubjectStatus.DEACTIVATED;
+
     private static final String DEFAULT_EMAIL= "someone@gmail.com";
+
+    private static final String DEVICE_MODEL = "App";
+    private static final String DEVICE_PRODUCER ="THINC-IT App";
+    private static final String DEVICE_VERSION = "v1";
 
     @Autowired
     private SubjectRepository subjectRepository;
@@ -70,9 +77,6 @@ public class SubjectResourceIntTest {
 
     @Autowired
     private SubjectService subjectService;
-
-    @Autowired
-    private SensorDataRepository sensorDataRepository;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -90,9 +94,6 @@ public class SubjectResourceIntTest {
     private DeviceTypeRepository deviceTypeRepository;
 
     @Autowired
-    private DeviceTypeMapper deviceTypeMapper;
-
-    @Autowired
     private DeviceTypeService deviceTypeService;
 
     @Autowired
@@ -101,8 +102,6 @@ public class SubjectResourceIntTest {
     private MockMvc restSubjectMockMvc;
 
     private MockMvc restDeviceTypeMockMvc;
-
-    private Subject subject;
 
     @Before
     public void setup() {
@@ -132,25 +131,12 @@ public class SubjectResourceIntTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static Subject createEntity(EntityManager em) {
-        Subject subject = new Subject()
-            .externalLink(DEFAULT_EXTERNAL_LINK)
-            .externalId(DEFAULT_ENTERNAL_ID)
-            .removed(DEFAULT_REMOVED);
-        return subject;
-    }
-
-    /**
-     * Create an entity for this test.
-     *
-     * This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.
-     */
     public static SubjectDTO createEntityDTO(EntityManager em) {
         SubjectDTO subject = new SubjectDTO();
         subject.setExternalLink(DEFAULT_EXTERNAL_LINK);
         subject.setExternalId(DEFAULT_ENTERNAL_ID);
         subject.setEmail(DEFAULT_EMAIL);
+        subject.setStatus(SubjectDTO.SubjectStatus.ACTIVATED);
         ProjectDTO projectDTO = new ProjectDTO();
         projectDTO.setId(1L);
         projectDTO.setProjectName("Radar");
@@ -158,11 +144,6 @@ public class SubjectResourceIntTest {
         projectDTO.setDescription("test");
         subject.setProject(projectDTO);
         return subject;
-    }
-
-    @Before
-    public void initTest() {
-        subject = createEntity(em);
     }
 
     @Test
@@ -190,11 +171,9 @@ public class SubjectResourceIntTest {
     @Test
     @Transactional
     public void createSubjectWithExistingId() throws Exception {
+        // Create a Subject
+        SubjectDTO subjectDTO = subjectService.createSubject(createEntityDTO(em));
         int databaseSizeBeforeCreate = subjectRepository.findAll().size();
-
-        // Create the Subject with an existing ID
-        subject.setId(1L);
-        SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restSubjectMockMvc.perform(post("/api/subjects")
@@ -211,32 +190,32 @@ public class SubjectResourceIntTest {
     @Transactional
     public void getAllSubjects() throws Exception {
         // Initialize the database
-        subjectRepository.saveAndFlush(subject);
+        SubjectDTO subjectDTO = subjectService.createSubject(createEntityDTO(em));
 
         // Get all the subjectList
         restSubjectMockMvc.perform(get("/api/subjects?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(subject.getId().intValue())))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(subjectDTO.getId().intValue())))
             .andExpect(jsonPath("$.[*].externalLink").value(hasItem(DEFAULT_EXTERNAL_LINK.toString())))
-            .andExpect(jsonPath("$.[*].enternalId").value(hasItem(DEFAULT_ENTERNAL_ID.toString())))
-            .andExpect(jsonPath("$.[*].removed").value(hasItem(DEFAULT_REMOVED.booleanValue())));
+            .andExpect(jsonPath("$.[*].externalId").value(hasItem(DEFAULT_ENTERNAL_ID.toString())))
+            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())));
     }
 
     @Test
     @Transactional
     public void getSubject() throws Exception {
         // Initialize the database
-        subjectRepository.saveAndFlush(subject);
+        SubjectDTO subjectDTO = subjectService.createSubject(createEntityDTO(em));
 
         // Get the subject
-        restSubjectMockMvc.perform(get("/api/subjects/{id}", subject.getId()))
+        restSubjectMockMvc.perform(get("/api/subjects/{id}", subjectDTO.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.id").value(subject.getId().intValue()))
+            .andExpect(jsonPath("$.id").value(subjectDTO.getId().intValue()))
             .andExpect(jsonPath("$.externalLink").value(DEFAULT_EXTERNAL_LINK.toString()))
-            .andExpect(jsonPath("$.enternalId").value(DEFAULT_ENTERNAL_ID.toString()))
-            .andExpect(jsonPath("$.removed").value(DEFAULT_REMOVED.booleanValue()));
+            .andExpect(jsonPath("$.externalId").value(DEFAULT_ENTERNAL_ID.toString()))
+            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()));
     }
 
     @Test
@@ -251,16 +230,16 @@ public class SubjectResourceIntTest {
     @Transactional
     public void updateSubject() throws Exception {
         // Initialize the database
-        subjectRepository.saveAndFlush(subject);
+        SubjectDTO subjectDTO = subjectService.createSubject(createEntityDTO(em));
         int databaseSizeBeforeUpdate = subjectRepository.findAll().size();
 
         // Update the subject
-        Subject updatedSubject = subjectRepository.findOne(subject.getId());
+        Subject updatedSubject = subjectRepository.findOne(subjectDTO.getId());
         updatedSubject
             .externalLink(UPDATED_EXTERNAL_LINK)
             .externalId(UPDATED_ENTERNAL_ID)
             .removed(UPDATED_REMOVED);
-        SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(updatedSubject);
+        subjectDTO = subjectMapper.subjectToSubjectDTO(updatedSubject);
 
         restSubjectMockMvc.perform(put("/api/subjects")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -282,7 +261,7 @@ public class SubjectResourceIntTest {
         int databaseSizeBeforeUpdate = subjectRepository.findAll().size();
 
         // Create the Subject
-        SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
+        SubjectDTO subjectDTO = createEntityDTO(em);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restSubjectMockMvc.perform(put("/api/subjects")
@@ -299,11 +278,11 @@ public class SubjectResourceIntTest {
     @Transactional
     public void deleteSubject() throws Exception {
         // Initialize the database
-        subjectRepository.saveAndFlush(subject);
+        SubjectDTO subjectDTO = subjectService.createSubject(createEntityDTO(em));
         int databaseSizeBeforeDelete = subjectRepository.findAll().size();
 
         // Get the subject
-        restSubjectMockMvc.perform(delete("/api/subjects/{id}", subject.getId())
+        restSubjectMockMvc.perform(delete("/api/subjects/{id}", subjectDTO.getId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 
@@ -324,10 +303,6 @@ public class SubjectResourceIntTest {
     public void dynamicSourceRegistration() throws Exception {
         int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
-        String deviceModel = "App";
-        String deviceProducer ="THINC-IT App";
-        String deviceVersion = "v1";
-
         // Create the Subject
         SubjectDTO subjectDTO = createEntityDTO(em);
         restSubjectMockMvc.perform(post("/api/subjects")
@@ -346,18 +321,19 @@ public class SubjectResourceIntTest {
         AttributeMapDTO metadata = new AttributeMapDTO("some" , "value");
 
         SourceRegistrationDTO sourceRegistrationDTO = new SourceRegistrationDTO();
-        sourceRegistrationDTO.setDeviceTypeModel(deviceModel);
-        sourceRegistrationDTO.setDeviceTypeProducer(deviceProducer);
-        sourceRegistrationDTO.setDeviceTypeVersion(deviceVersion);
+        sourceRegistrationDTO.setDeviceTypeModel(DEVICE_MODEL);
+        sourceRegistrationDTO.setDeviceTypeProducer(DEVICE_PRODUCER);
+        sourceRegistrationDTO.setDeviceCatalogVersion(DEVICE_VERSION);
         sourceRegistrationDTO.getMetaData().add(metadata);
         assertThat(sourceRegistrationDTO.getSourceId()).isNull();
-        // An entity with an existing ID cannot be created, so this API call must fail
+
         restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDTO)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.sourceId").isNotEmpty());
 
+        // An entity with an existing ID cannot be created, so this API call must fail
         assertThat(sourceRegistrationDTO.getSourceId()).isNull();
         restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
             .contentType(TestUtil.APPLICATION_JSON_UTF8)

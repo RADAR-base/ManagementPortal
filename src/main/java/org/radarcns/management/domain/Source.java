@@ -38,6 +38,9 @@ public class Source implements Serializable {
     @Column(name = "source_name", nullable = false, unique = true)
     private String sourceName;
 
+    @Column(name = "expected_source_name")
+    private String expectedSourceName;
+
     @Column(name = "device_category")
     private String deviceCategory;
 
@@ -81,6 +84,7 @@ public class Source implements Serializable {
 
     public void setSourceId(UUID sourceId) {
         // pass
+        this.sourceId = sourceId;
     }
 
     @PrePersist
@@ -171,6 +175,14 @@ public class Source implements Serializable {
 
     public void setSourceName(String sourceName) {
         this.sourceName = sourceName;
+    }
+
+    public String getExpectedSourceName() {
+        return expectedSourceName;
+    }
+
+    public void setExpectedSourceName(String expectedSourceName) {
+        this.expectedSourceName = expectedSourceName;
     }
 
     public Map<String, String> getAttributes() {

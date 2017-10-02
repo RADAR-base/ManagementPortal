@@ -18,6 +18,8 @@ public class SourceDTO implements Serializable {
     @NotNull
     private String sourceName;
 
+    private String expectedSourceName;
+
     private String deviceCategory;
 
     @NotNull
@@ -89,6 +91,14 @@ public class SourceDTO implements Serializable {
 
     public void setSourceName(String sourceName) {
         this.sourceName = sourceName;
+    }
+
+    public String getExpectedSourceName() {
+        return expectedSourceName;
+    }
+
+    public void setExpectedSourceName(String expectedSourceName) {
+        this.expectedSourceName = expectedSourceName;
     }
 
     @Override

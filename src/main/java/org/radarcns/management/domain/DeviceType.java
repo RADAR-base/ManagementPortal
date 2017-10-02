@@ -9,8 +9,6 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.radarcns.management.domain.enumeration.SourceType;
 
 /**
@@ -36,8 +34,8 @@ public class DeviceType implements Serializable {
     private String deviceModel;
 
     @NotNull
-    @Column(name = "device_version", nullable = false)
-    private String deviceVersion;
+    @Column(name = "catalog_version", nullable = false)
+    private String catalogVersion;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -94,16 +92,16 @@ public class DeviceType implements Serializable {
         this.deviceModel = deviceModel;
     }
 
-    public String getDeviceVersion() {
-        return deviceVersion;
+    public String getCatalogVersion() {
+        return catalogVersion;
     }
 
-    public void setDeviceVersion(String deviceVersion) {
-        this.deviceVersion = deviceVersion;
+    public void setCatalogVersion(String catalogVersion) {
+        this.catalogVersion = catalogVersion;
     }
 
     public DeviceType deviceVersion(String deviceVersion) {
-        this.deviceVersion = deviceVersion;
+        this.catalogVersion = deviceVersion;
         return this;
     }
 
@@ -202,9 +200,11 @@ public class DeviceType implements Serializable {
     public String toString() {
         return "DeviceType{" +
             "id=" + id +
-            ", deviceProducer='" + deviceProducer + "'" +
-            ", deviceModel='" + deviceModel + "'" +
-            ", sourceType='" + sourceType + "'" +
+            ", deviceProducer='" + deviceProducer + '\'' +
+            ", deviceModel='" + deviceModel + '\'' +
+            ", catalogVersion='" + catalogVersion + '\'' +
+            ", sourceType=" + sourceType +
+            ", canRegisterDynamically=" + canRegisterDynamically +
             '}';
     }
 }

@@ -1,0 +1,46 @@
+<div>
+    <jhi-alert></jhi-alert>
+    <div class="table-responsive" *ngIf="users">
+        <table class="table table-striped">
+            <thead>
+            <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
+            <th jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span><span class="fa fa-sort"></span></th>
+                <th jhiSortBy="login"><span jhiTranslate="userManagement.login">Login</span> <span class="fa fa-sort"></span></th>
+                <th jhiSortBy="email"><span jhiTranslate="userManagement.email">Email</span> <span class="fa fa-sort"></span></th>
+                <th></th>
+                <th jhiSortBy="langKey"> <span jhiTranslate="userManagement.langKey">Lang Key</span> <span class="fa fa-sort"></span></th>
+                <th jhiSortBy="lastModifiedBy"><span jhiTranslate="userManagement.lastModifiedBy">Last Modified By</span> <span class="fa fa-sort"></span></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody *ngIf ="users">
+            <tr *ngFor="let user of users; trackBy: trackIdentity">
+                <td><a [routerLink]="['/user-management', user.login]">{{user.id}}</a></td>
+                <td>{{user.login}}</td>
+                <td>{{user.email}}</td>
+                <td>
+                    <span class="badge badge-danger hand"  *ngIf="!user.activated"
+                          jhiTranslate="userManagement.deactivated">Deactivated</span>
+                    <span class="badge badge-success hand"  *ngIf="user.activated"
+                          jhiTranslate="userManagement.activated">Activated</span>
+                </td>
+                <td>{{user.langKey}}</td>
+
+                <td>{{user.lastModifiedBy}}</td>
+
+                <td class="text-right">
+                    <div class="btn-group flex-btn-group-container">
+                        <button type="submit"
+                                replaceUrl="true"
+                                [routerLink]="['/user-management', user.login]"
+                                class="btn btn-info btn-sm">
+                            <span class="fa fa-eye"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

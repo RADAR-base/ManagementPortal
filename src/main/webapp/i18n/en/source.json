@@ -21,7 +21,8 @@
             "assigned": "Assigned",
             "unassigned": "Unassigned",
             "deviceType": "Device Type",
-            "project": "Project"
+            "project": "Project",
+            "expectedSourceName" : "Expected source name"
         }
     },
     "error": {

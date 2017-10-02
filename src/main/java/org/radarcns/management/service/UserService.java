@@ -7,7 +7,6 @@ import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
-import org.radarcns.management.config.Constants;
 import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.RoleRepository;
@@ -36,7 +35,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Service class for managing users.
@@ -309,5 +307,13 @@ public class UserService {
             log.debug("Deleting not activated user {}", user.getLogin());
             userRepository.delete(user);
         }
+    }
+
+    public List<UserDTO> findAllByProjectIdAndAuthority(Long projectId, String authority) {
+        return userMapper.usersToUserDTOs(userRepository.findAllByProjectIdAndAuthority(projectId, authority));
+    }
+
+    public List<UserDTO> findAllByProjectId(Long projectId) {
+        return userMapper.usersToUserDTOs(userRepository.findAllByProjectId(projectId));
     }
 }

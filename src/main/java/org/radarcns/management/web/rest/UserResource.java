@@ -167,6 +167,25 @@ public class UserResource {
     }
 
     /**
+     * GET  /users-for-project : get all users.
+     *
+     * @return the ResponseEntity with status 200 (OK) and with body all users in request criteria
+     */
+    @GetMapping("/users-for-project")
+    @Timed
+    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
+    public ResponseEntity<List<UserDTO>> getAllForProject(
+        @RequestParam(value = "projectId" ) Long projectId,
+        @RequestParam(value = "authority" , required = false) String authority) {
+
+        if(projectId!=null && authority!=null) {
+            log.info("ProjectID {} and authority {}" , projectId, authority);
+            return new ResponseEntity<>(userService.findAllByProjectIdAndAuthority(projectId, authority) , HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(userService.findAllByProjectId(projectId), HttpStatus.OK);
+    }
+    /**
      * GET  /users/:login : get the "login" user.
      *
      * @param login the login of the user to find
