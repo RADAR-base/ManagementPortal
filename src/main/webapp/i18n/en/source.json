@@ -22,11 +22,12 @@
             "unassigned": "Unassigned",
             "deviceType": "Device Type",
             "project": "Project",
-            "expectedSourceName" : "Expected source name"
+            "expectedSourceName" : "Expected source name",
+            "sourceAlreadyAdded" : "This source has been already added in your list"
         }
     },
     "error": {
         "sourceNameExists": " Source Name is already registered",
-        "sourceIsAssigned": "Cannot delete a currently assigned source."
+        "sourceIsAssigned": "Cannot edit/delete a currently assigned source."
     }
 }

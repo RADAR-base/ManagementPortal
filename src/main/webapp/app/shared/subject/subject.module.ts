@@ -17,6 +17,10 @@ import {
     subjectRoute,
     subjectPopupRoute,
 } from './';
+import {
+    SubjectSourceAssignerDialogComponent,
+    SubjectSourceAssignerPopupComponent
+} from "./source-assigner/source-assigner.component";
 
 const ENTITY_STATES = [
     ...subjectRoute,
@@ -37,7 +41,9 @@ const ENTITY_STATES = [
         SubjectPairDialogComponent,
         SubjectPopupComponent,
         SubjectDeletePopupComponent,
-        SubjectPairPopupComponent
+        SubjectPairPopupComponent,
+        SubjectSourceAssignerDialogComponent,
+        SubjectSourceAssignerPopupComponent
     ],
     entryComponents: [
         SubjectComponent,
@@ -46,7 +52,9 @@ const ENTITY_STATES = [
         SubjectDeleteDialogComponent,
         SubjectDeletePopupComponent,
         SubjectPairDialogComponent,
-        SubjectPairPopupComponent
+        SubjectPairPopupComponent,
+        SubjectSourceAssignerDialogComponent,
+        SubjectSourceAssignerPopupComponent
     ],
     providers: [
         SubjectService,

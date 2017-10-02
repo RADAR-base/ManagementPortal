@@ -83,6 +83,16 @@
                             <span class="fa fa-qrcode"></span>
                             <span jhiTranslate="managementPortalApp.subject.pairApp">Pair App</span>
                         </button>
+                        <button [disabled]="subject.status == 'DISCONTINUED'"
+                                type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'subject/' + subject.id + '/sources' } }]"
+                                replaceUrl="true"
+                                class="btn btn-link btn-sm">
+                        <!--style="background-color: #80bfff"-->
+
+                            <span class="fa fa-link"></span>
+                            <span jhiTranslate="managementPortalApp.subject.pairSources.button">Pair Sources</span>
+                        </button>
                         <button *ngIf='!isProjectSpecific' [disabled]="subject.status == 'DISCONTINUED'"
                                 type="submit"
                                 [routerLink]="['/subject', subject.id ]"

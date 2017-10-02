@@ -169,10 +169,40 @@ public class SourceService {
         sourceRepository.delete(id);
     }
 
+    /**
+     * Returns all sources by project in {@link SourceDTO} format
+     * @param projectId
+     * @return list of sources
+     */
     public List<SourceDTO> findAllByProjectId(Long projectId) {
         return sourceRepository.findAllSourcesByProjectId(projectId)
             .stream()
             .map(sourceMapper::sourceToSourceDTO)
+            .collect(Collectors.toCollection(LinkedList::new));
+    }
+
+    /**
+     * Returns all sources by project in {@link MinimalSourceDetailsDTO} format
+     * @param projectId
+     * @return list of sources
+     */
+    public List<MinimalSourceDetailsDTO> findAllMinimalSourceDetailsByProject(Long projectId) {
+        return sourceRepository.findAllSourcesByProjectId(projectId)
+            .stream()
+            .map(sourceMapper::sourceToMinimalSourceDetailsDTO)
+            .collect(Collectors.toCollection(LinkedList::new));
+    }
+
+    /**
+     * Returns list of not-assigned sources by project id
+     * @param projectId
+     * @param assigned
+     * @return
+     */
+    public List<MinimalSourceDetailsDTO> findAllByProjectAndAssigned(Long projectId, boolean assigned) {
+        return sourceRepository.findAllSourcesByProjectIdAndAssigned(projectId , assigned)
+            .stream()
+            .map(sourceMapper::sourceToMinimalSourceDetailsDTO)
             .collect(Collectors.toCollection(LinkedList::new));
     }
 }

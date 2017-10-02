@@ -30,6 +30,15 @@
             "lastModifiedBy": "Last Modified By",
             "lastModifiedDate": "Last Modified Date",
             "pairApp": "Pair App",
+            "pairSources": {
+                "button" : "Pair Sources",
+                "title" : "Assign or Remove sources ",
+                "Id" : "Id",
+                "sourceDescription" : "Source Description",
+                "remove" : "Remove",
+                "assignedSources" : "Assigned sources",
+                "availableSources" : "Available sources"
+            },
             "clientApp": "Client app",
             "resource": "Protected resource",
             "attributeDataKey" : "Tag",

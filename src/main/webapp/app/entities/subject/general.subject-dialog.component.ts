@@ -25,7 +25,7 @@ export class GeneralSubjectDialogComponent implements OnInit {
     isSaving: boolean;
     projects: Project[];
 
-    sources: MinimalSource[];
+    // sources: MinimalSource[];
     keys : string[];
     attributeComponentEventPrefix : 'subjectAttributes';
 
@@ -47,17 +47,6 @@ export class GeneralSubjectDialogComponent implements OnInit {
             (res) => {
                 this.projects = res.json();
             });
-        if (this.subject.id !== null) {
-            this.sourceService.findUnAssignedAndOfSubject(this.subject.id).subscribe(
-                (res: Response) => {
-                    this.sources = res.json();
-                }, (res: Response) => this.onError(res.json()));
-        } else {
-            this.sourceService.findUnAssigned().subscribe(
-                (res: Response) => {
-                    this.sources = res.json();
-                }, (res: Response) => this.onError(res.json()));
-        }
         this.registerChangesInSubject();
     }
 

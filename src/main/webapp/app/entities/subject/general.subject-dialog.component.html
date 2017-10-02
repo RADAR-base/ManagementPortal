@@ -60,13 +60,6 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <label jhiTranslate="managementPortalApp.subject.sources" for="field_devices">Sources</label>
-            <select class="form-control" id="field_devices" multiple name="sources" [(ngModel)]="subject.sources" >
-                <option [ngValue]="getSelected(subject.sources, deviceOption)" *ngFor="let deviceOption of sources; trackBy: trackDeviceById">{{deviceOption.deviceTypeAndSourceId}}</option>
-            </select>
-        </div>
-
         <attribute-mapper [attributes]='subject.attributes' [keys]='keys' [eventPrefix]='attributeComponentEventPrefix'></attribute-mapper>
     </div>
     <div class="modal-footer">

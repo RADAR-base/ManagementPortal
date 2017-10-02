@@ -30,6 +30,15 @@
             "lastModifiedBy": "Laatst aangepast door",
             "lastModifiedDate": "Laatst aangepast datum",
             "pairApp": "App koppelen",
+            "pairSources": {
+                "button" : "Paar Sources",
+                "title" : "Toewijzen of verwijderen sources ",
+                "Id" : "Id",
+                "sourceDescription" : "Source Beschrijving",
+                "remove" : "Verwijderen",
+                "assignedSources" : "toegewezen sources",
+                "availableSources" : "Beschikbaar sources"
+            },
             "clientApp": "Client app",
             "resource": "Beveiligde gegevensbron",
             "attributeDataKey" : "Tag",

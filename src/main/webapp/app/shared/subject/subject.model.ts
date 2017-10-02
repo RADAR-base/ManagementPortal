@@ -13,7 +13,7 @@ export class Subject {
     public lastModifiedDate?: Date;
     public password?: string;
     public project?: Project;
-    public source?: MinimalSource = new MinimalSource();
+    public sources?: MinimalSource[];
     public attributes: Attribute[];
     public status: SubjectStatus;
 
@@ -30,7 +30,7 @@ export class Subject {
          lastModifiedDate?: Date,
          password?: string,
          project?: Project,
-         source?: Source
+         sources?: MinimalSource[]
 
     ) {
         this.id = id ? id : null;
@@ -44,7 +44,7 @@ export class Subject {
         this.lastModifiedDate = lastModifiedDate ? lastModifiedDate : null;
         this.password = password ? password : null;
         this.project = project ? project: null;
-        this.source = source ? source: new MinimalSource();
+        this.sources = sources ? sources: new Array();
         this.status = status ? status: SubjectStatus.DEACTIVATED;
     }
 }
