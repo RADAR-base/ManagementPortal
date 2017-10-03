@@ -7,7 +7,7 @@ import java.util.UUID;
  */
 public class MinimalSourceDetailsDTO {
     private Long id;
-    private Long deviceType;
+    private Long deviceTypeId;
     private String deviceTypeName;
     private String expectedSourceName;
     private UUID sourceId;
@@ -22,12 +22,12 @@ public class MinimalSourceDetailsDTO {
         this.id = id;
     }
 
-    public Long getDeviceType() {
-        return deviceType;
+    public Long getDeviceTypeId() {
+        return deviceTypeId;
     }
 
-    public void setDeviceType(Long deviceType) {
-        this.deviceType = deviceType;
+    public void setDeviceTypeId(Long deviceTypeId) {
+        this.deviceTypeId = deviceTypeId;
     }
 
     public String getExpectedSourceName() {
