@@ -135,7 +135,6 @@ public class SubjectResourceIntTest {
         SubjectDTO subject = new SubjectDTO();
         subject.setExternalLink(DEFAULT_EXTERNAL_LINK);
         subject.setExternalId(DEFAULT_ENTERNAL_ID);
-        subject.setEmail(DEFAULT_EMAIL);
         subject.setStatus(SubjectDTO.SubjectStatus.ACTIVATED);
         ProjectDTO projectDTO = new ProjectDTO();
         projectDTO.setId(1L);

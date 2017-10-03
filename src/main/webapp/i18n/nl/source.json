@@ -22,7 +22,7 @@
             "unassigned": "Unassigned",
             "deviceType": "Device Type",
             "project": "Project",
-            "expectedSourceName" : "Expected source name",
+            "expectedSourceName" : "Physical ID",
             "sourceAlreadyAdded" : "Deze source is al in uw lijst toegevoegd"
         }
     },

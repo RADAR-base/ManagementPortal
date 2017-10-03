@@ -1,7 +1,7 @@
 <form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
 
     <div class="modal-header">
-        <h4 class="modal-title" id="mySubjectLabel" jhiTranslate="managementPortalApp.subject.pairSources.title">Assign or Unassign a source</h4>
+        <h4 class="modal-title" id="mySubjectLabel" jhiTranslate="managementPortalApp.subject.pairSources.title">Assign or unassign a source</h4>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
                 (click)="clear()">&times;</button>
     </div>
@@ -13,20 +13,22 @@
             <input type="text" class="form-control" id="id" name="id"
                    [(ngModel)]="subject.login" readonly />
         </div>
-        <label class="form-control-label" jhiTranslate="managementPortalApp.subject.pairSources.assignedSources" >Assigned Sources</label>
+        <label class="form-control-label" jhiTranslate="managementPortalApp.subject.pairSources.assignedSources" >Assigned sources</label>
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <th><span jhiTranslate="managementPortalApp.subject.pairSources.Id">SourceId</span></th>
-                    <th><span jhiTranslate="managementPortalApp.subject.pairSources.sourceDescription">Value</span></th>
+                    <th><span jhiTranslate="managementPortalApp.subject.pairSources.deviceType">Device type</span></th>
+                    <th><span jhiTranslate="managementPortalApp.subject.pairSources.sourceId">Source ID</span></th>
+                    <th><span jhiTranslate="managementPortalApp.subject.pairSources.expectedSourceName">Physical ID</span></th>
                     <th></th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let source of assignedSources; trackBy: trackBySourceId">
-                    <td>{{source.id}}</td>
-                    <td>{{source.deviceTypeAndSourceId}}</td>
+                <tr *ngFor="let source of assignedSources; trackBy: trackDeviceById">
+                    <td>{{source.deviceTypeName}}</td>
+                    <td>{{source.sourceName}}</td>
+                    <td>{{source.expectedSourceName}}</td>
                     <td>
                         <button type="button" (click)="removeSource(source)" class="btn btn-danger btn-sm fa fa-remove" >
                             <span class="hidden-md-down" jhiTranslate="managementPortalApp.subject.pairSources.remove">Remove</span>
@@ -41,15 +43,17 @@
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <th><span jhiTranslate="managementPortalApp.subject.pairSources.Id">SourceId</span></th>
-                    <th><span jhiTranslate="managementPortalApp.subject.pairSources.sourceDescription">Value</span></th>
+                    <th><span jhiTranslate="managementPortalApp.subject.pairSources.deviceType">Device type</span></th>
+                    <th><span jhiTranslate="managementPortalApp.subject.pairSources.sourceId">Source ID</span></th>
+                    <th><span jhiTranslate="managementPortalApp.subject.pairSources.expectedSourceName">Physical ID</span></th>
                     <th></th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let source of assignableSources; trackBy: trackBySourceId">
-                    <td>{{source.id}}</td>
-                    <td>{{source.deviceTypeAndSourceId}}</td>
+                <tr *ngFor="let source of assignableSources; trackBy: trackDeviceById">
+                    <td>{{source.deviceTypeName}}</td>
+                    <td>{{source.sourceName}}</td>
+                    <td>{{source.expectedSourceName}}</td>
                     <td>
                         <button type="button" class="btn btn-primary float-right" (click)="addSource(source)">
                         <span  jhiTranslate="global.attribute.add">
