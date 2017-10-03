@@ -39,7 +39,10 @@
                 "sourceDescription" : "Source Description",
                 "remove" : "Remove",
                 "assignedSources" : "Assigned sources",
-                "availableSources" : "Available sources"
+                "availableSources" : "Available sources",
+                "deviceType": "Device type",
+                "sourceId": "Source ID",
+                "expectedSourceName": "Physical ID"
             },
             "clientApp": "Client app",
             "resource": "Protected resource",

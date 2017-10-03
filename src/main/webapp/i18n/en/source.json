@@ -15,14 +15,14 @@
             "detail": {
                 "title": "Source"
             },
-            "sourceId": "Source Id",
+            "sourceId": "Source ID",
             "sourceName": "Source Name",
             "deviceCategory": "Device Category",
             "assigned": "Assigned",
             "unassigned": "Unassigned",
             "deviceType": "Device Type",
             "project": "Project",
-            "expectedSourceName" : "Expected source name",
+            "expectedSourceName" : "Physical ID",
             "sourceAlreadyAdded" : "This source has been already added in your list"
         }
     },

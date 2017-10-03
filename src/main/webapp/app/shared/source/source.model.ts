@@ -18,7 +18,11 @@ export class Source {
 export class MinimalSource {
     constructor(
         public id?: number,
-        public deviceTypeAndSourceId?: string,
+        public deviceType?: number,
+        public deviceTypeName?: string,
+        public expectedSourceName?: string | null,
+        public sourceId?: string,
+        public sourceName?: string,
         public assigned?: boolean,
     ) {
         this.assigned = false;

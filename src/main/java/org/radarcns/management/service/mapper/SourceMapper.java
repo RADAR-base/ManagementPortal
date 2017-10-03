@@ -20,7 +20,11 @@ public interface SourceMapper {
 //    @Mapping(source = "project", target = "project")
     SourceDTO sourceToSourceDTO(Source source);
 
-//    @Mapping(target = "deviceTypeAndSourceId" , ignore = true)
+    @Mapping(source = "deviceType.id", target = "deviceTypeId")
+    @Mapping(source = "sourceId", target = "sourceId")
+    @Mapping(target = "deviceTypeName", ignore = true)
+    @Mapping(source = "expectedSourceName", target = "expectedSourceName")
+    @Mapping(source = "sourceName", target = "sourceName")
     MinimalSourceDetailsDTO sourceToMinimalSourceDetailsDTO(Source source);
 
     List<MinimalSourceDetailsDTO> sourcesToMinimalSourceDetailsDTOs(List<Source> sources);
