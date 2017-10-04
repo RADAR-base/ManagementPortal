@@ -284,4 +284,11 @@ public class SubjectService {
 
         return sourceMapper.sourcesToSourceRegisterationDTOs(sources);
     }
+
+    public void deleteSubject(String login) {
+        subjectRepository.findOneWithEagerBySubjectLogin(login).ifPresent(user -> {
+            subjectRepository.delete(user);
+                log.debug("Deleted User: {}", user);
+            });
+    }
 }

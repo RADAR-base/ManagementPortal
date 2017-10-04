@@ -34,7 +34,7 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
 
     @Query("select subject from Subject subject left join fetch subject.sources "
         + "WHERE subject.user.login = :login")
-    Subject findOneWithEagerBySubjectLogin(@Param("login") String login);
+    Optional<Subject> findOneWithEagerBySubjectLogin(@Param("login") String login);
 
     @Query("select subject.sources from Subject subject WHERE subject.id = :id")
     List<Source> findSourcesBySubjectId(@Param("id") Long id);

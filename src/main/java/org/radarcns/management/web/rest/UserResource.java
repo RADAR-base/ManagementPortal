@@ -171,11 +171,11 @@ public class UserResource {
      *
      * @return the ResponseEntity with status 200 (OK) and with body all users in request criteria
      */
-    @GetMapping("/users-for-project")
+    @GetMapping("/users/projects/{projectId}")
     @Timed
     @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<List<UserDTO>> getAllForProject(
-        @RequestParam(value = "projectId" ) Long projectId,
+        @PathVariable Long projectId,
         @RequestParam(value = "authority" , required = false) String authority) {
 
         if(projectId!=null && authority!=null) {

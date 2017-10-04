@@ -30,9 +30,9 @@ export class SubjectDeleteDialogComponent {
         this.activeModal.dismiss('cancel');
     }
 
-    confirmDelete(id: number) {
+    confirmDelete(login: string) {
         if(this.isDelete) {
-            this.subjectService.delete(id).subscribe((response) => {
+            this.subjectService.delete(login).subscribe((response) => {
                 this.eventManager.broadcast({
                     name: 'subjectListModification',
                     content: 'Deleted an subject'
@@ -68,11 +68,11 @@ export class SubjectDeletePopupComponent implements OnInit, OnDestroy {
             this.route.url.subscribe(url =>{
                 if('discontinue'==(url[2].path)) {
                     this.modalRef = this.subjectPopupService
-                    .open(SubjectDeleteDialogComponent, params['id'] , false);
+                    .open(SubjectDeleteDialogComponent, params['login'] , false);
                 }
                 else if('delete'==(url[2].path)) {
                     this.modalRef = this.subjectPopupService
-                    .open(SubjectDeleteDialogComponent, params['id'] , true);
+                    .open(SubjectDeleteDialogComponent, params['login'] , true);
                 }
             });
 
