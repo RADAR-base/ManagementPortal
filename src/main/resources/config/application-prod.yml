@@ -46,16 +46,13 @@ spring:
             hibernate.cache.use_minimal_puts: true
             hibernate.cache.hazelcast.use_lite_member: true
     mail:
-        host: smtp.gmail.com
-        port: 587
-        username: <email-username>
-        password: <email-password>
+        host: smtp
+        port: 25
         protocol: smtp
-        tls: true
+        tls: false
         properties.mail.smtp:
-            auth: true
-            starttls.enable: true
-            ssl.trust: smtp.gmail.com
+            auth: false
+            starttls.enable: false
         debug: true
     thymeleaf:
         cache: true
@@ -87,6 +84,16 @@ server:
         mime-types: text/html,text/xml,text/plain,text/css, application/javascript, application/json
         min-response-size: 1024
 
+
+# ===================================================================
+# ManagementPortal specific properties
+#
+# ===================================================================
+managementportal:
+    mail: # specific JHipster mail property, for standard properties see MailProperties
+        from: ManagementPortal@localhost
+        baseUrl: http://my-server-url-to-change-here # Modify according to your server's URL
+
 # ===================================================================
 # JHipster specific properties
 #
@@ -102,9 +109,6 @@ jhipster:
         hazelcast: # Hazelcast distributed cache
             time-to-live-seconds: 3600
             backup-count: 1
-    mail: # specific JHipster mail property, for standard properties see MailProperties
-        from: ManagementPortal@localhost
-        base-url: http://my-server-url-to-change # Modify according to your server's URL
     metrics: # DropWizard Metrics configuration, used by MetricsConfiguration
         jmx.enabled: true
         graphite:
