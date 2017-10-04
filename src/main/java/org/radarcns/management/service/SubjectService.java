@@ -205,9 +205,7 @@ public class SubjectService {
                 if(sourceRegistrationDTO.getSourceName()!=null) {
                     source.setSourceName(sourceRegistrationDTO.getSourceName());
                 }
-                for(AttributeMapDTO metaData : sourceRegistrationDTO.getMetaData()) {
-                    source.getAttributes().put(metaData.getKey(), metaData.getValue());
-                }
+                source.getAttributes().putAll(sourceRegistrationDTO.getAttributes());
                 sourceRepository.save(source);
                 assignedSource = source;
             } else {
@@ -229,10 +227,7 @@ public class SubjectService {
                 source1.setProject(project);
                 source1.setAssigned(true);
                 source1.setDeviceType(deviceType);
-                for (AttributeMapDTO metaData : sourceRegistrationDTO.getMetaData()) {
-                    source1.getAttributes().put(metaData.getKey(), metaData.getValue());
-                }
-
+                source1.getAttributes().putAll(sourceRegistrationDTO.getAttributes());
                 source1 = sourceRepository.save(source1);
                 // if source name is provided update source name
                 if(sourceRegistrationDTO.getSourceName() !=null ) {

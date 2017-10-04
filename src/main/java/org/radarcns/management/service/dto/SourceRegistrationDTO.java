@@ -1,6 +1,8 @@
 package org.radarcns.management.service.dto;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,6 +17,8 @@ public class SourceRegistrationDTO {
 
     private String sourceName;
 
+    private Long deviceTypeId;
+
     private String deviceTypeModel;
 
     private String deviceTypeProducer;
@@ -25,7 +29,7 @@ public class SourceRegistrationDTO {
 
     private boolean assigned;
 
-    private Set<AttributeMapDTO> metaData = new HashSet<>();
+    private Map<String, String> attributes = new HashMap<>();
 
     public UUID getSourceId() {
         return sourceId;
@@ -67,12 +71,12 @@ public class SourceRegistrationDTO {
         this.expectedSourceName = expectedSourceName;
     }
 
-    public Set<AttributeMapDTO> getMetaData() {
-        return metaData;
+    public Map<String, String> getAttributes() {
+        return attributes;
     }
 
-    public void setMetaData(Set<AttributeMapDTO> metaData) {
-        this.metaData = metaData;
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
     }
 
     public Long getProjectId() {
@@ -97,5 +101,13 @@ public class SourceRegistrationDTO {
 
     public void setSourceName(String sourceName) {
         this.sourceName = sourceName;
+    }
+
+    public Long getDeviceTypeId() {
+        return deviceTypeId;
+    }
+
+    public void setDeviceTypeId(Long deviceTypeId) {
+        this.deviceTypeId = deviceTypeId;
     }
 }

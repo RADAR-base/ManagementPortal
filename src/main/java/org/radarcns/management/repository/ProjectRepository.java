@@ -37,4 +37,9 @@ public interface ProjectRepository extends JpaRepository<Project,Long> {
         @Param("producer") String producer, @Param("model") String model,
         @Param("version") String version);
 
+    @Query("select distinct deviceType from Project project left join project.deviceTypes deviceType "
+        + "where project.id =:id "
+        + "and deviceType.id = :deviceTypeId ")
+    Optional<DeviceType> findDeviceTypeByProjectIdAndDeviceTypeId(@Param("id") Long id,
+        @Param("deviceTypeId") Long deviceTypeId);
 }

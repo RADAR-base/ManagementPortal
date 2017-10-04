@@ -270,8 +270,8 @@ public class SubjectResource {
 
         // find the PARTICIPANT role for this subject
         Optional<Role> roleOptional = subject.getUser().getRoles().stream()
-                .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PARTICIPANT))
-                .findFirst();
+            .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PARTICIPANT))
+            .findFirst();
         if (!roleOptional.isPresent()) {
             // no participant role found
             return ResponseUtil.wrapOrNotFound(Optional.empty(), HeaderUtil.createFailureAlert(
@@ -280,11 +280,18 @@ public class SubjectResource {
         }
         Role role = roleOptional.get();
         // find whether the relevant device-type is available in the subject's project
-        Optional<DeviceType> deviceType = projectRepository
-            .findDeviceTypeByProjectIdAndDeviceTypeProp(role.getProject().getId(),
-                sourceDTO.getDeviceTypeProducer(),
-                sourceDTO.getDeviceTypeModel(),
-                sourceDTO.getDeviceCatalogVersion());
+        Optional<DeviceType> deviceType;
+        if (sourceDTO.getDeviceTypeId() != null) {
+            deviceType = projectRepository
+                .findDeviceTypeByProjectIdAndDeviceTypeId(role.getProject().getId(),
+                    sourceDTO.getDeviceTypeId());
+        } else {
+            deviceType = projectRepository
+                .findDeviceTypeByProjectIdAndDeviceTypeProp(role.getProject().getId(),
+                    sourceDTO.getDeviceTypeProducer(),
+                    sourceDTO.getDeviceTypeModel(),
+                    sourceDTO.getDeviceCatalogVersion());
+        }
         if (!deviceType.isPresent()) {
             // return bad request
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(HeaderUtil
@@ -299,6 +306,7 @@ public class SubjectResource {
         SourceRegistrationDTO sourceRegistered = subjectService
             .assignOrUpdateSource(subject, deviceType.get(), role.getProject(), sourceDTO);
 
+        // TODO: replace ok() with created, with a location to query the new source.
         return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(
             ENTITY_NAME, subject.getId().toString())).body(sourceRegistered);
     }

@@ -39,11 +39,13 @@ public interface SourceMapper {
 
     @Mapping(source = "sourceId" , target = "sourceId")
     @Mapping(source = "expectedSourceName" , target = "expectedSourceName")
+    @Mapping(source = "deviceType.id" , target = "deviceTypeId")
     @Mapping(source = "deviceType.deviceModel" , target = "deviceTypeModel")
     @Mapping(source = "deviceType.deviceProducer" , target = "deviceTypeProducer")
     @Mapping(source = "deviceType.catalogVersion" , target = "deviceCatalogVersion")
     @Mapping(source = "project.id" , target = "projectId")
     @Mapping(source = "assigned" , target = "assigned")
+    @Mapping(source = "attributes", target = "attributes")
     SourceRegistrationDTO sourceToSourceRegistrationDTO(Source source);
 
 //    @Mapping(source = "deviceTypeId", target = "deviceType")

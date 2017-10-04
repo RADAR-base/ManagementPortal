@@ -11,7 +11,6 @@ import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.service.DeviceTypeService;
 import org.radarcns.management.service.SubjectService;
-import org.radarcns.management.service.dto.AttributeMapDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SourceRegistrationDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
@@ -317,13 +316,11 @@ public class SubjectResourceIntTest {
         String subjectLogin = testSubject.getUser().getLogin();
         assertNotNull(subjectLogin);
 
-        AttributeMapDTO metadata = new AttributeMapDTO("some" , "value");
-
         SourceRegistrationDTO sourceRegistrationDTO = new SourceRegistrationDTO();
         sourceRegistrationDTO.setDeviceTypeModel(DEVICE_MODEL);
         sourceRegistrationDTO.setDeviceTypeProducer(DEVICE_PRODUCER);
         sourceRegistrationDTO.setDeviceCatalogVersion(DEVICE_VERSION);
-        sourceRegistrationDTO.getMetaData().add(metadata);
+        sourceRegistrationDTO.getAttributes().put("some", "value");
         assertThat(sourceRegistrationDTO.getSourceId()).isNull();
 
         restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
