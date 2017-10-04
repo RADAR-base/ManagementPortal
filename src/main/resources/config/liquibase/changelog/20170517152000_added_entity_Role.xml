@@ -55,5 +55,12 @@
 
         <addPrimaryKey columnNames="roles_id, users_id" tableName="role_users"/>
 
+        <createIndex indexName="idx_role_project_authority"
+            tableName="radar_role"
+            unique="true">
+            <column name="project_id" type="bigint"/>
+            <column name="authority_name" type="varchar(50)"/>
+        </createIndex>
+
     </changeSet>
 </databaseChangeLog>
