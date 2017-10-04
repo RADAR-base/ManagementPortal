@@ -15,18 +15,30 @@ compile group: 'org.radarcns', name: 'radar-auth', version: '1.0-SNAPSHOT'
 
 The library expects the identity server configuration in a file called `radar-is.yml`. Either set 
 the environment variable `RADAR_IS_CONFIG_LOCATION` to the full path of the file, or put the file 
-somewhere on the classpath. The file should define the following variables:
+somewhere on the classpath. The file should define `resourceName` and either of `publicKeyEndpoint`
+or `publicKey`. If both are specified, `publicKey` has the priority.
 
 | Variable name             | Description                                                                                                                                                                                                                                                                                             |
 |---------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `resourceName`            | The name of this resource. It has to appear in the `audience` claim of a JWT token in order for the token to be accepted.                                                                                                                                                                               |
 | `publicKeyEndpoint`       | Server endpoint that provides the public key of the keypair used to sign the JWTs. The expected response from this endpoint is a JSON structure containing two fields: `alg` and `value`, where `alg` should be equal to `SHA256withRSA`, and `value` should be equal to the public key in PEM format.  |
+| `publicKey`               | PEM formatted public key for JWT validation. You can use YAML [literal style] to conveniently specify a multiline value for a variable. Also handy for testing scenario's where you don't necessarily have access to the public key endpoint.                                                           | 
 
 For example:
 
 ```yaml
 resourceName: resource_name
 publicKeyEndpoint: http://localhost:8080/oauth/token_key
+```
+
+or
+
+```yaml
+resourceName: res_ManagementPortal
+publicKey: |-
+  -----BEGIN PUBLIC KEY-----
+  MIICHDANBgkqhkiG9w0BAQEFAAOCAgkAMIICBAKCAfsAqM4o+hVAdF2QATQBmpehSMyhdqKvwh9mrfnxDNtctZYlpiQXMbq4uqRgp98aBy6bMKKr3k0rSXTzr27Y+tdLUWXqbl4y8kKm8rGZo9gTbPyhqPm4f4OIxMRJcuhQ7f8qBY87w9buzClQeUs3h5f+DUVRUfB9FnDtim+ma3mFqYh38TMnrBapCtG+7iVKRFgGv6JWiNTql+oVBPNuUX3koc5/zO6IhrD49vBbsjaRWTJV2xMNll82gPvVLtgQNA2t7iGnUPhfKDj1NInZeg79NzFnWAa9Jtc1r2Q7D68MiJhYZN2QAlZS1GfbELnRAeUmSxT5i3BHu23iz9zluhIhYe1vhA1QWk2HsriGL9w+iFqzYlk5P3GCAE+nfNmM/6GIp1ehzW+/4+xgik5rOakCWw4vewmSBWOrV/XZvT2ZT3AA6zIByWdERyMOVJmd9rqPH1FIDtQk8h2jFTqIvBda727DHXeUB9J4hHQTzQmvOxPMipwDslxWOjnG4nbq6Exme0o/ELMOxt+4APH6KW+LqCNl5jGdbKxySLQyNgfUjhXJ06U1b8JHPheTnWcKO+cMmhyheUkZmLMLK2mlAsR+JJeBDY1/jd7+q6hgymeJzoDoXJj4LARiYZ+StRr/E0+P8DrprWYZPi496VIzwgV8otV9fVz29V501rcCAwEAAQ==
+  -----END PUBLIC KEY-----
 ```
 
 Usage
@@ -66,3 +78,4 @@ use the decoded token for further decision making.
 
 [Java-JWT]: https://github.com/auth0/java-jwt
 [`DecodedJWT`]: https://www.javadoc.io/doc/com.auth0/java-jwt/3.2.0/DecodedJWT.html
+[literal style]: http://www.yaml.org/spec/1.2/spec.html#id2795688

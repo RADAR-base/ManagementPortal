@@ -2,6 +2,7 @@ package org.radarcns.auth.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.bouncycastle.util.io.pem.PemReader;
 import org.radarcns.auth.exception.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,9 +10,13 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.security.KeyFactory;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.X509EncodedKeySpec;
 
 /**
  * Created by dverbeec on 14/06/2017.
@@ -21,6 +26,7 @@ public class YamlServerConfig implements ServerConfig {
     public static final String CONFIG_FILE_NAME = "radar-is.yml";
     private URI publicKeyEndpoint;
     private String resourceName;
+    private RSAPublicKey publicKey;
 
     private static YamlServerConfig config;
     private Logger log = LoggerFactory.getLogger(YamlServerConfig.class);
@@ -93,8 +99,31 @@ public class YamlServerConfig implements ServerConfig {
         return resourceName;
     }
 
+    @Override
+    public RSAPublicKey getPublicKey() {
+        return publicKey;
+    }
+
     public void setResourceName(String resourceName) {
         this.resourceName = resourceName;
+    }
+
+    /**
+     * Set the public key. This method converts the public key from a PEM formatted string to a
+     * {@link RSAPublicKey} format.
+     * @param publicKey The PEM formatted public key
+     */
+    public void setPublicKey(String publicKey) {
+        log.debug("Parsing public key: " + publicKey);
+        try (PemReader pemReader = new PemReader(new StringReader(publicKey))) {
+            byte[] keyBytes = pemReader.readPemObject().getContent();
+            pemReader.close();
+            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            this.publicKey = (RSAPublicKey) kf.generatePublic(spec);
+        } catch (Exception ex) {
+            throw new ConfigurationException(ex);
+        }
     }
 
     @Override

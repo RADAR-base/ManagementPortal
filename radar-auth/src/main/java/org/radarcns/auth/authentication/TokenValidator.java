@@ -46,6 +46,7 @@ public class TokenValidator {
      */
     public TokenValidator() throws TokenValidationException {
         this.config = YamlServerConfig.readFromFileOrClasspath();
+
         try {
             // Catch this exception here, as the identity server might not be online when this class
             // is instantiated. We want this class to always be able to be instantiated, except for
@@ -87,7 +88,12 @@ public class TokenValidator {
     }
 
     private void loadPublicKey() throws TokenValidationException {
-        RSAPublicKey publicKey = publicKeyFromServer();
+        RSAPublicKey publicKey;
+        if (config.getPublicKey() == null) {
+            publicKey = publicKeyFromServer();
+        } else {
+            publicKey = config.getPublicKey();
+        }
         Algorithm alg = Algorithm.RSA256(publicKey, null);
         verifier = JWT.require(alg)
             .withAudience(config.getResourceName())
@@ -95,6 +101,8 @@ public class TokenValidator {
         // we successfully fetched the public key, reset the timer
         lastFetch = Instant.now();
     }
+
+
 
     private RSAPublicKey publicKeyFromServer() throws TokenValidationException {
         log.info("Getting the JWT public key at " + config.getPublicKeyEndpoint());
