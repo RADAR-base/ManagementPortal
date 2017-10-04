@@ -151,3 +151,6 @@ Desktop.ini
 
 # output directory
 /out/
+
+# don't ignore jars in /lib
+!/lib/**/*.jar
