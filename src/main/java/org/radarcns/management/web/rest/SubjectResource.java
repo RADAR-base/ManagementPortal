@@ -198,8 +198,8 @@ public class SubjectResource {
     @Timed
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(
-        @RequestParam(value = "projectId", required = false) Long projectId,
-        @RequestParam(value = "externalId", required = false) String externalId) {
+            @RequestParam(value = "projectId", required = false) Long projectId,
+            @RequestParam(value = "externalId", required = false) String externalId) {
         checkPermission(SecurityUtils.getJWT(servletRequest), Permission.SUBJECT_READ);
         log.debug("ProjectID {} and external {}", projectId, externalId);
         if (projectId != null && externalId != null) {

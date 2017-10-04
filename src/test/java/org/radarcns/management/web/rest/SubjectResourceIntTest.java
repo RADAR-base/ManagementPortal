@@ -6,10 +6,9 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.radarcns.management.ManagementPortalApp;
 import org.radarcns.management.domain.Subject;
-import org.radarcns.management.repository.DeviceTypeRepository;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
-import org.radarcns.management.service.DeviceTypeService;
+import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.radarcns.management.service.SubjectService;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
@@ -21,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,6 +28,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +62,7 @@ public class SubjectResourceIntTest {
     private static final Boolean DEFAULT_REMOVED = false;
     private static final Boolean UPDATED_REMOVED = true;
 
-    private static final SubjectDTO.SubjectStatus DEFAULT_STATUS = SubjectDTO.SubjectStatus.DEACTIVATED;
+    private static final SubjectDTO.SubjectStatus DEFAULT_STATUS = SubjectDTO.SubjectStatus.ACTIVATED;
 
     private static final String DEFAULT_EMAIL= "someone@gmail.com";
 
@@ -90,38 +92,31 @@ public class SubjectResourceIntTest {
     private EntityManager em;
 
     @Autowired
-    private DeviceTypeRepository deviceTypeRepository;
-
-    @Autowired
-    private DeviceTypeService deviceTypeService;
-
-    @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private HttpServletRequest servletRequest;
 
     private MockMvc restSubjectMockMvc;
 
-    private MockMvc restDeviceTypeMockMvc;
-
     @Before
-    public void setup() {
+    public void setup() throws ServletException {
         MockitoAnnotations.initMocks(this);
         SubjectResource subjectResource = new SubjectResource();
         ReflectionTestUtils.setField(subjectResource, "subjectService" , subjectService);
         ReflectionTestUtils.setField(subjectResource, "subjectRepository" , subjectRepository);
         ReflectionTestUtils.setField(subjectResource, "subjectMapper" , subjectMapper);
         ReflectionTestUtils.setField(subjectResource, "projectRepository" , projectRepository);
+        ReflectionTestUtils.setField(subjectResource, "servletRequest", servletRequest);
+
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        filter.init(new MockFilterConfig());
+
         this.restSubjectMockMvc = MockMvcBuilders.standaloneSetup(subjectResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
-            .setMessageConverters(jacksonMessageConverter).build();
-
-        DeviceTypeResource deviceTypeResource = new DeviceTypeResource();
-        ReflectionTestUtils.setField(deviceTypeResource, "deviceTypeService" , deviceTypeService);
-        ReflectionTestUtils.setField(deviceTypeResource, "deviceTypeRepository" , deviceTypeRepository);
-        this.restDeviceTypeMockMvc = MockMvcBuilders.standaloneSetup(deviceTypeResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setMessageConverters(jacksonMessageConverter).build();
+            .setMessageConverters(jacksonMessageConverter)
+            .addFilter(filter).build();
     }
 
     /**
@@ -152,6 +147,7 @@ public class SubjectResourceIntTest {
         // Create the Subject
         SubjectDTO subjectDTO = createEntityDTO(em);
         restSubjectMockMvc.perform(post("/api/subjects")
+            .with(OAuthHelper.bearerToken())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
             .andExpect(status().isCreated());
@@ -175,6 +171,7 @@ public class SubjectResourceIntTest {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restSubjectMockMvc.perform(post("/api/subjects")
+            .with(OAuthHelper.bearerToken())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
             .andExpect(status().isBadRequest());
@@ -191,7 +188,8 @@ public class SubjectResourceIntTest {
         SubjectDTO subjectDTO = subjectService.createSubject(createEntityDTO(em));
 
         // Get all the subjectList
-        restSubjectMockMvc.perform(get("/api/subjects?sort=id,desc"))
+        restSubjectMockMvc.perform(get("/api/subjects?sort=id,desc")
+            .with(OAuthHelper.bearerToken()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(subjectDTO.getId().intValue())))
@@ -207,7 +205,8 @@ public class SubjectResourceIntTest {
         SubjectDTO subjectDTO = subjectService.createSubject(createEntityDTO(em));
 
         // Get the subject
-        restSubjectMockMvc.perform(get("/api/subjects/{id}", subjectDTO.getId()))
+        restSubjectMockMvc.perform(get("/api/subjects/{id}", subjectDTO.getId())
+            .with(OAuthHelper.bearerToken()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(subjectDTO.getId().intValue()))
@@ -220,7 +219,8 @@ public class SubjectResourceIntTest {
     @Transactional
     public void getNonExistingSubject() throws Exception {
         // Get the subject
-        restSubjectMockMvc.perform(get("/api/subjects/{id}", Long.MAX_VALUE))
+        restSubjectMockMvc.perform(get("/api/subjects/{id}", Long.MAX_VALUE)
+            .with(OAuthHelper.bearerToken()))
             .andExpect(status().isNotFound());
     }
 
@@ -240,6 +240,7 @@ public class SubjectResourceIntTest {
         subjectDTO = subjectMapper.subjectToSubjectDTO(updatedSubject);
 
         restSubjectMockMvc.perform(put("/api/subjects")
+            .with(OAuthHelper.bearerToken())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
             .andExpect(status().isOk());
@@ -263,6 +264,7 @@ public class SubjectResourceIntTest {
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restSubjectMockMvc.perform(put("/api/subjects")
+            .with(OAuthHelper.bearerToken())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
             .andExpect(status().isCreated());
@@ -281,6 +283,7 @@ public class SubjectResourceIntTest {
 
         // Get the subject
         restSubjectMockMvc.perform(delete("/api/subjects/{id}", subjectDTO.getId())
+            .with(OAuthHelper.bearerToken())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 
@@ -304,6 +307,7 @@ public class SubjectResourceIntTest {
         // Create the Subject
         SubjectDTO subjectDTO = createEntityDTO(em);
         restSubjectMockMvc.perform(post("/api/subjects")
+            .with(OAuthHelper.bearerToken())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
             .andExpect(status().isCreated());
@@ -322,6 +326,7 @@ public class SubjectResourceIntTest {
         assertThat(sourceRegistrationDTO.getSourceId()).isNull();
 
         restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
+            .with(OAuthHelper.bearerToken())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDTO)))
             .andExpect(status().isOk())
@@ -330,6 +335,7 @@ public class SubjectResourceIntTest {
         // An entity with an existing ID cannot be created, so this API call must fail
         assertThat(sourceRegistrationDTO.getSourceId()).isNull();
         restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
+            .with(OAuthHelper.bearerToken())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDTO)))
             .andExpect(status().is4xxClientError());
