@@ -12,9 +12,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
  */
 
 public abstract class SourceMapperDecorator implements SourceMapper {
-
-    private static final String SEPARATOR = "_: ";
-
     @Autowired
     @Qualifier("delegate")
     private SourceMapper delegate;
@@ -25,8 +22,8 @@ public abstract class SourceMapperDecorator implements SourceMapper {
     @Override
     public MinimalSourceDetailsDTO sourceToMinimalSourceDetailsDTO(Source source) {
         MinimalSourceDetailsDTO dto = delegate.sourceToMinimalSourceDetailsDTO(source);
-        dto.setDeviceTypeAndSourceId( source.getDeviceType().getDeviceModel() + SEPARATOR + source
-            .getSourceName());
+        dto.setDeviceTypeName(source.getDeviceType().getDeviceProducer()
+            + " " + source.getDeviceType().getDeviceModel());
         return dto;
     }
 

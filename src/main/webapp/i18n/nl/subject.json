@@ -39,7 +39,10 @@
                 "sourceDescription" : "Source Beschrijving",
                 "remove" : "Verwijderen",
                 "assignedSources" : "toegewezen sources",
-                "availableSources" : "Beschikbaar sources"
+                "availableSources" : "Beschikbaar sources",
+                "deviceType": "Device type",
+                "sourceId": "Source ID",
+                "expectedSourceName": "Fysiek ID"
             },
             "clientApp": "Client app",
             "resource": "Beveiligde gegevensbron",
@@ -56,7 +59,8 @@
                 "title" : "Bevestig de werking stoppen",
                 "question" : "Weet u zeker dat u het onderwerp wilt stoppen {{ id }}?"
             },
-            "discontinued": "Een onderwerp wordt beëindigd met een identificatiecode {{ param }}"
+            "discontinued": "Een onderwerp wordt beëindigd met een identificatiecode {{ param }}",
+            "subjectId" : "Subject Id"
         }
     },
     "error": {

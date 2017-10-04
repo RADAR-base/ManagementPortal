@@ -33,7 +33,7 @@
         <dt><span jhiTranslate="managementPortalApp.subject.sources">Sources</span></dt>
         <dd>
             <span *ngFor="let sources of subject.sources; let last = last">
-                <a [routerLink]="['/source', sources?.id ]">{{sources.deviceTypeAndSourceId}}</a>{{last ? '' : ', '}}
+                <a [routerLink]="['/source', sources?.id ]">{{sources.deviceTypeName}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
             </span>
         </dd>
         <dt><span jhiTranslate="managementPortalApp.subject.createdBy">Created By</span></dt>

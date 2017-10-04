@@ -91,7 +91,6 @@ public class RedcapIntegrationWorkFlowOnServiceLevelTest {
         // create a new Subject
         SubjectDTO newSubject = new SubjectDTO();
         newSubject.setLogin("53d8a54a"); // will be removed
-        newSubject.setEmail("some@email.com"); // will be removed when QR code is ready
         newSubject.setProject(retrievedById); // set retrieved project
         newSubject.setExternalId(redcapRecordId); // set redcap-record-id
 
