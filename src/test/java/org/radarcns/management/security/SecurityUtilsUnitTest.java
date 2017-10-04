@@ -1,6 +1,7 @@
 package org.radarcns.management.security;
 
 import org.junit.Test;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

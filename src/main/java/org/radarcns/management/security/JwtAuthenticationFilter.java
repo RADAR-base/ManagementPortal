@@ -22,12 +22,13 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
     private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private static TokenValidator validator = new TokenValidator();
+    public static final String TOKEN_ATTRIBUTE = "jwt";
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws
             IOException, ServletException {
         try {
-            request.setAttribute("jwt", validator.validateAccessToken(getToken(request, response)));
+            request.setAttribute(TOKEN_ATTRIBUTE, validator.validateAccessToken(getToken(request, response)));
             log.debug("Request authenticated successfully");
             chain.doFilter(request, response);
         }
