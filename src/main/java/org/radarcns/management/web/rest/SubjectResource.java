@@ -83,7 +83,6 @@ public class SubjectResource {
      */
     @PostMapping("/subjects")
     @Timed
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<SubjectDTO> createSubject(@RequestBody SubjectDTO subjectDTO)
         throws URISyntaxException, IllegalAccessException {
         log.debug("REST request to save Subject : {}", subjectDTO);
@@ -130,7 +129,6 @@ public class SubjectResource {
      */
     @PutMapping("/subjects")
     @Timed
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<SubjectDTO> updateSubject(@RequestBody SubjectDTO subjectDTO)
         throws URISyntaxException, IllegalAccessException {
         log.debug("REST request to update Subject : {}", subjectDTO);
@@ -164,7 +162,6 @@ public class SubjectResource {
      */
     @PutMapping("/subjects/discontinue")
     @Timed
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<SubjectDTO> discontinueSubject(@RequestBody SubjectDTO subjectDTO)
         throws URISyntaxException, IllegalAccessException {
         log.debug("REST request to update Subject : {}", subjectDTO);
@@ -196,7 +193,6 @@ public class SubjectResource {
      */
     @GetMapping("/subjects")
     @Timed
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(
             @RequestParam(value = "projectId", required = false) Long projectId,
             @RequestParam(value = "externalId", required = false) String externalId) {
