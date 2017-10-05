@@ -5,7 +5,6 @@ task buildDocker(type: Exec) {
         copy {
             from "src/main/docker/"
             into "build/docker/"
-            include "*"
         }
         copy {
             from "build/libs"
