@@ -116,7 +116,9 @@ public class SubjectResourceIntTest {
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
             .setMessageConverters(jacksonMessageConverter)
-            .addFilter(filter).build();
+            .addFilter(filter)
+            // add the oauth token by default to all requests for this mockMvc
+            .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
     }
 
     /**
@@ -147,7 +149,6 @@ public class SubjectResourceIntTest {
         // Create the Subject
         SubjectDTO subjectDTO = createEntityDTO(em);
         restSubjectMockMvc.perform(post("/api/subjects")
-            .with(OAuthHelper.bearerToken())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
             .andExpect(status().isCreated());
@@ -171,7 +172,6 @@ public class SubjectResourceIntTest {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restSubjectMockMvc.perform(post("/api/subjects")
-            .with(OAuthHelper.bearerToken())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
             .andExpect(status().isBadRequest());
@@ -188,8 +188,7 @@ public class SubjectResourceIntTest {
         SubjectDTO subjectDTO = subjectService.createSubject(createEntityDTO(em));
 
         // Get all the subjectList
-        restSubjectMockMvc.perform(get("/api/subjects?sort=id,desc")
-            .with(OAuthHelper.bearerToken()))
+        restSubjectMockMvc.perform(get("/api/subjects?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(subjectDTO.getId().intValue())))
@@ -205,8 +204,7 @@ public class SubjectResourceIntTest {
         SubjectDTO subjectDTO = subjectService.createSubject(createEntityDTO(em));
 
         // Get the subject
-        restSubjectMockMvc.perform(get("/api/subjects/{id}", subjectDTO.getId())
-            .with(OAuthHelper.bearerToken()))
+        restSubjectMockMvc.perform(get("/api/subjects/{id}", subjectDTO.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(subjectDTO.getId().intValue()))
@@ -219,8 +217,7 @@ public class SubjectResourceIntTest {
     @Transactional
     public void getNonExistingSubject() throws Exception {
         // Get the subject
-        restSubjectMockMvc.perform(get("/api/subjects/{id}", Long.MAX_VALUE)
-            .with(OAuthHelper.bearerToken()))
+        restSubjectMockMvc.perform(get("/api/subjects/{id}", Long.MAX_VALUE))
             .andExpect(status().isNotFound());
     }
 
@@ -240,7 +237,6 @@ public class SubjectResourceIntTest {
         subjectDTO = subjectMapper.subjectToSubjectDTO(updatedSubject);
 
         restSubjectMockMvc.perform(put("/api/subjects")
-            .with(OAuthHelper.bearerToken())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
             .andExpect(status().isOk());
@@ -264,7 +260,6 @@ public class SubjectResourceIntTest {
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restSubjectMockMvc.perform(put("/api/subjects")
-            .with(OAuthHelper.bearerToken())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
             .andExpect(status().isCreated());
@@ -283,7 +278,6 @@ public class SubjectResourceIntTest {
 
         // Get the subject
         restSubjectMockMvc.perform(delete("/api/subjects/{id}", subjectDTO.getId())
-            .with(OAuthHelper.bearerToken())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 
@@ -307,7 +301,6 @@ public class SubjectResourceIntTest {
         // Create the Subject
         SubjectDTO subjectDTO = createEntityDTO(em);
         restSubjectMockMvc.perform(post("/api/subjects")
-            .with(OAuthHelper.bearerToken())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
             .andExpect(status().isCreated());
@@ -326,7 +319,6 @@ public class SubjectResourceIntTest {
         assertThat(sourceRegistrationDTO.getSourceId()).isNull();
 
         restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
-            .with(OAuthHelper.bearerToken())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDTO)))
             .andExpect(status().isOk())
@@ -335,7 +327,6 @@ public class SubjectResourceIntTest {
         // An entity with an existing ID cannot be created, so this API call must fail
         assertThat(sourceRegistrationDTO.getSourceId()).isNull();
         restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
-            .with(OAuthHelper.bearerToken())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDTO)))
             .andExpect(status().is4xxClientError());
