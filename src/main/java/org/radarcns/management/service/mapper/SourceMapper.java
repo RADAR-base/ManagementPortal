@@ -18,7 +18,9 @@ public interface SourceMapper {
     SourceDTO sourceToSourceDTO(Source source);
 
     @Mapping(source = "deviceType.id", target = "deviceTypeId")
-    @Mapping(target = "deviceTypeName", ignore = true)
+    @Mapping(source = "deviceType.deviceProducer", target = "deviceTypeProducer")
+    @Mapping(source = "deviceType.deviceModel", target = "deviceTypeModel")
+    @Mapping(source = "deviceType.catalogVersion", target = "deviceTypeCatalogVersion")
     MinimalSourceDetailsDTO sourceToMinimalSourceDetailsDTO(Source source);
 
     List<MinimalSourceDetailsDTO> sourcesToMinimalSourceDetailsDTOs(List<Source> sources);

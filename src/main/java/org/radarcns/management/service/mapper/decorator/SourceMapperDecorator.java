@@ -15,19 +15,7 @@ import java.util.Optional;
 
 public abstract class SourceMapperDecorator implements SourceMapper {
     @Autowired
-    @Qualifier("delegate")
-    private SourceMapper delegate;
-
-    @Autowired
     private SourceRepository sourceRepository;
-
-    @Override
-    public MinimalSourceDetailsDTO sourceToMinimalSourceDetailsDTO(Source source) {
-        MinimalSourceDetailsDTO dto = delegate.sourceToMinimalSourceDetailsDTO(source);
-        dto.setDeviceTypeName(source.getDeviceType().getDeviceProducer()
-            + " " + source.getDeviceType().getDeviceModel());
-        return dto;
-    }
 
     @Override
     public Source descriptiveDTOToSource(MinimalSourceDetailsDTO minimalSource) {

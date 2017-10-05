@@ -26,7 +26,7 @@
                 </thead>
                 <tbody>
                 <tr *ngFor="let source of assignedSources; trackBy: trackDeviceById">
-                    <td>{{source.deviceTypeName}}</td>
+                    <td>{{source.deviceTypeProducer}} {{source.deviceTypeModel}}</td>
                     <td>{{source.sourceName}}</td>
                     <td>{{source.expectedSourceName}}</td>
                     <td>
@@ -51,7 +51,7 @@
                 </thead>
                 <tbody>
                 <tr *ngFor="let source of assignableSources; trackBy: trackDeviceById">
-                    <td>{{source.deviceTypeName}}</td>
+                    <td>{{source.deviceTypeProducer}} {{source.deviceTypeModel}}</td>
                     <td>{{source.sourceName}}</td>
                     <td>{{source.expectedSourceName}}</td>
                     <td>
