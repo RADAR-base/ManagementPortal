@@ -129,8 +129,6 @@ public class OAuth2ServerConfiguration {
                 .antMatchers("/api/register").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
                 .antMatchers("/api/profile-info").permitAll()
                 .antMatchers("/api/**").authenticated()
-                .antMatchers("/api/users/**").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN,AuthoritiesConstants.PROJECT_ADMIN)
-                .antMatchers("/api/roles/**").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN,AuthoritiesConstants.PROJECT_ADMIN)
                 .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
                 .antMatchers("/v2/api-docs/**").permitAll()
                 .antMatchers("/swagger-resources/configuration/ui").permitAll()
