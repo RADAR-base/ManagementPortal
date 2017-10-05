@@ -11,8 +11,8 @@ import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.service.DeviceTypeService;
 import org.radarcns.management.service.SubjectService;
+import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
-import org.radarcns.management.service.dto.SourceRegistrationDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
@@ -316,10 +316,8 @@ public class SubjectResourceIntTest {
         String subjectLogin = testSubject.getUser().getLogin();
         assertNotNull(subjectLogin);
 
-        SourceRegistrationDTO sourceRegistrationDTO = new SourceRegistrationDTO();
-        sourceRegistrationDTO.setDeviceTypeModel(DEVICE_MODEL);
-        sourceRegistrationDTO.setDeviceTypeProducer(DEVICE_PRODUCER);
-        sourceRegistrationDTO.setDeviceCatalogVersion(DEVICE_VERSION);
+        MinimalSourceDetailsDTO sourceRegistrationDTO = new MinimalSourceDetailsDTO();
+        sourceRegistrationDTO.setDeviceTypeName(DEVICE_PRODUCER + " " + DEVICE_MODEL);
         sourceRegistrationDTO.getAttributes().put("some", "value");
         assertThat(sourceRegistrationDTO.getSourceId()).isNull();
 

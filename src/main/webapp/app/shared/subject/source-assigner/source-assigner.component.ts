@@ -7,8 +7,6 @@ import {
 } from 'ng-jhipster';
 
 
-import {Subscription} from "rxjs/Subscription";
-
 import {NgbActiveModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 
 import {ActivatedRoute} from "@angular/router";

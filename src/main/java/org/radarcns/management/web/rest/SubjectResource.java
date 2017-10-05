@@ -10,7 +10,7 @@ import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.SubjectService;
-import org.radarcns.management.service.dto.SourceRegistrationDTO;
+import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
@@ -56,12 +56,6 @@ public class SubjectResource {
 
     @Autowired
     private SubjectMapper subjectMapper;
-
-    @Autowired
-    private SourceMapper sourceMapper;
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
     private ProjectRepository projectRepository;
@@ -258,8 +252,8 @@ public class SubjectResource {
     @Timed
     @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN,
         AuthoritiesConstants.PARTICIPANT})
-    public ResponseEntity<SourceRegistrationDTO> assignSources(@PathVariable String login,
-        @RequestBody SourceRegistrationDTO sourceDTO) {
+    public ResponseEntity<MinimalSourceDetailsDTO> assignSources(@PathVariable String login,
+        @RequestBody MinimalSourceDetailsDTO sourceDTO) {
         // check the subject id
         Subject subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         if (subject == null) {
@@ -281,29 +275,20 @@ public class SubjectResource {
         Role role = roleOptional.get();
         // find whether the relevant device-type is available in the subject's project
         Optional<DeviceType> deviceType;
-        if (sourceDTO.getDeviceTypeId() != null) {
-            deviceType = projectRepository
-                .findDeviceTypeByProjectIdAndDeviceTypeId(role.getProject().getId(),
-                    sourceDTO.getDeviceTypeId());
-        } else {
-            deviceType = projectRepository
-                .findDeviceTypeByProjectIdAndDeviceTypeProp(role.getProject().getId(),
-                    sourceDTO.getDeviceTypeProducer(),
-                    sourceDTO.getDeviceTypeModel(),
-                    sourceDTO.getDeviceCatalogVersion());
-        }
+        deviceType = projectRepository.findDeviceTypeByProjectIdAndDeviceTypeId(
+                role.getProject().getId(), sourceDTO.getDeviceTypeId());
+
         if (!deviceType.isPresent()) {
             // return bad request
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(HeaderUtil
                 .createAlert("deviceTypeNotAvailable",
-                    "No device-type found for producer " + sourceDTO.getDeviceTypeProducer()
-                        + " , model " + sourceDTO.getDeviceTypeModel() + " and version " + sourceDTO
-                        .getDeviceCatalogVersion() + " in relevant project")).body(null);
+                    "No device-type found for device type ID " + sourceDTO.getDeviceTypeId()
+                        + " in relevant project")).body(null);
 
         }
 
         // handle the source registration
-        SourceRegistrationDTO sourceRegistered = subjectService
+        MinimalSourceDetailsDTO sourceRegistered = subjectService
             .assignOrUpdateSource(subject, deviceType.get(), role.getProject(), sourceDTO);
 
         // TODO: replace ok() with created, with a location to query the new source.
@@ -315,7 +300,7 @@ public class SubjectResource {
     @Timed
     @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN,
         AuthoritiesConstants.PARTICIPANT})
-    public ResponseEntity<List<SourceRegistrationDTO>> getSubjectSources(
+    public ResponseEntity<List<MinimalSourceDetailsDTO>> getSubjectSources(
         @PathVariable String login) {
         // check the subject id
         Subject subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
@@ -326,7 +311,7 @@ public class SubjectResource {
         }
 
         // handle the source registration
-        List<SourceRegistrationDTO> sources = subjectService.getSources(subject);
+        List<MinimalSourceDetailsDTO> sources = subjectService.getSources(subject);
         return ResponseEntity.ok().body(sources);
     }
 }

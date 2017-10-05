@@ -1,5 +1,7 @@
 package org.radarcns.management.service.dto;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -21,6 +23,8 @@ public class MinimalSourceDetailsDTO {
     public void setId(Long id) {
         this.id = id;
     }
+
+    private Map<String, String> attributes = new HashMap<>();
 
     public Long getDeviceTypeId() {
         return deviceTypeId;
@@ -68,5 +72,13 @@ public class MinimalSourceDetailsDTO {
 
     public void setDeviceTypeName(String deviceTypeName) {
         this.deviceTypeName = deviceTypeName;
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
     }
 }

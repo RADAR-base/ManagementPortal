@@ -123,7 +123,6 @@ export class GeneralSubjectPopupComponent implements OnInit, OnDestroy {
     routeSub: any;
 
     constructor(private route: ActivatedRoute,
-                private router : Router,
                 private subjectPopupService: GeneralSubjectPopupService,
     ) {
     }
