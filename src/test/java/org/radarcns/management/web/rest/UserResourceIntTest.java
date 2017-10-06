@@ -4,6 +4,7 @@ import org.radarcns.management.ManagementPortalApp;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
+import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.radarcns.management.service.MailService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.RoleDTO;
@@ -19,12 +20,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -85,19 +91,31 @@ public class UserResourceIntTest {
     @Autowired
     private EntityManager em;
 
+    @Autowired
+    private HttpServletRequest servletRequest;
+
     private MockMvc restUserMockMvc;
 
     private User user;
 
     @Before
-    public void setup() {
+    public void setup() throws ServletException {
         MockitoAnnotations.initMocks(this);
-        UserResource userResource = new UserResource(userRepository, mailService, userService);
+        UserResource userResource = new UserResource();
+        ReflectionTestUtils.setField(userResource, "userService", userService);
+        ReflectionTestUtils.setField(userResource, "mailService", mailService);
+        ReflectionTestUtils.setField(userResource, "userRepository", userRepository);
+        ReflectionTestUtils.setField(userResource, "servletRequest", servletRequest);
+
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        filter.init(new MockFilterConfig());
+
         this.restUserMockMvc = MockMvcBuilders.standaloneSetup(userResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
             .setMessageConverters(jacksonMessageConverter)
-            .build();
+            .addFilter(filter)
+            .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
     }
 
     /**

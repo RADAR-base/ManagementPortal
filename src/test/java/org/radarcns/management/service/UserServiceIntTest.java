@@ -1,14 +1,18 @@
 package org.radarcns.management.service;
 
+import org.junit.Before;
 import org.radarcns.management.ManagementPortalApp;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.config.Constants;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.service.dto.UserDTO;
 import java.time.ZonedDateTime;
+
+import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.radarcns.management.web.rest.UserResourceIntTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +20,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
+import javax.persistence.EntityManager;
 import java.util.Optional;
 import java.util.List;
 
@@ -35,7 +41,20 @@ public class UserServiceIntTest {
     private UserRepository userRepository;
 
     @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
     private UserService userService;
+
+    @Autowired
+    private EntityManager em;
+
+    private UserDTO userDTO;
+
+    @Before
+    public void setUpUser() {
+        userDTO = userMapper.userToUserDTO(UserResourceIntTest.createEntity(em));
+    }
 
     @Test
     public void assertThatUserMustExistToResetPassword() {
@@ -52,15 +71,15 @@ public class UserServiceIntTest {
 
     @Test
     public void assertThatOnlyActivatedUserCanRequestPasswordReset() {
-        User user = userService.createUser("johndoe", "johndoe", "John", "Doe", "john.doe@localhost", "en-US");
-        Optional<User> maybeUser = userService.requestPasswordReset("john.doe@localhost");
+        User user = userService.createUser(userDTO);
+        Optional<User> maybeUser = userService.requestPasswordReset(userDTO.getEmail());
         assertThat(maybeUser.isPresent()).isFalse();
         userRepository.delete(user);
     }
 
     @Test
     public void assertThatResetKeyMustNotBeOlderThan24Hours() {
-        User user = userService.createUser("johndoe", "johndoe", "John", "Doe", "john.doe@localhost", "en-US");
+        User user = userService.createUser(userDTO);
 
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(25);
         String resetKey = RandomUtil.generateResetKey();
@@ -79,7 +98,7 @@ public class UserServiceIntTest {
 
     @Test
     public void assertThatResetKeyMustBeValid() {
-        User user = userService.createUser("johndoe", "johndoe", "John", "Doe", "john.doe@localhost", "en-US");
+        User user = userService.createUser(userDTO);
 
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(25);
         user.setActivated(true);
@@ -93,7 +112,7 @@ public class UserServiceIntTest {
 
     @Test
     public void assertThatUserCanResetPassword() {
-        User user = userService.createUser("johndoe", "johndoe", "John", "Doe", "john.doe@localhost", "en-US");
+        User user = userService.createUser(userDTO);
         String oldPassword = user.getPassword();
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(2);
         String resetKey = RandomUtil.generateResetKey();

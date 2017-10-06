@@ -64,8 +64,6 @@ public class SubjectResourceIntTest {
 
     private static final SubjectDTO.SubjectStatus DEFAULT_STATUS = SubjectDTO.SubjectStatus.ACTIVATED;
 
-    private static final String DEFAULT_EMAIL= "someone@gmail.com";
-
     private static final String DEVICE_MODEL = "App";
     private static final String DEVICE_PRODUCER ="THINC-IT App";
     private static final String DEVICE_VERSION = "v1";
@@ -204,7 +202,7 @@ public class SubjectResourceIntTest {
         SubjectDTO subjectDTO = subjectService.createSubject(createEntityDTO(em));
 
         // Get the subject
-        restSubjectMockMvc.perform(get("/api/subjects/{id}", subjectDTO.getId()))
+        restSubjectMockMvc.perform(get("/api/subjects/{login}", subjectDTO.getLogin()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(subjectDTO.getId().intValue()))
@@ -277,7 +275,7 @@ public class SubjectResourceIntTest {
         int databaseSizeBeforeDelete = subjectRepository.findAll().size();
 
         // Get the subject
-        restSubjectMockMvc.perform(delete("/api/subjects/{id}", subjectDTO.getId())
+        restSubjectMockMvc.perform(delete("/api/subjects/{login}", subjectDTO.getLogin())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 

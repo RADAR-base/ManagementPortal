@@ -91,4 +91,19 @@ export class ProjectService {
         }
         return options;
     }
+
+    findRoles(projectId: number): Observable<Response> {
+        return this.http.get(`${this.resourceUrl}/${projectId}/roles`);
+    }
+
+    findAvailableSources(req?: any): Observable<Response> {
+        const params: URLSearchParams = new URLSearchParams();
+        if (req) {
+            params.set('assigned', req.assigned);
+        }
+        const options = {
+            search: params
+        };
+        return this.http.get(`${this.resourceUrl}/${req.projectId}/sources` , options);
+    }
 }

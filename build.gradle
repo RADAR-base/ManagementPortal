@@ -83,6 +83,8 @@ test {
     include '**/*UnitTest*'
     include '**/*IntTest*'
 
+    classpath += files("$rootDir/changelogs")
+
     // uncomment if the tests reports are not generated
     // see https://github.com/jhipster/generator-jhipster/pull/2771 and https://github.com/jhipster/generator-jhipster/pull/4484
     // ignoreFailures true
@@ -91,6 +93,8 @@ test {
 
 task cucumberTest(type: Test) {
     include '**/CucumberTest*'
+
+    classpath += files("$rootDir/changelogs")
 
     // uncomment if the tests reports are not generated
     // see https://github.com/jhipster/generator-jhipster/pull/2771 and https://github.com/jhipster/generator-jhipster/pull/4484

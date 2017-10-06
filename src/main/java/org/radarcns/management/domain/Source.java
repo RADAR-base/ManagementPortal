@@ -177,6 +177,11 @@ public class Source implements Serializable {
         this.sourceName = sourceName;
     }
 
+    public Source sourceName(String sourceName) {
+        this.sourceName = sourceName;
+        return this;
+    }
+
     public String getExpectedSourceName() {
         return expectedSourceName;
     }
@@ -199,32 +204,68 @@ public class Source implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Source)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Source)) {
+            return false;
+        }
 
         Source source = (Source) o;
 
-        if (!sourceId.equals(source.sourceId)) return false;
-        return sourceName.equals(source.sourceName);
+        if (id == null || source.id == null) {
+            return false;
+        }
+
+        if (id != null ? !id.equals(source.id) : source.id != null) {
+            return false;
+        }
+        if (sourceId != null ? !sourceId.equals(source.sourceId) : source.sourceId != null) {
+            return false;
+        }
+        if (sourceName != null ? !sourceName.equals(source.sourceName) :
+            source.sourceName != null) {
+            return false;
+        }
+        if (expectedSourceName != null ? !expectedSourceName.equals(source.expectedSourceName) :
+            source.expectedSourceName != null) {
+            return false;
+        }
+        if (deviceCategory != null ? !deviceCategory.equals(source.deviceCategory) :
+            source.deviceCategory != null) {
+            return false;
+        }
+        if (assigned != null ? !assigned.equals(source.assigned) : source.assigned != null) {
+            return false;
+        }
+        if (subjects != null ? !subjects.equals(source.subjects) : source.subjects != null) {
+            return false;
+        }
+        if (deviceType != null ? !deviceType.equals(source.deviceType) :
+            source.deviceType != null) {
+            return false;
+        }
+        if (project != null ? !project.equals(source.project) : source.project != null) {
+            return false;
+        }
+        return attributes != null ? attributes.equals(source.attributes) :
+            source.attributes == null;
     }
 
     @Override
     public int hashCode() {
-        int result = sourceId.hashCode();
-        result = 31 * result + sourceName.hashCode();
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (sourceId != null ? sourceId.hashCode() : 0);
+        result = 31 * result + (sourceName != null ? sourceName.hashCode() : 0);
+        result = 31 * result + (expectedSourceName != null ? expectedSourceName.hashCode() : 0);
+        result = 31 * result + (deviceCategory != null ? deviceCategory.hashCode() : 0);
+        result = 31 * result + (assigned != null ? assigned.hashCode() : 0);
+        result = 31 * result + (subjects != null ? subjects.hashCode() : 0);
+        result = 31 * result + (deviceType != null ? deviceType.hashCode() : 0);
+        result = 31 * result + (project != null ? project.hashCode() : 0);
+        result = 31 * result + (attributes != null ? attributes.hashCode() : 0);
         return result;
     }
 
-    @Override
-    public String toString() {
-        return "Source{" +
-            "id=" + id +
-            ", sourceId='" + sourceId + '\'' +
-            ", sourceName='" + sourceName + '\'' +
-            ", deviceCategory='" + deviceCategory + '\'' +
-            ", assigned=" + assigned +
-            ", deviceType=" + deviceType +
-            ", project=" + project +
-            '}';
-    }
+
 }

@@ -108,33 +108,6 @@ public class UserService {
             });
     }
 
-    public User createUser(String login, String password, String firstName, String lastName,
-        String email,
-        String langKey) {
-
-        User newUser = new User();
-        // TODO check how this is used in the system, setting default user role?
-        Role role = roleRepository.findRolesByAuthorityName(AuthoritiesConstants.USER).get(0);
-        Set<Role> roles = new HashSet<>();
-        String encryptedPassword = passwordEncoder.encode(password);
-        newUser.setLogin(login);
-        // new user gets initially a generated password
-        newUser.setPassword(encryptedPassword);
-        newUser.setFirstName(firstName);
-        newUser.setLastName(lastName);
-        newUser.setEmail(email);
-        newUser.setLangKey(langKey);
-        // new user is not active
-        newUser.setActivated(false);
-        // new user gets registration key
-        newUser.setActivationKey(RandomUtil.generateActivationKey());
-        roles.add(role);
-        newUser.setRoles(roles);
-        userRepository.save(newUser);
-        log.debug("Created Information for User: {}", newUser);
-        return newUser;
-    }
-
     public User createUser(UserDTO userDTO) {
         User user = new User();
         user.setLogin(userDTO.getLogin());
@@ -168,7 +141,9 @@ public class UserService {
                 Role currentRole = new Role();
                 currentRole.setAuthority(
                     authorityRepository.findByAuthorityName(roleDTO.getAuthorityName()));
-                currentRole.setProject(projectRepository.getOne(roleDTO.getProjectId()));
+                if (roleDTO.getProjectId() != null) {
+                    currentRole.setProject(projectRepository.getOne(roleDTO.getProjectId()));
+                }
                 roles.add(roleRepository.save(currentRole));
             } else {
                 roles.add(role);

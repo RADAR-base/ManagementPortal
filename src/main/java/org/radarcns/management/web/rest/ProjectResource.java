@@ -1,25 +1,47 @@
 package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import io.github.jhipster.web.util.ResponseUtil;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.service.ProjectService;
+import org.radarcns.management.service.RoleService;
+import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.dto.DeviceTypeDTO;
-import org.radarcns.management.web.rest.util.HeaderUtil;
+import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
-import io.github.jhipster.web.util.ResponseUtil;
+import org.radarcns.management.service.dto.RoleDTO;
+import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static org.radarcns.auth.authorization.Permission.PROJECT_CREATE;
+import static org.radarcns.auth.authorization.Permission.PROJECT_DELETE;
+import static org.radarcns.auth.authorization.Permission.PROJECT_READ;
+import static org.radarcns.auth.authorization.Permission.PROJECT_UPDATE;
+import static org.radarcns.auth.authorization.Permission.ROLE_READ;
+import static org.radarcns.auth.authorization.Permission.SOURCE_READ;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing Project.
@@ -32,11 +54,17 @@ public class ProjectResource {
 
     private static final String ENTITY_NAME = "project";
 
-    private final ProjectService projectService;
+    @Autowired
+    private ProjectService projectService;
 
-    public ProjectResource(ProjectService projectService) {
-        this.projectService = projectService;
-    }
+    @Autowired
+    private HttpServletRequest servletRequest;
+
+    @Autowired
+    private RoleService roleService;
+
+    @Autowired
+    private SourceService sourceService;
 
     /**
      * POST  /projects : Create a new project.
@@ -47,9 +75,9 @@ public class ProjectResource {
      */
     @PostMapping("/projects")
     @Timed
-    @Secured(AuthoritiesConstants.SYS_ADMIN )
     public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO) throws URISyntaxException {
         log.debug("REST request to save Project : {}", projectDTO);
+        checkPermission(getJWT(servletRequest), PROJECT_CREATE);
         if (projectDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new project cannot already have an ID")).body(null);
         }
@@ -70,12 +98,12 @@ public class ProjectResource {
      */
     @PutMapping("/projects")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN , AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
     public ResponseEntity<ProjectDTO> updateProject(@Valid @RequestBody ProjectDTO projectDTO) throws URISyntaxException {
         log.debug("REST request to update Project : {}", projectDTO);
         if (projectDTO.getId() == null) {
             return createProject(projectDTO);
         }
+        checkPermissionOnProject(getJWT(servletRequest), PROJECT_UPDATE, projectDTO.getProjectName());
         ProjectDTO result = projectService.save(projectDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, projectDTO.getId().toString()))
@@ -90,22 +118,11 @@ public class ProjectResource {
     @GetMapping("/projects")
     @Timed
     @Secured( {AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.SYS_ADMIN})
-    public List<ProjectDTO> getAllProjects() {
+    public List<ProjectDTO> getAllProjects(
+            @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
+                minimized) {
         log.debug("REST request to get Projects");
-        return projectService.findAll(false);
-    }
-
-    /**
-     * GET  /projects : get all the projects.
-     *
-     * @return the ResponseEntity with status 200 (OK) and the list of projects in body
-     */
-    @GetMapping("/projects/minimized/{fetch-minimal}")
-    @Timed
-    @Secured( {AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.SYS_ADMIN})
-    public List<ProjectDTO> getAllProjects(@PathVariable("fetch-minimal") Boolean fetchMinimal) {
-        log.debug("REST request to get Projects");
-        return projectService.findAll(fetchMinimal);
+        return projectService.findAll(minimized);
     }
 
     /**
@@ -116,10 +133,12 @@ public class ProjectResource {
      */
     @GetMapping("/projects/{id}")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN , AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
     public ResponseEntity<ProjectDTO> getProject(@PathVariable Long id) {
         log.debug("REST request to get Project : {}", id);
         ProjectDTO projectDTO = projectService.findOne(id);
+        if (projectDTO != null) {
+            checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ, projectDTO.getProjectName());
+        }
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(projectDTO));
     }
 
@@ -131,9 +150,12 @@ public class ProjectResource {
      */
     @GetMapping("/projects/{id}/device-types")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN })
     public List<DeviceTypeDTO> getDeviceTypesOfProject(@PathVariable Long id) {
         log.debug("REST request to get Project : {}", id);
+        ProjectDTO projectDTO = projectService.findOne(id);
+        if (projectDTO != null) {
+            checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ, projectDTO.getProjectName());
+        }
         return projectService.findDeviceTypesById(id);
     }
 
@@ -149,8 +171,48 @@ public class ProjectResource {
     @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN })
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         log.debug("REST request to delete Project : {}", id);
+        ProjectDTO projectDTO = projectService.findOne(id);
+        if (projectDTO != null) {
+            checkPermissionOnProject(getJWT(servletRequest), PROJECT_DELETE, projectDTO.getProjectName());
+        }
         projectService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+    }
+
+    /**
+     * GET  /projects/{id}/roles : get all the roles created for this project.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of roles in body
+     */
+    @GetMapping("/projects/{id}/roles")
+    @Timed
+    public List<RoleDTO> getRolesByProject(@PathVariable Long id) {
+        log.debug("REST request to get all Roles for this project");
+        ProjectDTO projectDTO = projectService.findOne(id);
+        if (projectDTO != null) {
+            checkPermissionOnProject(getJWT(servletRequest), ROLE_READ, projectDTO.getProjectName());
+        }
+        return roleService.getRolesByProject(id);
+    }
+
+    /**
+     * GET  /projects/{id}/sources : get all the sources by project
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of sources in body
+     */
+    @GetMapping("/projects/{id}/sources")
+    @Timed
+    public List<MinimalSourceDetailsDTO> getAllSourcesForProject(@PathVariable Long id,
+            @RequestParam(value = "assigned", required = false) Boolean assigned) {
+        log.debug("REST request to get all Sources");
+        ProjectDTO projectDTO = projectService.findOne(id);
+        if (projectDTO != null) {
+            checkPermissionOnProject(getJWT(servletRequest), SOURCE_READ, projectDTO.getProjectName());
+        }
+        if(assigned !=null) {
+            return sourceService.findAllByProjectAndAssigned(id, assigned);
+        }
+        return sourceService.findAllMinimalSourceDetailsByProject(id);
     }
 
 }

@@ -81,8 +81,8 @@ public class SensorData implements Serializable {
         return sensorName;
     }
 
-    public SensorData sensorType(String sensorType) {
-        this.sensorName = sensorType;
+    public SensorData sensorName(String sensorName) {
+        this.sensorName = sensorName;
         return this;
     }
 
@@ -107,8 +107,8 @@ public class SensorData implements Serializable {
         return keySchema;
     }
 
-    public SensorData dataFormat(String dataFormat) {
-        this.keySchema = dataFormat;
+    public SensorData keySchema(String keySchema) {
+        this.keySchema = keySchema;
         return this;
     }
 
@@ -204,32 +204,61 @@ public class SensorData implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SensorData)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SensorData)) {
+            return false;
+        }
 
         SensorData that = (SensorData) o;
 
-        if (enabled != that.enabled) return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (!sensorName.equals(that.sensorName)) return false;
-        if (frequency != null ? !frequency.equals(that.frequency) : that.frequency != null)
+        if (that.id == null || id == null) {
             return false;
-        if (unit != null ? !unit.equals(that.unit) : that.unit != null) return false;
-        if (dataType != that.dataType) return false;
-        if (dataClass != null ? !dataClass.equals(that.dataClass) : that.dataClass != null)
+        }
+
+        if (enabled != that.enabled) {
             return false;
-        if (keySchema != null ? !keySchema.equals(that.keySchema) : that.keySchema != null)
+        }
+        if (id != null ? !id.equals(that.id) : that.id != null) {
             return false;
-        if (valueSchema != null ? !valueSchema.equals(that.valueSchema) : that.valueSchema != null)
+        }
+        if (sensorName != null ? !sensorName.equals(that.sensorName) : that.sensorName != null) {
             return false;
-        if (topic != null ? !topic.equals(that.topic) : that.topic != null) return false;
-        return provider != null ? provider.equals(that.provider) : that.provider == null;
+        }
+        if (frequency != null ? !frequency.equals(that.frequency) : that.frequency != null) {
+            return false;
+        }
+        if (unit != null ? !unit.equals(that.unit) : that.unit != null) {
+            return false;
+        }
+        if (dataType != that.dataType) {
+            return false;
+        }
+        if (dataClass != null ? !dataClass.equals(that.dataClass) : that.dataClass != null) {
+            return false;
+        }
+        if (keySchema != null ? !keySchema.equals(that.keySchema) : that.keySchema != null) {
+            return false;
+        }
+        if (valueSchema != null ? !valueSchema.equals(that.valueSchema) :
+            that.valueSchema != null) {
+            return false;
+        }
+        if (topic != null ? !topic.equals(that.topic) : that.topic != null) {
+            return false;
+        }
+        if (provider != null ? !provider.equals(that.provider) : that.provider != null) {
+            return false;
+        }
+        return deviceTypes != null ? deviceTypes.equals(that.deviceTypes) :
+            that.deviceTypes == null;
     }
 
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + sensorName.hashCode();
+        result = 31 * result + (sensorName != null ? sensorName.hashCode() : 0);
         result = 31 * result + (frequency != null ? frequency.hashCode() : 0);
         result = 31 * result + (unit != null ? unit.hashCode() : 0);
         result = 31 * result + (dataType != null ? dataType.hashCode() : 0);
@@ -239,24 +268,16 @@ public class SensorData implements Serializable {
         result = 31 * result + (topic != null ? topic.hashCode() : 0);
         result = 31 * result + (provider != null ? provider.hashCode() : 0);
         result = 31 * result + (enabled ? 1 : 0);
+        result = 31 * result + (deviceTypes != null ? deviceTypes.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return "SensorData{" +
-            "id=" + id +
-            ", sensorName='" + sensorName + '\'' +
-            ", frequency='" + frequency + '\'' +
-            ", unit='" + unit + '\'' +
-            ", dataType=" + dataType +
-            ", dataClass='" + dataClass + '\'' +
-            ", keySchema='" + keySchema + '\'' +
-            ", valueSchema='" + valueSchema + '\'' +
-            ", topic='" + topic + '\'' +
-            ", provider='" + provider + '\'' +
-            ", enabled=" + enabled +
-            ", deviceTypes=" + deviceTypes +
-            '}';
+        return "SensorData{" + "id=" + id + ", sensorName='" + sensorName + '\'' + ", frequency='"
+            + frequency + '\'' + ", unit='" + unit + '\'' + ", dataType=" + dataType
+            + ", dataClass='" + dataClass + '\'' + ", keySchema='" + keySchema + '\''
+            + ", valueSchema='" + valueSchema + '\'' + ", topic='" + topic + '\'' + ", provider='"
+            + provider + '\'' + ", enabled=" + enabled + ", deviceTypes=" + deviceTypes + '}';
     }
 }

@@ -35,7 +35,9 @@ public interface UserMapper {
         if(roles == null) {
             return null;
         }
-        return roles.stream().map(role -> role.getAuthority().getName()).collect(Collectors.toSet());
+        return roles.stream()
+            .filter(role -> role != null)
+            .map(role -> role.getAuthority().getName()).collect(Collectors.toSet());
     }
 
     List<User> userDTOsToUsers(List<UserDTO> userDTOs);
@@ -59,11 +61,17 @@ public interface UserMapper {
     }
 
     default Set<String> stringsFromAuthorities (Set<Authority> authorities) {
-        return authorities.stream().map(Authority::getName)
+        if (authorities == null) {
+            return null;
+        }
+        return authorities.stream().filter(authority -> authority != null).map(Authority::getName)
             .collect(Collectors.toSet());
     }
 
     default Set<Authority> authoritiesFromStrings(Set<String> strings) {
+        if (strings == null) {
+            return null;
+        }
         return strings.stream().map(string -> {
             Authority auth = new Authority();
             auth.setName(string);

@@ -37,21 +37,6 @@ export class SourceService {
         ;
     }
 
-    findAvailable(req?: any): Observable<Response> {
-        const params: URLSearchParams = new URLSearchParams();
-        if (req) {
-            params.set('assigned', req.assigned);
-        }
-        const options = {
-            search: params
-        };
-        return this.http.get(`${this.resourceUrl}/project/${req.projectId}` , options);
-    }
-
-    findUnAssignedAndOfSubject(id: number): Observable<Response> {
-        return this.http.get(`${this.resourceUrl}/unassigned/subject/${id}`);
-    }
-
     delete(id: number): Observable<Response> {
         return this.http.delete(`${this.resourceUrl}/${id}`);
     }

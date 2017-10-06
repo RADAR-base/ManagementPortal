@@ -17,6 +17,7 @@ import io.swagger.annotations.ApiParam;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -25,10 +26,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-
+import static org.radarcns.auth.authorization.Permission.*;
+import static org.radarcns.auth.authorization.RadarAuthorization.*;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
 /**
  * REST controller for managing users.
  *
@@ -61,19 +65,17 @@ public class UserResource {
 
     private static final String ENTITY_NAME = "userManagement";
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    private final MailService mailService;
+    @Autowired
+    private MailService mailService;
 
-    private final UserService userService;
+    @Autowired
+    private UserService userService;
 
-    public UserResource(UserRepository userRepository, MailService mailService,
-            UserService userService) {
-
-        this.userRepository = userRepository;
-        this.mailService = mailService;
-        this.userService = userService;
-    }
+    @Autowired
+    private HttpServletRequest servletRequest;
 
     /**
      * POST  /users  : Creates a new user.
@@ -89,10 +91,9 @@ public class UserResource {
      */
     @PostMapping("/users")
     @Timed
-    @Secured({ AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity createUser(@RequestBody ManagedUserVM managedUserVM) throws URISyntaxException {
         log.debug("REST request to save User : {}", managedUserVM);
-
+        checkPermission(getJWT(servletRequest), USER_CREATE);
         if (managedUserVM.getId() != null) {
             return ResponseEntity.badRequest()
                 .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new user cannot already have an ID"))
@@ -129,9 +130,9 @@ public class UserResource {
      */
     @PutMapping("/users")
     @Timed
-    @Secured({ AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<UserDTO> updateUser(@RequestBody ManagedUserVM managedUserVM) {
         log.debug("REST request to update User : {}", managedUserVM);
+        checkPermission(getJWT(servletRequest), USER_UPDATE);
         Optional<User> existingUser = userRepository.findOneByEmail(managedUserVM.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getId().equals(managedUserVM.getId()))) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "emailexists", "Email already in use")).body(null);
@@ -161,10 +162,10 @@ public class UserResource {
      */
     @GetMapping("/users")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<List<UserDTO>> getAllUsers(@ApiParam Pageable pageable,
         @RequestParam(value = "projectId" , required = false) Long projectId,
         @RequestParam(value = "authority" , required = false) String authority) {
+        checkPermission(getJWT(servletRequest), USER_READ);
         Page<UserDTO> page;
         if (projectId != null && authority != null) {
             page = userService.findAllByProjectIdAndAuthority(pageable, projectId, authority);
@@ -189,6 +190,7 @@ public class UserResource {
     @Timed
     public ResponseEntity<UserDTO> getUser(@PathVariable String login) {
         log.debug("REST request to get User : {}", login);
+        checkPermission(getJWT(servletRequest), USER_READ);
         return ResponseUtil.wrapOrNotFound(
             userService.getUserWithAuthoritiesByLogin(login));
     }
@@ -202,6 +204,7 @@ public class UserResource {
     @Timed
     public List<ProjectDTO> getUserProjects(@PathVariable String login) {
         log.debug("REST request to get User's project : {}", login);
+        checkPermission(getJWT(servletRequest), PROJECT_READ);
         return userService.getProjectsAssignedToUser(login);
     }
 
@@ -213,9 +216,9 @@ public class UserResource {
      */
     @DeleteMapping("/users/{login:" + Constants.LOGIN_REGEX + "}")
     @Timed
-    @Secured({ AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<Void> deleteUser(@PathVariable String login) {
         log.debug("REST request to delete User: {}", login);
+        checkPermission(getJWT(servletRequest), USER_DELETE);
         userService.deleteUser(login);
         return ResponseEntity.ok().headers(HeaderUtil.createAlert( "userManagement.deleted", login)).build();
     }

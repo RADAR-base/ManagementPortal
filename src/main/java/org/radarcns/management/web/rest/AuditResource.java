@@ -1,20 +1,29 @@
 package org.radarcns.management.web.rest;
 
-import org.radarcns.management.service.AuditEventService;
-import org.radarcns.management.web.rest.util.PaginationUtil;
-
 import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
+import org.radarcns.management.service.AuditEventService;
+import org.radarcns.management.web.rest.util.PaginationUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.List;
+
+import static org.radarcns.auth.authorization.Permission.AUDIT_READ;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for getting the audit events.
@@ -23,11 +32,11 @@ import java.util.List;
 @RequestMapping("/management/audits")
 public class AuditResource {
 
-    private final AuditEventService auditEventService;
+    @Autowired
+    HttpServletRequest servletRequest;
 
-    public AuditResource(AuditEventService auditEventService) {
-        this.auditEventService = auditEventService;
-    }
+    @Autowired
+    private AuditEventService auditEventService;
 
     /**
      * GET  /audits : get a page of AuditEvents.
@@ -37,6 +46,7 @@ public class AuditResource {
      */
     @GetMapping
     public ResponseEntity<List<AuditEvent>> getAll(@ApiParam Pageable pageable) {
+        checkPermission(getJWT(servletRequest), AUDIT_READ);
         Page<AuditEvent> page = auditEventService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/management/audits");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
@@ -56,7 +66,7 @@ public class AuditResource {
         @RequestParam(value = "fromDate") LocalDate fromDate,
         @RequestParam(value = "toDate") LocalDate toDate,
         @ApiParam Pageable pageable) {
-
+        checkPermission(getJWT(servletRequest), AUDIT_READ);
         Page<AuditEvent> page = auditEventService.findByDates(fromDate.atTime(0, 0), toDate.atTime(23, 59), pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/management/audits");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
@@ -70,6 +80,7 @@ public class AuditResource {
      */
     @GetMapping("/{id:.+}")
     public ResponseEntity<AuditEvent> get(@PathVariable Long id) {
+        checkPermission(getJWT(servletRequest), AUDIT_READ);
         return ResponseUtil.wrapOrNotFound(auditEventService.find(id));
     }
 }
