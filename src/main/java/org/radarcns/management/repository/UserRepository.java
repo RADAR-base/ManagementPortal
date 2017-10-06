@@ -41,13 +41,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Page<User> findAllByLoginNot(Pageable pageable, String login);
 
-    @Query("select user from User user left join fetch user.roles roles "
+    @Query("select user from User user join user.roles roles "
         + " where roles.project.id = :projectId "
         + " and roles.authority.name = :authority")
-    List<User> findAllByProjectIdAndAuthority(@Param("projectId") Long projectId,
+    Page<User> findAllByProjectIdAndAuthority(Pageable pageable, @Param("projectId") Long projectId,
         @Param("authority") String authority);
 
-    @Query("select user from User user left join fetch user.roles roles "
+    @Query("select user from User user join user.roles roles "
+        + " where roles.authority.name = :authority")
+    Page<User> findAllByAuthority(Pageable pageable, @Param("authority") String authority);
+
+    @Query("select user from User user join user.roles roles "
         + " where roles.project.id = :projectId ")
-    List<User> findAllByProjectId(Long projectId);
+    Page<User> findAllByProjectId(Pageable pageable, Long projectId);
 }
