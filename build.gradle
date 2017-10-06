@@ -1,4 +1,3 @@
-import groovy.json.JsonSlurper
 import org.gradle.internal.os.OperatingSystem
 import io.swagger.codegen.config.CodegenConfigurator
 import io.swagger.codegen.DefaultGenerator
@@ -66,12 +65,16 @@ if (OperatingSystem.current().isWindows()) {
         addResources = false
         dependsOn pathingJar
         doFirst {
-            classpath = files("$buildDir/classes/main", "$buildDir/resources/main", pathingJar.archivePath)
+            classpath = files("$buildDir/classes/main", "$buildDir/resources/main", pathingJar.archivePath , "$rootDir/changelogs")
         }
     }
 } else {
     bootRun {
         addResources = false
+        doFirst {
+            classpath += files("$rootDir/changelogs")
+        }
+
     }
 }
 

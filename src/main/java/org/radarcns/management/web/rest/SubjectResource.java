@@ -7,12 +7,10 @@ import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
-import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.SubjectService;
 import org.radarcns.management.service.dto.SourceRegistrationDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
-import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
@@ -56,12 +54,6 @@ public class SubjectResource {
 
     @Autowired
     private SubjectMapper subjectMapper;
-
-    @Autowired
-    private SourceMapper sourceMapper;
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
     private ProjectRepository projectRepository;
@@ -207,34 +199,35 @@ public class SubjectResource {
     }
 
     /**
-     * GET  /subjects/:id : get the "id" subject.
+     * GET  /subjects/:login : get the "login" subject.
      *
-     * @param id the id of the subjectDTO to retrieve
+     * @param login the login of the subjectDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the subjectDTO, or with status
      * 404 (Not Found)
      */
-    @GetMapping("/subjects/{id}")
+    @GetMapping("/subjects/{login}")
     @Timed
-    public ResponseEntity<SubjectDTO> getSubject(@PathVariable Long id) {
-        log.debug("REST request to get Subject : {}", id);
-        Subject subject = subjectRepository.findOneWithEagerRelationships(id);
-        SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
+    public ResponseEntity<SubjectDTO> getSubject(@PathVariable String login) {
+        log.debug("REST request to get Subject : {}", login);
+        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
+
+        SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject.get());
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(subjectDTO));
     }
 
     /**
-     * DELETE  /subjects/:id : delete the "id" subject.
+     * DELETE  /subjects/:login : delete the "login" subject.
      *
-     * @param id the id of the subjectDTO to delete
+     * @param login the login of the subjectDTO to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @DeleteMapping("/subjects/{id}")
+    @DeleteMapping("/subjects/{login}")
     @Timed
-    public ResponseEntity<Void> deleteSubject(@PathVariable Long id) {
-        log.debug("REST request to delete Subject : {}", id);
-        subjectRepository.delete(id);
+    public ResponseEntity<Void> deleteSubject(@PathVariable String login) {
+        log.debug("REST request to delete Subject : {}", login);
+        subjectService.deleteSubject(login);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+            .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, login)).build();
     }
 
     /**
@@ -261,15 +254,15 @@ public class SubjectResource {
     public ResponseEntity<SourceRegistrationDTO> assignSources(@PathVariable String login,
         @RequestBody SourceRegistrationDTO sourceDTO) {
         // check the subject id
-        Subject subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
-        if (subject == null) {
+        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
+        if (!subject.isPresent()) {
             return ResponseUtil.wrapOrNotFound(Optional.empty(), HeaderUtil.createFailureAlert(
                 ENTITY_NAME, "notfound", "Subject with subject-id " + login +
                     " was not found."));
         }
-
+        Subject sub = subject.get();
         // find the PARTICIPANT role for this subject
-        Optional<Role> roleOptional = subject.getUser().getRoles().stream()
+        Optional<Role> roleOptional = sub.getUser().getRoles().stream()
                 .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PARTICIPANT))
                 .findFirst();
         if (!roleOptional.isPresent()) {
@@ -297,10 +290,10 @@ public class SubjectResource {
 
         // handle the source registration
         SourceRegistrationDTO sourceRegistered = subjectService
-            .assignOrUpdateSource(subject, deviceType.get(), role.getProject(), sourceDTO);
+            .assignOrUpdateSource(sub, deviceType.get(), role.getProject(), sourceDTO);
 
         return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(
-            ENTITY_NAME, subject.getId().toString())).body(sourceRegistered);
+            ENTITY_NAME, sub.getId().toString())).body(sourceRegistered);
     }
 
     @GetMapping("/subjects/{login}/sources")
@@ -310,15 +303,15 @@ public class SubjectResource {
     public ResponseEntity<List<SourceRegistrationDTO>> getSubjectSources(
         @PathVariable String login) {
         // check the subject id
-        Subject subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
-        if (subject == null) {
+        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
+        if (!subject.isPresent()) {
             return ResponseUtil.wrapOrNotFound(Optional.empty(), HeaderUtil.createFailureAlert(
                 ENTITY_NAME, "notfound", "Subject with subject-id " + login +
                     " was not found."));
         }
 
         // handle the source registration
-        List<SourceRegistrationDTO> sources = subjectService.getSources(subject);
+        List<SourceRegistrationDTO> sources = subjectService.getSources(subject.get());
         return ResponseEntity.ok().body(sources);
     }
 }

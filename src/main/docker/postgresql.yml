@@ -5,8 +5,8 @@ services:
         # volumes:
         #     - ~/volumes/jhipster/managementportal/postgresql/:/var/lib/postgresql/
         environment:
-            - POSTGRES_USER=<username>
-            - POSTGRES_PASSWORD=<password>
+            - POSTGRES_USER=radarcns
+            - POSTGRES_PASSWORD=radarcns
             - POSTGRES_DB=managementportal
         ports:
             - 5432:5432

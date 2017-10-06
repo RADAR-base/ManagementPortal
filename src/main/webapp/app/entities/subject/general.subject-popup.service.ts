@@ -13,14 +13,14 @@ export class GeneralSubjectPopupService {
 
     ) {}
 
-    open(component: Component, id?: number | any , isDelete?: boolean): NgbModalRef {
+    open(component: Component, login?: number | any , isDelete?: boolean): NgbModalRef {
         if (this.isOpen) {
             return;
         }
         this.isOpen = true;
 
-        if (id) {
-            this.subjectService.find(id).subscribe((subject) => {
+        if (login) {
+            this.subjectService.find(login).subscribe((subject) => {
                 this.subjectModalRef(component, subject , isDelete);
             });
         } else {

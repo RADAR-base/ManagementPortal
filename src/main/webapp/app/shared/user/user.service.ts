@@ -50,13 +50,12 @@ export class UserService {
     findByProjectAndAuthority(req: any) : Observable<Response> {
         const params: URLSearchParams = new URLSearchParams();
         if (req) {
-            params.set('projectId', req.projectId);
             params.set('authority', req.authority);
         }
         const options = {
             search: params
         };
-        return this.http.get('api/users-for-project', options);
+        return this.http.get(`${this.resourceUrl}/projects/${req.projectId}`, options);
 
     }
 }

@@ -84,9 +84,9 @@ export class SubjectPairPopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if (params['id']) {
+            if (params['login']) {
                 this.modalRef = this.subjectPopupService
-                .open(SubjectPairDialogComponent, params['id']);
+                .open(SubjectPairDialogComponent, params['login']);
             } else {
                 this.modalRef = this.subjectPopupService
                 .open(SubjectPairDialogComponent);

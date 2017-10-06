@@ -129,18 +129,4 @@ public class RoleResource {
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(roleDTO));
     }
 
-    /**
-     * DELETE  /roles/:id : delete the "id" role.
-     *
-     * @param id the id of the roleDTO to delete
-     * @return the ResponseEntity with status 200 (OK)
-     */
-    @DeleteMapping("/roles/{id}")
-    @Timed
-    public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
-        log.debug("REST request to delete Role : {}", id);
-        roleService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
-    }
-
 }
