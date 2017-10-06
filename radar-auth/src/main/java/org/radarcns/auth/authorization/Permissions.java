@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.radarcns.auth.authorization.AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PROJECT_ADMIN;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PROJECT_AFFILIATE;
@@ -72,31 +71,34 @@ public class Permissions {
             .filter(e -> e.getKey().getEntity() == Permission.Entity.SUBJECT)
             .forEach(e -> e.getValue().add(PROJECT_OWNER));
 
-        // can also read all other things except audits and authorities
+        // can also read all other things except users, audits and authorities
         PERMISSION_MATRIX.entrySet().stream()
-            .filter(e -> !Arrays.asList(Permission.Entity.AUDIT, Permission.Entity.AUTHORITY)
+            .filter(e -> !Arrays.asList(Permission.Entity.AUDIT, Permission.Entity.AUTHORITY,
+                Permission.Entity.USER)
                 .contains(e.getKey().getEntity()))
             .filter(e -> e.getKey().getOperation() == Permission.Operation.READ)
             .forEach(e -> e.getValue().add(PROJECT_OWNER));
 
         /* Project affiliate */
-        // Create, read and update participant (no delete), for this we need role, subject and user
+        // Create, read and update participant (no delete)
         PERMISSION_MATRIX.entrySet().stream()
             .filter(e -> e.getKey().getEntity() == Permission.Entity.SUBJECT)
             .filter(e -> e.getKey().getOperation() != Permission.Operation.DELETE)
             .forEach(e -> e.getValue().add(PROJECT_AFFILIATE));
 
-        // can also read all other things except audits and authorities
+        // can also read all other things except users, audits and authorities
         PERMISSION_MATRIX.entrySet().stream()
-            .filter(e -> !Arrays.asList(Permission.Entity.AUDIT, Permission.Entity.AUTHORITY)
+            .filter(e -> !Arrays.asList(Permission.Entity.AUDIT, Permission.Entity.AUTHORITY,
+                Permission.Entity.USER)
                 .contains(e.getKey().getEntity()))
             .filter(e -> e.getKey().getOperation() == Permission.Operation.READ)
             .forEach(e -> e.getValue().add(PROJECT_AFFILIATE));
 
         /* Project analyst */
-        // Can read everything execpt authorities and audits
+        // Can read everything execpt users, authorities and audits
         PERMISSION_MATRIX.entrySet().stream()
-            .filter(e -> !Arrays.asList(Permission.Entity.AUDIT, Permission.Entity.AUTHORITY)
+            .filter(e -> !Arrays.asList(Permission.Entity.AUDIT, Permission.Entity.AUTHORITY,
+                Permission.Entity.USER)
                 .contains(e.getKey().getEntity()))
             .filter(e -> e.getKey().getOperation() == Permission.Operation.READ)
             .forEach(e -> e.getValue().add(PROJECT_ANALYST));
@@ -109,23 +111,5 @@ public class Permissions {
         Arrays.asList(Permission.SUBJECT_READ, Permission.SUBJECT_UPDATE,
                 Permission.MEASUREMENT_CREATE, Permission.MEASUREMENT_READ).stream()
                         .forEach(p -> PERMISSION_MATRIX.get(p).add(PARTICIPANT));
-
-        /* External ERF integrator */
-        // Read source, subject and project
-        PERMISSION_MATRIX.entrySet().stream()
-            .filter(e -> Arrays.asList(Permission.Entity.PROJECT, Permission.Entity.SUBJECT,
-                Permission.Entity.SOURCE).contains(e.getKey().getEntity()))
-            .filter(e -> e.getKey().getOperation() == Permission.Operation.READ)
-            .forEach(e -> e.getValue().add(EXTERNAL_ERF_INTEGRATOR));
-
-        // Update subject and project
-        PERMISSION_MATRIX.entrySet().stream()
-            .filter(e -> Arrays.asList(Permission.Entity.PROJECT, Permission.Entity.SUBJECT)
-                .contains(e.getKey().getEntity()))
-            .filter(e -> e.getKey().getOperation() == Permission.Operation.UPDATE)
-            .forEach(e -> e.getValue().add(EXTERNAL_ERF_INTEGRATOR));
-
-        // Create subject
-        PERMISSION_MATRIX.get(Permission.SUBJECT_CREATE).add(EXTERNAL_ERF_INTEGRATOR);
     }
 }

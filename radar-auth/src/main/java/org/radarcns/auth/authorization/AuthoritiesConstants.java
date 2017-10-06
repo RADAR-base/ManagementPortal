@@ -20,6 +20,4 @@ public interface AuthoritiesConstants {
     String ANONYMOUS = "ROLE_ANONYMOUS";
 
     String PARTICIPANT = "ROLE_PARTICIPANT";
-
-    String EXTERNAL_ERF_INTEGRATOR = "ROLE_EXTERNAL_ERF_INTEGRATOR";
 }
