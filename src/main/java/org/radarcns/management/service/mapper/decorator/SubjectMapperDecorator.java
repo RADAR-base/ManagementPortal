@@ -4,7 +4,6 @@ import org.mapstruct.MappingTarget;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.security.AuthoritiesConstants;
-import org.radarcns.management.service.dto.AttributeMapDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.SubjectDTO.SubjectStatus;
 import org.radarcns.management.service.mapper.ProjectMapper;
@@ -13,13 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Created by nivethika on 30-8-17.

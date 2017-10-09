@@ -19,8 +19,10 @@ import {
 } from './';
 import {AuthorityService} from "./user/authority.service";
 import {AttributeMapperComponent} from "./attribute-mapper/attribute-mapper.component";
+import {DictionaryMapperComponent} from "./dictionary-mapper/dictionary-mapper.component";
 import {CommonUserMgmtComponent} from "./user/common-user-management.component";
 import {RouterModule} from "@angular/router";
+import {DictionaryKeysPipe} from "./dictionary-mapper/dictionary-keys.pipe";
 
 @NgModule({
     imports: [
@@ -32,7 +34,9 @@ import {RouterModule} from "@angular/router";
         JhiLoginModalComponent,
         HasAnyAuthorityDirective,
         AttributeMapperComponent,
-        CommonUserMgmtComponent
+        DictionaryMapperComponent,
+        CommonUserMgmtComponent,
+        DictionaryKeysPipe,
     ],
     providers: [
         CookieService,
@@ -46,7 +50,7 @@ import {RouterModule} from "@angular/router";
         AuthService,
         UserService,
         AuthorityService,
-        DatePipe
+        DatePipe,
     ],
     entryComponents: [JhiLoginModalComponent],
     exports: [
@@ -54,8 +58,10 @@ import {RouterModule} from "@angular/router";
         JhiLoginModalComponent,
         HasAnyAuthorityDirective,
         AttributeMapperComponent,
+        DictionaryMapperComponent,
         CommonUserMgmtComponent,
-        DatePipe
+        DatePipe,
+        DictionaryKeysPipe,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 

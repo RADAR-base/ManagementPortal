@@ -46,8 +46,7 @@
             },
             "clientApp": "Client app",
             "resource": "Protected resource",
-            "attributeDataKey" : "Tag",
-            "attributeDataValue" : "Value",
+            "attributeData" : "Attributes",
             "status" : {
                 "title" : "Status",
                 "discontinued" : "DISCONTINUED",

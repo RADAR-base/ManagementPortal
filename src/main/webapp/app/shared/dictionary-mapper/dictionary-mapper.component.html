@@ -6,7 +6,7 @@
     <jhi-alert></jhi-alert>
 
     <br/>
-    <div class="table-responsive" *ngIf="attributes.length > 0">
+    <div class="table-responsive" *ngIf="!isEmpty(attributes)">
         <table class="table table-striped">
             <thead>
             <tr>
@@ -16,11 +16,11 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let attribute of attributes; trackBy: trackId">
-                <td>{{attribute.key}}</td>
-                <td>{{attribute.value}}</td>
+            <tr *ngFor="let key of (attributes | dictionaryKeys); trackBy: trackKey">
+                <td>{{key}}</td>
+                <td>{{attributes[key]}}</td>
                 <td>
-                    <button type="button" (click)="removeAttribute(attribute)" class="btn btn-danger btn-sm fa fa-remove">
+                    <button type="button" (click)="removeAttribute(key)" class="btn btn-danger btn-sm fa fa-remove">
                     </button>
                 </td>
             </tr>

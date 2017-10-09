@@ -51,9 +51,10 @@ export class GeneralSubjectDialogComponent implements OnInit {
     }
 
     private registerChangesInSubject() {
-        this.eventManager.subscribe(this.attributeComponentEventPrefix+'ListModification', (response ) => {
-            this.subject.attributes= response.content;
-        });
+        this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification',
+            (response) => {
+                this.subject.attributes = response.content;
+            });
     }
 
     clear() {
