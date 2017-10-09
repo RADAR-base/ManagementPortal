@@ -60,7 +60,6 @@ public class RoleResource {
      */
     @PostMapping("/roles")
     @Timed
-    @Secured( {AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.SYS_ADMIN})
     public ResponseEntity<RoleDTO> createRole(@Valid @RequestBody RoleDTO roleDTO) throws URISyntaxException {
         log.debug("REST request to save Role : {}", roleDTO);
         checkPermissionOnProject(getJWT(servletRequest), ROLE_CREATE, roleDTO.getProjectName());

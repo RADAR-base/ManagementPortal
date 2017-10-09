@@ -108,7 +108,6 @@ public class OAuthClientsResource {
      */
     @GetMapping("/oauthclients/pair")
     @Timed
-    @Secured({ AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<ClientPairInfoDTO> getRefreshToken(@RequestParam String login,
             @RequestParam(value="clientId") String clientId) {
         User currentUser = userService.getUserWithAuthorities();

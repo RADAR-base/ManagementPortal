@@ -162,7 +162,6 @@ public class SourceResource {
      */
     @DeleteMapping("/sources/{id}")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<Void> deleteSource(@PathVariable Long id) {
         log.debug("REST request to delete Source : {}", id);
         checkPermission(getJWT(servletRequest), SOURCE_DELETE);

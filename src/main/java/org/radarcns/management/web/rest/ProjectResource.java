@@ -117,7 +117,7 @@ public class ProjectResource {
      */
     @GetMapping("/projects")
     @Timed
-    @Secured( {AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.SYS_ADMIN})
+    @Secured({AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.SYS_ADMIN})
     public List<ProjectDTO> getAllProjects(
             @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
                 minimized) {
@@ -168,7 +168,6 @@ public class ProjectResource {
      */
     @DeleteMapping("/projects/{id}")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN })
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         log.debug("REST request to delete Project : {}", id);
         ProjectDTO projectDTO = projectService.findOne(id);
