@@ -14,7 +14,6 @@ import {Subject} from "../subject.model";
 import {MinimalSource, Source} from "../../source/source.model";
 import {SubjectService} from "../subject.service";
 import {SourceService} from "../../source/index";
-import {ProjectService} from "../../project/index";
 import {SubjectPopupService} from "../subject-popup.service";
 import {Principal} from "../../auth/principal.service";
 
@@ -40,7 +39,6 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
         private alertService: AlertService,
         private subjectService: SubjectService,
         private sourceService: SourceService,
-        private projectService: ProjectService,
         private principal: Principal,
         private eventManager: EventManager
     ) {
@@ -50,7 +48,7 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         if (this.subject.id !== null) {
-            this.projectService.findAvailableSources(
+            this.sourceService.findAvailable(
                 {
                     projectId: this.subject.project.id,
                     assigned: false
