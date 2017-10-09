@@ -58,6 +58,23 @@ public class TokenValidator {
     }
 
     /**
+     * Constructor where ServerConfig can be passed instead of it being loaded from file.
+     *
+     * @param config The identity server configuration
+     */
+    public TokenValidator(ServerConfig config) {
+        this.config = config;
+        try {
+            // Catch this exception here, as the identity server might not be online when this class
+            // is instantiated. We want this class to always be able to be instantiated, except for
+            // config file errors.
+            loadPublicKey();
+        } catch (TokenValidationException ex) {
+            log.error("Could not get server's public key.", ex);
+        }
+    }
+
+    /**
      * Validates an access token and returns the decoded JWT as a {@link DecodedJWT} object.
      * @param token The access token
      * @return The decoded access token
