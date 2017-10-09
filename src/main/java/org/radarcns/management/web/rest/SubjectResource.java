@@ -225,7 +225,6 @@ public class SubjectResource {
      */
     @GetMapping("/subjects/{login}")
     @Timed
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<SubjectDTO> getSubject(@PathVariable String login) {
         log.debug("REST request to get Subject : {}", login);
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
@@ -246,7 +245,6 @@ public class SubjectResource {
      */
     @DeleteMapping("/subjects/{login}")
     @Timed
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteSubject(@PathVariable String login) {
         log.debug("REST request to delete Subject : {}", login);
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
@@ -280,7 +278,6 @@ public class SubjectResource {
      */
     @PostMapping("/subjects/{login}/sources")
     @Timed
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MinimalSourceDetailsDTO> assignSources(@PathVariable String login,
         @RequestBody MinimalSourceDetailsDTO sourceDTO) {
         // check the subject id
@@ -329,7 +326,6 @@ public class SubjectResource {
 
     @GetMapping("/subjects/{login}/sources")
     @Timed
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<MinimalSourceDetailsDTO>> getSubjectSources(
         @PathVariable String login) {
         // check the subject id

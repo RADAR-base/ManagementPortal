@@ -9,7 +9,9 @@ import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.JwtAuthenticationFilter;
+import org.radarcns.management.service.DeviceTypeService;
 import org.radarcns.management.service.SubjectService;
+import org.radarcns.management.service.dto.DeviceTypeDTO;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
@@ -31,6 +33,7 @@ import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
@@ -76,6 +79,9 @@ public class SubjectResourceIntTest {
 
     @Autowired
     private SubjectService subjectService;
+
+    @Autowired
+    private DeviceTypeService deviceTypeService;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -312,8 +318,20 @@ public class SubjectResourceIntTest {
         assertNotNull(subjectLogin);
 
         MinimalSourceDetailsDTO sourceRegistrationDTO = new MinimalSourceDetailsDTO();
-        sourceRegistrationDTO.setDeviceTypeName(DEVICE_PRODUCER + " " + DEVICE_MODEL);
+        sourceRegistrationDTO.setSourceName(DEVICE_PRODUCER + " " + DEVICE_MODEL);
         sourceRegistrationDTO.getAttributes().put("some", "value");
+
+        List<DeviceTypeDTO> deviceTypes = deviceTypeService.findAll().stream()
+            .filter(dt -> dt.getCanRegisterDynamically())
+            .collect(Collectors.toList());
+
+        assertThat(deviceTypes.size()).isGreaterThan(0);
+        DeviceTypeDTO deviceType = deviceTypes.get(0);
+        sourceRegistrationDTO.setDeviceTypeId(deviceType.getId());
+        sourceRegistrationDTO.setDeviceTypeCatalogVersion(deviceType.getCatalogVersion());
+        sourceRegistrationDTO.setDeviceTypeModel(deviceType.getDeviceModel());
+        sourceRegistrationDTO.setDeviceTypeProducer(deviceType.getDeviceProducer());
+
         assertThat(sourceRegistrationDTO.getSourceId()).isNull();
 
         restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
