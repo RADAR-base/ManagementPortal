@@ -4,11 +4,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.apache.commons.codec.binary.Base64;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
-import javax.servlet.ServletContext;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
@@ -56,7 +53,7 @@ public class OAuthHelper {
     public static void setUp() throws Exception {
         KeyStore ks = KeyStore.getInstance("JKS");
         InputStream keyStream = OAuthHelper.class
-                .getClassLoader().getResourceAsStream("keystore.jks");
+                .getClassLoader().getResourceAsStream("config/keystore.jks");
         ks.load(keyStream, "radarbase".toCharArray());
         RSAPrivateKey privateKey = (RSAPrivateKey) ks.getKey("selfsigned",
                 "radarbase".toCharArray());

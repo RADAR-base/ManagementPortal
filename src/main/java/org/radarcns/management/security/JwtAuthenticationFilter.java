@@ -2,6 +2,7 @@ package org.radarcns.management.security;
 
 import org.radarcns.auth.authentication.TokenValidator;
 import org.radarcns.auth.exception.TokenValidationException;
+import org.radarcns.management.config.LocalKeystoreConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -21,7 +22,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends GenericFilterBean {
 
     private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
-    private static TokenValidator validator = new TokenValidator();
+    private static TokenValidator validator = new TokenValidator(new LocalKeystoreConfig());
     public static final String TOKEN_ATTRIBUTE = "jwt";
 
     @Override
@@ -53,5 +54,4 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         // Extract the token from the HTTP Authorization header
         return authorizationHeader.substring("Bearer".length()).trim();
     }
-
 }
