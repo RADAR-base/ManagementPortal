@@ -59,6 +59,7 @@ public class RadarAuthorizationTest {
     @Test
     public void testIsSuperUser() {
         assertFalse(RadarAuthorization.isSuperUser(TokenTestUtils.PROJECT_ADMIN_TOKEN));
+        assertFalse(RadarAuthorization.isSuperUser(TokenTestUtils.SCOPE_TOKEN));
         assertTrue(RadarAuthorization.isSuperUser(TokenTestUtils.SUPER_USER_TOKEN));
     }
 

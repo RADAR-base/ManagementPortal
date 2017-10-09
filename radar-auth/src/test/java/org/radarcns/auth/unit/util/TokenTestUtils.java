@@ -208,9 +208,6 @@ public class TokenTestUtils {
                 .withSubject("i'm a trusted oauth client")
                 .withArrayClaim("scope", new String[] {"PROJECT.READ", "SUBJECT.CREATE",
                         "SUBJECT.READ"})
-                .withArrayClaim("authorities", new String[] {})
-                .withArrayClaim("roles", new String[] {})
-                .withArrayClaim("sources", new String[] {})
                 .withClaim("client_id", "i'm a trusted oauth client")
                 .withClaim("jti", JTI)
                 .sign(algorithm);
