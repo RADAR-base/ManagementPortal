@@ -64,8 +64,8 @@
                     </span>
                 </td>
                 <td>
-                    <div *ngFor="let key of (subject.attributes | dictionaryKeys); ">
-                        <span class="form-control-static">{{key}}: {{subject.attributes[key]}}</span>
+                    <div *ngFor="let entry of subject.attributes | keys; trackBy: trackKey">
+                        <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
                     </div>
                 </td>
                 <td class="text-right">

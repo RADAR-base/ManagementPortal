@@ -64,6 +64,11 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
     trackId(index: number, item: Subject) {
         return item.id;
     }
+
+    trackKey(index: number, item: any) {
+        return item.key;
+    }
+
     registerChangeInSubjects() {
         this.eventSubscriber = this.eventManager.subscribe('subjectListModification', (response) => this.loadSubjects());
     }

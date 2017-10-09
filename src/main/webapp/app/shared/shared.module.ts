@@ -22,7 +22,6 @@ import {AttributeMapperComponent} from "./attribute-mapper/attribute-mapper.comp
 import {DictionaryMapperComponent} from "./dictionary-mapper/dictionary-mapper.component";
 import {CommonUserMgmtComponent} from "./user/common-user-management.component";
 import {RouterModule} from "@angular/router";
-import {DictionaryKeysPipe} from "./dictionary-mapper/dictionary-keys.pipe";
 
 @NgModule({
     imports: [
@@ -36,7 +35,6 @@ import {DictionaryKeysPipe} from "./dictionary-mapper/dictionary-keys.pipe";
         AttributeMapperComponent,
         DictionaryMapperComponent,
         CommonUserMgmtComponent,
-        DictionaryKeysPipe,
     ],
     providers: [
         CookieService,
@@ -61,7 +59,6 @@ import {DictionaryKeysPipe} from "./dictionary-mapper/dictionary-keys.pipe";
         DictionaryMapperComponent,
         CommonUserMgmtComponent,
         DatePipe,
-        DictionaryKeysPipe,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 

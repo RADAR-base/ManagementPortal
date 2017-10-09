@@ -24,7 +24,7 @@ export class GeneralSubjectDialogComponent implements OnInit {
     isSaving: boolean;
     projects: Project[];
 
-    keys : string[];
+    options : string[];
     attributeComponentEventPrefix : 'subjectAttributes';
 
     constructor(public activeModal: NgbActiveModal,
@@ -39,7 +39,7 @@ export class GeneralSubjectDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
-        this.keys = ['Human-readable-identifier'];
+        this.options = ['Human-readable-identifier'];
         this.projectService.query().subscribe(
             (res) => {
                 this.projects = res.json();

@@ -15,11 +15,10 @@ export class DictionaryMapperComponent implements OnInit {
     @Input() attributes: Dictionary;
     eventSubscriber: Subscription;
 
-    @Input() keys : string[];
+    @Input() options : string[];
     @Input() eventPrefix : string;
     selectedKey: any;
     enteredValue: string;
-
 
     constructor(private jhiLanguageService: JhiLanguageService,
                 private eventManager: EventManager) {
@@ -29,23 +28,18 @@ export class DictionaryMapperComponent implements OnInit {
     ngOnInit() {
         if (this.attributes == null) {
             this.attributes = {};
-        } else {
-            this.keys = this.keys.filter(v => !(v in this.attributes));
         }
         this.update();
     }
 
     update() {
         this.eventManager.subscribe(this.eventPrefix + 'EditListModification', (response) => {
-            this.keys = this.keys.concat(Object.keys(this.attributes));
             this.attributes = response.content;
-            this.keys.filter(v => !(v in this.attributes));
         });
     }
 
     addAttribute() {
         this.attributes[this.selectedKey] = this.enteredValue;
-        this.keys = this.keys.filter(v => v !== this.selectedKey);
         this.selectedKey = null;
         this.enteredValue = '';
         this.broadcastAttributes();
@@ -53,8 +47,11 @@ export class DictionaryMapperComponent implements OnInit {
 
     removeAttribute(key: string) {
         delete this.attributes[key];
-        this.keys.push(key);
         this.broadcastAttributes();
+    }
+
+    activeOptions(): string[] {
+        return this.options.filter(o => !(o in this.attributes))
     }
 
     private broadcastAttributes(): void {
@@ -66,16 +63,15 @@ export class DictionaryMapperComponent implements OnInit {
 
     isEmpty(obj: any) {
         for (let key in obj) {
-            return false;
+            if (obj.hasOwnProperty(key)) {
+                return false;
+            }
         }
         return true;
     }
 
-    trackKey(index: number, item: string) {
-        return item;
+
+    trackKey(index: number, item: any) {
+        return item.key;
     }
 }
-
-/**
- * Created by nivethika on 30-8-17.
- */

@@ -16,9 +16,9 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let key of (attributes | dictionaryKeys); trackBy: trackKey">
-                <td>{{key}}</td>
-                <td>{{attributes[key]}}</td>
+            <tr *ngFor="let entry of attributes | keys; trackBy: trackKey">
+                <td>{{entry.key}}</td>
+                <td>{{entry.value}}</td>
                 <td>
                     <button type="button" (click)="removeAttribute(key)" class="btn btn-danger btn-sm fa fa-remove">
                     </button>
@@ -40,7 +40,7 @@
             <td>
                 <select [(ngModel)]="selectedKey" class="form-control" required>
                     <option [ngValue]="null"></option>
-                    <option *ngFor="let key of keys;">{{key}}</option>
+                    <option *ngFor="let key of activeOptions();">{{key}}</option>
                 </select>
             </td>
             <td>
