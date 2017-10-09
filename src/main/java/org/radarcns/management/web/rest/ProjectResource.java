@@ -117,11 +117,11 @@ public class ProjectResource {
      */
     @GetMapping("/projects")
     @Timed
-    @Secured({AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.SYS_ADMIN})
     public List<ProjectDTO> getAllProjects(
             @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
                 minimized) {
         log.debug("REST request to get Projects");
+        checkPermission(getJWT(servletRequest), PROJECT_READ);
         return projectService.findAll(minimized);
     }
 
