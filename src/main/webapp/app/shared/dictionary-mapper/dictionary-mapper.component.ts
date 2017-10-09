@@ -1,13 +1,11 @@
-import {Component, OnInit, Input, Pipe, PipeTransform,} from '@angular/core';
+import {Component, OnInit, Input} from '@angular/core';
 import {
     EventManager,
-    AlertService,
     JhiLanguageService
 } from 'ng-jhipster';
 
 import {Subscription} from "rxjs/Subscription";
 import {Dictionary} from "./dictionary-mapper.model";
-import {isNullOrUndefined} from "util";
 
 @Component({
     selector: 'dictionary-mapper',
