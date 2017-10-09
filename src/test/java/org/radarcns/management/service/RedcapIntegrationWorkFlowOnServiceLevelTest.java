@@ -3,7 +3,9 @@ package org.radarcns.management.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -98,9 +100,7 @@ public class RedcapIntegrationWorkFlowOnServiceLevelTest {
         String humanReadableId = workPackageRetrieved+'-'+phaseRetrieved+"-"+locationRetrieved+"-"+redcapRecordId;
 
         //set meta-data to subject
-        Set<AttributeMapDTO> subjectMetadata = new HashSet<>();
-        subjectMetadata.add( new AttributeMapDTO(SubjectDTO.HUMAN_READABLE_IDENTIFIER_KEY , humanReadableId));
-        newSubject.setAttributes(subjectMetadata);
+        newSubject.setAttributes(Collections.singletonMap(SubjectDTO.HUMAN_READABLE_IDENTIFIER_KEY, humanReadableId));
 
         // create/save a subject
         // PUT api/subjects/
@@ -108,10 +108,10 @@ public class RedcapIntegrationWorkFlowOnServiceLevelTest {
         assertThat(savedSubject.getId()>0);
 
         // asset human-readable-id
-        for (AttributeMapDTO attributeMapDTO : savedSubject.getAttributes()) {
-            switch (attributeMapDTO.getKey()) {
+        for (Map.Entry<String, String> attr : savedSubject.getAttributes().entrySet()) {
+            switch (attr.getKey()) {
                 case SubjectDTO.HUMAN_READABLE_IDENTIFIER_KEY :
-                    assertEquals(humanReadableId, attributeMapDTO.getValue());
+                    assertEquals(humanReadableId, attr.getValue());
             }
         }
     }

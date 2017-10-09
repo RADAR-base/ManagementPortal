@@ -23,6 +23,7 @@ public interface SubjectMapper {
     @Mapping(source = "user.lastModifiedDate", target = "lastModifiedDate")
     @Mapping(target = "attributes" , ignore = true)
     @Mapping(target = "status" , ignore = true)
+    @Mapping(target = "project" , ignore = true)
     SubjectDTO subjectToSubjectDTO(Subject subject);
 
     List<SubjectDTO> subjectsToSubjectDTOs(List<Subject> subjects);

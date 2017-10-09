@@ -9,7 +9,7 @@ import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.SubjectService;
-import org.radarcns.management.service.dto.SourceRegistrationDTO;
+import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -251,8 +251,8 @@ public class SubjectResource {
     @Timed
     @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN,
         AuthoritiesConstants.PARTICIPANT})
-    public ResponseEntity<SourceRegistrationDTO> assignSources(@PathVariable String login,
-        @RequestBody SourceRegistrationDTO sourceDTO) {
+    public ResponseEntity<MinimalSourceDetailsDTO> assignSources(@PathVariable String login,
+        @RequestBody MinimalSourceDetailsDTO sourceDTO) {
         // check the subject id
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         if (!subject.isPresent()) {
@@ -273,25 +273,24 @@ public class SubjectResource {
         }
         Role role = roleOptional.get();
         // find whether the relevant device-type is available in the subject's project
-        Optional<DeviceType> deviceType = projectRepository
-            .findDeviceTypeByProjectIdAndDeviceTypeProp(role.getProject().getId(),
-                sourceDTO.getDeviceTypeProducer(),
-                sourceDTO.getDeviceTypeModel(),
-                sourceDTO.getDeviceCatalogVersion());
+        Optional<DeviceType> deviceType;
+        deviceType = projectRepository.findDeviceTypeByProjectIdAndDeviceTypeId(
+                role.getProject().getId(), sourceDTO.getDeviceTypeId());
+
         if (!deviceType.isPresent()) {
             // return bad request
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(HeaderUtil
                 .createAlert("deviceTypeNotAvailable",
-                    "No device-type found for producer " + sourceDTO.getDeviceTypeProducer()
-                        + " , model " + sourceDTO.getDeviceTypeModel() + " and version " + sourceDTO
-                        .getDeviceCatalogVersion() + " in relevant project")).body(null);
+                    "No device-type found for device type ID " + sourceDTO.getDeviceTypeId()
+                        + " in relevant project")).body(null);
 
         }
 
         // handle the source registration
-        SourceRegistrationDTO sourceRegistered = subjectService
+        MinimalSourceDetailsDTO sourceRegistered = subjectService
             .assignOrUpdateSource(sub, deviceType.get(), role.getProject(), sourceDTO);
 
+        // TODO: replace ok() with created, with a location to query the new source.
         return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(
             ENTITY_NAME, sub.getId().toString())).body(sourceRegistered);
     }
@@ -300,7 +299,7 @@ public class SubjectResource {
     @Timed
     @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN,
         AuthoritiesConstants.PARTICIPANT})
-    public ResponseEntity<List<SourceRegistrationDTO>> getSubjectSources(
+    public ResponseEntity<List<MinimalSourceDetailsDTO>> getSubjectSources(
         @PathVariable String login) {
         // check the subject id
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
@@ -311,7 +310,8 @@ public class SubjectResource {
         }
 
         // handle the source registration
-        List<SourceRegistrationDTO> sources = subjectService.getSources(subject.get());
+        List<MinimalSourceDetailsDTO> sources = subjectService.getSources(subject.get());
+
         return ResponseEntity.ok().body(sources);
     }
 }

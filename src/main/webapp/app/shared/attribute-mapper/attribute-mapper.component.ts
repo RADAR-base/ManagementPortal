@@ -32,13 +32,13 @@ export class AttributeMapperComponent implements OnInit {
 
     ngOnInit() {
         if(this.attributes == null) {
-            this.attributes = new Array();
+            this.attributes = [];
         }
         this.registerChangeInParentComponent();
     }
 
     registerChangeInParentComponent() {
-        this.eventManager.subscribe(this.eventPrefix+'EditListModification', (response ) => {
+        this.eventManager.subscribe(this.eventPrefix + 'EditListModification', (response) => {
             this.attributes = response.content;
         });
     }
@@ -61,7 +61,7 @@ export class AttributeMapperComponent implements OnInit {
         else {
             this.attributes.push(newAttributeData);
         }
-        this.eventManager.broadcast({name: this.eventPrefix+'ListModification', content: this.attributes});
+        this.eventManager.broadcast({name: this.eventPrefix + 'ListModification', content: this.attributes});
     }
 
     hasAttribute(attribute: Attribute): boolean {
@@ -70,7 +70,7 @@ export class AttributeMapperComponent implements OnInit {
 
     removeAttribute(attribute: Attribute) {
         this.attributes.splice(this.attributes.indexOf(v => v.key === attribute.key), 1);
-        this.eventManager.broadcast({name: this.eventPrefix+'ListModification', content: this.attributes});
+        this.eventManager.broadcast({name: this.eventPrefix + 'ListModification', content: this.attributes});
     }
 
 }

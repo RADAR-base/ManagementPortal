@@ -1,6 +1,6 @@
-import {Attribute} from "../../shared/attribute-mapper/attribute-mapper.model";
 import {Project} from "../../entities/project/project.model";
-import {MinimalSource, Source} from "../source/source.model";
+import {MinimalSource} from "../source/source.model";
+import {Dictionary} from "../dictionary-mapper/dictionary-mapper.model";
 export class Subject {
     public id?: any;
     public login?: string;
@@ -13,7 +13,7 @@ export class Subject {
     public password?: string;
     public project?: Project;
     public sources?: MinimalSource[];
-    public attributes: Attribute[];
+    public attributes: Dictionary;
     public status: SubjectStatus;
 
     constructor(
@@ -41,7 +41,7 @@ export class Subject {
         this.lastModifiedDate = lastModifiedDate ? lastModifiedDate : null;
         this.password = password ? password : null;
         this.project = project ? project: null;
-        this.sources = sources ? sources: new Array();
+        this.sources = sources ? sources: [];
         this.status = status ? status: SubjectStatus.DEACTIVATED;
     }
 }

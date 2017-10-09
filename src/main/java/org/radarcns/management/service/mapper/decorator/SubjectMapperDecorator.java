@@ -4,7 +4,6 @@ import org.mapstruct.MappingTarget;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.security.AuthoritiesConstants;
-import org.radarcns.management.service.dto.AttributeMapDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.SubjectDTO.SubjectStatus;
 import org.radarcns.management.service.mapper.ProjectMapper;
@@ -13,13 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Created by nivethika on 30-8-17.
@@ -38,23 +32,14 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
             return null;
         }
         SubjectDTO dto = delegate.subjectToSubjectDTO(subject);
-        Set<AttributeMapDTO> attributeMapDTOList = new HashSet<>();
-        if(subject.getAttributes()!=null) {
-            for (Entry<String, String> entry : subject.getAttributes().entrySet()) {
-                AttributeMapDTO attributeMapDTO = new AttributeMapDTO();
-                attributeMapDTO.setKey(entry.getKey());
-                attributeMapDTO.setValue(entry.getValue());
-                attributeMapDTOList.add(attributeMapDTO);
-            }
-            dto.setAttributes(attributeMapDTOList);
-        }
+        dto.setAttributes(subject.getAttributes());
         dto.setStatus(getSubjectStatus(subject));
         Optional<Role> role = subject.getUser().getRoles().stream()
                 .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PARTICIPANT))
                 .findFirst();
-        if (role.isPresent()) {
-            dto.setProject(projectMapper.projectToProjectDTO(role.get().getProject()));
-        }
+
+        role.ifPresent(role1 -> dto.setProject(projectMapper.projectToProjectDTO(role1.getProject())));
+
         return dto;
     }
 
@@ -110,13 +95,7 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
 
 
     private void extractAttributeData(SubjectDTO subjectDTO, Subject subject) {
-        if(subjectDTO.getAttributes()!=null && !subjectDTO.getAttributes().isEmpty()) {
-            Map<String, String> attributeMap = new HashMap<>();
-            for (AttributeMapDTO attributeMapDTO : subjectDTO.getAttributes()) {
-                attributeMap.put(attributeMapDTO.getKey(), attributeMapDTO.getValue());
-            }
-            subject.setAttributes(attributeMap);
-        }
+        subject.setAttributes(subjectDTO.getAttributes());
     }
 
     private SubjectStatus getSubjectStatus(Subject subject) {

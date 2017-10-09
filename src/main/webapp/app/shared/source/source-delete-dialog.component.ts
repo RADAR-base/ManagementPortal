@@ -33,7 +33,7 @@ export class SourceDeleteDialogComponent {
         this.sourceService.delete(id).subscribe((response) => {
             this.eventManager.broadcast({
                 name: 'sourceListModification',
-                content: 'Deleted an source'
+                content: 'Deleted a source'
             });
             this.activeModal.dismiss(true);
         });

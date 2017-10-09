@@ -47,6 +47,7 @@ export class SourceDetailComponent implements OnInit, OnDestroy {
     }
 
     registerChangeInDevices() {
-        this.eventSubscriber = this.eventManager.subscribe('sourceListModification', (response) => this.load(this.source.id));
+        this.eventSubscriber = this.eventManager.subscribe('sourceListModification',
+            (response) => this.load(this.source.id));
     }
 }

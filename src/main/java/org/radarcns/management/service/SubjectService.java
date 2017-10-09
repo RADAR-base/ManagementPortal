@@ -11,9 +11,8 @@ import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.AuthoritiesConstants;
-import org.radarcns.management.service.dto.AttributeMapDTO;
+import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
-import org.radarcns.management.service.dto.SourceRegistrationDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.SourceMapper;
@@ -31,7 +30,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -187,8 +185,8 @@ public class SubjectService {
      * Otherwise finds the matching source and updates meta-data
      */
     @Transactional
-    public SourceRegistrationDTO assignOrUpdateSource(Subject subject, DeviceType deviceType, Project project,
-        SourceRegistrationDTO sourceRegistrationDTO) {
+    public MinimalSourceDetailsDTO assignOrUpdateSource(Subject subject, DeviceType deviceType, Project project,
+        MinimalSourceDetailsDTO sourceRegistrationDTO) {
         Source assignedSource = null;
 
         List<Source> sources = subjectRepository
@@ -205,9 +203,7 @@ public class SubjectService {
                 if(sourceRegistrationDTO.getSourceName()!=null) {
                     source.setSourceName(sourceRegistrationDTO.getSourceName());
                 }
-                for(AttributeMapDTO metaData : sourceRegistrationDTO.getMetaData()) {
-                    source.getAttributes().put(metaData.getKey(), metaData.getValue());
-                }
+                source.getAttributes().putAll(sourceRegistrationDTO.getAttributes());
                 sourceRepository.save(source);
                 assignedSource = source;
             } else {
@@ -229,10 +225,7 @@ public class SubjectService {
                 source1.setProject(project);
                 source1.setAssigned(true);
                 source1.setDeviceType(deviceType);
-                for (AttributeMapDTO metaData : sourceRegistrationDTO.getMetaData()) {
-                    source1.getAttributes().put(metaData.getKey(), metaData.getValue());
-                }
-
+                source1.getAttributes().putAll(sourceRegistrationDTO.getAttributes());
                 source1 = sourceRepository.save(source1);
                 // if source name is provided update source name
                 if(sourceRegistrationDTO.getSourceName() !=null ) {
@@ -271,7 +264,7 @@ public class SubjectService {
             throw new CustomParameterizedException("InvalidRequest" , errorParams);
         }
         subjectRepository.save(subject);
-        return sourceMapper.sourceToSourceRegistrationDTO(assignedSource);
+        return sourceMapper.sourceToMinimalSourceDetailsDTO(assignedSource);
     }
 
     /**
@@ -279,10 +272,10 @@ public class SubjectService {
      * @param subject
      * @return list of sources
      */
-    public List<SourceRegistrationDTO> getSources(Subject subject) {
+    public List<MinimalSourceDetailsDTO> getSources(Subject subject) {
         List<Source> sources = subjectRepository.findSourcesBySubjectLogin(subject.getUser().getLogin());
 
-        return sourceMapper.sourcesToSourceRegisterationDTOs(sources);
+        return sourceMapper.sourcesToMinimalSourceDetailsDTOs(sources);
     }
 
     public void deleteSubject(String login) {

@@ -4,6 +4,7 @@ package org.radarcns.management.service.dto;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -103,20 +104,22 @@ public class SourceDTO implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SourceDTO)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         SourceDTO sourceDTO = (SourceDTO) o;
 
-        if (!sourceId.equals(sourceDTO.sourceId)) return false;
-        return sourceName.equals(sourceDTO.sourceName);
+        return Objects.equals(sourceId, sourceDTO.sourceId)
+            && Objects.equals(sourceName, sourceDTO.sourceName);
     }
 
     @Override
     public int hashCode() {
-        int result = sourceId.hashCode();
-        result = 31 * result + sourceName.hashCode();
-        return result;
+        return Objects.hash(sourceId, sourceName);
     }
 
     @Override

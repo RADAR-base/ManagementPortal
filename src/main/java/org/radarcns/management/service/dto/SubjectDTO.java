@@ -3,7 +3,9 @@ package org.radarcns.management.service.dto;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -44,7 +46,7 @@ public class SubjectDTO implements Serializable {
 
     private Set<MinimalSourceDetailsDTO> sources = new HashSet<>();
 
-    private Set<AttributeMapDTO> attributes = new HashSet<>();
+    private Map<String, String> attributes = new HashMap<>();
 
     public SubjectStatus getStatus() {
         return status;
@@ -137,11 +139,11 @@ public class SubjectDTO implements Serializable {
         this.sources = sources;
     }
 
-    public Set<AttributeMapDTO> getAttributes() {
+    public Map<String, String> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(Set<AttributeMapDTO> attributes) {
+    public void setAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
     }
 

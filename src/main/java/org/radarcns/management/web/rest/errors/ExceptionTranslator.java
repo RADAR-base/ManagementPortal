@@ -2,6 +2,9 @@ package org.radarcns.management.web.rest.errors;
 
 import java.util.List;
 
+import org.radarcns.management.aop.logging.LoggingAspect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.HttpStatus;
@@ -20,6 +23,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
  */
 @ControllerAdvice
 public class ExceptionTranslator {
+    private static final Logger logger = LoggerFactory.getLogger(ExceptionTranslator.class);
+
 
     @ExceptionHandler(ConcurrencyFailureException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
@@ -88,6 +93,7 @@ public class ExceptionTranslator {
     public ResponseEntity<ErrorVM> processRuntimeException(Exception ex) {
         BodyBuilder builder;
         ErrorVM errorVM;
+        logger.error("Failed to process message", ex);
         ResponseStatus responseStatus = AnnotationUtils.findAnnotation(ex.getClass(), ResponseStatus.class);
         if (responseStatus != null) {
             builder = ResponseEntity.status(responseStatus.value());

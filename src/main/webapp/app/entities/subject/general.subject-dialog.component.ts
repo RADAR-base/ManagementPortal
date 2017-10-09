@@ -24,7 +24,7 @@ export class GeneralSubjectDialogComponent implements OnInit {
     isSaving: boolean;
     projects: Project[];
 
-    keys : string[];
+    options : string[];
     attributeComponentEventPrefix : 'subjectAttributes';
 
     constructor(public activeModal: NgbActiveModal,
@@ -39,7 +39,7 @@ export class GeneralSubjectDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
-        this.keys = ['Human-readable-identifier'];
+        this.options = ['Human-readable-identifier'];
         this.projectService.query().subscribe(
             (res) => {
                 this.projects = res.json();
@@ -48,9 +48,10 @@ export class GeneralSubjectDialogComponent implements OnInit {
     }
 
     private registerChangesInSubject() {
-        this.eventManager.subscribe(this.attributeComponentEventPrefix+'ListModification', (response ) => {
-            this.subject.attributes= response.content;
-        });
+        this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification',
+            (response) => {
+                this.subject.attributes = response.content;
+            });
     }
 
     clear() {
@@ -120,7 +121,6 @@ export class GeneralSubjectPopupComponent implements OnInit, OnDestroy {
     routeSub: any;
 
     constructor(private route: ActivatedRoute,
-                private router : Router,
                 private subjectPopupService: GeneralSubjectPopupService,
     ) {
     }

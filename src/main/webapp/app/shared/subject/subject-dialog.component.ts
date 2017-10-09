@@ -1,8 +1,6 @@
 import {
-    Component, OnInit, OnDestroy, Input, ViewChild, ViewContainerRef,
-    ComponentFactoryResolver, ComponentFactory, ComponentRef
-} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+    Component, OnInit, OnDestroy} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 import {Response} from '@angular/http';
 
 import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
@@ -12,7 +10,7 @@ import {Subject} from './subject.model';
 import {SubjectPopupService} from './subject-popup.service';
 import {SubjectService} from './subject.service';
 import {MinimalSource} from "../source/source.model";
-import {SourceService} from "../source/index";
+
 @Component({
     selector: 'jhi-subject-dialog',
     templateUrl: './subject-dialog.component.html'
@@ -24,14 +22,13 @@ export class SubjectDialogComponent implements OnInit {
     isSaving: boolean;
 
     // sources: MinimalSource[];
-    keys: string[];
+    options: string[];
     attributeComponentEventPrefix: 'subjectAttributes';
 
     constructor(public activeModal: NgbActiveModal,
                 private jhiLanguageService: JhiLanguageService,
                 private alertService: AlertService,
                 private subjectService: SubjectService,
-                private sourceService: SourceService,
                 private eventManager: EventManager) {
         this.jhiLanguageService.setLocations(['subject', 'project', 'projectStatus']);
     }
@@ -39,7 +36,7 @@ export class SubjectDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
-        this.keys = ['Human-readable-identifier'];
+        this.options = ['Human-readable-identifier'];
         this.registerChangesInSubject();
     }
 

@@ -46,8 +46,7 @@
             },
             "clientApp": "Client app",
             "resource": "Beveiligde gegevensbron",
-            "attributeDataKey" : "Tag",
-            "attributeDataValue" : "Value",
+            "attributeData" : "Attributes",
             "status" : {
                 "title" : "Staat",
                 "discontinued" : "Stopgezet",

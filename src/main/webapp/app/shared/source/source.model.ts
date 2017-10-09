@@ -19,7 +19,9 @@ export class MinimalSource {
     constructor(
         public id?: number,
         public deviceType?: number,
-        public deviceTypeName?: string,
+        public deviceTypeProducer?: string,
+        public deviceTypeModel?: string,
+        public deviceTypeVersion?: string,
         public expectedSourceName?: string | null,
         public sourceId?: string,
         public sourceName?: string,

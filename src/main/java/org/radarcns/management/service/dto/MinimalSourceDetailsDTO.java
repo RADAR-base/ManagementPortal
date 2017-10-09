@@ -1,5 +1,7 @@
 package org.radarcns.management.service.dto;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -8,7 +10,9 @@ import java.util.UUID;
 public class MinimalSourceDetailsDTO {
     private Long id;
     private Long deviceTypeId;
-    private String deviceTypeName;
+    private String deviceTypeProducer;
+    private String deviceTypeModel;
+    private String deviceTypeCatalogVersion;
     private String expectedSourceName;
     private UUID sourceId;
     private String sourceName;
@@ -21,6 +25,8 @@ public class MinimalSourceDetailsDTO {
     public void setId(Long id) {
         this.id = id;
     }
+
+    private Map<String, String> attributes = new HashMap<>();
 
     public Long getDeviceTypeId() {
         return deviceTypeId;
@@ -62,11 +68,35 @@ public class MinimalSourceDetailsDTO {
         this.sourceName = sourceName;
     }
 
-    public String getDeviceTypeName() {
-        return deviceTypeName;
+    public Map<String, String> getAttributes() {
+        return attributes;
     }
 
-    public void setDeviceTypeName(String deviceTypeName) {
-        this.deviceTypeName = deviceTypeName;
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
+    }
+
+    public String getDeviceTypeCatalogVersion() {
+        return deviceTypeCatalogVersion;
+    }
+
+    public void setDeviceTypeCatalogVersion(String deviceTypeCatalogVersion) {
+        this.deviceTypeCatalogVersion = deviceTypeCatalogVersion;
+    }
+
+    public String getDeviceTypeModel() {
+        return deviceTypeModel;
+    }
+
+    public void setDeviceTypeModel(String deviceTypeModel) {
+        this.deviceTypeModel = deviceTypeModel;
+    }
+
+    public String getDeviceTypeProducer() {
+        return deviceTypeProducer;
+    }
+
+    public void setDeviceTypeProducer(String deviceTypeProducer) {
+        this.deviceTypeProducer = deviceTypeProducer;
     }
 }

@@ -7,7 +7,7 @@ import java.util.Objects;
  */
 public class AttributeMapDTO {
 
-    public AttributeMapDTO () {
+    public AttributeMapDTO() {
         //default constructor
     }
 
@@ -44,16 +44,15 @@ public class AttributeMapDTO {
             return false;
         }
 
-        AttributeMapDTO attributeMapDTO= (AttributeMapDTO) o;
+        AttributeMapDTO attributeMapDTO = (AttributeMapDTO) o;
 
-        if ( ! Objects.equals(key, attributeMapDTO.key)) { return false; }
-
-        return true;
+        return Objects.equals(key, attributeMapDTO.key)
+            && Objects.equals(value, attributeMapDTO.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(key);
+        return Objects.hash(key, value);
     }
 
     @Override

@@ -35,8 +35,7 @@
             <th><span jhiTranslate="managementPortalApp.subject.status.title">Status</span></th>
             <th *ngIf="!isProjectSpecific"><span jhiTranslate="managementPortalApp.subject.project">Project</span> <span class="fa fa-sort"></span></th>
             <th><span jhiTranslate="managementPortalApp.subject.sources">Sources</span></th>
-            <th><span jhiTranslate="managementPortalApp.subject.attributeDataKey">Key</span></th>
-            <th><span jhiTranslate="managementPortalApp.subject.attributeDataValue">Value</span></th>
+            <th><span jhiTranslate="managementPortalApp.subject.attributeData">Attributes</span></th>
             <th class="text-center"><span jhiTranslate="managementPortalApp.subject.pairing">Pairing</span></th>
             <th class="text-center"><span jhiTranslate="managementPortalApp.subject.actions">Actions</span></th>
             </tr>
@@ -61,17 +60,12 @@
                 </td>
                 <td>
                     <span *ngFor="let sources of subject.sources; let last = last">
-                        <a class="form-control-static" [routerLink]="['/source', sources.id ]">{{sources.deviceTypeName}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
+                        <a class="form-control-static" [routerLink]="['/source', sources.id ]">{{sources.deviceTypeModel}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
                     </span>
                 </td>
                 <td>
-                    <div *ngFor="let attribute of subject.attributes; ">
-                        <span class="form-control-static">{{attribute.key}}</span>
-                    </div>
-                </td>
-                <td>
-                    <div *ngFor="let attribute of subject.attributes; ">
-                        <span class="form-control-static">{{attribute.value}}</span>
+                    <div *ngFor="let entry of subject.attributes | keys; trackBy: trackKey">
+                        <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
                     </div>
                 </td>
                 <td class="text-right">
