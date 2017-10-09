@@ -27,7 +27,7 @@ export class AttributeMapperComponent implements OnInit {
                 private alertService: AlertService,
                 private eventManager: EventManager,
                 private principal: Principal) {
-        this.jhiLanguageService.setLocations(['global']);
+        this.jhiLanguageService.addLocation('global');
     }
 
     ngOnInit() {

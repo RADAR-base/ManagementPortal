@@ -121,9 +121,9 @@ export class SubjectPopupComponent implements OnInit, OnDestroy {
             if (params['projectId']) {
                 projectId = params['projectId'];
             }
-            if (params['id']) {
+            if (params['login']) {
                 this.modalRef = this.subjectPopupService
-                .open(SubjectDialogComponent, params['id'], false, projectId);
+                .open(SubjectDialogComponent, params['login'], false, projectId);
             } else {
                 this.modalRef = this.subjectPopupService
                 .open(SubjectDialogComponent, null, false, projectId);

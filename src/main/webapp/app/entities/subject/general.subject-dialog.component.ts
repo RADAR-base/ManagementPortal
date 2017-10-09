@@ -13,7 +13,6 @@ import {Subject} from "../../shared/subject/subject.model";
 import {SubjectService} from "../../shared/subject/subject.service";
 import {GeneralSubjectPopupService} from "./general.subject-popup.service";
 import {MinimalSource} from "../../shared/source/source.model";
-import {SourceService} from "../../shared/source/source.service";
 @Component({
     selector: 'jhi-subject-dialog',
     templateUrl: './general.subject-dialog.component.html'
@@ -25,7 +24,6 @@ export class GeneralSubjectDialogComponent implements OnInit {
     isSaving: boolean;
     projects: Project[];
 
-    // sources: MinimalSource[];
     keys : string[];
     attributeComponentEventPrefix : 'subjectAttributes';
 
@@ -34,7 +32,6 @@ export class GeneralSubjectDialogComponent implements OnInit {
                 private alertService: AlertService,
                 private subjectService: SubjectService,
                 private projectService: ProjectService,
-                private sourceService: SourceService,
                 private eventManager: EventManager) {
         this.jhiLanguageService.setLocations(['subject' , 'project' , 'projectStatus']);
     }
@@ -130,9 +127,9 @@ export class GeneralSubjectPopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if (params['id']) {
+            if (params['login']) {
                 this.modalRef = this.subjectPopupService
-                .open(GeneralSubjectDialogComponent, params['id']);
+                .open(GeneralSubjectDialogComponent, params['login']);
             } else {
                 this.modalRef = this.subjectPopupService
                 .open(GeneralSubjectDialogComponent);

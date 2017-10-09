@@ -155,36 +155,30 @@ public class UserResource {
      * GET  /users : get all users.
      *
      * @param pageable the pagination information
+     * @param projectId Optional, if specified return only users associated with this project
+     * @param authority Optional, if specified return only users that have this authority
      * @return the ResponseEntity with status 200 (OK) and with body all users
      */
     @GetMapping("/users")
     @Timed
     @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
-    public ResponseEntity<List<UserDTO>> getAllUsers(@ApiParam Pageable pageable) {
-        final Page<UserDTO> page = userService.getAllManagedUsers(pageable);
+    public ResponseEntity<List<UserDTO>> getAllUsers(@ApiParam Pageable pageable,
+        @RequestParam(value = "projectId" , required = false) Long projectId,
+        @RequestParam(value = "authority" , required = false) String authority) {
+        Page<UserDTO> page;
+        if (projectId != null && authority != null) {
+            page = userService.findAllByProjectIdAndAuthority(pageable, projectId, authority);
+        } else if (projectId != null && authority == null) {
+            page = userService.findAllByProjectId(pageable, projectId);
+        } else if (projectId == null && authority != null) {
+            page = userService.findAllByAuthority(pageable, authority);
+        } else {
+            page = userService.getAllManagedUsers(pageable);
+        }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/users");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
-    /**
-     * GET  /users-for-project : get all users.
-     *
-     * @return the ResponseEntity with status 200 (OK) and with body all users in request criteria
-     */
-    @GetMapping("/users-for-project")
-    @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
-    public ResponseEntity<List<UserDTO>> getAllForProject(
-        @RequestParam(value = "projectId" ) Long projectId,
-        @RequestParam(value = "authority" , required = false) String authority) {
-
-        if(projectId!=null && authority!=null) {
-            log.info("ProjectID {} and authority {}" , projectId, authority);
-            return new ResponseEntity<>(userService.findAllByProjectIdAndAuthority(projectId, authority) , HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>(userService.findAllByProjectId(projectId), HttpStatus.OK);
-    }
     /**
      * GET  /users/:login : get the "login" user.
      *

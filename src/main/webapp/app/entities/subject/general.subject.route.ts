@@ -30,7 +30,7 @@ export const subjectPopupRoute: Routes = [
         outlet: 'popup'
     },
     {
-    path: 'general-subject/:id/edit',
+    path: 'general-subject/:login/edit',
     component: GeneralSubjectPopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN],

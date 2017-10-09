@@ -11,7 +11,7 @@ import {SubjectSourceAssignerPopupComponent} from "./source-assigner/source-assi
 
 export const subjectRoute: Routes = [
   {
-    path: 'subject/:id',
+    path: 'subject/:login',
     component: SubjectDetailComponent,
     data: {
         authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
@@ -33,7 +33,7 @@ export const subjectPopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'project-subject/:projectId/:id/edit',
+    path: 'project-subject/:projectId/:login/edit',
     component: SubjectPopupComponent,
     data: {
         authorities:  [SYSTEM_ADMIN, PROJECT_ADMIN],
@@ -43,7 +43,7 @@ export const subjectPopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'subject/:id/delete',
+    path: 'subject/:login/delete',
     component: SubjectDeletePopupComponent,
     data: {
         authorities:  [SYSTEM_ADMIN],
@@ -53,7 +53,7 @@ export const subjectPopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'subject/:id/pairApp',
+    path: 'subject/:login/pairApp',
     component: SubjectPairPopupComponent,
     data: {
     authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
@@ -63,7 +63,7 @@ export const subjectPopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'subject/:id/sources',
+    path: 'subject/:login/sources',
     component: SubjectSourceAssignerPopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
@@ -73,7 +73,7 @@ export const subjectPopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'subject/:id/discontinue',
+    path: 'subject/:login/discontinue',
     component: SubjectDeletePopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],

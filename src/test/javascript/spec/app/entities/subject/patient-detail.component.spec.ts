@@ -27,7 +27,7 @@ describe('Component Tests', () => {
                     DatePipe,
                     {
                         provide: ActivatedRoute,
-                        useValue: new MockActivatedRoute({id: 123})
+                        useValue: new MockActivatedRoute({login: "test"})
                     },
                     SubjectService,
                     EventManager
@@ -50,14 +50,14 @@ describe('Component Tests', () => {
             it('Should call load all on init', () => {
             // GIVEN
 
-            spyOn(service, 'find').and.returnValue(Observable.of(new Subject(10)));
+            spyOn(service, 'find').and.returnValue(Observable.of(new Subject(10, "test")));
 
             // WHEN
             comp.ngOnInit();
 
             // THEN
-            expect(service.find).toHaveBeenCalledWith(123);
-            expect(comp.subject).toEqual(jasmine.objectContaining({id:10}));
+            expect(service.find).toHaveBeenCalledWith("test");
+            expect(comp.subject).toEqual(jasmine.objectContaining({id: 10, login:"test"}));
             });
         });
     });

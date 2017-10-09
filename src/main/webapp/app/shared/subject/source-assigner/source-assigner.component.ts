@@ -152,9 +152,9 @@ export class SubjectSourceAssignerPopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if (params['id']) {
+            if (params['login']) {
                 this.modalRef = this.subjectPopupService
-                .open(SubjectSourceAssignerDialogComponent, params['id'], false);
+                .open(SubjectSourceAssignerDialogComponent, params['login'], false);
             }
             else {
                 console.log("Unknown subject found")

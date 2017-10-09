@@ -238,24 +238,10 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Page<UserDTO> getAllManagedUsers(Pageable pageable) {
-        User currentUser = getUserWithAuthorities();
-        List<String> currentUserAuthorities = currentUser.getAuthorities().stream()
-            .map(Authority::getName).collect(
-                Collectors.toList());
-        if (currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
-            log.debug("Request to get all Projects");
-//            return userRepository.findAllByProjectId(pageable, currentUser.getRoles()..getId())
-//                .map(userMapper::userToUserDTO);
-            // TODO these needs to be revisited
-            return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER)
-                .map(userMapper::userToUserDTO);
-        } else {
-            log.debug("Request to get all Users");
-            return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER)
-                .map(userMapper::userToUserDTO);
+        log.debug("Request to get all Users");
+        return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER)
+            .map(userMapper::userToUserDTO);
         }
-
-    }
 
     @Transactional(readOnly = true)
     public Optional<UserDTO> getUserWithAuthoritiesByLogin(String login) {
@@ -309,11 +295,19 @@ public class UserService {
         }
     }
 
-    public List<UserDTO> findAllByProjectIdAndAuthority(Long projectId, String authority) {
-        return userMapper.usersToUserDTOs(userRepository.findAllByProjectIdAndAuthority(projectId, authority));
+    public Page<UserDTO> findAllByProjectIdAndAuthority(Pageable pageable, Long projectId,
+            String authority) {
+        return userRepository.findAllByProjectIdAndAuthority(pageable, projectId, authority)
+            .map(userMapper::userToUserDTO);
     }
 
-    public List<UserDTO> findAllByProjectId(Long projectId) {
-        return userMapper.usersToUserDTOs(userRepository.findAllByProjectId(projectId));
+    public Page<UserDTO> findAllByAuthority(Pageable pageable, String authority) {
+        return userRepository.findAllByAuthority(pageable, authority)
+            .map(userMapper::userToUserDTO);
+    }
+
+    public Page<UserDTO> findAllByProjectId(Pageable pageable, Long projectId) {
+        return userRepository.findAllByProjectId(pageable, projectId)
+            .map(userMapper::userToUserDTO);
     }
 }
