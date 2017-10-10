@@ -51,7 +51,7 @@ export class ProjectService {
 
     findAll(fetchMinimal: boolean): Observable<Response> {
 
-        return this.http.get(`${this.resourceUrl}/minimized/${fetchMinimal}`)
+        return this.http.get(`${this.resourceUrl}?minimized=${fetchMinimal}`)
         .map((res: any) => this.convertResponse(res))
             ;
     }
