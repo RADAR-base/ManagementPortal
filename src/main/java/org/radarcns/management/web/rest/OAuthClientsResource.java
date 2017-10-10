@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_READ;
@@ -182,9 +183,9 @@ public class OAuthClientsResource {
     }
 
     private Subject getSubject(String login) throws CustomNotFoundException {
-        Subject subject = subjectRepository.findBySubjectLogin(login);
+        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
 
-        if (subject == null) {
+        if (!subject.isPresent()) {
             log.info("Pair client request for unknown subject login: {}", login);
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Subject ID not found");
@@ -192,6 +193,6 @@ public class OAuthClientsResource {
             throw new CustomNotFoundException("Subject ID not found", errorParams);
         }
 
-        return subject;
+        return subject.get();
     }
 }
