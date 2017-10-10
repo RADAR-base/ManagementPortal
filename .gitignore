@@ -12,6 +12,9 @@ keystore.jks
 ######################
 *.patch
 
+# don't ignore .jks keystores in test folders
+!**/test/resources/**/keystore.jks
+
 ######################
 # Node
 ######################
