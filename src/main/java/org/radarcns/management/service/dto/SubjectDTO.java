@@ -17,10 +17,11 @@ import javax.validation.constraints.Size;
 public class SubjectDTO implements Serializable {
 
     public enum SubjectStatus {
-        DEACTIVATED, // activated = false, removed=false
-        ACTIVATED, //activated = true, removed=false
-        DISCONTINUED // activated = true, removed = true
-         }
+        DEACTIVATED,    // activated = false, removed = false
+        ACTIVATED,      // activated = true,  removed = false
+        DISCONTINUED,   // activated = false, removed = true
+        INVALID         // activated = true,  removed = true (invalid state, makes no sense)
+    }
 
     public static final String HUMAN_READABLE_IDENTIFIER_KEY = "Human-readable-identifier";
 

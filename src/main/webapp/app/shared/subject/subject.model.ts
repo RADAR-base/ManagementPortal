@@ -48,5 +48,6 @@ export class Subject {
 export const enum SubjectStatus {
     'DEACTIVATED',
     'ACTIVATED',
-    'DISCONTINUED'
+    'DISCONTINUED',
+    'INVALID'
 }

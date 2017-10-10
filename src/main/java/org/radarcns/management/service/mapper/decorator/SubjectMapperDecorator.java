@@ -99,16 +99,16 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
     }
 
     private SubjectStatus getSubjectStatus(Subject subject) {
-        if(!subject.getUser().getActivated() && !subject.isRemoved()) {
+        if (!subject.getUser().getActivated() && !subject.isRemoved()) {
             return SubjectStatus.DEACTIVATED;
         }
-        else if( subject.getUser().getActivated() && !subject.isRemoved()) {
+        else if (subject.getUser().getActivated() && !subject.isRemoved()) {
             return SubjectStatus.ACTIVATED;
         }
-        else if(subject.isRemoved()) {
+        else if (!subject.getUser().getActivated() && subject.isRemoved()) {
             return SubjectStatus.DISCONTINUED;
         }
-        return SubjectStatus.DEACTIVATED;
+        return SubjectStatus.INVALID;
     }
 
     private Subject setSubjectStatus (SubjectDTO subjectDTO, Subject subject) {
@@ -122,9 +122,12 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
                 subject.setRemoved(false);
                 break;
             case DISCONTINUED:
+                subject.getUser().setActivated(false);
                 subject.setRemoved(true);
                 break;
-
+            case INVALID:
+                subject.getUser().setActivated(true);
+                subject.setRemoved(true);
         }
         return subject;
     }

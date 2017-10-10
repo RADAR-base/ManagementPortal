@@ -174,7 +174,10 @@ public class SubjectService {
             sourceRepository.save(source);
         }
 
+        // set the removed flag and deactivate the user to prevent them from refreshing their
+        // access token
         subject.setRemoved(true);
+        subject.getUser().setActivated(false);
         return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subject));
     }
 

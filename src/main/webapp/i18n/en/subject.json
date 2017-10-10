@@ -51,7 +51,8 @@
                 "title" : "Status",
                 "discontinued" : "DISCONTINUED",
                 "active" : "ACTIVATED",
-                "deactivated" : "DEACTIVATED"
+                "deactivated" : "DEACTIVATED",
+                "invalid": "INVALID"
             },
             "discontinue" : {
                 "operation" : "Discontinue",
