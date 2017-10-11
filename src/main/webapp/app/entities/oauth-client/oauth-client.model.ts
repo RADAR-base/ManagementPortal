@@ -9,6 +9,7 @@ export class OAuthClient {
     public accessTokenValidity?: number;
     public refreshTokenValidity?: number;
     public authorities?: string[];
+    public additionalInformation?: any;
 
     constructor(
         clientId: string,
@@ -19,7 +20,8 @@ export class OAuthClient {
         autoApprove?: boolean,
         accessTokenValidity?: number,
         refreshTokenValidity?: number,
-        authorities?: string[]
+        authorities?: string[],
+        additionalInformation?: any
     ) {
         this.clientSecret = clientSecret ? clientSecret : null,
         this.scope = scope ? scope : null,
@@ -28,6 +30,7 @@ export class OAuthClient {
         this.autoApprove = autoApprove ? autoApprove : null,
         this.accessTokenValidity = accessTokenValidity ? accessTokenValidity : null,
         this.refreshTokenValidity = refreshTokenValidity ? refreshTokenValidity : null,
-        this.authorities = authorities ? authorities : null
+        this.authorities = authorities ? authorities : null,
+        this.additionalInformation = additionalInformation ? additionalInformation : null
     }
 }

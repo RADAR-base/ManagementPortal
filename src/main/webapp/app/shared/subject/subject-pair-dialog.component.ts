@@ -37,10 +37,11 @@ export class SubjectPairDialogComponent implements OnInit {
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.oauthClientService.query().subscribe(
             (res) => {
-                // only keep clients that allow authorization_code and refresh_token
+                // only keep clients that have the dynamic_registration key in additionalInformation
+                // and have set it to true
                 this.oauthClients = res.json()
-                    .filter(c => c.authorizedGrantTypes.includes('authorization_code') &&
-                                 c.authorizedGrantTypes.includes('refresh_token'));
+                    .filter(c => c.additionalInformation.dynamic_registration &&
+                            c.additionalInformation.dynamic_registration.toLowerCase() === "true");
             });
     }
 

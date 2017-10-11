@@ -24,7 +24,10 @@ First create a keypair to sign JWT with:
 keytool -genkey -alias selfsigned -keyalg RSA -keystore src/main/resources/config/keystore.jks -keysize 4048 -storepass radarbase
 ```
 
-To add a new client to this API, add it to `src/main/resources/config/oauth_client_details.csv`.
+To add a new client to this API, add it to `changelogs/config/liquibase/oauth_client_details.csv`.
+If your client is supposed to work with the 'Pair app' feature, you need to set a key in it's
+`additional_information` map called `dynamic_registration` to `true`. See the aRMT and pRMT
+clients for an example.
 
 ## Development
 

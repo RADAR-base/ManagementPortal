@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,6 +33,8 @@ public class ClientDetailsMapperImpl implements ClientDetailsMapper {
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.toSet());
         result.setAuthorities(Collections.unmodifiableSet(authorities));
+        result.setAdditionalInformation(details.getAdditionalInformation().entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString())));
         return result;
     }
 
@@ -52,6 +55,8 @@ public class ClientDetailsMapperImpl implements ClientDetailsMapper {
         if (detailsDTO.getAutoApprove()) {
             result.setAutoApproveScopes(Collections.unmodifiableSet(detailsDTO.getScope()));
         }
+        result.setAdditionalInformation(Collections.unmodifiableMap(detailsDTO
+            .getAdditionalInformation()));
         return result;
     }
 
