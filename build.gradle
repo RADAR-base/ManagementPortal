@@ -24,6 +24,8 @@ buildscript {
     }
 }
 
+
+
 apply plugin: 'java'
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
@@ -34,6 +36,7 @@ apply plugin: 'propdeps'
 apply plugin: 'com.moowork.node'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'idea'
+apply plugin: 'jacoco'
 defaultTasks 'bootRun'
 
 bootRepackage {
@@ -134,9 +137,12 @@ if (project.hasProperty('graphite')) {
 group = 'org.radarcns.management'
 version = '0.0.1-SNAPSHOT'
 
+ext.codacyVersion = '1.0.10'
+
 description = ''
 
 configurations {
+    codacy
     providedRuntime
     compile.exclude module: "spring-boot-starter-tomcat"
 }
@@ -214,6 +220,9 @@ dependencies {
     compile "com.h2database:h2"
     compile "org.mapstruct:mapstruct-jdk8:${mapstruct_version}"
     compile "org.radarcns:radar-auth:0.1-SNAPSHOT"
+
+    codacy group: 'com.github.codacy', name: 'codacy-coverage-reporter', version: codacyVersion
+
     testCompile "org.awaitility:awaitility:${awaitility_version}"
     testCompile "com.jayway.jsonpath:json-path"
     testCompile "info.cukes:cucumber-junit:${cucumber_version}"
@@ -328,5 +337,13 @@ task generateJavaClient(dependsOn: 'generateOpenApiSpec', group: 'Swagger',
         ])
         new DefaultGenerator().opts(config.toClientOptInput()).generate()
         println("Client generated at " + swaggerTargetFolder)
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.enabled true
     }
 }
