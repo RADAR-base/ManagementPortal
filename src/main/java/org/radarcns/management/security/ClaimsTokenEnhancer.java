@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -55,7 +56,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
             Optional<User> optUser = userRepository.findOneByLogin(userName);
             if (optUser.isPresent()) {
                 List<String> roles = optUser.get().getRoles().stream()
-                    .filter(role -> role.getProject() != null)
+                    .filter(Objects::nonNull)
                     .map(role -> role.getProject().getProjectName() + ":"
                         + role.getAuthority().getName())
                     .collect(Collectors.toList());

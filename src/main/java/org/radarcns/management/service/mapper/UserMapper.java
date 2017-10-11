@@ -7,6 +7,7 @@ import org.radarcns.management.service.dto.UserDTO;
 import org.mapstruct.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,7 +37,7 @@ public interface UserMapper {
             return null;
         }
         return roles.stream()
-            .filter(role -> role != null)
+            .filter(Objects::nonNull)
             .map(role -> role.getAuthority().getName()).collect(Collectors.toSet());
     }
 
@@ -64,7 +65,7 @@ public interface UserMapper {
         if (authorities == null) {
             return null;
         }
-        return authorities.stream().filter(authority -> authority != null).map(Authority::getName)
+        return authorities.stream().filter(Objects::nonNull).map(Authority::getName)
             .collect(Collectors.toSet());
     }
 
