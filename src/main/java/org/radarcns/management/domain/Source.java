@@ -1,17 +1,30 @@
 package org.radarcns.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import javax.persistence.*;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.PrePersist;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -207,65 +220,27 @@ public class Source implements Serializable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Source)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         Source source = (Source) o;
-
-        if (id == null || source.id == null) {
+        if (source.id == null || id == null) {
             return false;
         }
-
-        if (id != null ? !id.equals(source.id) : source.id != null) {
-            return false;
-        }
-        if (sourceId != null ? !sourceId.equals(source.sourceId) : source.sourceId != null) {
-            return false;
-        }
-        if (sourceName != null ? !sourceName.equals(source.sourceName) :
-            source.sourceName != null) {
-            return false;
-        }
-        if (expectedSourceName != null ? !expectedSourceName.equals(source.expectedSourceName) :
-            source.expectedSourceName != null) {
-            return false;
-        }
-        if (deviceCategory != null ? !deviceCategory.equals(source.deviceCategory) :
-            source.deviceCategory != null) {
-            return false;
-        }
-        if (assigned != null ? !assigned.equals(source.assigned) : source.assigned != null) {
-            return false;
-        }
-        if (subjects != null ? !subjects.equals(source.subjects) : source.subjects != null) {
-            return false;
-        }
-        if (deviceType != null ? !deviceType.equals(source.deviceType) :
-            source.deviceType != null) {
-            return false;
-        }
-        if (project != null ? !project.equals(source.project) : source.project != null) {
-            return false;
-        }
-        return attributes != null ? attributes.equals(source.attributes) :
-            source.attributes == null;
+        return Objects.equals(id, source.id);
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (sourceId != null ? sourceId.hashCode() : 0);
-        result = 31 * result + (sourceName != null ? sourceName.hashCode() : 0);
-        result = 31 * result + (expectedSourceName != null ? expectedSourceName.hashCode() : 0);
-        result = 31 * result + (deviceCategory != null ? deviceCategory.hashCode() : 0);
-        result = 31 * result + (assigned != null ? assigned.hashCode() : 0);
-        result = 31 * result + (subjects != null ? subjects.hashCode() : 0);
-        result = 31 * result + (deviceType != null ? deviceType.hashCode() : 0);
-        result = 31 * result + (project != null ? project.hashCode() : 0);
-        result = 31 * result + (attributes != null ? attributes.hashCode() : 0);
-        return result;
+        return Objects.hashCode(id);
     }
 
-
+    @Override
+    public String toString() {
+        return "Source{" + "id=" + id + ", sourceId=" + sourceId + ", sourceName='" + sourceName
+            + '\'' + ", expectedSourceName='" + expectedSourceName + '\'' + ", deviceCategory='"
+            + deviceCategory + '\'' + ", assigned=" + assigned + ", subjects=" + subjects
+            + ", deviceType=" + deviceType + ", project=" + project + ", attributes=" + attributes
+            + '}';
+    }
 }
