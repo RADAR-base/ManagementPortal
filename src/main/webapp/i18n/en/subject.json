@@ -42,6 +42,7 @@
                 "availableSources" : "Available sources",
                 "deviceType": "Device type",
                 "sourceId": "Source ID",
+                "sourceName": "Source Name",
                 "expectedSourceName": "Physical ID"
             },
             "clientApp": "Client app",

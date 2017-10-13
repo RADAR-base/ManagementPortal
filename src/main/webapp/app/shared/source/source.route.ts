@@ -22,7 +22,7 @@ export const sourceRoute: Routes = [
 
 export const sourcePopupRoute: Routes = [
   {
-    path: 'project-source-new/:projectId',
+    path: 'project-source-new/:projectName',
     component: SourcePopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],
@@ -32,7 +32,7 @@ export const sourcePopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'project-source/:projectId/:sourceName/edit',
+    path: 'project-source/:projectName/:sourceName/edit',
     component: SourcePopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],

@@ -40,7 +40,7 @@ export class GeneralSourceDialogComponent implements OnInit {
         this.projectService.findAll(true).subscribe(
             (res: Response) => { this.projects = res.json(); }, (res: Response) => this.onError(res.json()));
         if(this.source.project) {
-            this.projectService.findDeviceTypesById(this.source.project.id).subscribe((res: Response) => {
+            this.projectService.findDeviceTypesByName(this.source.project.projectName).subscribe((res: Response) => {
                 this.deviceTypes = res.json();
             });
         }
@@ -48,7 +48,7 @@ export class GeneralSourceDialogComponent implements OnInit {
 
     public onProjectChange(project: any) {
         if(project!=null) {
-            this.projectService.findDeviceTypesById(project.id).subscribe((res: Response) => {
+            this.projectService.findDeviceTypesByName(project.projectName).subscribe((res: Response) => {
                 this.deviceTypes = res.json();
             });
         }

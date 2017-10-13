@@ -1,23 +1,21 @@
 package org.radarcns.management.web.rest;
 
-import org.radarcns.management.config.Constants;
 import com.codahale.metrics.annotation.Timed;
+import io.github.jhipster.web.util.ResponseUtil;
+import io.swagger.annotations.ApiParam;
+import org.radarcns.management.config.Constants;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
-import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.service.MailService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.web.rest.errors.CustomParameterizedException;
-import org.radarcns.management.web.rest.vm.ManagedUserVM;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.web.rest.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
-import io.swagger.annotations.ApiParam;
-
+import org.radarcns.management.web.rest.vm.ManagedUserVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,15 +24,28 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
-import static org.radarcns.auth.authorization.Permission.*;
-import static org.radarcns.auth.authorization.RadarAuthorization.*;
+import java.util.List;
+import java.util.Optional;
+
+import static org.radarcns.auth.authorization.Permission.PROJECT_READ;
+import static org.radarcns.auth.authorization.Permission.USER_CREATE;
+import static org.radarcns.auth.authorization.Permission.USER_DELETE;
+import static org.radarcns.auth.authorization.Permission.USER_READ;
+import static org.radarcns.auth.authorization.Permission.USER_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarcns.management.security.SecurityUtils.getJWT;
 /**
  * REST controller for managing users.
@@ -171,22 +182,22 @@ public class UserResource {
      * GET  /users : get all users.
      *
      * @param pageable the pagination information
-     * @param projectId Optional, if specified return only users associated with this project
+     * @param projectName Optional, if specified return only users associated with this project
      * @param authority Optional, if specified return only users that have this authority
      * @return the ResponseEntity with status 200 (OK) and with body all users
      */
     @GetMapping("/users")
     @Timed
     public ResponseEntity<List<UserDTO>> getAllUsers(@ApiParam Pageable pageable,
-        @RequestParam(value = "projectId" , required = false) Long projectId,
+        @RequestParam(value = "projectName" , required = false) String projectName,
         @RequestParam(value = "authority" , required = false) String authority) {
         checkPermission(getJWT(servletRequest), USER_READ);
         Page<UserDTO> page;
-        if (projectId != null && authority != null) {
-            page = userService.findAllByProjectIdAndAuthority(pageable, projectId, authority);
-        } else if (projectId != null && authority == null) {
-            page = userService.findAllByProjectId(pageable, projectId);
-        } else if (projectId == null && authority != null) {
+        if (projectName != null && authority != null) {
+            page = userService.findAllByProjectNameAndAuthority(pageable, projectName, authority);
+        } else if (projectName != null && authority == null) {
+            page = userService.findAllByProjectName(pageable, projectName);
+        } else if (projectName == null && authority != null) {
             page = userService.findAllByAuthority(pageable, authority);
         } else {
             page = userService.getAllManagedUsers(pageable);

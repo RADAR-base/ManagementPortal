@@ -53,8 +53,8 @@ export class RoleDialogComponent implements OnInit {
         this.activeModal.dismiss('cancel');
     }
 
-    trackProjectById(index: number, item: Project) {
-        return item.id;
+    trackProjectByName(index: number, item: Project) {
+        return item.projectName;
     }
 
     save() {

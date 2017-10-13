@@ -272,9 +272,9 @@ public class UserService {
         }
     }
 
-    public Page<UserDTO> findAllByProjectIdAndAuthority(Pageable pageable, Long projectId,
+    public Page<UserDTO> findAllByProjectNameAndAuthority(Pageable pageable, String projectName,
             String authority) {
-        return userRepository.findAllByProjectIdAndAuthority(pageable, projectId, authority)
+        return userRepository.findAllByProjectNameAndAuthority(pageable, projectName, authority)
             .map(userMapper::userToUserDTO);
     }
 
@@ -283,8 +283,8 @@ public class UserService {
             .map(userMapper::userToUserDTO);
     }
 
-    public Page<UserDTO> findAllByProjectId(Pageable pageable, Long projectId) {
-        return userRepository.findAllByProjectId(pageable, projectId)
+    public Page<UserDTO> findAllByProjectName(Pageable pageable, String projectName) {
+        return userRepository.findAllByProjectName(pageable, projectName)
             .map(userMapper::userToUserDTO);
     }
 }

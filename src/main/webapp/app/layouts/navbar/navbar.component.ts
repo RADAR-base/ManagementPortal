@@ -79,8 +79,8 @@ export class NavbarComponent implements OnInit {
     registerChangeInUsers() {
         this.eventSubscriber = this.eventManager.subscribe('userListModification', (response) => this.loadRelevantProjects());
     }
-    trackProjectId(index: number, item: Project) {
-        return item.id;
+    trackProjectName(index: number, item: Project) {
+        return item.projectName;
     }
 
     changeLanguage(languageKey: string) {

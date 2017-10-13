@@ -4,7 +4,7 @@
         <button
                 class="btn btn-primary float-right create-subject"
                 *ngIf='isProjectSpecific'
-                [routerLink]="['/', { outlets: { popup: ['project-subject-new' , project.id] } }]">
+                [routerLink]="['/', { outlets: { popup: ['project-subject-new' , project.projectName] } }]">
             <span class="fa fa-plus"></span>
             <span  jhiTranslate="managementPortalApp.subject.home.createLabel">
             Create new Subject
@@ -42,8 +42,8 @@
             </thead>
             <tbody>
             <tr *ngFor="let subject of subjects ;trackBy: trackId">
-                <td><a [routerLink]="['/subject', subject.login ]">{{subject.id}}</a></td>
-                <td>{{subject.login}}</td>
+                <td>{{subject.id}}</td>
+                <td><a [routerLink]="['/subject', subject.login ]">{{subject.login}}</a></td>
                 <td>
                     <a target="_blank" [href]=subject.externalLink>{{subject.externalLink}}</a>
                 </td>
@@ -108,7 +108,7 @@
                         </button>
                         <button *ngIf='isProjectSpecific' [disabled]="subject.status != 'ACTIVATED'"
                                 type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'project-subject/'+ project.id + '/' +subject.login + '/edit'} }]"
+                                [routerLink]="['/', { outlets: { popup: 'project-subject/'+ project.projectName + '/' + subject.login + '/edit'} }]"
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>

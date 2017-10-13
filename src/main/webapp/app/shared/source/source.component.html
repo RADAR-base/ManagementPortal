@@ -11,7 +11,7 @@
         </button>
         <button  *ngIf='isProjectSpecific'
                  class="btn btn-primary float-right create-source"
-                 [routerLink]="['/', { outlets: { popup: ['project-source-new' , project.id] } }]">
+                 [routerLink]="['/', { outlets: { popup: ['project-source-new' , project.projectName] } }]">
             <span class="fa fa-plus"></span>
             <span  jhiTranslate="managementPortalApp.source.home.createLabel">
             Create new Device
@@ -51,12 +51,12 @@
                 </td>
                 <td>
                     <div *ngIf="source.deviceType">
-                        <a [routerLink]="['/device-type', source.deviceType?.id  ]" >{{source.deviceType.deviceModel}}</a>
+                        <a [routerLink]="['/device-type', source.deviceType?.id ]" >{{source.deviceType.deviceModel}}</a>
                     </div>
                 </td>
                 <td *ngIf="!isProjectSpecific">
                     <div *ngIf="source.project">
-                        <a [routerLink]="['/project', source.project?.id ]" >{{source.project.projectName}}</a>
+                        <a [routerLink]="['/project', source.project.projectName ]" >{{source.project.projectName}}</a>
                     </div>
                 </td>
                 <td class="text-right">
@@ -69,7 +69,7 @@
                         </button>
                         <button *ngIf='isProjectSpecific'
                                 type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'project-source/'+ project.id + '/' +source.sourceName + '/edit'} }]"
+                                [routerLink]="['/', { outlets: { popup: 'project-source/'+ project.projectName + '/' + source.sourceName + '/edit'} }]"
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>

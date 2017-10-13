@@ -76,7 +76,7 @@ export class SourceComponent implements OnInit, OnDestroy , OnChanges {
     }
     private loadAllFromProject() {
         this.sourceService.findAllByProject({
-            projectId: this.project.id}).subscribe(
+            projectName: this.project.projectName}).subscribe(
             (res: Response) => {
                 this.sources = res.json();
             },

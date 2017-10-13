@@ -110,10 +110,8 @@ public class SourceService {
      * @param assigned
      * @return
      */
-    public List<MinimalSourceDetailsDTO> findAllByProjectAndAssigned(Long projectId, boolean assigned) {
-        return sourceRepository.findAllSourcesByProjectIdAndAssigned(projectId , assigned)
-            .stream()
-            .map(sourceMapper::sourceToMinimalSourceDetailsDTO)
-            .collect(Collectors.toCollection(LinkedList::new));
+    public List<SourceDTO> findAllByProjectAndAssigned(Long projectId, boolean assigned) {
+        return sourceMapper.sourcesToSourceDTOs(
+            sourceRepository.findAllSourcesByProjectIdAndAssigned(projectId , assigned));
     }
 }

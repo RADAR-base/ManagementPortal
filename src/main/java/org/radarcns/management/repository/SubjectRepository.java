@@ -25,6 +25,11 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
         + "join user.roles roles where roles.project.id = :projectId")
     List<Subject> findAllByProjectId(@Param("projectId") Long projectId);
 
+    @Query("select distinct subject from Subject subject left join fetch subject.sources "
+        + "left join fetch subject.user user "
+        + "join user.roles roles where roles.project.projectName = :projectName")
+    List<Subject> findAllByProjectName(@Param("projectName") String projectName);
+
     @Query("select subject from Subject subject left join fetch subject.sources "
         + "where subject.id =:id")
     Subject findOneWithEagerRelationships(@Param("id") Long id);

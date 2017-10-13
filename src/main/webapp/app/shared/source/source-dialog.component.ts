@@ -37,7 +37,7 @@ export class SourceDialogComponent implements OnInit {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         if(this.source.project) {
-            this.projectService.findDeviceTypesById(this.source.project.id).subscribe((res: Response) => {
+            this.projectService.findDeviceTypesByName(this.source.project.projectName).subscribe((res: Response) => {
                 this.deviceTypes = res.json();
             });
         }
@@ -112,16 +112,16 @@ export class SourcePopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            let projectId: number;
-            if (params['projectId']) {
-                projectId = params['projectId'];
+            let projectName: string;
+            if (params['projectName']) {
+                projectName = params['projectName'];
             }
             if ( params['sourceName'] ) {
                 this.modalRef = this.sourcePopupService
-                    .open(SourceDialogComponent, params['sourceName'] , projectId);
+                    .open(SourceDialogComponent, params['sourceName'] , projectName);
             } else {
                 this.modalRef = this.sourcePopupService
-                    .open(SourceDialogComponent , null,  projectId);
+                    .open(SourceDialogComponent , null,  projectName);
             }
         });
     }
