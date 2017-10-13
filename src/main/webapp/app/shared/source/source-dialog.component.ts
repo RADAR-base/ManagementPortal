@@ -116,9 +116,9 @@ export class SourcePopupComponent implements OnInit, OnDestroy {
             if (params['projectId']) {
                 projectId = params['projectId'];
             }
-            if ( params['id'] ) {
+            if ( params['sourceName'] ) {
                 this.modalRef = this.sourcePopupService
-                    .open(SourceDialogComponent, params['id'] , projectId);
+                    .open(SourceDialogComponent, params['sourceName'] , projectId);
             } else {
                 this.modalRef = this.sourcePopupService
                     .open(SourceDialogComponent , null,  projectId);

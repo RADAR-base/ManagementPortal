@@ -56,7 +56,7 @@ export class SourceComponent implements OnInit, OnDestroy , OnChanges {
     }
 
     trackId(index: number, item: Source) {
-        return item.id;
+        return item.sourceName;
     }
     registerChangeInDevices() {
         this.eventSubscriber = this.eventManager.subscribe('sourceListModification',

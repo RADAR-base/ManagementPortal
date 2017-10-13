@@ -55,6 +55,7 @@ public class Subject implements Serializable {
     @MapKeyColumn(name="attribute_key")
     @Column(name="attribute_value")
     @CollectionTable(name="subject_metadata" ,  joinColumns = @JoinColumn(name = "id"))
+    @Cascade(CascadeType.ALL)
     Map<String, String> attributes = new HashMap<>();
 
     public Long getId() {

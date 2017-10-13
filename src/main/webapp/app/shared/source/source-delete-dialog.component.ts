@@ -29,8 +29,8 @@ export class SourceDeleteDialogComponent {
         this.activeModal.dismiss('cancel');
     }
 
-    confirmDelete(id: number) {
-        this.sourceService.delete(id).subscribe((response) => {
+    confirmDelete(sourceName: string) {
+        this.sourceService.delete(sourceName).subscribe((response) => {
             this.eventManager.broadcast({
                 name: 'sourceListModification',
                 content: 'Deleted a source'
@@ -57,7 +57,7 @@ export class SourceDeletePopupComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
             this.modalRef = this.sourcePopupService
-                .open(SourceDeleteDialogComponent, params['id']);
+                .open(SourceDeleteDialogComponent, params['sourceName']);
         });
     }
 

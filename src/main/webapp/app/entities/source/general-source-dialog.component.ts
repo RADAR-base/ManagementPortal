@@ -129,9 +129,9 @@ export class GeneralSourcePopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if ( params['id'] ) {
+            if ( params['sourceName'] ) {
                 this.modalRef = this.sourcePopupService
-                    .open(GeneralSourceDialogComponent, params['id']);
+                    .open(GeneralSourceDialogComponent, params['sourceName']);
             } else {
                 this.modalRef = this.sourcePopupService
                     .open(GeneralSourceDialogComponent);

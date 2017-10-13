@@ -255,7 +255,7 @@ public class SourceResourceIntTest {
         sourceRepository.saveAndFlush(source);
 
         // Get the source
-        restDeviceMockMvc.perform(get("/api/sources/{id}", source.getId()))
+        restDeviceMockMvc.perform(get("/api/sources/{sourceName}", source.getSourceName()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(source.getId().intValue()))
@@ -328,7 +328,7 @@ public class SourceResourceIntTest {
         int databaseSizeBeforeDelete = sourceRepository.findAll().size();
 
         // Get the source
-        restDeviceMockMvc.perform(delete("/api/sources/{id}", source.getId())
+        restDeviceMockMvc.perform(delete("/api/sources/{sourceName}", source.getSourceName())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 

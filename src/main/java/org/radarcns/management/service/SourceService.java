@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -57,17 +58,16 @@ public class SourceService {
     }
 
     /**
-     *  Get one device by id.
+     *  Get one source by name
      *
-     *  @param id the id of the entity
+     *  @param sourceName the name of the source
      *  @return the entity
      */
     @Transactional(readOnly = true)
-    public SourceDTO findOne(Long id) {
-        log.debug("Request to get Source : {}", id);
-        Source source = sourceRepository.findOne(id);
-        SourceDTO sourceDTO = sourceMapper.sourceToSourceDTO(source);
-        return sourceDTO;
+    public Optional<SourceDTO> findOneByName(String sourceName) {
+        log.debug("Request to get Source : {}", sourceName);
+        return sourceRepository.findOneBySourceName(sourceName)
+            .map(sourceMapper::sourceToSourceDTO);
     }
 
     /**
