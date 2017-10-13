@@ -2,8 +2,8 @@
 const enum SourceType {
     'ACTIVE',
     'PASSIVE'
-
 };
+
 export class DeviceType {
     constructor(
         public id?: number,
@@ -13,7 +13,7 @@ export class DeviceType {
         public sourceType?: SourceType,
         public sensorDataId?: number,
         public projectId?: number,
-        public canRegisterDynamically?: boolean,
+        public canRegisterDynamically?: boolean
     ) {
     }
 }

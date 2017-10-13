@@ -1,11 +1,12 @@
 package org.radarcns.management.service.mapper;
 
-import org.radarcns.management.domain.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.radarcns.management.domain.DeviceType;
 import org.radarcns.management.service.dto.DeviceTypeDTO;
-
-import org.mapstruct.*;
-import java.util.List;
 import org.radarcns.management.service.dto.MinimalDeviceTypeDTO;
+
+import java.util.List;
 
 /**
  * Mapper for the entity DeviceType and its DTO DeviceTypeDTO.

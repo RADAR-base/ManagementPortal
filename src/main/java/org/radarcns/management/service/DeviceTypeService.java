@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -91,10 +92,11 @@ public class DeviceTypeService {
      * Fetch DeviceType by producer and model
      */
     public DeviceTypeDTO findByProducerAndModelAndVersion(String producer, String model , String version) {
-        log.debug("Request to get DeviceType by producer and model: {}, {}", producer, model);
-        DeviceType deviceType = deviceTypeRepository
-            .findOneWithEagerRelationshipsByProducerAndModelAndVersion(producer, model, version).get();
-        return deviceTypeMapper.deviceTypeToDeviceTypeDTO(deviceType);
+        log.debug("Request to get DeviceType by producer and model and version: {}, {}, {}",
+            producer, model, version);
+        Optional<DeviceType> deviceType = deviceTypeRepository
+            .findOneWithEagerRelationshipsByProducerAndModelAndVersion(producer, model, version);
+        return deviceTypeMapper.deviceTypeToDeviceTypeDTO(deviceType.orElse(null));
     }
 
     /**
@@ -111,9 +113,10 @@ public class DeviceTypeService {
     /**
      * Fetch DeviceType by producer and model
      */
-    public List<DeviceTypeDTO> findByModel(String model) {
-        log.debug("Request to get DeviceType by model: {}", model);
-        List<DeviceType> deviceTypes = deviceTypeRepository.findWithEagerRelationshipsByModel(model);
+    public List<DeviceTypeDTO> findByProducerAndModel(String producer, String model) {
+        log.debug("Request to get DeviceType by producer and model: {}, {}", producer, model);
+        List<DeviceType> deviceTypes = deviceTypeRepository
+            .findWithEagerRelationshipsByProducerAndModel(producer, model);
         List<DeviceTypeDTO> deviceTypeDTOs = deviceTypeMapper.deviceTypesToDeviceTypeDTOs(deviceTypes);
         return deviceTypeDTOs;
     }

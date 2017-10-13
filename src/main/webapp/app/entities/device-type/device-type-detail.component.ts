@@ -27,13 +27,13 @@ export class DeviceTypeDetailComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.subscription = this.route.params.subscribe((params) => {
-            this.load(params['id']);
+            this.load(params['deviceTypeProducer'],params['deviceTypeModel'],params['catalogVersion']);
         });
         this.registerChangeInDeviceTypes();
     }
 
-    load(id) {
-        this.deviceTypeService.find(id).subscribe((deviceType) => {
+    load(producer: string, model: string, version: string) {
+        this.deviceTypeService.find(producer, model, version).subscribe((deviceType) => {
             this.deviceType = deviceType;
         });
     }
@@ -47,6 +47,7 @@ export class DeviceTypeDetailComponent implements OnInit, OnDestroy {
     }
 
     registerChangeInDeviceTypes() {
-        this.eventSubscriber = this.eventManager.subscribe('deviceTypeListModification', (response) => this.load(this.deviceType.id));
+        this.eventSubscriber = this.eventManager.subscribe('deviceTypeListModification',
+            (response) => this.load(this.deviceType.deviceProducer, this.deviceType.deviceModel, this.deviceType.catalogVersion));
     }
 }
