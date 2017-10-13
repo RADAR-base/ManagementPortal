@@ -10,6 +10,7 @@ import org.radarcns.management.domain.SensorData;
 import org.radarcns.management.domain.enumeration.SourceType;
 import org.radarcns.management.repository.DeviceTypeRepository;
 import org.radarcns.management.repository.SensorDataRepository;
+import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.radarcns.management.service.DeviceTypeService;
 import org.radarcns.management.service.dto.DeviceTypeDTO;
 import org.radarcns.management.service.mapper.DeviceTypeMapper;
@@ -20,6 +21,7 @@ import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,6 +29,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.List;
 
@@ -84,20 +88,30 @@ public class DeviceTypeResourceIntTest {
     @Autowired
     private EntityManager em;
 
+    @Autowired
+    private HttpServletRequest servletRequest;
+
     private MockMvc restDeviceTypeMockMvc;
 
     private DeviceType deviceType;
 
     @Before
-    public void setup() {
+    public void setup() throws ServletException {
         MockitoAnnotations.initMocks(this);
         DeviceTypeResource deviceTypeResource = new DeviceTypeResource();
         ReflectionTestUtils.setField(deviceTypeResource, "deviceTypeService" , deviceTypeService);
         ReflectionTestUtils.setField(deviceTypeResource, "deviceTypeRepository" , deviceTypeRepository);
+        ReflectionTestUtils.setField(deviceTypeResource, "servletRequest", servletRequest);
+
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        filter.init(new MockFilterConfig());
+
         this.restDeviceTypeMockMvc = MockMvcBuilders.standaloneSetup(deviceTypeResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
-            .setMessageConverters(jacksonMessageConverter).build();
+            .setMessageConverters(jacksonMessageConverter)
+            .addFilter(filter)
+            .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
     }
 
     /**

@@ -4,7 +4,6 @@ import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.radarcns.management.domain.DeviceType;
 import org.radarcns.management.repository.DeviceTypeRepository;
-import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.DeviceTypeService;
 import org.radarcns.management.service.dto.DeviceTypeDTO;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
@@ -13,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -32,6 +31,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static org.radarcns.auth.authorization.Permission.DEVICETYPE_CREATE;
+import static org.radarcns.auth.authorization.Permission.DEVICETYPE_DELETE;
+import static org.radarcns.auth.authorization.Permission.DEVICETYPE_READ;
+import static org.radarcns.auth.authorization.Permission.DEVICETYPE_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing DeviceType.
@@ -49,6 +55,10 @@ public class DeviceTypeResource {
 
     @Autowired
     private DeviceTypeRepository deviceTypeRepository;
+
+    @Autowired
+    private HttpServletRequest servletRequest;
+
     /**
      * POST  /device-types : Create a new deviceType.
      *
@@ -58,9 +68,9 @@ public class DeviceTypeResource {
      */
     @PostMapping("/device-types")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<DeviceTypeDTO> createDeviceType(@Valid @RequestBody DeviceTypeDTO deviceTypeDTO) throws URISyntaxException {
         log.debug("REST request to save DeviceType : {}", deviceTypeDTO);
+        checkPermission(getJWT(servletRequest), DEVICETYPE_CREATE);
         if (deviceTypeDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new deviceType cannot already have an ID")).body(null);
         }
@@ -93,10 +103,10 @@ public class DeviceTypeResource {
     @Timed
     public ResponseEntity<DeviceTypeDTO> updateDeviceType(@Valid @RequestBody DeviceTypeDTO deviceTypeDTO) throws URISyntaxException {
         log.debug("REST request to update DeviceType : {}", deviceTypeDTO);
-
         if (deviceTypeDTO.getId() == null) {
             return createDeviceType(deviceTypeDTO);
         }
+        checkPermission(getJWT(servletRequest), DEVICETYPE_UPDATE);
         DeviceTypeDTO result = deviceTypeService.save(deviceTypeDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, deviceTypeDTO.getId().toString()))
@@ -116,6 +126,7 @@ public class DeviceTypeResource {
     @Timed
     public ResponseEntity<List<DeviceTypeDTO>> getAllDeviceTypes(@RequestParam(required = false) String producer,
             @RequestParam(required = false) String model ,  @RequestParam(required = false) String version) {
+        checkPermission(getJWT(servletRequest), DEVICETYPE_READ);
         List<DeviceTypeDTO> result;
         if (producer != null && model != null && version !=null) {
             log.debug("REST request to get DeviceTypes for producer {} and model {}", producer, model);
@@ -166,6 +177,7 @@ public class DeviceTypeResource {
     @Timed
     public ResponseEntity<Void> deleteDeviceType(@PathVariable Long id) {
         log.debug("REST request to delete DeviceType : {}", id);
+        checkPermission(getJWT(servletRequest), DEVICETYPE_DELETE);
         deviceTypeService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }

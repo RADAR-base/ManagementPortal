@@ -1,5 +1,6 @@
 package org.radarcns.management.service;
 
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.domain.DeviceType;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
@@ -10,7 +11,6 @@ import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
-import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
@@ -174,7 +174,10 @@ public class SubjectService {
             sourceRepository.save(source);
         }
 
+        // set the removed flag and deactivate the user to prevent them from refreshing their
+        // access token
         subject.setRemoved(true);
+        subject.getUser().setActivated(false);
         return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subject));
     }
 

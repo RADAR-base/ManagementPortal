@@ -51,7 +51,8 @@
                 "title" : "Staat",
                 "discontinued" : "Stopgezet",
                 "active" : "Geactiveerd",
-                "deactivated" : "Gedeactiveerd"
+                "deactivated" : "Gedeactiveerd",
+                "invalid": "Ongeldig"
             },
             "discontinue" : {
                 "operation" : "Staken",

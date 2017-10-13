@@ -1,5 +1,6 @@
 .gradle
 build/
+bin/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -21,8 +22,6 @@ gradle-app.setting
 .c9/
 *.launch
 .settings/
-
-
 
 #System Files
 .DS_Store

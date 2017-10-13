@@ -5,9 +5,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.radarcns.auth.authentication.TokenValidator;
+import org.radarcns.auth.config.YamlServerConfig;
 import org.radarcns.auth.exception.TokenValidationException;
 import org.radarcns.auth.unit.util.TokenTestUtils;
+
+import java.io.File;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -24,6 +28,9 @@ public class TokenValidatorTest {
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(TokenTestUtils.WIREMOCK_PORT);
+
+    @Rule
+    public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
     @BeforeClass
     public static void loadToken() throws Exception {
@@ -62,5 +69,15 @@ public class TokenValidatorTest {
     @Test(expected = TokenValidationException.class)
     public void testIncorrectAlgorithmToken() {
         validator.validateAccessToken(TokenTestUtils.INCORRECT_ALGORITHM_TOKEN);
+    }
+
+    @Test
+    public void testPublicKeyFromConfigFile() {
+        ClassLoader loader = getClass().getClassLoader();
+        File configFile = new File(loader.getResource("radar-is-2.yml").getFile());
+        environmentVariables.set(YamlServerConfig.LOCATION_ENV, configFile.getAbsolutePath());
+        // reinitialize TokenValidator to pick up new config
+        validator = new TokenValidator();
+        validator.validateAccessToken(TokenTestUtils.VALID_TOKEN);
     }
 }

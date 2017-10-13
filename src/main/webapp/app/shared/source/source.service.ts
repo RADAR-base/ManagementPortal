@@ -8,6 +8,7 @@ import {Project} from "../../entities/project/project.model";
 export class SourceService {
 
     private resourceUrl = 'api/sources';
+    private projectResourceUrl = 'api/projects';
 
     constructor(private http: Http) { }
 
@@ -35,21 +36,6 @@ export class SourceService {
         const options = this.createRequestOption(req);
         return this.http.get(this.resourceUrl, options)
         ;
-    }
-
-    findAvailable(req?: any): Observable<Response> {
-        const params: URLSearchParams = new URLSearchParams();
-        if (req) {
-            params.set('assigned', req.assigned);
-        }
-        const options = {
-            search: params
-        };
-        return this.http.get(`${this.resourceUrl}/project/${req.projectId}` , options);
-    }
-
-    findUnAssignedAndOfSubject(id: number): Observable<Response> {
-        return this.http.get(`${this.resourceUrl}/unassigned/subject/${id}`);
     }
 
     delete(id: number): Observable<Response> {
@@ -80,5 +66,16 @@ export class SourceService {
             search: params
         };
         return this.http.get(this.resourceUrl, options);
+    }
+
+    findAvailable(req?: any): Observable<Response> {
+        const params: URLSearchParams = new URLSearchParams();
+        if (req) {
+            params.set('assigned', req.assigned);
+        }
+        const options = {
+            search: params
+        };
+        return this.http.get(`${this.projectResourceUrl}/${req.projectId}/sources` , options);
     }
 }

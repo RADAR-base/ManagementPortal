@@ -6,11 +6,12 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.radarcns.management.ManagementPortalApp;
 import org.radarcns.management.domain.Subject;
-import org.radarcns.management.repository.DeviceTypeRepository;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
+import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.radarcns.management.service.DeviceTypeService;
 import org.radarcns.management.service.SubjectService;
+import org.radarcns.management.service.dto.DeviceTypeDTO;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
@@ -21,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,7 +30,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
@@ -60,9 +65,7 @@ public class SubjectResourceIntTest {
     private static final Boolean DEFAULT_REMOVED = false;
     private static final Boolean UPDATED_REMOVED = true;
 
-    private static final SubjectDTO.SubjectStatus DEFAULT_STATUS = SubjectDTO.SubjectStatus.DEACTIVATED;
-
-    private static final String DEFAULT_EMAIL= "someone@gmail.com";
+    private static final SubjectDTO.SubjectStatus DEFAULT_STATUS = SubjectDTO.SubjectStatus.ACTIVATED;
 
     private static final String DEVICE_MODEL = "App";
     private static final String DEVICE_PRODUCER ="THINC-IT App";
@@ -78,6 +81,9 @@ public class SubjectResourceIntTest {
     private SubjectService subjectService;
 
     @Autowired
+    private DeviceTypeService deviceTypeService;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -90,38 +96,33 @@ public class SubjectResourceIntTest {
     private EntityManager em;
 
     @Autowired
-    private DeviceTypeRepository deviceTypeRepository;
-
-    @Autowired
-    private DeviceTypeService deviceTypeService;
-
-    @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private HttpServletRequest servletRequest;
 
     private MockMvc restSubjectMockMvc;
 
-    private MockMvc restDeviceTypeMockMvc;
-
     @Before
-    public void setup() {
+    public void setup() throws ServletException {
         MockitoAnnotations.initMocks(this);
         SubjectResource subjectResource = new SubjectResource();
         ReflectionTestUtils.setField(subjectResource, "subjectService" , subjectService);
         ReflectionTestUtils.setField(subjectResource, "subjectRepository" , subjectRepository);
         ReflectionTestUtils.setField(subjectResource, "subjectMapper" , subjectMapper);
         ReflectionTestUtils.setField(subjectResource, "projectRepository" , projectRepository);
+        ReflectionTestUtils.setField(subjectResource, "servletRequest", servletRequest);
+
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        filter.init(new MockFilterConfig());
+
         this.restSubjectMockMvc = MockMvcBuilders.standaloneSetup(subjectResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
-            .setMessageConverters(jacksonMessageConverter).build();
-
-        DeviceTypeResource deviceTypeResource = new DeviceTypeResource();
-        ReflectionTestUtils.setField(deviceTypeResource, "deviceTypeService" , deviceTypeService);
-        ReflectionTestUtils.setField(deviceTypeResource, "deviceTypeRepository" , deviceTypeRepository);
-        this.restDeviceTypeMockMvc = MockMvcBuilders.standaloneSetup(deviceTypeResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setMessageConverters(jacksonMessageConverter).build();
+            .setMessageConverters(jacksonMessageConverter)
+            .addFilter(filter)
+            // add the oauth token by default to all requests for this mockMvc
+            .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
     }
 
     /**
@@ -207,7 +208,7 @@ public class SubjectResourceIntTest {
         SubjectDTO subjectDTO = subjectService.createSubject(createEntityDTO(em));
 
         // Get the subject
-        restSubjectMockMvc.perform(get("/api/subjects/{id}", subjectDTO.getId()))
+        restSubjectMockMvc.perform(get("/api/subjects/{login}", subjectDTO.getLogin()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(subjectDTO.getId().intValue()))
@@ -280,7 +281,7 @@ public class SubjectResourceIntTest {
         int databaseSizeBeforeDelete = subjectRepository.findAll().size();
 
         // Get the subject
-        restSubjectMockMvc.perform(delete("/api/subjects/{id}", subjectDTO.getId())
+        restSubjectMockMvc.perform(delete("/api/subjects/{login}", subjectDTO.getLogin())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 
@@ -317,8 +318,20 @@ public class SubjectResourceIntTest {
         assertNotNull(subjectLogin);
 
         MinimalSourceDetailsDTO sourceRegistrationDTO = new MinimalSourceDetailsDTO();
-        sourceRegistrationDTO.setDeviceTypeName(DEVICE_PRODUCER + " " + DEVICE_MODEL);
+        sourceRegistrationDTO.setSourceName(DEVICE_PRODUCER + " " + DEVICE_MODEL);
         sourceRegistrationDTO.getAttributes().put("some", "value");
+
+        List<DeviceTypeDTO> deviceTypes = deviceTypeService.findAll().stream()
+            .filter(dt -> dt.getCanRegisterDynamically())
+            .collect(Collectors.toList());
+
+        assertThat(deviceTypes.size()).isGreaterThan(0);
+        DeviceTypeDTO deviceType = deviceTypes.get(0);
+        sourceRegistrationDTO.setDeviceTypeId(deviceType.getId());
+        sourceRegistrationDTO.setDeviceTypeCatalogVersion(deviceType.getCatalogVersion());
+        sourceRegistrationDTO.setDeviceTypeModel(deviceType.getDeviceModel());
+        sourceRegistrationDTO.setDeviceTypeProducer(deviceType.getDeviceProducer());
+
         assertThat(sourceRegistrationDTO.getSourceId()).isNull();
 
         restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)

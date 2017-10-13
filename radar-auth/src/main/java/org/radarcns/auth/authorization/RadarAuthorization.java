@@ -5,6 +5,8 @@ import org.radarcns.auth.exception.NotAuthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,6 +21,7 @@ public class RadarAuthorization {
     private static final Logger log = LoggerFactory.getLogger(RadarAuthorization.class);
     public static final String AUTHORITIES_CLAIM = "authorities";
     public static final String ROLES_CLAIM = "roles";
+    public static final String SCOPE_CLAIM = "scope";
 
     /**
      * Check if the user authenticated with the given token has the given permission. Not taking
@@ -103,7 +106,8 @@ public class RadarAuthorization {
      * @return true if the user has a superuser authority, false otherwise
      */
     public static boolean isSuperUser(DecodedJWT token) {
-        return token.getClaim(AUTHORITIES_CLAIM).asList(String.class)
+        return token.getClaims().containsKey(AUTHORITIES_CLAIM)
+                && token.getClaim(AUTHORITIES_CLAIM).asList(String.class)
                 .contains(AuthoritiesConstants.SYS_ADMIN);
     }
 
@@ -114,6 +118,9 @@ public class RadarAuthorization {
      * @return true if PARTICIPANT is the only authority of the user in the project, false otherwise
      */
     public static boolean isJustParticipant(DecodedJWT token, String projectName) {
+        if (!token.getClaims().containsKey(ROLES_CLAIM)) {
+            return false;
+        }
         List<String> roles = token.getClaim(ROLES_CLAIM).asList(String.class).stream()
                 .filter(r -> r.startsWith(projectName + ":"))
                 .collect(Collectors.toList());
@@ -123,26 +130,34 @@ public class RadarAuthorization {
 
     private static Set<String> getAuthoritiesForProject(DecodedJWT token, String projectName) {
         // get all project-based authorities
-        return token.getClaim(ROLES_CLAIM).asList(String.class).stream()
-                .filter(s -> s.startsWith(projectName + ":"))
-                .map(s -> s.split(":")[1])
-                .collect(Collectors.toSet());
+        return token.getClaims().containsKey(ROLES_CLAIM)
+                ? token.getClaim(ROLES_CLAIM).asList(String.class).stream()
+                        .filter(s -> s.startsWith(projectName + ":"))
+                        .map(s -> s.split(":")[1])
+                        .collect(Collectors.toSet())
+                : Collections.emptySet();
     }
 
     private static boolean hasScope(DecodedJWT token, Permission permission) {
-        return token.getClaim("scope").asList(String.class).contains(
-                permission.getEntity().toString() + "." + permission.getOperation().toString()
-        );
+        return token.getClaims().containsKey(SCOPE_CLAIM)
+                ? token.getClaim(SCOPE_CLAIM).asList(String.class)
+                        .contains(permission.getEntity().toString()
+                            + "." + permission.getOperation().toString())
+                : false;
     }
 
     private static Set<String> getAuthorities(DecodedJWT token) {
+        Set<String> result = new HashSet<>();
         // get all project-based authorities
-        Set<String> result = token.getClaim(ROLES_CLAIM).asList(String.class).stream()
-                .filter(s -> s.contains(":"))
-                .map(s -> s.split(":")[1])
-                .collect(Collectors.toSet());
+        if (token.getClaims().containsKey(ROLES_CLAIM)) {
+            result.addAll(token.getClaim(ROLES_CLAIM).asList(String.class).stream().filter(s -> s
+                    .contains(":"))
+                    .map(s -> s.split(":")[1]).collect(Collectors.toSet()));
+        }
         // also add non-project based authorities
-        result.addAll(token.getClaim(AUTHORITIES_CLAIM).asList(String.class));
+        if (token.getClaims().containsKey(AUTHORITIES_CLAIM)) {
+            result.addAll(token.getClaim(AUTHORITIES_CLAIM).asList(String.class));
+        }
         return result;
     }
 }

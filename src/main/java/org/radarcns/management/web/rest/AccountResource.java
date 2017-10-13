@@ -50,45 +50,6 @@ public class AccountResource {
     @Autowired
     private UserMapper userMapper;
 
-//    public AccountResource(UserRepository userRepository, UserService userService,
-//            MailService mailService) {
-//
-//        this.userRepository = userRepository;
-//        this.userService = userService;
-//        this.mailService = mailService;
-//    }
-
-//    /**
-//     * POST  /register : register the user.
-//     *
-//     * @param managedUserVM the managed user View Model
-//     * @return the ResponseEntity with status 201 (Created) if the user is registered or 400 (Bad Request) if the login or email is already in use
-//     */
-//    @PostMapping(path = "/register",
-//                    produces={MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
-//    @Secured({ AuthoritiesConstants.SYS_ADMIN})
-//    @Timed
-//    public ResponseEntity registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
-//
-//        HttpHeaders textPlainHeaders = new HttpHeaders();
-//        textPlainHeaders.setContentType(MediaType.TEXT_PLAIN);
-//
-//        return userRepository.findOneByLogin(managedUserVM.getLogin().toLowerCase())
-//            .map(user -> new ResponseEntity<>("login already in use", textPlainHeaders, HttpStatus.BAD_REQUEST))
-//            .orElseGet(() -> userRepository.findOneByEmail(managedUserVM.getEmail())
-//                .map(user -> new ResponseEntity<>("email address already in use", textPlainHeaders, HttpStatus.BAD_REQUEST))
-//                .orElseGet(() -> {
-//                    User user = userService
-//                        .createUser(managedUserVM.getLogin(), managedUserVM.getPassword(),
-//                            managedUserVM.getFirstName(), managedUserVM.getLastName(),
-//                            managedUserVM.getEmail().toLowerCase(), managedUserVM.getLangKey());
-//
-//                    mailService.sendActivationEmail(user);
-//                    return new ResponseEntity<>(HttpStatus.CREATED);
-//                })
-//        );
-//    }
-
     /**
      * GET  /activate : activate the registered user.
      *
@@ -100,7 +61,7 @@ public class AccountResource {
     public ResponseEntity<String> activateAccount(@RequestParam(value = "key") String key) {
         return userService.activateRegistration(key)
             .map(user -> new ResponseEntity<String>(HttpStatus.OK))
-            .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     /**

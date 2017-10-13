@@ -1,12 +1,18 @@
 package org.radarcns.management.web.rest;
 
 import java.util.UUID;
+
 import org.radarcns.management.ManagementPortalApp;
 
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.repository.SourceRepository;
+import org.radarcns.management.security.JwtAuthenticationFilter;
+import org.radarcns.management.service.DeviceTypeService;
+import org.radarcns.management.service.ProjectService;
 import org.radarcns.management.service.SourceService;
+import org.radarcns.management.service.dto.DeviceTypeDTO;
 import org.radarcns.management.service.dto.SourceDTO;
+import org.radarcns.management.service.mapper.DeviceTypeMapper;
 import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
 
@@ -19,16 +25,23 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -41,14 +54,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = ManagementPortalApp.class)
 public class SourceResourceIntTest {
 
-    private static final UUID DEFAULT_DEVICE_PHYSICAL_ID = UUID.randomUUID();
-    private static final UUID UPDATED_DEVICE_PHYSICAL_ID =DEFAULT_DEVICE_PHYSICAL_ID;
+    private static final UUID DEFAULT_SOURCE_PHYSICAL_ID = UUID.randomUUID();
+    private static final UUID UPDATED_SOURCE_PHYSICAL_ID = DEFAULT_SOURCE_PHYSICAL_ID;
 
-    private static final String DEFAULT_DEVICE_CATEGORY = "AAAAAAAAAA";
-    private static final String UPDATED_DEVICE_CATEGORY = "BBBBBBBBBB";
+    private static final String DEFAULT_SOURCE_CATEGORY = "AAAAAAAAAA";
+    private static final String UPDATED_SOURCE_CATEGORY = "BBBBBBBBBB";
+    private static final String DEFAULT_SOURCE_NAME = "CCCCCCCCCC";
 
-    private static final Boolean DEFAULT_ACTIVATED = false;
-    private static final Boolean UPDATED_ACTIVATED = true;
+    private static final Boolean DEFAULT_ASSIGNED = false;
+    private static final Boolean UPDATED_ASSIGNED = true;
 
     @Autowired
     private SourceRepository sourceRepository;
@@ -58,6 +72,15 @@ public class SourceResourceIntTest {
 
     @Autowired
     private SourceService sourceService;
+
+    @Autowired
+    private ProjectService projectService;
+
+    @Autowired
+    private DeviceTypeService deviceTypeService;
+
+    @Autowired
+    private DeviceTypeMapper deviceTypeMapper;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -71,17 +94,31 @@ public class SourceResourceIntTest {
     @Autowired
     private EntityManager em;
 
+    @Autowired
+    private HttpServletRequest servletRequest;
+
     private MockMvc restDeviceMockMvc;
 
     private Source source;
 
     @Before
-    public void setup() {
+    public void setup() throws ServletException {
         MockitoAnnotations.initMocks(this);
-        this.restDeviceMockMvc = MockMvcBuilders.standaloneSetup(sourceService)
+        SourceResource sourceResource = new SourceResource();
+        ReflectionTestUtils.setField(sourceResource, "servletRequest", servletRequest);
+        ReflectionTestUtils.setField(sourceResource, "sourceService", sourceService);
+        ReflectionTestUtils.setField(sourceResource, "sourceRepository", sourceRepository);
+        ReflectionTestUtils.setField(sourceResource, "projectService", projectService);
+
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        filter.init(new MockFilterConfig());
+        this.restDeviceMockMvc = MockMvcBuilders.standaloneSetup(sourceResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
-            .setMessageConverters(jacksonMessageConverter).build();
+            .setMessageConverters(jacksonMessageConverter)
+            .addFilter(filter)
+            .defaultRequest(get("/").with(OAuthHelper.bearerToken()))
+            .alwaysDo(MockMvcResultHandlers.print()).build();
     }
 
     /**
@@ -92,25 +129,28 @@ public class SourceResourceIntTest {
      */
     public static Source createEntity(EntityManager em) {
         Source source = new Source()
-            .sourceId(DEFAULT_DEVICE_PHYSICAL_ID)
-            .deviceCategory(DEFAULT_DEVICE_CATEGORY)
-            .assigned(DEFAULT_ACTIVATED);
+            .deviceCategory(DEFAULT_SOURCE_CATEGORY)
+            .assigned(DEFAULT_ASSIGNED)
+            .sourceName(DEFAULT_SOURCE_NAME);
         return source;
     }
 
     @Before
     public void initTest() {
         source = createEntity(em);
+        List<DeviceTypeDTO> deviceTypeDTOS = deviceTypeService.findAll();
+        assertThat(deviceTypeDTOS.size()).isGreaterThan(0);
+        source.setDeviceType(deviceTypeMapper.deviceTypeDTOToDeviceType(deviceTypeDTOS.get(0)));
     }
 
     @Test
     @Transactional
-    public void createDevice() throws Exception {
+    public void createSource() throws Exception {
         int databaseSizeBeforeCreate = sourceRepository.findAll().size();
 
         // Create the Source
         SourceDTO sourceDTO = sourceMapper.sourceToSourceDTO(source);
-        restDeviceMockMvc.perform(post("/api/devices")
+        restDeviceMockMvc.perform(post("/api/sources")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(sourceDTO)))
             .andExpect(status().isCreated());
@@ -119,14 +159,14 @@ public class SourceResourceIntTest {
         List<Source> sourceList = sourceRepository.findAll();
         assertThat(sourceList).hasSize(databaseSizeBeforeCreate + 1);
         Source testSource = sourceList.get(sourceList.size() - 1);
-        assertThat(testSource.getSourceId()).isEqualTo(DEFAULT_DEVICE_PHYSICAL_ID);
-        assertThat(testSource.getDeviceCategory()).isEqualTo(DEFAULT_DEVICE_CATEGORY);
-        assertThat(testSource.isAssigned()).isEqualTo(DEFAULT_ACTIVATED);
+        assertThat(testSource.getDeviceCategory()).isEqualTo(DEFAULT_SOURCE_CATEGORY);
+        assertThat(testSource.isAssigned()).isEqualTo(DEFAULT_ASSIGNED);
+        assertThat(testSource.getSourceName()).isEqualTo(DEFAULT_SOURCE_NAME);
     }
 
     @Test
     @Transactional
-    public void createDeviceWithExistingId() throws Exception {
+    public void createSourceWithExistingId() throws Exception {
         int databaseSizeBeforeCreate = sourceRepository.findAll().size();
 
         // Create the Source with an existing ID
@@ -134,7 +174,7 @@ public class SourceResourceIntTest {
         SourceDTO sourceDTO = sourceMapper.sourceToSourceDTO(source);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restDeviceMockMvc.perform(post("/api/devices")
+        restDeviceMockMvc.perform(post("/api/sources")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(sourceDTO)))
             .andExpect(status().isBadRequest());
@@ -146,45 +186,36 @@ public class SourceResourceIntTest {
 
     @Test
     @Transactional
-    public void checkDevicePhysicalIdIsRequired() throws Exception {
+    public void checkSourcePhysicalIdIsGenerated() throws Exception {
         int databaseSizeBeforeTest = sourceRepository.findAll().size();
         // set the field null
         source.setSourceId(null);
 
-        // Create the Source, which fails.
+        // Create the Source
         SourceDTO sourceDTO = sourceMapper.sourceToSourceDTO(source);
 
-        restDeviceMockMvc.perform(post("/api/devices")
+        restDeviceMockMvc.perform(post("/api/sources")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(sourceDTO)))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isCreated());
 
         List<Source> sourceList = sourceRepository.findAll();
-        assertThat(sourceList).hasSize(databaseSizeBeforeTest);
+        assertThat(sourceList).hasSize(databaseSizeBeforeTest + 1);
+
+        // find our created source
+        Source createdSource = sourceList.stream()
+            .filter(s -> s.getSourceName().equals(DEFAULT_SOURCE_NAME))
+            .findFirst()
+            .orElse(null);
+        assertThat(createdSource).isNotNull();
+
+        // check source id
+        assertThat(createdSource.getSourceId()).isNotNull();
     }
 
     @Test
     @Transactional
-    public void checkDeviceCategoryIsRequired() throws Exception {
-        int databaseSizeBeforeTest = sourceRepository.findAll().size();
-        // set the field null
-        source.setDeviceCategory(null);
-
-        // Create the Source, which fails.
-        SourceDTO sourceDTO = sourceMapper.sourceToSourceDTO(source);
-
-        restDeviceMockMvc.perform(post("/api/devices")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceDTO)))
-            .andExpect(status().isBadRequest());
-
-        List<Source> sourceList = sourceRepository.findAll();
-        assertThat(sourceList).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
-    public void checkActivatedIsRequired() throws Exception {
+    public void checkAssignedIsRequired() throws Exception {
         int databaseSizeBeforeTest = sourceRepository.findAll().size();
         // set the field null
         source.setAssigned(null);
@@ -192,7 +223,7 @@ public class SourceResourceIntTest {
         // Create the Source, which fails.
         SourceDTO sourceDTO = sourceMapper.sourceToSourceDTO(source);
 
-        restDeviceMockMvc.perform(post("/api/devices")
+        restDeviceMockMvc.perform(post("/api/sources")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(sourceDTO)))
             .andExpect(status().isBadRequest());
@@ -203,47 +234,47 @@ public class SourceResourceIntTest {
 
     @Test
     @Transactional
-    public void getAllDevices() throws Exception {
+    public void getAllSources() throws Exception {
         // Initialize the database
         sourceRepository.saveAndFlush(source);
 
         // Get all the deviceList
-        restDeviceMockMvc.perform(get("/api/devices?sort=id,desc"))
+        restDeviceMockMvc.perform(get("/api/sources?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(source.getId().intValue())))
-            .andExpect(jsonPath("$.[*].sourceId").value(hasItem(DEFAULT_DEVICE_PHYSICAL_ID.toString())))
-            .andExpect(jsonPath("$.[*].deviceCategory").value(hasItem(DEFAULT_DEVICE_CATEGORY.toString())))
-            .andExpect(jsonPath("$.[*].activated").value(hasItem(DEFAULT_ACTIVATED.booleanValue())));
+            .andExpect(jsonPath("$.[*].sourceId").value(everyItem(notNullValue())))
+            .andExpect(jsonPath("$.[*].deviceCategory").value(hasItem(DEFAULT_SOURCE_CATEGORY.toString())))
+            .andExpect(jsonPath("$.[*].assigned").value(hasItem(DEFAULT_ASSIGNED.booleanValue())));
     }
 
     @Test
     @Transactional
-    public void getDevice() throws Exception {
+    public void getSource() throws Exception {
         // Initialize the database
         sourceRepository.saveAndFlush(source);
 
         // Get the source
-        restDeviceMockMvc.perform(get("/api/devices/{id}", source.getId()))
+        restDeviceMockMvc.perform(get("/api/sources/{id}", source.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(source.getId().intValue()))
-            .andExpect(jsonPath("$.sourceId").value(DEFAULT_DEVICE_PHYSICAL_ID.toString()))
-            .andExpect(jsonPath("$.deviceCategory").value(DEFAULT_DEVICE_CATEGORY.toString()))
-            .andExpect(jsonPath("$.activated").value(DEFAULT_ACTIVATED.booleanValue()));
+            .andExpect(jsonPath("$.sourceId").value(notNullValue()))
+            .andExpect(jsonPath("$.deviceCategory").value(DEFAULT_SOURCE_CATEGORY.toString()))
+            .andExpect(jsonPath("$.assigned").value(DEFAULT_ASSIGNED.booleanValue()));
     }
 
     @Test
     @Transactional
-    public void getNonExistingDevice() throws Exception {
+    public void getNonExistingSource() throws Exception {
         // Get the source
-        restDeviceMockMvc.perform(get("/api/devices/{id}", Long.MAX_VALUE))
+        restDeviceMockMvc.perform(get("/api/sources/{id}", Long.MAX_VALUE))
             .andExpect(status().isNotFound());
     }
 
     @Test
     @Transactional
-    public void updateDevice() throws Exception {
+    public void updateSource() throws Exception {
         // Initialize the database
         sourceRepository.saveAndFlush(source);
         int databaseSizeBeforeUpdate = sourceRepository.findAll().size();
@@ -251,12 +282,12 @@ public class SourceResourceIntTest {
         // Update the source
         Source updatedSource = sourceRepository.findOne(source.getId());
         updatedSource
-            .sourceId(UPDATED_DEVICE_PHYSICAL_ID)
-            .deviceCategory(UPDATED_DEVICE_CATEGORY)
-            .assigned(UPDATED_ACTIVATED);
+            .sourceId(UPDATED_SOURCE_PHYSICAL_ID)
+            .deviceCategory(UPDATED_SOURCE_CATEGORY)
+            .assigned(UPDATED_ASSIGNED);
         SourceDTO sourceDTO = sourceMapper.sourceToSourceDTO(updatedSource);
 
-        restDeviceMockMvc.perform(put("/api/devices")
+        restDeviceMockMvc.perform(put("/api/sources")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(sourceDTO)))
             .andExpect(status().isOk());
@@ -265,21 +296,21 @@ public class SourceResourceIntTest {
         List<Source> sourceList = sourceRepository.findAll();
         assertThat(sourceList).hasSize(databaseSizeBeforeUpdate);
         Source testSource = sourceList.get(sourceList.size() - 1);
-        assertThat(testSource.getSourceId()).isEqualTo(UPDATED_DEVICE_PHYSICAL_ID);
-        assertThat(testSource.getDeviceCategory()).isEqualTo(UPDATED_DEVICE_CATEGORY);
-        assertThat(testSource.isAssigned()).isEqualTo(UPDATED_ACTIVATED);
+        assertThat(testSource.getSourceId()).isEqualTo(UPDATED_SOURCE_PHYSICAL_ID);
+        assertThat(testSource.getDeviceCategory()).isEqualTo(UPDATED_SOURCE_CATEGORY);
+        assertThat(testSource.isAssigned()).isEqualTo(UPDATED_ASSIGNED);
     }
 
     @Test
     @Transactional
-    public void updateNonExistingDevice() throws Exception {
+    public void updateNonExistingSource() throws Exception {
         int databaseSizeBeforeUpdate = sourceRepository.findAll().size();
 
         // Create the Source
         SourceDTO sourceDTO = sourceMapper.sourceToSourceDTO(source);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
-        restDeviceMockMvc.perform(put("/api/devices")
+        restDeviceMockMvc.perform(put("/api/sources")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(sourceDTO)))
             .andExpect(status().isCreated());
@@ -291,13 +322,13 @@ public class SourceResourceIntTest {
 
     @Test
     @Transactional
-    public void deleteDevice() throws Exception {
+    public void deleteSource() throws Exception {
         // Initialize the database
         sourceRepository.saveAndFlush(source);
         int databaseSizeBeforeDelete = sourceRepository.findAll().size();
 
         // Get the source
-        restDeviceMockMvc.perform(delete("/api/devices/{id}", source.getId())
+        restDeviceMockMvc.perform(delete("/api/sources/{id}", source.getId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 

@@ -38,6 +38,7 @@ public class TokenTestUtils {
     public static final String USER = "admin";
     public static final String ISS = "RADAR";
     public static final String JTI = "some-jwt-id";
+    public static String PUBLIC_KEY_STRING;
 
     public static final String APPLICATION_JSON = "application/json";
     public static final int WIREMOCK_PORT = 8089;
@@ -57,8 +58,8 @@ public class TokenTestUtils {
         RSAPublicKey publicKey = (RSAPublicKey) cert.getPublicKey();
 
         keyStream.close();
-        initVars(new String(new Base64().encode(publicKey.getEncoded())),
-                Algorithm.RSA256(publicKey, privateKey));
+        PUBLIC_KEY_STRING = new String(new Base64().encode(publicKey.getEncoded()));
+        initVars(PUBLIC_KEY_STRING, Algorithm.RSA256(publicKey, privateKey));
     }
 
     private static void initVars(String publicKey, Algorithm algorithm) {
@@ -207,9 +208,6 @@ public class TokenTestUtils {
                 .withSubject("i'm a trusted oauth client")
                 .withArrayClaim("scope", new String[] {"PROJECT.READ", "SUBJECT.CREATE",
                         "SUBJECT.READ"})
-                .withArrayClaim("authorities", new String[] {})
-                .withArrayClaim("roles", new String[] {})
-                .withArrayClaim("sources", new String[] {})
                 .withClaim("client_id", "i'm a trusted oauth client")
                 .withClaim("jti", JTI)
                 .sign(algorithm);
