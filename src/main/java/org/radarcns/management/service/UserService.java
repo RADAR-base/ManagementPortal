@@ -134,8 +134,8 @@ public class UserService {
         Set<Role> roles = new HashSet<>();
         for (RoleDTO roleDTO : userDTO.getRoles()) {
             Role role = roleRepository
-                .findOneByAuthorityNameAndProjectId(roleDTO.getAuthorityName(),
-                    roleDTO.getProjectId());
+                .findOneByProjectIdAndAuthorityName(roleDTO.getProjectId(),
+                    roleDTO.getAuthorityName());
             if (role == null || role.getId() == null) {
                 Role currentRole = new Role();
                 currentRole.setAuthority(

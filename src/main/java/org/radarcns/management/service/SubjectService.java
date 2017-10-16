@@ -119,8 +119,8 @@ public class SubjectService {
     private Role getProjectParticipantRole(ProjectDTO projectDTO) {
 
         Role role = roleRepository
-            .findOneByAuthorityNameAndProjectId(AuthoritiesConstants.PARTICIPANT,
-                projectDTO.getId());
+            .findOneByProjectIdAndAuthorityName(projectDTO.getId(),
+                AuthoritiesConstants.PARTICIPANT);
         if (role != null) {
             return role;
         } else {
