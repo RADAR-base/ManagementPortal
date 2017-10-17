@@ -106,9 +106,9 @@ public class RadarAuthorization {
      * @return true if the user has a superuser authority, false otherwise
      */
     public static boolean isSuperUser(DecodedJWT token) {
-        return token.getClaims().containsKey(AUTHORITIES_CLAIM) ?
-            token.getClaim(AUTHORITIES_CLAIM).asList(String.class)
-                .contains(AuthoritiesConstants.SYS_ADMIN) : false;
+        return token.getClaims().containsKey(AUTHORITIES_CLAIM)
+                && token.getClaim(AUTHORITIES_CLAIM).asList(String.class)
+                .contains(AuthoritiesConstants.SYS_ADMIN);
     }
 
     /**
@@ -130,18 +130,20 @@ public class RadarAuthorization {
 
     private static Set<String> getAuthoritiesForProject(DecodedJWT token, String projectName) {
         // get all project-based authorities
-        return token.getClaims().containsKey(ROLES_CLAIM) ? token.getClaim(ROLES_CLAIM).asList
-            (String.class)
-            .stream()
-                .filter(s -> s.startsWith(projectName + ":"))
-                .map(s -> s.split(":")[1])
-                .collect(Collectors.toSet()) : Collections.emptySet();
+        return token.getClaims().containsKey(ROLES_CLAIM)
+                ? token.getClaim(ROLES_CLAIM).asList(String.class).stream()
+                        .filter(s -> s.startsWith(projectName + ":"))
+                        .map(s -> s.split(":")[1])
+                        .collect(Collectors.toSet())
+                : Collections.emptySet();
     }
 
     private static boolean hasScope(DecodedJWT token, Permission permission) {
-        return token.getClaims().containsKey(SCOPE_CLAIM) ? token.getClaim(SCOPE_CLAIM).asList
-            (String.class).contains(permission.getEntity().toString() + "." +
-            permission.getOperation().toString()) : false;
+        return token.getClaims().containsKey(SCOPE_CLAIM)
+                ? token.getClaim(SCOPE_CLAIM).asList(String.class)
+                        .contains(permission.getEntity().toString()
+                            + "." + permission.getOperation().toString())
+                : false;
     }
 
     private static Set<String> getAuthorities(DecodedJWT token) {
@@ -149,8 +151,8 @@ public class RadarAuthorization {
         // get all project-based authorities
         if (token.getClaims().containsKey(ROLES_CLAIM)) {
             result.addAll(token.getClaim(ROLES_CLAIM).asList(String.class).stream().filter(s -> s
-                .contains(":"))
-                .map(s -> s.split(":")[1]).collect(Collectors.toSet()));
+                    .contains(":"))
+                    .map(s -> s.split(":")[1]).collect(Collectors.toSet()));
         }
         // also add non-project based authorities
         if (token.getClaims().containsKey(AUTHORITIES_CLAIM)) {

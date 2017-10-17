@@ -6,6 +6,7 @@ import org.radarcns.management.config.LocalKeystoreConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
@@ -44,14 +45,15 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         String authorizationHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
 
         // Check if the HTTP Authorization header is present and formatted correctly
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith(OAuth2AccessToken.BEARER_TYPE)) {
             log.error("No authorization header provided in the request");
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            res.setHeader("WWW-Authenticate", "Bearer");
-            throw new TokenValidationException("No Bearer token present in the request.");
+            res.setHeader(HttpHeaders.WWW_AUTHENTICATE, OAuth2AccessToken.BEARER_TYPE);
+            throw new TokenValidationException("No " + OAuth2AccessToken.BEARER_TYPE + " token "
+                + "present in the request.");
         }
 
         // Extract the token from the HTTP Authorization header
-        return authorizationHeader.substring("Bearer".length()).trim();
+        return authorizationHeader.substring(OAuth2AccessToken.BEARER_TYPE.length()).trim();
     }
 }

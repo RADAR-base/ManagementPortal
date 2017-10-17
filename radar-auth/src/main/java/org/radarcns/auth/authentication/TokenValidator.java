@@ -33,8 +33,8 @@ public class TokenValidator {
     // If a client presents a token with an invalid signature, it might be the keypair was changed.
     // In that case we need to fetch it again, but we don't want a malicious client to be able to
     // make us DOS our own identity server. Fetching it at maximum once per minute mitigates this.
-    private Instant lastFetch;
-    private static final long fetchPeriod = 60L;
+    private Instant lastFetch = Instant.EPOCH;
+    private static final long FETCH_PERIOD = 60L;
 
     /**
      * Default constructor. Will load the identity server configuration from a file called
@@ -76,35 +76,43 @@ public class TokenValidator {
 
     /**
      * Validates an access token and returns the decoded JWT as a {@link DecodedJWT} object.
+     * <p>
+     * If we have not yet fetched the JWT public key, this method will fetch it. If a signature can
+     * not be verified, this method will fetch the JWT public key again, as it might have been
+     * changed, and re-check the token. However this fetching of the public key will only be
+     * performed at most once every <code>FETCH_PERIOD</code> seconds, to prevent (malicious)
+     * clients from making us call the token endpoint too frequently.
+     * </p>
+     *
      * @param token The access token
      * @return The decoded access token
      * @throws TokenValidationException If the token can not be validated.
      */
     public DecodedJWT validateAccessToken(String token) throws TokenValidationException {
+        // Check if we already initialized the verifier, if we could not get the public key during
+        // object initialization, we might not have created it yet.
         if (verifier == null) {
             loadPublicKey();
         }
         try {
             return verifier.verify(token);
         } catch (SignatureVerificationException sve) {
-            if (Instant.now().isAfter(lastFetch.plusSeconds(fetchPeriod))) {
-                // perhaps the server's key changed, let's fetch it again and re-check
-                log.warn("Client presented a token with an incorrect signature, fetching public key"
-                        + " again. Token: {}", token);
-                loadPublicKey();
-                return validateAccessToken(token);
-            } else {
-                // it hasn't been long enough ago to fetch the key again, we deny access
-                log.warn("Client presented a token with an incorrect signature, fetched public key "
-                        + "less than {} seconds ago, denied access. Token: {}", fetchPeriod, token);
-                throw new TokenValidationException(sve);
-            }
+            log.warn("Client presented a token with an incorrect signature, fetching public key"
+                    + " again. Token: {}", token);
+            loadPublicKey();
+            return validateAccessToken(token);
         } catch (JWTVerificationException ex) {
             throw new TokenValidationException(ex);
         }
     }
 
-    private void loadPublicKey() throws TokenValidationException {
+    private synchronized void loadPublicKey() throws TokenValidationException {
+        if (Instant.now().isBefore(lastFetch.plusSeconds(FETCH_PERIOD))) {
+            // it hasn't been long enough ago to fetch the key again, we deny access
+            log.warn("Fetched public key less than {} seconds ago, denied access.", FETCH_PERIOD);
+            throw new TokenValidationException("Not fetching public key more than once every "
+                    + Long.toString(FETCH_PERIOD) + " seconds.");
+        }
         RSAPublicKey publicKey;
         if (config.getPublicKey() == null) {
             publicKey = publicKeyFromServer();

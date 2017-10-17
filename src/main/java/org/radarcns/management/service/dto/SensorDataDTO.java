@@ -145,15 +145,23 @@ public class SensorDataDTO implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(sensorName);
+        return Objects.hashCode(id);
     }
 
     @Override
     public String toString() {
-        return "SensorDataDTO{" + "id=" + id + ", sensorName='" + sensorName + '\''
-            + ", frequency='" + frequency + '\'' + ", unit='" + unit + '\'' + ", dataType="
-            + dataType + ", dataClass=" + dataClass + ", keySchema='" + keySchema + '\''
-            + ", valueSchema='" + valueSchema + '\'' + ", topic='" + topic + '\'' + ", provider='"
-            + provider + '\'' + ", enabled=" + enabled + '}';
+        return "SensorDataDTO{"
+            + "id=" + id
+            + ", sensorName='" + sensorName + '\''
+            + ", frequency='" + frequency + '\''
+            + ", unit='" + unit + '\''
+            + ", dataType=" + dataType
+            + ", dataClass=" + dataClass
+            + ", keySchema='" + keySchema + '\''
+            + ", valueSchema='" + valueSchema + '\''
+            + ", topic='" + topic + '\''
+            + ", provider='" + provider + '\''
+            + ", enabled=" + enabled
+            + '}';
     }
 }

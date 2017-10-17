@@ -1,10 +1,11 @@
 package org.radarcns.management.service.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.service.dto.UserDTO;
-import org.mapstruct.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -36,9 +37,7 @@ public interface UserMapper {
         if(roles == null) {
             return null;
         }
-        return roles.stream()
-            .filter(Objects::nonNull)
-            .map(role -> role.getAuthority().getName()).collect(Collectors.toSet());
+        return roles.stream().map(role -> role.getAuthority().getName()).collect(Collectors.toSet());
     }
 
     List<User> userDTOsToUsers(List<UserDTO> userDTOs);
@@ -65,7 +64,7 @@ public interface UserMapper {
         if (authorities == null) {
             return null;
         }
-        return authorities.stream().filter(Objects::nonNull).map(Authority::getName)
+        return authorities.stream().map(Authority::getName)
             .collect(Collectors.toSet());
     }
 

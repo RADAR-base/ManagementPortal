@@ -95,7 +95,7 @@ public class Permissions {
             .forEach(e -> e.getValue().add(PROJECT_AFFILIATE));
 
         /* Project analyst */
-        // Can read everything execpt users, authorities and audits
+        // Can read everything except users, authorities and audits
         PERMISSION_MATRIX.entrySet().stream()
             .filter(e -> !Arrays.asList(Permission.Entity.AUDIT, Permission.Entity.AUTHORITY,
                 Permission.Entity.USER)

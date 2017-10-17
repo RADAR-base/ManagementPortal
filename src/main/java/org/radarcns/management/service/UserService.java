@@ -1,9 +1,7 @@
 package org.radarcns.management.service;
 
-import java.util.ArrayList;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.config.Constants;
-import java.util.stream.Collectors;
-import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
@@ -11,11 +9,10 @@ import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.UserRepository;
-import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.security.SecurityUtils;
-import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.RoleDTO;
+import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.RoleMapper;
 import org.radarcns.management.service.mapper.UserMapper;
@@ -31,8 +28,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -144,7 +143,10 @@ public class UserService {
                 if (roleDTO.getProjectId() != null) {
                     currentRole.setProject(projectRepository.getOne(roleDTO.getProjectId()));
                 }
-                roles.add(roleRepository.save(currentRole));
+                // supplied authorityname can be anything, so check if we actually have one
+                if (Objects.nonNull(currentRole.getAuthority())) {
+                    roles.add(roleRepository.save(currentRole));
+                }
             } else {
                 roles.add(role);
             }

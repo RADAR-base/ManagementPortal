@@ -1,7 +1,6 @@
 package org.radarcns.management.security;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -37,41 +36,6 @@ public final class SecurityUtils {
         }
         return userName;
     }
-
-    /**
-     * Check if a user is authenticated.
-     *
-     * @return true if the user is authenticated, false otherwise
-     */
-    public static boolean isAuthenticated() {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication authentication = securityContext.getAuthentication();
-        if (authentication != null) {
-            return authentication.getAuthorities().stream()
-                .noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(
-                        AuthoritiesConstants.ANONYMOUS));
-        }
-        return false;
-    }
-
-    /**
-     * If the current user has a specific authority (security role).
-     *
-     * <p>The name of this method comes from the isUserInRole() method in the Servlet API</p>
-     *
-     * @param authority the authority to check
-     * @return true if the current user has the authority, false otherwise
-     */
-    public static boolean isCurrentUserInRole(String authority) {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication authentication = securityContext.getAuthentication();
-        if (authentication != null) {
-            return authentication.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(authority));
-        }
-        return false;
-    }
-
 
     public static DecodedJWT getJWT(ServletRequest request) {
         Object jwt = request.getAttribute(JwtAuthenticationFilter.TOKEN_ATTRIBUTE);
