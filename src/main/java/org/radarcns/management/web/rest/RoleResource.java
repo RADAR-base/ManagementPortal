@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +27,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.radarcns.auth.authorization.Permission.ROLE_CREATE;
-import static org.radarcns.auth.authorization.Permission.ROLE_DELETE;
 import static org.radarcns.auth.authorization.Permission.ROLE_READ;
 import static org.radarcns.auth.authorization.Permission.ROLE_UPDATE;
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
@@ -121,20 +119,19 @@ public class RoleResource {
     }
 
     /**
-     * GET  /roles/:id : get the "id" role.
+     * GET  /roles/:projectName/:authorityName : get the role of the specified project and authority
      *
-     * @param id the id of the roleDTO to retrieve
+     * @param projectName The project name
+     * @param authorityName The authority name
      * @return the ResponseEntity with status 200 (OK) and with body the roleDTO, or with status 404 (Not Found)
      */
-    @GetMapping("/roles/{id}")
+    @GetMapping("/roles/{projectName}/{authorityName}")
     @Timed
-    public ResponseEntity<RoleDTO> getRole(@PathVariable Long id) {
-        log.debug("REST request to get Role : {}", id);
-        RoleDTO roleDTO = roleService.findOne(id);
-        if (roleDTO != null) {
-            checkPermissionOnProject(getJWT(servletRequest), ROLE_READ, roleDTO.getProjectName());
-        }
-        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(roleDTO));
+    public ResponseEntity<RoleDTO> getRole(@PathVariable String projectName,
+        @PathVariable String authorityName) {
+        checkPermissionOnProject(getJWT(servletRequest), ROLE_READ, projectName);
+        return ResponseUtil.wrapOrNotFound(roleService
+            .findOneByProjectNameAndAuthorityName(projectName, authorityName));
     }
 
 }

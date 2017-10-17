@@ -41,7 +41,8 @@
                 <td>
                     <div *ngFor="let role of user.roles">
                         <!--<span class="tag tag-info">{{ role.authorityName }}</span>-->
-                        <a [routerLink]="['/role', role.id ]" >{{role.authorityName}}</a>
+                        <span *ngIf="role.authorityName === 'ROLE_SYS_ADMIN'">{{role.authorityName}}</span>
+                        <a *ngIf="role.authorityName != 'ROLE_SYS_ADMIN'" [routerLink]="['/role', role.projectName, role.authorityName ]" >{{role.authorityName}}</a>
                     </div>
                 </td>
                 <td>
