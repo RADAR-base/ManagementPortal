@@ -1,17 +1,30 @@
 package org.radarcns.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import javax.persistence.*;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.PrePersist;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -177,6 +190,11 @@ public class Source implements Serializable {
         this.sourceName = sourceName;
     }
 
+    public Source sourceName(String sourceName) {
+        this.sourceName = sourceName;
+        return this;
+    }
+
     public String getExpectedSourceName() {
         return expectedSourceName;
     }
@@ -199,32 +217,30 @@ public class Source implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Source)) return false;
-
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Source source = (Source) o;
-
-        if (!sourceId.equals(source.sourceId)) return false;
-        return sourceName.equals(source.sourceName);
+        if (source.id == null || id == null) {
+            return false;
+        }
+        return Objects.equals(id, source.id);
     }
 
     @Override
     public int hashCode() {
-        int result = sourceId.hashCode();
-        result = 31 * result + sourceName.hashCode();
-        return result;
+        return Objects.hashCode(id);
     }
 
     @Override
     public String toString() {
-        return "Source{" +
-            "id=" + id +
-            ", sourceId='" + sourceId + '\'' +
-            ", sourceName='" + sourceName + '\'' +
-            ", deviceCategory='" + deviceCategory + '\'' +
-            ", assigned=" + assigned +
-            ", deviceType=" + deviceType +
-            ", project=" + project +
-            '}';
+        return "Source{" + "id=" + id + ", sourceId=" + sourceId + ", sourceName='" + sourceName
+            + '\'' + ", expectedSourceName='" + expectedSourceName + '\'' + ", deviceCategory='"
+            + deviceCategory + '\'' + ", assigned=" + assigned + ", subjects=" + subjects
+            + ", deviceType=" + deviceType + ", project=" + project + ", attributes=" + attributes
+            + '}';
     }
 }

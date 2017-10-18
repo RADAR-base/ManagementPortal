@@ -2,12 +2,14 @@ package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
+import org.radarcns.auth.authorization.Permission;
 import org.radarcns.management.domain.DeviceType;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
-import org.radarcns.management.security.AuthoritiesConstants;
+import org.radarcns.management.security.SecurityUtils;
 import org.radarcns.management.service.SubjectService;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
@@ -18,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,11 +31,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static org.radarcns.auth.authorization.Permission.SUBJECT_CREATE;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_DELETE;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_READ;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing Subject.
@@ -58,6 +70,9 @@ public class SubjectResource {
     @Autowired
     private ProjectRepository projectRepository;
 
+    @Autowired
+    private HttpServletRequest servletRequest;
+
     /**
      * POST  /subjects : Create a new subject.
      *
@@ -68,11 +83,17 @@ public class SubjectResource {
      */
     @PostMapping("/subjects")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN,
-        AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
     public ResponseEntity<SubjectDTO> createSubject(@RequestBody SubjectDTO subjectDTO)
         throws URISyntaxException, IllegalAccessException {
         log.debug("REST request to save Subject : {}", subjectDTO);
+        if (subjectDTO.getProject() == null || subjectDTO.getProject().getId() == null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil
+                    .createFailureAlert(ENTITY_NAME, "projectrequired",
+                            "A subject should be assigned to a project")).body(null);
+        }
+        checkPermissionOnProject(getJWT(servletRequest), SUBJECT_CREATE,
+                subjectDTO.getProject().getProjectName());
+
         if (subjectDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil
                 .createFailureAlert(ENTITY_NAME, "idexists",
@@ -82,11 +103,6 @@ public class SubjectResource {
             return ResponseEntity.badRequest().headers(HeaderUtil
                 .createFailureAlert(ENTITY_NAME, "loginrequired", "A subject login is required"))
                 .body(null);
-        }
-        if (subjectDTO.getProject() == null || subjectDTO.getProject().getId() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                .createFailureAlert(ENTITY_NAME, "projectrequired",
-                    "A subject should be assigned to a project")).body(null);
         }
         if (subjectDTO.getExternalId() != null && !subjectDTO.getExternalId().isEmpty() &&
             subjectRepository.findOneByProjectIdAndExternalId(subjectDTO.getProject().getId(),
@@ -113,20 +129,21 @@ public class SubjectResource {
      */
     @PutMapping("/subjects")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN,
-        AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
     public ResponseEntity<SubjectDTO> updateSubject(@RequestBody SubjectDTO subjectDTO)
         throws URISyntaxException, IllegalAccessException {
         log.debug("REST request to update Subject : {}", subjectDTO);
-        if (subjectDTO.getId() == null) {
-            return createSubject(subjectDTO);
-        }
-
         if (subjectDTO.getProject() == null || subjectDTO.getProject().getId() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil
-                .createFailureAlert(ENTITY_NAME, "projectrequired",
-                    "A subject should be assigned to a project")).body(null);
+                    .createFailureAlert(ENTITY_NAME, "projectrequired",
+                            "A subject should be assigned to a project")).body(null);
         }
+        if (subjectDTO.getId() == null) {
+            checkPermissionOnProject(getJWT(servletRequest), SUBJECT_CREATE,
+                    subjectDTO.getProject().getProjectName());
+            return createSubject(subjectDTO);
+        }
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
+                subjectDTO.getProject().getProjectName(), subjectDTO.getLogin());
         SubjectDTO result = subjectService.updateSubject(subjectDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getId().toString()))
@@ -134,7 +151,8 @@ public class SubjectResource {
     }
 
     /**
-     * PUT  /subjects : Updates an existing subject.
+     * PUT  /subjects/discontinue : Discontinue a subject. A discontinued subject is not allowed
+     * to send data to the system anymore.
      *
      * @param subjectDTO the subjectDTO to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated subjectDTO, or with
@@ -144,7 +162,6 @@ public class SubjectResource {
      */
     @PutMapping("/subjects/discontinue")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<SubjectDTO> discontinueSubject(@RequestBody SubjectDTO subjectDTO)
         throws URISyntaxException, IllegalAccessException {
         log.debug("REST request to update Subject : {}", subjectDTO);
@@ -159,6 +176,8 @@ public class SubjectResource {
                 .createFailureAlert(ENTITY_NAME, "projectrequired",
                     "A subject should be assigned to a project")).body(null);
         }
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
+                subjectDTO.getProject().getProjectName(), subjectDTO.getLogin());
 
         SubjectDTO result = subjectService.discontinueSubject(subjectDTO);
         return ResponseEntity.ok()
@@ -174,11 +193,10 @@ public class SubjectResource {
      */
     @GetMapping("/subjects")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN,
-        AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR})
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(
-        @RequestParam(value = "projectId", required = false) Long projectId,
-        @RequestParam(value = "externalId", required = false) String externalId) {
+            @RequestParam(value = "projectId", required = false) Long projectId,
+            @RequestParam(value = "externalId", required = false) String externalId) {
+        checkPermission(SecurityUtils.getJWT(servletRequest), Permission.SUBJECT_READ);
         log.debug("ProjectID {} and external {}", projectId, externalId);
         if (projectId != null && externalId != null) {
             Subject subject = subjectRepository
@@ -210,8 +228,12 @@ public class SubjectResource {
     public ResponseEntity<SubjectDTO> getSubject(@PathVariable String login) {
         log.debug("REST request to get Subject : {}", login);
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
-
+        if (!subject.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
         SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject.get());
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, subjectDTO.getProject()
+            .getProjectName(), subjectDTO.getLogin());
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(subjectDTO));
     }
 
@@ -225,6 +247,13 @@ public class SubjectResource {
     @Timed
     public ResponseEntity<Void> deleteSubject(@PathVariable String login) {
         log.debug("REST request to delete Subject : {}", login);
+        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
+        if (!subject.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject.get());
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_DELETE, subjectDTO.getProject()
+            .getProjectName(), subjectDTO.getLogin());
         subjectService.deleteSubject(login);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, login)).build();
@@ -249,8 +278,6 @@ public class SubjectResource {
      */
     @PostMapping("/subjects/{login}/sources")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN,
-        AuthoritiesConstants.PARTICIPANT})
     public ResponseEntity<MinimalSourceDetailsDTO> assignSources(@PathVariable String login,
         @RequestBody MinimalSourceDetailsDTO sourceDTO) {
         // check the subject id
@@ -286,6 +313,8 @@ public class SubjectResource {
 
         }
 
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, role.getProject()
+                .getProjectName(), sub.getUser().getLogin());
         // handle the source registration
         MinimalSourceDetailsDTO sourceRegistered = subjectService
             .assignOrUpdateSource(sub, deviceType.get(), role.getProject(), sourceDTO);
@@ -297,8 +326,6 @@ public class SubjectResource {
 
     @GetMapping("/subjects/{login}/sources")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN,
-        AuthoritiesConstants.PARTICIPANT})
     public ResponseEntity<List<MinimalSourceDetailsDTO>> getSubjectSources(
         @PathVariable String login) {
         // check the subject id
@@ -308,6 +335,10 @@ public class SubjectResource {
                 ENTITY_NAME, "notfound", "Subject with subject-id " + login +
                     " was not found."));
         }
+
+        SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject.get());
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, subjectDTO.getProject()
+                .getProjectName(), subjectDTO.getLogin());
 
         // handle the source registration
         List<MinimalSourceDetailsDTO> sources = subjectService.getSources(subject.get());

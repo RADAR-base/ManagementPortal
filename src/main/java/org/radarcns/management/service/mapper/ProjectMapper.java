@@ -22,7 +22,7 @@ public interface ProjectMapper {
 
     List<ProjectDTO> projectsToProjectDTOs(List<Project> projects);
 
-    @Mapping(target = "attributes"  , ignore = true)
+    @Mapping(target = "attributes", ignore = true)
     Project projectDTOToProject(ProjectDTO projectDTO);
 
     List<Project> projectDTOsToProjects(List<ProjectDTO> projectDTOs);

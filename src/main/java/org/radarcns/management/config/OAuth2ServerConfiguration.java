@@ -2,7 +2,7 @@ package org.radarcns.management.config;
 
 import io.github.jhipster.security.AjaxLogoutSuccessHandler;
 import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
-import org.radarcns.management.security.AuthoritiesConstants;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.security.ClaimsTokenEnhancer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -129,8 +129,6 @@ public class OAuth2ServerConfiguration {
                 .antMatchers("/api/register").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
                 .antMatchers("/api/profile-info").permitAll()
                 .antMatchers("/api/**").authenticated()
-                .antMatchers("/api/users/**").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN,AuthoritiesConstants.PROJECT_ADMIN)
-                .antMatchers("/api/roles/**").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN,AuthoritiesConstants.PROJECT_ADMIN)
                 .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
                 .antMatchers("/v2/api-docs/**").permitAll()
                 .antMatchers("/swagger-resources/configuration/ui").permitAll()

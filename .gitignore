@@ -12,6 +12,9 @@ keystore.jks
 ######################
 *.patch
 
+# don't ignore .jks keystores in test folders
+!**/test/resources/**/keystore.jks
+
 ######################
 # Node
 ######################
@@ -151,3 +154,6 @@ Desktop.ini
 
 # output directory
 /out/
+
+# don't ignore jars in /libs
+!/libs/**/*.jar

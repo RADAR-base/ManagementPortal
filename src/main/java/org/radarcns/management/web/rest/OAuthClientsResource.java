@@ -1,14 +1,16 @@
 package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
-import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ClientDetailsDTO;
 import org.radarcns.management.service.dto.ClientPairInfoDTO;
+import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.ClientDetailsMapper;
+import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,15 +36,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_READ;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
 /**
  * Created by dverbeec on 5/09/2017.
  */
@@ -65,11 +72,18 @@ public class OAuthClientsResource {
     private SubjectRepository subjectRepository;
 
     @Autowired
+    private SubjectMapper subjectMapper;
+
+    @Autowired
     private UserService userService;
+
+    @Autowired
+    private HttpServletRequest servletRequest;
 
     @GetMapping("/oauthclients")
     @Timed
     public ResponseEntity<List<ClientDetailsDTO>> getOAuthClients() {
+        checkPermission(getJWT(servletRequest), OAUTHCLIENTS_READ);
         return ResponseEntity.ok().body(clientDetailsMapper.clientDetailsToClientDetailsDTO(
             clientDetailsService.listClientDetails()));
     }
@@ -77,6 +91,7 @@ public class OAuthClientsResource {
     @GetMapping("/oauthclients/:id")
     @Timed
     public ResponseEntity<ClientDetailsDTO> getOAuthClientById(@PathVariable("id") String id) {
+        checkPermission(getJWT(servletRequest), OAUTHCLIENTS_READ);
         return ResponseEntity.ok().body(
             clientDetailsMapper.clientDetailsToClientDetailsDTO(getOAuthClient(id)));
     }
@@ -94,32 +109,26 @@ public class OAuthClientsResource {
      */
     @GetMapping("/oauthclients/pair")
     @Timed
-    @Secured({ AuthoritiesConstants.SYS_ADMIN, AuthoritiesConstants.PROJECT_ADMIN})
     public ResponseEntity<ClientPairInfoDTO> getRefreshToken(@RequestParam String login,
-        @RequestParam(value="clientId") String clientId) {
-
+            @RequestParam(value="clientId") String clientId) {
         User currentUser = userService.getUserWithAuthorities();
         if (currentUser == null) {
             // We only allow this for actual logged in users for now, not for client_credentials
             throw new AccessDeniedException("You must be a logged in user to access this resource");
         }
 
-        // check if current user has project_admin role in the project the requested user is in
-        // TODO finish this when roles implementation is complete
-        /*
-        if (!currentUser.getAuthorities().contains(AuthoritiesConstants.SYS_ADMIN) && currentUser.getRoles().stream()
-            .filter(role -> role.getProject().getProjectName().equals(user.getProject().getProjectName()))
-            .filter(role -> role.getAuthority().getName().equals(AuthoritiesConstants.PROJECT_ADMIN))
-            .collect(Collectors.toList()).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }*/
-
-        // lookup the OAuth client
-        ClientDetails details = getOAuthClient(clientId);
-
         // lookup the subject
         Subject subject = getSubject(login);
         log.info("Pair client request for subject login: {}", login);
+
+        SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
+
+        // Users who can update a subject can also generate a refresh token for that subject
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
+            subjectDTO.getProject().getProjectName(), subjectDTO.getLogin());
+
+        // lookup the OAuth client
+        ClientDetails details = getOAuthClient(clientId);
 
         // add the user's authorities
         User user = subject.getUser();
@@ -174,9 +183,9 @@ public class OAuthClientsResource {
     }
 
     private Subject getSubject(String login) throws CustomNotFoundException {
-        Subject subject = subjectRepository.findBySubjectLogin(login);
+        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
 
-        if (subject == null) {
+        if (!subject.isPresent()) {
             log.info("Pair client request for unknown subject login: {}", login);
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Subject ID not found");
@@ -184,6 +193,6 @@ public class OAuthClientsResource {
             throw new CustomNotFoundException("Subject ID not found", errorParams);
         }
 
-        return subject;
+        return subject.get();
     }
 }
