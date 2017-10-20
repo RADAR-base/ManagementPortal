@@ -1,5 +1,6 @@
 package org.radarcns.management.service.dto;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -15,6 +16,7 @@ public class ClientDetailsDTO {
     private Long accessTokenValidity;
     private Long refreshTokenValidity;
     private Set<String> authorities;
+    private Map<String, String> additionalInformation;
 
     public ClientDetailsDTO() {
 
@@ -162,5 +164,13 @@ public class ClientDetailsDTO {
      */
     public void setAuthorities(Set<String> authorities) {
         this.authorities = authorities;
+    }
+
+    public Map<String, String> getAdditionalInformation() {
+        return additionalInformation;
+    }
+
+    public void setAdditionalInformation(Map<String, String> additionalInformation) {
+        this.additionalInformation = additionalInformation;
     }
 }
