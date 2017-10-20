@@ -1,5 +1,7 @@
 # ManagementPortal
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/64ac6d97b55a482a9cb0b5618ad5957c)](https://www.codacy.com/app/dennyverbeeck/ManagementPortal?utm_source=github.com&utm_medium=referral&utm_content=RADAR-CNS/ManagementPortal&utm_campaign=badger)
+
 ManagementPortal is an application which is used to manage pilot studies for [RADAR-CNS](http://www.radar-cns.org/).
 
 ## Quickstart
