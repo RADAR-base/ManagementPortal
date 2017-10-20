@@ -76,7 +76,7 @@ public class ClientDetailsMapperImpl implements ClientDetailsMapper {
     @Override
     public List<ClientDetailsDTO> clientDetailsToClientDetailsDTO(List<ClientDetails> detailsList) {
         if (Objects.isNull(detailsList)) {
-            return null;
+            return Collections.emptyList();
         }
         return detailsList.stream().map(this::clientDetailsToClientDetailsDTO)
             .collect(Collectors.toList());
@@ -85,7 +85,7 @@ public class ClientDetailsMapperImpl implements ClientDetailsMapper {
     @Override
     public List<ClientDetails> clientDetailsDTOToClientDetails(List<ClientDetailsDTO> detailsDTOList) {
         if (Objects.isNull(detailsDTOList)) {
-            return null;
+            return Collections.emptyList();
         }
         return detailsDTOList.stream().map(this::clientDetailsDTOToClientDetails)
             .collect(Collectors.toList());
