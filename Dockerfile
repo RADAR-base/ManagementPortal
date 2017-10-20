@@ -31,4 +31,4 @@ COPY --from=builder /app/src/main/docker/etc/changelogs /changelogs
 EXPOSE 8080 5701/udp
 CMD echo "The application will start in ${JHIPSTER_SLEEP}s..." && \
     sleep ${JHIPSTER_SLEEP} && \
-    java $JAVA_OPTS -Dserver.contextPath=/managementportal -Djava.security.egd=file:/dev/./urandom -cp /changelogs:/app.war org.springframework.boot.loader.WarLauncher
+    java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -cp /changelogs:/app.war org.springframework.boot.loader.WarLauncher
