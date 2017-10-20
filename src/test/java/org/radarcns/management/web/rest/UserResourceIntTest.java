@@ -8,6 +8,7 @@ import org.mockito.MockitoAnnotations;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.ManagementPortalApp;
 import org.radarcns.management.domain.User;
+import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.radarcns.management.service.MailService;
@@ -96,6 +97,9 @@ public class UserResourceIntTest {
     private EntityManager em;
 
     @Autowired
+    private SubjectRepository subjectRepository;
+
+    @Autowired
     private HttpServletRequest servletRequest;
 
     private MockMvc restUserMockMvc;
@@ -109,6 +113,7 @@ public class UserResourceIntTest {
         ReflectionTestUtils.setField(userResource, "userService", userService);
         ReflectionTestUtils.setField(userResource, "mailService", mailService);
         ReflectionTestUtils.setField(userResource, "userRepository", userRepository);
+        ReflectionTestUtils.setField(userResource, "subjectRepository", subjectRepository);
         ReflectionTestUtils.setField(userResource, "servletRequest", servletRequest);
 
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter();

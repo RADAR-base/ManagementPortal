@@ -2,13 +2,16 @@ package org.radarcns.management.web.rest;
 
 import org.radarcns.management.config.Constants;
 import com.codahale.metrics.annotation.Timed;
+import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
+import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.service.MailService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
+import org.radarcns.management.web.rest.errors.CustomParameterizedException;
 import org.radarcns.management.web.rest.vm.ManagedUserVM;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.web.rest.util.PaginationUtil;
@@ -73,6 +76,9 @@ public class UserResource {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private SubjectRepository subjectRepository;
 
     @Autowired
     private HttpServletRequest servletRequest;
@@ -146,6 +152,15 @@ public class UserResource {
                 .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, "rolesRequired"))
                 .body(null);
         }
+
+        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(managedUserVM.getLogin());
+        if (subject.isPresent()) {
+            // if the subject is also a user, check if the removed/activated states are valid
+            if (managedUserVM.isActivated() && subject.get().isRemoved()) {
+                throw new CustomParameterizedException("error.invalidsubjectstate");
+            }
+        }
+
         Optional<UserDTO> updatedUser = userService.updateUser(managedUserVM);
 
         return ResponseUtil.wrapOrNotFound(updatedUser,
