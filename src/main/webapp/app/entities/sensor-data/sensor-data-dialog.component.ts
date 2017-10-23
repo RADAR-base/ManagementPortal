@@ -107,9 +107,9 @@ export class SensorDataPopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if ( params['id'] ) {
+            if ( params['sensorName'] ) {
                 this.modalRef = this.sensorDataPopupService
-                    .open(SensorDataDialogComponent, params['id']);
+                    .open(SensorDataDialogComponent, params['sensorName']);
             } else {
                 this.modalRef = this.sensorDataPopupService
                     .open(SensorDataDialogComponent);

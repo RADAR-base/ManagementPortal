@@ -21,7 +21,7 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liqui
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="sensor_name" type="varchar(255)">
-                <constraints nullable="false" />
+                <constraints unique="true" nullable="false" />
             </column>
 
             <column name="frequency" type="varchar(255)">

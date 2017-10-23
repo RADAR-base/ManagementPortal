@@ -22,7 +22,7 @@ export const sensorDataRoute: Routes = [
     },
     canActivate: [UserRouteAccessService]
   }, {
-    path: 'sensor-data/:id',
+    path: 'sensor-data/:sensorName',
     component: SensorDataDetailComponent,
     data: {
         authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
@@ -44,7 +44,7 @@ export const sensorDataPopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'sensor-data/:id/edit',
+    path: 'sensor-data/:sensorName/edit',
     component: SensorDataPopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
@@ -54,7 +54,7 @@ export const sensorDataPopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'sensor-data/:id/delete',
+    path: 'sensor-data/:sensorName/delete',
     component: SensorDataDeletePopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
