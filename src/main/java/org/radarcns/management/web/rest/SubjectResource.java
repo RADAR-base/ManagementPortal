@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -105,7 +104,7 @@ public class SubjectResource {
                 .body(null);
         }
         if (subjectDTO.getExternalId() != null && !subjectDTO.getExternalId().isEmpty() &&
-            subjectRepository.findOneByProjectIdAndExternalId(subjectDTO.getProject().getId(),
+            subjectRepository.findOneByProjectNameAndExternalId(subjectDTO.getProject().getProjectName(),
                 subjectDTO.getExternalId()).isPresent()) {
             return ResponseEntity.badRequest().headers(HeaderUtil
                 .createFailureAlert(ENTITY_NAME, "subjectExists",
@@ -194,21 +193,21 @@ public class SubjectResource {
     @GetMapping("/subjects")
     @Timed
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(
-            @RequestParam(value = "projectId", required = false) Long projectId,
+            @RequestParam(value = "projectName", required = false) String projectName,
             @RequestParam(value = "externalId", required = false) String externalId) {
         checkPermission(SecurityUtils.getJWT(servletRequest), Permission.SUBJECT_READ);
-        log.debug("ProjectID {} and external {}", projectId, externalId);
-        if (projectId != null && externalId != null) {
+        log.debug("ProjectName {} and external {}", projectName, externalId);
+        if (projectName != null && externalId != null) {
             Subject subject = subjectRepository
-                .findOneByProjectIdAndExternalId(projectId, externalId).get();
+                .findOneByProjectNameAndExternalId(projectName, externalId).get();
             SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
             return ResponseUtil.wrapOrNotFound(Optional.of(Collections.singletonList(subjectDTO)));
-        } else if (projectId == null && externalId != null) {
+        } else if (projectName == null && externalId != null) {
             List<Subject> subjects = subjectRepository.findAllByExternalId(externalId);
             return ResponseUtil
                 .wrapOrNotFound(Optional.of(subjectMapper.subjectsToSubjectDTOs(subjects)));
-        } else if (projectId != null) {
-            List<Subject> subjects = subjectRepository.findAllByProjectId(projectId);
+        } else if (projectName != null) {
+            List<Subject> subjects = subjectRepository.findAllByProjectName(projectName);
             return ResponseUtil
                 .wrapOrNotFound(Optional.of(subjectMapper.subjectsToSubjectDTOs(subjects)));
         }

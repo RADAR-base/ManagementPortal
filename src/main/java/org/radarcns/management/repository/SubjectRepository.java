@@ -22,11 +22,6 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
 
     @Query("select distinct subject from Subject subject left join fetch subject.sources "
         + "left join fetch subject.user user "
-        + "join user.roles roles where roles.project.id = :projectId")
-    List<Subject> findAllByProjectId(@Param("projectId") Long projectId);
-
-    @Query("select distinct subject from Subject subject left join fetch subject.sources "
-        + "left join fetch subject.user user "
         + "join user.roles roles where roles.project.projectName = :projectName")
     List<Subject> findAllByProjectName(@Param("projectName") String projectName);
 
@@ -49,9 +44,9 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
 
     @Query("select distinct subject from Subject subject left join fetch subject.sources "
         + "left join fetch subject.user user "
-        + "join user.roles roles where roles.project.id = :projectId "
+        + "join user.roles roles where roles.project.projectName = :projectName "
         + "and subject.externalId = :externalId")
-    Optional<Subject> findOneByProjectIdAndExternalId(@Param("projectId") Long projectId,
+    Optional<Subject> findOneByProjectNameAndExternalId(@Param("projectName") String projectName,
         @Param("externalId") String externalId);
 
     @Query("select subject.sources from Subject subject WHERE subject.externalId = :externalId")
