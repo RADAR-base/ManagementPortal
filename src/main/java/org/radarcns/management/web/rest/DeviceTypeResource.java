@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.radarcns.auth.authorization.Permission.DEVICETYPE_CREATE;
@@ -116,70 +117,83 @@ public class DeviceTypeResource {
     /**
      * GET  /device-types : get all the deviceTypes.
      *
-     * @param producer If this parameter is supplied, return only the DeviceTypes for which the
-     *                 deviceProducer matches this value
-     * @param model If this parameter is supplied, return only the DeviceTypes for which the
-     *              deviceModel matches this value
      * @return the ResponseEntity with status 200 (OK) and the list of deviceTypes in body
      */
     @GetMapping("/device-types")
     @Timed
-    public ResponseEntity<List<DeviceTypeDTO>> getAllDeviceTypes(@RequestParam(required = false) String producer,
-            @RequestParam(required = false) String model ,  @RequestParam(required = false) String version) {
+    public ResponseEntity<List<DeviceTypeDTO>> getAllDeviceTypes() {
         checkPermission(getJWT(servletRequest), DEVICETYPE_READ);
-        List<DeviceTypeDTO> result;
-        if (producer != null && model != null && version !=null) {
-            log.debug("REST request to get DeviceTypes for producer {} and model {}", producer, model);
-            DeviceTypeDTO deviceTypeDTO = deviceTypeService.findByProducerAndModelAndVersion(producer, model, version);
-            if (deviceTypeDTO == null) {
-                result = Collections.emptyList();
-            }
-            else {
-                result = Collections.singletonList(deviceTypeDTO);
-            }
-        }
-        else if (producer != null) {
-            log.debug("REST request to get DeviceTypes for producer {}", producer);
-            result = deviceTypeService.findByProducer(producer);
-        }
-        else if (model != null) {
-            log.debug("REST request to get DeviceTypes for model {}", model);
-            result = deviceTypeService.findByModel(model);
-        }
-        else {
-            log.debug("REST request to get all DeviceTypes");
-            result = deviceTypeService.findAll();
-        }
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(deviceTypeService.findAll());
     }
 
     /**
-     * GET  /device-types/:id : get the "id" deviceType.
-     *
-     * @param id the id of the deviceTypeDTO to retrieve
-     * @return the ResponseEntity with status 200 (OK) and with body the deviceTypeDTO, or with status 404 (Not Found)
+     * Find the list of DeviceTypes made by the given producer
+     * @param producer The producer
+     * @return A list of objects matching the producer
      */
-    @GetMapping("/device-types/{id}")
+    @GetMapping("/device-types/{producer}")
     @Timed
-    public ResponseEntity<DeviceTypeDTO> getDeviceType(@PathVariable Long id) {
-        log.debug("REST request to get DeviceType : {}", id);
-        DeviceTypeDTO deviceTypeDTO = deviceTypeService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(deviceTypeDTO));
+    public ResponseEntity<List<DeviceTypeDTO>> getDeviceTypes(@PathVariable String producer) {
+        checkPermission(getJWT(servletRequest), DEVICETYPE_READ);
+        return ResponseEntity.ok(deviceTypeService.findByProducer(producer));
     }
 
     /**
-     * DELETE  /device-types/:id : delete the "id" deviceType.
+     * Find the list of DeviceTypes of the given producer and model. Can be multiple since
+     * multiple version of a single model can be made.
      *
-     * @param id the id of the deviceTypeDTO to delete
+     * @param producer The producer
+     * @param model The model
+     * @return A list of objects matching the producer and model
+     */
+    @GetMapping("/device-types/{producer}/{model}")
+    @Timed
+    public ResponseEntity<List<DeviceTypeDTO>> getDeviceTypes(@PathVariable String producer,
+            @PathVariable String model) {
+        checkPermission(getJWT(servletRequest), DEVICETYPE_READ);
+        return ResponseEntity.ok(deviceTypeService.findByProducerAndModel(producer, model));
+    }
+
+    /**
+     * Find the DeviceType of the given producer, model and version
+     *
+     * @param producer The producer
+     * @param model The model
+     * @param version The version
+     * @return A single DeviceType object matching the producer, model and version
+     */
+    @GetMapping("/device-types/{producer}/{model}/{version}")
+    @Timed
+    public ResponseEntity<DeviceTypeDTO> getDeviceTypes(@PathVariable String producer,
+        @PathVariable String model, @PathVariable String version) {
+        checkPermission(getJWT(servletRequest), DEVICETYPE_READ);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(
+            deviceTypeService.findByProducerAndModelAndVersion(producer, model, version)));
+    }
+
+    /**
+     * DELETE  /device-types/:producer/:model/:version : delete the deviceType with the specified
+     * producer, model and version
+     *
+     * @param producer The producer
+     * @param model The model
+     * @param version The version
      * @return the ResponseEntity with status 200 (OK)
      */
-    @DeleteMapping("/device-types/{id}")
+    @DeleteMapping("/device-types/{producer}/{model}/{version}")
     @Timed
-    public ResponseEntity<Void> deleteDeviceType(@PathVariable Long id) {
-        log.debug("REST request to delete DeviceType : {}", id);
+    public ResponseEntity<Void> deleteDeviceType(@PathVariable String producer,
+        @PathVariable String model, @PathVariable String version) {
         checkPermission(getJWT(servletRequest), DEVICETYPE_DELETE);
-        deviceTypeService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+        DeviceTypeDTO deviceTypeDTO = deviceTypeService
+            .findByProducerAndModelAndVersion(producer, model, version);
+        if (Objects.isNull(deviceTypeDTO)) {
+            return ResponseEntity.notFound().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
+                "notfound", String.join(" ", producer, model, version))).build();
+        }
+        deviceTypeService.delete(deviceTypeDTO.getId());
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME,
+            String.join(" ", producer, model, version))).build();
     }
 
 }

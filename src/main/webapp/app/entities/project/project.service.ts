@@ -31,8 +31,8 @@ export class ProjectService {
         });
     }
 
-    find(id: number): Observable<Project> {
-        return this.http.get(`${this.resourceUrl}/${id}`).map((res: Response) => {
+    find(projectName: string): Observable<Project> {
+        return this.http.get(`${this.resourceUrl}/${projectName}`).map((res: Response) => {
             const jsonResponse = res.json();
             jsonResponse.startDate = this.dateUtils
                 .convertDateTimeFromServer(jsonResponse.startDate);
@@ -56,12 +56,12 @@ export class ProjectService {
             ;
     }
 
-    findDeviceTypesById(id: number): Observable<Response> {
-        return this.http.get(`${this.resourceUrl}/${id}/device-types`);
+    findDeviceTypesByName(projectName: string): Observable<Response> {
+        return this.http.get(`${this.resourceUrl}/${projectName}/device-types`);
     }
 
-    delete(id: number): Observable<Response> {
-        return this.http.delete(`${this.resourceUrl}/${id}`);
+    delete(projectName: string): Observable<Response> {
+        return this.http.delete(`${this.resourceUrl}/${projectName}`);
     }
 
     private convertResponse(res: any): any {
@@ -92,7 +92,7 @@ export class ProjectService {
         return options;
     }
 
-    findRoles(projectId: number): Observable<Response> {
-        return this.http.get(`${this.resourceUrl}/${projectId}/roles`);
+    findRoles(projectName: string): Observable<Response> {
+        return this.http.get(`${this.resourceUrl}/${projectName}/roles`);
     }
 }

@@ -29,8 +29,8 @@ export class SensorDataDeleteDialogComponent {
         this.activeModal.dismiss('cancel');
     }
 
-    confirmDelete(id: number) {
-        this.sensorDataService.delete(id).subscribe((response) => {
+    confirmDelete(sensorName: string) {
+        this.sensorDataService.delete(sensorName).subscribe((response) => {
             this.eventManager.broadcast({
                 name: 'sensorDataListModification',
                 content: 'Deleted an sensorData'
@@ -57,7 +57,7 @@ export class SensorDataDeletePopupComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
             this.modalRef = this.sensorDataPopupService
-                .open(SensorDataDeleteDialogComponent, params['id']);
+                .open(SensorDataDeleteDialogComponent, params['sensorName']);
         });
     }
 

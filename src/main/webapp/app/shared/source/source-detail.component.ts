@@ -27,13 +27,13 @@ export class SourceDetailComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.subscription = this.route.params.subscribe((params) => {
-            this.load(params['id']);
+            this.load(params['sourceName']);
         });
         this.registerChangeInDevices();
     }
 
-    load(id) {
-        this.sourceService.find(id).subscribe((source) => {
+    load(sourceName) {
+        this.sourceService.find(sourceName).subscribe((source) => {
             this.source = source;
         });
     }
@@ -48,6 +48,6 @@ export class SourceDetailComponent implements OnInit, OnDestroy {
 
     registerChangeInDevices() {
         this.eventSubscriber = this.eventManager.subscribe('sourceListModification',
-            (response) => this.load(this.source.id));
+            (response) => this.load(this.source.sourceName));
     }
 }

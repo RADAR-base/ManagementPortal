@@ -256,7 +256,8 @@ public class DeviceTypeResourceIntTest {
         deviceTypeRepository.saveAndFlush(deviceType);
 
         // Get the deviceType
-        restDeviceTypeMockMvc.perform(get("/api/device-types/{id}", deviceType.getId()))
+        restDeviceTypeMockMvc.perform(get("/api/device-types/{prodcuer}/{model}/{version}",
+            deviceType.getDeviceProducer(), deviceType.getDeviceModel(), deviceType.getCatalogVersion()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(deviceType.getId().intValue()))
@@ -269,7 +270,8 @@ public class DeviceTypeResourceIntTest {
     @Transactional
     public void getNonExistingDeviceType() throws Exception {
         // Get the deviceType
-        restDeviceTypeMockMvc.perform(get("/api/device-types/{id}", Long.MAX_VALUE))
+        restDeviceTypeMockMvc.perform(get("/api/device-types/{prodcuer}/{model}/{version}",
+            "does", "not", "exist"))
             .andExpect(status().isNotFound());
     }
 
@@ -329,7 +331,8 @@ public class DeviceTypeResourceIntTest {
         int databaseSizeBeforeDelete = deviceTypeRepository.findAll().size();
 
         // Get the deviceType
-        restDeviceTypeMockMvc.perform(delete("/api/device-types/{id}", deviceType.getId())
+        restDeviceTypeMockMvc.perform(delete("/api/device-types/{prodcuer}/{model}/{version}",
+            deviceType.getDeviceProducer(), deviceType.getDeviceModel(), deviceType.getCatalogVersion())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 

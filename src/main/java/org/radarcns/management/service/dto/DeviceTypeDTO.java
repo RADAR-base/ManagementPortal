@@ -32,6 +32,8 @@ public class DeviceTypeDTO implements Serializable {
 
     private Set<SensorDataDTO> sensorData = new HashSet<>();
 
+    private DeviceTypeId deviceTypeId;
+
     public Long getId() {
         return id;
     }
@@ -85,6 +87,16 @@ public class DeviceTypeDTO implements Serializable {
         this.canRegisterDynamically = canRegisterDynamically;
     }
 
+    public void initId() {
+        this.deviceTypeId = new DeviceTypeId().producer(deviceProducer)
+                                              .model(deviceModel)
+                                              .version(catalogVersion);
+    }
+
+    public DeviceTypeId getDeviceTypeId() {
+        return deviceTypeId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -116,5 +128,41 @@ public class DeviceTypeDTO implements Serializable {
             ", sourceType='" + sourceType + "'" +
             ", canRegisterDynamically='" + canRegisterDynamically + "'" +
             '}';
+    }
+
+    private class DeviceTypeId {
+        private String producer;
+        private String model;
+        private String version;
+
+        public DeviceTypeId() {
+        }
+
+        public DeviceTypeId producer(String producer) {
+            this.producer = producer;
+            return this;
+        }
+
+        public DeviceTypeId model(String model) {
+            this.model = model;
+            return this;
+        }
+
+        public DeviceTypeId version(String version) {
+            this.version = version;
+            return this;
+        }
+
+        public String getProducer() {
+            return producer;
+        }
+
+        public String getModel() {
+            return model;
+        }
+
+        public String getVersion() {
+            return version;
+        }
     }
 }

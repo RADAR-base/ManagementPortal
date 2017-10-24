@@ -19,7 +19,7 @@ export const roleRoute: Routes = [
   //   canActivate: [UserRouteAccessService]
   // },
   {
-    path: 'role/:id',
+    path: 'role/:projectName/:authorityName',
     component: RoleDetailComponent,
     data: {
         authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
@@ -41,7 +41,7 @@ export const rolePopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'role/:id/edit',
+    path: 'role/:projectName/:authorityName/edit',
     component: RolePopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN],

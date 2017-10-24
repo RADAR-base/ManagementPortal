@@ -87,7 +87,7 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
 
     private loadAllFromProject() {
         this.subjectService.findAllByProject({
-            projectId: this.project.id}).subscribe(
+            projectName: this.project.projectName}).subscribe(
             (res: Response) => {
                 this.subjects = res.json();
             },

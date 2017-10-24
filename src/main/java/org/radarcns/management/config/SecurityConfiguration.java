@@ -107,7 +107,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public FilterRegistrationBean jwtAuthenticationFilterRegistration() {
         FilterRegistrationBean registration = new FilterRegistrationBean();
         registration.setFilter(jwtAuthenticationFilter());
-        registration.addUrlPatterns("/api/*");
+        registration.addUrlPatterns("/api/*", "/management/*");
         registration.setName("jwtAuthenticationFilter");
         registration.setOrder(1);
         return registration;

@@ -52,8 +52,8 @@ export class UserService {
         if (req.authority) {
             params.set('authority', req.authority);
         }
-        if (req.projectId) {
-            params.set('projectId', req.projectId);
+        if (req.projectName) {
+            params.set('projectName', req.projectName);
         }
         const options = {
             search: params

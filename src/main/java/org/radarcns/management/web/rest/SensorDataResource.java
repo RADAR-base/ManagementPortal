@@ -107,33 +107,34 @@ public class SensorDataResource {
     }
 
     /**
-     * GET  /sensor-data/:id : get the "id" sensorData.
+     * GET  /sensor-data/:sensorName : get the "sensorName" sensorData.
      *
-     * @param id the id of the sensorDataDTO to retrieve
+     * @param sensorName the sensorName of the sensorDataDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the sensorDataDTO, or with status 404 (Not Found)
      */
-    @GetMapping("/sensor-data/{id}")
+    @GetMapping("/sensor-data/{sensorName}")
     @Timed
-    public ResponseEntity<SensorDataDTO> getSensorData(@PathVariable Long id) {
-        log.debug("REST request to get SensorData : {}", id);
-        checkPermission(getJWT(servletRequest), SENSORDATA_CREATE);
-        SensorDataDTO sensorDataDTO = sensorDataService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(sensorDataDTO));
+    public ResponseEntity<SensorDataDTO> getSensorData(@PathVariable String sensorName) {
+        checkPermission(getJWT(servletRequest), SENSORDATA_READ);
+        return ResponseUtil.wrapOrNotFound(sensorDataService.findOneBySensorName(sensorName));
     }
 
     /**
-     * DELETE  /sensor-data/:id : delete the "id" sensorData.
+     * DELETE  /sensor-data/:sensorName : delete the "sensorName" sensorData.
      *
-     * @param id the id of the sensorDataDTO to delete
+     * @param sensorName the sensorName of the sensorDataDTO to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @DeleteMapping("/sensor-data/{id}")
+    @DeleteMapping("/sensor-data/{sensorName}")
     @Timed
-    public ResponseEntity<Void> deleteSensorData(@PathVariable Long id) {
-        log.debug("REST request to delete SensorData : {}", id);
+    public ResponseEntity<Void> deleteSensorData(@PathVariable String sensorName) {
         checkPermission(getJWT(servletRequest), SENSORDATA_DELETE);
-        sensorDataService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+        Optional<SensorDataDTO> sensorDataDTO = sensorDataService.findOneBySensorName(sensorName);
+        if (!sensorDataDTO.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        sensorDataService.delete(sensorDataDTO.get().getId());
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, sensorName)).build();
     }
 
 }

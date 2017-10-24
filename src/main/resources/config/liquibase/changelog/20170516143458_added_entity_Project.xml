@@ -57,6 +57,10 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liqui
         <dropDefaultValue tableName="project" columnName="start_date" columnDataType="datetime"/>
         <dropDefaultValue tableName="project" columnName="end_date" columnDataType="datetime"/>
 
+        <createIndex tableName="project" indexName="idx_project_name" unique="true">
+            <column name="project_name" type="varchar(255)"/>
+        </createIndex>
+
         <createTable tableName="project_device_type">
             <column name="device_types_id" type="bigint">
                 <constraints nullable="false"/>

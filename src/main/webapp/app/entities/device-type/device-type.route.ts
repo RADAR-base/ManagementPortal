@@ -22,7 +22,7 @@ export const deviceTypeRoute: Routes = [
     },
     canActivate: [UserRouteAccessService]
   }, {
-    path: 'device-type/:id',
+    path: 'device-type/:deviceTypeProducer/:deviceTypeModel/:catalogVersion',
     component: DeviceTypeDetailComponent,
     data: {
         authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],
@@ -44,7 +44,7 @@ export const deviceTypePopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'device-type/:id/edit',
+    path: 'device-type/:deviceTypeProducer/:deviceTypeModel/:catalogVersion/edit',
     component: DeviceTypePopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],
@@ -54,7 +54,7 @@ export const deviceTypePopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'device-type/:id/delete',
+    path: 'device-type/:deviceTypeProducer/:deviceTypeModel/:catalogVersion/delete',
     component: DeviceTypeDeletePopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN ],

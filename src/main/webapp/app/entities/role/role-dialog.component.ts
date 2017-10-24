@@ -53,8 +53,8 @@ export class RoleDialogComponent implements OnInit {
         this.activeModal.dismiss('cancel');
     }
 
-    trackProjectById(index: number, item: Project) {
-        return item.id;
+    trackProjectByName(index: number, item: Project) {
+        return item.projectName;
     }
 
     save() {
@@ -118,9 +118,9 @@ export class RolePopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if ( params['id'] ) {
+            if ( params['projectName'] && params['authorityName'] ) {
                 this.modalRef = this.rolePopupService
-                    .open(RoleDialogComponent, params['id']);
+                    .open(RoleDialogComponent, params['projectName'], params['authorityName']);
             } else {
                 this.modalRef = this.rolePopupService
                     .open(RoleDialogComponent);

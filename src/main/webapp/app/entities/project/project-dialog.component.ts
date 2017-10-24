@@ -117,9 +117,9 @@ export class ProjectPopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if ( params['id'] ) {
+            if ( params['projectName'] ) {
                 this.modalRef = this.projectPopupService
-                    .open(ProjectDialogComponent, params['id']);
+                    .open(ProjectDialogComponent, params['projectName']);
             } else {
                 this.modalRef = this.projectPopupService
                     .open(ProjectDialogComponent);

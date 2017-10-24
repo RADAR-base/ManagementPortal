@@ -22,7 +22,7 @@ export const projectRoute: Routes = [
     },
     canActivate: [UserRouteAccessService]
   }, {
-    path: 'project/:id',
+    path: 'project/:projectName',
     component: ProjectDetailComponent,
     data: {
         authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
@@ -44,7 +44,7 @@ export const projectPopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'project/:id/edit',
+    path: 'project/:projectName/edit',
     component: ProjectPopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
@@ -54,7 +54,7 @@ export const projectPopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'project/:id/delete',
+    path: 'project/:projectName/delete',
     component: ProjectDeletePopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN],

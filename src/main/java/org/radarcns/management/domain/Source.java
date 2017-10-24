@@ -237,10 +237,14 @@ public class Source implements Serializable {
 
     @Override
     public String toString() {
-        return "Source{" + "id=" + id + ", sourceId=" + sourceId + ", sourceName='" + sourceName
-            + '\'' + ", expectedSourceName='" + expectedSourceName + '\'' + ", deviceCategory='"
-            + deviceCategory + '\'' + ", assigned=" + assigned + ", subjects=" + subjects
-            + ", deviceType=" + deviceType + ", project=" + project + ", attributes=" + attributes
-            + '}';
+        return "Source{" +
+            "id=" + id +
+            ", sourceId='" + sourceId + '\'' +
+            ", sourceName='" + sourceName + '\'' +
+            ", deviceCategory='" + deviceCategory + '\'' +
+            ", assigned=" + assigned +
+            ", deviceType=" + deviceType +
+            ", project=" + project +
+            '}';
     }
 }

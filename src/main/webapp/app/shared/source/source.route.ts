@@ -10,7 +10,7 @@ import {PROJECT_ADMIN, SYSTEM_ADMIN} from "../../shared/constants/common.constan
 
 export const sourceRoute: Routes = [
   {
-    path: 'source/:id',
+    path: 'source/:sourceName',
     component: SourceDetailComponent,
     data: {
         authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],
@@ -22,7 +22,7 @@ export const sourceRoute: Routes = [
 
 export const sourcePopupRoute: Routes = [
   {
-    path: 'project-source-new/:projectId',
+    path: 'project-source-new/:projectName',
     component: SourcePopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],
@@ -32,7 +32,7 @@ export const sourcePopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'project-source/:projectId/:id/edit',
+    path: 'project-source/:projectName/:sourceName/edit',
     component: SourcePopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],
@@ -42,7 +42,7 @@ export const sourcePopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'source/:id/delete',
+    path: 'source/:sourceName/delete',
     component: SourceDeletePopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],

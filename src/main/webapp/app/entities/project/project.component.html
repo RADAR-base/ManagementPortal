@@ -31,8 +31,8 @@
             </thead>
             <tbody>
             <tr *ngFor="let project of projects ;trackBy: trackId">
-                <td><a [routerLink]="['../project', project.id ]">{{project.id}}</a></td>
-                <td>{{project.projectName}}</td>
+                <td>{{project.id}}</td>
+                <td><a [routerLink]="['../project', project.projectName ]">{{project.projectName}}</a></td>
                 <td>{{project.description}}</td>
                 <td>{{project.location}}</td>
                 <td>{{project.startDate | date:'medium'}}</td>
@@ -57,20 +57,20 @@
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"
-                                [routerLink]="['../project', project.id ]"
+                                [routerLink]="['../project', project.projectName ]"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
                         </button>
                         <button type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'project/'+ project.id + '/edit'} }]"
+                                [routerLink]="['/', { outlets: { popup: 'project/'+ project.projectName + '/edit'} }]"
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
                         </button>
                         <button type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'project/'+ project.id + '/delete'} }]"
+                                [routerLink]="['/', { outlets: { popup: 'project/'+ project.projectName + '/delete'} }]"
                                 replaceUrl="true"
                                 class="btn btn-danger btn-sm">
                             <span class="fa fa-remove"></span>

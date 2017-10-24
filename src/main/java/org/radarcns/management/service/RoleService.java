@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -119,12 +120,19 @@ public class RoleService {
         roleRepository.delete(id);
     }
 
-    public List<RoleDTO> getRolesByProject(Long projectId) {
-        log.debug("Request to get all Roles for projectId " +projectId);
-        List<RoleDTO> result = roleRepository.findAllRolesByProjectId(projectId).stream()
+    public List<RoleDTO> getRolesByProject(String projectName) {
+        log.debug("Request to get all Roles for projectId " + projectName);
+        List<RoleDTO> result = roleRepository.findAllRolesByProjectName(projectName).stream()
             .map(roleMapper::roleToRoleDTO)
             .collect(Collectors.toCollection(LinkedList::new));
 
         return result;
+    }
+
+    public Optional<RoleDTO> findOneByProjectNameAndAuthorityName(String projectName,
+        String authorityName) {
+        log.debug("Request to get role of project {} and authority {}", projectName, authorityName);
+        return roleRepository.findOneByProjectNameAndAuthorityName(projectName, authorityName)
+            .map(roleMapper::roleToRoleDTO);
     }
 }

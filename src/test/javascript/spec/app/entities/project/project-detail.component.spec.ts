@@ -27,7 +27,7 @@ describe('Component Tests', () => {
                     DatePipe,
                     {
                         provide: ActivatedRoute,
-                        useValue: new MockActivatedRoute({id: 123})
+                        useValue: new MockActivatedRoute({projectName: 'testProject'})
                     },
                     ProjectService,
                     EventManager
@@ -56,7 +56,7 @@ describe('Component Tests', () => {
             comp.ngOnInit();
 
             // THEN
-            expect(service.find).toHaveBeenCalledWith(123);
+            expect(service.find).toHaveBeenCalledWith('testProject');
             expect(comp.project).toEqual(jasmine.objectContaining({id:10}));
             });
         });

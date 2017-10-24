@@ -1,6 +1,6 @@
 
 <div *ngIf="source">
-    <h2><span jhiTranslate="managementPortalApp.source.detail.title">Source</span> {{source.id}}</h2>
+    <h2><span jhiTranslate="managementPortalApp.source.detail.title">Source</span> {{source.sourceName}}</h2>
     <hr>
     <jhi-alert-error></jhi-alert-error>
     <dl class="row-md jh-entity-details">
@@ -23,13 +23,13 @@
         <dt><span jhiTranslate="managementPortalApp.source.deviceType">Device Type</span></dt>
         <dd>
             <div *ngIf="source.deviceType">
-                <a [routerLink]="['/device-type', source.deviceType?.id]">{{source.deviceType.deviceModel}}</a>
+                <a [routerLink]="['/device-type', source.deviceType?.deviceProducer, source.deviceType?.deviceModel, source.deviceType?.catalogVersion]">{{source.deviceType.deviceModel}}</a>
             </div>
         </dd>
         <dt><span jhiTranslate="managementPortalApp.source.project">Project</span></dt>
         <dd>
             <div *ngIf="source.project">
-                <a [routerLink]="['/project', source.project?.id]">{{source.project.projectName}}</a>
+                <a [routerLink]="['/project', source.project?.projectName]">{{source.project.projectName}}</a>
             </div>
         </dd>
     </dl>

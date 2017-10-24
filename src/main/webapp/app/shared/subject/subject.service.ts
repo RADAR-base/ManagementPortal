@@ -7,6 +7,7 @@ import { Subject } from './subject.model';
 export class SubjectService {
 
     private resourceUrl = 'api/subjects';
+    private projectResourceUrl = 'api/projects';
 
     constructor(private http: Http) { }
 
@@ -64,12 +65,9 @@ export class SubjectService {
 
     findAllByProject(req ?: any) : Observable<Response> {
         const params: URLSearchParams = new URLSearchParams();
-        if (req) {
-            params.set('projectId', req.projectId);
-        }
         const options = {
             search: params
         };
-        return this.http.get(this.resourceUrl, options);
+        return this.http.get(`${this.projectResourceUrl}/${req.projectName}/subjects`, options);
     }
 }

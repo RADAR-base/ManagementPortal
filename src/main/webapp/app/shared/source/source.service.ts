@@ -26,8 +26,8 @@ export class SourceService {
         });
     }
 
-    find(id: number): Observable<Source> {
-        return this.http.get(`${this.resourceUrl}/${id}`).map((res: Response) => {
+    find(name: string): Observable<Source> {
+        return this.http.get(`${this.resourceUrl}/${name}`).map((res: Response) => {
             return res.json();
         });
     }
@@ -38,8 +38,8 @@ export class SourceService {
         ;
     }
 
-    delete(id: number): Observable<Response> {
-        return this.http.delete(`${this.resourceUrl}/${id}`);
+    delete(sourceName: string): Observable<Response> {
+        return this.http.delete(`${this.resourceUrl}/${sourceName}`);
     }
     private createRequestOption(req?: any): BaseRequestOptions {
         const options: BaseRequestOptions = new BaseRequestOptions();
@@ -59,13 +59,10 @@ export class SourceService {
 
     findAllByProject(req?: any) :  Observable<Response> {
         const params: URLSearchParams = new URLSearchParams();
-        if (req) {
-            params.set('projectId', req.projectId);
-        }
         const options = {
             search: params
         };
-        return this.http.get(this.resourceUrl, options);
+        return this.http.get(`${this.projectResourceUrl}/${req.projectName}/sources`, options);
     }
 
     findAvailable(req?: any): Observable<Response> {
@@ -76,6 +73,6 @@ export class SourceService {
         const options = {
             search: params
         };
-        return this.http.get(`${this.projectResourceUrl}/${req.projectId}/sources` , options);
+        return this.http.get(`${this.projectResourceUrl}/${req.projectName}/sources` , options);
     }
 }

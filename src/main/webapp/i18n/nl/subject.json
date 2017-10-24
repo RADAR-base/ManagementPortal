@@ -42,6 +42,7 @@
                 "availableSources" : "Beschikbaar sources",
                 "deviceType": "Device type",
                 "sourceId": "Source ID",
+                "sourceName": "Source Naam",
                 "expectedSourceName": "Fysiek ID"
             },
             "clientApp": "Client app",

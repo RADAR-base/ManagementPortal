@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -72,6 +73,19 @@ public class SensorDataService {
         SensorData sensorData = sensorDataRepository.findOne(id);
         SensorDataDTO sensorDataDTO = sensorDataMapper.sensorDataToSensorDataDTO(sensorData);
         return sensorDataDTO;
+    }
+
+    /**
+     *  Get one sensorData by name.
+     *
+     *  @param sensorName the sensorName of the entity
+     *  @return the entity
+     */
+    @Transactional(readOnly = true)
+    public Optional<SensorDataDTO> findOneBySensorName(String sensorName) {
+        log.debug("Request to get SensorData : {}", sensorName);
+        return sensorDataRepository.findOneBySensorName(sensorName)
+            .map(sensorDataMapper::sensorDataToSensorDataDTO);
     }
 
     /**

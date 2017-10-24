@@ -276,7 +276,7 @@ public class ProjectResourceIntTest {
         projectRepository.saveAndFlush(project);
 
         // Get the project
-        restProjectMockMvc.perform(get("/api/projects/{id}", project.getId()))
+        restProjectMockMvc.perform(get("/api/projects/{projectName}", project.getProjectName()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(project.getId().intValue()))
@@ -364,7 +364,7 @@ public class ProjectResourceIntTest {
         int databaseSizeBeforeDelete = projectRepository.findAll().size();
 
         // Get the project
-        restProjectMockMvc.perform(delete("/api/projects/{id}", project.getId())
+        restProjectMockMvc.perform(delete("/api/projects/{projectName}", project.getProjectName())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 

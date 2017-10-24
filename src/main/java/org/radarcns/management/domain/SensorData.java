@@ -39,7 +39,7 @@ public class SensorData implements Serializable {
 
     //Sensor name.
     @NotNull
-    @Column(name = "sensor_name", nullable = false)
+    @Column(name = "sensor_name", nullable = false, unique = true)
     private String sensorName;
 
     //Default data frequency

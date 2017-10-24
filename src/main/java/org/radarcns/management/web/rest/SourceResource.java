@@ -140,38 +140,42 @@ public class SourceResource {
     }
 
     /**
-     * GET  /sources/:id : get the "id" source.
+     * GET  /sources/:sourceName : get the source with this sourceName
      *
-     * @param id the id of the sourceDTO to retrieve
+     * @param sourceName the name of the sourceDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the sourceDTO, or with status 404 (Not Found)
      */
-    @GetMapping("/sources/{id}")
+    @GetMapping("/sources/{sourceName}")
     @Timed
-    public ResponseEntity<SourceDTO> getSource(@PathVariable Long id) {
-        log.debug("REST request to get Source : {}", id);
+    public ResponseEntity<SourceDTO> getSource(@PathVariable String sourceName) {
+        log.debug("REST request to get Source : {}", sourceName);
         checkPermission(getJWT(servletRequest), SOURCE_READ);
-        SourceDTO sourceDTO = sourceService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(sourceDTO));
+        return ResponseUtil.wrapOrNotFound(sourceService.findOneByName(sourceName));
     }
 
     /**
-     * DELETE  /sources/:id : delete the "id" source.
+     * DELETE  /sources/:sourceName : delete the "id" source.
      *
-     * @param id the id of the sourceDTO to delete
+     * @param sourceName the id of the sourceDTO to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @DeleteMapping("/sources/{id}")
+    @DeleteMapping("/sources/{sourceName}")
     @Timed
-    public ResponseEntity<Void> deleteSource(@PathVariable Long id) {
-        log.debug("REST request to delete Source : {}", id);
+    public ResponseEntity<Void> deleteSource(@PathVariable String sourceName) {
+        log.debug("REST request to delete Source : {}", sourceName);
         checkPermission(getJWT(servletRequest), SOURCE_DELETE);
-        if (sourceRepository.findOne(id).isAssigned()) {
+        Optional<SourceDTO> sourceDTO = sourceService.findOneByName(sourceName);
+        if (!sourceDTO.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        if (sourceDTO.get().getAssigned()) {
             return ResponseEntity.badRequest()
                 .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceIsAssigned", "Cannot delete an assigned source"))
                 .body(null);
         }
-        sourceService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+        sourceService.delete(sourceDTO.get().getId());
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, sourceName))
+            .build();
     }
 
 }

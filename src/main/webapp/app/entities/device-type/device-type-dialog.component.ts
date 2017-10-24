@@ -86,7 +86,7 @@ export class DeviceTypeDialogComponent implements OnInit {
     }
 
     trackProjectById(index: number, item: Project) {
-        return item.id;
+        return item.projectName;
     }
 
     getSelected(selectedVals: Array<any>, option: any) {
@@ -117,9 +117,9 @@ export class DeviceTypePopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if ( params['id'] ) {
+            if ( params['deviceTypeProducer'] &&  params['deviceTypeModel'] && params['catalogVersion']) {
                 this.modalRef = this.deviceTypePopupService
-                    .open(DeviceTypeDialogComponent, params['id']);
+                    .open(DeviceTypeDialogComponent, params['deviceTypeProducer'], params['deviceTypeModel'], params['catalogVersion']);
             } else {
                 this.modalRef = this.deviceTypePopupService
                     .open(DeviceTypeDialogComponent);

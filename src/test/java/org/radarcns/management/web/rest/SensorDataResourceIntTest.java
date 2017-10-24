@@ -209,7 +209,7 @@ public class SensorDataResourceIntTest {
         sensorDataRepository.saveAndFlush(sensorData);
 
         // Get the sensorData
-        restSensorDataMockMvc.perform(get("/api/sensor-data/{id}", sensorData.getId()))
+        restSensorDataMockMvc.perform(get("/api/sensor-data/{sensorName}", sensorData.getSensorName()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(sensorData.getId().intValue()))
@@ -223,7 +223,8 @@ public class SensorDataResourceIntTest {
     @Transactional
     public void getNonExistingSensorData() throws Exception {
         // Get the sensorData
-        restSensorDataMockMvc.perform(get("/api/sensor-data/{id}", Long.MAX_VALUE))
+        restSensorDataMockMvc.perform(get("/api/sensor-data/{sensorName}", DEFAULT_SENSOR_NAME +
+            DEFAULT_SENSOR_NAME))
             .andExpect(status().isNotFound());
     }
 
@@ -285,7 +286,7 @@ public class SensorDataResourceIntTest {
         int databaseSizeBeforeDelete = sensorDataRepository.findAll().size();
 
         // Get the sensorData
-        restSensorDataMockMvc.perform(delete("/api/sensor-data/{id}", sensorData.getId())
+        restSensorDataMockMvc.perform(delete("/api/sensor-data/{sensorName}", sensorData.getSensorName())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 

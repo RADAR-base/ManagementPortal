@@ -17,7 +17,7 @@ export class SubjectPopupService {
 
     ) {}
 
-    open(component: Component, login?: string | any , isDelete?: boolean , projectId?: number | any): NgbModalRef {
+    open(component: Component, login?: string, isDelete?: boolean , projectName?: string): NgbModalRef {
         if (this.isOpen) {
             return;
         }
@@ -28,8 +28,8 @@ export class SubjectPopupService {
                 this.subjectModalRef(component, subject , isDelete );
             });
         } else {
-            if(projectId) {
-                this.projectService.find(projectId).subscribe((project) => {
+            if(projectName) {
+                this.projectService.find(projectName).subscribe((project) => {
                     var subject = new Subject();
                     subject.project = project;
                     return this.subjectModalRef(component, subject , isDelete);

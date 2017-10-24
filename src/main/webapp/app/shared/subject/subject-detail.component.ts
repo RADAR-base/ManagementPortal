@@ -47,6 +47,6 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
     }
 
     registerChangeInSubjects() {
-        this.eventSubscriber = this.eventManager.subscribe('subjectListModification', (response) => this.load(this.subject.id));
+        this.eventSubscriber = this.eventManager.subscribe('subjectListModification', (response) => this.load(this.subject.login));
     }
 }

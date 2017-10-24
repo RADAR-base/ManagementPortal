@@ -21,7 +21,7 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liqui
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="sensor_name" type="varchar(255)">
-                <constraints nullable="false" />
+                <constraints unique="true" nullable="false" />
             </column>
 
             <column name="frequency" type="varchar(255)">
@@ -65,6 +65,10 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liqui
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
+
+        <createIndex tableName="sensor_data" indexName="idx_sensor_name" unique="true">
+            <column name="sensor_name" type="varchar(255)"/>
+        </createIndex>
 
     </changeSet>
 </databaseChangeLog>

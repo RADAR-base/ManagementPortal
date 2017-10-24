@@ -49,7 +49,7 @@ projects: Project[];
     }
 
     trackId(index: number, item: Project) {
-        return item.id;
+        return item.projectName;
     }
     registerChangeInProjects() {
         this.eventSubscriber = this.eventManager.subscribe('projectListModification', (response) => this.loadAll());

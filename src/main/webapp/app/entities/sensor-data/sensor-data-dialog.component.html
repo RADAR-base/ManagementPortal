@@ -13,8 +13,8 @@
                    [(ngModel)]="sensorData.id" readonly />
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sensorData.sensorName" for="field_sensorType">Sensor Type</label>
-            <input type="text" class="form-control" name="sensorName" id="field_sensorType"
+            <label class="form-control-label" jhiTranslate="managementPortalApp.sensorData.sensorName" for="field_sensorName">Sensor Name</label>
+            <input type="text" class="form-control" name="sensorName" id="field_sensorName"
                 [(ngModel)]="sensorData.sensorName"
             required />
             <div [hidden]="!(editForm.controls.sensorName?.dirty && editForm.controls.sensorName?.invalid)">

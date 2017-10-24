@@ -30,7 +30,7 @@ export const sourcePopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'general-source/:id/edit',
+    path: 'general-source/:sourceName/edit',
     component: GeneralSourcePopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN , PROJECT_ADMIN],

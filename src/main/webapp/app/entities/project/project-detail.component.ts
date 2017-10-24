@@ -38,15 +38,15 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.subscription = this.route.params.subscribe((params) => {
-            this.load(params['id']);
+            this.load(params['projectName']);
         });
         this.registerChangeInProjects();
         this.viewSubjects();
         // this.sourceComponent.ngOnInit();
     }
 
-    load(id) {
-        this.projectService.find(id).subscribe((project) => {
+    load(projectName) {
+        this.projectService.find(projectName).subscribe((project) => {
             this.project = project;
         });
     }
@@ -60,7 +60,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     }
 
     registerChangeInProjects() {
-        this.eventSubscriber = this.eventManager.subscribe('projectListModification', (response) => this.load(this.project.id));
+        this.eventSubscriber = this.eventManager.subscribe('projectListModification', (response) => this.load(this.project.projectName));
     }
 
     viewSources() {

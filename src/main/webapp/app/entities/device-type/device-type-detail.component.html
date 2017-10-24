@@ -1,6 +1,7 @@
 
 <div *ngIf="deviceType">
-    <h2><span jhiTranslate="managementPortalApp.deviceType.detail.title">Device Type</span> {{deviceType.id}}</h2>
+    <h2><span jhiTranslate="managementPortalApp.deviceType.detail.title">Device Type</span> {{deviceType.deviceProducer}}
+    {{deviceType.deviceModel}} ({{deviceType.catalogVersion}}) </h2>
     <hr>
     <jhi-alert-error></jhi-alert-error>
     <dl class="row-md jh-entity-details">
@@ -23,7 +24,7 @@
         <dt><span jhiTranslate="managementPortalApp.deviceType.sensorData">Sensor Data</span></dt>
         <dd>
             <span *ngFor="let sensorData of deviceType.sensorData; let last = last">
-                <a [routerLink]="['/sensor-data', sensorData?.id ]">{{sensorData.sensorName}}</a>{{last ? '' : ', '}}
+                <a [routerLink]="['/sensor-data', sensorData?.sensorName ]">{{sensorData.sensorName}}</a>{{last ? '' : ', '}}
             </span>
         </dd>
     </dl>

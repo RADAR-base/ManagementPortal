@@ -13,14 +13,14 @@ export class RolePopupService {
 
     ) {}
 
-    open(component: Component, id?: number | any): NgbModalRef {
+    open(component: Component, projectName?: string, authorityName?: string): NgbModalRef {
         if (this.isOpen) {
             return;
         }
         this.isOpen = true;
 
-        if (id) {
-            this.roleService.find(id).subscribe((role) => {
+        if (projectName && authorityName) {
+            this.roleService.find(projectName, authorityName).subscribe((role) => {
                 this.roleModalRef(component, role);
             });
         } else {

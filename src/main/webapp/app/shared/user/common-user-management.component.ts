@@ -65,7 +65,7 @@ export class CommonUserMgmtComponent implements OnInit, OnChanges{
        if(this.project && this.authority) {
            this.userService.findByProjectAndAuthority(
                {
-                   projectId: this.project.id ,
+                   projectName: this.project.projectName ,
                    authority: this.authority,
                }
                ).subscribe(

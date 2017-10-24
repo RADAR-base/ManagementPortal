@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -118,8 +119,8 @@ public class SubjectService {
     private Role getProjectParticipantRole(ProjectDTO projectDTO) {
 
         Role role = roleRepository
-            .findOneByAuthorityNameAndProjectId(AuthoritiesConstants.PARTICIPANT,
-                projectDTO.getId());
+            .findOneByProjectIdAndAuthorityName(projectDTO.getId(),
+                AuthoritiesConstants.PARTICIPANT);
         if (role != null) {
             return role;
         } else {
@@ -168,17 +169,27 @@ public class SubjectService {
 
     public SubjectDTO discontinueSubject(SubjectDTO subjectDTO) {
         Subject subject = subjectRepository.findOne(subjectDTO.getId());
-        //reset all the sources assigned to a subject to unassigned
-        for (Source source : subject.getSources()) {
-            source.setAssigned(false);
-            sourceRepository.save(source);
-        }
+        // reset all the sources assigned to a subject to unassigned
+        unassignAllSources(subject);
 
         // set the removed flag and deactivate the user to prevent them from refreshing their
         // access token
         subject.setRemoved(true);
         subject.getUser().setActivated(false);
         return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subject));
+    }
+
+    /**
+     * Unassign all sources from a subject. This method saves the unassigned sources, but does
+     * NOT save the subject in question. This is the responsibility of the caller.
+     * @param subject The subject for which to unassign all sources
+     */
+    private void unassignAllSources(Subject subject) {
+        subject.getSources().forEach(source -> {
+            source.setAssigned(false);
+            sourceRepository.save(source);
+        });
+        subject.getSources().clear();
     }
 
     /**
@@ -282,9 +293,10 @@ public class SubjectService {
     }
 
     public void deleteSubject(String login) {
-        subjectRepository.findOneWithEagerBySubjectLogin(login).ifPresent(user -> {
-            subjectRepository.delete(user);
-                log.debug("Deleted User: {}", user);
+        subjectRepository.findOneWithEagerBySubjectLogin(login).ifPresent(subject -> {
+            unassignAllSources(subject);
+            subjectRepository.delete(subject);
+                log.debug("Deleted Subject: {}", subject);
             });
     }
 }
