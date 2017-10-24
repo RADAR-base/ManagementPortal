@@ -185,12 +185,11 @@ public class SubjectService {
      * @param subject The subject for which to unassign all sources
      */
     private void unassignAllSources(Subject subject) {
-        for (Iterator<Source> iterator = subject.getSources().iterator(); iterator.hasNext();) {
-            Source source = iterator.next();
+        subject.getSources().forEach(source -> {
             source.setAssigned(false);
-            subject.removeSources(source);
             sourceRepository.save(source);
-        }
+        });
+        subject.getSources().clear();
     }
 
     /**

@@ -13,7 +13,7 @@ export class GeneralSourcePopupService {
 
     ) {}
 
-    open(component: Component, sourceName?: string | any): NgbModalRef {
+    open(component: Component, sourceName?: string): NgbModalRef {
         if (this.isOpen) {
             return;
         }

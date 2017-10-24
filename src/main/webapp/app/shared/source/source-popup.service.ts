@@ -15,7 +15,7 @@ export class SourcePopupService {
 
     ) {}
 
-    open(component: Component, sourceName?: string | any , projectName ?: string | any): NgbModalRef {
+    open(component: Component, sourceName?: string, projectName ?: string): NgbModalRef {
         if (this.isOpen) {
             return;
         }

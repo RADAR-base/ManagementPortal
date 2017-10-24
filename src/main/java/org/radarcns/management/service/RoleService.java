@@ -120,9 +120,9 @@ public class RoleService {
         roleRepository.delete(id);
     }
 
-    public List<RoleDTO> getRolesByProject(Long projectId) {
-        log.debug("Request to get all Roles for projectId " +projectId);
-        List<RoleDTO> result = roleRepository.findAllRolesByProjectId(projectId).stream()
+    public List<RoleDTO> getRolesByProject(String projectName) {
+        log.debug("Request to get all Roles for projectId " + projectName);
+        List<RoleDTO> result = roleRepository.findAllRolesByProjectName(projectName).stream()
             .map(roleMapper::roleToRoleDTO)
             .collect(Collectors.toCollection(LinkedList::new));
 

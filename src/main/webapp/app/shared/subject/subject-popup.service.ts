@@ -17,7 +17,7 @@ export class SubjectPopupService {
 
     ) {}
 
-    open(component: Component, login?: string | any , isDelete?: boolean , projectName?: string | any): NgbModalRef {
+    open(component: Component, login?: string, isDelete?: boolean , projectName?: string): NgbModalRef {
         if (this.isOpen) {
             return;
         }

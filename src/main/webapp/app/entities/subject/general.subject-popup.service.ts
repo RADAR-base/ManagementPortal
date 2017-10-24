@@ -13,7 +13,7 @@ export class GeneralSubjectPopupService {
 
     ) {}
 
-    open(component: Component, login?: number | any , isDelete?: boolean): NgbModalRef {
+    open(component: Component, login?: string, isDelete?: boolean): NgbModalRef {
         if (this.isOpen) {
             return;
         }

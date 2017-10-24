@@ -57,5 +57,9 @@
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
 
+        <createIndex tableName="radar_source" indexName="idx_source_name" unique="true">
+            <column name="source_name" type="varchar(255)"/>
+        </createIndex>
+
     </changeSet>
 </databaseChangeLog>

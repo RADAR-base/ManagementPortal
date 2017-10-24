@@ -66,5 +66,9 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liqui
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
 
+        <createIndex tableName="sensor_data" indexName="idx_sensor_name" unique="true">
+            <column name="sensor_name" type="varchar(255)"/>
+        </createIndex>
+
     </changeSet>
 </databaseChangeLog>

@@ -201,12 +201,12 @@ public class ProjectResource {
     @GetMapping("/projects/{projectName}/roles")
     @Timed
     public List<RoleDTO> getRolesByProject(@PathVariable String projectName) {
-        log.debug("REST request to get all Roles for this project");
+        log.debug("REST request to get all Roles for project {}", projectName);
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
             checkPermissionOnProject(getJWT(servletRequest), ROLE_READ, projectDTO.getProjectName());
         }
-        return roleService.getRolesByProject(projectDTO.getId());
+        return roleService.getRolesByProject(projectName);
     }
 
     /**

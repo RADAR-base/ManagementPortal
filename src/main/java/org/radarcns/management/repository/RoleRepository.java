@@ -30,6 +30,7 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     Optional<Role> findOneByProjectNameAndAuthorityName(@Param("projectName") String projectName,
         @Param("authorityName") String authorityName);
 
-    @Query("select role from Role role left join fetch role.authority where role.project.id =:projectId")
-    List<Role>  findAllRolesByProjectId(@Param("projectId") Long projectId);
+    @Query("select role from Role role left join fetch role.authority where role.project"
+        + ".projectName = :projectName")
+    List<Role> findAllRolesByProjectName(@Param("projectName") String projectName);
 }
