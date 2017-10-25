@@ -102,8 +102,7 @@ describe('Project e2e test', () => {
             .all(by.cssContainingText('button', 'Delete'))
             .click().then(() => {
                 element(by.cssContainingText('.modal-footer button', 'Delete')).click().then(() => {
-                    expect(element.all(by.name('deleteForm'))
-                        .all(by.cssContainingText('.alert-danger pre', deleteErrMessage)).first().isDisplayed()).toBeTruthy();
+                    // if the delete succeeded the dialog will be disappeared and no Cancel button will be here anymore
                     element(by.buttonText('Cancel')).click();
                 });
             });
