@@ -103,7 +103,7 @@ describe('Project e2e test', () => {
             .click().then(() => {
                 element(by.cssContainingText('.modal-footer button', 'Delete')).click().then(() => {
                     expect(element.all(by.name('deleteForm'))
-                        .all(by.cssContainingText('.alert-danger', deleteErrMessage)).first().isDisplayed()).toBeTruthy();
+                        .all(by.cssContainingText('.alert-danger pre', deleteErrMessage)).first().isDisplayed()).toBeTruthy();
                     element(by.buttonText('Cancel')).click();
                 });
             });
