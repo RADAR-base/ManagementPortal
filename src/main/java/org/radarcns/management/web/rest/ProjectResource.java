@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.authorization.Permission;
+import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.SecurityUtils;
@@ -16,6 +17,7 @@ import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
+import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
@@ -80,6 +82,9 @@ public class ProjectResource {
 
     @Autowired
     private SourceService sourceService;
+
+    @Autowired
+    private SourceMapper sourceMapper;
 
     /**
      * POST  /projects : Create a new project.
@@ -216,17 +221,35 @@ public class ProjectResource {
      */
     @GetMapping("/projects/{projectName}/sources")
     @Timed
-    public List<SourceDTO> getAllSourcesForProject(@PathVariable String projectName,
-            @RequestParam(value = "assigned", required = false) Boolean assigned) {
+    public ResponseEntity getAllSourcesForProject(@PathVariable String projectName,
+            @RequestParam(value = "assigned", required = false) Boolean assigned,
+            @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
+            minimized) {
         log.debug("REST request to get all Sources");
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
             checkPermissionOnProject(getJWT(servletRequest), SOURCE_READ, projectDTO.getProjectName());
         }
+        
         if(Objects.nonNull(assigned)) {
-            return sourceService.findAllByProjectAndAssigned(projectDTO.getId(), assigned);
+            if (minimized) {
+                return ResponseEntity.ok(sourceService
+                    .findAllMinimalSourceDetailsByProjectAndAssigned(projectDTO.getId(), assigned));
+            }
+            else {
+                return ResponseEntity.ok(sourceService
+                    .findAllByProjectAndAssigned(projectDTO.getId(), assigned));
+            }
         }
-        return sourceService.findAllByProjectId(projectDTO.getId());
+        else {
+            if (minimized) {
+                return ResponseEntity.ok(sourceService.findAllMinimalSourceDetailsByProject
+                    (projectDTO.getId()));
+            }
+            else {
+                return ResponseEntity.ok(sourceService.findAllByProjectId(projectDTO.getId()));
+            }
+        }
     }
 
     @GetMapping("/projects/{projectName}/subjects")

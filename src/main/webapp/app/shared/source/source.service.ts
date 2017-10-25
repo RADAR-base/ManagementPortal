@@ -70,6 +70,7 @@ export class SourceService {
         if (req) {
             params.set('assigned', req.assigned);
         }
+        params.set('minimized', 'true');
         const options = {
             search: params
         };
