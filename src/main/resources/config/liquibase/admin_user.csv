@@ -1,0 +1,2 @@
+"ID";"LOGIN";"PASSWORD_HASH";"FIRST_NAME";"LAST_NAME";"EMAIL";"ACTIVATED";"LANG_KEY";"CREATED_BY";"LAST_MODIFIED_BY"
+1;admin;$2a$10$gSAhZrxMllrbgj/kkK9UceBPpChGWJA7SYIb1Mqo.n5aNLq1/oRrC;Administrator;Administrator;admin@localhost;true;en;system;system

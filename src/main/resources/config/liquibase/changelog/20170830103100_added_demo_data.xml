@@ -16,8 +16,25 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-
     <changeSet id="201708301031-1" author="dverbeec@its.jnj.com">
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/admin_user.csv"
+                  separator=";"
+                  tableName="radar_user">
+            <column name="activated" type="boolean"/>
+            <column name="created_date" type="timestamp"/>
+        </loadData>
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/admin_role.csv"
+                  separator=";"
+                  tableName="radar_role"/>
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/admin_role_user.csv"
+                  separator=";"
+                  tableName="role_users"/>
+    </changeSet>
+
+    <changeSet id="201708301031-2" author="dverbeec@its.jnj.com" context="dev, test">
         <loadData encoding="UTF-8"
                   file="config/liquibase/project.csv"
                   separator=";"

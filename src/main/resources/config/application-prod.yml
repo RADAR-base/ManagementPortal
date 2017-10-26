@@ -22,10 +22,10 @@ spring:
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
         driverClassName: org.postgresql.Driver
-        url: jdbc:postgresql://localhost:5432/managementportal
+        url: jdbc:postgresql://192.168.56.101:5432/mp
 #        name: managementportal
-        username: <username>
-        password: <password>
+        username: mp
+        password: secret
 #        hikari:
 #            data-source-properties:
 #                cachePrepStmts: true
