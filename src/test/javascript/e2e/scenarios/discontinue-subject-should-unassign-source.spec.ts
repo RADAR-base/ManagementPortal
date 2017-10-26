@@ -24,12 +24,12 @@ describe('Create, assign, unassign and delete source', () => {
 
     it('should load project view', function () {
         projectMenu.click();
-        element.all(by.partialLinkText('radar')).first().click().then(() => {
-            expect(element(by.className('status-header')).getText()).toMatch('RADAR');
-            // expect 3 subjects in this table
-            element.all(by.css('subjects tbody tr')).count().then(function(count) {
-                expect(count).toEqual(3);
-            });
+        element.all(by.partialLinkText('radar')).first().click();
+    });
+
+    it('should be able to create a subject', function () {
+        element(by.buttonText('Create a new Subject')).click().then(() => {
+            element(by.buttonText('Save')).click();
         });
     });
 
@@ -53,7 +53,10 @@ describe('Create, assign, unassign and delete source', () => {
 
     it('should be able to assign a source', function () {
         element(by.cssContainingText('li', 'Subjects')).click().then(() => {
-            element.all(by.cssContainingText('subjects tbody tr button', 'Pair Sources')).first().click().then(() => {
+            // find a row which contains a uuid
+            const row = element.all(by.xpath('//tr/td')).filter(el => el.getText().then((text) => text.match(/[a-z0-9\-]{36}/) != null)).first()
+                .element(by.xpath('ancestor::tr'));
+            row.element(by.buttonText('Pair Sources')).click().then(() => {
                 // first table lists assigned sources, this should be empty
                 element.all(by.css('source-assigner tbody')).get(0).all(by.css('tr')).then(function(rows) {
                     expect(rows.length).toEqual(0);
@@ -94,58 +97,53 @@ describe('Create, assign, unassign and delete source', () => {
         });
     });
 
-    it('should not be able to delete an assigned source', function () {
+    it('should be able to discontinue a subject', function () {
+        element(by.cssContainingText('li', 'Subjects')).click().then(() => {
+            // find a row which contains a uuid
+            const row = element.all(by.xpath('//tr/td')).filter(el => el.getText().then((text) => text.match(/[a-z0-9\-]{36}/) != null)).first()
+                .element(by.xpath('ancestor::tr'));
+            row.element(by.buttonText('Discontinue')).click().then(() => {
+                expect(element(by.css('h4.modal-title')).getAttribute('jhitranslate')).toMatch('managementPortalApp.subject.discontinue.title');
+                element(by.name('deleteForm')).element(by.buttonText('Discontinue')).click();
+            });
+        });
+    });
+
+    it('should show the source as unassigned', function () {
+        element(by.cssContainingText('li', 'Sources')).click().then(() => {
+            element.all(by.linkText(sourceName))
+                .all(by.xpath('ancestor::tr'))
+                .all(by.cssContainingText('.badge-danger', 'Unassigned'))
+                .count().then(function (count) {
+                    expect(count).toBe(1);
+                });
+        });
+    });
+
+    it('should be able to delete a source', function () {
         element.all(by.linkText(sourceName))
             .all(by.xpath('ancestor::tr'))
             .all(by.cssContainingText('button', 'Delete'))
             .click().then(() => {
                 element(by.cssContainingText('.modal-footer button', 'Delete')).click().then(() => {
-                    // if the delete succeeded the dialog will be disappeared and no Cancel button will be here anymore
-                    element(by.buttonText('Cancel')).click();
+                    element.all(by.css('sources tbody tr')).count().then(function (count) {
+                        expect(count).toBe(0);
+                    });
                 });
             });
     });
 
-    it('should be able to unassign a source', function () {
+    it('should be able to delete a subject', function () {
         element(by.cssContainingText('li', 'Subjects')).click().then(() => {
-            element.all(by.cssContainingText('subjects td a', sourceName))
-            .all(by.xpath('ancestor::tr'))
-            .all(by.cssContainingText('button', 'Pair Sources')).first().click().then(() => {
-                element(by.cssContainingText('button', 'Remove')).click().then(() => {
-                    browser.waitForAngular();
-                    // source should be moved back to available sources table
-                    element.all(by.css('source-assigner tbody')).get(0).all(by.css('tr')).then(function(rows) {
-                        expect(rows.length).toEqual(0);
-                    });
-                    element.all(by.css('source-assigner tbody')).get(1).all(by.css('tr')).then(function(rows) {
-                        expect(rows.length).toEqual(1);
-                    });
-                    element(by.cssContainingText('button', 'Save')).click().then(() => {
-                        browser.waitForAngular();
-                        // check that we have no cells in the subjects table containing the sourceName
-                        element.all(by.cssContainingText('subjects td', sourceName)).count().then(function(count) {
-                            expect(count).toBe(0);
-                        });
-                    });
-                });
+            // find a row which contains a uuid
+            const row = element.all(by.xpath('//tr/td')).filter(el => el.getText().then((text) => text.match(/[a-z0-9\-]{36}/) != null)).first()
+                .element(by.xpath('ancestor::tr'));
+            row.element(by.buttonText('Delete')).click().then(() => {
+                expect(element(by.css('h4.modal-title')).getAttribute('jhitranslate')).toMatch('entity.delete.title');
+                element(by.name('deleteForm')).element(by.buttonText('Delete')).click();
             });
         });
     });
-
-    it('should be able to delete a source', function () {
-        element(by.cssContainingText('li', 'Sources')).click().then(() => {
-            element.all(by.linkText(sourceName))
-                .all(by.xpath('ancestor::tr'))
-                .all(by.cssContainingText('button', 'Delete'))
-                .click().then(() => {
-                    element(by.cssContainingText('.modal-footer button', 'Delete')).click().then(() => {
-                        element.all(by.css('sources tbody tr')).count().then(function (count) {
-                            expect(count).toBe(0);
-                        });
-                    });
-                });
-        });
-    })
 
     afterAll(function () {
         accountMenu.click();
