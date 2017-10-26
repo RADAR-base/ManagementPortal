@@ -137,7 +137,7 @@ if (project.hasProperty('graphite')) {
 group = 'org.radarcns.management'
 version = '0.0.1-SNAPSHOT'
 
-ext.codacyVersion = '1.0.10'
+ext.codacyVersion = '2.0.1'
 
 description = ''
 
@@ -221,7 +221,7 @@ dependencies {
     compile "org.mapstruct:mapstruct-jdk8:${mapstruct_version}"
     compile "org.radarcns:radar-auth:0.1-SNAPSHOT"
 
-    codacy group: 'com.github.codacy', name: 'codacy-coverage-reporter', version: codacyVersion
+    codacy group: 'com.codacy', name: 'codacy-coverage-reporter', version: codacyVersion
 
     testCompile "org.awaitility:awaitility:${awaitility_version}"
     testCompile "com.jayway.jsonpath:json-path"
@@ -342,8 +342,14 @@ task generateJavaClient(dependsOn: 'generateOpenApiSpec', group: 'Swagger',
 
 jacocoTestReport {
     reports {
-        xml.enabled false
+        xml.enabled true
         csv.enabled false
         html.enabled true
     }
+}
+
+task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
+    main = 'com.codacy.CodacyCoverageReporter'
+    classpath = configurations.codacy
+    args = ['-l', 'Java', '-r', "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"]
 }

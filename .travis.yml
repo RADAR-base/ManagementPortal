@@ -42,6 +42,8 @@ script:
   - yarn test
   - yarn e2e
   - ./gradlew bootRepackage -Pprod -x test
+after_script:
+  - ./gradlew sendCoverageToCodacy
 notifications:
   webhooks:
     on_success: change  # options: [always|never|change] default: always
