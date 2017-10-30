@@ -1,7 +1,7 @@
 # ManagementPortal
 
 [![Build Status](https://travis-ci.org/RADAR-CNS/ManagementPortal.svg?branch=dev)](https://travis-ci.org/RADAR-CNS/ManagementPortal)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/64ac6d97b55a482a9cb0b5618ad5957c)](https://www.codacy.com/app/dennyverbeeck/ManagementPortal?utm_source=github.com&utm_medium=referral&utm_content=RADAR-CNS/ManagementPortal&utm_campaign=badger)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/87bb961266d3443988b52ee7aa32f100)](https://www.codacy.com/app/RADAR-CNS/ManagementPortal?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RADAR-CNS/ManagementPortal&amp;utm_campaign=Badge_Grade)
 
 ManagementPortal is an application which is used to manage pilot studies for [RADAR-CNS](http://www.radar-cns.org/).
 
