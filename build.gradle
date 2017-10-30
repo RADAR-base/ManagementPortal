@@ -1,9 +1,11 @@
-import groovy.json.JsonSlurper
 import org.gradle.internal.os.OperatingSystem
+import io.swagger.codegen.config.CodegenConfigurator
+import io.swagger.codegen.DefaultGenerator
+
+import java.nio.file.Paths
 
 buildscript {
     repositories {
-        mavenLocal()
         mavenCentral()
         jcenter()
         maven { url "http://repo.spring.io/plugins-release" }
@@ -11,15 +13,18 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.1"
+//        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.1"
         classpath "net.ltgt.gradle:gradle-apt-plugin:0.9"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${spring_boot_version}"
         classpath "org.springframework.build.gradle:propdeps-plugin:0.0.7"
         classpath "com.moowork.gradle:gradle-node-plugin:1.1.1"
         classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
+        classpath "io.swagger:swagger-codegen:2.2.2"
         //jhipster-needle-gradle-buildscript-dependency - JHipster will add additional gradle build script plugins here
     }
 }
+
+
 
 apply plugin: 'java'
 sourceCompatibility = '1.8'
@@ -30,14 +35,12 @@ apply plugin: 'war'
 apply plugin: 'propdeps'
 apply plugin: 'com.moowork.node'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'idea'
+apply plugin: 'jacoco'
 defaultTasks 'bootRun'
 
 bootRepackage {
    mainClass = 'org.radarcns.management.ManagementPortalApp'
-}
-
-war {
-
 }
 
 springBoot {
@@ -64,12 +67,16 @@ if (OperatingSystem.current().isWindows()) {
         addResources = false
         dependsOn pathingJar
         doFirst {
-            classpath = files("$buildDir/classes/main", "$buildDir/resources/main", pathingJar.archivePath)
+            classpath = files("$buildDir/classes/main", "$buildDir/resources/main", pathingJar.archivePath , "$rootDir/changelogs")
         }
     }
 } else {
     bootRun {
         addResources = false
+        doFirst {
+            classpath += files("$rootDir/changelogs")
+        }
+
     }
 }
 
@@ -77,19 +84,23 @@ test {
     include '**/*UnitTest*'
     include '**/*IntTest*'
 
+    classpath += files("$rootDir/changelogs")
+
     // uncomment if the tests reports are not generated
     // see https://github.com/jhipster/generator-jhipster/pull/2771 and https://github.com/jhipster/generator-jhipster/pull/4484
     // ignoreFailures true
-    reports.html.enabled = false
+    reports.html.enabled = true
 }
 
 task cucumberTest(type: Test) {
     include '**/CucumberTest*'
 
+    classpath += files("$rootDir/changelogs")
+
     // uncomment if the tests reports are not generated
     // see https://github.com/jhipster/generator-jhipster/pull/2771 and https://github.com/jhipster/generator-jhipster/pull/4484
     // ignoreFailures true
-    reports.html.enabled = false
+    reports.html.enabled = true
 }
 
 test.finalizedBy(cucumberTest)
@@ -102,7 +113,7 @@ task testReport(type: TestReport) {
 
 cucumberTest.finalizedBy(testReport)
 
-apply from: 'gradle/sonar.gradle'
+//apply from: 'gradle/sonar.gradle'
 apply from: 'gradle/liquibase.gradle'
 apply from: 'gradle/gatling.gradle'
 apply from: 'gradle/mapstruct.gradle'
@@ -119,24 +130,28 @@ if (project.hasProperty('graphite')) {
     apply from: 'gradle/graphite.gradle'
 }
 
-if (project.hasProperty('prometheus')) {
-    apply from: 'gradle/prometheus.gradle'
-}
+//if (project.hasProperty('prometheus')) {
+//    apply from: 'gradle/prometheus.gradle'
+//}
 
 group = 'org.radarcns.management'
 version = '0.0.1-SNAPSHOT'
 
+ext.codacyVersion = '2.0.1'
+
 description = ''
 
 configurations {
+    codacy
     providedRuntime
     compile.exclude module: "spring-boot-starter-tomcat"
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
     jcenter()
+    maven { url 'https://oss.jfrog.org/artifactory/libs-snapshot/' }
+    maven { url 'https://dl.bintray.com/radar-cns/org.radarcns' }
     maven { url 'http://repo.spring.io/milestone' }
     maven { url 'http://repo.spring.io/snapshot' }
     maven { url 'https://repository.jboss.org/nexus/content/repositories/releases' }
@@ -200,9 +215,14 @@ dependencies {
         exclude module: 'mapstruct'
     }
     compile "io.springfox:springfox-bean-validators:${springfox_version}"
-    compile "mysql:mysql-connector-java"
+//    compile "mysql:mysql-connector-java"
+    compile "org.postgresql:postgresql"
     compile "com.h2database:h2"
     compile "org.mapstruct:mapstruct-jdk8:${mapstruct_version}"
+    compile "org.radarcns:radar-auth:0.1-SNAPSHOT"
+
+    codacy group: 'com.codacy', name: 'codacy-coverage-reporter', version: codacyVersion
+
     testCompile "org.awaitility:awaitility:${awaitility_version}"
     testCompile "com.jayway.jsonpath:json-path"
     testCompile "info.cukes:cucumber-junit:${cucumber_version}"
@@ -247,3 +267,89 @@ if (project.hasProperty('nodeInstall')) {
 compileJava.dependsOn processResources
 processResources.dependsOn cleanResources,bootBuildInfo
 bootBuildInfo.mustRunAfter cleanResources
+
+idea.module.downloadSources = true
+
+task generateOpenApiSpec(dependsOn: 'classes', group: 'Swagger',
+        description: 'Runs the application to fetch the OpenAPI spec from the Swagger endpoint') {
+    outputs.file(swaggerFileLocation)
+    doLast {
+        String java_home = System.getenv("JAVA_HOME")
+        String java = Paths.get(java_home, "bin", "java").toAbsolutePath()
+        ProcessBuilder pb = new ProcessBuilder(java, "-cp",
+            sourceSets.main.runtimeClasspath.getAsPath(), "org.radarcns.management.ManagementPortalApp")
+        pb.directory(projectDir)
+        File outFile = File.createTempFile("managementportalrun", ".out")
+        // the redirect seems to be necessary for the process to be able to start properly
+        pb.redirectOutput(outFile)
+        Process mp = pb.start()
+
+        // Create parent dir to swagger file
+        File swaggerFile = new File(swaggerFileLocation);
+        swaggerFile.getParentFile().mkdirs();
+
+        def generated = false
+        println("Waiting for application to start up")
+        try {
+            // try once every second to see if the application has started up
+            while (!generated) {
+                System.out.print("#")
+                System.out.flush()
+                ProcessBuilder curlPb = new ProcessBuilder("curl", apiDocsEndpoint, "-o",
+                    swaggerFileLocation, "--connect-timeout", "1")
+                curlPb.directory(projectDir)
+                Process curlProcess = curlPb.start()
+                curlProcess.waitFor()
+                generated = curlProcess.exitValue() == 0
+            }
+            println()
+            println("Swagger file generated at " + swaggerFileLocation)
+        }
+        finally {
+            // stop the managementportal process
+            mp.waitForOrKill(1)
+            outFile.delete()
+        }
+    }
+}
+
+task generateJavaClient(dependsOn: 'generateOpenApiSpec', group: 'Swagger',
+        description: 'Generate a Java client library for ManagementPortal') {
+    inputs.file(swaggerFileLocation)
+    outputs.dir(swaggerTargetFolder)
+    doLast {
+        // if gradle determined this task is out of date, first delete the directory
+        File targetFolder = new File(projectDir.absolutePath, swaggerTargetFolder)
+        if (targetFolder.exists()) {
+            targetFolder.deleteDir()
+        }
+        def config = new CodegenConfigurator()
+        config.setInputSpec(Paths.get(projectDir.absolutePath, swaggerFileLocation).toString())
+        config.setOutputDir(Paths.get(projectDir.absolutePath, swaggerTargetFolder).toString())
+        config.setLang("java")
+        config.setArtifactId("managementportal-client")
+        config.setGroupId("org.radarcns")
+        config.setArtifactVersion(version)
+        config.setAdditionalProperties([
+            'apiPackage'   : 'org.radarcns.management.client.api',
+            'modelPackage' : 'org.radarcns.management.client.model',
+
+        ])
+        new DefaultGenerator().opts(config.toClientOptInput()).generate()
+        println("Client generated at " + swaggerTargetFolder)
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled false
+        html.enabled true
+    }
+}
+
+task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
+    main = 'com.codacy.CodacyCoverageReporter'
+    classpath = configurations.codacy
+    args = ['-l', 'Java', '-r', "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"]
+}

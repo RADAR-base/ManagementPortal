@@ -7,9 +7,10 @@ const enum DataType {
 export class SensorData {
     constructor(
         public id?: number,
+        public sensorName?: string,
         public sensorType?: string,
         public dataType?: DataType,
-        public dataFormat?: string,
+        public keySchema?: string,
         public frequency?: string,
         public deviceTypeId?: number,
     ) {

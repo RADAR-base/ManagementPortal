@@ -1,9 +1,11 @@
 package org.radarcns.management.config;
 
 
-import io.github.jhipster.security.*;
-
+import io.github.jhipster.security.AjaxLogoutSuccessHandler;
+import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
+import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.BeanInitializationException;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -21,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.Filter;
 
 @Configuration
 @EnableWebSecurity
@@ -86,12 +89,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .httpBasic().realmName("ManagementPortal")
             .and()
                 .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-                .requestMatchers().antMatchers("/oauth/authorize")
-            .and()
-                .authorizeRequests()
-                .antMatchers("/oauth/authorize").authenticated();
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
     @Override
@@ -103,5 +101,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
         return new SecurityEvaluationContextExtension();
+    }
+
+    @Bean
+    public FilterRegistrationBean jwtAuthenticationFilterRegistration() {
+        FilterRegistrationBean registration = new FilterRegistrationBean();
+        registration.setFilter(jwtAuthenticationFilter());
+        registration.addUrlPatterns("/api/*", "/management/*");
+        registration.setName("jwtAuthenticationFilter");
+        registration.setOrder(1);
+        return registration;
+    }
+
+    public Filter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter();
     }
 }

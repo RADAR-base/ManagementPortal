@@ -2,42 +2,40 @@ import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
 
 import { AuthService } from '../';
-import { Principal } from '../';
-import { LoginModalService } from '../login/login-modal.service';
 import { StateStorageService } from './state-storage.service';
 
 @Injectable()
 export class UserRouteAccessService implements CanActivate {
 
-    constructor(private router: Router,
-                private loginModalService: LoginModalService,
-                private principal: Principal,
-                private stateStorageService: StateStorageService) {
+    constructor( private router: Router,
+                 private auth: AuthService,
+                 private stateStorageService: StateStorageService) {
     }
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | Promise<boolean> {
 
-        const authorities = route.data['authorities'];
-        if (!authorities || authorities.length === 0) {
-            return true;
-        }
-
-        return this.checkLogin(authorities, state.url);
+        this.setStateStorage(route, state);
+        return this.auth.authorize(false).then( canActivate => {
+            return canActivate;
+        });
     }
 
-    checkLogin(authorities: string[], url: string): Promise<boolean> {
-        const principal = this.principal;
-        return Promise.resolve(principal.identity().then((account) => {
+    canActivateChild(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | Promise<boolean> {
+        return this.canActivate(route, state);
+    }
 
-            if (account && principal.hasAnyAuthority(authorities)) {
-                return true;
-            }
-
-            this.stateStorageService.storeUrl(url);
-            this.router.navigate(['accessdenied']).then(() => {
-                this.loginModalService.open();
-            });
-            return false;
-        }));
+    setStateStorage(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+        let params = {};
+        let destinationData = {};
+        let destinationName = '';
+        let destinationEvent = route;
+        if (destinationEvent !== undefined) {
+            params = destinationEvent.params;
+            destinationData = destinationEvent.data;
+            destinationName = state.url;
+        }
+        let from = {name: this.router.url.slice(1)};
+        let destination = {name: destinationName, data: destinationData};
+        this.stateStorageService.storeDestinationState(destination, params, from);
     }
 }

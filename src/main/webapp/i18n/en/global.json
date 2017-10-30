@@ -7,11 +7,11 @@
             "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
             "entities": {
                 "main": "Entities",
-                "device": "Device",
+                "source": "Source",
                 "deviceType": "Device Type",
-                "project": "Project",
+                "project": "Projects",
                 "sensorData": "Sensor Data",
-                "patient": "Patient",
+                "subject": "Subject",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
             "account": {
@@ -90,6 +90,16 @@
         },
         "ribbon": {
             "dev":"Development"
+        },
+        "attribute" : {
+            "title" : "Attributes",
+            "key" : "Attribute Key",
+            "value" : "Attribute Value",
+            "add" : "Add",
+            "error" : {
+                "alreadyExist" : "This attribute key already exist in the list"
+            }
+
         }
     },
     "entity": {
@@ -102,7 +112,8 @@
             "edit": "Edit",
             "open": "Open",
             "save": "Save",
-            "view": "View"
+            "view": "View",
+            "close": "Close"
         },
         "detail": {
             "field": "Field",
@@ -132,7 +143,8 @@
         "Size": "Field {{ fieldName }} does not meet min/max size requirements!",
         "userexists": "Login name already used!",
         "emailexists": "Email is already in use!",
-        "idexists": "A new {{ entityName }} cannot already have an ID"
+        "idexists": "A new {{ entityName }} cannot already have an ID",
+        "invalidsubjectstate": "A discontinued subject can not be activated"
     },
-    "footer": "This is your footer"
+    "footer": "For more details, read the user guide <a target=\"_blank\" href=\"https://github.com/RADAR-CNS/ManagementPortal/wiki/User-Guide\">here.</a>"
 }

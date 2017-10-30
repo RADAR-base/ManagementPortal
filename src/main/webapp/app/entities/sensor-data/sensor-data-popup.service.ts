@@ -13,14 +13,14 @@ export class SensorDataPopupService {
 
     ) {}
 
-    open(component: Component, id?: number | any): NgbModalRef {
+    open(component: Component, sensorName?: string): NgbModalRef {
         if (this.isOpen) {
             return;
         }
         this.isOpen = true;
 
-        if (id) {
-            this.sensorDataService.find(id).subscribe((sensorData) => {
+        if (sensorName) {
+            this.sensorDataService.find(sensorName).subscribe((sensorData) => {
                 this.sensorDataModalRef(component, sensorData);
             });
         } else {

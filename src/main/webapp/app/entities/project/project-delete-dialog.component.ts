@@ -29,8 +29,8 @@ export class ProjectDeleteDialogComponent {
         this.activeModal.dismiss('cancel');
     }
 
-    confirmDelete(id: number) {
-        this.projectService.delete(id).subscribe((response) => {
+    confirmDelete(projectName: string) {
+        this.projectService.delete(projectName).subscribe((response) => {
             this.eventManager.broadcast({
                 name: 'projectListModification',
                 content: 'Deleted an project'
@@ -57,7 +57,7 @@ export class ProjectDeletePopupComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
             this.modalRef = this.projectPopupService
-                .open(ProjectDeleteDialogComponent, params['id']);
+                .open(ProjectDeleteDialogComponent, params['projectName']);
         });
     }
 

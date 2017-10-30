@@ -5,13 +5,13 @@ import { Response } from '@angular/http';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 
-import { Role } from './role.model';
 import {RolePopupService} from "./role-popup.service";
 import {RoleService} from "./role.service";
 import {Project} from "../project/project.model";
 import {ProjectService} from "../project/project.service";
 import {AuthorityService} from "../../shared/user/authority.service";
 import {Principal} from "../../shared/auth/principal.service";
+import {Role} from "../../admin/user-management/role.model";
 
 @Component({
     selector: 'jhi-role-dialog',
@@ -53,8 +53,8 @@ export class RoleDialogComponent implements OnInit {
         this.activeModal.dismiss('cancel');
     }
 
-    trackProjectById(index: number, item: Project) {
-        return item.id;
+    trackProjectByName(index: number, item: Project) {
+        return item.projectName;
     }
 
     save() {
@@ -118,9 +118,9 @@ export class RolePopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if ( params['id'] ) {
+            if ( params['projectName'] && params['authorityName'] ) {
                 this.modalRef = this.rolePopupService
-                    .open(RoleDialogComponent, params['id']);
+                    .open(RoleDialogComponent, params['projectName'], params['authorityName']);
             } else {
                 this.modalRef = this.rolePopupService
                     .open(RoleDialogComponent);

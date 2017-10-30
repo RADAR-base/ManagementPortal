@@ -13,20 +13,21 @@ export class DeviceTypePopupService {
 
     ) {}
 
-    open(component: Component, id?: number | any): NgbModalRef {
+    open(component: Component, producer?: string, model?: string, version?: string): NgbModalRef {
         if (this.isOpen) {
             return;
         }
         this.isOpen = true;
 
-        if (id) {
-            this.deviceTypeService.find(id).subscribe((deviceType) => {
+        if (producer && model && version) {
+            this.deviceTypeService.find(producer, model, version).subscribe((deviceType) => {
                 this.deviceTypeModalRef(component, deviceType);
             });
         } else {
             return this.deviceTypeModalRef(component, new DeviceType());
         }
     }
+
 
     deviceTypeModalRef(component: Component, deviceType: DeviceType): NgbModalRef {
         const modalRef = this.modalService.open(component, { size: 'lg', backdrop: 'static'});

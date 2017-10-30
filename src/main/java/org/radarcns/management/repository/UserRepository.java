@@ -1,5 +1,6 @@
 package org.radarcns.management.repository;
 
+import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 
 import java.time.ZonedDateTime;
@@ -11,6 +12,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * Spring Data JPA repository for the User entity.
@@ -33,7 +36,22 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @EntityGraph(attributePaths = "authorities")
     Optional<User> findOneWithAuthoritiesByLogin(String login);
 
+    @EntityGraph(attributePaths = "roles")
+    Optional<User> findOneWithRolesByLogin(String login);
+
     Page<User> findAllByLoginNot(Pageable pageable, String login);
 
-    Page<User> findAllByProjectId(Pageable pageable , Long projectId);
+    @Query("select user from User user join user.roles roles "
+        + " where roles.project.projectName = :projectName "
+        + " and roles.authority.name = :authority")
+    Page<User> findAllByProjectNameAndAuthority(Pageable pageable,
+        @Param("projectName") String projectName, @Param("authority") String authority);
+
+    @Query("select user from User user join user.roles roles "
+        + " where roles.authority.name = :authority")
+    Page<User> findAllByAuthority(Pageable pageable, @Param("authority") String authority);
+
+    @Query("select user from User user join user.roles roles "
+        + " where roles.project.projectName = :projectName ")
+    Page<User> findAllByProjectName(Pageable pageable, String projectName);
 }

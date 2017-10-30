@@ -28,10 +28,10 @@ public class ManagedUserVM extends UserDTO {
     public ManagedUserVM(Long id, String login, String password, String firstName, String lastName,
                          String email, boolean activated, String langKey,
                          String createdBy, ZonedDateTime createdDate, String lastModifiedBy, ZonedDateTime lastModifiedDate,
-                        Set<RoleDTO> roles, ProjectDTO project) {
+                        Set<RoleDTO> roles) {
 
         super(id, login, firstName, lastName, email, activated, langKey,
-            createdBy, createdDate, lastModifiedBy, lastModifiedDate,  roles, project);
+            createdBy, createdDate, lastModifiedBy, lastModifiedDate,  roles);
 
         this.password = password;
     }

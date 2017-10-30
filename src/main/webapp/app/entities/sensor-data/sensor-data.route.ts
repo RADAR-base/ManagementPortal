@@ -10,21 +10,22 @@ import { SensorDataPopupComponent } from './sensor-data-dialog.component';
 import { SensorDataDeletePopupComponent } from './sensor-data-delete-dialog.component';
 
 import { Principal } from '../../shared';
+import {PROJECT_ADMIN, SYSTEM_ADMIN} from "../../shared/constants/common.constants";
 
 export const sensorDataRoute: Routes = [
   {
     path: 'sensor-data',
     component: SensorDataComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.sensorData.home.title'
     },
     canActivate: [UserRouteAccessService]
   }, {
-    path: 'sensor-data/:id',
+    path: 'sensor-data/:sensorName',
     component: SensorDataDetailComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.sensorData.home.title'
     },
     canActivate: [UserRouteAccessService]
@@ -36,27 +37,27 @@ export const sensorDataPopupRoute: Routes = [
     path: 'sensor-data-new',
     component: SensorDataPopupComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.sensorData.home.title'
     },
     canActivate: [UserRouteAccessService],
     outlet: 'popup'
   },
   {
-    path: 'sensor-data/:id/edit',
+    path: 'sensor-data/:sensorName/edit',
     component: SensorDataPopupComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.sensorData.home.title'
     },
     canActivate: [UserRouteAccessService],
     outlet: 'popup'
   },
   {
-    path: 'sensor-data/:id/delete',
+    path: 'sensor-data/:sensorName/delete',
     component: SensorDataDeletePopupComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.sensorData.home.title'
     },
     canActivate: [UserRouteAccessService],

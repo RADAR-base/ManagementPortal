@@ -22,6 +22,10 @@ export class UserService {
         return this.http.get(`${this.resourceUrl}/${login}`).map((res: Response) => res.json());
     }
 
+    findProject(login: string): Observable<Response> {
+        return this.http.get(`${this.resourceUrl}/${login}/projects`);
+    }
+
     query(req?: any): Observable<Response> {
         const params: URLSearchParams = new URLSearchParams();
         if (req) {
@@ -41,5 +45,19 @@ export class UserService {
 
     delete(login: string): Observable<Response> {
         return this.http.delete(`${this.resourceUrl}/${login}`);
+    }
+
+    findByProjectAndAuthority(req: any) : Observable<Response> {
+        const params: URLSearchParams = new URLSearchParams();
+        if (req.authority) {
+            params.set('authority', req.authority);
+        }
+        if (req.projectName) {
+            params.set('projectName', req.projectName);
+        }
+        const options = {
+            search: params
+        };
+        return this.http.get(this.resourceUrl, options);
     }
 }

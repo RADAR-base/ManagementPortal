@@ -16,7 +16,7 @@
 
 management:
     security:
-        roles: ADMIN
+        roles: ROLE_SYS_ADMIN
     context-path: /management
     health:
         mail:
@@ -63,6 +63,14 @@ info:
         version: #project.version#
 
 # ===================================================================
+# ManagementPortal specific properties
+#
+# ===================================================================
+managementportal:
+    mail: # specific JHipster mail property, for standard properties see MailProperties
+        from: ManagementPortal@localhost
+
+# ===================================================================
 # JHipster specific properties
 #
 # Full reference is available at: https://jhipster.github.io/common-application-properties/
@@ -81,8 +89,6 @@ jhipster:
         #exposed-headers:
         #allow-credentials: true
         #max-age: 1800
-    mail:
-        from: ManagementPortal@localhost
     swagger:
         default-include-pattern: /api/.*
         title: ManagementPortal API

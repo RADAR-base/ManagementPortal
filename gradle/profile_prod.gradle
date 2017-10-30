@@ -3,6 +3,9 @@ apply plugin: 'com.moowork.node'
 
 ext {
     logbackLoglevel = "INFO"
+    apiDocsEndpoint = "http://localhost:8080/v2/api-docs"
+    swaggerFileLocation = "build/swagger-spec/swagger.json"
+    swaggerTargetFolder = "build/managementportal-client"
 }
 
 dependencies {
