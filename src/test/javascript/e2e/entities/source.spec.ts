@@ -25,7 +25,7 @@ describe('Source e2e test', () => {
         entityMenu.click();
         element.all(by.css('[routerLink="source"]')).first().click().then(() => {
             const expectVal = /managementPortalApp.source.home.title/;
-            element.all(by.css('h2 span')).first().getAttribute('jhiTranslate').then((value) => {
+            element.all(by.css('h4 span')).first().getAttribute('jhiTranslate').then((value) => {
                 expect(value).toMatch(expectVal);
             });
         });

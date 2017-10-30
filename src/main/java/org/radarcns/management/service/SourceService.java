@@ -114,4 +114,17 @@ public class SourceService {
         return sourceMapper.sourcesToSourceDTOs(
             sourceRepository.findAllSourcesByProjectIdAndAssigned(projectId , assigned));
     }
+
+    /**
+     * Returns list of not-assigned sources by project id
+     * @param projectId
+     * @param assigned
+     * @return
+     */
+    public List<MinimalSourceDetailsDTO> findAllMinimalSourceDetailsByProjectAndAssigned(
+            Long projectId, boolean assigned) {
+        return sourceRepository.findAllSourcesByProjectIdAndAssigned(projectId , assigned).stream()
+            .map(sourceMapper::sourceToMinimalSourceDetailsDTO)
+            .collect(Collectors.toList());
+    }
 }
