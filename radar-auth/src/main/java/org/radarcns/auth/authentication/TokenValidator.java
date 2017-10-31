@@ -113,7 +113,12 @@ public class TokenValidator {
             }
         }
 
-        return loadVerifier();
+        JWTVerifier localVerifier = loadVerifier();
+
+        synchronized (this) {
+            verifier = localVerifier;
+            return verifier;
+        }
     }
 
     private void updateVerifier() {
