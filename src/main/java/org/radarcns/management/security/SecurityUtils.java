@@ -24,17 +24,22 @@ public final class SecurityUtils {
      */
     public static String getCurrentUserLogin() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication authentication = securityContext.getAuthentication();
-        String userName = null;
-        if (authentication != null) {
-            if (authentication.getPrincipal() instanceof UserDetails) {
-                UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
-                userName = springSecurityUser.getUsername();
-            } else if (authentication.getPrincipal() instanceof String) {
-                userName = (String) authentication.getPrincipal();
-            }
+        return getUserName(securityContext.getAuthentication());
+    }
+
+    public static String getUserName(Authentication authentication) {
+        if (authentication == null) {
+            return null;
         }
-        return userName;
+
+        if (authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
+            return springSecurityUser.getUsername();
+        } else if (authentication.getPrincipal() instanceof String) {
+            return (String) authentication.getPrincipal();
+        } else {
+            return null;
+        }
     }
 
     public static DecodedJWT getJWT(ServletRequest request) {

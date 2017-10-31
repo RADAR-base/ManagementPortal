@@ -41,15 +41,9 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
         Map<String, Object> additionalInfo = new HashMap<>();
 
-        String userName = null;
-        if (authentication.getPrincipal() instanceof UserDetails) {
-            UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
-            userName = springSecurityUser.getUsername();
-        } else if (authentication.getPrincipal() instanceof String) {
-            userName = (String) authentication.getPrincipal();
-        }
+        String userName = SecurityUtils.getUserName(authentication);
 
-        if(userName!=null) {
+        if(userName != null) {
             // add the 'sub' claim in accordance with JWT spec
             additionalInfo.put("sub", userName);
 
