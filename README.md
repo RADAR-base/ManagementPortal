@@ -1,7 +1,8 @@
 # ManagementPortal
 
-[![Build Status](https://travis-ci.org/RADAR-CNS/ManagementPortal.svg?branch=dev)](https://travis-ci.org/RADAR-CNS/ManagementPortal)
+[![Build Status](https://travis-ci.org/RADAR-CNS/ManagementPortal.svg?branch=master)](https://travis-ci.org/RADAR-CNS/ManagementPortal)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/87bb961266d3443988b52ee7aa32f100)](https://www.codacy.com/app/RADAR-CNS/ManagementPortal?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RADAR-CNS/ManagementPortal&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/87bb961266d3443988b52ee7aa32f100)](https://www.codacy.com/app/RADAR-CNS/ManagementPortal?utm_source=github.com&utm_medium=referral&utm_content=RADAR-CNS/ManagementPortal&utm_campaign=Badge_Coverage)
 
 ManagementPortal is an application which is used to manage pilot studies for [RADAR-CNS](http://www.radar-cns.org/).
 
@@ -11,13 +12,14 @@ The quickest way to get ManagementPortal up and running in production mode is by
 docker-compose files. 
 1. First, we need to generate a key pair for signing JWT tokens as follows:
 ```shell
-keytool -genkey -alias selfsigned -keyalg RSA -keystore src/main/resources/config/keystore.jks -keysize 4048 -storepass radarbase
+keytool -genkey -alias selfsigned -keyalg RSA -keystore src/main/docker/etc/config/keystore.jks -keysize 4048 -storepass radarbase
 ```
 **Make sure the key password and store password are the same!** This is a requirement for Spring Security.
 
-2. Then, make sure [Docker][], [Docker-Compose][], [Node.js][] and [Yarn][] are installed on your system.
-3. Finally, we can build the docker image with `./gradlew bootRepackage -Pprod buildDocker` and start the stack with `docker-compose -f src/main/docker/app.yml up -d`.
+2. Then, make sure [Docker][] and [Docker-Compose][] are installed on your system.
+3. Finally, we can start the stack with `docker-compose -f src/main/docker/app.yml up -d`.
 
+The docker image can be pulled by running `docker pull radarcns/management-portal:0.2.0`.
 
 ## Configuration
 
