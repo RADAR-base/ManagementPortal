@@ -22,7 +22,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by dverbeec on 6/07/2017.
@@ -41,7 +43,7 @@ public class OAuth2LoginUiWebConfig {
             Exception {
         TreeMap<String, Object> model = new TreeMap<>();
         if (request.getParameterMap().containsKey("error")) {
-            model.put("loginError", new Boolean(true));
+            model.put("loginError", Boolean.TRUE);
         }
         return new ModelAndView("login", model);
     }
@@ -53,12 +55,11 @@ public class OAuth2LoginUiWebConfig {
 
         Map<String, String[]> params = request.getParameterMap();
 
-        Map<String, String> authorizationParameters = new HashMap<>();
-        Arrays.asList(OAuth2Utils.CLIENT_ID, OAuth2Utils.REDIRECT_URI, OAuth2Utils.STATE,
+        Map<String, String> authorizationParameters = Stream.of(
+            OAuth2Utils.CLIENT_ID, OAuth2Utils.REDIRECT_URI, OAuth2Utils.STATE,
             OAuth2Utils.SCOPE, OAuth2Utils.RESPONSE_TYPE)
-            .stream()
-            .filter(p -> params.containsKey(p))
-            .forEach(p -> authorizationParameters.put(p, params.get(p)[0]));
+            .filter(params::containsKey)
+            .collect(Collectors.toMap(Function.identity(), p -> params.get(p)[0]));
 
         AuthorizationRequest authorizationRequest = new DefaultOAuth2RequestFactory
             (clientDetailsService).createAuthorizationRequest(authorizationParameters);
