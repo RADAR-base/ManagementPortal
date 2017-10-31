@@ -24,19 +24,36 @@ public final class SecurityUtils {
      */
     public static String getCurrentUserLogin() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication authentication = securityContext.getAuthentication();
-        String userName = null;
-        if (authentication != null) {
-            if (authentication.getPrincipal() instanceof UserDetails) {
-                UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
-                userName = springSecurityUser.getUsername();
-            } else if (authentication.getPrincipal() instanceof String) {
-                userName = (String) authentication.getPrincipal();
-            }
-        }
-        return userName;
+        return getUserName(securityContext.getAuthentication());
     }
 
+    /**
+     * Get the user name contianed in an Authentication object.
+     * @param authentication context authentication
+     * @return user name or {@code null} if unknown.
+     */
+    public static String getUserName(Authentication authentication) {
+        if (authentication == null) {
+            return null;
+        }
+
+        if (authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
+            return springSecurityUser.getUsername();
+        } else if (authentication.getPrincipal() instanceof String) {
+            return (String) authentication.getPrincipal();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Parse the {@code "jwt"} attribute from given request.
+     * @param request servlet request
+     * @return decoded JWT
+     * @throws AccessDeniedException if the {@code "jwt"} attribute is missing or does not contain a
+     *                               decoded JWT
+     */
     public static DecodedJWT getJWT(ServletRequest request) {
         Object jwt = request.getAttribute(JwtAuthenticationFilter.TOKEN_ATTRIBUTE);
         if (jwt == null) {
