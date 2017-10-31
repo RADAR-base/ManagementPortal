@@ -23,6 +23,10 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
 
+/**
+ * Validates JWT token signed by the Management Portal. It is synchronized and may be used from
+ * multiple threads.
+ */
 public class TokenValidator {
 
     protected static final Logger log = LoggerFactory.getLogger(TokenValidator.class);
@@ -34,27 +38,17 @@ public class TokenValidator {
     // In that case we need to fetch it again, but we don't want a malicious client to be able to
     // make us DOS our own identity server. Fetching it at maximum once per minute mitigates this.
     private Instant lastFetch = Instant.EPOCH;
-    private static final long FETCH_PERIOD = 60L;
+    private static final long FETCH_TIMEOUT_DEFAULT = 60L;
+    private final long fetchTimeout;
 
     /**
      * Default constructor. Will load the identity server configuration from a file called
      * radar-is.yml that should be on the classpath, or its location defined in the
      * RADAR_IS_CONFIG_LOCATION environment variable. Will also fetch the public key from the
      * identity server for checkign token signatures.
-     * @throws TokenValidationException If the config file can not be loaded, is incorrect, or the
-     *     identity server's public key can not be fetched.
      */
-    public TokenValidator() throws TokenValidationException {
-        this.config = YamlServerConfig.readFromFileOrClasspath();
-
-        try {
-            // Catch this exception here, as the identity server might not be online when this class
-            // is instantiated. We want this class to always be able to be instantiated, except for
-            // config file errors.
-            loadPublicKey();
-        } catch (TokenValidationException ex) {
-            log.error("Could not get server's public key.", ex);
-        }
+    public TokenValidator() {
+        this(YamlServerConfig.readFromFileOrClasspath(), FETCH_TIMEOUT_DEFAULT);
     }
 
     /**
@@ -62,13 +56,14 @@ public class TokenValidator {
      *
      * @param config The identity server configuration
      */
-    public TokenValidator(ServerConfig config) {
+    public TokenValidator(ServerConfig config, long fetchTimeout) {
+        this.fetchTimeout = fetchTimeout;
         this.config = config;
         try {
             // Catch this exception here, as the identity server might not be online when this class
             // is instantiated. We want this class to always be able to be instantiated, except for
             // config file errors.
-            loadPublicKey();
+            updateVerifier();
         } catch (TokenValidationException ex) {
             log.error("Could not get server's public key.", ex);
         }
@@ -80,7 +75,7 @@ public class TokenValidator {
      * If we have not yet fetched the JWT public key, this method will fetch it. If a signature can
      * not be verified, this method will fetch the JWT public key again, as it might have been
      * changed, and re-check the token. However this fetching of the public key will only be
-     * performed at most once every <code>FETCH_PERIOD</code> seconds, to prevent (malicious)
+     * performed at most once every <code>fetchTimeout</code> seconds, to prevent (malicious)
      * clients from making us call the token endpoint too frequently.
      * </p>
      *
@@ -89,29 +84,45 @@ public class TokenValidator {
      * @throws TokenValidationException If the token can not be validated.
      */
     public DecodedJWT validateAccessToken(String token) throws TokenValidationException {
-        // Check if we already initialized the verifier, if we could not get the public key during
-        // object initialization, we might not have created it yet.
-        if (verifier == null) {
-            loadPublicKey();
-        }
         try {
-            return verifier.verify(token);
+            return getVerifier().verify(token);
         } catch (SignatureVerificationException sve) {
             log.warn("Client presented a token with an incorrect signature, fetching public key"
                     + " again. Token: {}", token);
-            loadPublicKey();
+            updateVerifier();
             return validateAccessToken(token);
         } catch (JWTVerificationException ex) {
             throw new TokenValidationException(ex);
         }
     }
 
-    private synchronized void loadPublicKey() throws TokenValidationException {
-        if (Instant.now().isBefore(lastFetch.plusSeconds(FETCH_PERIOD))) {
-            // it hasn't been long enough ago to fetch the key again, we deny access
-            log.warn("Fetched public key less than {} seconds ago, denied access.", FETCH_PERIOD);
-            throw new TokenValidationException("Not fetching public key more than once every "
-                    + Long.toString(FETCH_PERIOD) + " seconds.");
+    private JWTVerifier getVerifier() {
+        synchronized (this) {
+            if (verifier != null) {
+                return verifier;
+            }
+        }
+
+        return loadVerifier();
+    }
+
+    private void updateVerifier() {
+        JWTVerifier localVerifier = loadVerifier();
+        synchronized (this) {
+            this.verifier = localVerifier;
+        }
+    }
+
+    private JWTVerifier loadVerifier() throws TokenValidationException {
+        synchronized (this) {
+            if (Instant.now().isBefore(lastFetch.plusSeconds(fetchTimeout))) {
+                // it hasn't been long enough ago to fetch the key again, we deny access
+                log.warn("Fetched public key less than {} seconds ago, denied access.", fetchTimeout);
+                throw new TokenValidationException("Not fetching public key more than once every "
+                    + Long.toString(fetchTimeout) + " seconds.");
+            }
+            // whether successful or not, do not request the key more than once per minute
+            lastFetch = Instant.now();
         }
         RSAPublicKey publicKey;
         if (config.getPublicKey() == null) {
@@ -120,14 +131,11 @@ public class TokenValidator {
             publicKey = config.getPublicKey();
         }
         Algorithm alg = Algorithm.RSA256(publicKey, null);
-        verifier = JWT.require(alg)
-            .withAudience(config.getResourceName())
-            .build();
         // we successfully fetched the public key, reset the timer
-        lastFetch = Instant.now();
+        return JWT.require(alg)
+                .withAudience(config.getResourceName())
+                .build();
     }
-
-
 
     private RSAPublicKey publicKeyFromServer() throws TokenValidationException {
         log.info("Getting the JWT public key at " + config.getPublicKeyEndpoint());
