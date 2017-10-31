@@ -1,18 +1,18 @@
 version: '2'
 services:
     managementportal-app:
-        image: managementportal
+        image: radarcns/management-portal:0.2.0
         environment:
             - SPRING_PROFILES_ACTIVE=prod,swagger
             - SPRING_DATASOURCE_URL=jdbc:postgresql://managementportal-postgresql:5432/managementportal
             - SPRING_DATASOURCE_USERNAME=radarcns
             - SPRING_DATASOURCE_PASSWORD=radarcns
             - JHIPSTER_SLEEP=10 # gives time for the database to boot before the application
-            - JAVA_OPTS=-Xmx256m  # maximum heap size for the JVM running ManagementPortal, increase this as necessary
+            - JAVA_OPTS=-Xmx512m  # maximum heap size for the JVM running ManagementPortal, increase this as necessary
         ports:
             - 8080:8080
         volumes:
-            - ./etc/changelogs:/changelogs
+            - ./etc:/mp-includes
     managementportal-postgresql:
         extends:
             file: postgresql.yml

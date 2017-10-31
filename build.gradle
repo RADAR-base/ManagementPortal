@@ -135,7 +135,7 @@ if (project.hasProperty('graphite')) {
 //}
 
 group = 'org.radarcns.management'
-version = '0.0.1-SNAPSHOT'
+version = '0.2.0'
 
 ext.codacyVersion = '2.0.1'
 
@@ -219,7 +219,7 @@ dependencies {
     compile "org.postgresql:postgresql"
     compile "com.h2database:h2"
     compile "org.mapstruct:mapstruct-jdk8:${mapstruct_version}"
-    compile "org.radarcns:radar-auth:0.1-SNAPSHOT"
+    compile project(":radar-auth")
 
     codacy group: 'com.codacy', name: 'codacy-coverage-reporter', version: codacyVersion
 
