@@ -56,6 +56,16 @@ public class TokenValidator {
      *
      * @param config The identity server configuration
      */
+    public TokenValidator(ServerConfig config) {
+        this(config, FETCH_TIMEOUT_DEFAULT);
+    }
+
+    /**
+     * Constructor where ServerConfig can be passed instead of it being loaded from file.
+     *
+     * @param config The identity server configuration
+     * @param fetchTimeout timeout for retrying the public RSA key
+     */
     public TokenValidator(ServerConfig config, long fetchTimeout) {
         this.fetchTimeout = fetchTimeout;
         this.config = config;
