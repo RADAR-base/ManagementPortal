@@ -37,7 +37,7 @@ public class TokenValidator {
     // If a client presents a token with an invalid signature, it might be the keypair was changed.
     // In that case we need to fetch it again, but we don't want a malicious client to be able to
     // make us DOS our own identity server. Fetching it at maximum once per minute mitigates this.
-    private Instant lastFetch = Instant.EPOCH;
+    private ThreadLocal<Instant> lastFetch = ThreadLocal.withInitial(() -> Instant.EPOCH);
     private static final long FETCH_TIMEOUT_DEFAULT = 60L;
     private final long fetchTimeout;
 
@@ -114,16 +114,15 @@ public class TokenValidator {
     }
 
     private JWTVerifier loadVerifier() throws TokenValidationException {
-        synchronized (this) {
-            if (Instant.now().isBefore(lastFetch.plusSeconds(fetchTimeout))) {
-                // it hasn't been long enough ago to fetch the key again, we deny access
-                log.warn("Fetched public key less than {} seconds ago, denied access.", fetchTimeout);
-                throw new TokenValidationException("Not fetching public key more than once every "
-                    + Long.toString(fetchTimeout) + " seconds.");
-            }
-            // whether successful or not, do not request the key more than once per minute
-            lastFetch = Instant.now();
+        if (Instant.now().isBefore(lastFetch.get().plusSeconds(fetchTimeout))) {
+            // it hasn't been long enough ago to fetch the key again, we deny access
+            log.warn("Fetched public key less than {} seconds ago, denied access.", fetchTimeout);
+            throw new TokenValidationException("Not fetching public key more than once every "
+                + Long.toString(fetchTimeout) + " seconds.");
         }
+        // whether successful or not, do not request the key more than once per minute
+        lastFetch.set(Instant.now());
+
         RSAPublicKey publicKey;
         if (config.getPublicKey() == null) {
             publicKey = publicKeyFromServer();
