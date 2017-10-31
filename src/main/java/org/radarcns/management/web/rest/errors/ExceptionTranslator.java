@@ -1,7 +1,8 @@
 package org.radarcns.management.web.rest.errors;
 
-import java.util.List;
-
+import org.radarcns.auth.exception.NotAuthorizedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.HttpStatus;
@@ -12,13 +13,21 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import java.util.List;
 
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures.
  */
 @ControllerAdvice
 public class ExceptionTranslator {
+    private static final Logger logger = LoggerFactory.getLogger(ExceptionTranslator.class);
+
 
     @ExceptionHandler(ConcurrencyFailureException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
@@ -40,6 +49,14 @@ public class ExceptionTranslator {
         return dto;
     }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorVM processValidationError(MethodArgumentTypeMismatchException ex) {
+        return new ErrorVM(ErrorConstants.ERR_VALIDATION,
+            ex.getName() + ": " + ex.getMessage());
+    }
+
     @ExceptionHandler(CustomParameterizedException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
@@ -47,10 +64,31 @@ public class ExceptionTranslator {
         return ex.getErrorVM();
     }
 
+    @ExceptionHandler(CustomNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public ParameterizedErrorVM processParameterizedNotFound(CustomNotFoundException ex) {
+        return ex.getErrorVM();
+    }
+
+    @ExceptionHandler(CustomConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public ParameterizedErrorVM processParameterizedConflict(CustomConflictException ex) {
+        return ex.getErrorVM();
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody
     public ErrorVM processAccessDeniedException(AccessDeniedException e) {
+        return new ErrorVM(ErrorConstants.ERR_ACCESS_DENIED, e.getMessage());
+    }
+
+    @ExceptionHandler(NotAuthorizedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public ErrorVM processRadarNotAuthorizedException(NotAuthorizedException e) {
         return new ErrorVM(ErrorConstants.ERR_ACCESS_DENIED, e.getMessage());
     }
 
@@ -65,6 +103,7 @@ public class ExceptionTranslator {
     public ResponseEntity<ErrorVM> processRuntimeException(Exception ex) {
         BodyBuilder builder;
         ErrorVM errorVM;
+        logger.error("Failed to process message", ex);
         ResponseStatus responseStatus = AnnotationUtils.findAnnotation(ex.getClass(), ResponseStatus.class);
         if (responseStatus != null) {
             builder = ResponseEntity.status(responseStatus.value());

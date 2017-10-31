@@ -15,14 +15,14 @@ export class ProjectPopupService {
 
     ) {}
 
-    open(component: Component, id?: number | any): NgbModalRef {
+    open(component: Component, projectName?: string): NgbModalRef {
         if (this.isOpen) {
             return;
         }
         this.isOpen = true;
 
-        if (id) {
-            this.projectService.find(id).subscribe((project) => {
+        if (projectName) {
+            this.projectService.find(projectName).subscribe((project) => {
                 project.startDate = this.datePipe
                     .transform(project.startDate, 'yyyy-MM-ddThh:mm');
                 project.endDate = this.datePipe

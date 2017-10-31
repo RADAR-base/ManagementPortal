@@ -17,7 +17,7 @@
                 </a>
             </li>
             <!-- jhipster-needle-add-element-to-menu - JHipster will add new menu items here -->
-            <li *ngSwitchCase="true" ngbDropdown class="nav-item dropdown pointer">
+            <li *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']" ngbDropdown class="nav-item dropdown pointer">
                 <a class="nav-link dropdown-toggle" routerLinkActive="active" ngbDropdownToggle href="javascript:void(0);" id="entity-menu">
                     <span>
                         <i class="fa fa-th-list" aria-hidden="true"></i>
@@ -29,9 +29,9 @@
                 </a>
                 <ul class="dropdown-menu" ngbDropdownMenu>
                     <li uiSrefActive="active">
-                        <a class="dropdown-item" routerLink="device" (click)="collapseNavbar()">
+                        <a class="dropdown-item" routerLink="source" (click)="collapseNavbar()">
                             <i class="fa fa-fw fa-asterisk" aria-hidden="true"></i>
-                            <span jhiTranslate="global.menu.entities.device">Device</span>
+                            <span jhiTranslate="global.menu.entities.source">Source</span>
                         </a>
                     </li>
                     <li uiSrefActive="active">
@@ -47,41 +47,36 @@
                         </a>
                     </li>
                     <li uiSrefActive="active">
-                        <a class="dropdown-item" routerLink="patient" (click)="collapseNavbar()">
+                        <a class="dropdown-item" routerLink="subject" (click)="collapseNavbar()">
                             <i class="fa fa-fw fa-asterisk" aria-hidden="true"></i>
-                            <span jhiTranslate="global.menu.entities.patient">Patient</span>
+                            <span jhiTranslate="global.menu.entities.subject">Subject</span>
                         </a>
                     </li>
                     <!-- jhipster-needle-add-entity-to-menu - JHipster will add entities to the menu here -->
                 </ul>
             </li>
-         <!--   <li *jhiHasAnyAuthority="['ROLE_PROJECT_ADMIN']" ngbDropdown class="nav-item dropdown pointer">
-                <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="admin-menu">
+            <!--Project menu-->
+            <li *ngSwitchCase="true" ngbDropdown class="nav-item dropdown pointer">
+                <a class="nav-link dropdown-toggle" routerLinkActive="active" ngbDropdownToggle href="javascript:void(0);" id="projects-menu">
                     <span>
-                        <i class="fa fa-user-plus" aria-hidden="true"></i>
-                        <span jhiTranslate="global.menu.admin.main">Administration</span>
+                        <i class="fa fa-th-list" aria-hidden="true"></i>
+                        <span jhiTranslate="global.menu.entities.project">
+                            Projects
+                        </span>
                         <b class="caret"></b>
                     </span>
                 </a>
                 <ul class="dropdown-menu" ngbDropdownMenu>
-                    <li>
-                        <a class="dropdown-item" routerLink="user-management" routerLinkActive="active" (click)="collapseNavbar()">
-                            <i class="fa fa-fw fa-user" aria-hidden="true"></i>
-                            <span jhiTranslate="global.menu.admin.userManagement">User management</span>
-                        </a>
-                    </li>
-                    <li>
-                    <li>
-                        <a class="dropdown-item" routerLink="role" routerLinkActive="active" (click)="collapseNavbar()">
-                            <i class="fa fa-fw fa-user" aria-hidden="true"></i>
-                            <span jhiTranslate="global.menu.admin.role">Role</span>
+                    <li uiSrefActive="active" *ngFor="let project of projects ;trackBy: trackProjectName">
+                        <a class="dropdown-item" [routerLink]="['project' , project.projectName]" (click)="collapseNavbar()">
+                            <i class="fa fa-fw fa-desktop" ></i>
+                            <span>{{project.projectName}} </span>
                         </a>
                     </li>
                 </ul>
+            </li>
 
-            </li>-->
-
-            <li *jhiHasAnyAuthority="['ROLE_SYS_ADMIN' , 'ROLE_PROJECT_ADMIN']" ngbDropdown class="nav-item dropdown pointer">
+            <li *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']" ngbDropdown class="nav-item dropdown pointer">
                 <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="admin-menu">
                     <span>
                         <i class="fa fa-user-plus" aria-hidden="true"></i>
@@ -94,12 +89,6 @@
                         <a class="dropdown-item" routerLink="user-management" routerLinkActive="active" (click)="collapseNavbar()">
                             <i class="fa fa-fw fa-user" aria-hidden="true"></i>
                             <span jhiTranslate="global.menu.admin.userManagement">User management</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" routerLink="role" routerLinkActive="active" (click)="collapseNavbar()">
-                            <i class="fa fa-fw fa-user" aria-hidden="true"></i>
-                            <span jhiTranslate="global.menu.admin.role">Role</span>
                         </a>
                     </li>
                     <li >
@@ -108,31 +97,31 @@
                             <span jhiTranslate="global.menu.entities.project">Project</span>
                         </a>
                     </li>
-                    <li>
+                    <li *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']" >
                         <a class="dropdown-item" routerLink="jhi-metrics" routerLinkActive="active" (click)="collapseNavbar()">
                             <i class="fa fa-fw fa-tachometer" aria-hidden="true"></i>
                             <span jhiTranslate="global.menu.admin.metrics">Metrics</span>
                         </a>
                     </li>
-                    <li>
+                    <li *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']">
                         <a class="dropdown-item" routerLink="jhi-health" routerLinkActive="active" (click)="collapseNavbar()">
                             <i class="fa fa-fw fa-heart" aria-hidden="true"></i>
                             <span jhiTranslate="global.menu.admin.health">Health</span>
                         </a>
                     </li>
-                    <li>
+                    <li *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']">
                         <a class="dropdown-item" routerLink="jhi-configuration" routerLinkActive="active" (click)="collapseNavbar()">
                             <i class="fa fa-fw fa-list" aria-hidden="true"></i>
                             <span jhiTranslate="global.menu.admin.configuration">Configuration</span>
                         </a>
                     </li>
-                    <li>
+                    <li *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']">
                         <a class="dropdown-item" routerLink="audits" routerLinkActive="active" (click)="collapseNavbar()">
                             <i class="fa fa-fw fa-bell" aria-hidden="true"></i>
                             <span jhiTranslate="global.menu.admin.audits">Audits</span>
                         </a>
                     </li>
-                    <li>
+                    <li *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']">
                         <a class="dropdown-item" routerLink="logs" routerLinkActive="active" (click)="collapseNavbar()">
                             <i class="fa fa-fw fa-tasks" aria-hidden="true"></i>
                             <span jhiTranslate="global.menu.admin.logs">Logs</span>

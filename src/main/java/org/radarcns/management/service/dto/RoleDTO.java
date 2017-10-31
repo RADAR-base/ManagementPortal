@@ -1,9 +1,5 @@
 package org.radarcns.management.service.dto;
 
-import java.util.HashSet;
-import java.util.Set;
-import org.radarcns.management.domain.Project;
-
 /**
  * Created by nivethika on 23-5-17.
  */
@@ -11,6 +7,8 @@ public class RoleDTO {
     private Long id;
 
     private Long projectId;
+
+    private String projectName;
 
     private String authorityName;
 
@@ -36,5 +34,13 @@ public class RoleDTO {
 
     public void setAuthorityName(String authorityName) {
         this.authorityName = authorityName;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 }

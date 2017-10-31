@@ -31,8 +31,8 @@ export class ProjectService {
         });
     }
 
-    find(id: number): Observable<Project> {
-        return this.http.get(`${this.resourceUrl}/${id}`).map((res: Response) => {
+    find(projectName: string): Observable<Project> {
+        return this.http.get(`${this.resourceUrl}/${projectName}`).map((res: Response) => {
             const jsonResponse = res.json();
             jsonResponse.startDate = this.dateUtils
                 .convertDateTimeFromServer(jsonResponse.startDate);
@@ -49,8 +49,19 @@ export class ProjectService {
         ;
     }
 
-    delete(id: number): Observable<Response> {
-        return this.http.delete(`${this.resourceUrl}/${id}`);
+    findAll(fetchMinimal: boolean): Observable<Response> {
+
+        return this.http.get(`${this.resourceUrl}?minimized=${fetchMinimal}`)
+        .map((res: any) => this.convertResponse(res))
+            ;
+    }
+
+    findDeviceTypesByName(projectName: string): Observable<Response> {
+        return this.http.get(`${this.resourceUrl}/${projectName}/device-types`);
+    }
+
+    delete(projectName: string): Observable<Response> {
+        return this.http.delete(`${this.resourceUrl}/${projectName}`);
     }
 
     private convertResponse(res: any): any {
@@ -79,5 +90,9 @@ export class ProjectService {
             options.search = params;
         }
         return options;
+    }
+
+    findRoles(projectName: string): Observable<Response> {
+        return this.http.get(`${this.resourceUrl}/${projectName}/roles`);
     }
 }

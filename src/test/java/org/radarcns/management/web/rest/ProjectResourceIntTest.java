@@ -4,6 +4,7 @@ import org.radarcns.management.ManagementPortalApp;
 
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.repository.ProjectRepository;
+import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.radarcns.management.service.ProjectService;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
@@ -18,12 +19,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.ZoneOffset;
@@ -91,18 +96,29 @@ public class ProjectResourceIntTest {
     @Autowired
     private EntityManager em;
 
+    @Autowired
+    private HttpServletRequest servletRequest;
+
     private MockMvc restProjectMockMvc;
 
     private Project project;
 
     @Before
-    public void setup() {
+    public void setup() throws ServletException {
         MockitoAnnotations.initMocks(this);
-        ProjectResource projectResource = new ProjectResource(projectService);
+        ProjectResource projectResource = new ProjectResource();
+        ReflectionTestUtils.setField(projectResource, "projectService", projectService);
+        ReflectionTestUtils.setField(projectResource, "servletRequest", servletRequest);
+
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        filter.init(new MockFilterConfig());
+
         this.restProjectMockMvc = MockMvcBuilders.standaloneSetup(projectResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
-            .setMessageConverters(jacksonMessageConverter).build();
+            .setMessageConverters(jacksonMessageConverter)
+            .addFilter(filter)
+            .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
     }
 
     /**
@@ -260,7 +276,7 @@ public class ProjectResourceIntTest {
         projectRepository.saveAndFlush(project);
 
         // Get the project
-        restProjectMockMvc.perform(get("/api/projects/{id}", project.getId()))
+        restProjectMockMvc.perform(get("/api/projects/{projectName}", project.getProjectName()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(project.getId().intValue()))
@@ -348,7 +364,7 @@ public class ProjectResourceIntTest {
         int databaseSizeBeforeDelete = projectRepository.findAll().size();
 
         // Get the project
-        restProjectMockMvc.perform(delete("/api/projects/{id}", project.getId())
+        restProjectMockMvc.perform(delete("/api/projects/{projectName}", project.getProjectName())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 

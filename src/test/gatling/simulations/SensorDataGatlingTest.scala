@@ -80,7 +80,7 @@ class SensorDataGatlingTest extends Simulation {
             .exec(http("Create new sensorData")
             .post("/api/sensor-data")
             .headers(headers_http_authenticated)
-            .body(StringBody("""{"id":null, "sensorType":"SAMPLE_TEXT", "dataType":null, "dataFormat":"SAMPLE_TEXT", "frequency":"SAMPLE_TEXT"}""")).asJSON
+            .body(StringBody("""{"id":null, "sensorName":"SAMPLE_TEXT", "dataType":null, "keySchema":"SAMPLE_TEXT", "frequency":"SAMPLE_TEXT"}""")).asJSON
             .check(status.is(201))
             .check(headerRegex("Location", "(.*)").saveAs("new_sensorData_url"))).exitHereIfFailed
             .pause(10)

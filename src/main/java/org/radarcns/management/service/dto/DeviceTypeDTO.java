@@ -1,11 +1,11 @@
 package org.radarcns.management.service.dto;
 
 
-import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Objects;
+import java.util.Set;
+import javax.validation.constraints.NotNull;
 import org.radarcns.management.domain.enumeration.SourceType;
 
 /**
@@ -15,15 +15,24 @@ public class DeviceTypeDTO implements Serializable {
 
     private Long id;
 
+    @NotNull
     private String deviceProducer;
 
     @NotNull
     private String deviceModel;
 
     @NotNull
+    private String catalogVersion;
+
+    @NotNull
     private SourceType sourceType;
 
+    @NotNull
+    private Boolean canRegisterDynamically = false;
+
     private Set<SensorDataDTO> sensorData = new HashSet<>();
+
+    private DeviceTypeId deviceTypeId;
 
     public Long getId() {
         return id;
@@ -43,6 +52,14 @@ public class DeviceTypeDTO implements Serializable {
         return deviceModel;
     }
 
+    public String getCatalogVersion() {
+        return catalogVersion;
+    }
+
+    public void setCatalogVersion(String catalogVersion) {
+        this.catalogVersion = catalogVersion;
+    }
+
     public void setDeviceModel(String deviceModel) {
         this.deviceModel = deviceModel;
     }
@@ -60,6 +77,24 @@ public class DeviceTypeDTO implements Serializable {
 
     public void setSensorData(Set<SensorDataDTO> sensorData) {
         this.sensorData = sensorData;
+    }
+
+    public Boolean getCanRegisterDynamically() {
+        return canRegisterDynamically;
+    }
+
+    public void setCanRegisterDynamically(Boolean canRegisterDynamically) {
+        this.canRegisterDynamically = canRegisterDynamically;
+    }
+
+    public void initId() {
+        this.deviceTypeId = new DeviceTypeId().producer(deviceProducer)
+                                              .model(deviceModel)
+                                              .version(catalogVersion);
+    }
+
+    public DeviceTypeId getDeviceTypeId() {
+        return deviceTypeId;
     }
 
     @Override
@@ -89,7 +124,45 @@ public class DeviceTypeDTO implements Serializable {
             "id=" + id +
             ", deviceProducer='" + deviceProducer + "'" +
             ", deviceModel='" + deviceModel + "'" +
+            ", catalogVersion='" + catalogVersion + "'" +
             ", sourceType='" + sourceType + "'" +
+            ", canRegisterDynamically='" + canRegisterDynamically + "'" +
             '}';
+    }
+
+    private class DeviceTypeId {
+        private String producer;
+        private String model;
+        private String version;
+
+        public DeviceTypeId() {
+        }
+
+        public DeviceTypeId producer(String producer) {
+            this.producer = producer;
+            return this;
+        }
+
+        public DeviceTypeId model(String model) {
+            this.model = model;
+            return this;
+        }
+
+        public DeviceTypeId version(String version) {
+            this.version = version;
+            return this;
+        }
+
+        public String getProducer() {
+            return producer;
+        }
+
+        public String getModel() {
+            return model;
+        }
+
+        public String getVersion() {
+            return version;
+        }
     }
 }

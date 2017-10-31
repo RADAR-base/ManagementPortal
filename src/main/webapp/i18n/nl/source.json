@@ -1,0 +1,33 @@
+{
+    "managementPortalApp": {
+        "source" : {
+            "home": {
+                "title": "Sources",
+                "createLabel": "Maak een nieuwe Source",
+                "createOrEditLabel": "Maak of wijzig een Source"
+            },
+            "created": "A new Source is created with identifier {{ param }}",
+            "updated": "A Source is updated with identifier {{ param }}",
+            "deleted": "A Source is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Bent u zeker dat u Source {{ id }} wilt verwijderen?"
+            },
+            "detail": {
+                "title": "Source"
+            },
+            "sourceId": "Source Id",
+            "sourceName": "Source Naam",
+            "deviceCategory": "Source Category",
+            "assigned": "Assigned",
+            "unassigned": "Unassigned",
+            "deviceType": "Device Type",
+            "project": "Project",
+            "expectedSourceName" : "Fysiek ID",
+            "sourceAlreadyAdded" : "Deze source is al in uw lijst toegevoegd"
+        }
+    },
+    "error": {
+        "sourceNameExists": "Huidige source naam is al geregistreerd",
+        "sourceIsAssigned": "Kan een momenteel toegewezen source niet bewerken / verwijderen."
+    }
+}

@@ -1,0 +1,71 @@
+{
+    "managementPortalApp": {
+        "subject" : {
+            "home": {
+                "title": "Subjects",
+                "createLabel": "Create a new Subject",
+                "createOrEditLabel": "Create or edit a Subject",
+                "pairAppLabel": "Pair an application"
+            },
+            "created": "A new Subject is created with identifier {{ param }}",
+            "updated": "A Subject is updated with identifier {{ param }}",
+            "deleted": "A Subject is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Subject {{ id }}?"
+            },
+            "detail": {
+                "title": "Subject"
+            },
+            "login": "Login",
+            "email": "Email",
+            "externalLink": "External Link",
+            "externalId": "External Id",
+            "removed": "Removed",
+            "activated": "Activated",
+            "langKey": "Language",
+            "project": "Project",
+            "sources": "Sources",
+            "createdBy": "Created By",
+            "createdDate": "Created Date",
+            "lastModifiedBy": "Last Modified By",
+            "lastModifiedDate": "Last Modified Date",
+            "pairing": "Pairing",
+            "actions": "Actions",
+            "pairApp": "Pair App",
+            "pairSources": {
+                "button" : "Pair Sources",
+                "title" : "Assign or Remove sources ",
+                "Id" : "Id",
+                "sourceDescription" : "Source Description",
+                "remove" : "Remove",
+                "assignedSources" : "Assigned sources",
+                "availableSources" : "Available sources",
+                "deviceType": "Device type",
+                "sourceId": "Source ID",
+                "sourceName": "Source Name",
+                "expectedSourceName": "Physical ID"
+            },
+            "clientApp": "Client app",
+            "resource": "Protected resource",
+            "attributeData" : "Attributes",
+            "status" : {
+                "title" : "Status",
+                "discontinued" : "DISCONTINUED",
+                "active" : "ACTIVATED",
+                "deactivated" : "DEACTIVATED",
+                "invalid": "INVALID"
+            },
+            "discontinue" : {
+                "operation" : "Discontinue",
+                "title" : "Confirm discontinue operation",
+                "question" : "Are you sure you want to discontinue Subject {{ id }}?"
+            },
+            "discontinued": "A Subject is discontinued with identifier {{ param }}",
+            "subjectId" : "Subject Id"
+        }
+    },
+    "error": {
+        "patientEmailRequired": "A valid email is required to activate the subject account",
+        "subjectExists" : "A subject with given project-id and external-id already exists"
+    }
+}

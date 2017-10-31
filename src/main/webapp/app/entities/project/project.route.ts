@@ -10,21 +10,22 @@ import { ProjectPopupComponent } from './project-dialog.component';
 import { ProjectDeletePopupComponent } from './project-delete-dialog.component';
 
 import { Principal } from '../../shared';
+import {SYSTEM_ADMIN, PROJECT_ADMIN} from "../../shared/constants/common.constants";
 
 export const projectRoute: Routes = [
   {
     path: 'project',
     component: ProjectComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN],
         pageTitle: 'managementPortalApp.project.home.title'
     },
     canActivate: [UserRouteAccessService]
   }, {
-    path: 'project/:id',
+    path: 'project/:projectName',
     component: ProjectDetailComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.project.home.title'
     },
     canActivate: [UserRouteAccessService]
@@ -36,27 +37,27 @@ export const projectPopupRoute: Routes = [
     path: 'project-new',
     component: ProjectPopupComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN],
         pageTitle: 'managementPortalApp.project.home.title'
     },
     canActivate: [UserRouteAccessService],
     outlet: 'popup'
   },
   {
-    path: 'project/:id/edit',
+    path: 'project/:projectName/edit',
     component: ProjectPopupComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.project.home.title'
     },
     canActivate: [UserRouteAccessService],
     outlet: 'popup'
   },
   {
-    path: 'project/:id/delete',
+    path: 'project/:projectName/delete',
     component: ProjectDeletePopupComponent,
     data: {
-        authorities: ['ROLE_USER'],
+        authorities: [SYSTEM_ADMIN],
         pageTitle: 'managementPortalApp.project.home.title'
     },
     canActivate: [UserRouteAccessService],

@@ -14,7 +14,8 @@ import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
     templateUrl: './device-type.component.html'
 })
 export class DeviceTypeComponent implements OnInit, OnDestroy {
-deviceTypes: DeviceType[];
+
+    deviceTypes: DeviceType[];
     currentAccount: any;
     eventSubscriber: Subscription;
 

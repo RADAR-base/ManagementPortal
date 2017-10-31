@@ -1,6 +1,7 @@
 
 <div *ngIf="deviceType">
-    <h2><span jhiTranslate="managementPortalApp.deviceType.detail.title">Device Type</span> {{deviceType.id}}</h2>
+    <h2><span jhiTranslate="managementPortalApp.deviceType.detail.title">Device Type</span> {{deviceType.deviceProducer}}
+    {{deviceType.deviceModel}} ({{deviceType.catalogVersion}}) </h2>
     <hr>
     <jhi-alert-error></jhi-alert-error>
     <dl class="row-md jh-entity-details">
@@ -12,6 +13,10 @@
         <dd>
             <span>{{deviceType.deviceModel}}</span>
         </dd>
+        <dt><span jhiTranslate="managementPortalApp.deviceType.catalogVersion">Device Version</span></dt>
+        <dd>
+            <span>{{deviceType.catalogVersion}}</span>
+        </dd>
         <dt><span jhiTranslate="managementPortalApp.deviceType.sourceType">Source Type</span></dt>
         <dd>
             <span jhiTranslate="{{'managementPortalApp.SourceType.' + deviceType.sourceType}}">{{deviceType.sourceType}}</span>
@@ -19,7 +24,7 @@
         <dt><span jhiTranslate="managementPortalApp.deviceType.sensorData">Sensor Data</span></dt>
         <dd>
             <span *ngFor="let sensorData of deviceType.sensorData; let last = last">
-                <a [routerLink]="['/sensor-data', sensorData?.id ]">{{sensorData.sensorType}}</a>{{last ? '' : ', '}}
+                <a [routerLink]="['/sensor-data', sensorData?.sensorName ]">{{sensorData.sensorName}}</a>{{last ? '' : ', '}}
             </span>
         </dd>
     </dl>
@@ -30,10 +35,4 @@
         <span class="fa fa-arrow-left"></span>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
     </button>
 
-    <button type="button"
-            [routerLink]="['/', { outlets: { popup: 'device-type/'+ deviceType.id + '/edit'} }]"
-            replaceUrl="true"
-            class="btn btn-primary">
-        <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
-    </button>
 </div>

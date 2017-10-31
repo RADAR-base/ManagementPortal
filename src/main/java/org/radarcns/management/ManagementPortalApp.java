@@ -5,6 +5,7 @@ import org.radarcns.management.config.DefaultProfileUtil;
 
 import io.github.jhipster.config.JHipsterConstants;
 
+import org.radarcns.management.config.ManagementPortalProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -23,7 +24,8 @@ import java.util.Collection;
 
 @ComponentScan
 @EnableAutoConfiguration(exclude = {MetricFilterAutoConfiguration.class, MetricRepositoryAutoConfiguration.class})
-@EnableConfigurationProperties({LiquibaseProperties.class, ApplicationProperties.class})
+@EnableConfigurationProperties({LiquibaseProperties.class, ApplicationProperties.class ,
+    ManagementPortalProperties.class})
 public class ManagementPortalApp {
 
     private static final Logger log = LoggerFactory.getLogger(ManagementPortalApp.class);

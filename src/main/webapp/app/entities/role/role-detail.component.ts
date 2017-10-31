@@ -3,8 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
 import { EventManager , JhiLanguageService  } from 'ng-jhipster';
 
-import {Role} from "./role.model";
 import {RoleService} from "./role.service";
+import {Role} from "../../admin/user-management/role.model";
 
 @Component({
     selector: 'jhi-role-detail',
@@ -27,13 +27,13 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.subscription = this.route.params.subscribe((params) => {
-            this.load(params['id']);
+            this.load(params['projectName'], params['authorityName']);
         });
         this.registerChangeInRole();
     }
 
-    load(id) {
-        this.roleService.find(id).subscribe((role) => {
+    load(projectName: string, authorityName: string) {
+        this.roleService.find(projectName, authorityName).subscribe((role) => {
             this.role = role;
         });
     }
@@ -47,6 +47,6 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
     }
 
     registerChangeInRole() {
-        this.eventSubscriber = this.eventManager.subscribe('roleListModification', (response) => this.load(this.role.id));
+        this.eventSubscriber = this.eventManager.subscribe('roleListModification', (response) => this.load(this.role.projectName, this.role.authorityName));
     }
 }

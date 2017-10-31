@@ -4,6 +4,7 @@ import org.radarcns.management.ManagementPortalApp;
 import org.radarcns.management.config.audit.AuditEventConverter;
 import org.radarcns.management.domain.PersistentAuditEvent;
 import org.radarcns.management.repository.PersistenceAuditEventRepository;
+import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.radarcns.management.service.AuditEventService;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,11 +16,15 @@ import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -57,20 +62,31 @@ public class AuditResourceIntTest {
     @Autowired
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
+    @Autowired
+    private HttpServletRequest servletRequest;
+
     private PersistentAuditEvent auditEvent;
 
     private MockMvc restAuditMockMvc;
 
     @Before
-    public void setup() {
+    public void setup() throws ServletException {
         MockitoAnnotations.initMocks(this);
         AuditEventService auditEventService =
             new AuditEventService(auditEventRepository, auditEventConverter);
-        AuditResource auditResource = new AuditResource(auditEventService);
+        AuditResource auditResource = new AuditResource();
+        ReflectionTestUtils.setField(auditResource, "auditEventService", auditEventService);
+        ReflectionTestUtils.setField(auditResource, "servletRequest", servletRequest);
+
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        filter.init(new MockFilterConfig());
+
         this.restAuditMockMvc = MockMvcBuilders.standaloneSetup(auditResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setConversionService(formattingConversionService)
-            .setMessageConverters(jacksonMessageConverter).build();
+            .setMessageConverters(jacksonMessageConverter)
+            .addFilter(filter)
+            .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
     }
 
     @Before

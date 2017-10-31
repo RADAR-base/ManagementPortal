@@ -1,6 +1,6 @@
 
 <div *ngIf="role">
-    <h2><span jhiTranslate="managementPortalApp.role.detail.title">Role</span> {{role.id}}</h2>
+    <h2><span jhiTranslate="managementPortalApp.role.detail.title">Role</span> {{role.authorityName}} - {{role.projectName}}</h2>
     <hr>
     <jhi-alert-error></jhi-alert-error>
     <dl class="row-md jh-entity-details">
@@ -10,7 +10,7 @@
         </dd>
         <dt><span jhiTranslate="managementPortalApp.role.project">Project</span></dt>
         <dd>
-            <span>{{role.projectId}}</span>
+            <span>{{role.projectName}}</span>
         </dd>
     </dl>
 

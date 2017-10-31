@@ -27,7 +27,8 @@ describe('Component Tests', () => {
                     DatePipe,
                     {
                         provide: ActivatedRoute,
-                        useValue: new MockActivatedRoute({id: 123})
+                        useValue: new MockActivatedRoute({deviceTypeProducer: 'testProducer',
+                            deviceTypeModel: 'testModel', catalogVersion: 'testVersion'})
                     },
                     DeviceTypeService,
                     EventManager
@@ -56,7 +57,7 @@ describe('Component Tests', () => {
             comp.ngOnInit();
 
             // THEN
-            expect(service.find).toHaveBeenCalledWith(123);
+            expect(service.find).toHaveBeenCalledWith('testProducer', 'testModel', 'testVersion');
             expect(comp.deviceType).toEqual(jasmine.objectContaining({id:10}));
             });
         });

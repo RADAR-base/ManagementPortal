@@ -1,2 +1,3 @@
-id;project_name;description;jhi_organization;location;project_status;project_admin
-1;radar;RadarTest;Radar-CNS;London;PLANNING;
+id;project_name;description;jhi_organization;location;project_status
+1;radar;RadarTest;Radar-CNS;London;PLANNING
+2;Radar-Pilot-01;RadarTest2;Radar-CNS;Frieburg;PLANNING

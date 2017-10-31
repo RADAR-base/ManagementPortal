@@ -27,6 +27,8 @@ spring:
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
         url: jdbc:h2:mem:managementportal;DB_CLOSE_DELAY=-1
+#        driverClassName: org.postgresql.Driver
+#        url: jdbc:postgresql://localhost:5432/managementportal
         username: ManagementPortal
         password:
     h2:
@@ -34,7 +36,9 @@ spring:
             enabled: false
     jpa:
         database-platform: io.github.jhipster.domain.util.FixedH2Dialect
+#        database-platform: org.hibernate.dialect.PostgreSQLDialect
         database: H2
+#        database: POSTGRESQL
         show-sql: true
         properties:
             hibernate.id.new_generator_mappings: true
@@ -85,6 +89,16 @@ liquibase:
 server:
     port: 8080
 
+
+# ===================================================================
+# ManagementPortal specific properties
+#
+# ===================================================================
+managementportal:
+    mail: # specific ManagementPortal mail property, for standard properties see MailProperties
+        from: ManagementPortal@localhost
+        baseUrl: http://my-server-url-to-change # Modify according to your server's URL
+
 # ===================================================================
 # JHipster specific properties
 #
@@ -106,9 +120,6 @@ jhipster:
         exposed-headers:
         allow-credentials: true
         max-age: 1800
-    mail: # specific JHipster mail property, for standard properties see MailProperties
-        from: user@example.com
-        base-url: http://127.0.0.1:8080
     metrics: # DropWizard Metrics configuration, used by MetricsConfiguration
         jmx.enabled: true
         graphite: # Use the "graphite" Maven profile to have the Graphite dependencies

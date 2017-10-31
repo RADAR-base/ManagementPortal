@@ -5,7 +5,6 @@ import { ManagementPortalSharedModule } from '../../shared';
 import {
     RoleService,
     RolePopupService,
-    RoleComponent,
     RoleDetailComponent,
     RoleDialogComponent,
     RolePopupComponent,
@@ -24,13 +23,11 @@ const ENTITY_STATES = [
         RouterModule.forRoot(ENTITY_STATES, { useHash: true })
     ],
     declarations: [
-        RoleComponent,
         RoleDetailComponent,
         RoleDialogComponent,
         RolePopupComponent,
     ],
     entryComponents: [
-        RoleComponent,
         RolePopupComponent,
         RoleDialogComponent,
     ],

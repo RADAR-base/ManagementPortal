@@ -1,22 +1,36 @@
 package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import org.radarcns.management.security.AuthoritiesConstants;
+import io.github.jhipster.web.util.ResponseUtil;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.service.RoleService;
 import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
-import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+
+import static org.radarcns.auth.authorization.Permission.ROLE_CREATE;
+import static org.radarcns.auth.authorization.Permission.ROLE_READ;
+import static org.radarcns.auth.authorization.Permission.ROLE_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing Role.
@@ -29,11 +43,11 @@ public class RoleResource {
 
     private static final String ENTITY_NAME = "role";
 
-    private final RoleService roleService;
+    @Autowired
+    private RoleService roleService;
 
-    public RoleResource(RoleService roleService) {
-        this.roleService = roleService;
-    }
+    @Autowired
+    private HttpServletRequest servletRequest;
 
     /**
      * POST  /Roles : Create a new role.
@@ -44,9 +58,9 @@ public class RoleResource {
      */
     @PostMapping("/roles")
     @Timed
-    @Secured( {AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.SYS_ADMIN})
     public ResponseEntity<RoleDTO> createRole(@Valid @RequestBody RoleDTO roleDTO) throws URISyntaxException {
         log.debug("REST request to save Role : {}", roleDTO);
+        checkPermissionOnProject(getJWT(servletRequest), ROLE_CREATE, roleDTO.getProjectName());
         if (roleDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new role cannot already have an ID")).body(null);
         }
@@ -72,6 +86,7 @@ public class RoleResource {
         if (roleDTO.getId() == null) {
             return createRole(roleDTO);
         }
+        checkPermissionOnProject(getJWT(servletRequest), ROLE_UPDATE, roleDTO.getProjectName());
         RoleDTO result = roleService.save(roleDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, roleDTO.getId().toString()))
@@ -104,43 +119,19 @@ public class RoleResource {
     }
 
     /**
-     * GET  /roles : get all the roles created for this project.
+     * GET  /roles/:projectName/:authorityName : get the role of the specified project and authority
      *
-     * @return the ResponseEntity with status 200 (OK) and the list of roles in body
-     */
-    @GetMapping("/roles/project/{id}")
-    @Timed
-    public List<RoleDTO> getRolesByProject(@PathVariable Long id) {
-        log.debug("REST request to get all Roles for this project");
-        return roleService.getRolesByProject(id);
-    }
-
-    /**
-     * GET  /roles/:id : get the "id" role.
-     *
-     * @param id the id of the roleDTO to retrieve
+     * @param projectName The project name
+     * @param authorityName The authority name
      * @return the ResponseEntity with status 200 (OK) and with body the roleDTO, or with status 404 (Not Found)
      */
-    @GetMapping("/roles/{id}")
+    @GetMapping("/roles/{projectName}/{authorityName}")
     @Timed
-    public ResponseEntity<RoleDTO> getRole(@PathVariable Long id) {
-        log.debug("REST request to get Role : {}", id);
-        RoleDTO roleDTO = roleService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(roleDTO));
-    }
-
-    /**
-     * DELETE  /roles/:id : delete the "id" role.
-     *
-     * @param id the id of the roleDTO to delete
-     * @return the ResponseEntity with status 200 (OK)
-     */
-    @DeleteMapping("/roles/{id}")
-    @Timed
-    public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
-        log.debug("REST request to delete Role : {}", id);
-        roleService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+    public ResponseEntity<RoleDTO> getRole(@PathVariable String projectName,
+        @PathVariable String authorityName) {
+        checkPermissionOnProject(getJWT(servletRequest), ROLE_READ, projectName);
+        return ResponseUtil.wrapOrNotFound(roleService
+            .findOneByProjectNameAndAuthorityName(projectName, authorityName));
     }
 
 }

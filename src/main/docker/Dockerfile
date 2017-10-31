@@ -6,8 +6,11 @@ ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
 # add directly the war
 ADD *.war /app.war
 
+COPY ./etc/changelogs /changelogs
+
 VOLUME /tmp
 EXPOSE 8080 5701/udp
+VOLUME /changelogs
 CMD echo "The application will start in ${JHIPSTER_SLEEP}s..." && \
     sleep ${JHIPSTER_SLEEP} && \
-    java -Djava.security.egd=file:/dev/./urandom -jar /app.war
+    java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -cp /changelogs:/app.war org.springframework.boot.loader.WarLauncher

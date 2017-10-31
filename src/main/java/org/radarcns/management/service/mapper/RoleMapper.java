@@ -22,6 +22,7 @@ public abstract class RoleMapper {
 
     @Mapping(source = "authority.name" , target = "authorityName")
     @Mapping(source = "project.id" , target = "projectId")
+    @Mapping(source = "project.projectName" , target = "projectName")
     public abstract RoleDTO roleToRoleDTO (Role role);
 
     @Mapping(source = "authorityName" , target = "authority")

@@ -4,7 +4,8 @@ describe('Project e2e test', () => {
 
     const username = element(by.id('username'));
     const password = element(by.id('password'));
-    const entityMenu = element(by.id('entity-menu'));
+    const projectMenu = element(by.id('projects-menu'));
+    const adminMenu = element(by.id('admin-menu'));
     const accountMenu = element(by.id('account-menu'));
     const login = element(by.id('login'));
     const logout = element(by.id('logout'));
@@ -22,7 +23,7 @@ describe('Project e2e test', () => {
     });
 
     it('should load Projects', () => {
-        entityMenu.click();
+        adminMenu.click();
         element.all(by.css('[routerLink="project"]')).first().click().then(() => {
             const expectVal = /managementPortalApp.project.home.title/;
             element.all(by.css('h2 span')).first().getAttribute('jhiTranslate').then((value) => {

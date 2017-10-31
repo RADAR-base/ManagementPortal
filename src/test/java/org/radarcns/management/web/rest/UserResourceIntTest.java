@@ -1,38 +1,49 @@
 package org.radarcns.management.web.rest;
 
-import org.radarcns.management.ManagementPortalApp;
-import org.radarcns.management.domain.User;
-import org.radarcns.management.repository.UserRepository;
-import org.radarcns.management.security.AuthoritiesConstants;
-import org.radarcns.management.service.MailService;
-import org.radarcns.management.service.UserService;
-import org.radarcns.management.service.dto.RoleDTO;
-import org.radarcns.management.web.rest.errors.ExceptionTranslator;
-import org.radarcns.management.web.rest.vm.ManagedUserVM;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
+import org.radarcns.management.ManagementPortalApp;
+import org.radarcns.management.domain.User;
+import org.radarcns.management.repository.SubjectRepository;
+import org.radarcns.management.repository.UserRepository;
+import org.radarcns.management.security.JwtAuthenticationFilter;
+import org.radarcns.management.service.MailService;
+import org.radarcns.management.service.UserService;
+import org.radarcns.management.service.dto.RoleDTO;
+import org.radarcns.management.web.rest.errors.ExceptionTranslator;
+import org.radarcns.management.web.rest.vm.ManagedUserVM;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Test class for the UserResource REST controller.
@@ -85,19 +96,35 @@ public class UserResourceIntTest {
     @Autowired
     private EntityManager em;
 
+    @Autowired
+    private SubjectRepository subjectRepository;
+
+    @Autowired
+    private HttpServletRequest servletRequest;
+
     private MockMvc restUserMockMvc;
 
     private User user;
 
     @Before
-    public void setup() {
+    public void setup() throws ServletException {
         MockitoAnnotations.initMocks(this);
-        UserResource userResource = new UserResource(userRepository, mailService, userService);
+        UserResource userResource = new UserResource();
+        ReflectionTestUtils.setField(userResource, "userService", userService);
+        ReflectionTestUtils.setField(userResource, "mailService", mailService);
+        ReflectionTestUtils.setField(userResource, "userRepository", userRepository);
+        ReflectionTestUtils.setField(userResource, "subjectRepository", subjectRepository);
+        ReflectionTestUtils.setField(userResource, "servletRequest", servletRequest);
+
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        filter.init(new MockFilterConfig());
+
         this.restUserMockMvc = MockMvcBuilders.standaloneSetup(userResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
             .setMessageConverters(jacksonMessageConverter)
-            .build();
+            .addFilter(filter)
+            .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
     }
 
     /**
@@ -147,8 +174,7 @@ public class UserResourceIntTest {
             null,
             null,
             null,
-            roles,
-            null);
+            roles);
 
         restUserMockMvc.perform(post("/api/users")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -173,7 +199,7 @@ public class UserResourceIntTest {
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(AuthoritiesConstants.USER);
+        role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
         roles.add(role);
 
         ManagedUserVM managedUserVM = new ManagedUserVM(
@@ -189,8 +215,7 @@ public class UserResourceIntTest {
             null,
             null,
             null,
-            roles,
-            null);
+            roles);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restUserMockMvc.perform(post("/api/users")
@@ -212,7 +237,7 @@ public class UserResourceIntTest {
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(AuthoritiesConstants.USER);
+        role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
         roles.add(role);
         ManagedUserVM managedUserVM = new ManagedUserVM(
             null,
@@ -227,8 +252,7 @@ public class UserResourceIntTest {
             null,
             null,
             null,
-            roles,
-            null);
+            roles);
 
         // Create the User
         restUserMockMvc.perform(post("/api/users")
@@ -250,7 +274,7 @@ public class UserResourceIntTest {
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(AuthoritiesConstants.USER);
+        role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
         roles.add(role);
         ManagedUserVM managedUserVM = new ManagedUserVM(
             null,
@@ -265,8 +289,7 @@ public class UserResourceIntTest {
             null,
             null,
             null,
-            roles,
-            null);
+            roles);
 
         // Create the User
         restUserMockMvc.perform(post("/api/users")
@@ -333,7 +356,7 @@ public class UserResourceIntTest {
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(AuthoritiesConstants.USER);
+        role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
         roles.add(role);
 
         ManagedUserVM managedUserVM = new ManagedUserVM(
@@ -349,8 +372,7 @@ public class UserResourceIntTest {
             updatedUser.getCreatedDate(),
             updatedUser.getLastModifiedBy(),
             updatedUser.getLastModifiedDate(),
-            roles,
-            null);
+            roles);
 
         restUserMockMvc.perform(put("/api/users")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -379,7 +401,7 @@ public class UserResourceIntTest {
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(AuthoritiesConstants.USER);
+        role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
         roles.add(role);
 
         ManagedUserVM managedUserVM = new ManagedUserVM(
@@ -395,7 +417,7 @@ public class UserResourceIntTest {
             updatedUser.getCreatedDate(),
             updatedUser.getLastModifiedBy(),
             updatedUser.getLastModifiedDate(),
-            roles, null);
+            roles);
 
         restUserMockMvc.perform(put("/api/users")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -433,7 +455,7 @@ public class UserResourceIntTest {
         User updatedUser = userRepository.findOne(user.getId());
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(AuthoritiesConstants.USER);
+        role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
         roles.add(role);
 
         ManagedUserVM managedUserVM = new ManagedUserVM(
@@ -449,8 +471,7 @@ public class UserResourceIntTest {
             updatedUser.getCreatedDate(),
             updatedUser.getLastModifiedBy(),
             updatedUser.getLastModifiedDate(),
-            roles,
-            null);
+            roles);
 
         restUserMockMvc.perform(put("/api/users")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -479,7 +500,7 @@ public class UserResourceIntTest {
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(AuthoritiesConstants.USER);
+        role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
         roles.add(role);
 
         ManagedUserVM managedUserVM = new ManagedUserVM(
@@ -495,8 +516,7 @@ public class UserResourceIntTest {
             updatedUser.getCreatedDate(),
             updatedUser.getLastModifiedBy(),
             updatedUser.getLastModifiedDate(),
-            roles,
-            null);
+            roles);
 
         restUserMockMvc.perform(put("/api/users")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
