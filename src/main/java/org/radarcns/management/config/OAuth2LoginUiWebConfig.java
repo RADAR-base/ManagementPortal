@@ -56,10 +56,10 @@ public class OAuth2LoginUiWebConfig {
         Map<String, String[]> params = request.getParameterMap();
 
         Map<String, String> authorizationParameters = Stream.of(
-            OAuth2Utils.CLIENT_ID, OAuth2Utils.REDIRECT_URI, OAuth2Utils.STATE,
-            OAuth2Utils.SCOPE, OAuth2Utils.RESPONSE_TYPE)
-            .filter(params::containsKey)
-            .collect(Collectors.toMap(Function.identity(), p -> params.get(p)[0]));
+                OAuth2Utils.CLIENT_ID, OAuth2Utils.REDIRECT_URI, OAuth2Utils.STATE,
+                OAuth2Utils.SCOPE, OAuth2Utils.RESPONSE_TYPE)
+                .filter(params::containsKey)
+                .collect(Collectors.toMap(Function.identity(), p -> params.get(p)[0]));
 
         AuthorizationRequest authorizationRequest = new DefaultOAuth2RequestFactory
             (clientDetailsService).createAuthorizationRequest(authorizationParameters);

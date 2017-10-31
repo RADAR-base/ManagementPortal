@@ -27,6 +27,11 @@ public final class SecurityUtils {
         return getUserName(securityContext.getAuthentication());
     }
 
+    /**
+     * Get the user name contianed in an Authentication object.
+     * @param authentication context authentication
+     * @return user name or {@code null} if unknown.
+     */
     public static String getUserName(Authentication authentication) {
         if (authentication == null) {
             return null;
@@ -42,6 +47,13 @@ public final class SecurityUtils {
         }
     }
 
+    /**
+     * Parse the {@code "jwt"} attribute from given request.
+     * @param request servlet request
+     * @return decoded JWT
+     * @throws AccessDeniedException if the {@code "jwt"} attribute is missing or does not contain a
+     *                               decoded JWT
+     */
     public static DecodedJWT getJWT(ServletRequest request) {
         Object jwt = request.getAttribute(JwtAuthenticationFilter.TOKEN_ATTRIBUTE);
         if (jwt == null) {
