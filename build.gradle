@@ -134,8 +134,10 @@ if (project.hasProperty('graphite')) {
 //    apply from: 'gradle/prometheus.gradle'
 //}
 
-group = 'org.radarcns.management'
-version = '0.2.0'
+allprojects {
+    group 'org.radarcns'
+    version '0.2.0'
+}
 
 ext.codacyVersion = '2.0.1'
 

@@ -9,9 +9,6 @@ plugins {
     id "com.jfrog.artifactory" version "4.4.18"
 }
 
-group 'org.radarcns'
-version '0.1'
-
 sourceCompatibility = 1.8
 
 ext.okhttpVersion = '3.6.0'
