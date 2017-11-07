@@ -82,13 +82,13 @@ jhipster:
         max-pool-size: 50
         queue-capacity: 10000
     # By default CORS is disabled. Uncomment to enable.
-    #cors:
-        #allowed-origins: "*"
-        #allowed-methods: GET, PUT, POST, DELETE, OPTIONS
-        #allowed-headers: "*"
+    cors:
+        allowed-origins: '*'
+        allowed-methods: GET, PUT, POST, DELETE, OPTIONS
+        allowed-headers: Authorization, Content-Type
         #exposed-headers:
-        #allow-credentials: true
-        #max-age: 1800
+        allow-credentials: true
+        max-age: 1800
     swagger:
         default-include-pattern: /api/.*
         title: ManagementPortal API
