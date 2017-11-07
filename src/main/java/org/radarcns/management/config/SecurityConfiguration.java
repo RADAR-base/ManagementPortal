@@ -107,7 +107,22 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public FilterRegistrationBean jwtAuthenticationFilterRegistration() {
         FilterRegistrationBean registration = new FilterRegistrationBean();
         registration.setFilter(jwtAuthenticationFilter());
-        registration.addUrlPatterns("/api/*", "/management/*");
+        // Servlet filters do not have an API to exclude URLs, we need to exclude
+        // /api/account/reset_password/*, so we need to list all other endpoints
+        registration.addUrlPatterns("/api/account",
+            "/api/account/change_password",
+            "/api/authenticate",
+            "/api/authorities/*",
+            "/api/device-types/*",
+            "/api/oauthclients/*",
+            "/api/profile-info/*",
+            "/api/projects/*",
+            "/api/roles/*",
+            "/api/sensor-data/*",
+            "/api/sources/*",
+            "/api/subjects/*",
+            "/api/users/*",
+            "/management/*");
         registration.setName("jwtAuthenticationFilter");
         registration.setOrder(1);
         return registration;
