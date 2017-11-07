@@ -12,13 +12,14 @@ describe('Generate QR code', () => {
     beforeAll(() => {
         browser.get('/');
 
-        accountMenu.click();
-        login.click();
-
-        username.sendKeys('admin');
-        password.sendKeys('admin');
-        element(by.css('button[type=submit]')).click();
-        browser.waitForAngular();
+        accountMenu.click().then(() => {
+            login.click().then(() => {
+                username.sendKeys('admin');
+                password.sendKeys('admin');
+                element(by.css('button[type=submit]')).click();
+                browser.waitForAngular();
+            });
+        });
     });
 
     it('should load project view', function () {
