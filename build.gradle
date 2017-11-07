@@ -24,19 +24,34 @@ buildscript {
     }
 }
 
+plugins {
+    // Get bintray version
+    id 'com.jfrog.bintray' version '1.7.3'
+    id 'com.jfrog.artifactory' version '4.4.18'
+}
 
+allprojects {
+    group 'org.radarcns'
+    version '0.2.0'
 
-apply plugin: 'java'
+    apply plugin: 'java'
+    apply plugin: 'java-library'
+    apply plugin: 'idea'
+    apply plugin: 'checkstyle'
+    apply plugin: 'pmd'
+    apply plugin: 'com.jfrog.bintray'
+    apply plugin: 'maven-publish'
+    apply plugin: 'jacoco'
+    apply plugin: 'com.jfrog.artifactory'
+}
+
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
-apply plugin: 'maven'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'war'
 apply plugin: 'propdeps'
 apply plugin: 'com.moowork.node'
 apply plugin: 'io.spring.dependency-management'
-apply plugin: 'idea'
-apply plugin: 'jacoco'
 defaultTasks 'bootRun'
 
 bootRepackage {
@@ -133,11 +148,6 @@ if (project.hasProperty('graphite')) {
 //if (project.hasProperty('prometheus')) {
 //    apply from: 'gradle/prometheus.gradle'
 //}
-
-allprojects {
-    group 'org.radarcns'
-    version '0.2.0'
-}
 
 ext.codacyVersion = '2.0.1'
 
