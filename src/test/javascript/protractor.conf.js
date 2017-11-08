@@ -3,7 +3,7 @@ const JasmineReporters = require('jasmine-reporters');
 const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
 
 exports.config = {
-    allScriptsTimeout: 20000,
+    allScriptsTimeout: 120000,
 
     specs: [
         './e2e/account/*.spec.ts',
@@ -17,7 +17,7 @@ exports.config = {
         'phantomjs.binary.path': require('phantomjs-prebuilt').path,
         'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG'],
         chromeOptions: {
-            args: [ "--headless", "--disable-gpu", "--window-size=800x600" ]
+            args: [ "--headless", "--disable-gpu", "--window-size=1280x1024" ]
         }
     },
 

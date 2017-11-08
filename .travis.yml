@@ -31,7 +31,7 @@ install:
   - yarn install
 before_script:
   - cp src/test/resources/config/keystore.jks src/main/resources/config/keystore.jks # we need the keystore to run our app, and we need our app to run e2e tests
-  - ./gradlew bootRun &
+  - ./gradlew bootRun 1> /dev/null &
   - sleep 60 # give spring boot some time to start
 script:
   - ./gradlew test
