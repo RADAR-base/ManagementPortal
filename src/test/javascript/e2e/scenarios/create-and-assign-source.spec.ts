@@ -99,6 +99,7 @@ describe('Create, assign, unassign and delete source', () => {
             .all(by.xpath('ancestor::tr'))
             .all(by.cssContainingText('button', 'Delete'))
             .click().then(() => {
+                browser.waitForAngular();
                 element(by.cssContainingText('.modal-footer button', 'Delete')).click().then(() => {
                     // if the delete succeeded the dialog will be disappeared and no Cancel button will be here anymore
                     element(by.buttonText('Cancel')).click();
@@ -111,6 +112,7 @@ describe('Create, assign, unassign and delete source', () => {
             element.all(by.cssContainingText('subjects td a', sourceName))
             .all(by.xpath('ancestor::tr'))
             .all(by.cssContainingText('button', 'Pair Sources')).first().click().then(() => {
+                browser.waitForAngular();
                 element(by.cssContainingText('button', 'Remove')).click().then(() => {
                     browser.waitForAngular();
                     // source should be moved back to available sources table
@@ -138,7 +140,9 @@ describe('Create, assign, unassign and delete source', () => {
                 .all(by.xpath('ancestor::tr'))
                 .all(by.cssContainingText('button', 'Delete'))
                 .click().then(() => {
+                    browser.waitForAngular();
                     element(by.cssContainingText('.modal-footer button', 'Delete')).click().then(() => {
+                        browser.waitForAngular();
                         element.all(by.css('sources tbody tr')).count().then(function (count) {
                             expect(count).toBe(0);
                         });
