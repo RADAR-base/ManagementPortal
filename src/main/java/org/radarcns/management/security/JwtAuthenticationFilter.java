@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
@@ -29,6 +30,11 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws
             IOException, ServletException {
+        if (CorsUtils.isPreFlightRequest((HttpServletRequest) request)) {
+            log.debug("Skipping JWT check for preflight request");
+            chain.doFilter(request, response);
+            return;
+        }
         try {
             request.setAttribute(TOKEN_ATTRIBUTE, validator.validateAccessToken(getToken(request, response)));
             log.debug("Request authenticated successfully");
