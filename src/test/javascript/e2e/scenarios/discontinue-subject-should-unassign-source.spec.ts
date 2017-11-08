@@ -29,8 +29,8 @@ describe('Discontinued subject should unassign sources', () => {
     });
 
     it('should be able to create a subject', function () {
-        element(by.buttonText('Create a new Subject')).click().then(() => {
-            element(by.buttonText('Save')).click();
+        element(by.css('subjects h4 button.btn-primary')).click().then(() => {
+            element(by.css('.modal-footer button.btn-primary')).click();
         });
     });
 
@@ -42,7 +42,7 @@ describe('Discontinued subject should unassign sources', () => {
                 element.all(by.css('select option')).then(function(options) {
                     options[1].click();
                 });
-                element(by.cssContainingText('button.btn-primary', 'Save')).click().then(() => {
+                element(by.css('.modal-footer button.btn-primary')).click().then(() => {
                     browser.waitForAngular();
                     element.all(by.css('sources tbody tr')).count().then(function(count) {
                         expect(count).toEqual(1);
@@ -126,7 +126,8 @@ describe('Discontinued subject should unassign sources', () => {
             .all(by.xpath('ancestor::tr'))
             .all(by.cssContainingText('button', 'Delete'))
             .click().then(() => {
-                element(by.cssContainingText('.modal-footer button', 'Delete')).click().then(() => {
+                element(by.css('.modal-footer button.btn-danger')).click().then(() => {
+                    browser.waitForAngular();
                     element.all(by.css('sources tbody tr')).count().then(function (count) {
                         expect(count).toBe(0);
                     });
@@ -141,7 +142,7 @@ describe('Discontinued subject should unassign sources', () => {
                 .element(by.xpath('ancestor::tr'));
             row.element(by.buttonText('Delete')).click().then(() => {
                 expect(element(by.css('h4.modal-title')).getAttribute('jhitranslate')).toMatch('entity.delete.title');
-                element(by.name('deleteForm')).element(by.buttonText('Delete')).click();
+                element(by.css('.modal-footer button.btn-danger')).click();
             });
         });
     });

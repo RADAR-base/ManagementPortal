@@ -91,6 +91,8 @@ describe('account', () => {
         password.sendKeys('newpassword');
         element(by.css('button[type=submit]')).click();
 
+        browser.waitForAngular();
+
         accountMenu.click();
         element(by.css('[routerLink="password"]')).click();
         // change back to default
