@@ -25,9 +25,7 @@ buildscript {
 }
 
 plugins {
-    // Get bintray version
     id 'com.jfrog.bintray' version '1.7.3'
-    id 'com.jfrog.artifactory' version '4.4.18'
 }
 
 allprojects {
@@ -42,7 +40,6 @@ allprojects {
     apply plugin: 'com.jfrog.bintray'
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
-    apply plugin: 'com.jfrog.artifactory'
 }
 
 sourceCompatibility = '1.8'
