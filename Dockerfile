@@ -12,6 +12,8 @@ COPY build.gradle gradle.properties gradlew package.json postcss.config.js proxy
 COPY gradle gradle
 COPY changelogs changelogs
 COPY webpack webpack
+COPY radar-auth radar-auth
+COPY oauth-client-util oauth-client-util
 RUN ./gradlew --no-daemon -s -Pprod npmInstall
 
 # now we copy our application source code and build it
