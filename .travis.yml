@@ -40,6 +40,29 @@ script:
   - ./gradlew bootRepackage -Pprod -x test
 after_script:
   - ./gradlew sendCoverageToCodacy
+deploy:
+  - provider: releases
+    api_key: ${GH_TOKEN}
+    file_glob: true
+    file:
+      - "build/libs/*.war"
+    skip_cleanup: true
+    on:
+      tags: true
+  - provider: script
+    script:
+      - ./gradlew oauth-client-util:artifactoryPublish
+      - ./gradlew radar-auth:artifactoryPublish
+    skip_cleanup: true
+    on:
+      branch: dev
+  - provider: script
+    script:
+      - ./gradlew oauth-client-util:bintrayUpload
+      - ./gradlew radar-auth:bintrayUpload
+    skip_cleanup: true
+    on:
+      tags: true
 notifications:
   webhooks:
     on_success: change  # options: [always|never|change] default: always
