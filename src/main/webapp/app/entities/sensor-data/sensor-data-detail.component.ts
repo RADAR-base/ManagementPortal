@@ -27,13 +27,13 @@ export class SensorDataDetailComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.subscription = this.route.params.subscribe((params) => {
-            this.load(params['id']);
+            this.load(params['sensorName']);
         });
         this.registerChangeInSensorData();
     }
 
-    load(id) {
-        this.sensorDataService.find(id).subscribe((sensorData) => {
+    load(sensorName) {
+        this.sensorDataService.find(sensorName).subscribe((sensorData) => {
             this.sensorData = sensorData;
         });
     }
@@ -47,6 +47,6 @@ export class SensorDataDetailComponent implements OnInit, OnDestroy {
     }
 
     registerChangeInSensorData() {
-        this.eventSubscriber = this.eventManager.subscribe('sensorDataListModification', (response) => this.load(this.sensorData.id));
+        this.eventSubscriber = this.eventManager.subscribe('sensorDataListModification', (response) => this.load(this.sensorData.sensorName));
     }
 }

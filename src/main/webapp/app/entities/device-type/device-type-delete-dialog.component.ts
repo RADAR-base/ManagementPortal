@@ -29,8 +29,8 @@ export class DeviceTypeDeleteDialogComponent {
         this.activeModal.dismiss('cancel');
     }
 
-    confirmDelete(id: number) {
-        this.deviceTypeService.delete(id).subscribe((response) => {
+    confirmDelete(producer: string, model: string, version: string) {
+        this.deviceTypeService.delete(producer, model, version).subscribe((response) => {
             this.eventManager.broadcast({
                 name: 'deviceTypeListModification',
                 content: 'Deleted an deviceType'
@@ -57,7 +57,7 @@ export class DeviceTypeDeletePopupComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
             this.modalRef = this.deviceTypePopupService
-                .open(DeviceTypeDeleteDialogComponent, params['id']);
+                .open(DeviceTypeDeleteDialogComponent, params['deviceTypeProducer'], params['deviceTypeModel'], params['catalogVersion']);
         });
     }
 

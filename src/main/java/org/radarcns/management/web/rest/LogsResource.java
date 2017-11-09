@@ -1,6 +1,6 @@
 package org.radarcns.management.web.rest;
 
-import org.radarcns.management.security.AuthoritiesConstants;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.web.rest.vm.LoggerVM;
 
 import ch.qos.logback.classic.Level;

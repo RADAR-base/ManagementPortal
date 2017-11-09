@@ -4,7 +4,7 @@ import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.RoleRepository;
-import org.radarcns.management.security.AuthoritiesConstants;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.service.mapper.RoleMapper;
 import org.slf4j.Logger;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -58,6 +59,11 @@ public class RoleService {
     public List<RoleDTO> findAll() {
         List<RoleDTO> result = new LinkedList<>();
         User currentUser = userService.getUserWithAuthorities();
+        if (currentUser == null) {
+            // return an empty list if we do not have a current user (e.g. with client credentials
+            // oauth2 grant)
+            return result;
+        }
         List<String> currentUserAuthorities = currentUser.getAuthorities().stream().map(Authority::getName).collect(
             Collectors.toList());
         if(currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN)) {
@@ -68,9 +74,9 @@ public class RoleService {
         }
         else if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
             log.debug("Request to get project admin's project Projects");
-            result =  roleRepository.findAllRolesByProjectId(currentUser.getProject().getId()).stream()
-                .map(roleMapper::roleToRoleDTO)
-                .collect(Collectors.toCollection(LinkedList::new));
+//            result =  roleRepository.findAllRolesByProjectId(currentUser.getProject().getId()).stream()
+//                .map(roleMapper::roleToRoleDTO)
+//                .collect(Collectors.toCollection(LinkedList::new));
         }
         return result;
     }
@@ -114,12 +120,19 @@ public class RoleService {
         roleRepository.delete(id);
     }
 
-    public List<RoleDTO> getRolesByProject(Long projectId) {
-        log.debug("Request to get all Roles for projectId " +projectId);
-        List<RoleDTO> result = roleRepository.findAllRolesByProjectId(projectId).stream()
+    public List<RoleDTO> getRolesByProject(String projectName) {
+        log.debug("Request to get all Roles for projectId " + projectName);
+        List<RoleDTO> result = roleRepository.findAllRolesByProjectName(projectName).stream()
             .map(roleMapper::roleToRoleDTO)
             .collect(Collectors.toCollection(LinkedList::new));
 
         return result;
+    }
+
+    public Optional<RoleDTO> findOneByProjectNameAndAuthorityName(String projectName,
+        String authorityName) {
+        log.debug("Request to get role of project {} and authority {}", projectName, authorityName);
+        return roleRepository.findOneByProjectNameAndAuthorityName(projectName, authorityName)
+            .map(roleMapper::roleToRoleDTO);
     }
 }

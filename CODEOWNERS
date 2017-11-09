@@ -1,2 +1,3 @@
 *                       @nivemaham
-auth-annotation/*       @dennyverbeeck
+radar-auth/*            @dennyverbeeck
+oauth-client-util/*     @dennyverbeeck

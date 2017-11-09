@@ -5,6 +5,15 @@
 /build/www/**
 /src/test/javascript/coverage/
 /src/test/javascript/PhantomJS*/
+keystore.jks
+/src/main/docker/etc/smtp.env
+######################
+# Patch files
+######################
+*.patch
+
+# don't ignore .jks keystores in test folders
+!**/test/resources/**/keystore.jks
 
 ######################
 # Node
@@ -76,6 +85,7 @@ local.properties
 ######################
 .gradle/
 /build/
+.gradletasknamecache
 
 ######################
 # Package Files
@@ -112,6 +122,7 @@ Desktop.ini
 ######################
 /bin/
 /deploy/
+.jhipster/
 
 ######################
 # Logs
@@ -143,3 +154,6 @@ Desktop.ini
 
 # output directory
 /out/
+
+# don't ignore jars in /libs
+!/libs/**/*.jar

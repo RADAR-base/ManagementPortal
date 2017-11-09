@@ -4,17 +4,17 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
     <!--
-        Added the constraints for entity Device.
+        Added the constraints for entSourcevice.
     -->
     <changeSet id="20170516143459-2" author="jhipster">
 
 
 
-        <addForeignKeyConstraint baseColumnNames="project_id"
-                                 baseTableName="radar_user"
-                                 constraintName="fk_user_device_type_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="project"/>
+        <!--<addForeignKeyConstraint baseColumnNames="project_id"-->
+                                 <!--baseTableName="radar_user"-->
+                                 <!--constraintName="fk_user_device_type_id"-->
+                                 <!--referencedColumnNames="id"-->
+                                 <!--referencedTableName="project"/>-->
 
     </changeSet>
 </databaseChangeLog>

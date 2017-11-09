@@ -31,16 +31,16 @@
     -->
     <changeSet id="20170517160300-1" author="nivethika@thehyve.nl">
 
-        <loadData encoding="UTF-8"
-                  file="../roles.csv"
-                  relativeToChangelogFile="true"
-                  separator=";"
-                  tableName="radar_role"/>
+        <!--<loadData encoding="UTF-8"-->
+                  <!--file="../roles.csv"-->
+                  <!--relativeToChangelogFile="true"-->
+                  <!--separator=";"-->
+                  <!--tableName="radar_role"/>-->
 
-        <loadData encoding="UTF-8"
-                  file="../role_users.csv"
-                  relativeToChangelogFile="true"
-                  separator=";"
-                  tableName="role_users"/>
+        <!--<loadData encoding="UTF-8"-->
+                  <!--file="../role_users.csv"-->
+                  <!--relativeToChangelogFile="true"-->
+                  <!--separator=";"-->
+                  <!--tableName="role_users"/>-->
     </changeSet>
 </databaseChangeLog>

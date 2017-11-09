@@ -1,34 +1,39 @@
 package org.radarcns.management.service;
 
-import java.util.stream.Collectors;
-import org.radarcns.management.domain.Authority;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
+import org.radarcns.management.config.Constants;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
-import org.radarcns.management.config.Constants;
+import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.UserRepository;
-import org.radarcns.management.security.AuthoritiesConstants;
 import org.radarcns.management.security.SecurityUtils;
+import org.radarcns.management.service.dto.ProjectDTO;
+import org.radarcns.management.service.dto.RoleDTO;
+import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.RoleMapper;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
-import org.radarcns.management.service.dto.UserDTO;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Service class for managing users.
@@ -39,35 +44,29 @@ public class UserService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    private final ProjectRepository projectRepository;
+    @Autowired
+    private ProjectRepository projectRepository;
 
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    public final JdbcTokenStore jdbcTokenStore;
+    @Autowired
+    private RoleRepository roleRepository;
 
-    private final RoleRepository roleRepository;
+    @Autowired
+    private ProjectMapper projectMapper;
 
-    private final ProjectMapper projectMapper;
+    @Autowired
+    private UserMapper userMapper;
 
-    private final UserMapper userMapper;
+    @Autowired
+    private  AuthorityRepository authorityRepository;
 
-    private final RoleMapper roleMapper;
-
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-        JdbcTokenStore jdbcTokenStore, RoleRepository roleRepository,
-        ProjectRepository projectRepository, ProjectMapper projectMapper,
-        UserMapper userMapper, RoleMapper roleMapper) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jdbcTokenStore = jdbcTokenStore;
-        this.roleRepository = roleRepository;
-        this.projectRepository = projectRepository;
-        this.projectMapper = projectMapper;
-        this.userMapper = userMapper;
-        this.roleMapper = roleMapper;
-    }
+    @Autowired
+    private RoleMapper roleMapper;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -108,35 +107,7 @@ public class UserService {
             });
     }
 
-    public User createUser(String login, String password, String firstName, String lastName,
-        String email,
-        String langKey) {
-
-        User newUser = new User();
-        // TODO check how this is used in the system, setting default user role?
-        Role role = roleRepository.findRolesByAuthorityName(AuthoritiesConstants.USER).get(0);
-        Set<Role> roles = new HashSet<>();
-        String encryptedPassword = passwordEncoder.encode(password);
-        newUser.setLogin(login);
-        // new user gets initially a generated password
-        newUser.setPassword(encryptedPassword);
-        newUser.setFirstName(firstName);
-        newUser.setLastName(lastName);
-        newUser.setEmail(email);
-        newUser.setLangKey(langKey);
-        // new user is not active
-        newUser.setActivated(false);
-        // new user gets registration key
-        newUser.setActivationKey(RandomUtil.generateActivationKey());
-        roles.add(role);
-        newUser.setRoles(roles);
-        userRepository.save(newUser);
-        log.debug("Created Information for User: {}", newUser);
-        return newUser;
-    }
-
     public User createUser(UserDTO userDTO) {
-        log.info("User project ----> "+userDTO.getProject());
         User user = new User();
         user.setLogin(userDTO.getLogin());
         user.setFirstName(userDTO.getFirstName());
@@ -147,23 +118,40 @@ public class UserService {
         } else {
             user.setLangKey(userDTO.getLangKey());
         }
-        user.setRoles(roleMapper.roleDTOsToRoles(userDTO.getRoles()));
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
         user.setPassword(encryptedPassword);
         user.setResetKey(RandomUtil.generateResetKey());
         user.setResetDate(ZonedDateTime.now());
         user.setActivated(false);
-        if(userDTO.getProject()!= null && userDTO.getProject().getId() != null) {
-            Project project = projectMapper.projectDTOToProject(userDTO.getProject());
-            user.setProject(project);
-//            if(userDTO.getAuthorities() != null && userDTO.getAuthorities().contains(AuthoritiesConstants.PROJECT_ADMIN)) {
-//                project.setProjectAdmin(user.getId());
-//                projectRepository.save(project);
-//            }
-        }
+
+        user.setRoles(getUserRoles(userDTO));
         userRepository.save(user);
         log.debug("Created Information for User: {}", user);
         return user;
+    }
+
+    private Set<Role> getUserRoles(UserDTO userDTO) {
+        Set<Role> roles = new HashSet<>();
+        for (RoleDTO roleDTO : userDTO.getRoles()) {
+            Role role = roleRepository
+                .findOneByProjectIdAndAuthorityName(roleDTO.getProjectId(),
+                    roleDTO.getAuthorityName());
+            if (role == null || role.getId() == null) {
+                Role currentRole = new Role();
+                currentRole.setAuthority(
+                    authorityRepository.findByAuthorityName(roleDTO.getAuthorityName()));
+                if (roleDTO.getProjectId() != null) {
+                    currentRole.setProject(projectRepository.getOne(roleDTO.getProjectId()));
+                }
+                // supplied authorityname can be anything, so check if we actually have one
+                if (Objects.nonNull(currentRole.getAuthority())) {
+                    roles.add(roleRepository.save(currentRole));
+                }
+            } else {
+                roles.add(role);
+            }
+        }
+        return roles;
     }
 
     /**
@@ -202,11 +190,8 @@ public class UserService {
                 user.setLangKey(userDTO.getLangKey());
                 Set<Role> managedRoles = user.getRoles();
                 managedRoles.clear();
-                managedRoles.addAll(roleMapper.roleDTOsToRoles(userDTO.getRoles()));
-                if(userDTO.getProject()!=null && userDTO.getProject().getId() != null) {
-                    Project project = projectMapper.projectDTOToProject(userDTO.getProject());
-                    user.setProject(project);
-                }
+                managedRoles.addAll(getUserRoles(userDTO));
+
                 log.debug("Changed Information for User: {}", user);
                 return user;
             })
@@ -214,8 +199,6 @@ public class UserService {
     }
 
     public void deleteUser(String login) {
-        jdbcTokenStore.findTokensByUserName(login).forEach(token ->
-            jdbcTokenStore.removeAccessToken(token));
         userRepository.findOneByLogin(login).ifPresent(user -> {
             userRepository.delete(user);
             log.debug("Deleted User: {}", user);
@@ -232,25 +215,32 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Page<UserDTO> getAllManagedUsers(Pageable pageable) {
-        User currentUser = getUserWithAuthorities();
-        List<String> currentUserAuthorities = currentUser.getAuthorities().stream().map(Authority::getName).collect(
-            Collectors.toList());
-        if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
-            log.debug("Request to get all Projects");
-            return userRepository.findAllByProjectId(pageable, currentUser.getProject().getId())
-                .map(userMapper::userToUserDTO);
+        log.debug("Request to get all Users");
+        return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER)
+            .map(userMapper::userToUserDTO);
         }
-        else {
-            log.debug("Request to get all Users");
-            return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER)
-                .map(userMapper::userToUserDTO);
-        }
-
-    }
 
     @Transactional(readOnly = true)
     public Optional<UserDTO> getUserWithAuthoritiesByLogin(String login) {
         return userRepository.findOneWithAuthoritiesByLogin(login).map(userMapper::userToUserDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProjectDTO> getProjectsAssignedToUser(String login) {
+        User userByLogin = userRepository.findOneWithRolesByLogin(login).get();
+        List<Project> projectsOfUser = new ArrayList<>();
+        for ( Role role : userByLogin.getRoles())
+        {
+            // get all projects for admin
+            if(AuthoritiesConstants.SYS_ADMIN.equals(role.getAuthority().getName())) {
+                return projectMapper.projectsToProjectDTOs(projectRepository.findAll());
+            }
+            // get unique project from roles
+            if(!projectsOfUser.contains(role.getProject())){
+                projectsOfUser.add(role.getProject());
+            }
+        }
+        return projectMapper.projectsToProjectDTOs(projectsOfUser);
     }
 
     @Transactional(readOnly = true)
@@ -280,5 +270,21 @@ public class UserService {
             log.debug("Deleting not activated user {}", user.getLogin());
             userRepository.delete(user);
         }
+    }
+
+    public Page<UserDTO> findAllByProjectNameAndAuthority(Pageable pageable, String projectName,
+            String authority) {
+        return userRepository.findAllByProjectNameAndAuthority(pageable, projectName, authority)
+            .map(userMapper::userToUserDTO);
+    }
+
+    public Page<UserDTO> findAllByAuthority(Pageable pageable, String authority) {
+        return userRepository.findAllByAuthority(pageable, authority)
+            .map(userMapper::userToUserDTO);
+    }
+
+    public Page<UserDTO> findAllByProjectName(Pageable pageable, String projectName) {
+        return userRepository.findAllByProjectName(pageable, projectName)
+            .map(userMapper::userToUserDTO);
     }
 }

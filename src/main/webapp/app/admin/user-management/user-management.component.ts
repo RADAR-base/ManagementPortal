@@ -68,16 +68,17 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
         user.activated = isActivated;
 
         this.userService.update(user).subscribe(
-            (response) => {
-                if (response.status === 200) {
+            (res: Response) => {
                     this.error = null;
                     this.success = 'OK';
                     this.loadAll();
-                } else {
+                },
+            (res: Response) => {
+                    user.activated = !isActivated;
                     this.success = null;
                     this.error = 'ERROR';
-                }
-            });
+                    this.onError(res.json());
+                });
     }
 
     loadAll() {
@@ -127,6 +128,6 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
     }
 
     private onError(error) {
-        this.alertService.error(error.error, error.message, null);
+        this.alertService.error(error.message, null, null);
     }
 }

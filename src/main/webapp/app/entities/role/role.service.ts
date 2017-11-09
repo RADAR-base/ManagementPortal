@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Http, Response, URLSearchParams, BaseRequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
+import {Role} from "../../admin/user-management/role.model";
 
-import {Role} from "./role.model";
 @Injectable()
 export class RoleService {
 
@@ -24,14 +24,10 @@ export class RoleService {
         });
     }
 
-    find(id: number): Observable<Role> {
-        return this.http.get(`${this.resourceUrl}/${id}`).map((res: Response) => {
+    find(projectName: string, authorityName: string): Observable<Role> {
+        return this.http.get(`${this.resourceUrl}/${projectName}/${authorityName}`).map((res: Response) => {
             return res.json();
         });
-    }
-
-    findByProject(projectId: number): Observable<Response> {
-        return this.http.get(`${this.resourceUrl}/project/${projectId}`);
     }
 
     query(req?: any): Observable<Response> {
@@ -40,14 +36,12 @@ export class RoleService {
         ;
     }
 
-    findAdminRoles(req?: any): Observable<Response> {
-        const options = this.createRequestOption(req);
-        return this.http.get(`${this.resourceUrl}/admin`, options)
-            ;
+    findAdminRoles(): Observable<Response> {
+        return this.http.get(`${this.resourceUrl}/admin`);
     }
 
-    delete(id: number): Observable<Response> {
-        return this.http.delete(`${this.resourceUrl}/${id}`);
+    delete(projectName: string, authorityName: string): Observable<Response> {
+        return this.http.delete(`${this.resourceUrl}/${projectName}/${authorityName}`);
     }
     private createRequestOption(req?: any): BaseRequestOptions {
         const options: BaseRequestOptions = new BaseRequestOptions();

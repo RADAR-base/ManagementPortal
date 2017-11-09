@@ -1,12 +1,14 @@
 package org.radarcns.management.service.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.service.dto.UserDTO;
-import org.mapstruct.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,7 +18,6 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring", uses = { ProjectMapper.class , RoleMapper.class})
 public interface UserMapper {
 
-    @Mapping(source = "roles", target = "authorities")
     UserDTO userToUserDTO(User user);
 
     List<UserDTO> usersToUserDTOs(List<User> users);
@@ -60,11 +61,17 @@ public interface UserMapper {
     }
 
     default Set<String> stringsFromAuthorities (Set<Authority> authorities) {
+        if (authorities == null) {
+            return null;
+        }
         return authorities.stream().map(Authority::getName)
             .collect(Collectors.toSet());
     }
 
     default Set<Authority> authoritiesFromStrings(Set<String> strings) {
+        if (strings == null) {
+            return null;
+        }
         return strings.stream().map(string -> {
             Authority auth = new Authority();
             auth.setName(string);

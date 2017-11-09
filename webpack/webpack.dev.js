@@ -3,6 +3,7 @@ const path = require('path');
 const commonConfig = require('./webpack.common.js');
 const writeFilePlugin = require('write-file-webpack-plugin');
 const webpackMerge = require('webpack-merge');
+const plugin = require("base-href-webpack-plugin");// Or `import 'base-href-webpack-plugin';` if using typescript
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const ENV = 'dev';
@@ -35,7 +36,7 @@ module.exports = webpackMerge(commonConfig({ env: ENV }), {
     output: {
         path: path.resolve('build/www'),
         filename: '[name].bundle.js',
-        chunkFilename: '[id].chunk.js'
+        chunkFilename: '[id].chunk.js',
     },
     module: {
         rules: [{
@@ -62,6 +63,7 @@ module.exports = webpackMerge(commonConfig({ env: ENV }), {
         new writeFilePlugin(),
         new webpack.WatchIgnorePlugin([
             path.resolve('./src/test'),
-        ])
+        ]),
+        new plugin.BaseHrefWebpackPlugin({ baseHref: '/' })
     ]
 });

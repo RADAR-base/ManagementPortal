@@ -24,8 +24,8 @@ export class DeviceTypeService {
         });
     }
 
-    find(id: number): Observable<DeviceType> {
-        return this.http.get(`${this.resourceUrl}/${id}`).map((res: Response) => {
+    find(producer: string, model: string, version: string): Observable<DeviceType> {
+        return this.http.get(`${this.resourceUrl}/${producer}/${model}/${version}`).map((res: Response) => {
             return res.json();
         });
     }
@@ -36,8 +36,8 @@ export class DeviceTypeService {
         ;
     }
 
-    delete(id: number): Observable<Response> {
-        return this.http.delete(`${this.resourceUrl}/${id}`);
+    delete(producer: string, model: string, version: string): Observable<Response> {
+        return this.http.delete(`${this.resourceUrl}/${producer}/${model}/${version}`);
     }
     private createRequestOption(req?: any): BaseRequestOptions {
         const options: BaseRequestOptions = new BaseRequestOptions();

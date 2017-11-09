@@ -1,0 +1,33 @@
+{
+    "managementPortalApp": {
+        "source" : {
+            "home": {
+                "title": "Sources",
+                "createLabel": "Create a new Source",
+                "createOrEditLabel": "Create or edit a Source"
+            },
+            "created": "A new Source is created with identifier {{ param }}",
+            "updated": "A Source is updated with identifier {{ param }}",
+            "deleted": "A Source is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Source {{ id }}?"
+            },
+            "detail": {
+                "title": "Source"
+            },
+            "sourceId": "Source ID",
+            "sourceName": "Source Name",
+            "deviceCategory": "Device Category",
+            "assigned": "Assigned",
+            "unassigned": "Unassigned",
+            "deviceType": "Device Type",
+            "project": "Project",
+            "expectedSourceName" : "Physical ID",
+            "sourceAlreadyAdded" : "This source has been already added in your list"
+        }
+    },
+    "error": {
+        "sourceNameExists": " Source Name is already registered",
+        "sourceIsAssigned": "Cannot edit/delete a currently assigned source."
+    }
+}

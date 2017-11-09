@@ -1,10 +1,38 @@
 # ManagementPortal
 
+[![Build Status](https://travis-ci.org/RADAR-CNS/ManagementPortal.svg?branch=master)](https://travis-ci.org/RADAR-CNS/ManagementPortal)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/87bb961266d3443988b52ee7aa32f100)](https://www.codacy.com/app/RADAR-CNS/ManagementPortal?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RADAR-CNS/ManagementPortal&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/87bb961266d3443988b52ee7aa32f100)](https://www.codacy.com/app/RADAR-CNS/ManagementPortal?utm_source=github.com&utm_medium=referral&utm_content=RADAR-CNS/ManagementPortal&utm_campaign=Badge_Coverage)
+
 ManagementPortal is an application which is used to manage pilot studies for [RADAR-CNS](http://www.radar-cns.org/).
+
+## Quickstart
+
+The quickest way to get ManagementPortal up and running in production mode is by using the included
+docker-compose files. 
+1. First, we need to generate a key pair for signing JWT tokens as follows:
+```shell
+keytool -genkey -alias selfsigned -keyalg RSA -keystore src/main/docker/etc/config/keystore.jks -keysize 4048 -storepass radarbase
+```
+**Make sure the key password and store password are the same!** This is a requirement for Spring Security.
+
+2. Then, make sure [Docker][] and [Docker-Compose][] are installed on your system.
+3. Finally, we can start the stack with `docker-compose -f src/main/docker/app.yml up -d`.
+
+The docker image can be pulled by running `docker pull radarcns/management-portal:0.2.0`.
 
 ## Configuration
 
-To add a new client to this API, add it to `src/main/resources/config/oauth_client_details.csv`.
+First create a keypair to sign JWT with:
+
+```shell
+keytool -genkey -alias selfsigned -keyalg RSA -keystore src/main/resources/config/keystore.jks -keysize 4048 -storepass radarbase
+```
+
+To add a new client to this API, add it to `changelogs/config/liquibase/oauth_client_details.csv`.
+If your client is supposed to work with the 'Pair app' feature, you need to set a key in it's
+`additional_information` map called `dynamic_registration` to `true`. See the aRMT and pRMT
+clients for an example.
 
 ## Development
 
@@ -118,13 +146,13 @@ For more information, refer to the [Running tests page][].
 ## Using Docker to simplify development (optional)
 
 You can use Docker to improve your JHipster development experience. A number of docker-compose configuration are available in the [src/main/docker](src/main/docker) folder to launch required third party services.
-For example, to start a mysql database in a docker container, run:
+For example, to start a postgreSQL database in a docker container, run:
 
-    docker-compose -f src/main/docker/mysql.yml up -d
+    docker-compose -f src/main/docker/postgresql.yml up -d
 
 To stop it and remove the container, run:
 
-    docker-compose -f src/main/docker/mysql.yml down
+    docker-compose -f src/main/docker/postgresql.yml down
 
 You can also fully dockerize your application and all the services that it depends on.
 To achieve this, first build a docker image of your app by running:
@@ -140,6 +168,17 @@ For more information refer to [Using Docker and Docker-Compose][], this page als
 ## Continuous Integration (optional)
 
 To configure CI for your project, run the ci-cd sub-generator (`yo jhipster:ci-cd`), this will let you generate configuration files for a number of Continuous Integration systems. Consult the [Setting up Continuous Integration][] page for more information.
+
+## Client libraries
+
+This project provides a Gradle task to generate an [OpenAPI] specification from which client libraries can be automatically generated:
+```bash
+./gradlew generateOpenApiSpec
+```
+The resulting file can be imported into the [Swagger editor], or used with [Swagger codegen] to generate client libraries. A Gradle task for generating a Java client is also provided for convenience:
+```bash
+./gradlew generateJavaClient
+```
 
 [JHipster Homepage and latest documentation]: https://jhipster.github.io
 [JHipster 4.3.0 archive]: https://jhipster.github.io/documentation-archive/v4.3.0
@@ -161,3 +200,8 @@ To configure CI for your project, run the ci-cd sub-generator (`yo jhipster:ci-c
 [Protractor]: https://angular.github.io/protractor/
 [Leaflet]: http://leafletjs.com/
 [DefinitelyTyped]: http://definitelytyped.org/
+[Docker]: https://docs.docker.com/
+[Docker-Compose]: https://docs.docker.com/compose/
+[OpenAPI]: https://www.openapis.org/
+[Swagger editor]: http://editor.swagger.io/
+[Swagger codegen]: https://swagger.io/swagger-codegen/

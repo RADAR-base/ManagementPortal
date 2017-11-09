@@ -2,22 +2,20 @@ package org.radarcns.management.config;
 
 import io.github.jhipster.security.AjaxLogoutSuccessHandler;
 import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
-import java.security.KeyPair;
-import java.util.Arrays;
-import javax.sql.DataSource;
-import org.radarcns.management.security.AuthoritiesConstants;
-//import org.radarcns.management.security.ClaimsTokenEnhancer;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.security.ClaimsTokenEnhancer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-//import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
@@ -29,18 +27,22 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.approval.ApprovalStore;
 import org.springframework.security.oauth2.provider.approval.JdbcApprovalStore;
+import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
+
+import javax.sql.DataSource;
+import java.security.KeyPair;
+import java.util.Arrays;
 
 @Configuration
 public class OAuth2ServerConfiguration {
@@ -51,9 +53,34 @@ public class OAuth2ServerConfiguration {
         this.dataSource = dataSource;
     }
 
+    @Configuration
+    @Order(-20)
+    protected static class LoginConfig extends WebSecurityConfigurerAdapter {
+
+        @Autowired
+        private AuthenticationManager authenticationManager;
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .formLogin().loginPage("/login").permitAll()
+                .and()
+                    .requestMatchers().antMatchers("/login",
+                    "/oauth/authorize",
+                    "/oauth/confirm_access")
+                .and()
+                    .authorizeRequests().anyRequest().authenticated();
+        }
+
+        @Override
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+            auth.parentAuthenticationManager(authenticationManager);
+        }
+    }
+
     @Bean
-    public JdbcTokenStore tokenStore() {
-        return new JdbcTokenStore(dataSource);
+    public JdbcClientDetailsService jdbcClientDetailsService() {
+        return new JdbcClientDetailsService(dataSource);
     }
 
     @Configuration
@@ -102,8 +129,6 @@ public class OAuth2ServerConfiguration {
                 .antMatchers("/api/register").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
                 .antMatchers("/api/profile-info").permitAll()
                 .antMatchers("/api/**").authenticated()
-                .antMatchers("/api/users/**").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN,AuthoritiesConstants.PROJECT_ADMIN)
-                .antMatchers("/api/roles/**").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN,AuthoritiesConstants.PROJECT_ADMIN)
                 .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
                 .antMatchers("/v2/api-docs/**").permitAll()
                 .antMatchers("/swagger-resources/configuration/ui").permitAll()
@@ -126,6 +151,9 @@ public class OAuth2ServerConfiguration {
 
         @Autowired
         private DataSource dataSource;
+
+        @Autowired
+        private JdbcClientDetailsService jdbcClientDetailsService;
 
         @Bean
         protected AuthorizationCodeServices authorizationCodeServices() {
@@ -164,26 +192,26 @@ public class OAuth2ServerConfiguration {
 
         @Override
         public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
-            oauthServer.allowFormAuthenticationForClients();
+            oauthServer.allowFormAuthenticationForClients()
+                       .checkTokenAccess("isAuthenticated()")
+                       .tokenKeyAccess("isAnonymous() || isAuthenticated()");
         }
 
         @Bean
         public JwtAccessTokenConverter accessTokenConverter() {
             JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-            converter.setSigningKey("123");
 
-            // TODO: use a keystore instead
-//            KeyPair keyPair = new KeyStoreKeyFactory(
-//                new ClassPathResource("keystore.jks"), "password".toCharArray())
-//                .getKeyPair("selfsigned");
-//            converter.setKeyPair(keyPair);
+            KeyPair keyPair = new KeyStoreKeyFactory(
+                new ClassPathResource("/config/keystore.jks"), "radarbase".toCharArray())
+                .getKeyPair("selfsigned");
+            converter.setKeyPair(keyPair);
 
             return converter;
         }
 
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-            clients.jdbc(dataSource);
+            clients.withClientDetails(jdbcClientDetailsService);
         }
 
         @Bean
@@ -192,6 +220,7 @@ public class OAuth2ServerConfiguration {
             DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
             defaultTokenServices.setTokenStore(tokenStore());
             defaultTokenServices.setSupportRefreshToken(true);
+            defaultTokenServices.setReuseRefreshToken(false);
             return defaultTokenServices;
         }
     }

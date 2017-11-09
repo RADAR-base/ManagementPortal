@@ -1,0 +1,103 @@
+package org.radarcns.management.config;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
+import org.springframework.security.oauth2.common.util.OAuth2Utils;
+import org.springframework.security.oauth2.provider.AuthorizationRequest;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.util.HtmlUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+/**
+ * Created by dverbeec on 6/07/2017.
+ */
+@Controller
+@SessionAttributes("authorizationRequest")
+public class OAuth2LoginUiWebConfig {
+
+    @Autowired
+    ClientDetailsService clientDetailsService;
+
+    private Logger log = LoggerFactory.getLogger(OAuth2LoginUiWebConfig.class);
+
+    @RequestMapping("/login")
+    public ModelAndView getLogin(HttpServletRequest request, HttpServletResponse response) throws
+            Exception {
+        TreeMap<String, Object> model = new TreeMap<>();
+        if (request.getParameterMap().containsKey("error")) {
+            model.put("loginError", Boolean.TRUE);
+        }
+        return new ModelAndView("login", model);
+    }
+
+
+    @RequestMapping("/oauth/confirm_access")
+    public ModelAndView getAccessConfirmation(HttpServletRequest request, HttpServletResponse response)
+        throws Exception {
+
+        Map<String, String[]> params = request.getParameterMap();
+
+        Map<String, String> authorizationParameters = Stream.of(
+                OAuth2Utils.CLIENT_ID, OAuth2Utils.REDIRECT_URI, OAuth2Utils.STATE,
+                OAuth2Utils.SCOPE, OAuth2Utils.RESPONSE_TYPE)
+                .filter(params::containsKey)
+                .collect(Collectors.toMap(Function.identity(), p -> params.get(p)[0]));
+
+        AuthorizationRequest authorizationRequest = new DefaultOAuth2RequestFactory
+            (clientDetailsService).createAuthorizationRequest(authorizationParameters);
+
+        TreeMap<String, Object> model = new TreeMap<>();
+        model.put("authorizationRequest", authorizationRequest);
+        return new ModelAndView("authorize", model);
+    }
+
+    @RequestMapping("/oauth/error")
+    public ModelAndView handleOAuthClientError(HttpServletRequest req) {
+        TreeMap<String, Object> model = new TreeMap<>();
+        Object error = req.getAttribute("error");
+        // The error summary may contain malicious user input,
+        // it needs to be escaped to prevent XSS
+        Map<String, String> errorParams = new HashMap<>();
+        errorParams.put("date",
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        if (error instanceof OAuth2Exception) {
+            OAuth2Exception oauthError = (OAuth2Exception) error;
+            errorParams.put("status", String.format("%d", oauthError.getHttpErrorCode()));
+            errorParams.put("code", oauthError.getOAuth2ErrorCode());
+            errorParams.put("message", HtmlUtils.htmlEscape(oauthError.getMessage()));
+            // transform the additionalInfo map to a comma seperated list of key: value pairs
+            if (oauthError.getAdditionalInformation() != null) {
+                errorParams.put("additionalInfo", HtmlUtils.htmlEscape(String.join(", ",
+                    oauthError.getAdditionalInformation().entrySet().stream()
+                        .map(entry -> entry.getKey() + ": " + entry.getValue())
+                        .collect(Collectors.toList()))));
+            }
+        }
+        // Copy non-empty entries to the model. Empty entries will not be present in the model,
+        // so the default value will be rendered in the view.
+        for (Map.Entry<String, String> entry : errorParams.entrySet()) {
+            if (!entry.getValue().equals("")) {
+                model.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return new ModelAndView("error", model);
+    }
+}

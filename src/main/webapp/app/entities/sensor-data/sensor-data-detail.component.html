@@ -1,20 +1,20 @@
 
 <div *ngIf="sensorData">
-    <h2><span jhiTranslate="managementPortalApp.sensorData.detail.title">Sensor Data</span> {{sensorData.id}}</h2>
+    <h2><span jhiTranslate="managementPortalApp.sensorData.detail.title">Sensor Data</span> {{sensorData.sensorName}}</h2>
     <hr>
     <jhi-alert-error></jhi-alert-error>
     <dl class="row-md jh-entity-details">
-        <dt><span jhiTranslate="managementPortalApp.sensorData.sensorType">Sensor Type</span></dt>
+        <dt><span jhiTranslate="managementPortalApp.sensorData.sensorName">Sensor Name</span></dt>
         <dd>
-            <span>{{sensorData.sensorType}}</span>
+            <span>{{sensorData.sensorName}}</span>
         </dd>
         <dt><span jhiTranslate="managementPortalApp.sensorData.dataType">Data Type</span></dt>
         <dd>
             <span jhiTranslate="{{'managementPortalApp.DataType.' + sensorData.dataType}}">{{sensorData.dataType}}</span>
         </dd>
-        <dt><span jhiTranslate="managementPortalApp.sensorData.dataFormat">Data Format</span></dt>
+        <dt><span jhiTranslate="managementPortalApp.sensorData.keySchema">Data Format</span></dt>
         <dd>
-            <span>{{sensorData.dataFormat}}</span>
+            <span>{{sensorData.keySchema}}</span>
         </dd>
         <dt><span jhiTranslate="managementPortalApp.sensorData.frequency">Frequency</span></dt>
         <dd>
@@ -29,7 +29,7 @@
     </button>
 
     <button type="button"
-            [routerLink]="['/', { outlets: { popup: 'sensor-data/'+ sensorData.id + '/edit'} }]"
+            [routerLink]="['/', { outlets: { popup: ['sensor-data', sensorData.sensorName, 'edit']} }]"
             replaceUrl="true"
             class="btn btn-primary">
         <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>

@@ -3,6 +3,7 @@
         "home": {
             "title": "Gebruikers",
             "createLabel": "Creëer een nieuwe gebruiker",
+            "createAdminLabel": "Creëer een admin gebruiker",
             "createOrEditLabel": "Creëer of editeer een gebruiker"
         },
         "created": "Een nieuwe gebruiker is aangemaakt met id {{ param }}",

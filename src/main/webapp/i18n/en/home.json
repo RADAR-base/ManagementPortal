@@ -1,7 +1,7 @@
 {
     "home": {
-        "title": "Welcome to RADAR-CNS Management Portal",
-        "subtitle": "This is your homepage",
+        "title": "Welcome to RADAR Management Portal",
+        "subtitle": "Manage your patient monitoring studies here!",
         "logged": {
             "message": "You are logged in as user \"{{username}}\"."
         },

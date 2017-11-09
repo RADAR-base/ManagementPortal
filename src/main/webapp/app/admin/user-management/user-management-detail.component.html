@@ -38,7 +38,7 @@
         <dt><span jhiTranslate="userManagement.project">Project</span></dt>
         <dd>
             <div *ngIf="user.project">
-                <a [routerLink]="['/project', user.project?.id]">{{user.project?.id}}</a>
+                <a [routerLink]="['/project', user.project?.projectName]">{{user.project?.projectName}}</a>
             </div>
         </dd>
     </dl>

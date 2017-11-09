@@ -3,6 +3,7 @@
         "home": {
             "title": "Users",
             "createLabel": "Create a new user",
+            "createAdminLabel": "Create an admin user",
             "createOrEditLabel": "Create or edit a user"
         },
         "created": "A new user is created with identifier {{ param }}",
@@ -20,12 +21,24 @@
         "email": "Email",
         "activated": "Activated",
         "deactivated": "Deactivated",
-        "profiles": "Profiles",
+        "profiles": "Authorities",
         "langKey": "Language",
         "createdBy": "Created by",
         "createdDate": "Created date",
         "lastModifiedBy": "Modified by",
         "lastModifiedDate": "Modified date",
-        "project": "Project"
+        "role" : {
+            "title" : "Role",
+            "create" : "Add",
+            "authorityName" : "Authority",
+            "project" : "Project",
+            "error" : {
+                "alreadyExist" : "This role has been already added"
+            }
+        },
+        "project" : "Project"
+    },
+    "error": {
+        "rolesRequired": "One or more roles are required"
     }
 }

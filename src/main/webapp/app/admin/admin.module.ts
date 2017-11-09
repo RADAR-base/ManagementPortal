@@ -28,6 +28,7 @@ import {
     UserResolve,
     UserModalService,
 } from './';
+import {RoleComponent} from "./user-management/role.component";
 
 @NgModule({
     imports: [
@@ -48,7 +49,8 @@ import {
         JhiHealthModalComponent,
         JhiDocsComponent,
         JhiMetricsMonitoringComponent,
-        JhiMetricsMonitoringModalComponent
+        JhiMetricsMonitoringModalComponent,
+        RoleComponent,
     ],
     entryComponents: [
         UserMgmtDialogComponent,

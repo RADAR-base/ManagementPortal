@@ -16,7 +16,7 @@
 
 management:
     security:
-        roles: ADMIN
+        roles: ROLE_SYS_ADMIN
     context-path: /management
     health:
         mail:
@@ -63,6 +63,14 @@ info:
         version: #project.version#
 
 # ===================================================================
+# ManagementPortal specific properties
+#
+# ===================================================================
+managementportal:
+    mail: # specific JHipster mail property, for standard properties see MailProperties
+        from: ManagementPortal@localhost
+
+# ===================================================================
 # JHipster specific properties
 #
 # Full reference is available at: https://jhipster.github.io/common-application-properties/
@@ -74,15 +82,13 @@ jhipster:
         max-pool-size: 50
         queue-capacity: 10000
     # By default CORS is disabled. Uncomment to enable.
-    #cors:
-        #allowed-origins: "*"
-        #allowed-methods: GET, PUT, POST, DELETE, OPTIONS
-        #allowed-headers: "*"
+    cors:
+        allowed-origins: '*'
+        allowed-methods: GET, PUT, POST, DELETE, OPTIONS
+        allowed-headers: Authorization, Content-Type
         #exposed-headers:
-        #allow-credentials: true
-        #max-age: 1800
-    mail:
-        from: ManagementPortal@localhost
+        allow-credentials: true
+        max-age: 1800
     swagger:
         default-include-pattern: /api/.*
         title: ManagementPortal API

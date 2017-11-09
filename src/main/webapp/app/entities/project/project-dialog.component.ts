@@ -14,13 +14,15 @@ import { DeviceType, DeviceTypeService } from '../device-type';
     selector: 'jhi-project-dialog',
     templateUrl: './project-dialog.component.html'
 })
-export class ProjectDialogComponent implements OnInit {
+export class ProjectDialogComponent implements OnInit  {
 
     project: Project;
     authorities: any[];
     isSaving: boolean;
 
     devicetypes: DeviceType[];
+    keys : string[];
+    attributeComponentEventPrefix : 'projectAttributes';
     constructor(
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
@@ -29,7 +31,7 @@ export class ProjectDialogComponent implements OnInit {
         private deviceTypeService: DeviceTypeService,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['project', 'projectStatus']);
+        this.jhiLanguageService.setLocations(['project', 'projectStatus' , 'source' , 'subject' , 'user-management']);
     }
 
     ngOnInit() {
@@ -37,6 +39,8 @@ export class ProjectDialogComponent implements OnInit {
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN' , 'ROLE_PROJECT_ADMIN'];
         this.deviceTypeService.query().subscribe(
             (res: Response) => { this.devicetypes = res.json(); }, (res: Response) => this.onError(res.json()));
+        this.keys = ['Work-package', 'Phase' , 'External-project-url' , 'External-project-id'];
+        this.registerChangesInProject();
     }
     clear() {
         this.activeModal.dismiss('cancel');
@@ -89,6 +93,12 @@ export class ProjectDialogComponent implements OnInit {
         }
         return option;
     }
+
+    private registerChangesInProject() {
+        this.eventManager.subscribe(this.attributeComponentEventPrefix+'ListModification', (response ) => {
+            this.project.attributes= response.content;
+        });
+    }
 }
 
 @Component({
@@ -107,9 +117,9 @@ export class ProjectPopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if ( params['id'] ) {
+            if ( params['projectName'] ) {
                 this.modalRef = this.projectPopupService
-                    .open(ProjectDialogComponent, params['id']);
+                    .open(ProjectDialogComponent, params['projectName']);
             } else {
                 this.modalRef = this.projectPopupService
                     .open(ProjectDialogComponent);
