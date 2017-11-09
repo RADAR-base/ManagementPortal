@@ -1,7 +1,5 @@
 # ManagementPortal
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/RADAR-CNS/ManagementPortal.svg)](https://greenkeeper.io/)
-
 [![Build Status](https://travis-ci.org/RADAR-CNS/ManagementPortal.svg?branch=master)](https://travis-ci.org/RADAR-CNS/ManagementPortal)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/87bb961266d3443988b52ee7aa32f100)](https://www.codacy.com/app/RADAR-CNS/ManagementPortal?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RADAR-CNS/ManagementPortal&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/87bb961266d3443988b52ee7aa32f100)](https://www.codacy.com/app/RADAR-CNS/ManagementPortal?utm_source=github.com&utm_medium=referral&utm_content=RADAR-CNS/ManagementPortal&utm_campaign=Badge_Coverage)
