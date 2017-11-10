@@ -106,7 +106,8 @@ public class Source implements Serializable {
             this.sourceId = UUID.randomUUID();
         }
         if(this.sourceName == null) {
-            this.sourceName = this.sourceId.toString().substring(0,8);
+            this.sourceName = String.join("-", this.getDeviceType().getDeviceModel(),
+                    this.sourceId.toString().substring(0,8));
         }
     }
     public String getDeviceCategory() {

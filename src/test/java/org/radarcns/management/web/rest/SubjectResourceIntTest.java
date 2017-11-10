@@ -111,6 +111,7 @@ public class SubjectResourceIntTest {
         ReflectionTestUtils.setField(subjectResource, "subjectRepository" , subjectRepository);
         ReflectionTestUtils.setField(subjectResource, "subjectMapper" , subjectMapper);
         ReflectionTestUtils.setField(subjectResource, "projectRepository" , projectRepository);
+        ReflectionTestUtils.setField(subjectResource, "deviceTypeService", deviceTypeService);
         ReflectionTestUtils.setField(subjectResource, "servletRequest", servletRequest);
 
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
@@ -299,7 +300,7 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
-    public void dynamicSourceRegistration() throws Exception {
+    public void dynamicSourceRegistrationWithId() throws Exception {
         int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
         // Create the Subject
@@ -317,22 +318,8 @@ public class SubjectResourceIntTest {
         String subjectLogin = testSubject.getUser().getLogin();
         assertNotNull(subjectLogin);
 
-        MinimalSourceDetailsDTO sourceRegistrationDTO = new MinimalSourceDetailsDTO();
-        sourceRegistrationDTO.setSourceName(DEVICE_PRODUCER + " " + DEVICE_MODEL);
-        sourceRegistrationDTO.getAttributes().put("some", "value");
-
-        List<DeviceTypeDTO> deviceTypes = deviceTypeService.findAll().stream()
-            .filter(dt -> dt.getCanRegisterDynamically())
-            .collect(Collectors.toList());
-
-        assertThat(deviceTypes.size()).isGreaterThan(0);
-        DeviceTypeDTO deviceType = deviceTypes.get(0);
-        sourceRegistrationDTO.setDeviceTypeId(deviceType.getId());
-        sourceRegistrationDTO.setDeviceTypeCatalogVersion(deviceType.getCatalogVersion());
-        sourceRegistrationDTO.setDeviceTypeModel(deviceType.getDeviceModel());
-        sourceRegistrationDTO.setDeviceTypeProducer(deviceType.getDeviceProducer());
-
-        assertThat(sourceRegistrationDTO.getSourceId()).isNull();
+        // Create a source description
+        MinimalSourceDetailsDTO sourceRegistrationDTO = createSourceWithDeviceId();
 
         restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -340,11 +327,86 @@ public class SubjectResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.sourceId").isNotEmpty());
 
-        // An entity with an existing ID cannot be created, so this API call must fail
+        // A source can not be assigned twice to a subject, so this call must fail
         assertThat(sourceRegistrationDTO.getSourceId()).isNull();
         restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDTO)))
             .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @Transactional
+    public void dynamicSourceRegistrationWithoutId() throws Exception {
+        int databaseSizeBeforeCreate = subjectRepository.findAll().size();
+
+        // Create the Subject
+        SubjectDTO subjectDTO = createEntityDTO(em);
+        restSubjectMockMvc.perform(post("/api/subjects")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
+                .andExpect(status().isCreated());
+
+        // Validate the Subject in the database
+        List<Subject> subjectList = subjectRepository.findAll();
+        assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1);
+        Subject testSubject = subjectList.get(subjectList.size() - 1);
+
+        String subjectLogin = testSubject.getUser().getLogin();
+        assertNotNull(subjectLogin);
+
+        // Create a source description
+        MinimalSourceDetailsDTO sourceRegistrationDTO = createSourceWithoutDeviceId();
+
+        restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sourceId").isNotEmpty());
+
+        // A source can not be assigned twice to a subject, so this call must fail
+        assertThat(sourceRegistrationDTO.getSourceId()).isNull();
+        restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDTO)))
+                .andExpect(status().is4xxClientError());
+    }
+
+    private MinimalSourceDetailsDTO createSourceWithDeviceId() {
+        // Create a source description
+        MinimalSourceDetailsDTO sourceRegistrationDTO = new MinimalSourceDetailsDTO();
+        sourceRegistrationDTO.setSourceName(DEVICE_PRODUCER + " " + DEVICE_MODEL);
+        sourceRegistrationDTO.getAttributes().put("some", "value");
+
+        List<DeviceTypeDTO> deviceTypes = deviceTypeService.findAll().stream()
+                .filter(dt -> dt.getCanRegisterDynamically())
+                .collect(Collectors.toList());
+
+        assertThat(deviceTypes.size()).isGreaterThan(0);
+        DeviceTypeDTO deviceType = deviceTypes.get(0);
+        sourceRegistrationDTO.setDeviceTypeId(deviceType.getId());
+
+        assertThat(sourceRegistrationDTO.getSourceId()).isNull();
+        return sourceRegistrationDTO;
+    }
+
+    private MinimalSourceDetailsDTO createSourceWithoutDeviceId() {
+        // Create a source description
+        MinimalSourceDetailsDTO sourceRegistrationDTO = new MinimalSourceDetailsDTO();
+        sourceRegistrationDTO.setSourceName(DEVICE_PRODUCER + " " + DEVICE_MODEL);
+        sourceRegistrationDTO.getAttributes().put("some", "value");
+
+        List<DeviceTypeDTO> deviceTypes = deviceTypeService.findAll().stream()
+                .filter(dt -> dt.getCanRegisterDynamically())
+                .collect(Collectors.toList());
+
+        assertThat(deviceTypes.size()).isGreaterThan(0);
+        DeviceTypeDTO deviceType = deviceTypes.get(0);
+        sourceRegistrationDTO.setDeviceTypeCatalogVersion(deviceType.getCatalogVersion());
+        sourceRegistrationDTO.setDeviceTypeModel(deviceType.getDeviceModel());
+        sourceRegistrationDTO.setDeviceTypeProducer(deviceType.getDeviceProducer());
+
+        assertThat(sourceRegistrationDTO.getSourceId()).isNull();
+        return sourceRegistrationDTO;
     }
 }
