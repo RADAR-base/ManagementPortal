@@ -8,8 +8,15 @@ describe('account', () => {
     const login = element(by.id('login'));
     const logout = element(by.id('logout'));
 
+    var originalTimeOut;
+
     beforeAll(() => {
         browser.get('/');
+    });
+
+    beforeEach(() => {
+        originalTimeOut = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 240000;
     });
 
     it('should fail to login with bad password', () => {
@@ -101,6 +108,10 @@ describe('account', () => {
         element(by.id('confirmPassword')).clear();
         element(by.id('confirmPassword')).sendKeys('admin');
         element(by.css('button[type=submit]')).click();
+    });
+
+    afterEach(() => {
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeOut;
     });
 
     afterAll(() => {

@@ -49,16 +49,6 @@ deploy:
     on:
       tags: true
   - provider: script
-    script: ./gradlew oauth-client-util:artifactoryPublish
-    skip_cleanup: true
-    on:
-      branch: dev
-  - provider: script
-    script: ./gradlew radar-auth:artifactoryPublish
-    skip_cleanup: true
-    on:
-      branch: dev
-  - provider: script
     script: ./gradlew oauth-client-util:bintrayUpload
     skip_cleanup: true
     on:

@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -235,17 +236,17 @@ public class SubjectService {
             // create a source and register meta data
             // we allow only one source of a device-type per subject
             if (sources.isEmpty()) {
-                Source source1 = new Source();
-                source1.setProject(project);
-                source1.setAssigned(true);
-                source1.setDeviceType(deviceType);
+                Source source1 = new Source()
+                        .project(project)
+                        .assigned(true)
+                        .deviceType(deviceType);
                 source1.getAttributes().putAll(sourceRegistrationDTO.getAttributes());
-                source1 = sourceRepository.save(source1);
                 // if source name is provided update source name
-                if(sourceRegistrationDTO.getSourceName() !=null ) {
-                    source1.setSourceName(sourceRegistrationDTO.getSourceName()+"_"+source1.getSourceName());
-                    source1 = sourceRepository.save(source1);
+                if (Objects.nonNull(sourceRegistrationDTO.getSourceName())) {
+                    source1.setSourceName(sourceRegistrationDTO.getSourceName());
                 }
+                source1 = sourceRepository.save(source1);
+
                 assignedSource = source1;
                 subject.getSources().add(source1);
             } else {
@@ -262,7 +263,7 @@ public class SubjectService {
             }
         }
 
-        if(assignedSource ==null) {
+        if (assignedSource == null) {
             log.error("Cannot find assigned source with sourceId or a source of deviceType"
                 + " with the specified producer and model "
                 + " is already registered for subject login ");
