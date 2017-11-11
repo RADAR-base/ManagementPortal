@@ -2,6 +2,8 @@ package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.authorization.Permission;
 import org.radarcns.management.domain.DeviceType;
@@ -10,10 +12,13 @@ import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.SecurityUtils;
+import org.radarcns.management.service.DeviceTypeService;
 import org.radarcns.management.service.SubjectService;
+import org.radarcns.management.service.dto.DeviceTypeDTO;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
+import org.radarcns.management.web.rest.errors.CustomParameterizedException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +40,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.radarcns.auth.authorization.Permission.SUBJECT_CREATE;
 import static org.radarcns.auth.authorization.Permission.SUBJECT_DELETE;
@@ -68,6 +75,9 @@ public class SubjectResource {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private DeviceTypeService deviceTypeService;
 
     @Autowired
     private HttpServletRequest servletRequest;
@@ -259,26 +269,34 @@ public class SubjectResource {
     }
 
     /**
-     * POST  /subjects/:login/sources: Assign a list of sources to the currently logged in user
+     * POST  /subjects/:login/sources: Assign a source to the specified user
      *
-     * The request body should contain a source-meta-data to be assigned to the a subject.
-     * At minimum, each source
-     * should define it's device type, like so: <code>[{"deviceType": { "id": 3 }}]</code>. A
-     * source name and source ID will be automatically generated. The source ID will be a new random
-     * UUID, and the source name will be the device model, appended with a dash and the first six
-     * characters of the UUID. The sources will be created and assigned to the currently logged in
-     * user.
+     * The request body is a {@link MinimalSourceDetailsDTO}. At minimum, the source should
+     * define it's device type by either supplying the deviceTypeId, or the combination of
+     * (deviceTypeProducer, deviceTypeModel, deviceTypeCatalogVersion) fields. A source ID will
+     * be automatically generated. The source ID will be a new random UUID, and the source name,
+     * if not provided, will be the device model, appended with a dash and the first eight
+     * characters of the UUID. The sources will be created and assigned to the specified user.
      *
      * If you need to assign existing sources, simply specify either of id, sourceId, or sourceName
-     * in the source object.
+     * fields.
      *
-     * @param sourceDTO List of sources to assign
-     * @return The updated Subject information
+     * @param sourceDTO The {@link MinimalSourceDetailsDTO} specification
+     * @return The {@link MinimalSourceDetailsDTO} completed with all identifying fields.
+     *
      */
     @PostMapping("/subjects/{login}/sources")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "An existing source was assigned"),
+            @ApiResponse(code = 201, message = "A new source was created and assigned"),
+            @ApiResponse(code = 400, message = "You must supply either a Device Type ID, or the "
+                    + "combination of (deviceTypeProducer, deviceTypeModel, catalogVersion)"),
+            @ApiResponse(code = 404, message = "Either the subject or the device type was not "
+                    + "found.")
+    })
     @Timed
     public ResponseEntity<MinimalSourceDetailsDTO> assignSources(@PathVariable String login,
-        @RequestBody MinimalSourceDetailsDTO sourceDTO) {
+            @RequestBody MinimalSourceDetailsDTO sourceDTO) throws URISyntaxException {
         // check the subject id
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         if (!subject.isPresent()) {
@@ -298,10 +316,32 @@ public class SubjectResource {
                     " is not assigned to any project. Could not find project for this subject."));
         }
         Role role = roleOptional.get();
+        // find out device type id of supplied device
+        Long deviceTypeId = sourceDTO.getDeviceTypeId();
+        if (Objects.isNull(deviceTypeId)) {
+            // check if combination (producer, model, version) is present
+            final String msg = "You must supply either the deviceTypeId, or the combination of "
+                    + "(deviceTypeProducer, deviceTypeModel, catalogVersion) fields.";
+            try {
+                String producer = Objects.requireNonNull(sourceDTO.getDeviceTypeProducer(), msg);
+                String model = Objects.requireNonNull(sourceDTO.getDeviceTypeModel(), msg);
+                String version = Objects.requireNonNull(sourceDTO.getDeviceTypeCatalogVersion(),
+                        msg);
+                DeviceTypeDTO deviceTypeDTO = deviceTypeService
+                        .findByProducerAndModelAndVersion(producer, model, version);
+                if (Objects.isNull(deviceTypeDTO)) {
+                    return ResponseEntity.notFound().build();
+                }
+                deviceTypeId = deviceTypeDTO.getId();
+            } catch (NullPointerException ex) {
+                log.error(ex.getMessage() + ", supplied sourceDTO: " + sourceDTO.toString());
+                throw new CustomParameterizedException(ex.getMessage());
+            }
+        }
         // find whether the relevant device-type is available in the subject's project
         Optional<DeviceType> deviceType;
         deviceType = projectRepository.findDeviceTypeByProjectIdAndDeviceTypeId(
-                role.getProject().getId(), sourceDTO.getDeviceTypeId());
+                role.getProject().getId(), deviceTypeId);
 
         if (!deviceType.isPresent()) {
             // return bad request
@@ -309,18 +349,32 @@ public class SubjectResource {
                 .createAlert("deviceTypeNotAvailable",
                     "No device-type found for device type ID " + sourceDTO.getDeviceTypeId()
                         + " in relevant project")).body(null);
-
         }
 
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, role.getProject()
                 .getProjectName(), sub.getUser().getLogin());
+
+        // check if any of id, sourceID, sourceName were non-null
+        boolean existing = Stream.of(sourceDTO.getId(), sourceDTO.getSourceName(),
+                sourceDTO.getSourceId())
+                .map(Objects::nonNull).reduce(false, (r1, r2) -> r1 || r2);
+
         // handle the source registration
         MinimalSourceDetailsDTO sourceRegistered = subjectService
-            .assignOrUpdateSource(sub, deviceType.get(), role.getProject(), sourceDTO);
+                .assignOrUpdateSource(sub, deviceType.get(), role.getProject(), sourceDTO);
 
-        // TODO: replace ok() with created, with a location to query the new source.
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(
-            ENTITY_NAME, sub.getId().toString())).body(sourceRegistered);
+        // Return the correct response type, either created if a new source was created, or ok if
+        // an existing source was provided. If an existing source was given but not found, the
+        // assignOrUpdateSource would throw an error and we would not reach this point.
+        if (!existing) {
+            return ResponseEntity.created(new URI("/api/sources/" + sourceRegistered.getSourceName())).headers(
+                    HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, login))
+                    .body(sourceRegistered);
+        }
+        else {
+            return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME,
+                    login)).body(sourceRegistered);
+        }
     }
 
     @GetMapping("/subjects/{login}/sources")

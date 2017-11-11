@@ -99,4 +99,19 @@ public class MinimalSourceDetailsDTO {
     public void setDeviceTypeProducer(String deviceTypeProducer) {
         this.deviceTypeProducer = deviceTypeProducer;
     }
+
+    @Override
+    public String toString() {
+        return "MinimalSourceDetailsDTO{"
+                + "id=" + id
+                + ", deviceTypeId=" + deviceTypeId
+                + ", deviceTypeProducer='" + deviceTypeProducer + '\''
+                + ", deviceTypeModel='" + deviceTypeModel + '\''
+                + ", deviceTypeCatalogVersion='" + deviceTypeCatalogVersion + '\''
+                + ", expectedSourceName='" + expectedSourceName + '\''
+                + ", sourceId=" + sourceId
+                + ", sourceName='" + sourceName + '\''
+                + ", assigned=" + assigned
+                + ", attributes=" + attributes + '}';
+    }
 }
