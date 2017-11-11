@@ -12,8 +12,11 @@ describe('account', () => {
 
     beforeAll(() => {
         browser.get('/');
+    });
+
+    beforeEach(() => {
         originalTimeOut = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = 120000;
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 240000;
     });
 
     it('should fail to login with bad password', () => {
