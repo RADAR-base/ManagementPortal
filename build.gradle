@@ -208,6 +208,7 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-aop"
     compile "org.springframework.boot:spring-boot-starter-data-jpa"
     compile "org.springframework.boot:spring-boot-starter-security"
+    compile "org.springframework.cloud:spring-cloud-starter-zuul:${zuul_proxy_version}"
     compile ("org.springframework.boot:spring-boot-starter-web") {
         exclude module: 'spring-boot-starter-tomcat'
     }
