@@ -25,9 +25,16 @@ public class ClientDetailsMapperImpl implements ClientDetailsMapper {
     public ClientDetailsDTO clientDetailsToClientDetailsDTO(ClientDetails details) {
         ClientDetailsDTO result = new ClientDetailsDTO();
         result.setClientId(details.getClientId());
+        result.setClientSecret(details.getClientSecret());
         result.setScope(details.getScope());
         result.setResourceIds(details.getResourceIds());
         result.setAuthorizedGrantTypes(details.getAuthorizedGrantTypes());
+        if (Objects.nonNull(details.getScope())) {
+            result.setAutoApproveScopes(details.getScope().stream()
+                    .filter(details::isAutoApprove)
+                    .collect(Collectors.toSet())
+            );
+        }
         if (Objects.nonNull(details.getAccessTokenValiditySeconds())) {
             result.setAccessTokenValidity(details.getAccessTokenValiditySeconds().longValue());
         }
@@ -35,14 +42,14 @@ public class ClientDetailsMapperImpl implements ClientDetailsMapper {
             result.setRefreshTokenValidity(details.getRefreshTokenValiditySeconds().longValue());
         }
         if (Objects.nonNull(details.getAuthorities())) {
-            Set<String> authorities =
-                details.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+            Set<String> authorities = details.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
             result.setAuthorities(authorities);
         }
         if (Objects.nonNull(details.getAdditionalInformation())) {
             result.setAdditionalInformation(details.getAdditionalInformation().entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> Objects.nonNull(e.getValue()) ?
-                    e.getValue().toString() : null)));
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> Objects.nonNull(e.getValue())
+                            ? e.getValue().toString() : null)));
         }
         return result;
     }
@@ -55,6 +62,7 @@ public class ClientDetailsMapperImpl implements ClientDetailsMapper {
         result.setScope(detailsDTO.getScope());
         result.setResourceIds(detailsDTO.getResourceIds());
         result.setAuthorizedGrantTypes(detailsDTO.getAuthorizedGrantTypes());
+        result.setAutoApproveScopes(detailsDTO.getAutoApproveScopes());
         if (Objects.nonNull(detailsDTO.getAccessTokenValidity())) {
             result.setAccessTokenValiditySeconds(detailsDTO.getAccessTokenValidity().intValue());
         }
@@ -62,12 +70,9 @@ public class ClientDetailsMapperImpl implements ClientDetailsMapper {
             result.setRefreshTokenValiditySeconds(detailsDTO.getRefreshTokenValidity().intValue());
         }
         if (Objects.nonNull(detailsDTO.getAuthorities())) {
-            Set<GrantedAuthority> authorities =
-                detailsDTO.getAuthorities().stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
+            Set<GrantedAuthority> authorities = detailsDTO.getAuthorities().stream()
+                    .map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
             result.setAuthorities(authorities);
-        }
-        if (detailsDTO.getAutoApprove()) {
-            result.setAutoApproveScopes(detailsDTO.getScope());
         }
         result.setAdditionalInformation(detailsDTO.getAdditionalInformation());
         return result;
@@ -79,7 +84,7 @@ public class ClientDetailsMapperImpl implements ClientDetailsMapper {
             return Collections.emptyList();
         }
         return detailsList.stream().map(this::clientDetailsToClientDetailsDTO)
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -88,6 +93,6 @@ public class ClientDetailsMapperImpl implements ClientDetailsMapper {
             return Collections.emptyList();
         }
         return detailsDTOList.stream().map(this::clientDetailsDTOToClientDetails)
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 }

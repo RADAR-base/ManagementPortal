@@ -5,32 +5,33 @@ export class OAuthClient {
     public scope?: string[];
     public resourceIds?: string[];
     public authorizedGrantTypes?: string[];
-    public autoApprove?: boolean;
+    public autoApproveScopes?: string[];
     public accessTokenValidity?: number;
     public refreshTokenValidity?: number;
     public authorities?: string[];
     public additionalInformation?: any;
 
     constructor(
-        clientId: string,
+        clientId?: string,
         clientSecret?: string,
         scope?: string[],
         resourceIds?: string[],
         authorizedGrantTypes?: string[],
-        autoApprove?: boolean,
+        autoApproveScopes?: string[],
         accessTokenValidity?: number,
         refreshTokenValidity?: number,
         authorities?: string[],
         additionalInformation?: any
     ) {
-        this.clientSecret = clientSecret ? clientSecret : null,
-        this.scope = scope ? scope : null,
-        this.resourceIds = resourceIds ? resourceIds : null,
-        this.authorizedGrantTypes = authorizedGrantTypes ? authorizedGrantTypes : null,
-        this.autoApprove = autoApprove ? autoApprove : null,
-        this.accessTokenValidity = accessTokenValidity ? accessTokenValidity : null,
-        this.refreshTokenValidity = refreshTokenValidity ? refreshTokenValidity : null,
-        this.authorities = authorities ? authorities : null,
-        this.additionalInformation = additionalInformation ? additionalInformation : null
+        this.clientId = clientId ? clientId : '';
+        this.clientSecret = clientSecret ? clientSecret : '',
+        this.scope = scope ? scope : [],
+        this.resourceIds = resourceIds ? resourceIds : [],
+        this.authorizedGrantTypes = authorizedGrantTypes ? authorizedGrantTypes : [],
+        this.autoApproveScopes = autoApproveScopes ? autoApproveScopes : [],
+        this.accessTokenValidity = accessTokenValidity ? accessTokenValidity : 0,
+        this.refreshTokenValidity = refreshTokenValidity ? refreshTokenValidity : 0,
+        this.authorities = authorities ? authorities : [],
+        this.additionalInformation = additionalInformation ? additionalInformation : {}
     }
 }

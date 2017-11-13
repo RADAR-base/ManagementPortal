@@ -12,7 +12,7 @@ public class ClientDetailsDTO {
     private Set<String> scope;
     private Set<String> resourceIds;
     private Set<String> authorizedGrantTypes;
-    private Boolean autoApprove;
+    private Set<String> autoApproveScopes;
     private Long accessTokenValidity;
     private Long refreshTokenValidity;
     private Set<String> authorities;
@@ -107,15 +107,15 @@ public class ClientDetailsDTO {
      *
      * @return
      */
-    public Boolean getAutoApprove() {
-        return autoApprove;
+    public Set<String> getAutoApproveScopes() {
+        return autoApproveScopes;
     }
 
     /**
-     * Set the autoApprove
+     * Set the autoApproveScopes
      */
-    public void setAutoApprove(Boolean autoApprove) {
-        this.autoApprove = autoApprove;
+    public void setAutoApproveScopes(Set<String> autoApproveScopes) {
+        this.autoApproveScopes = autoApproveScopes;
     }
 
     /**
