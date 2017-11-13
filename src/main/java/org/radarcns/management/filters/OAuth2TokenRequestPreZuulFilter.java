@@ -16,9 +16,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * A pre-filter for all request sent to Zuul proxy.
- * This adds the client credentials as Basic authentication header and
- * scope of the client configured in application.*.yml.
- * This prevents exposing client credentials to front-end.
+ * This adds the client credentials and scp
  */
 @Component
 public class OAuth2TokenRequestPreZuulFilter extends ZuulFilter {
@@ -38,14 +36,14 @@ public class OAuth2TokenRequestPreZuulFilter extends ZuulFilter {
                 encoded = Base64.encode((managementPortalProperties.getFrontend().getClientId()+":"+managementPortalProperties.getFrontend().getClientSecret()).getBytes("UTF-8"));
                 ctx.addZuulRequestHeader("Authorization", "Basic " + new String(encoded));
                 final HttpServletRequest req = ctx.getRequest();
-                final Map<String, String[]> param = new HashMap<String, String[]>();
-                param.put("scope" , new String[] {managementPortalProperties.getFrontend().getClientScopes()});
                 final String refreshToken = extractRefreshToken(req);
                 if (refreshToken != null) {
+                    final Map<String, String[]> param = new HashMap<String, String[]>();
                     param.put("refresh_token", new String[] { refreshToken });
                     param.put("grant_type", new String[] { "refresh_token" });
+                    ctx.setRequest(new CustomHttpServletRequest(req, param));
                 }
-                ctx.setRequest(new CustomHttpServletRequest(req, param));
+
             } catch (UnsupportedEncodingException e) {
                 logger.error("Error occured in pre filter", e);
             }

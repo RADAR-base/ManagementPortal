@@ -101,7 +101,6 @@ managementportal:
     frontend:
         clientId: ManagementPortalapp
         clientSecret: my-secret-token-to-change-in-production
-        clientScopes: "read,write"
         sessionTimeout : 86400 # session for rft cookie
 
 # ===================================================================

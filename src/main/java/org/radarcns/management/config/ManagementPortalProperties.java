@@ -48,8 +48,6 @@ public class ManagementPortalProperties {
 
         private String clientSecret = "";
 
-        private String clientScopes = "";
-
         private Integer sessionTimeout = 24*60*60; // a day
 
         public String getClientId() {
@@ -74,15 +72,6 @@ public class ManagementPortalProperties {
 
         public void setSessionTimeout(Integer sessionTimeout) {
             this.sessionTimeout = sessionTimeout;
-        }
-
-        public String getClientScopes() {
-            return clientScopes;
-        }
-
-        public void setClientScopes(String clientScopes) {
-
-            this.clientScopes = clientScopes.replace(",", " ");
         }
     }
 
