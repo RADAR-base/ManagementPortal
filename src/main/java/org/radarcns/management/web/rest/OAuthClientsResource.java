@@ -1,6 +1,7 @@
 package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import io.github.jhipster.web.util.ResponseUtil;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
@@ -12,6 +13,7 @@ import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.ClientDetailsMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
+import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +32,20 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,7 +53,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_CREATE;
+import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_DELETE;
 import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_READ;
+import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_UPDATE;
 import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
@@ -80,20 +91,100 @@ public class OAuthClientsResource {
     @Autowired
     private HttpServletRequest servletRequest;
 
+    private static final String ENTITY_NAME = "oauthClient";
+
+    /**
+     * GET /api/oauthclients
+     *
+     * Retrieve a list of currently registered OAuth clients.
+     *
+     * @return the list of registered clients as a list of {@link ClientDetailsDTO}
+     */
     @GetMapping("/oauthclients")
     @Timed
     public ResponseEntity<List<ClientDetailsDTO>> getOAuthClients() {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_READ);
-        return ResponseEntity.ok().body(clientDetailsMapper.clientDetailsToClientDetailsDTO(
-            clientDetailsService.listClientDetails()));
+        return ResponseEntity.ok().body(clientDetailsMapper
+                .clientDetailsToClientDetailsDTO(clientDetailsService.listClientDetails()));
     }
 
-    @GetMapping("/oauthclients/:id")
+    /**
+     * GET /api/oauthclients/:id
+     *
+     * Get details on a specific client.
+     *
+     * @param id the client id for which to fetch the details
+     * @return the client as a {@link ClientDetailsDTO}
+     */
+    @GetMapping("/oauthclients/{id}")
     @Timed
     public ResponseEntity<ClientDetailsDTO> getOAuthClientById(@PathVariable("id") String id) {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_READ);
-        return ResponseEntity.ok().body(
-            clientDetailsMapper.clientDetailsToClientDetailsDTO(getOAuthClient(id)));
+        return ResponseEntity.ok().body(clientDetailsMapper
+                .clientDetailsToClientDetailsDTO(getOAuthClient(id)));
+    }
+
+    /**
+     * PUT /api/oauthclients
+     *
+     * Update an existing OAuth client.
+     *
+     * @param clientDetailsDTO The client details to update
+     * @return The updated OAuth client.
+     */
+    @PutMapping("/oauthclients")
+    @Timed
+    public ResponseEntity<ClientDetailsDTO> updateOAuthClient(@RequestBody ClientDetailsDTO
+            clientDetailsDTO) {
+        checkPermission(getJWT(servletRequest), OAUTHCLIENTS_UPDATE);
+        ClientDetails details = clientDetailsMapper
+                .clientDetailsDTOToClientDetails(clientDetailsDTO);
+        clientDetailsService.updateClientDetails(details);
+        ClientDetails updated = getOAuthClient(clientDetailsDTO.getClientId());
+        return ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME,
+                        clientDetailsDTO.getClientId()))
+                .body(clientDetailsMapper.clientDetailsToClientDetailsDTO(updated));
+    }
+
+    /**
+     * DELETE /api/oauthclients/:id
+     *
+     * Delete the OAuth client with the specified client id.
+     *
+     * @param id The id of the client to delete
+     * @return a ResponseEntity indicating success or failure
+     */
+    @DeleteMapping("/oauthclients/{id}")
+    @Timed
+    public ResponseEntity<Void> deleteOAuthClient(@PathVariable String id) {
+        checkPermission(getJWT(servletRequest), OAUTHCLIENTS_DELETE);
+        clientDetailsService.removeClientDetails(id);
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id))
+                .build();
+    }
+
+    /**
+     * POST /api/oauthclients
+     *
+     * Register a new oauth client
+     *
+     * @param clientDetailsDTO The oauth client to be registered
+     * @return a response indicating success or failure
+     * @throws URISyntaxException if there was a problem formatting the URI to the new entity
+     */
+    @PostMapping("/oauthclients")
+    @Timed
+    public ResponseEntity<ClientDetailsDTO> createOAuthClient(@RequestBody ClientDetailsDTO
+            clientDetailsDTO) throws URISyntaxException {
+        checkPermission(getJWT(servletRequest), OAUTHCLIENTS_CREATE);
+        ClientDetails details = clientDetailsMapper
+                .clientDetailsDTOToClientDetails(clientDetailsDTO);
+        clientDetailsService.addClientDetails(details);
+        ClientDetails created = getOAuthClient(clientDetailsDTO.getClientId());
+        return ResponseEntity.created(new URI("/api/oauthclients/" + created.getClientId()))
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, created.getClientId()))
+                .body(clientDetailsMapper.clientDetailsToClientDetailsDTO(created));
     }
 
     /**
