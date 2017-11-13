@@ -1,0 +1,75 @@
+<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+
+    <div class="modal-header">
+        <h4 class="modal-title" id="myOAuthClientLabel" jhiTranslate="managementPortalApp.oauthClient.home.createOrEditLabel">Create or edit an OAuth Client</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                (click)="clear()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group">
+            <label class="form-control-label" for="id" jhiTranslate="managementPortalApp.oauthClient.clientId">Client ID</label>
+            <input *ngIf="!newClient" type="text" class="form-control" id="id" name="id" [(ngModel)]="client.clientId" readonly />
+            <input *ngIf="newClient" type="text" class="form-control" id="id" name="id" [(ngModel)]="client.clientId" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.clientSecret">Client Secret</label>
+            <div class="input-group" *ngIf="showSecret">
+                <input type="text" class="form-control" id="secret" name="clientSecret" [(ngModel)]="client.clientSecret" />
+                <span class="input-group-btn"><button class="btn btn-secondary" (click)="toggleShowSecret()"><span class="fa fa-eye-slash">&nbsp;</span>Hide</button></span>
+            </div>
+            <div class="input-group" *ngIf="!showSecret">
+                <input type="password" class="form-control" id="secret" name="clientSecret" value="dummycontenthere" readonly />
+                <span class="input-group-btn"><button class="btn" (click)="toggleShowSecret()"><span class="fa fa-eye">&nbsp;</span>Show</button></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.scope">Scope</label>
+            <input type="text" class="form-control" id="scope" name="scope" [(ngModel)]="scopeList" />
+            <small id="scopeHelp" class="form-text text-muted">Comma seperated list of scopes. Scopes should have the following structure: ENTITY.OPERATION. See the <a href="https://github.com/RADAR-CNS/ManagementPortal/tree/master/radar-auth">radar-auth library documentation</a> for more information.</small>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.resourceIds">Resources</label>
+            <input type="text" class="form-control" id="resourceIds" name="resourceIds" [(ngModel)]="resourcesList" />
+            <small id="scopeHelp" class="form-text text-muted">Comma seperated list of allowed resource IDs.</small>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.authorizedGrantTypes">Grant Types</label>
+            <div class="form-check" *ngFor="let grant of grantTypes">
+                <label class="form-check-label">
+                    <input type="checkbox" class="form-check-input" name="grantTypes" [checked]="grant.authorized" (change)="grant.authorized = !grant.authorized" /> {{grant.name}}
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.autoApprove">Auto Approve</label>
+            <input type="text" class="form-control" id="autoApprove" name="autoApprove" [(ngModel)]="autoApproveScopeList" />
+            <small id="autoApproveHelp" class="form-text text-muted">Comma seperated list of scopes that do not require explicit user approval in the authorization code grant.</small>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.accessTokenValidity">Access Token Validity</label>
+            <input type="text" class="form-control" id="accessTokenValidity" name="accessTokenValidity" [(ngModel)]="client.accessTokenValidity" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.refreshTokenValidity">Refresh Token Validity</label>
+            <input type="text" class="form-control" id="refreshTokenValidity" name="refreshTokenValidity" [(ngModel)]="client.refreshTokenValidity" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.additionalInformation">Additional Information</label>
+            <div class="form-check">
+                    <label class="form-check-label">
+                        <input type="checkbox" class="form-check-input" name="dynamicRegistration" [checked]="dynamicRegistration" (change)="dynamicRegistration = !dynamicRegistration" /> Dynamic registration allowed
+                    </label>
+                </div>
+                <small id="dynamicRegistrationHelp" class="form-text text-muted">If enabled this will allow the OAuth client to dynamically register data sources.</small>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+            <span class="fa fa-ban"></span>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+        </button>
+        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+            <span class="fa fa-save"></span>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+        </button>
+    </div>
+</form>
