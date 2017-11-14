@@ -147,6 +147,17 @@ export class OAuthClientDialogComponent implements OnInit  {
     toggleShowSecret() {
         this.showSecret = !this.showSecret;
     }
+
+    generateRandomSecret() {
+        var text = [];
+        const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      
+        for (var i = 0; i < 36; i++) {
+          text.push(possible.charAt(Math.floor(Math.random() * possible.length)));
+        }
+
+        this.client.clientSecret = text.join('');
+    }
 }
 
 @Component({

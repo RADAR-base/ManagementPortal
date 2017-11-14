@@ -16,7 +16,8 @@
             <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.clientSecret">Client Secret</label>
             <div class="input-group" *ngIf="showSecret">
                 <input type="text" class="form-control" id="secret" name="clientSecret" [(ngModel)]="client.clientSecret" />
-                <span class="input-group-btn"><button class="btn btn-secondary" (click)="toggleShowSecret()"><span class="fa fa-eye-slash">&nbsp;</span>Hide</button></span>
+                <span class="input-group-btn"><button class="btn btn-secondary" type="button" (click)="generateRandomSecret()"><span class="fa fa-magic">&nbsp;</span>Randomize</button></span>
+                <span class="input-group-btn"><button class="btn btn-secondary" type="button" (click)="toggleShowSecret()"><span class="fa fa-eye-slash">&nbsp;</span>Hide</button></span>
             </div>
             <div class="input-group" *ngIf="!showSecret">
                 <input type="password" class="form-control" id="secret" name="clientSecret" value="dummycontenthere" readonly />
