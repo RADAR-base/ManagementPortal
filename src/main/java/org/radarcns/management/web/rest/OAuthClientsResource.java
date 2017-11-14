@@ -50,6 +50,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -141,6 +142,13 @@ public class OAuthClientsResource {
                 .clientDetailsDTOToClientDetails(clientDetailsDTO);
         clientDetailsService.updateClientDetails(details);
         ClientDetails updated = getOAuthClient(clientDetailsDTO.getClientId());
+        // updateClientDetails does not update secret, so check for it seperately
+        if (Objects.nonNull(clientDetailsDTO.getClientSecret()) && !clientDetailsDTO
+                .getClientSecret().equals(updated.getClientSecret())) {
+            clientDetailsService.updateClientSecret(clientDetailsDTO.getClientId(),
+                    clientDetailsDTO.getClientSecret());
+        }
+        updated = getOAuthClient(clientDetailsDTO.getClientId());
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME,
                         clientDetailsDTO.getClientId()))
