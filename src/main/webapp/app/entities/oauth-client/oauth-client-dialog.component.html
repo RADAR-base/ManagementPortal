@@ -7,6 +7,9 @@
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
+        <div class="alert alert-danger" *ngIf="protectedClient">
+            <strong>This is a protected client.</strong> You will not be able to make any changes to it.
+        </div>
         <div class="form-group">
             <label class="form-control-label" for="id" jhiTranslate="managementPortalApp.oauthClient.clientId">Client ID</label>
             <input *ngIf="!newClient" type="text" class="form-control" id="id" name="id" [(ngModel)]="client.clientId" readonly />
@@ -15,7 +18,7 @@
         <div class="form-group">
             <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.clientSecret">Client Secret</label>
             <div class="input-group" *ngIf="showSecret">
-                <input type="text" class="form-control" id="secret" name="clientSecret" [(ngModel)]="client.clientSecret" />
+                <input type="text" class="form-control" id="secret" name="clientSecret" [(ngModel)]="client.clientSecret" [disabled]="protectedClient" />
                 <span class="input-group-btn"><button class="btn btn-secondary" type="button" (click)="generateRandomSecret()"><span class="fa fa-magic">&nbsp;</span>Randomize</button></span>
                 <span class="input-group-btn"><button class="btn btn-secondary" type="button" (click)="toggleShowSecret()"><span class="fa fa-eye-slash">&nbsp;</span>Hide</button></span>
             </div>
@@ -26,40 +29,40 @@
         </div>
         <div class="form-group">
             <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.scope">Scope</label>
-            <input type="text" class="form-control" id="scope" name="scope" [(ngModel)]="scopeList" />
+            <input type="text" class="form-control" id="scope" name="scope" [(ngModel)]="scopeList" [disabled]="protectedClient" />
             <small id="scopeHelp" class="form-text text-muted">Comma seperated list of scopes. Scopes should have the following structure: ENTITY.OPERATION. See the <a href="https://github.com/RADAR-CNS/ManagementPortal/tree/master/radar-auth">radar-auth library documentation</a> for more information.</small>
         </div>
         <div class="form-group">
             <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.resourceIds">Resources</label>
-            <input type="text" class="form-control" id="resourceIds" name="resourceIds" [(ngModel)]="resourcesList" />
+            <input type="text" class="form-control" id="resourceIds" name="resourceIds" [(ngModel)]="resourcesList" [disabled]="protectedClient" />
             <small id="scopeHelp" class="form-text text-muted">Comma seperated list of allowed resource IDs.</small>
         </div>
         <div class="form-group">
             <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.authorizedGrantTypes">Grant Types</label>
             <div class="form-check" *ngFor="let grant of grantTypes">
                 <label class="form-check-label">
-                    <input type="checkbox" class="form-check-input" name="grantTypes" [checked]="grant.authorized" (change)="grant.authorized = !grant.authorized" /> {{grant.name}}
+                    <input type="checkbox" class="form-check-input" name="grantTypes" [checked]="grant.authorized" (change)="grant.authorized = !grant.authorized" [disabled]="protectedClient" /> {{grant.name}}
                 </label>
             </div>
         </div>
         <div class="form-group">
             <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.autoApprove">Auto Approve</label>
-            <input type="text" class="form-control" id="autoApprove" name="autoApprove" [(ngModel)]="autoApproveScopeList" />
+            <input type="text" class="form-control" id="autoApprove" name="autoApprove" [(ngModel)]="autoApproveScopeList" [disabled]="protectedClient" />
             <small id="autoApproveHelp" class="form-text text-muted">Comma seperated list of scopes that do not require explicit user approval in the authorization code grant.</small>
         </div>
         <div class="form-group">
             <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.accessTokenValidity">Access Token Validity</label>
-            <input type="text" class="form-control" id="accessTokenValidity" name="accessTokenValidity" [(ngModel)]="client.accessTokenValidity" />
+            <input type="text" class="form-control" id="accessTokenValidity" name="accessTokenValidity" [(ngModel)]="client.accessTokenValidity" [disabled]="protectedClient" />
         </div>
         <div class="form-group">
             <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.refreshTokenValidity">Refresh Token Validity</label>
-            <input type="text" class="form-control" id="refreshTokenValidity" name="refreshTokenValidity" [(ngModel)]="client.refreshTokenValidity" />
+            <input type="text" class="form-control" id="refreshTokenValidity" name="refreshTokenValidity" [(ngModel)]="client.refreshTokenValidity" [disabled]="protectedClient" />
         </div>
         <div class="form-group">
             <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.additionalInformation">Additional Information</label>
             <div class="form-check">
                     <label class="form-check-label">
-                        <input type="checkbox" class="form-check-input" name="dynamicRegistration" [checked]="dynamicRegistration" (change)="dynamicRegistration = !dynamicRegistration" /> Dynamic registration allowed
+                        <input type="checkbox" class="form-check-input" name="dynamicRegistration" [checked]="dynamicRegistration" (change)="dynamicRegistration = !dynamicRegistration" [disabled]="protectedClient" /> Dynamic registration allowed
                     </label>
                 </div>
                 <small id="dynamicRegistrationHelp" class="form-text text-muted">If enabled this will allow the OAuth client to dynamically register data sources.</small>

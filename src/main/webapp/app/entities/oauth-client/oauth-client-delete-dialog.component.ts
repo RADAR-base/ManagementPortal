@@ -12,9 +12,10 @@ import { OAuthClientPopupService } from './oauth-client-popup.service';
     selector: 'jhi-oauth-client-delete-dialog',
     templateUrl: './oauth-client-delete-dialog.component.html'
 })
-export class OAuthClientDeleteDialogComponent {
+export class OAuthClientDeleteDialogComponent implements OnInit {
 
     client: OAuthClient;
+    protectedClient: boolean;
 
     constructor(
         private jhiLanguageService: JhiLanguageService,
@@ -23,6 +24,10 @@ export class OAuthClientDeleteDialogComponent {
         private eventManager: EventManager
     ) {
         this.jhiLanguageService.setLocations(['oauthClient']);
+    }
+
+    ngOnInit() {
+        this.protectedClient = this.client.additionalInformation['protected'] == 'true';
     }
 
     clear() {

@@ -27,6 +27,7 @@ export class OAuthClientDialogComponent implements OnInit  {
     dynamicRegistration: boolean;
     dynamicRegistrationKey: string;
     newClient: boolean;
+    protectedClient: boolean;
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -53,13 +54,13 @@ export class OAuthClientDialogComponent implements OnInit  {
         // transform array of auto-approve scopes to a comma seperated string so we can bind a single text box to it
         this.autoApproveScopeList = this.client.autoApproveScopes.join(", ");
         this.dynamicRegistrationKey = 'dynamic_registration';
-        this.dynamicRegistration = this.client.additionalInformation[this.dynamicRegistrationKey] 
-                ? this.client.additionalInformation[this.dynamicRegistrationKey] : false;
+        this.dynamicRegistration = this.client.additionalInformation[this.dynamicRegistrationKey] == 'true';
         this.authorities = ['ROLE_SYS_ADMIN'];
         // are we creating a new client?
         this.newClient = this.client.clientId == '';
         // if it's a new client, don't hide secret
         this.showSecret = this.newClient;
+        this.protectedClient = this.client.additionalInformation['protected'] == 'true';
     }
     clear() {
         this.activeModal.dismiss('cancel');

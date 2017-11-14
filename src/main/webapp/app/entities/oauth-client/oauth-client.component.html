@@ -44,14 +44,16 @@
                                 <button type="submit"
                                         [routerLink]="['/', { outlets: { popup: ['oauth-client', client.clientId, 'edit']} }]"
                                         replaceUrl="true"
-                                        class="btn btn-primary btn-sm">
+                                        class="btn btn-primary btn-sm"
+                                        [disabled]="client.additionalInformation['protected'] == 'true'">
                                     <span class="fa fa-pencil"></span>
                                     <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
                                 </button>
                                 <button type="submit"
                                         [routerLink]="['/', { outlets: { popup: ['oauth-client', client.clientId, 'delete']} }]"
                                         replaceUrl="true"
-                                        class="btn btn-danger btn-sm">
+                                        class="btn btn-danger btn-sm"
+                                        [disabled]="client.additionalInformation['protected'] == 'true'">
                                     <span class="fa fa-remove"></span>
                                     <span class="hidden-md-down" jhiTranslate="entity.action.delete">Delete</span>
                                 </button>

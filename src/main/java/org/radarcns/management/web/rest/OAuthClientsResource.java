@@ -13,6 +13,7 @@ import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.ClientDetailsMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
+import org.radarcns.management.web.rest.errors.CustomParameterizedException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,6 +94,7 @@ public class OAuthClientsResource {
     private HttpServletRequest servletRequest;
 
     private static final String ENTITY_NAME = "oauthClient";
+    private static final String PROTECTED_KEY = "protected";
 
     /**
      * GET /api/oauthclients
@@ -138,6 +140,7 @@ public class OAuthClientsResource {
     public ResponseEntity<ClientDetailsDTO> updateOAuthClient(@RequestBody ClientDetailsDTO
             clientDetailsDTO) {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_UPDATE);
+        checkProtected(getOAuthClient(clientDetailsDTO.getClientId()));
         ClientDetails details = clientDetailsMapper
                 .clientDetailsDTOToClientDetails(clientDetailsDTO);
         clientDetailsService.updateClientDetails(details);
@@ -167,6 +170,7 @@ public class OAuthClientsResource {
     @Timed
     public ResponseEntity<Void> deleteOAuthClient(@PathVariable String id) {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_DELETE);
+        checkProtected(getOAuthClient(id));
         clientDetailsService.removeClientDetails(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id))
                 .build();
@@ -293,5 +297,14 @@ public class OAuthClientsResource {
         }
 
         return subject.get();
+    }
+
+    private void checkProtected(ClientDetails details) {
+        Map<String, Object> info = details.getAdditionalInformation();
+        if (Objects.nonNull(info) && info.containsKey(PROTECTED_KEY)
+                && info.get(PROTECTED_KEY).toString().equalsIgnoreCase("true")) {
+            throw new CustomParameterizedException("Modification of a protected OAuth client is "
+                    + "not allowed.");
+        }
     }
 }

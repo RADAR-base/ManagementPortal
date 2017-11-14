@@ -6,13 +6,16 @@
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
-        <p jhiTranslate="managementPortalApp.oauthClient.delete.question" translateValues="{id: '{{client.clientId}}'}">Are you sure you want to delete this OAuth client?</p>
+        <p *ngIf="!protectedClient" jhiTranslate="managementPortalApp.oauthClient.delete.question" translateValues="{id: '{{client.clientId}}'}">Are you sure you want to delete this OAuth client?</p>
+        <div class="alert alert-danger" *ngIf="protectedClient">
+            <strong>This is a protected client.</strong> You are not allowed to delete protected clients.
+        </div>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="clear()">
             <span class="fa fa-ban"></span>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
         </button>
-        <button type="submit" class="btn btn-danger">
+        <button *ngIf="!protectedClient" type="submit" class="btn btn-danger">
             <span class="fa fa-remove"></span>&nbsp;<span jhiTranslate="entity.action.delete">Delete</span>
         </button>
     </div>
