@@ -11,8 +11,6 @@ import { NotificationInterceptor } from './notification.interceptor';
 export function interceptableFactory(
     backend: XHRBackend,
     defaultOptions: RequestOptions,
-    localStorage: LocalStorageService,
-    sessionStorage: SessionStorageService,
     injector: Injector,
     eventManager: EventManager
 ) {
@@ -20,7 +18,7 @@ export function interceptableFactory(
         backend,
         defaultOptions,
         [
-            new AuthInterceptor(localStorage, sessionStorage),
+            new AuthInterceptor(injector),
             new AuthExpiredInterceptor(injector),
             // Other interceptors can be added here
             new ErrorHandlerInterceptor(eventManager),
@@ -36,8 +34,6 @@ export function customHttpProvider() {
         deps: [
             XHRBackend,
             RequestOptions,
-            LocalStorageService,
-            SessionStorageService,
             Injector,
             EventManager
         ]
