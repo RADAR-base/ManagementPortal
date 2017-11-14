@@ -79,7 +79,7 @@ public class ExceptionTranslator {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ResponseBody
     public ErrorVM processAccessDeniedException(AccessDeniedException e) {
         return new ErrorVM(ErrorConstants.ERR_ACCESS_DENIED, e.getMessage());
