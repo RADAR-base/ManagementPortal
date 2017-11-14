@@ -25,7 +25,6 @@ public class ClientDetailsMapperImpl implements ClientDetailsMapper {
     public ClientDetailsDTO clientDetailsToClientDetailsDTO(ClientDetails details) {
         ClientDetailsDTO result = new ClientDetailsDTO();
         result.setClientId(details.getClientId());
-        result.setClientSecret(details.getClientSecret());
         result.setScope(details.getScope());
         result.setResourceIds(details.getResourceIds());
         result.setAuthorizedGrantTypes(details.getAuthorizedGrantTypes());
