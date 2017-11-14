@@ -17,7 +17,6 @@ export class OAuthClientDialogComponent implements OnInit  {
 
     client: OAuthClient;
     isSaving: boolean;
-    showSecret: boolean;
     authorities: any[];
     grantTypes: any[];
     scopeList: string;
@@ -58,8 +57,6 @@ export class OAuthClientDialogComponent implements OnInit  {
         this.authorities = ['ROLE_SYS_ADMIN'];
         // are we creating a new client?
         this.newClient = this.client.clientId == '';
-        // if it's a new client, don't hide secret
-        this.showSecret = this.newClient;
         this.protectedClient = this.client.additionalInformation['protected'] == 'true';
     }
     clear() {
@@ -143,10 +140,6 @@ export class OAuthClientDialogComponent implements OnInit  {
             }
         }
         return option;
-    }
-
-    toggleShowSecret() {
-        this.showSecret = !this.showSecret;
     }
 
     generateRandomSecret() {

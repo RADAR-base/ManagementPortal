@@ -13,28 +13,24 @@
         <div class="form-group">
             <label class="form-control-label" for="id" jhiTranslate="managementPortalApp.oauthClient.clientId">Client ID</label>
             <input *ngIf="!newClient" type="text" class="form-control" id="id" name="id" [(ngModel)]="client.clientId" readonly />
-            <input *ngIf="newClient" type="text" class="form-control" id="id" name="id" [(ngModel)]="client.clientId" />
+            <input *ngIf="newClient" type="text" class="form-control" id="id" name="id" [(ngModel)]="client.clientId" required />
         </div>
         <div class="form-group">
             <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.clientSecret">Client Secret</label>
-            <div class="input-group" *ngIf="showSecret">
-                <input type="text" class="form-control" id="secret" name="clientSecret" [(ngModel)]="client.clientSecret" [disabled]="protectedClient" />
+            <div class="input-group">
+                <input type="text" class="form-control" id="secret" name="clientSecret" [(ngModel)]="client.clientSecret" [disabled]="protectedClient" [required]="newClient" />
                 <span class="input-group-btn"><button class="btn btn-secondary" type="button" (click)="generateRandomSecret()"><span class="fa fa-magic">&nbsp;</span>Randomize</button></span>
-                <span class="input-group-btn"><button class="btn btn-secondary" type="button" (click)="toggleShowSecret()"><span class="fa fa-eye-slash">&nbsp;</span>Hide</button></span>
             </div>
-            <div class="input-group" *ngIf="!showSecret">
-                <input type="password" class="form-control" id="secret" name="clientSecret" value="dummycontenthere" readonly />
-                <span class="input-group-btn"><button class="btn" (click)="toggleShowSecret()"><span class="fa fa-eye">&nbsp;</span>Show</button></span>
-            </div>
+            <small id="scopeHelp" class="form-text text-muted" *ngIf="!newClient">If this field is left empty the secret will not be modified.</small>
         </div>
         <div class="form-group">
             <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.scope">Scope</label>
-            <input type="text" class="form-control" id="scope" name="scope" [(ngModel)]="scopeList" [disabled]="protectedClient" />
+            <input type="text" class="form-control" id="scope" name="scope" [(ngModel)]="scopeList" [disabled]="protectedClient" required />
             <small id="scopeHelp" class="form-text text-muted">Comma seperated list of scopes. Scopes should have the following structure: ENTITY.OPERATION. See the <a href="https://github.com/RADAR-CNS/ManagementPortal/tree/master/radar-auth">radar-auth library documentation</a> for more information.</small>
         </div>
         <div class="form-group">
             <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.resourceIds">Resources</label>
-            <input type="text" class="form-control" id="resourceIds" name="resourceIds" [(ngModel)]="resourcesList" [disabled]="protectedClient" />
+            <input type="text" class="form-control" id="resourceIds" name="resourceIds" [(ngModel)]="resourcesList" [disabled]="protectedClient" required />
             <small id="scopeHelp" class="form-text text-muted">Comma seperated list of allowed resource IDs.</small>
         </div>
         <div class="form-group">
@@ -52,11 +48,11 @@
         </div>
         <div class="form-group">
             <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.accessTokenValidity">Access Token Validity</label>
-            <input type="text" class="form-control" id="accessTokenValidity" name="accessTokenValidity" [(ngModel)]="client.accessTokenValidity" [disabled]="protectedClient" />
+            <input type="text" class="form-control" id="accessTokenValidity" name="accessTokenValidity" [(ngModel)]="client.accessTokenValidity" [disabled]="protectedClient" required pattern="\d+" />
         </div>
         <div class="form-group">
             <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.refreshTokenValidity">Refresh Token Validity</label>
-            <input type="text" class="form-control" id="refreshTokenValidity" name="refreshTokenValidity" [(ngModel)]="client.refreshTokenValidity" [disabled]="protectedClient" />
+            <input type="text" class="form-control" id="refreshTokenValidity" name="refreshTokenValidity" [(ngModel)]="client.refreshTokenValidity" [disabled]="protectedClient" required pattern="\d+" />
         </div>
         <div class="form-group">
             <label class="form-control-label" for="" jhiTranslate="managementPortalApp.oauthClient.additionalInformation">Additional Information</label>
