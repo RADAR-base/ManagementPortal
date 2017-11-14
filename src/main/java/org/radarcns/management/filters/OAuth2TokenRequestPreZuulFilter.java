@@ -3,10 +3,9 @@ package org.radarcns.management.filters;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.HttpMethod;
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,25 +28,15 @@ public class OAuth2TokenRequestPreZuulFilter extends ZuulFilter {
     @Override
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
-        if (ctx.getRequest().getRequestURI().contains("/oauth/token")) {
             byte[] encoded;
             try {
                 // get this from properties, this will allow us to use ENV variables for docker
                 encoded = Base64.encode((managementPortalProperties.getFrontend().getClientId()+":"+managementPortalProperties.getFrontend().getClientSecret()).getBytes("UTF-8"));
                 ctx.addZuulRequestHeader("Authorization", "Basic " + new String(encoded));
-                final HttpServletRequest req = ctx.getRequest();
-                final String refreshToken = extractRefreshToken(req);
-                if (refreshToken != null) {
-                    final Map<String, String[]> param = new HashMap<String, String[]>();
-                    param.put("refresh_token", new String[] { refreshToken });
-                    param.put("grant_type", new String[] { "refresh_token" });
-                    ctx.setRequest(new CustomHttpServletRequest(req, param));
-                }
 
             } catch (UnsupportedEncodingException e) {
                 logger.error("Error occured in pre filter", e);
             }
-        }
         return null;
     }
 
@@ -65,7 +54,9 @@ public class OAuth2TokenRequestPreZuulFilter extends ZuulFilter {
 
     @Override
     public boolean shouldFilter() {
-        return true;
+        RequestContext ctx = RequestContext.getCurrentContext();
+        String method = ctx.getRequest().getMethod();
+        return ctx.getRequest().getRequestURI().contains("/oauth/token") && HttpMethod.POST.equals(method);
     }
 
     @Override

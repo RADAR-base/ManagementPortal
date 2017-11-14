@@ -2,8 +2,11 @@ package org.radarcns.management.filters;
 
 import static org.radarcns.management.filters.OAuth2TokenRequestPreZuulFilter.REFRESH_TOKEN_COOKIE;
 
+import io.github.jhipster.config.JHipsterConstants;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
@@ -13,6 +16,7 @@ import org.radarcns.management.config.ManagementPortalProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -29,6 +33,9 @@ public class OAuth2TokenRequestPostZuulFilter extends ZuulFilter {
 
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
+
+    @Autowired
+    private  Environment env;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -39,7 +46,7 @@ public class OAuth2TokenRequestPostZuulFilter extends ZuulFilter {
 
         final String requestURI = ctx.getRequest().getRequestURI();
         final String requestMethod = ctx.getRequest().getMethod();
-
+        Collection<String> activeProfiles = Arrays.asList(env.getActiveProfiles());
         try {
             final InputStream is = ctx.getResponseDataStream();
             String responseBody = IOUtils.toString(is, "UTF-8");
@@ -53,17 +60,17 @@ public class OAuth2TokenRequestPostZuulFilter extends ZuulFilter {
 
                 final Cookie cookie = new Cookie(REFRESH_TOKEN_COOKIE, refreshToken);
                 cookie.setHttpOnly(true);
-                cookie.setSecure(true);
-                cookie.setPath(ctx.getRequest().getContextPath() + "oauthserver/oauth/token");
+                cookie.setSecure(activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_PRODUCTION));
+                cookie.setPath(ctx.getRequest().getContextPath() + "/oauthserver/oauth/token");
                 cookie.setMaxAge(this.managementPortalProperties.getFrontend().getSessionTimeout()); // 30 minites
                 ctx.getResponse().addCookie(cookie);
-                logger.info("refresh token = " + refreshToken);
 
             }
             if (requestURI.contains("oauth/token") && requestMethod.equals("DELETE")) {
                 final Cookie cookie = new Cookie(REFRESH_TOKEN_COOKIE, "");
                 cookie.setMaxAge(0);
-                cookie.setPath(ctx.getRequest().getContextPath() + "oauthserver/oauth/token");
+                cookie.setSecure(activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_PRODUCTION));
+                cookie.setPath(ctx.getRequest().getContextPath() + "/oauthserver/oauth/token");
                 ctx.getResponse().addCookie(cookie);
             }
             ctx.setResponseBody(responseBody);

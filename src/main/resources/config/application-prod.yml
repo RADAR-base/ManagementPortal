@@ -12,7 +12,11 @@
 # Full reference is available at:
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
-
+zuul:
+    routes:
+        ManagementPortal:
+            path: /oauthserver/oauth/**
+            url: http://localhost:8080/managementportal/oauth
 spring:
     devtools:
         restart:
