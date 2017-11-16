@@ -13,10 +13,10 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liqui
     <property name="floatType" value="float" dbms="mysql, oracle, mssql"/>
 
     <!--
-        Added the entity SensorData.
+        Added the entity SourceData.
     -->
     <changeSet id="20170516143501-1" author="jhipster">
-        <createTable tableName="sensor_data">
+        <createTable tableName="source_data">
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -66,7 +66,7 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liqui
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
 
-        <createIndex tableName="sensor_data" indexName="idx_sensor_name" unique="true">
+        <createIndex tableName="source_data" indexName="idx_sensor_name" unique="true">
             <column name="sensor_name" type="varchar(255)"/>
         </createIndex>
 

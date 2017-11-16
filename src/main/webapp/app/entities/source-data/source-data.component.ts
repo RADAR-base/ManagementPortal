@@ -4,34 +4,34 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
 import { EventManager, ParseLinks, PaginationUtil, JhiLanguageService, AlertService } from 'ng-jhipster';
 
-import { SensorData } from './sensor-data.model';
-import { SensorDataService } from './sensor-data.service';
+import { SourceData } from './source-data.model';
+import { SourceDataService } from './source-data.service';
 import { ITEMS_PER_PAGE, Principal } from '../../shared';
 import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
 
 @Component({
-    selector: 'jhi-sensor-data',
-    templateUrl: './sensor-data.component.html'
+    selector: 'jhi-source-data',
+    templateUrl: './source-data.component.html'
 })
-export class SensorDataComponent implements OnInit, OnDestroy {
-sensorData: SensorData[];
+export class SourceDataComponent implements OnInit, OnDestroy {
+sourceData: SourceData[];
     currentAccount: any;
     eventSubscriber: Subscription;
 
     constructor(
         private jhiLanguageService: JhiLanguageService,
-        private sensorDataService: SensorDataService,
+        private sourceDataService: SourceDataService,
         private alertService: AlertService,
         private eventManager: EventManager,
         private principal: Principal
     ) {
-        this.jhiLanguageService.setLocations(['sensorData', 'dataType']);
+        this.jhiLanguageService.setLocations(['sourceData', 'dataType']);
     }
 
     loadAll() {
-        this.sensorDataService.query().subscribe(
+        this.sourceDataService.query().subscribe(
             (res: Response) => {
-                this.sensorData = res.json();
+                this.sourceData = res.json();
             },
             (res: Response) => this.onError(res.json())
         );
@@ -41,18 +41,18 @@ sensorData: SensorData[];
         this.principal.identity().then((account) => {
             this.currentAccount = account;
         });
-        this.registerChangeInSensorData();
+        this.registerChangeInSourceData();
     }
 
     ngOnDestroy() {
         this.eventManager.destroy(this.eventSubscriber);
     }
 
-    trackId(index: number, item: SensorData) {
+    trackId(index: number, item: SourceData) {
         return item.id;
     }
-    registerChangeInSensorData() {
-        this.eventSubscriber = this.eventManager.subscribe('sensorDataListModification', (response) => this.loadAll());
+    registerChangeInSourceData() {
+        this.eventSubscriber = this.eventManager.subscribe('sourceDataListModification', (response) => this.loadAll());
     }
 
     private onError(error) {

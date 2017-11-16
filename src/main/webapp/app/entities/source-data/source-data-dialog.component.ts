@@ -5,18 +5,18 @@ import { Response } from '@angular/http';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 
-import { SensorData } from './sensor-data.model';
-import { SensorDataPopupService } from './sensor-data-popup.service';
-import { SensorDataService } from './sensor-data.service';
+import { SourceData } from './source-data.model';
+import { SourceDataPopupService } from './source-data-popup.service';
+import { SourceDataService } from './source-data.service';
 import { DeviceType, DeviceTypeService } from '../device-type';
 
 @Component({
-    selector: 'jhi-sensor-data-dialog',
-    templateUrl: './sensor-data-dialog.component.html'
+    selector: 'jhi-source-data-dialog',
+    templateUrl: './source-data-dialog.component.html'
 })
-export class SensorDataDialogComponent implements OnInit {
+export class SourceDataDialogComponent implements OnInit {
 
-    sensorData: SensorData;
+    sourceData: SourceData;
     authorities: any[];
     isSaving: boolean;
 
@@ -25,11 +25,11 @@ export class SensorDataDialogComponent implements OnInit {
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
         private alertService: AlertService,
-        private sensorDataService: SensorDataService,
+        private sourceDataService: SourceDataService,
         private deviceTypeService: DeviceTypeService,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['sensorData', 'dataType']);
+        this.jhiLanguageService.setLocations(['sourceData', 'dataType']);
     }
 
     ngOnInit() {
@@ -44,19 +44,19 @@ export class SensorDataDialogComponent implements OnInit {
 
     save() {
         this.isSaving = true;
-        if (this.sensorData.id !== undefined) {
-            this.sensorDataService.update(this.sensorData)
-                .subscribe((res: SensorData) =>
+        if (this.sourceData.id !== undefined) {
+            this.sourceDataService.update(this.sourceData)
+                .subscribe((res: SourceData) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         } else {
-            this.sensorDataService.create(this.sensorData)
-                .subscribe((res: SensorData) =>
+            this.sourceDataService.create(this.sourceData)
+                .subscribe((res: SourceData) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         }
     }
 
-    private onSaveSuccess(result: SensorData) {
-        this.eventManager.broadcast({ name: 'sensorDataListModification', content: 'OK'});
+    private onSaveSuccess(result: SourceData) {
+        this.eventManager.broadcast({ name: 'sourceDataListModification', content: 'OK'});
         this.isSaving = false;
         this.activeModal.dismiss(result);
     }
@@ -92,27 +92,27 @@ export class SensorDataDialogComponent implements OnInit {
 }
 
 @Component({
-    selector: 'jhi-sensor-data-popup',
+    selector: 'jhi-source-data-popup',
     template: ''
 })
-export class SensorDataPopupComponent implements OnInit, OnDestroy {
+export class SourceDataPopupComponent implements OnInit, OnDestroy {
 
     modalRef: NgbModalRef;
     routeSub: any;
 
     constructor(
         private route: ActivatedRoute,
-        private sensorDataPopupService: SensorDataPopupService
+        private sourceDataPopupService: SourceDataPopupService
     ) {}
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
             if ( params['sensorName'] ) {
-                this.modalRef = this.sensorDataPopupService
-                    .open(SensorDataDialogComponent, params['sensorName']);
+                this.modalRef = this.sourceDataPopupService
+                    .open(SourceDataDialogComponent, params['sensorName']);
             } else {
-                this.modalRef = this.sensorDataPopupService
-                    .open(SensorDataDialogComponent);
+                this.modalRef = this.sourceDataPopupService
+                    .open(SourceDataDialogComponent);
             }
         });
     }

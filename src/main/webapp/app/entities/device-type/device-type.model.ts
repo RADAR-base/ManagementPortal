@@ -11,7 +11,7 @@ export class DeviceType {
         public deviceModel?: string,
         public catalogVersion?: string,
         public sourceType?: SourceType,
-        public sensorDataId?: number,
+        public sourceDataId?: number,
         public projectId?: number,
         public canRegisterDynamically?: boolean
     ) {

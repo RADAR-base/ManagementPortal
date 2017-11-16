@@ -103,7 +103,7 @@ export class RoleDialogComponent implements OnInit {
 }
 
 @Component({
-    selector: 'jhi-sensor-data-popup',
+    selector: 'jhi-source-data-popup',
     template: ''
 })
 export class RolePopupComponent implements OnInit, OnDestroy {

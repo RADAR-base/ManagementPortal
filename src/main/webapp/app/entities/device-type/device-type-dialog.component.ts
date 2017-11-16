@@ -8,7 +8,7 @@ import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 import { DeviceType } from './device-type.model';
 import { DeviceTypePopupService } from './device-type-popup.service';
 import { DeviceTypeService } from './device-type.service';
-import { SensorData, SensorDataService } from '../sensor-data';
+import { SourceData, SourceDataService } from '../source-data';
 import { Project, ProjectService } from '../project';
 
 @Component({
@@ -21,7 +21,7 @@ export class DeviceTypeDialogComponent implements OnInit {
     authorities: any[];
     isSaving: boolean;
 
-    sensordata: SensorData[];
+    sourceData: SourceData[];
 
     projects: Project[];
     constructor(
@@ -29,7 +29,7 @@ export class DeviceTypeDialogComponent implements OnInit {
         private jhiLanguageService: JhiLanguageService,
         private alertService: AlertService,
         private deviceTypeService: DeviceTypeService,
-        private sensorDataService: SensorDataService,
+        private sourceDataService: SourceDataService,
         private projectService: ProjectService,
         private eventManager: EventManager
     ) {
@@ -39,8 +39,8 @@ export class DeviceTypeDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
-        this.sensorDataService.query().subscribe(
-            (res: Response) => { this.sensordata = res.json(); }, (res: Response) => this.onError(res.json()));
+        this.sourceDataService.query().subscribe(
+            (res: Response) => { this.sourceData = res.json(); }, (res: Response) => this.onError(res.json()));
         this.projectService.query().subscribe(
             (res: Response) => { this.projects = res.json(); }, (res: Response) => this.onError(res.json()));
     }
@@ -81,7 +81,7 @@ export class DeviceTypeDialogComponent implements OnInit {
         this.alertService.error(error.message, null, null);
     }
 
-    trackSensorDataById(index: number, item: SensorData) {
+    trackSourceDataById(index: number, item: SourceData) {
         return item.id;
     }
 

@@ -3,38 +3,38 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
 import { EventManager , JhiLanguageService  } from 'ng-jhipster';
 
-import { SensorData } from './sensor-data.model';
-import { SensorDataService } from './sensor-data.service';
+import { SourceData } from './source-data.model';
+import { SourceDataService } from './source-data.service';
 
 @Component({
-    selector: 'jhi-sensor-data-detail',
-    templateUrl: './sensor-data-detail.component.html'
+    selector: 'jhi-source-data-detail',
+    templateUrl: './source-data-detail.component.html'
 })
-export class SensorDataDetailComponent implements OnInit, OnDestroy {
+export class SourceDataDetailComponent implements OnInit, OnDestroy {
 
-    sensorData: SensorData;
+    sourceData: SourceData;
     private subscription: any;
     private eventSubscriber: Subscription;
 
     constructor(
         private eventManager: EventManager,
         private jhiLanguageService: JhiLanguageService,
-        private sensorDataService: SensorDataService,
+        private sourceDataService: SourceDataService,
         private route: ActivatedRoute
     ) {
-        this.jhiLanguageService.setLocations(['sensorData', 'dataType']);
+        this.jhiLanguageService.setLocations(['sourceData', 'dataType']);
     }
 
     ngOnInit() {
         this.subscription = this.route.params.subscribe((params) => {
             this.load(params['sensorName']);
         });
-        this.registerChangeInSensorData();
+        this.registerChangeInSourceData();
     }
 
     load(sensorName) {
-        this.sensorDataService.find(sensorName).subscribe((sensorData) => {
-            this.sensorData = sensorData;
+        this.sourceDataService.find(sensorName).subscribe((sourceData) => {
+            this.sourceData = sourceData;
         });
     }
     previousState() {
@@ -46,7 +46,7 @@ export class SensorDataDetailComponent implements OnInit, OnDestroy {
         this.eventManager.destroy(this.eventSubscriber);
     }
 
-    registerChangeInSensorData() {
-        this.eventSubscriber = this.eventManager.subscribe('sensorDataListModification', (response) => this.load(this.sensorData.sensorName));
+    registerChangeInSourceData() {
+        this.eventSubscriber = this.eventManager.subscribe('sourceDataListModification', (response) => this.load(this.sourceData.sensorName));
     }
 }

@@ -6,33 +6,33 @@ import { Observable } from 'rxjs/Rx';
 import { DateUtils, DataUtils, EventManager } from 'ng-jhipster';
 import { ManagementPortalTestModule } from '../../../test.module';
 import { MockActivatedRoute } from '../../../helpers/mock-route.service';
-import { SensorDataDetailComponent } from '../../../../../../main/webapp/app/entities/sensor-data/sensor-data-detail.component';
-import { SensorDataService } from '../../../../../../main/webapp/app/entities/sensor-data/sensor-data.service';
-import { SensorData } from '../../../../../../main/webapp/app/entities/sensor-data/sensor-data.model';
+import { SourceDataDetailComponent } from '../../../../../../main/webapp/app/entities/source-data/source-data-detail.component';
+import { SourceDataService } from '../../../../../../main/webapp/app/entities/source-data/source-data.service';
+import { SourceData } from '../../../../../../main/webapp/app/entities/source-data/source-data.model';
 
 describe('Component Tests', () => {
 
-    describe('SensorData Management Detail Component', () => {
-        let comp: SensorDataDetailComponent;
-        let fixture: ComponentFixture<SensorDataDetailComponent>;
-        let service: SensorDataService;
+    describe('SourceData Management Detail Component', () => {
+        let comp: SourceDataDetailComponent;
+        let fixture: ComponentFixture<SourceDataDetailComponent>;
+        let service: SourceDataService;
 
         beforeEach(async(() => {
             TestBed.configureTestingModule({
                 imports: [ManagementPortalTestModule],
-                declarations: [SensorDataDetailComponent],
+                declarations: [SourceDataDetailComponent],
                 providers: [
                     DateUtils,
                     DataUtils,
                     DatePipe,
                     {
                         provide: ActivatedRoute,
-                        useValue: new MockActivatedRoute({sensorName: 'testSensorData'})
+                        useValue: new MockActivatedRoute({sensorName: 'testSourceData'})
                     },
-                    SensorDataService,
+                    SourceDataService,
                     EventManager
                 ]
-            }).overrideComponent(SensorDataDetailComponent, {
+            }).overrideComponent(SourceDataDetailComponent, {
                 set: {
                     template: ''
                 }
@@ -40,9 +40,9 @@ describe('Component Tests', () => {
         }));
 
         beforeEach(() => {
-            fixture = TestBed.createComponent(SensorDataDetailComponent);
+            fixture = TestBed.createComponent(SourceDataDetailComponent);
             comp = fixture.componentInstance;
-            service = fixture.debugElement.injector.get(SensorDataService);
+            service = fixture.debugElement.injector.get(SourceDataService);
         });
 
 
@@ -50,14 +50,14 @@ describe('Component Tests', () => {
             it('Should call load all on init', () => {
             // GIVEN
 
-            spyOn(service, 'find').and.returnValue(Observable.of(new SensorData(10)));
+            spyOn(service, 'find').and.returnValue(Observable.of(new SourceData(10)));
 
             // WHEN
             comp.ngOnInit();
 
             // THEN
-            expect(service.find).toHaveBeenCalledWith('testSensorData');
-            expect(comp.sensorData).toEqual(jasmine.objectContaining({id:10}));
+            expect(service.find).toHaveBeenCalledWith('testSourceData');
+            expect(comp.sourceData).toEqual(jasmine.objectContaining({id:10}));
             });
         });
     });

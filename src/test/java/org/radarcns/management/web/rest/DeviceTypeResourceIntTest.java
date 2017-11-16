@@ -6,10 +6,10 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.radarcns.management.ManagementPortalApp;
 import org.radarcns.management.domain.DeviceType;
-import org.radarcns.management.domain.SensorData;
+import org.radarcns.management.domain.SourceData;
 import org.radarcns.management.domain.enumeration.SourceType;
 import org.radarcns.management.repository.DeviceTypeRepository;
-import org.radarcns.management.repository.SensorDataRepository;
+import org.radarcns.management.repository.SourceDataRepository;
 import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.radarcns.management.service.DeviceTypeService;
 import org.radarcns.management.service.dto.DeviceTypeDTO;
@@ -74,7 +74,7 @@ public class DeviceTypeResourceIntTest {
     private DeviceTypeService deviceTypeService;
 
     @Autowired
-    private SensorDataRepository sensorDataRepository;
+    private SourceDataRepository sourceDataRepository;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -351,9 +351,9 @@ public class DeviceTypeResourceIntTest {
     @Transactional
     public void idempotentPutWithoutId() throws Exception {
         int databaseSizeBeforeUpdate = deviceTypeRepository.findAll().size();
-        int sensorsSizeBeforeUpdate = sensorDataRepository.findAll().size();
+        int sensorsSizeBeforeUpdate = sourceDataRepository.findAll().size();
 
-        deviceType.setSensorData(Collections.singleton(SensorDataResourceIntTest.createEntity(em)));
+        deviceType.setSourceData(Collections.singleton(SourceDataResourceIntTest.createEntity(em)));
         // Create the DeviceType
         DeviceTypeDTO deviceTypeDTO = deviceTypeMapper.deviceTypeToDeviceTypeDTO(deviceType);
 
@@ -367,9 +367,9 @@ public class DeviceTypeResourceIntTest {
         List<DeviceType> deviceTypeList = deviceTypeRepository.findAll();
         assertThat(deviceTypeList).hasSize(databaseSizeBeforeUpdate + 1);
 
-        // Validate the SensorData in the database
-        List<SensorData> sensorDataList = sensorDataRepository.findAll();
-        assertThat(sensorDataList).hasSize(sensorsSizeBeforeUpdate + 1);
+        // Validate the SourceData in the database
+        List<SourceData> sourceDataList = sourceDataRepository.findAll();
+        assertThat(sourceDataList).hasSize(sensorsSizeBeforeUpdate + 1);
 
         // Test doing a put with only producer and model, no id, does not create a new device-type
         // assert that the id is still unset
@@ -383,8 +383,8 @@ public class DeviceTypeResourceIntTest {
         deviceTypeList = deviceTypeRepository.findAll();
         assertThat(deviceTypeList).hasSize(databaseSizeBeforeUpdate + 1);
 
-//        // Validate no change in sensordata database size
-//        sensorDataList = sensorDataRepository.findAll();
-//        assertThat(sensorDataList).hasSize(sensorsSizeBeforeUpdate + 1);
+//        // Validate no change in sourceData database size
+//        sourceDataList = sourceDataRepository.findAll();
+//        assertThat(sourceDataList).hasSize(sensorsSizeBeforeUpdate + 1);
     }
 }

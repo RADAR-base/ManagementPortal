@@ -2,29 +2,29 @@ import { Injectable } from '@angular/core';
 import { Http, Response, URLSearchParams, BaseRequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 
-import { SensorData } from './sensor-data.model';
+import { SourceData } from './source-data.model';
 @Injectable()
-export class SensorDataService {
+export class SourceDataService {
 
-    private resourceUrl = 'api/sensor-data';
+    private resourceUrl = 'api/source-data';
 
     constructor(private http: Http) { }
 
-    create(sensorData: SensorData): Observable<SensorData> {
-        const copy: SensorData = Object.assign({}, sensorData);
+    create(sourceData: SourceData): Observable<SourceData> {
+        const copy: SourceData = Object.assign({}, sourceData);
         return this.http.post(this.resourceUrl, copy).map((res: Response) => {
             return res.json();
         });
     }
 
-    update(sensorData: SensorData): Observable<SensorData> {
-        const copy: SensorData = Object.assign({}, sensorData);
+    update(sourceData: SourceData): Observable<SourceData> {
+        const copy: SourceData = Object.assign({}, sourceData);
         return this.http.put(this.resourceUrl, copy).map((res: Response) => {
             return res.json();
         });
     }
 
-    find(sensorName: string): Observable<SensorData> {
+    find(sensorName: string): Observable<SourceData> {
         return this.http.get(`${this.resourceUrl}/${sensorName}`).map((res: Response) => {
             return res.json();
         });

@@ -1,6 +1,6 @@
 import { browser, element, by, $ } from 'protractor';
 
-describe('SensorData e2e test', () => {
+describe('SourceData e2e test', () => {
 
     const username = element(by.id('username'));
     const password = element(by.id('password'));
@@ -21,19 +21,19 @@ describe('SensorData e2e test', () => {
         browser.waitForAngular();
     });
 
-    it('should load SensorData', () => {
+    it('should load SourceData', () => {
         entityMenu.click();
-        element.all(by.css('[routerLink="sensor-data"]')).first().click().then(() => {
-            const expectVal = /managementPortalApp.sensorData.home.title/;
+        element.all(by.css('[routerLink="source-data"]')).first().click().then(() => {
+            const expectVal = /managementPortalApp.sourceData.home.title/;
             element.all(by.css('h2 span')).first().getAttribute('jhiTranslate').then((value) => {
                 expect(value).toMatch(expectVal);
             });
         });
     });
 
-    it('should load create SensorData dialog', function () {
-        element(by.css('button.create-sensor-data')).click().then(() => {
-            const expectVal = /managementPortalApp.sensorData.home.createOrEditLabel/;
+    it('should load create SourceData dialog', function () {
+        element(by.css('button.create-source-data')).click().then(() => {
+            const expectVal = /managementPortalApp.sourceData.home.createOrEditLabel/;
             element.all(by.css('h4.modal-title')).first().getAttribute('jhiTranslate').then((value) => {
                 expect(value).toMatch(expectVal);
             });

@@ -23,12 +23,12 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * A SensorData.
+ * A SourceData.
  */
 @Entity
-@Table(name = "sensor_data")
+@Table(name = "source_data")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class SensorData implements Serializable {
+public class SourceData implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -75,7 +75,7 @@ public class SensorData implements Serializable {
     @Column(name = "enabled")
     private boolean enabled = true;
 
-    @ManyToMany(mappedBy = "sensorData" , fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "sourceData" , fetch = FetchType.EAGER)
     @JsonIgnore
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<DeviceType> deviceTypes = new HashSet<>();
@@ -92,7 +92,7 @@ public class SensorData implements Serializable {
         return sensorName;
     }
 
-    public SensorData sensorName(String sensorName) {
+    public SourceData sensorName(String sensorName) {
         this.sensorName = sensorName;
         return this;
     }
@@ -105,7 +105,7 @@ public class SensorData implements Serializable {
         return dataType;
     }
 
-    public SensorData dataType(DataType dataType) {
+    public SourceData dataType(DataType dataType) {
         this.dataType = dataType;
         return this;
     }
@@ -118,7 +118,7 @@ public class SensorData implements Serializable {
         return keySchema;
     }
 
-    public SensorData keySchema(String keySchema) {
+    public SourceData keySchema(String keySchema) {
         this.keySchema = keySchema;
         return this;
     }
@@ -131,7 +131,7 @@ public class SensorData implements Serializable {
         return frequency;
     }
 
-    public SensorData frequency(String frequency) {
+    public SourceData frequency(String frequency) {
         this.frequency = frequency;
         return this;
     }
@@ -144,20 +144,20 @@ public class SensorData implements Serializable {
         return deviceTypes;
     }
 
-    public SensorData deviceTypes(Set<DeviceType> deviceTypes) {
+    public SourceData deviceTypes(Set<DeviceType> deviceTypes) {
         this.deviceTypes = deviceTypes;
         return this;
     }
 
-    public SensorData addDeviceType(DeviceType deviceType) {
+    public SourceData addDeviceType(DeviceType deviceType) {
         this.deviceTypes.add(deviceType);
-        deviceType.getSensorData().add(this);
+        deviceType.getSourceData().add(this);
         return this;
     }
 
-    public SensorData removeDeviceType(DeviceType deviceType) {
+    public SourceData removeDeviceType(DeviceType deviceType) {
         this.deviceTypes.remove(deviceType);
-        deviceType.getSensorData().remove(this);
+        deviceType.getSourceData().remove(this);
         return this;
     }
 
@@ -221,11 +221,11 @@ public class SensorData implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        SensorData sensorData = (SensorData) o;
-        if (sensorData.id == null || id == null) {
+        SourceData sourceData = (SourceData) o;
+        if (sourceData.id == null || id == null) {
             return false;
         }
-        return Objects.equals(id, sensorData.id);
+        return Objects.equals(id, sourceData.id);
     }
 
     @Override
@@ -235,7 +235,7 @@ public class SensorData implements Serializable {
 
     @Override
     public String toString() {
-        return "SensorData{" + "id=" + id + ", sensorName='" + sensorName + '\'' + ", frequency='"
+        return "SourceData{" + "id=" + id + ", sensorName='" + sensorName + '\'' + ", frequency='"
             + frequency + '\'' + ", unit='" + unit + '\'' + ", dataType=" + dataType
             + ", dataClass='" + dataClass + '\'' + ", keySchema='" + keySchema + '\''
             + ", valueSchema='" + valueSchema + '\'' + ", topic='" + topic + '\'' + ", provider='"

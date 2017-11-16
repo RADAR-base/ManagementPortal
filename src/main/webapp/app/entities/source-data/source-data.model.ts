@@ -4,7 +4,7 @@ const enum DataType {
     'DERIVED'
 
 };
-export class SensorData {
+export class SourceData {
     constructor(
         public id?: number,
         public sensorName?: string,

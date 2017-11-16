@@ -1,21 +1,21 @@
 <form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
 
     <div class="modal-header">
-        <h4 class="modal-title" id="mySensorDataLabel" jhiTranslate="managementPortalApp.sensorData.home.createOrEditLabel">Create or edit a Sensor Data</h4>
+        <h4 class="modal-title" id="mySourceDataLabel" jhiTranslate="managementPortalApp.sourceData.home.createOrEditLabel">Create or edit a Source data</h4>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
                 (click)="clear()">&times;</button>
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
-        <div class="form-group" [hidden]="!sensorData.id">
+        <div class="form-group" [hidden]="!sourceData.id">
             <label for="id" jhiTranslate="global.field.id">ID</label>
             <input type="text" class="form-control" id="id" name="id"
-                   [(ngModel)]="sensorData.id" readonly />
+                   [(ngModel)]="sourceData.id" readonly />
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sensorData.sensorName" for="field_sensorName">Sensor Name</label>
+            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.sensorName" for="field_sensorName">Sensor Name</label>
             <input type="text" class="form-control" name="sensorName" id="field_sensorName"
-                [(ngModel)]="sensorData.sensorName"
+                [(ngModel)]="sourceData.sensorName"
             required />
             <div [hidden]="!(editForm.controls.sensorName?.dirty && editForm.controls.sensorName?.invalid)">
                 <small class="form-text text-danger"
@@ -25,22 +25,22 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sensorData.dataType" for="field_dataType">Data Type</label>
-            <select class="form-control" name="dataType" [(ngModel)]="sensorData.dataType" id="field_dataType" >
+            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.dataType" for="field_dataType">Data Type</label>
+            <select class="form-control" name="dataType" [(ngModel)]="sourceData.dataType" id="field_dataType" >
                 <option value="RAW" jhiTranslate="managementPortalApp.DataType.RAW">RAW</option>
                 <option value="DERIVED" jhiTranslate="managementPortalApp.DataType.DERIVED">DERIVED</option>
             </select>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sensorData.keySchema" for="field_dataFormat">Key schema</label>
+            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.keySchema" for="field_dataFormat">Key schema</label>
             <input type="text" class="form-control" name="keySchema" id="field_dataFormat"
-                [(ngModel)]="sensorData.keySchema"
+                [(ngModel)]="sourceData.keySchema"
              />
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sensorData.frequency" for="field_frequency">Frequency</label>
+            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.frequency" for="field_frequency">Frequency</label>
             <input type="text" class="form-control" name="frequency" id="field_frequency"
-                [(ngModel)]="sensorData.frequency"
+                [(ngModel)]="sourceData.frequency"
              />
         </div>
 

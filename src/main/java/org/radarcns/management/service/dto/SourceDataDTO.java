@@ -8,9 +8,9 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * A DTO for the SensorData entity.
+ * A DTO for the SourceData entity.
  */
-public class SensorDataDTO implements Serializable {
+public class SourceDataDTO implements Serializable {
 
     private Long id;
 
@@ -136,11 +136,11 @@ public class SensorDataDTO implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        SensorDataDTO sensorDataDTO = (SensorDataDTO) o;
-        if (sensorDataDTO.id == null || id == null) {
+        SourceDataDTO sourceDataDTO = (SourceDataDTO) o;
+        if (sourceDataDTO.id == null || id == null) {
             return false;
         }
-        return Objects.equals(id, sensorDataDTO.id);
+        return Objects.equals(id, sourceDataDTO.id);
     }
 
     @Override
@@ -150,7 +150,7 @@ public class SensorDataDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "SensorDataDTO{"
+        return "SourceDataDTO{"
             + "id=" + id
             + ", sensorName='" + sensorName + '\''
             + ", frequency='" + frequency + '\''

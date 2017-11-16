@@ -1,15 +1,15 @@
 import { Injectable, Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { SensorData } from './sensor-data.model';
-import { SensorDataService } from './sensor-data.service';
+import { SourceData } from './source-data.model';
+import { SourceDataService } from './source-data.service';
 @Injectable()
-export class SensorDataPopupService {
+export class SourceDataPopupService {
     private isOpen = false;
     constructor(
         private modalService: NgbModal,
         private router: Router,
-        private sensorDataService: SensorDataService
+        private sourceDataService: SourceDataService
 
     ) {}
 
@@ -20,17 +20,17 @@ export class SensorDataPopupService {
         this.isOpen = true;
 
         if (sensorName) {
-            this.sensorDataService.find(sensorName).subscribe((sensorData) => {
-                this.sensorDataModalRef(component, sensorData);
+            this.sourceDataService.find(sensorName).subscribe((sourceData) => {
+                this.sourceDataModalRef(component, sourceData);
             });
         } else {
-            return this.sensorDataModalRef(component, new SensorData());
+            return this.sourceDataModalRef(component, new SourceData());
         }
     }
 
-    sensorDataModalRef(component: Component, sensorData: SensorData): NgbModalRef {
+    sourceDataModalRef(component: Component, sourceData: SourceData): NgbModalRef {
         const modalRef = this.modalService.open(component, { size: 'lg', backdrop: 'static'});
-        modalRef.componentInstance.sensorData = sensorData;
+        modalRef.componentInstance.sourceData = sourceData;
         modalRef.result.then((result) => {
             this.router.navigate([{ outlets: { popup: null }}], { replaceUrl: true });
             this.isOpen = false;

@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory
 import scala.concurrent.duration._
 
 /**
- * Performance test for the SensorData entity.
+ * Performance test for the SourceData entity.
  */
-class SensorDataGatlingTest extends Simulation {
+class SourceDataGatlingTest extends Simulation {
 
     val context: LoggerContext = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
     // Log all HTTP requests
@@ -48,7 +48,7 @@ class SensorDataGatlingTest extends Simulation {
         "Authorization" -> "Bearer ${access_token}"
     )
 
-    val scn = scenario("Test the SensorData entity")
+    val scn = scenario("Test the SourceData entity")
         .exec(http("First unauthenticated request")
         .get("/api/account")
         .headers(headers_http)
@@ -72,26 +72,26 @@ class SensorDataGatlingTest extends Simulation {
         .check(status.is(200)))
         .pause(10)
         .repeat(2) {
-            exec(http("Get all sensorData")
-            .get("/api/sensor-data")
+            exec(http("Get all sourceData")
+            .get("/api/source-data")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
             .pause(10 seconds, 20 seconds)
-            .exec(http("Create new sensorData")
-            .post("/api/sensor-data")
+            .exec(http("Create new sourceData")
+            .post("/api/source-data")
             .headers(headers_http_authenticated)
             .body(StringBody("""{"id":null, "sensorName":"SAMPLE_TEXT", "dataType":null, "keySchema":"SAMPLE_TEXT", "frequency":"SAMPLE_TEXT"}""")).asJSON
             .check(status.is(201))
-            .check(headerRegex("Location", "(.*)").saveAs("new_sensorData_url"))).exitHereIfFailed
+            .check(headerRegex("Location", "(.*)").saveAs("new_sourceData_url"))).exitHereIfFailed
             .pause(10)
             .repeat(5) {
-                exec(http("Get created sensorData")
-                .get("${new_sensorData_url}")
+                exec(http("Get created sourceData")
+                .get("${new_sourceData_url}")
                 .headers(headers_http_authenticated))
                 .pause(10)
             }
-            .exec(http("Delete created sensorData")
-            .delete("${new_sensorData_url}")
+            .exec(http("Delete created sourceData")
+            .delete("${new_sourceData_url}")
             .headers(headers_http_authenticated))
             .pause(10)
         }

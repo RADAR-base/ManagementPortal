@@ -44,8 +44,8 @@
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
 
-        <createTable tableName="device_type_sensor_data">
-            <column name="sensor_data_id" type="bigint">
+        <createTable tableName="device_type_source_data">
+            <column name="source_data_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
             <column name="device_types_id" type="bigint">
@@ -53,7 +53,7 @@
             </column>
         </createTable>
 
-        <addPrimaryKey columnNames="device_types_id, sensor_data_id" tableName="device_type_sensor_data"/>
+        <addPrimaryKey columnNames="device_types_id, source_data_id" tableName="device_type_source_data"/>
 
         <createIndex indexName="idx_device_type_producer_model_version"
                      tableName="device_type"
