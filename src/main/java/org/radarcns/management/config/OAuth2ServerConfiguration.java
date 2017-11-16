@@ -13,10 +13,12 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -137,8 +139,21 @@ public class OAuth2ServerConfiguration {
 
         @Override
         public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
-            resources.resourceId("res_ManagementPortal").tokenStore(tokenStore);
+            resources.resourceId("res_ManagementPortal")
+                    .tokenStore(tokenStore)
+                    .eventPublisher(new CustomEventPublisher());
         }
+
+        protected static class CustomEventPublisher extends DefaultAuthenticationEventPublisher {
+            @Override
+            public void publishAuthenticationSuccess(Authentication authentication) {
+                // OAuth2AuthenticationProcessingFilter publishes an authentication success audit
+                // event for EVERY successful OAuth request to our API resoruces, this is way too
+                // much so we override the event publisher to not publish these events.
+
+            }
+        }
+
     }
 
     @Configuration
@@ -192,9 +207,10 @@ public class OAuth2ServerConfiguration {
 
         @Override
         public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
-            oauthServer.allowFormAuthenticationForClients()
-                       .checkTokenAccess("isAuthenticated()")
-                       .tokenKeyAccess("isAnonymous() || isAuthenticated()");
+            oauthServer
+                    .allowFormAuthenticationForClients()
+                    .checkTokenAccess("isAuthenticated()")
+                    .tokenKeyAccess("isAnonymous() || isAuthenticated()");
         }
 
         @Bean
