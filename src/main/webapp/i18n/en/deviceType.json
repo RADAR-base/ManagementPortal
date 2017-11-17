@@ -18,7 +18,7 @@
             "deviceProducer": "Device Producer",
             "deviceModel": "Device Model",
             "catalogVersion": "Catalog Version",
-            "sourceType": "Source Type",
+            "sourceTypeClass": "Source Type Class",
             "sourceData": "Source data",
             "project": "Project",
             "sourceRegistration" : "Source registration",

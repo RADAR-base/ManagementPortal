@@ -1,5 +1,5 @@
 
-const enum SourceType {
+const enum SourceTypeClass {
     'ACTIVE',
     'PASSIVE'
 };
@@ -10,7 +10,7 @@ export class DeviceType {
         public deviceProducer?: string,
         public deviceModel?: string,
         public catalogVersion?: string,
-        public sourceType?: SourceType,
+        public sourceTypeClass?: SourceTypeClass,
         public sourceDataId?: number,
         public projectId?: number,
         public canRegisterDynamically?: boolean

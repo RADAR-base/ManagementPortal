@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import javax.validation.constraints.NotNull;
-import org.radarcns.management.domain.enumeration.SourceType;
+import org.radarcns.management.domain.enumeration.SourceTypeClass;
 
 /**
  * A DTO for the DeviceType entity.
@@ -25,7 +25,7 @@ public class DeviceTypeDTO implements Serializable {
     private String catalogVersion;
 
     @NotNull
-    private SourceType sourceType;
+    private SourceTypeClass sourceTypeClass;
 
     @NotNull
     private Boolean canRegisterDynamically = false;
@@ -63,12 +63,12 @@ public class DeviceTypeDTO implements Serializable {
     public void setDeviceModel(String deviceModel) {
         this.deviceModel = deviceModel;
     }
-    public SourceType getSourceType() {
-        return sourceType;
+    public SourceTypeClass getSourceTypeClass() {
+        return sourceTypeClass;
     }
 
-    public void setSourceType(SourceType sourceType) {
-        this.sourceType = sourceType;
+    public void setSourceTypeClass(SourceTypeClass sourceTypeClass) {
+        this.sourceTypeClass = sourceTypeClass;
     }
 
     public Set<SourceDataDTO> getSourceData() {
@@ -125,7 +125,7 @@ public class DeviceTypeDTO implements Serializable {
             ", deviceProducer='" + deviceProducer + "'" +
             ", deviceModel='" + deviceModel + "'" +
             ", catalogVersion='" + catalogVersion + "'" +
-            ", sourceType='" + sourceType + "'" +
+            ", sourceTypeClass='" + sourceTypeClass + "'" +
             ", canRegisterDynamically='" + canRegisterDynamically + "'" +
             '}';
     }

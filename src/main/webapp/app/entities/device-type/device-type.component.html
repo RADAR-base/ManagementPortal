@@ -21,7 +21,7 @@
             <th><span jhiTranslate="managementPortalApp.deviceType.deviceModel">Device Model</span></th>
             <th><span jhiTranslate="managementPortalApp.deviceType.catalogVersion">Catalog Version</span></th>
             <th><span jhiTranslate="managementPortalApp.deviceType.sourceRegistration">With dynamic id</span></th>
-            <th><span jhiTranslate="managementPortalApp.deviceType.sourceType">Source Type</span></th>
+            <th><span jhiTranslate="managementPortalApp.deviceType.sourceTypeClass">Source Type Class</span></th>
             <th><span jhiTranslate="managementPortalApp.deviceType.sourceData">Source data</span></th>
             <th></th>
             </tr>
@@ -38,7 +38,7 @@
                     <span class="badge badge-success" *ngIf="deviceType.canRegisterDynamically"
                           jhiTranslate="managementPortalApp.deviceType.dynamicRegistration">Dynamic Identifiers</span>
                 </td>
-                <td jhiTranslate="{{'managementPortalApp.SourceType.' + deviceType.sourceType}}">{{deviceType.sourceType}}</td>
+                <td jhiTranslate="{{'managementPortalApp.SourceTypeClass.' + deviceType.sourceTypeClass}}">{{deviceType.sourceTypeClass}}</td>
                 <td>
                     <span *ngFor="let sourceData of deviceType.sourceData; let last = last">
                             <a class="form-control-static" [routerLink]="['../source-data', sourceData?.sensorName ]">{{sourceData.sensorName}}</a>{{last ? '' : ', '}}

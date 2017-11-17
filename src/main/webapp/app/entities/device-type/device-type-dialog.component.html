@@ -49,14 +49,14 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.deviceType.sourceType" for="field_sourceType">Source Type</label>
-            <select class="form-control" name="sourceType" [(ngModel)]="deviceType.sourceType" id="field_sourceType"  required>
-                <option value="ACTIVE" jhiTranslate="managementPortalApp.SourceType.ACTIVE">ACTIVE</option>
-                <option value="PASSIVE" jhiTranslate="managementPortalApp.SourceType.PASSIVE">PASSIVE</option>
+            <label class="form-control-label" jhiTranslate="managementPortalApp.deviceType.sourceTypeClass" for="field_sourceTypeClass">Source Type Class</label>
+            <select class="form-control" name="sourceTypeClass" [(ngModel)]="deviceType.sourceTypeClass" id="field_sourceTypeClass"  required>
+                <option value="ACTIVE" jhiTranslate="managementPortalApp.SourceTypeClass.ACTIVE">ACTIVE</option>
+                <option value="PASSIVE" jhiTranslate="managementPortalApp.SourceTypeClass.PASSIVE">PASSIVE</option>
             </select>
-            <div [hidden]="!(editForm.controls.sourceType?.dirty && editForm.controls.sourceType?.invalid)">
+            <div [hidden]="!(editForm.controls.sourceTypeClass?.dirty && editForm.controls.sourceTypeClass?.invalid)">
                 <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.sourceType?.errors?.required" jhiTranslate="entity.validation.required">
+                   [hidden]="!editForm.controls.sourceTypeClass?.errors?.required" jhiTranslate="entity.validation.required">
                    This field is required.
                 </small>
             </div>

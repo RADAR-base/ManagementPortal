@@ -9,7 +9,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.radarcns.management.domain.enumeration.SourceType;
+import org.radarcns.management.domain.enumeration.SourceTypeClass;
 
 /**
  * A DeviceType.
@@ -39,8 +39,8 @@ public class DeviceType implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "source_type", nullable = false)
-    private SourceType sourceType;
+    @Column(name = "source_type_class", nullable = false)
+    private SourceTypeClass sourceTypeClass;
 
     @NotNull
     @Column(name = "dynamic_registration" , nullable = false)
@@ -105,17 +105,17 @@ public class DeviceType implements Serializable {
         return this;
     }
 
-    public SourceType getSourceType() {
-        return sourceType;
+    public SourceTypeClass getSourceTypeClass() {
+        return sourceTypeClass;
     }
 
-    public DeviceType sourceType(SourceType sourceType) {
-        this.sourceType = sourceType;
+    public DeviceType sourceTypeClass(SourceTypeClass sourceTypeClass) {
+        this.sourceTypeClass = sourceTypeClass;
         return this;
     }
 
-    public void setSourceType(SourceType sourceType) {
-        this.sourceType = sourceType;
+    public void setSourceTypeClass(SourceTypeClass sourceTypeClass) {
+        this.sourceTypeClass = sourceTypeClass;
     }
 
     public Set<SourceData> getSourceData() {
@@ -203,7 +203,7 @@ public class DeviceType implements Serializable {
             ", deviceProducer='" + deviceProducer + '\'' +
             ", deviceModel='" + deviceModel + '\'' +
             ", catalogVersion='" + catalogVersion + '\'' +
-            ", sourceType=" + sourceType +
+            ", sourceTypeClass=" + sourceTypeClass +
             ", canRegisterDynamically=" + canRegisterDynamically +
             '}';
     }

@@ -33,7 +33,7 @@ export class DeviceTypeDialogComponent implements OnInit {
         private projectService: ProjectService,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['deviceType', 'sourceType']);
+        this.jhiLanguageService.setLocations(['deviceType', 'sourceTypeClass']);
     }
 
     ngOnInit() {

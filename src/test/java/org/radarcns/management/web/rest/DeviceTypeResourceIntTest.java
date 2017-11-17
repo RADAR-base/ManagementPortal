@@ -7,7 +7,7 @@ import org.mockito.MockitoAnnotations;
 import org.radarcns.management.ManagementPortalApp;
 import org.radarcns.management.domain.DeviceType;
 import org.radarcns.management.domain.SourceData;
-import org.radarcns.management.domain.enumeration.SourceType;
+import org.radarcns.management.domain.enumeration.SourceTypeClass;
 import org.radarcns.management.repository.DeviceTypeRepository;
 import org.radarcns.management.repository.SourceDataRepository;
 import org.radarcns.management.security.JwtAuthenticationFilter;
@@ -61,8 +61,8 @@ public class DeviceTypeResourceIntTest {
     private static final String DEFAULT_DEVICE_VERSION = "AAAAAAAAAA";
     private static final String UPDATED_DEVICE_VERSION = "AAAAAAAAAA";
 
-    private static final SourceType DEFAULT_SOURCE_TYPE = SourceType.ACTIVE;
-    private static final SourceType UPDATED_SOURCE_TYPE = SourceType.PASSIVE;
+    private static final SourceTypeClass DEFAULT_SOURCE_TYPE_CLASS = SourceTypeClass.ACTIVE;
+    private static final SourceTypeClass UPDATED_SOURCE_TYPE_CLASS = SourceTypeClass.PASSIVE;
 
     @Autowired
     private DeviceTypeRepository deviceTypeRepository;
@@ -125,7 +125,7 @@ public class DeviceTypeResourceIntTest {
             .deviceProducer(DEFAULT_DEVICE_PRODUCER)
             .deviceModel(DEFAULT_DEVICE_MODEL)
             .deviceVersion(DEFAULT_DEVICE_VERSION)
-            .sourceType(DEFAULT_SOURCE_TYPE);
+            .sourceTypeClass(DEFAULT_SOURCE_TYPE_CLASS);
         return deviceType;
     }
 
@@ -152,7 +152,7 @@ public class DeviceTypeResourceIntTest {
         DeviceType testDeviceType = deviceTypeList.get(deviceTypeList.size() - 1);
         assertThat(testDeviceType.getDeviceProducer()).isEqualTo(DEFAULT_DEVICE_PRODUCER);
         assertThat(testDeviceType.getDeviceModel()).isEqualTo(DEFAULT_DEVICE_MODEL);
-        assertThat(testDeviceType.getSourceType()).isEqualTo(DEFAULT_SOURCE_TYPE);
+        assertThat(testDeviceType.getSourceTypeClass()).isEqualTo(DEFAULT_SOURCE_TYPE_CLASS);
         assertThat(testDeviceType.getCatalogVersion()).isEqualTo(DEFAULT_DEVICE_VERSION);
     }
 
@@ -200,7 +200,7 @@ public class DeviceTypeResourceIntTest {
     public void checkSourceTypeIsRequired() throws Exception {
         int databaseSizeBeforeTest = deviceTypeRepository.findAll().size();
         // set the field null
-        deviceType.setSourceType(null);
+        deviceType.setSourceTypeClass(null);
 
         // Create the DeviceType, which fails.
         DeviceTypeDTO deviceTypeDTO = deviceTypeMapper.deviceTypeToDeviceTypeDTO(deviceType);
@@ -246,7 +246,7 @@ public class DeviceTypeResourceIntTest {
             .andExpect(jsonPath("$.[*].id").value(hasItem(deviceType.getId().intValue())))
             .andExpect(jsonPath("$.[*].deviceProducer").value(hasItem(DEFAULT_DEVICE_PRODUCER.toString())))
             .andExpect(jsonPath("$.[*].deviceModel").value(hasItem(DEFAULT_DEVICE_MODEL.toString())))
-            .andExpect(jsonPath("$.[*].sourceType").value(hasItem(DEFAULT_SOURCE_TYPE.toString())));
+            .andExpect(jsonPath("$.[*].sourceTypeClass").value(hasItem(DEFAULT_SOURCE_TYPE_CLASS.toString())));
     }
 
     @Test
@@ -263,7 +263,7 @@ public class DeviceTypeResourceIntTest {
             .andExpect(jsonPath("$.id").value(deviceType.getId().intValue()))
             .andExpect(jsonPath("$.deviceProducer").value(DEFAULT_DEVICE_PRODUCER.toString()))
             .andExpect(jsonPath("$.deviceModel").value(DEFAULT_DEVICE_MODEL.toString()))
-            .andExpect(jsonPath("$.sourceType").value(DEFAULT_SOURCE_TYPE.toString()));
+            .andExpect(jsonPath("$.sourceTypeClass").value(DEFAULT_SOURCE_TYPE_CLASS.toString()));
     }
 
     @Test
@@ -287,7 +287,7 @@ public class DeviceTypeResourceIntTest {
         updatedDeviceType
             .deviceProducer(UPDATED_DEVICE_PRODUCER)
             .deviceModel(UPDATED_DEVICE_MODEL)
-            .sourceType(UPDATED_SOURCE_TYPE);
+            .sourceTypeClass(UPDATED_SOURCE_TYPE_CLASS);
         DeviceTypeDTO deviceTypeDTO = deviceTypeMapper.deviceTypeToDeviceTypeDTO(updatedDeviceType);
 
         restDeviceTypeMockMvc.perform(put("/api/device-types")
@@ -301,7 +301,7 @@ public class DeviceTypeResourceIntTest {
         DeviceType testDeviceType = deviceTypeList.get(deviceTypeList.size() - 1);
         assertThat(testDeviceType.getDeviceProducer()).isEqualTo(UPDATED_DEVICE_PRODUCER);
         assertThat(testDeviceType.getDeviceModel()).isEqualTo(UPDATED_DEVICE_MODEL);
-        assertThat(testDeviceType.getSourceType()).isEqualTo(UPDATED_SOURCE_TYPE);
+        assertThat(testDeviceType.getSourceTypeClass()).isEqualTo(UPDATED_SOURCE_TYPE_CLASS);
     }
 
     @Test
