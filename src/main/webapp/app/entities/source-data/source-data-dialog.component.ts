@@ -5,73 +5,58 @@ import { Response } from '@angular/http';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 
-import {RolePopupService} from "./role-popup.service";
-import {RoleService} from "./role.service";
-import {Project} from "../project/project.model";
-import {ProjectService} from "../project/project.service";
-import {AuthorityService} from "../../shared/user/authority.service";
-import {Principal} from "../../shared/auth/principal.service";
-import {Role} from "../../admin/user-management/role.model";
+import { SourceData } from './source-data.model';
+import { SourceDataPopupService } from './source-data-popup.service';
+import { SourceDataService } from './source-data.service';
+import { DeviceType, DeviceTypeService } from '../device-type';
 
 @Component({
-    selector: 'jhi-role-dialog',
-    templateUrl: './role-dialog.component.html'
+    selector: 'jhi-source-data-dialog',
+    templateUrl: './source-data-dialog.component.html'
 })
-export class RoleDialogComponent implements OnInit {
+export class SourceDataDialogComponent implements OnInit {
 
-    role: Role;
+    sourceData: SourceData;
     authorities: any[];
-    projects: Project[];
     isSaving: boolean;
-    currentAccount: any;
 
+    devicetypes: DeviceType[];
     constructor(
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
         private alertService: AlertService,
-        private roleService: RoleService,
-        private authorityService: AuthorityService,
-        private projectService: ProjectService,
-        private principal: Principal,
+        private sourceDataService: SourceDataService,
+        private deviceTypeService: DeviceTypeService,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['role', 'dataType']);
+        this.jhiLanguageService.setLocations(['sourceData', 'dataType']);
     }
 
     ngOnInit() {
         this.isSaving = false;
-        this.authorityService.findAll().subscribe( res => {
-            this.authorities = res.json();
-        });
-        this.projectService.query().subscribe(
-            (res) => {
-                this.projects = res.json();
-            } );
-
+        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN' , 'ROLE_PROJECT_ADMIN'];
+        this.deviceTypeService.query().subscribe(
+            (res: Response) => { this.devicetypes = res.json(); }, (res: Response) => this.onError(res.json()));
     }
     clear() {
         this.activeModal.dismiss('cancel');
     }
 
-    trackProjectByName(index: number, item: Project) {
-        return item.projectName;
-    }
-
     save() {
         this.isSaving = true;
-        if (this.role.id !== undefined) {
-            this.roleService.update(this.role)
-                .subscribe((res: Role) =>
+        if (this.sourceData.id !== undefined) {
+            this.sourceDataService.update(this.sourceData)
+                .subscribe((res: SourceData) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         } else {
-            this.roleService.create(this.role)
-                .subscribe((res: Role) =>
+            this.sourceDataService.create(this.sourceData)
+                .subscribe((res: SourceData) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         }
     }
 
-    private onSaveSuccess(result: Role) {
-        this.eventManager.broadcast({ name: 'roleListModification', content: 'OK'});
+    private onSaveSuccess(result: SourceData) {
+        this.eventManager.broadcast({ name: 'sourceDataListModification', content: 'OK'});
         this.isSaving = false;
         this.activeModal.dismiss(result);
     }
@@ -90,6 +75,10 @@ export class RoleDialogComponent implements OnInit {
         this.alertService.error(error.message, null, null);
     }
 
+    trackDeviceTypeById(index: number, item: DeviceType) {
+        return item.id;
+    }
+
     getSelected(selectedVals: Array<any>, option: any) {
         if (selectedVals) {
             for (let i = 0; i < selectedVals.length; i++) {
@@ -106,24 +95,24 @@ export class RoleDialogComponent implements OnInit {
     selector: 'jhi-source-data-popup',
     template: ''
 })
-export class RolePopupComponent implements OnInit, OnDestroy {
+export class SourceDataPopupComponent implements OnInit, OnDestroy {
 
     modalRef: NgbModalRef;
     routeSub: any;
 
     constructor(
         private route: ActivatedRoute,
-        private rolePopupService: RolePopupService
+        private sourceDataPopupService: SourceDataPopupService
     ) {}
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if ( params['projectName'] && params['authorityName'] ) {
-                this.modalRef = this.rolePopupService
-                    .open(RoleDialogComponent, params['projectName'], params['authorityName']);
+            if ( params['sensorName'] ) {
+                this.modalRef = this.sourceDataPopupService
+                    .open(SourceDataDialogComponent, params['sensorName']);
             } else {
-                this.modalRef = this.rolePopupService
-                    .open(RoleDialogComponent);
+                this.modalRef = this.sourceDataPopupService
+                    .open(SourceDataDialogComponent);
             }
         });
     }

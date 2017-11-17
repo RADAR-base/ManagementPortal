@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Mapper for the entity DeviceType and its DTO DeviceTypeDTO.
  */
-@Mapper(componentModel = "spring", uses = {SensorDataMapper.class, })
+@Mapper(componentModel = "spring", uses = {SourceDataMapper.class, })
 public interface DeviceTypeMapper {
 
     DeviceTypeDTO deviceTypeToDeviceTypeDTO(DeviceType deviceType);

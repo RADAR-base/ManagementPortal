@@ -48,10 +48,10 @@ public class DeviceType implements Serializable {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    @JoinTable(name = "device_type_sensor_data",
+    @JoinTable(name = "device_type_source_data",
                joinColumns = @JoinColumn(name="device_types_id", referencedColumnName="id"),
-               inverseJoinColumns = @JoinColumn(name="sensor_data_id", referencedColumnName="id"))
-    private Set<SensorData> sensorData = new HashSet<>();
+               inverseJoinColumns = @JoinColumn(name="source_data_id", referencedColumnName="id"))
+    private Set<SourceData> sourceData = new HashSet<>();
 
     @ManyToMany(mappedBy = "deviceTypes")
     @JsonIgnore
@@ -118,29 +118,29 @@ public class DeviceType implements Serializable {
         this.sourceType = sourceType;
     }
 
-    public Set<SensorData> getSensorData() {
-        return sensorData;
+    public Set<SourceData> getSourceData() {
+        return sourceData;
     }
 
-    public DeviceType sensorData(Set<SensorData> sensorData) {
-        this.sensorData = sensorData;
+    public DeviceType sourceData(Set<SourceData> sourceData) {
+        this.sourceData = sourceData;
         return this;
     }
 
-    public DeviceType addSensorData(SensorData sensorData) {
-        this.sensorData.add(sensorData);
-        sensorData.getDeviceTypes().add(this);
+    public DeviceType addSourceData(SourceData sourceData) {
+        this.sourceData.add(sourceData);
+        sourceData.getDeviceTypes().add(this);
         return this;
     }
 
-    public DeviceType removeSensorData(SensorData sensorData) {
-        this.sensorData.remove(sensorData);
-        sensorData.getDeviceTypes().remove(this);
+    public DeviceType removeSourceData(SourceData sourceData) {
+        this.sourceData.remove(sourceData);
+        sourceData.getDeviceTypes().remove(this);
         return this;
     }
 
-    public void setSensorData(Set<SensorData> sensorData) {
-        this.sensorData = sensorData;
+    public void setSourceData(Set<SourceData> sourceData) {
+        this.sourceData = sourceData;
     }
 
     public Set<Project> getProjects() {

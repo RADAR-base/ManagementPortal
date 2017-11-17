@@ -1,9 +1,9 @@
 package org.radarcns.management.service;
 
 import org.radarcns.management.domain.DeviceType;
-import org.radarcns.management.domain.SensorData;
+import org.radarcns.management.domain.SourceData;
 import org.radarcns.management.repository.DeviceTypeRepository;
-import org.radarcns.management.repository.SensorDataRepository;
+import org.radarcns.management.repository.SourceDataRepository;
 import org.radarcns.management.service.dto.DeviceTypeDTO;
 import org.radarcns.management.service.mapper.DeviceTypeMapper;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ public class DeviceTypeService {
     private  DeviceTypeMapper deviceTypeMapper;
 
     @Autowired
-    private SensorDataRepository sensorDataRepository;
+    private SourceDataRepository sourceDataRepository;
 
     /**
      * Save a deviceType.
@@ -44,8 +44,8 @@ public class DeviceTypeService {
     public DeviceTypeDTO save(DeviceTypeDTO deviceTypeDTO) {
         log.debug("Request to save DeviceType : {}", deviceTypeDTO);
         DeviceType deviceType = deviceTypeMapper.deviceTypeDTOToDeviceType(deviceTypeDTO);
-        for(SensorData data : deviceType.getSensorData()) {
-            sensorDataRepository.save(data);
+        for(SourceData data : deviceType.getSourceData()) {
+            sourceDataRepository.save(data);
         }
         deviceType = deviceTypeRepository.save(deviceType);
         return deviceTypeMapper.deviceTypeToDeviceTypeDTO(deviceType);

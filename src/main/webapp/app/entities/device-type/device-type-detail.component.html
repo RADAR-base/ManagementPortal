@@ -21,10 +21,10 @@
         <dd>
             <span jhiTranslate="{{'managementPortalApp.SourceType.' + deviceType.sourceType}}">{{deviceType.sourceType}}</span>
         </dd>
-        <dt><span jhiTranslate="managementPortalApp.deviceType.sensorData">Sensor Data</span></dt>
+        <dt><span jhiTranslate="managementPortalApp.deviceType.sourceData">Source data</span></dt>
         <dd>
-            <span *ngFor="let sensorData of deviceType.sensorData; let last = last">
-                <a [routerLink]="['/sensor-data', sensorData?.sensorName ]">{{sensorData.sensorName}}</a>{{last ? '' : ', '}}
+            <span *ngFor="let sourceData of deviceType.sourceData; let last = last">
+                <a [routerLink]="['/source-data', sourceData?.sensorName ]">{{sourceData.sensorName}}</a>{{last ? '' : ', '}}
             </span>
         </dd>
     </dl>

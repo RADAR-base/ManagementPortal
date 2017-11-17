@@ -30,7 +30,7 @@ public class DeviceTypeDTO implements Serializable {
     @NotNull
     private Boolean canRegisterDynamically = false;
 
-    private Set<SensorDataDTO> sensorData = new HashSet<>();
+    private Set<SourceDataDTO> sourceData = new HashSet<>();
 
     private DeviceTypeId deviceTypeId;
 
@@ -71,12 +71,12 @@ public class DeviceTypeDTO implements Serializable {
         this.sourceType = sourceType;
     }
 
-    public Set<SensorDataDTO> getSensorData() {
-        return sensorData;
+    public Set<SourceDataDTO> getSourceData() {
+        return sourceData;
     }
 
-    public void setSensorData(Set<SensorDataDTO> sensorData) {
-        this.sensorData = sensorData;
+    public void setSourceData(Set<SourceDataDTO> sourceData) {
+        this.sourceData = sourceData;
     }
 
     public Boolean getCanRegisterDynamically() {
