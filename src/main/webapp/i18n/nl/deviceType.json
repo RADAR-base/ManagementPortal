@@ -18,9 +18,16 @@
             "deviceProducer": "Device Producer",
             "deviceModel": "Device Model",
             "catalogVersion": "Catalog Version",
-            "sourceTypeClass": "Source Type Class",
+            "sourceTypeScope": "Source Type Scope",
             "sourceData": "Source data",
-            "project": "Project"
+            "project": "Project",
+            "sourceRegistration" : "Source Registratie",
+            "dynamicRegistration": "Dynamisch source Registratie",
+            "manualRegistration": "Met de hand Source Registratie",
+            "name": "naam",
+            "description": "Beschrijving",
+            "assessmentType": "beoordeling Type",
+            "appProvider": "App provider"
         }
     },
     "error": {

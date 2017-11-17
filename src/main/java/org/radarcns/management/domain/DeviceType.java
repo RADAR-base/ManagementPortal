@@ -9,7 +9,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.radarcns.management.domain.enumeration.SourceTypeClass;
+import org.radarcns.management.domain.enumeration.SourceTypeScope;
 
 /**
  * A DeviceType.
@@ -29,6 +29,18 @@ public class DeviceType implements Serializable {
     @Column(name = "device_producer")
     private String deviceProducer;
 
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "assessment_type")
+    private String assessmentType;
+
+    @Column(name = "app_provider")
+    private String appProvider;
+
     @NotNull
     @Column(name = "device_model", nullable = false )
     private String deviceModel;
@@ -39,8 +51,8 @@ public class DeviceType implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "source_type_class", nullable = false)
-    private SourceTypeClass sourceTypeClass;
+    @Column(name = "source_type_scope", nullable = false)
+    private SourceTypeScope sourceTypeScope;
 
     @NotNull
     @Column(name = "dynamic_registration" , nullable = false)
@@ -105,17 +117,17 @@ public class DeviceType implements Serializable {
         return this;
     }
 
-    public SourceTypeClass getSourceTypeClass() {
-        return sourceTypeClass;
+    public SourceTypeScope getSourceTypeScope() {
+        return sourceTypeScope;
     }
 
-    public DeviceType sourceTypeClass(SourceTypeClass sourceTypeClass) {
-        this.sourceTypeClass = sourceTypeClass;
+    public DeviceType sourceTypeScope(SourceTypeScope sourceTypeScope) {
+        this.sourceTypeScope = sourceTypeScope;
         return this;
     }
 
-    public void setSourceTypeClass(SourceTypeClass sourceTypeClass) {
-        this.sourceTypeClass = sourceTypeClass;
+    public void setSourceTypeScope(SourceTypeScope sourceTypeScope) {
+        this.sourceTypeScope = sourceTypeScope;
     }
 
     public Set<SourceData> getSourceData() {
@@ -172,8 +184,40 @@ public class DeviceType implements Serializable {
         this.canRegisterDynamically = canRegisterDynamically;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getAssessmentType() {
+        return assessmentType;
+    }
+
+    public void setAssessmentType(String assessmentType) {
+        this.assessmentType = assessmentType;
+    }
+
     public void setProjects(Set<Project> projects) {
         this.projects = projects;
+    }
+
+    public String getAppProvider() {
+        return appProvider;
+    }
+
+    public void setAppProvider(String appProvider) {
+        this.appProvider = appProvider;
     }
 
     @Override
@@ -188,12 +232,22 @@ public class DeviceType implements Serializable {
         if (deviceType.id == null || id == null) {
             return false;
         }
-        return Objects.equals(id, deviceType.id);
+        return Objects.equals(id, deviceType.id)
+            && Objects.equals(deviceProducer, deviceType.deviceProducer)
+            && Objects.equals(deviceModel, deviceType.deviceModel)
+            && Objects.equals(catalogVersion , deviceType.catalogVersion)
+            && Objects.equals(canRegisterDynamically , deviceType.canRegisterDynamically)
+            && Objects.equals(sourceTypeScope, deviceType.sourceTypeScope)
+            && Objects.equals(name , deviceType.name)
+            && Objects.equals(description , deviceType.description)
+            && Objects.equals(appProvider , deviceType.appProvider)
+            && Objects.equals(assessmentType , deviceType.assessmentType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hash(id, deviceModel, deviceProducer, catalogVersion, canRegisterDynamically,
+            sourceTypeScope, name, description, appProvider, assessmentType);
     }
 
     @Override
@@ -203,8 +257,12 @@ public class DeviceType implements Serializable {
             ", deviceProducer='" + deviceProducer + '\'' +
             ", deviceModel='" + deviceModel + '\'' +
             ", catalogVersion='" + catalogVersion + '\'' +
-            ", sourceTypeClass=" + sourceTypeClass +
+            ", sourceTypeScope=" + sourceTypeScope +
             ", canRegisterDynamically=" + canRegisterDynamically +
+            ", name='" + name + '\'' +
+            ", description=" + description +
+            ", appProvider=" + appProvider +
+            ", assessmentType=" + assessmentType +
             '}';
     }
 }

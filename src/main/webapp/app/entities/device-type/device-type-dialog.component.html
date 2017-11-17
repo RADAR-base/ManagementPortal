@@ -49,14 +49,14 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.deviceType.sourceTypeClass" for="field_sourceTypeClass">Source Type Class</label>
-            <select class="form-control" name="sourceTypeClass" [(ngModel)]="deviceType.sourceTypeClass" id="field_sourceTypeClass"  required>
-                <option value="ACTIVE" jhiTranslate="managementPortalApp.SourceTypeClass.ACTIVE">ACTIVE</option>
-                <option value="PASSIVE" jhiTranslate="managementPortalApp.SourceTypeClass.PASSIVE">PASSIVE</option>
+            <label class="form-control-label" jhiTranslate="managementPortalApp.deviceType.sourceTypeScope" for="field_sourceTypeScope">Source Type Scope</label>
+            <select class="form-control" name="sourceTypeScope" [(ngModel)]="deviceType.sourceTypeScope" id="field_sourceTypeScope"  required>
+                <option value="ACTIVE" jhiTranslate="managementPortalApp.SourceTypeScope.ACTIVE">ACTIVE</option>
+                <option value="PASSIVE" jhiTranslate="managementPortalApp.SourceTypeScope.PASSIVE">PASSIVE</option>
             </select>
-            <div [hidden]="!(editForm.controls.sourceTypeClass?.dirty && editForm.controls.sourceTypeClass?.invalid)">
+            <div [hidden]="!(editForm.controls.sourceTypeScope?.dirty && editForm.controls.sourceTypeScope?.invalid)">
                 <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.sourceTypeClass?.errors?.required" jhiTranslate="entity.validation.required">
+                   [hidden]="!editForm.controls.sourceTypeScope?.errors?.required" jhiTranslate="entity.validation.required">
                    This field is required.
                 </small>
             </div>
@@ -77,6 +77,32 @@
                         </span>
                 </td>
             </tr>
+        </div>
+
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.deviceType.name" for="field_name">Name</label>
+            <input type="text" class="form-control" name="name" id="field_name"
+                   [(ngModel)]="deviceType.name"
+            />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.deviceType.description" for="">Description</label>
+            <input type="text" class="form-control" name="field_description" id="field_description"
+                   [(ngModel)]="deviceType.description"
+            />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.deviceType.assessmentType" for="field_assessmentType">Assessment Type</label>
+            <input type="text" class="form-control" name="assessmentType" id="field_assessmentType"
+                   [(ngModel)]="deviceType.assessmentType"
+            />
+        </div>
+
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.deviceType.appProvider" for="field_appProvider">App Provider</label>
+            <input type="text" class="form-control" name="appProvider" id="field_appProvider"
+                   [(ngModel)]="deviceType.appProvider"
+            />
         </div>
 
         <div class="form-group">

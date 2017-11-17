@@ -18,12 +18,16 @@
             "deviceProducer": "Device Producer",
             "deviceModel": "Device Model",
             "catalogVersion": "Catalog Version",
-            "sourceTypeClass": "Source Type Class",
+            "sourceTypeScope": "Source Type Scope",
             "sourceData": "Source data",
             "project": "Project",
             "sourceRegistration" : "Source registration",
             "dynamicRegistration": "Dynamic source registration",
-            "manualRegistration": "Manual Source registration"
+            "manualRegistration": "Manual Source registration",
+            "name": "Name",
+            "description": "Description",
+            "assessmentType": "Assessment Type",
+            "appProvider": "App provider"
         }
     },
     "error": {

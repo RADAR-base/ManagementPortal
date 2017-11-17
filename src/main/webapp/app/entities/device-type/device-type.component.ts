@@ -26,7 +26,7 @@ export class DeviceTypeComponent implements OnInit, OnDestroy {
         private eventManager: EventManager,
         private principal: Principal
     ) {
-        this.jhiLanguageService.setLocations(['deviceType', 'sourceTypeClass']);
+        this.jhiLanguageService.setLocations(['deviceType', 'sourceTypeScope']);
     }
 
     loadAll() {

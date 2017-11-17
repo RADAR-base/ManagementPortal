@@ -1,8 +1,8 @@
 package org.radarcns.management.domain.enumeration;
 
 /**
- * The SourceTypeClass enumeration.
+ * The SourceTypeScope enumeration.
  */
-public enum SourceTypeClass {
+public enum SourceTypeScope {
     ACTIVE,PASSIVE
 }

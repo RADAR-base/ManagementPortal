@@ -17,15 +17,31 @@
         <dd>
             <span>{{deviceType.catalogVersion}}</span>
         </dd>
-        <dt><span jhiTranslate="managementPortalApp.deviceType.sourceTypeClass">Source Type Class</span></dt>
+        <dt><span jhiTranslate="managementPortalApp.deviceType.sourceTypeScope">Source Type Scope</span></dt>
         <dd>
-            <span jhiTranslate="{{'managementPortalApp.SourceTypeClass.' + deviceType.sourceTypeClass}}">{{deviceType.sourceTypeClass}}</span>
+            <span jhiTranslate="{{'managementPortalApp.SourceTypeScope.' + deviceType.sourceTypeScope}}">{{deviceType.sourceTypeScope}}</span>
         </dd>
         <dt><span jhiTranslate="managementPortalApp.deviceType.sourceData">Source data</span></dt>
         <dd>
             <span *ngFor="let sourceData of deviceType.sourceData; let last = last">
                 <a [routerLink]="['/source-data', sourceData?.sensorName ]">{{sourceData.sensorName}}</a>{{last ? '' : ', '}}
             </span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.deviceType.name">Name</span></dt>
+        <dd>
+            <span>{{deviceType.name}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.deviceType.appProvider">App provider</span></dt>
+        <dd>
+            <span>{{deviceType.appProvider}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.deviceType.assessmentType">Assessment Type</span></dt>
+        <dd>
+            <span>{{deviceType.assessmentType}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.deviceType.description">Description</span></dt>
+        <dd>
+            <span>{{deviceType.description}}</span>
         </dd>
     </dl>
 
