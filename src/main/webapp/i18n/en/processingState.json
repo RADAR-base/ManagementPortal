@@ -1,6 +1,6 @@
 {
     "managementPortalApp": {
-        "DataType" : {
+        "processingState" : {
             "null": "",
             "RAW": "RAW",
             "DERIVED": "DERIVED"

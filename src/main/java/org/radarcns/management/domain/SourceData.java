@@ -3,7 +3,7 @@ package org.radarcns.management.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.radarcns.management.domain.enumeration.DataType;
+import org.radarcns.management.domain.enumeration.ProcessingState;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -52,8 +52,8 @@ public class SourceData implements Serializable {
 
     // Define if the samples are RAW data or instead they the result of some computation
     @Enumerated(EnumType.STRING)
-    @Column(name = "data_type")
-    private DataType dataType;
+    @Column(name = "processing_state")
+    private ProcessingState processingState;
 
     //  the storage
     @Column(name = "data_class")
@@ -101,17 +101,17 @@ public class SourceData implements Serializable {
         this.sensorName = sensorName;
     }
 
-    public DataType getDataType() {
-        return dataType;
+    public ProcessingState getProcessingState() {
+        return processingState;
     }
 
-    public SourceData dataType(DataType dataType) {
-        this.dataType = dataType;
+    public SourceData processingState(ProcessingState processingState) {
+        this.processingState = processingState;
         return this;
     }
 
-    public void setDataType(DataType dataType) {
-        this.dataType = dataType;
+    public void setProcessingState(ProcessingState processingState) {
+        this.processingState = processingState;
     }
 
     public String getKeySchema() {
@@ -236,7 +236,7 @@ public class SourceData implements Serializable {
     @Override
     public String toString() {
         return "SourceData{" + "id=" + id + ", sensorName='" + sensorName + '\'' + ", frequency='"
-            + frequency + '\'' + ", unit='" + unit + '\'' + ", dataType=" + dataType
+            + frequency + '\'' + ", unit='" + unit + '\'' + ", processingState=" + processingState
             + ", dataClass='" + dataClass + '\'' + ", keySchema='" + keySchema + '\''
             + ", valueSchema='" + valueSchema + '\'' + ", topic='" + topic + '\'' + ", provider='"
             + provider + '\'' + ", enabled=" + enabled + ", deviceTypes=" + deviceTypes + '}';

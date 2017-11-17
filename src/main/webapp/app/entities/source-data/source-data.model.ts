@@ -1,5 +1,5 @@
 
-const enum DataType {
+const enum ProcessingState {
     'RAW',
     'DERIVED'
 
@@ -9,7 +9,7 @@ export class SourceData {
         public id?: number,
         public sensorName?: string,
         public sensorType?: string,
-        public dataType?: DataType,
+        public processingState?: ProcessingState,
         public keySchema?: string,
         public frequency?: string,
         public deviceTypeId?: number,

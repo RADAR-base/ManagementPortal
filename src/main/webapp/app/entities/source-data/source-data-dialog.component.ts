@@ -29,7 +29,7 @@ export class SourceDataDialogComponent implements OnInit {
         private deviceTypeService: DeviceTypeService,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['sourceData', 'dataType']);
+        this.jhiLanguageService.setLocations(['sourceData', 'processingState']);
     }
 
     ngOnInit() {

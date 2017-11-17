@@ -1,8 +1,8 @@
 package org.radarcns.management.domain.enumeration;
 
 /**
- * The DataType enumeration.
+ * The ProcessingState enumeration.
  */
-public enum DataType {
+public enum ProcessingState {
     RAW,DERIVED
 }

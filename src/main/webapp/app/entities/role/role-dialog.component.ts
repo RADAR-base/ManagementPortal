@@ -35,7 +35,7 @@ export class RoleDialogComponent implements OnInit {
         private principal: Principal,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['role', 'dataType']);
+        this.jhiLanguageService.setLocations(['role', 'processingState']);
     }
 
     ngOnInit() {

@@ -16,7 +16,7 @@
                 "title": "Source data"
             },
             "sensorType": "Sensor Type",
-            "dataType": "Data Type",
+            "processingState": "Processing State",
             "dataFormat": "Data Format",
             "frequency": "Frequency",
             "deviceType": "Device Type"

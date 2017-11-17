@@ -32,7 +32,7 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liqui
                 <constraints nullable="true" />
             </column>
 
-            <column name="data_type" type="varchar(255)">
+            <column name="processing_state" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
 

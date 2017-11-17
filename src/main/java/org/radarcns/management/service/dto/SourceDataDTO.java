@@ -1,7 +1,7 @@
 package org.radarcns.management.service.dto;
 
 
-import org.radarcns.management.domain.enumeration.DataType;
+import org.radarcns.management.domain.enumeration.ProcessingState;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -25,10 +25,10 @@ public class SourceDataDTO implements Serializable {
     private String unit;
 
     // Define if the samples are RAW data or instead they the result of some computation
-    private DataType dataType;
+    private ProcessingState processingState;
 
     //  the storage
-    private DataType dataClass;
+    private ProcessingState dataClass;
 
     private String keySchema;
 
@@ -72,19 +72,19 @@ public class SourceDataDTO implements Serializable {
         this.unit = unit;
     }
 
-    public DataType getDataType() {
-        return dataType;
+    public ProcessingState getProcessingState() {
+        return processingState;
     }
 
-    public void setDataType(DataType dataType) {
-        this.dataType = dataType;
+    public void setProcessingState(ProcessingState processingState) {
+        this.processingState = processingState;
     }
 
-    public DataType getDataClass() {
+    public ProcessingState getDataClass() {
         return dataClass;
     }
 
-    public void setDataClass(DataType dataClass) {
+    public void setDataClass(ProcessingState dataClass) {
         this.dataClass = dataClass;
     }
 
@@ -155,7 +155,7 @@ public class SourceDataDTO implements Serializable {
             + ", sensorName='" + sensorName + '\''
             + ", frequency='" + frequency + '\''
             + ", unit='" + unit + '\''
-            + ", dataType=" + dataType
+            + ", processingState=" + processingState
             + ", dataClass=" + dataClass
             + ", keySchema='" + keySchema + '\''
             + ", valueSchema='" + valueSchema + '\''

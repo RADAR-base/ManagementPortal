@@ -18,7 +18,7 @@
             <tr>
             <th><span jhiTranslate="global.field.id">ID</span></th>
             <th><span jhiTranslate="managementPortalApp.sourceData.sensorName">Sensor Type</span></th>
-            <th><span jhiTranslate="managementPortalApp.sourceData.dataType">Data Type</span></th>
+            <th><span jhiTranslate="managementPortalApp.sourceData.processingState">Processing State</span></th>
             <th><span jhiTranslate="managementPortalApp.sourceData.keySchema">Key schema</span></th>
             <th><span jhiTranslate="managementPortalApp.sourceData.frequency">Frequency</span></th>
             <th></th>
@@ -28,7 +28,7 @@
             <tr *ngFor="let sourceData of sourceData ;trackBy: trackId">
                 <td>{{sourceData.id}}</td>
                 <td><a [routerLink]="['../source-data', sourceData.sensorName ]">{{sourceData.sensorName}}</a></td>
-                <td jhiTranslate="{{'managementPortalApp.DataType.' + sourceData.dataType}}">{{sourceData.dataType}}</td>
+                <td jhiTranslate="{{'managementPortalApp.processingState.' + sourceData.processingState}}">{{sourceData.processingState}}</td>
                 <td>{{sourceData.keySchema}}</td>
                 <td>{{sourceData.frequency}}</td>
                 <td class="text-right">

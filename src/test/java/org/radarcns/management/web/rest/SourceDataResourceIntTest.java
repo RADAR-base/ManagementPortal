@@ -3,6 +3,7 @@ package org.radarcns.management.web.rest;
 import org.radarcns.management.ManagementPortalApp;
 
 import org.radarcns.management.domain.SourceData;
+import org.radarcns.management.domain.enumeration.ProcessingState;
 import org.radarcns.management.repository.SourceDataRepository;
 import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.radarcns.management.service.SourceDataService;
@@ -36,7 +37,6 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import org.radarcns.management.domain.enumeration.DataType;
 /**
  * Test class for the SourceDataResource REST controller.
  *
@@ -49,8 +49,8 @@ public class SourceDataResourceIntTest {
     private static final String DEFAULT_SENSOR_NAME = "AAAAAAAAAA";
     private static final String UPDATED_SENSOR_NAME = "BBBBBBBBBB";
 
-    private static final DataType DEFAULT_DATA_TYPE = DataType.RAW;
-    private static final DataType UPDATED_DATA_TYPE = DataType.DERIVED;
+    private static final ProcessingState DEFAULT_PROCESSING_STATE = ProcessingState.RAW;
+    private static final ProcessingState UPDATED_PROCESSING_STATE = ProcessingState.DERIVED;
 
     private static final String DEFAULT_KEY_SCHEMA = "AAAAAAAAAA";
     private static final String UPDATED_KEY_SCHEMA = "BBBBBBBBBB";
@@ -113,7 +113,7 @@ public class SourceDataResourceIntTest {
     public static SourceData createEntity(EntityManager em) {
         SourceData sourceData = new SourceData()
             .sensorName(DEFAULT_SENSOR_NAME)
-            .dataType(DEFAULT_DATA_TYPE)
+            .processingState(DEFAULT_PROCESSING_STATE)
             .keySchema(DEFAULT_KEY_SCHEMA)
             .frequency(DEFAULT_FREQUENCY);
         return sourceData;
@@ -141,7 +141,7 @@ public class SourceDataResourceIntTest {
         assertThat(sourceDataList).hasSize(databaseSizeBeforeCreate + 1);
         SourceData testSourceData = sourceDataList.get(sourceDataList.size() - 1);
         assertThat(testSourceData.getSensorName()).isEqualTo(DEFAULT_SENSOR_NAME);
-        assertThat(testSourceData.getDataType()).isEqualTo(DEFAULT_DATA_TYPE);
+        assertThat(testSourceData.getProcessingState()).isEqualTo(DEFAULT_PROCESSING_STATE);
         assertThat(testSourceData.getKeySchema()).isEqualTo(DEFAULT_KEY_SCHEMA);
         assertThat(testSourceData.getFrequency()).isEqualTo(DEFAULT_FREQUENCY);
     }
@@ -197,7 +197,7 @@ public class SourceDataResourceIntTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(sourceData.getId().intValue())))
             .andExpect(jsonPath("$.[*].sensorName").value(hasItem(DEFAULT_SENSOR_NAME.toString())))
-            .andExpect(jsonPath("$.[*].dataType").value(hasItem(DEFAULT_DATA_TYPE.toString())))
+            .andExpect(jsonPath("$.[*].processingState").value(hasItem(DEFAULT_PROCESSING_STATE.toString())))
             .andExpect(jsonPath("$.[*].keySchema").value(hasItem(DEFAULT_KEY_SCHEMA.toString())))
             .andExpect(jsonPath("$.[*].frequency").value(hasItem(DEFAULT_FREQUENCY.toString())));
     }
@@ -214,7 +214,7 @@ public class SourceDataResourceIntTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(sourceData.getId().intValue()))
             .andExpect(jsonPath("$.sensorName").value(DEFAULT_SENSOR_NAME.toString()))
-            .andExpect(jsonPath("$.dataType").value(DEFAULT_DATA_TYPE.toString()))
+            .andExpect(jsonPath("$.processingState").value(DEFAULT_PROCESSING_STATE.toString()))
             .andExpect(jsonPath("$.keySchema").value(DEFAULT_KEY_SCHEMA.toString()))
             .andExpect(jsonPath("$.frequency").value(DEFAULT_FREQUENCY.toString()));
     }
@@ -239,7 +239,7 @@ public class SourceDataResourceIntTest {
         SourceData updatedSourceData = sourceDataRepository.findOne(sourceData.getId());
         updatedSourceData
             .sensorName(UPDATED_SENSOR_NAME)
-            .dataType(UPDATED_DATA_TYPE)
+            .processingState(UPDATED_PROCESSING_STATE)
             .keySchema(UPDATED_KEY_SCHEMA)
             .frequency(UPDATED_FREQUENCY);
         SourceDataDTO sourceDataDTO = sourceDataMapper.sourceDataToSourceDataDTO(updatedSourceData);
@@ -254,7 +254,7 @@ public class SourceDataResourceIntTest {
         assertThat(sourceDataList).hasSize(databaseSizeBeforeUpdate);
         SourceData testSourceData = sourceDataList.get(sourceDataList.size() - 1);
         assertThat(testSourceData.getSensorName()).isEqualTo(UPDATED_SENSOR_NAME);
-        assertThat(testSourceData.getDataType()).isEqualTo(UPDATED_DATA_TYPE);
+        assertThat(testSourceData.getProcessingState()).isEqualTo(UPDATED_PROCESSING_STATE);
         assertThat(testSourceData.getKeySchema()).isEqualTo(UPDATED_KEY_SCHEMA);
         assertThat(testSourceData.getFrequency()).isEqualTo(UPDATED_FREQUENCY);
     }
