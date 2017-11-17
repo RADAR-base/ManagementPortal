@@ -19,7 +19,7 @@
             "deviceModel": "Device Model",
             "catalogVersion": "Catalog Version",
             "sourceType": "Source Type",
-            "sensorData": "Sensor Data",
+            "sourceData": "Source data",
             "project": "Project"
         }
     },

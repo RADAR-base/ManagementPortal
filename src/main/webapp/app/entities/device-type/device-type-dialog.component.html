@@ -80,9 +80,9 @@
         </div>
 
         <div class="form-group">
-            <label jhiTranslate="managementPortalApp.deviceType.sensorData" for="field_sensorData">Sensor Data</label>
-            <select class="form-control" id="field_sensorData" multiple name="sensorData" [(ngModel)]="deviceType.sensorData">
-                <option [ngValue]="getSelected(deviceType.sensorData, sensorDataOption)" *ngFor="let sensorDataOption of sensordata; trackBy: trackSensorDataById">{{sensorDataOption.sensorName}}</option>
+            <label jhiTranslate="managementPortalApp.deviceType.sourceData" for="field_sourceData">Source data</label>
+            <select class="form-control" id="field_sourceData" multiple name="sourceData" [(ngModel)]="deviceType.sourceData">
+                <option [ngValue]="getSelected(deviceType.sourceData, sourceDataOption)" *ngFor="let sourceDataOption of sourceData; trackBy: trackSourceDataById">{{sourceDataOption.sensorName}}</option>
             </select>
         </div>
     </div>
