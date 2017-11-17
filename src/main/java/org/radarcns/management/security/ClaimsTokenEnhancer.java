@@ -77,8 +77,9 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
             .setAdditionalInformation(additionalInfo);
 
         // HACK: since all granted tokens need to pass here, we can use this point to create an
-        // audit event for a granted token, there is an open issue but inactive for a long time
-        // already: https://github.com/spring-projects/spring-security-oauth/issues/223
+        // audit event for a granted token, there is an open issue about oauth2 audit events in
+        // spring security but it has been inactive for a long time:
+        // https://github.com/spring-projects/spring-security-oauth/issues/223
         auditEventRepository.add(new AuditEvent(userName, GRANT_TOKEN_EVENT,
                 auditData(accessToken, authentication)));
 
