@@ -34,7 +34,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "radar_source")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Source implements Serializable {
+public class Source extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

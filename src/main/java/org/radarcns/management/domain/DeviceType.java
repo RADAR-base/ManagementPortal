@@ -17,7 +17,7 @@ import org.radarcns.management.domain.enumeration.SourceType;
 @Entity
 @Table(name = "device_type")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class DeviceType implements Serializable {
+public class DeviceType extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

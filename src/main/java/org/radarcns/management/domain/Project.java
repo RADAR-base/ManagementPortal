@@ -22,7 +22,7 @@ import org.radarcns.management.domain.enumeration.ProjectStatus;
 @Entity
 @Table(name = "project")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Project implements Serializable {
+public class Project extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
