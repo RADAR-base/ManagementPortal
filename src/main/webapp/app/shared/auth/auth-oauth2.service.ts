@@ -21,7 +21,7 @@ export class AuthServerProvider {
 
     login(credentials): Observable<any> {
         const data = 'username=' +  encodeURIComponent(credentials.username) + '&password=' +
-            encodeURIComponent(credentials.password) + '&grant_type=password&scope=read%20write';
+            encodeURIComponent(credentials.password) + '&grant_type=password';
         const headers = new Headers ({
             'Content-Type': 'application/x-www-form-urlencoded',
             'Accept': 'application/json',
