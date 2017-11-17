@@ -6,19 +6,12 @@
     <!--
         Added the constraints for entSourcevice.
     -->
-    <changeSet id="20170516143459-2" author="nivethika@thehyve.nl">
+    <changeSet id="00000000000011" author="nivethika@thehyve.nl">
 
         <addForeignKeyConstraint baseColumnNames="device_type_id"
                                  baseTableName="radar_source"
                                  constraintName="fk_device_device_type_id"
                                  referencedColumnNames="id"
                                  referencedTableName="device_type"/>
-
-        <!--<addForeignKeyConstraint    baseColumnNames="project_id"-->
-                                    <!--baseTableName="radar_source"-->
-                                    <!--constraintName="fk_device_project_id"-->
-                                    <!--referencedColumnNames="id"-->
-                                    <!--referencedTableName="project"/>-->
-
     </changeSet>
 </databaseChangeLog>

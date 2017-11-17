@@ -21,7 +21,7 @@
     <!--
         Added the entSourcevice.
     -->
-    <changeSet id="20170516143459-1" author="jhipster">
+    <changeSet id="00000000000002" author="jhipster">
         <createTable tableName="radar_source">
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>

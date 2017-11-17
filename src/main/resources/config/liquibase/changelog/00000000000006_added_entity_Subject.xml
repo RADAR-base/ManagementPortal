@@ -29,7 +29,7 @@
     <!--
         Added the entity Role.
     -->
-    <changeSet id="20170522172400-1" author="nivethika@thehyve.nl">
+    <changeSet id="00000000000006" author="nivethika@thehyve.nl">
         <createTable tableName="subject">
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>

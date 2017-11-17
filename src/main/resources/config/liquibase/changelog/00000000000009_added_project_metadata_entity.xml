@@ -29,7 +29,7 @@
     <!--
         Added the entity Role.
     -->
-    <changeSet id="20170829183000-1" author="nivethika@thehyve.nl">
+    <changeSet id="00000000000009" author="nivethika@thehyve.nl">
         <createTable tableName="project_metadata">
             <column name="id" type="bigint">
                 <constraints nullable="false"/>

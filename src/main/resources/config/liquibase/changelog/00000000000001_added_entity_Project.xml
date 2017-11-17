@@ -15,7 +15,7 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liqui
     <!--
         Added the entity Project.
     -->
-    <changeSet id="20170516143458-1" author="jhipster">
+    <changeSet id="00000000000001" author="jhipster">
         <createTable tableName="project">
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>

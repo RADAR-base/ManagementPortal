@@ -29,8 +29,8 @@
     <!--
         Added the entity Role.
     -->
-    <changeSet id="20170829172000-1" author="nivethika@thehyve.nl">
-        <createTable tableName="subject_metadata">
+    <changeSet id="00000000000007" author="nivethika@thehyve.nl">
+        <createTable tableName="source_metadata">
             <column name="id" type="bigint">
                 <constraints nullable="false"/>
             </column>
@@ -41,11 +41,11 @@
                 <constraints nullable="true" />
             </column>
         </createTable>
-        <addPrimaryKey columnNames="id, attribute_key" tableName="subject_metadata"/>
+        <addPrimaryKey columnNames="id, attribute_key" tableName="source_metadata"/>
         <addForeignKeyConstraint baseColumnNames="id"
-            baseTableName="subject_metadata"
-            constraintName="fk_subject_metadata"
+            baseTableName="source_metadata"
+            constraintName="fk_source_metadata"
             referencedColumnNames="id"
-            referencedTableName="subject"/>
+            referencedTableName="radar_source"/>
     </changeSet>
 </databaseChangeLog>

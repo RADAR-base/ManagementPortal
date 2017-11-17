@@ -17,7 +17,7 @@
     <!--
         Added the entity DeviceType.
     -->
-    <changeSet id="20170516143500-1" author="jhipster">
+    <changeSet id="00000000000003" author="jhipster">
         <createTable tableName="device_type">
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>

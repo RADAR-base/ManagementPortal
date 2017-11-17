@@ -6,7 +6,7 @@
     <!--
         Added the constraints for entity Project.
     -->
-    <changeSet id="20170516143458-2" author="jhipster">
+    <changeSet id="00000000000010" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="projects_id"
                                  baseTableName="project_device_type"

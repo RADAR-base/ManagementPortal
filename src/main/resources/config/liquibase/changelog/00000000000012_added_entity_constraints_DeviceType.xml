@@ -6,8 +6,8 @@
     <!--
         Added the constraints for entity DeviceType.
     -->
-    <changeSet id="20170516143500-2" author="jhipster">
-
+    <changeSet id="00000000000012" author="jhipster">
+        
         <addForeignKeyConstraint baseColumnNames="device_types_id"
                                  baseTableName="device_type_source_data"
                                  constraintName="fk_device_type_source_data_device_types_id"
