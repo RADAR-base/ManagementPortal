@@ -56,7 +56,7 @@
                   separator=";"
                   tableName="project_device_type"/>
         <loadData encoding="UTF-8"
-            file="config/liquibase/test_users.csv"
+            file="config/liquibase/users.csv"
             separator=";"
             tableName="radar_user">
             <column name="activated" type="boolean"/>
