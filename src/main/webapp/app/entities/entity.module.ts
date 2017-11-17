@@ -2,7 +2,7 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { ManagementPortalDeviceTypeModule } from './device-type/device-type.module';
 import { ManagementPortalProjectModule } from './project/project.module';
-import { ManagementPortalSensorDataModule } from './sensor-data/sensor-data.module';
+import { ManagementPortalSourceDataModule } from './source-data/source-data.module';
 import { ManagementPortalRoleModule } from "./role/role.module";
 import { ManagementPortalSubjectModule } from "./subject/general.subject.module";
 import { ManagementPortalSourceModule } from "./source/general-source.module";
@@ -14,7 +14,7 @@ import { ManagementPortalOAuthClientModule } from './oauth-client/oauth-client.m
         ManagementPortalSourceModule,
         ManagementPortalDeviceTypeModule,
         ManagementPortalProjectModule,
-        ManagementPortalSensorDataModule,
+        ManagementPortalSourceDataModule,
         ManagementPortalRoleModule,
         ManagementPortalSubjectModule,
         ManagementPortalOAuthClientModule

@@ -118,7 +118,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             "/api/profile-info/*",
             "/api/projects/*",
             "/api/roles/*",
-            "/api/sensor-data/*",
+            "/api/source-data/*",
             "/api/sources/*",
             "/api/subjects/*",
             "/api/users/*",

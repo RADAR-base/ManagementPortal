@@ -1,7 +1,0 @@
-"ID";"LOGIN";"PASSWORD_HASH";"FIRST_NAME";"LAST_NAME";"EMAIL";"ACTIVATED";"LANG_KEY";"CREATED_BY";"LAST_MODIFIED_BY"
-2;"sub-1";"$2a$10$W0hhdkD2trCgPuUo4pZNkeKcIvE0tw/5mmxDQtVik9s2dFclx..n6";NULL;NULL;"sub-1@localhost";"true";"en";"admin";"admin"
-3;"sub-2";"$2a$10$M3JF7z1F/tCitgUJL.eOU.EEPiFBDQ7huXoFCfDodfsNScuX8sjy.";NULL;NULL;"sub-2@localhost";"true";"en";"admin";"admin"
-4;"sub-3";"$2a$10$BAydwSFZF22cEYAB29Q9C.WK9PS1Z3c8V.h0AUB9KQEb18AGeNCi2";NULL;NULL;"sub-3@localhost";"true";"en";"admin";"admin"
-5;padmin;$2a$10$aIewJVA1C7hJDVYIGQSJ5.6bk/vD85tvGIJe2I52H02m2qN4HBQ9S;null;null;padmin@localhost;TRUE;en;system;system
-6;padmin2;$2a$10$aIewJVA1C7hJDVYIGQSJ5.6bk/vD85tvGIJe2I52H02m2qN4HBQ9S;null;null;padmin2@localhost;TRUE;en;admin;system
-7;"sub-4";"$2a$10$BAydwSFZF22cEYAB29Q9C.WK9PS1Z3c8V.h0AUB9KQEb18AGeNCi2";NULL;NULL;"sub-4@localhost";"true";"en";"admin";"admin"

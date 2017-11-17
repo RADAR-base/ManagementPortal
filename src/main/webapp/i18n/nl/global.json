@@ -11,7 +11,7 @@
                 "deviceType": "Device Type",
                 "project": "Project",
                 "oauthclients": "OAuth Clients",
-                "sensorData": "Sensor Data",
+                "sourceData": "Source data",
                 "subject": "Subject",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
