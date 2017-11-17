@@ -23,6 +23,7 @@ import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockFilterConfig;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -54,6 +55,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ManagementPortalApp.class)
+@WithMockUser
 public class SubjectResourceIntTest {
 
     private static final String DEFAULT_EXTERNAL_LINK = "AAAAAAAAAA";
