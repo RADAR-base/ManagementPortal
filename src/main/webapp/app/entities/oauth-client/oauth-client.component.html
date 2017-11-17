@@ -36,8 +36,8 @@
                         <td><span *ngFor="let resource of client.resourceIds; let last = last"><span class="badge badge-default">{{resource}}</span>{{last ? "" : "&nbsp;"}}</span></td>
                         <td><span *ngFor="let granttype of client.authorizedGrantTypes; let last = last"><span class="badge badge-default">{{granttype}}</span>{{last ? "" : "&nbsp;"}}</span></td>
                         <td><span *ngFor="let scope of client.autoApproveScopes; let last = last"><span class="badge badge-primary">{{scope}}</span>{{last ? "" : "&nbsp;"}}</span></td>
-                        <td>{{client.accessTokenValidity}}</td>
-                        <td>{{client.refreshTokenValidity}}</td>
+                        <td>{{client.accessTokenValiditySeconds}}</td>
+                        <td>{{client.refreshTokenValiditySeconds}}</td>
                         <td><span *ngFor="let infoKey of objectKeys(client.additionalInformation); let last = last"><span class="badge badge-info">{{infoKey}}: {{client.additionalInformation[infoKey]}}</span>{{last ? "" : "&nbsp;"}}</span></td>
                         <td class="text-right">
                             <div class="btn-group flex-btn-group-container">

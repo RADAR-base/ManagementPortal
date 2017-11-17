@@ -155,9 +155,9 @@ public class OAuthClientsResourceIntTest {
         details.getAutoApproveScopes().stream().forEach(scope ->
             assertThat(testDetails.isAutoApprove(scope)).isTrue());
         assertThat(testDetails.getAccessTokenValiditySeconds()).isEqualTo(
-                details.getAccessTokenValidity().intValue());
+                details.getAccessTokenValiditySeconds().intValue());
         assertThat(testDetails.getRefreshTokenValiditySeconds()).isEqualTo(
-                details.getRefreshTokenValidity().intValue());
+                details.getRefreshTokenValiditySeconds().intValue());
         assertThat(testDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority))
                 .containsExactlyElementsOf(details.getAuthorities());
         assertThat(testDetails.getAdditionalInformation()).containsAllEntriesOf(
@@ -169,7 +169,7 @@ public class OAuthClientsResourceIntTest {
     @Transactional
     public void updateOAuthClient() throws Exception {
         // update the client
-        details.setRefreshTokenValidity(20L);
+        details.setRefreshTokenValiditySeconds(20L);
         restProjectMockMvc.perform(put("/api/oauthclients")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
@@ -211,7 +211,7 @@ public class OAuthClientsResourceIntTest {
                 .andExpect(status().isBadRequest());
 
         // expect we can not update it now
-        details.setRefreshTokenValidity(20L);
+        details.setRefreshTokenValiditySeconds(20L);
         restProjectMockMvc.perform(put("/api/oauthclients")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
@@ -227,8 +227,8 @@ public class OAuthClientsResourceIntTest {
         result.setAutoApproveScopes(Arrays.asList("scope-1").stream().collect(Collectors.toSet()));
         result.setAuthorizedGrantTypes(Arrays.asList("password", "refresh_token",
                 "authorization_code").stream().collect(Collectors.toSet()));
-        result.setAccessTokenValidity(3600L);
-        result.setRefreshTokenValidity(7200L);
+        result.setAccessTokenValiditySeconds(3600L);
+        result.setRefreshTokenValiditySeconds(7200L);
         result.setAuthorities(Arrays.asList("AUTHORITY-1").stream().collect(Collectors.toSet()));
         result.setAdditionalInformation(new HashMap<>());
         result.getAdditionalInformation().put("dynamic_registration", "true");

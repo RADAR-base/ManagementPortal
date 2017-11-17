@@ -6,8 +6,8 @@ export class OAuthClient {
     public resourceIds?: string[];
     public authorizedGrantTypes?: string[];
     public autoApproveScopes?: string[];
-    public accessTokenValidity?: number;
-    public refreshTokenValidity?: number;
+    public accessTokenValiditySeconds?: number;
+    public refreshTokenValiditySeconds?: number;
     public authorities?: string[];
     public additionalInformation?: any;
 
@@ -18,8 +18,8 @@ export class OAuthClient {
         resourceIds?: string[],
         authorizedGrantTypes?: string[],
         autoApproveScopes?: string[],
-        accessTokenValidity?: number,
-        refreshTokenValidity?: number,
+        accessTokenValiditySeconds?: number,
+        refreshTokenValiditySeconds?: number,
         authorities?: string[],
         additionalInformation?: any
     ) {
@@ -29,8 +29,8 @@ export class OAuthClient {
         this.resourceIds = resourceIds ? resourceIds : [],
         this.authorizedGrantTypes = authorizedGrantTypes ? authorizedGrantTypes : [],
         this.autoApproveScopes = autoApproveScopes ? autoApproveScopes : [],
-        this.accessTokenValidity = accessTokenValidity ? accessTokenValidity : 0,
-        this.refreshTokenValidity = refreshTokenValidity ? refreshTokenValidity : 0,
+        this.accessTokenValiditySeconds = accessTokenValiditySeconds ? accessTokenValiditySeconds : 0,
+        this.refreshTokenValiditySeconds = refreshTokenValiditySeconds ? refreshTokenValiditySeconds : 0,
         this.authorities = authorities ? authorities : [],
         this.additionalInformation = additionalInformation ? additionalInformation : {}
     }
