@@ -49,6 +49,9 @@ public class SourceDataResourceIntTest {
     private static final String DEFAULT_SOURCE_DATA_TYPE = "AAAAAAAAAA";
     private static final String UPDATED_SOURCE_DATA_TYPE = "BBBBBBBBBB";
 
+    private static final String DEFAULT_SOURCE_DATA_NAME = "AAAAAAAAAAAAA";
+    private static final String UPDATED_SOURCE_DATA_NAME = "BBBBBBBBBBAAA";
+
     private static final ProcessingState DEFAULT_PROCESSING_STATE = ProcessingState.RAW;
     private static final ProcessingState UPDATED_PROCESSING_STATE = ProcessingState.DERIVED;
 
@@ -113,6 +116,7 @@ public class SourceDataResourceIntTest {
     public static SourceData createEntity(EntityManager em) {
         SourceData sourceData = new SourceData()
             .sourceDataType(DEFAULT_SOURCE_DATA_TYPE)
+            .sourceDataName(DEFAULT_SOURCE_DATA_NAME)
             .processingState(DEFAULT_PROCESSING_STATE)
             .keySchema(DEFAULT_KEY_SCHEMA)
             .frequency(DEFAULT_FREQUENCY);
@@ -141,6 +145,7 @@ public class SourceDataResourceIntTest {
         assertThat(sourceDataList).hasSize(databaseSizeBeforeCreate + 1);
         SourceData testSourceData = sourceDataList.get(sourceDataList.size() - 1);
         assertThat(testSourceData.getSourceDataType()).isEqualTo(DEFAULT_SOURCE_DATA_TYPE);
+        assertThat(testSourceData.getSourceDataName()).isEqualTo(DEFAULT_SOURCE_DATA_NAME);
         assertThat(testSourceData.getProcessingState()).isEqualTo(DEFAULT_PROCESSING_STATE);
         assertThat(testSourceData.getKeySchema()).isEqualTo(DEFAULT_KEY_SCHEMA);
         assertThat(testSourceData.getFrequency()).isEqualTo(DEFAULT_FREQUENCY);
@@ -197,6 +202,7 @@ public class SourceDataResourceIntTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(sourceData.getId().intValue())))
             .andExpect(jsonPath("$.[*].sourceDataType").value(hasItem(DEFAULT_SOURCE_DATA_TYPE.toString())))
+            .andExpect(jsonPath("$.[*].sourceDataName").value(hasItem(DEFAULT_SOURCE_DATA_NAME.toString())))
             .andExpect(jsonPath("$.[*].processingState").value(hasItem(DEFAULT_PROCESSING_STATE.toString())))
             .andExpect(jsonPath("$.[*].keySchema").value(hasItem(DEFAULT_KEY_SCHEMA.toString())))
             .andExpect(jsonPath("$.[*].frequency").value(hasItem(DEFAULT_FREQUENCY.toString())));
@@ -209,11 +215,12 @@ public class SourceDataResourceIntTest {
         sourceDataRepository.saveAndFlush(sourceData);
 
         // Get the sourceData
-        restSourceDataMockMvc.perform(get("/api/source-data/{sourceDataType}", sourceData.getSourceDataType()))
+        restSourceDataMockMvc.perform(get("/api/source-data/{sourceDataName}", sourceData.getSourceDataName()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(sourceData.getId().intValue()))
             .andExpect(jsonPath("$.sourceDataType").value(DEFAULT_SOURCE_DATA_TYPE.toString()))
+            .andExpect(jsonPath("$.sourceDataName").value(DEFAULT_SOURCE_DATA_NAME.toString()))
             .andExpect(jsonPath("$.processingState").value(DEFAULT_PROCESSING_STATE.toString()))
             .andExpect(jsonPath("$.keySchema").value(DEFAULT_KEY_SCHEMA.toString()))
             .andExpect(jsonPath("$.frequency").value(DEFAULT_FREQUENCY.toString()));
@@ -223,8 +230,8 @@ public class SourceDataResourceIntTest {
     @Transactional
     public void getNonExistingSourceData() throws Exception {
         // Get the sourceData
-        restSourceDataMockMvc.perform(get("/api/source-data/{sourceDataType}", DEFAULT_SOURCE_DATA_TYPE +
-            DEFAULT_SOURCE_DATA_TYPE))
+        restSourceDataMockMvc.perform(get("/api/source-data/{sourceDataName}", DEFAULT_SOURCE_DATA_NAME +
+            DEFAULT_SOURCE_DATA_NAME))
             .andExpect(status().isNotFound());
     }
 
@@ -239,6 +246,7 @@ public class SourceDataResourceIntTest {
         SourceData updatedSourceData = sourceDataRepository.findOne(sourceData.getId());
         updatedSourceData
             .sourceDataType(UPDATED_SOURCE_DATA_TYPE)
+            .sourceDataName(UPDATED_SOURCE_DATA_NAME)
             .processingState(UPDATED_PROCESSING_STATE)
             .keySchema(UPDATED_KEY_SCHEMA)
             .frequency(UPDATED_FREQUENCY);
@@ -254,6 +262,7 @@ public class SourceDataResourceIntTest {
         assertThat(sourceDataList).hasSize(databaseSizeBeforeUpdate);
         SourceData testSourceData = sourceDataList.get(sourceDataList.size() - 1);
         assertThat(testSourceData.getSourceDataType()).isEqualTo(UPDATED_SOURCE_DATA_TYPE);
+        assertThat(testSourceData.getSourceDataName()).isEqualTo(UPDATED_SOURCE_DATA_NAME);
         assertThat(testSourceData.getProcessingState()).isEqualTo(UPDATED_PROCESSING_STATE);
         assertThat(testSourceData.getKeySchema()).isEqualTo(UPDATED_KEY_SCHEMA);
         assertThat(testSourceData.getFrequency()).isEqualTo(UPDATED_FREQUENCY);
@@ -286,7 +295,7 @@ public class SourceDataResourceIntTest {
         int databaseSizeBeforeDelete = sourceDataRepository.findAll().size();
 
         // Get the sourceData
-        restSourceDataMockMvc.perform(delete("/api/source-data/{sourceDataType}", sourceData.getSourceDataType())
+        restSourceDataMockMvc.perform(delete("/api/source-data/{sourceDataName}", sourceData.getSourceDataName())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 

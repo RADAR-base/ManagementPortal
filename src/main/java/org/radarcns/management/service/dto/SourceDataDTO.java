@@ -14,9 +14,12 @@ public class SourceDataDTO implements Serializable {
 
     private Long id;
 
-    //Sensor name.
+    //Source data type.
     @NotNull
     private String sourceDataType;
+
+
+    private String sourceDataName;
 
     //Default data frequency
     private String frequency;
@@ -128,6 +131,14 @@ public class SourceDataDTO implements Serializable {
         this.enabled = enabled;
     }
 
+    public String getSourceDataName() {
+        return sourceDataName;
+    }
+
+    public void setSourceDataName(String sourceDataName) {
+        this.sourceDataName = sourceDataName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -153,6 +164,7 @@ public class SourceDataDTO implements Serializable {
         return "SourceDataDTO{"
             + "id=" + id
             + ", sourceDataType='" + sourceDataType + '\''
+            + ", sourceDataName='" + sourceDataName + '\''
             + ", frequency='" + frequency + '\''
             + ", unit='" + unit + '\''
             + ", processingState=" + processingState

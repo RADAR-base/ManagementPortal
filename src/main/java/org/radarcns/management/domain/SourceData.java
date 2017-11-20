@@ -42,6 +42,11 @@ public class SourceData implements Serializable {
     @Column(name = "source_data_type", nullable = false)
     private String sourceDataType;
 
+    // this will be the unique human readable identifier of
+    @NotNull
+    @Column(name = "source_data_name", nullable = false , unique = true)
+    private String sourceDataName;
+
     //Default data frequency
     @Column(name = "frequency")
     private String frequency;
@@ -96,6 +101,11 @@ public class SourceData implements Serializable {
 
     public SourceData sourceDataType(String sourceDataType) {
         this.sourceDataType = sourceDataType;
+        return this;
+    }
+
+    public SourceData sourceDataName(String sourceDataName) {
+        this.sourceDataName = sourceDataName;
         return this;
     }
 
@@ -213,6 +223,14 @@ public class SourceData implements Serializable {
 
     public void setSourceTypes(Set<SourceType> sourceTypes) {
         this.sourceTypes = sourceTypes;
+    }
+
+    public String getSourceDataName() {
+        return sourceDataName;
+    }
+
+    public void setSourceDataName(String sourceDataName) {
+        this.sourceDataName = sourceDataName;
     }
 
     @Override

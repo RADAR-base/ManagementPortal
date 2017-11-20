@@ -13,14 +13,14 @@ export class SourceDataPopupService {
 
     ) {}
 
-    open(component: Component, sourceDataType?: string): NgbModalRef {
+    open(component: Component, sourceDataName?: string): NgbModalRef {
         if (this.isOpen) {
             return;
         }
         this.isOpen = true;
 
-        if (sourceDataType) {
-            this.sourceDataService.find(sourceDataType).subscribe((sourceData) => {
+        if (sourceDataName) {
+            this.sourceDataService.find(sourceDataName).subscribe((sourceData) => {
                 this.sourceDataModalRef(component, sourceData);
             });
         } else {

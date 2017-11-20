@@ -107,34 +107,34 @@ public class SourceDataResource {
     }
 
     /**
-     * GET  /source-data/:sourceDataType : get the "sourceDataType" sourceData.
+     * GET  /source-data/:sourceDataName : get the "sourceDataName" sourceData.
      *
-     * @param sourceDataType the sourceDataType of the sourceDataDTO to retrieve
+     * @param sourceDataName the sourceDataName of the sourceDataDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the sourceDataDTO, or with status 404 (Not Found)
      */
-    @GetMapping("/source-data/{sourceDataType}")
+    @GetMapping("/source-data/{sourceDataName}")
     @Timed
-    public ResponseEntity<SourceDataDTO> getSourceData(@PathVariable String sourceDataType) {
+    public ResponseEntity<SourceDataDTO> getSourceData(@PathVariable String sourceDataName) {
         checkPermission(getJWT(servletRequest), SENSORDATA_READ);
-        return ResponseUtil.wrapOrNotFound(sourceDataService.findOneBySourceDataType(sourceDataType));
+        return ResponseUtil.wrapOrNotFound(sourceDataService.findOneBySourceDataName(sourceDataName));
     }
 
     /**
-     * DELETE  /source-data/:sourceDataType : delete the "sourceDataType" sourceData.
+     * DELETE  /source-data/:sourceDataName : delete the "sourceDataName" sourceData.
      *
-     * @param sourceDataType the sourceDataType of the sourceDataDTO to delete
+     * @param sourceDataName the sourceDataName of the sourceDataDTO to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @DeleteMapping("/source-data/{sourceDataType}")
+    @DeleteMapping("/source-data/{sourceDataName}")
     @Timed
-    public ResponseEntity<Void> deleteSourceData(@PathVariable String sourceDataType) {
+    public ResponseEntity<Void> deleteSourceData(@PathVariable String sourceDataName) {
         checkPermission(getJWT(servletRequest), SENSORDATA_DELETE);
-        Optional<SourceDataDTO> sourceDataDTO = sourceDataService.findOneBySourceDataType(sourceDataType);
+        Optional<SourceDataDTO> sourceDataDTO = sourceDataService.findOneBySourceDataName(sourceDataName);
         if (!sourceDataDTO.isPresent()) {
             return ResponseEntity.notFound().build();
         }
         sourceDataService.delete(sourceDataDTO.get().getId());
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, sourceDataType)).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, sourceDataName)).build();
     }
 
 }

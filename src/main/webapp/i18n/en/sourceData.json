@@ -16,6 +16,7 @@
                 "title": "Source data"
             },
             "sourceDataType": "Source Data Type",
+            "sourceDataName": "Source Data Name",
             "processingState": "Processing State",
             "keySchema": "keySchema",
             "frequency": "Frequency",

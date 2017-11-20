@@ -27,7 +27,7 @@ describe('Component Tests', () => {
                     DatePipe,
                     {
                         provide: ActivatedRoute,
-                        useValue: new MockActivatedRoute({sourceDataType: 'testSourceData'})
+                        useValue: new MockActivatedRoute({sourceDataName: 'testSourceData'})
                     },
                     SourceDataService,
                     EventManager

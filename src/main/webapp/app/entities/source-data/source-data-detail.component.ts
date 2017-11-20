@@ -27,7 +27,7 @@ export class SourceDataDetailComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.subscription = this.route.params.subscribe((params) => {
-            this.load(params['sourceDataType']);
+            this.load(params['sourceDataName']);
         });
         this.registerChangeInSourceData();
     }

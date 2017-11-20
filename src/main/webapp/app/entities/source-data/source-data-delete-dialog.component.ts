@@ -29,8 +29,8 @@ export class SourceDataDeleteDialogComponent {
         this.activeModal.dismiss('cancel');
     }
 
-    confirmDelete(sourceDataType: string) {
-        this.sourceDataService.delete(sourceDataType).subscribe((response) => {
+    confirmDelete(sourceDataName: string) {
+        this.sourceDataService.delete(sourceDataName).subscribe((response) => {
             this.eventManager.broadcast({
                 name: 'sourceDataListModification',
                 content: 'Deleted an sourceData'
@@ -57,7 +57,7 @@ export class SourceDataDeletePopupComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
             this.modalRef = this.sourceDataPopupService
-                .open(SourceDataDeleteDialogComponent, params['sourceDataType']);
+                .open(SourceDataDeleteDialogComponent, params['sourceDataName']);
         });
     }
 

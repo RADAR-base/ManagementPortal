@@ -41,7 +41,7 @@
                 <td jhiTranslate="{{'managementPortalApp.SourceTypeScope.' + sourceType.sourceTypeScope}}">{{sourceType.sourceTypeScope}}</td>
                 <td>
                     <span *ngFor="let sourceData of sourceType.sourceData; let last = last">
-                            <a class="form-control-static" [routerLink]="['../source-data', sourceData?.sourceDataType ]">{{sourceData.sourceDataType}}</a>{{last ? '' : ', '}}
+                            <a class="form-control-static" [routerLink]="['../source-data', sourceData?.sourceDataName ]">{{sourceData.sourceDataType}}</a>{{last ? '' : ', '}}
                         </span>
                 </td>
                 <td class="text-right">

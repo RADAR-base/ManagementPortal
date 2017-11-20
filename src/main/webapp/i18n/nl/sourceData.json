@@ -15,7 +15,8 @@
             "detail": {
                 "title": "Source data"
             },
-            "sensorType": "Sensor Type",
+            "sourceDataType": "Source Data Type",
+            "sourceDataName": "Source Data Name",
             "processingState": "Processing State",
             "dataFormat": "Data Format",
             "frequency": "Frequency",
