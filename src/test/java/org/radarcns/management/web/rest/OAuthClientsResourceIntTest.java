@@ -126,7 +126,7 @@ public class OAuthClientsResourceIntTest {
 
         // Create the OAuth Client
         details = createClient();
-        restProjectMockMvc.perform(post("/api/oauthclients")
+        restProjectMockMvc.perform(post("/api/oauth-clients")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
                 .andExpect(status().isCreated());
@@ -139,7 +139,7 @@ public class OAuthClientsResourceIntTest {
     @Test
     @Transactional
     public void createAndFetchOAuthClient() throws Exception {
-        restProjectMockMvc.perform(get("/api/oauthclients/" + details.getClientId())
+        restProjectMockMvc.perform(get("/api/oauth-clients/" + details.getClientId())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.clientId").value(equalTo(details.getClientId())));
@@ -170,7 +170,7 @@ public class OAuthClientsResourceIntTest {
     public void updateOAuthClient() throws Exception {
         // update the client
         details.setRefreshTokenValiditySeconds(20L);
-        restProjectMockMvc.perform(put("/api/oauthclients")
+        restProjectMockMvc.perform(put("/api/oauth-clients")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
                 .andExpect(status().isOk());
@@ -186,7 +186,7 @@ public class OAuthClientsResourceIntTest {
     @Test
     @Transactional
     public void deleteOAuthClient() throws Exception {
-        restProjectMockMvc.perform(delete("/api/oauthclients/" + details.getClientId())
+        restProjectMockMvc.perform(delete("/api/oauth-clients/" + details.getClientId())
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
                 .andExpect(status().isOk());
@@ -199,20 +199,20 @@ public class OAuthClientsResourceIntTest {
     public void cannotModifyProtected() throws Exception {
         // first change our test client to be protected
         details.getAdditionalInformation().put("protected", "true");
-        restProjectMockMvc.perform(put("/api/oauthclients")
+        restProjectMockMvc.perform(put("/api/oauth-clients")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
                 .andExpect(status().isOk());
 
         // expect we can not delete it now
-        restProjectMockMvc.perform(delete("/api/oauthclients/" + details.getClientId())
+        restProjectMockMvc.perform(delete("/api/oauth-clients/" + details.getClientId())
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
                 .andExpect(status().isBadRequest());
 
         // expect we can not update it now
         details.setRefreshTokenValiditySeconds(20L);
-        restProjectMockMvc.perform(put("/api/oauthclients")
+        restProjectMockMvc.perform(put("/api/oauth-clients")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
                 .andExpect(status().isBadRequest());

@@ -10,7 +10,7 @@
                 "source": "Source",
                 "deviceType": "Device Type",
                 "project": "Projects",
-                "oauthclients": "OAuth Clients",
+                "oauth-clients": "OAuth Clients",
                 "sourceData": "Source data",
                 "subject": "Subject",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"

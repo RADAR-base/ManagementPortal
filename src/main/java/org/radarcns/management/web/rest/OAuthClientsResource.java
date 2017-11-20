@@ -97,13 +97,13 @@ public class OAuthClientsResource {
     private static final String PROTECTED_KEY = "protected";
 
     /**
-     * GET /api/oauthclients
+     * GET /api/oauth-clients
      *
      * Retrieve a list of currently registered OAuth clients.
      *
      * @return the list of registered clients as a list of {@link ClientDetailsDTO}
      */
-    @GetMapping("/oauthclients")
+    @GetMapping("/oauth-clients")
     @Timed
     public ResponseEntity<List<ClientDetailsDTO>> getOAuthClients() {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_READ);
@@ -112,14 +112,14 @@ public class OAuthClientsResource {
     }
 
     /**
-     * GET /api/oauthclients/:id
+     * GET /api/oauth-clients/:id
      *
      * Get details on a specific client.
      *
      * @param id the client id for which to fetch the details
      * @return the client as a {@link ClientDetailsDTO}
      */
-    @GetMapping("/oauthclients/{id}")
+    @GetMapping("/oauth-clients/{id}")
     @Timed
     public ResponseEntity<ClientDetailsDTO> getOAuthClientById(@PathVariable("id") String id) {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_READ);
@@ -128,14 +128,14 @@ public class OAuthClientsResource {
     }
 
     /**
-     * PUT /api/oauthclients
+     * PUT /api/oauth-clients
      *
      * Update an existing OAuth client.
      *
      * @param clientDetailsDTO The client details to update
      * @return The updated OAuth client.
      */
-    @PutMapping("/oauthclients")
+    @PutMapping("/oauth-clients")
     @Timed
     public ResponseEntity<ClientDetailsDTO> updateOAuthClient(@RequestBody ClientDetailsDTO
             clientDetailsDTO) {
@@ -159,14 +159,14 @@ public class OAuthClientsResource {
     }
 
     /**
-     * DELETE /api/oauthclients/:id
+     * DELETE /api/oauth-clients/:id
      *
      * Delete the OAuth client with the specified client id.
      *
      * @param id The id of the client to delete
      * @return a ResponseEntity indicating success or failure
      */
-    @DeleteMapping("/oauthclients/{id}")
+    @DeleteMapping("/oauth-clients/{id}")
     @Timed
     public ResponseEntity<Void> deleteOAuthClient(@PathVariable String id) {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_DELETE);
@@ -177,7 +177,7 @@ public class OAuthClientsResource {
     }
 
     /**
-     * POST /api/oauthclients
+     * POST /api/oauth-clients
      *
      * Register a new oauth client
      *
@@ -185,7 +185,7 @@ public class OAuthClientsResource {
      * @return a response indicating success or failure
      * @throws URISyntaxException if there was a problem formatting the URI to the new entity
      */
-    @PostMapping("/oauthclients")
+    @PostMapping("/oauth-clients")
     @Timed
     public ResponseEntity<ClientDetailsDTO> createOAuthClient(@RequestBody ClientDetailsDTO
             clientDetailsDTO) throws URISyntaxException {
@@ -194,13 +194,13 @@ public class OAuthClientsResource {
                 .clientDetailsDTOToClientDetails(clientDetailsDTO);
         clientDetailsService.addClientDetails(details);
         ClientDetails created = getOAuthClient(clientDetailsDTO.getClientId());
-        return ResponseEntity.created(new URI("/api/oauthclients/" + created.getClientId()))
+        return ResponseEntity.created(new URI("/api/oauth-clients/" + created.getClientId()))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, created.getClientId()))
                 .body(clientDetailsMapper.clientDetailsToClientDetailsDTO(created));
     }
 
     /**
-     * GET /oauthclients/pair
+     * GET /oauth-clients/pair
      *
      * Generates OAuth2 refresh tokens for the given user, to be used to bootstrap the
      * authentication of client apps. This will generate a refresh token which can be used at the
@@ -210,7 +210,7 @@ public class OAuthClientsResource {
      * @param clientId the OAuth client id
      * @return a ClientPairInfoDTO with status 200 (OK)
      */
-    @GetMapping("/oauthclients/pair")
+    @GetMapping("/oauth-clients/pair")
     @Timed
     public ResponseEntity<ClientPairInfoDTO> getRefreshToken(@RequestParam String login,
             @RequestParam(value="clientId") String clientId) {
