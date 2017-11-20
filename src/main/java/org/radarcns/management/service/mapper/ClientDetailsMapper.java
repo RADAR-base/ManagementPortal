@@ -10,8 +10,10 @@ import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,14 +30,23 @@ public interface ClientDetailsMapper {
     List<ClientDetails> clientDetailsDTOToClientDetails(List<ClientDetailsDTO> detailsDTOList);
 
     default Collection<GrantedAuthority> map(Set<String> authorities) {
+        if (Objects.isNull(authorities)) {
+            return Collections.emptySet();
+        }
         return authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 
     default Set<String> map(Collection<GrantedAuthority> authorities) {
+        if (Objects.isNull(authorities)) {
+            return Collections.emptySet();
+        }
         return authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
     }
 
     default Map<String, String> map(Map<String, ?> additionalInformation) {
+        if (Objects.isNull(additionalInformation)) {
+            return Collections.emptyMap();
+        }
         return additionalInformation.entrySet().stream().collect(
                 Collectors.toMap(e -> e.getKey(), e -> e.getValue().toString()));
     }
