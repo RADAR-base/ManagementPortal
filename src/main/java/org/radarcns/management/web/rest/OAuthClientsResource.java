@@ -1,8 +1,6 @@
 package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import io.github.jhipster.web.util.ResponseUtil;
-import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
@@ -21,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -123,6 +120,7 @@ public class OAuthClientsResource {
     @Timed
     public ResponseEntity<ClientDetailsDTO> getOAuthClientById(@PathVariable("id") String id) {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_READ);
+        // getOAuthClient checks if the id exists
         return ResponseEntity.ok().body(clientDetailsMapper
                 .clientDetailsToClientDetailsDTO(getOAuthClient(id)));
     }
@@ -140,12 +138,15 @@ public class OAuthClientsResource {
     public ResponseEntity<ClientDetailsDTO> updateOAuthClient(@RequestBody ClientDetailsDTO
             clientDetailsDTO) {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_UPDATE);
+        // check if we have an ID field supplied
+        checkClientFields(clientDetailsDTO);
+        // getOAuthClient checks if the id exists
         checkProtected(getOAuthClient(clientDetailsDTO.getClientId()));
         ClientDetails details = clientDetailsMapper
                 .clientDetailsDTOToClientDetails(clientDetailsDTO);
         clientDetailsService.updateClientDetails(details);
         ClientDetails updated = getOAuthClient(clientDetailsDTO.getClientId());
-        // updateClientDetails does not update secret, so check for it seperately
+        // updateClientDetails does not update secret, so check for it separately
         if (Objects.nonNull(clientDetailsDTO.getClientSecret()) && !clientDetailsDTO
                 .getClientSecret().equals(updated.getClientSecret())) {
             clientDetailsService.updateClientSecret(clientDetailsDTO.getClientId(),
@@ -170,6 +171,7 @@ public class OAuthClientsResource {
     @Timed
     public ResponseEntity<Void> deleteOAuthClient(@PathVariable String id) {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_DELETE);
+        // getOAuthClient checks if the id exists
         checkProtected(getOAuthClient(id));
         clientDetailsService.removeClientDetails(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id))
@@ -190,6 +192,8 @@ public class OAuthClientsResource {
     public ResponseEntity<ClientDetailsDTO> createOAuthClient(@RequestBody ClientDetailsDTO
             clientDetailsDTO) throws URISyntaxException {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_CREATE);
+        // check if we have an ID field supplied
+        checkClientFields(clientDetailsDTO);
         ClientDetails details = clientDetailsMapper
                 .clientDetailsDTOToClientDetails(clientDetailsDTO);
         clientDetailsService.addClientDetails(details);
@@ -231,6 +235,7 @@ public class OAuthClientsResource {
             subjectDTO.getProject().getProjectName(), subjectDTO.getLogin());
 
         // lookup the OAuth client
+        // getOAuthClient checks if the id exists
         ClientDetails details = getOAuthClient(clientId);
 
         // add the user's authorities
@@ -247,6 +252,23 @@ public class OAuthClientsResource {
         ClientPairInfoDTO cpi = new ClientPairInfoDTO(token.getRefreshToken().getValue());
 
         return new ResponseEntity<>(cpi, HttpStatus.OK);
+    }
+
+    /**
+     * Check a supplied ClientDetailsDTO for necessary fields. ClientID is the only required one.
+     *
+     * @param client The ClientDetailsDTO to check
+     * @throws CustomParameterizedException if the client ID is null or empty.
+     */
+    private void checkClientFields(ClientDetailsDTO client) throws CustomParameterizedException {
+        try {
+            Objects.requireNonNull(client.getClientId(), "Client ID can not be null");
+        } catch (NullPointerException ex) {
+            throw new CustomParameterizedException(ex.getMessage());
+        }
+        if (client.getClientId().equals("")) {
+            throw new CustomParameterizedException("Client ID can not be empty");
+        }
     }
 
     private OAuth2AccessToken createToken(String clientId, String login,
@@ -272,6 +294,12 @@ public class OAuthClientsResource {
         return tokenServices.createAccessToken(auth);
     }
 
+    /**
+     * Find ClientDetails by OAuth client id.
+     * @param clientId The client ID to look up
+     * @return a ClientDetails object with the requested client ID
+     * @throws CustomNotFoundException If there is no client with the requested ID
+     */
     private ClientDetails getOAuthClient(String clientId) throws CustomNotFoundException {
         try {
             return clientDetailsService.loadClientByClientId(clientId);
