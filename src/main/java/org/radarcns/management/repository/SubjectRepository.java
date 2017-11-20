@@ -54,8 +54,8 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
 
     @Query("select subject.sources from Subject subject left join subject.sources sources "
         + "join sources.sourceType sourceType "
-        + "where sourceType.deviceProducer = :producer "
-        + "and sourceType.deviceModel = :model "
+        + "where sourceType.producer = :producer "
+        + "and sourceType.model = :model "
         + "and sourceType.catalogVersion =:version "
         + "and subject.user.login = :login")
     List<Source> findSubjectSourcesBySourceType(@Param("login") String login,

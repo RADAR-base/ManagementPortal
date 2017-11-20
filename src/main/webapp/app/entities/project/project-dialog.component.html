@@ -80,7 +80,7 @@
         <div class="form-group">
             <label jhiTranslate="managementPortalApp.project.sourceType" for="field_sourceType">Source Type</label>
             <select class="form-control" id="field_sourceType" multiple name="sourceType" [(ngModel)]="project.sourceTypes">
-                <option [ngValue]="getSelected(project.sourceTypes, sourceTypeOption)" *ngFor="let sourceTypeOption of sourceTypes; trackBy: trackSourceTypeById">{{sourceTypeOption.deviceModel}}</option>
+                <option [ngValue]="getSelected(project.sourceTypes, sourceTypeOption)" *ngFor="let sourceTypeOption of sourceTypes; trackBy: trackSourceTypeById">{{sourceTypeOption.model}}</option>
             </select>
         </div>
         <attribute-mapper [attributes]='project.attributes' [keys]='keys' [eventPrefix]='attributeComponentEventPrefix'></attribute-mapper>

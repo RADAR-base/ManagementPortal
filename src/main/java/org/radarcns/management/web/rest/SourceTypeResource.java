@@ -74,13 +74,13 @@ public class SourceTypeResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new sourceType cannot already have an ID")).body(null);
         }
         Optional<SourceType> existing = sourceTypeRepository
-            .findOneWithEagerRelationshipsByProducerAndModelAndVersion(sourceTypeDTO.getDeviceProducer(), sourceTypeDTO.getDeviceModel(), sourceTypeDTO.getCatalogVersion());
+            .findOneWithEagerRelationshipsByProducerAndModelAndVersion(sourceTypeDTO.getProducer(), sourceTypeDTO.getModel(), sourceTypeDTO.getCatalogVersion());
         if (existing.isPresent()) {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "A SourceType with the specified producer and model "
                 + "already exists. This combination needs to be unique.");
-            errorParams.put("producer", sourceTypeDTO.getDeviceProducer());
-            errorParams.put("model", sourceTypeDTO.getDeviceModel());
+            errorParams.put("producer", sourceTypeDTO.getProducer());
+            errorParams.put("model", sourceTypeDTO.getModel());
             throw new CustomConflictException("sourceTypeAvailable", errorParams);
         }
         SourceTypeDTO result = sourceTypeService.save(sourceTypeDTO);

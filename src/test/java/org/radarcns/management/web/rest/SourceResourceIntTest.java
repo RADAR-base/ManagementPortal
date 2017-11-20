@@ -129,7 +129,6 @@ public class SourceResourceIntTest {
      */
     public static Source createEntity(EntityManager em) {
         Source source = new Source()
-            .deviceCategory(DEFAULT_SOURCE_CATEGORY)
             .assigned(DEFAULT_ASSIGNED)
             .sourceName(DEFAULT_SOURCE_NAME);
         return source;
@@ -159,7 +158,6 @@ public class SourceResourceIntTest {
         List<Source> sourceList = sourceRepository.findAll();
         assertThat(sourceList).hasSize(databaseSizeBeforeCreate + 1);
         Source testSource = sourceList.get(sourceList.size() - 1);
-        assertThat(testSource.getDeviceCategory()).isEqualTo(DEFAULT_SOURCE_CATEGORY);
         assertThat(testSource.isAssigned()).isEqualTo(DEFAULT_ASSIGNED);
         assertThat(testSource.getSourceName()).isEqualTo(DEFAULT_SOURCE_NAME);
     }
@@ -244,7 +242,6 @@ public class SourceResourceIntTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(source.getId().intValue())))
             .andExpect(jsonPath("$.[*].sourceId").value(everyItem(notNullValue())))
-            .andExpect(jsonPath("$.[*].deviceCategory").value(hasItem(DEFAULT_SOURCE_CATEGORY.toString())))
             .andExpect(jsonPath("$.[*].assigned").value(hasItem(DEFAULT_ASSIGNED.booleanValue())));
     }
 
@@ -260,7 +257,6 @@ public class SourceResourceIntTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(source.getId().intValue()))
             .andExpect(jsonPath("$.sourceId").value(notNullValue()))
-            .andExpect(jsonPath("$.deviceCategory").value(DEFAULT_SOURCE_CATEGORY.toString()))
             .andExpect(jsonPath("$.assigned").value(DEFAULT_ASSIGNED.booleanValue()));
     }
 
@@ -283,7 +279,6 @@ public class SourceResourceIntTest {
         Source updatedSource = sourceRepository.findOne(source.getId());
         updatedSource
             .sourceId(UPDATED_SOURCE_PHYSICAL_ID)
-            .deviceCategory(UPDATED_SOURCE_CATEGORY)
             .assigned(UPDATED_ASSIGNED);
         SourceDTO sourceDTO = sourceMapper.sourceToSourceDTO(updatedSource);
 
@@ -297,7 +292,6 @@ public class SourceResourceIntTest {
         assertThat(sourceList).hasSize(databaseSizeBeforeUpdate);
         Source testSource = sourceList.get(sourceList.size() - 1);
         assertThat(testSource.getSourceId()).isEqualTo(UPDATED_SOURCE_PHYSICAL_ID);
-        assertThat(testSource.getDeviceCategory()).isEqualTo(UPDATED_SOURCE_CATEGORY);
         assertThat(testSource.isAssigned()).isEqualTo(UPDATED_ASSIGNED);
     }
 

@@ -16,10 +16,10 @@ public class SourceTypeDTO implements Serializable {
     private Long id;
 
     @NotNull
-    private String deviceProducer;
+    private String producer;
 
     @NotNull
-    private String deviceModel;
+    private String model;
 
     @NotNull
     private String catalogVersion;
@@ -49,15 +49,15 @@ public class SourceTypeDTO implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getDeviceProducer() {
-        return deviceProducer;
+    public String getProducer() {
+        return producer;
     }
 
-    public void setDeviceProducer(String deviceProducer) {
-        this.deviceProducer = deviceProducer;
+    public void setProducer(String producer) {
+        this.producer = producer;
     }
-    public String getDeviceModel() {
-        return deviceModel;
+    public String getModel() {
+        return model;
     }
 
     public String getCatalogVersion() {
@@ -68,8 +68,8 @@ public class SourceTypeDTO implements Serializable {
         this.catalogVersion = catalogVersion;
     }
 
-    public void setDeviceModel(String deviceModel) {
-        this.deviceModel = deviceModel;
+    public void setModel(String model) {
+        this.model = model;
     }
     public SourceTypeScope getSourceTypeScope() {
         return sourceTypeScope;
@@ -128,8 +128,8 @@ public class SourceTypeDTO implements Serializable {
     }
 
     public void initId() {
-        this.sourceTypeId = new SourceTypeId().producer(deviceProducer)
-                                              .model(deviceModel)
+        this.sourceTypeId = new SourceTypeId().producer(producer)
+                                              .model(model)
                                               .version(catalogVersion);
     }
 
@@ -162,8 +162,8 @@ public class SourceTypeDTO implements Serializable {
     public String toString() {
         return "SourceTypeDTO{" +
             "id=" + id +
-            ", deviceProducer='" + deviceProducer + "'" +
-            ", deviceModel='" + deviceModel + "'" +
+            ", producer='" + producer + "'" +
+            ", model='" + model + "'" +
             ", catalogVersion='" + catalogVersion + "'" +
             ", sourceTypeScope='" + sourceTypeScope + "'" +
             ", canRegisterDynamically='" + canRegisterDynamically + "'" +

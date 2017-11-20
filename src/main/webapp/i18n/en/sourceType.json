@@ -15,8 +15,8 @@
             "detail": {
                 "title": "Source Type"
             },
-            "deviceProducer": "Device Producer",
-            "deviceModel": "Device Model",
+            "producer": "Producer",
+            "model": "Model",
             "catalogVersion": "Catalog Version",
             "sourceTypeScope": "Source Type Scope",
             "sourceData": "Source data",

@@ -17,8 +17,8 @@
             <thead>
             <tr>
             <th><span jhiTranslate="global.field.id">ID</span></th>
-            <th><span jhiTranslate="managementPortalApp.sourceType.deviceProducer">Device Producer</span></th>
-            <th><span jhiTranslate="managementPortalApp.sourceType.deviceModel">Device Model</span></th>
+            <th><span jhiTranslate="managementPortalApp.sourceType.producer">Producer</span></th>
+            <th><span jhiTranslate="managementPortalApp.sourceType.model">Model</span></th>
             <th><span jhiTranslate="managementPortalApp.sourceType.catalogVersion">Catalog Version</span></th>
             <th><span jhiTranslate="managementPortalApp.sourceType.sourceRegistration">With dynamic id</span></th>
             <th><span jhiTranslate="managementPortalApp.sourceType.sourceTypeScope">Source Type Scope</span></th>
@@ -28,9 +28,9 @@
             </thead>
             <tbody>
             <tr *ngFor="let sourceType of sourceTypes ;trackBy: trackId">
-                <td><a [routerLink]="['../source-type', sourceType.deviceProducer, sourceType.deviceModel, sourceType.catalogVersion ]">{{sourceType.id}}</a></td>
-                <td>{{sourceType.deviceProducer}}</td>
-                <td>{{sourceType.deviceModel}}</td>
+                <td><a [routerLink]="['../source-type', sourceType.producer, sourceType.model, sourceType.catalogVersion ]">{{sourceType.id}}</a></td>
+                <td>{{sourceType.producer}}</td>
+                <td>{{sourceType.model}}</td>
                 <td>{{sourceType.catalogVersion}}</td>
                 <td>
                     <span class="badge badge-info" *ngIf="!sourceType.canRegisterDynamically"
@@ -47,20 +47,20 @@
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"
-                                [routerLink]="['../source-type', sourceType.deviceProducer, sourceType.deviceModel, sourceType.catalogVersion ]"
+                                [routerLink]="['../source-type', sourceType.producer, sourceType.model, sourceType.catalogVersion ]"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
                         </button>
                         <button type="submit"
-                                [routerLink]="['/', { outlets: { popup: ['source-type', sourceType.deviceProducer, sourceType.deviceModel, sourceType.catalogVersion, 'edit']} }]"
+                                [routerLink]="['/', { outlets: { popup: ['source-type', sourceType.producer, sourceType.model, sourceType.catalogVersion, 'edit']} }]"
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
                         </button>
                         <button type="submit"
-                                [routerLink]="['/', { outlets: { popup: ['source-type', sourceType.deviceProducer, sourceType.deviceModel, sourceType.catalogVersion, 'delete']} }]"
+                                [routerLink]="['/', { outlets: { popup: ['source-type', sourceType.producer, sourceType.model, sourceType.catalogVersion, 'delete']} }]"
                                 replaceUrl="true"
                                 class="btn btn-danger btn-sm">
                             <span class="fa fa-remove"></span>

@@ -26,8 +26,8 @@ public class SourceType implements Serializable {
     @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
     private Long id;
 
-    @Column(name = "device_producer")
-    private String deviceProducer;
+    @Column(name = "producer")
+    private String producer;
 
     @Column(name = "name")
     private String name;
@@ -42,8 +42,8 @@ public class SourceType implements Serializable {
     private String appProvider;
 
     @NotNull
-    @Column(name = "device_model", nullable = false )
-    private String deviceModel;
+    @Column(name = "model", nullable = false )
+    private String model;
 
     @NotNull
     @Column(name = "catalog_version", nullable = false)
@@ -78,30 +78,30 @@ public class SourceType implements Serializable {
         this.id = id;
     }
 
-    public String getDeviceProducer() {
-        return deviceProducer;
+    public String getProducer() {
+        return producer;
     }
 
-    public SourceType deviceProducer(String deviceProducer) {
-        this.deviceProducer = deviceProducer;
+    public SourceType producer(String producer) {
+        this.producer = producer;
         return this;
     }
 
-    public void setDeviceProducer(String deviceProducer) {
-        this.deviceProducer = deviceProducer;
+    public void setProducer(String producer) {
+        this.producer = producer;
     }
 
-    public String getDeviceModel() {
-        return deviceModel;
+    public String getModel() {
+        return model;
     }
 
-    public SourceType deviceModel(String deviceModel) {
-        this.deviceModel = deviceModel;
+    public SourceType model(String model) {
+        this.model = model;
         return this;
     }
 
-    public void setDeviceModel(String deviceModel) {
-        this.deviceModel = deviceModel;
+    public void setModel(String model) {
+        this.model = model;
     }
 
     public String getCatalogVersion() {
@@ -112,8 +112,8 @@ public class SourceType implements Serializable {
         this.catalogVersion = catalogVersion;
     }
 
-    public SourceType deviceVersion(String deviceVersion) {
-        this.catalogVersion = deviceVersion;
+    public SourceType catalogVersion(String catalogVersion) {
+        this.catalogVersion = catalogVersion;
         return this;
     }
 
@@ -233,8 +233,8 @@ public class SourceType implements Serializable {
             return false;
         }
         return Objects.equals(id, sourceType.id)
-            && Objects.equals(deviceProducer, sourceType.deviceProducer)
-            && Objects.equals(deviceModel, sourceType.deviceModel)
+            && Objects.equals(producer, sourceType.producer)
+            && Objects.equals(model, sourceType.model)
             && Objects.equals(catalogVersion , sourceType.catalogVersion)
             && Objects.equals(canRegisterDynamically , sourceType.canRegisterDynamically)
             && Objects.equals(sourceTypeScope, sourceType.sourceTypeScope)
@@ -246,7 +246,7 @@ public class SourceType implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, deviceModel, deviceProducer, catalogVersion, canRegisterDynamically,
+        return Objects.hash(id, model, producer, catalogVersion, canRegisterDynamically,
             sourceTypeScope, name, description, appProvider, assessmentType);
     }
 
@@ -254,8 +254,8 @@ public class SourceType implements Serializable {
     public String toString() {
         return "SourceType{" +
             "id=" + id +
-            ", deviceProducer='" + deviceProducer + '\'' +
-            ", deviceModel='" + deviceModel + '\'' +
+            ", producer='" + producer + '\'' +
+            ", model='" + model + '\'' +
             ", catalogVersion='" + catalogVersion + '\'' +
             ", sourceTypeScope=" + sourceTypeScope +
             ", canRegisterDynamically=" + canRegisterDynamically +

@@ -13,32 +13,32 @@
                    [(ngModel)]="sourceType.id" readonly />
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceType.deviceProducer" for="field_deviceProducer">Device Producer</label>
-            <input type="text" class="form-control" name="deviceProducer" id="field_deviceProducer"
-                [(ngModel)]="sourceType.deviceProducer"
+            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceType.producer" for="field_producer">Producer</label>
+            <input type="text" class="form-control" name="producer" id="field_producer"
+                [(ngModel)]="sourceType.producer"
              required />
-            <div [hidden]="!(editForm.controls.deviceProducer?.dirty && editForm.controls.deviceProducer?.invalid)">
+            <div [hidden]="!(editForm.controls.producer?.dirty && editForm.controls.producer?.invalid)">
                 <small class="form-text text-danger"
-                       [hidden]="!editForm.controls.deviceProducer?.errors?.required" jhiTranslate="entity.validation.required">
+                       [hidden]="!editForm.controls.producer?.errors?.required" jhiTranslate="entity.validation.required">
                     This field is required.
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceType.deviceModel" for="field_deviceModel">Device Model</label>
-            <input type="text" class="form-control" name="deviceModel" id="field_deviceModel"
-                [(ngModel)]="sourceType.deviceModel"
+            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceType.model" for="field_model">Model</label>
+            <input type="text" class="form-control" name="model" id="field_model"
+                [(ngModel)]="sourceType.model"
             required />
-            <div [hidden]="!(editForm.controls.deviceModel?.dirty && editForm.controls.deviceModel?.invalid)">
+            <div [hidden]="!(editForm.controls.model?.dirty && editForm.controls.model?.invalid)">
                 <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.deviceModel?.errors?.required" jhiTranslate="entity.validation.required">
+                   [hidden]="!editForm.controls.model?.errors?.required" jhiTranslate="entity.validation.required">
                    This field is required.
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceType.catalogVersion" for="field_deviceVersion">Device Version</label>
-            <input type="text" class="form-control" name="catalogVersion" id="field_deviceVersion"
+            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceType.catalogVersion" for="catalogVersion">Device Version</label>
+            <input type="text" class="form-control" name="catalogVersion" id="field_catalogVersion"
                    [(ngModel)]="sourceType.catalogVersion"
                    required />
             <div [hidden]="!(editForm.controls.catalogVersion?.dirty && editForm.controls.catalogVersion?.invalid)">

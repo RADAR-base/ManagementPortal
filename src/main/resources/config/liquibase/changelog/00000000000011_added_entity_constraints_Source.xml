@@ -10,7 +10,7 @@
 
         <addForeignKeyConstraint baseColumnNames="source_type_id"
                                  baseTableName="radar_source"
-                                 constraintName="fk_device_source_type_id"
+                                 constraintName="fk_source_source_type_id"
                                  referencedColumnNames="id"
                                  referencedTableName="source_type"/>
     </changeSet>

@@ -51,7 +51,7 @@
                 </td>
                 <td>
                     <div *ngIf="source.sourceType">
-                        <a [routerLink]="['/source-type', source.sourceType?.id ]" >{{source.sourceType.deviceModel}}</a>
+                        <a [routerLink]="['/source-type', source.sourceType?.id ]" >{{source.sourceType.model}}</a>
                     </div>
                 </td>
                 <td *ngIf="!isProjectSpecific">

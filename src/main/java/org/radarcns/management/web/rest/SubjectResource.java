@@ -272,7 +272,7 @@ public class SubjectResource {
      * POST  /subjects/:login/sources: Assign a source to the specified user
      *
      * The request body is a {@link MinimalSourceDetailsDTO}. At minimum, the source should
-     * define it's device type by either supplying the sourceTypeId, or the combination of
+     * define it's source type by either supplying the sourceTypeId, or the combination of
      * (sourceTypeProducer, sourceTypeModel, sourceTypeCatalogVersion) fields. A source ID will
      * be automatically generated. The source ID will be a new random UUID, and the source name,
      * if not provided, will be the device model, appended with a dash and the first eight
@@ -291,7 +291,7 @@ public class SubjectResource {
             @ApiResponse(code = 201, message = "A new source was created and assigned"),
             @ApiResponse(code = 400, message = "You must supply either a Source Type ID, or the "
                     + "combination of (sourceTypeProducer, sourceTypeModel, catalogVersion)"),
-            @ApiResponse(code = 404, message = "Either the subject or the device type was not "
+            @ApiResponse(code = 404, message = "Either the subject or the source type was not "
                     + "found.")
     })
     @Timed
@@ -316,7 +316,7 @@ public class SubjectResource {
                     " is not assigned to any project. Could not find project for this subject."));
         }
         Role role = roleOptional.get();
-        // find out device type id of supplied device
+        // find out source type id of supplied source
         Long sourceTypeId = sourceDTO.getSourceTypeId();
         if (Objects.isNull(sourceTypeId)) {
             // check if combination (producer, model, version) is present
@@ -347,7 +347,7 @@ public class SubjectResource {
             // return bad request
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(HeaderUtil
                 .createAlert("sourceTypeNotAvailable",
-                    "No source-type found for device type ID " + sourceDTO.getSourceTypeId()
+                    "No source-type found for source type ID " + sourceDTO.getSourceTypeId()
                         + " in relevant project")).body(null);
         }
 

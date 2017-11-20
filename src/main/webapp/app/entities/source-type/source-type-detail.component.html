@@ -1,17 +1,17 @@
 
 <div *ngIf="sourceType">
-    <h2><span jhiTranslate="managementPortalApp.sourceType.detail.title">Source Type</span> {{sourceType.deviceProducer}}
-    {{sourceType.deviceModel}} ({{sourceType.catalogVersion}}) </h2>
+    <h2><span jhiTranslate="managementPortalApp.sourceType.detail.title">Source Type</span> {{sourceType.producer}}
+    {{sourceType.model}} ({{sourceType.catalogVersion}}) </h2>
     <hr>
     <jhi-alert-error></jhi-alert-error>
     <dl class="row-md jh-entity-details">
-        <dt><span jhiTranslate="managementPortalApp.sourceType.deviceProducer">Device Producer</span></dt>
+        <dt><span jhiTranslate="managementPortalApp.sourceType.producer">Producer</span></dt>
         <dd>
-            <span>{{sourceType.deviceProducer}}</span>
+            <span>{{sourceType.producer}}</span>
         </dd>
-        <dt><span jhiTranslate="managementPortalApp.sourceType.deviceModel">Device Model</span></dt>
+        <dt><span jhiTranslate="managementPortalApp.sourceType.model">Model</span></dt>
         <dd>
-            <span>{{sourceType.deviceModel}}</span>
+            <span>{{sourceType.model}}</span>
         </dd>
         <dt><span jhiTranslate="managementPortalApp.sourceType.catalogVersion">Device Version</span></dt>
         <dd>

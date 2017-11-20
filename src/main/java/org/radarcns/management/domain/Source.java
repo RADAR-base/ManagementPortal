@@ -54,9 +54,6 @@ public class Source implements Serializable {
     @Column(name = "expected_source_name")
     private String expectedSourceName;
 
-    @Column(name = "device_category")
-    private String deviceCategory;
-
     @NotNull
     @Column(name = "assigned", nullable = false)
     private Boolean assigned;
@@ -106,21 +103,9 @@ public class Source implements Serializable {
             this.sourceId = UUID.randomUUID();
         }
         if(this.sourceName == null) {
-            this.sourceName = String.join("-", this.getSourceType().getDeviceModel(),
+            this.sourceName = String.join("-", this.getSourceType().getModel(),
                     this.sourceId.toString().substring(0,8));
         }
-    }
-    public String getDeviceCategory() {
-        return deviceCategory;
-    }
-
-    public Source deviceCategory(String deviceCategory) {
-        this.deviceCategory = deviceCategory;
-        return this;
-    }
-
-    public void setDeviceCategory(String deviceCategory) {
-        this.deviceCategory = deviceCategory;
     }
 
     public Boolean isAssigned() {
@@ -242,7 +227,6 @@ public class Source implements Serializable {
             "id=" + id +
             ", sourceId='" + sourceId + '\'' +
             ", sourceName='" + sourceName + '\'' +
-            ", deviceCategory='" + deviceCategory + '\'' +
             ", assigned=" + assigned +
             ", sourceType=" + sourceType +
             ", project=" + project +

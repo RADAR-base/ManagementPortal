@@ -21,8 +21,6 @@ public class SourceDTO implements Serializable {
 
     private String expectedSourceName;
 
-    private String deviceCategory;
-
     @NotNull
     private Boolean assigned;
 
@@ -47,13 +45,7 @@ public class SourceDTO implements Serializable {
     public void setSourceId(UUID sourceId) {
         this.sourceId = sourceId;
     }
-    public String getDeviceCategory() {
-        return deviceCategory;
-    }
 
-    public void setDeviceCategory(String deviceCategory) {
-        this.deviceCategory = deviceCategory;
-    }
     public Boolean getAssigned() {
         return assigned;
     }
@@ -128,7 +120,6 @@ public class SourceDTO implements Serializable {
             "id=" + id +
             ", sourceId='" + sourceId + '\'' +
             ", sourceName='" + sourceName + '\'' +
-            ", deviceCategory='" + deviceCategory + '\'' +
             ", assigned=" + assigned +
             ", sourceType=" + sourceType +
             ", project=" + project +

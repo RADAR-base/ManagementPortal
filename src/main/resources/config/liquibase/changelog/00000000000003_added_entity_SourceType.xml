@@ -22,11 +22,11 @@
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="device_producer" type="varchar(255)">
+            <column name="producer" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
 
-            <column name="device_model" type="varchar(255)">
+            <column name="model" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
 
@@ -74,8 +74,8 @@
         <createIndex indexName="idx_source_type_producer_model_version"
                      tableName="source_type"
                      unique="true">
-            <column name="device_producer" type="varchar(255)"/>
-            <column name="device_model" type="varchar(255)"/>
+            <column name="producer" type="varchar(255)"/>
+            <column name="model" type="varchar(255)"/>
             <column name="catalog_version" type="varchar(255)"/>
         </createIndex>
     </changeSet>

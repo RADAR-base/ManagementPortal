@@ -38,10 +38,6 @@
                 <constraints nullable="true" />
             </column>
 
-            <column name="device_category" type="varchar(255)">
-                <constraints nullable="true" />
-            </column>
-
             <column name="assigned" type="boolean">
                 <constraints nullable="false" />
             </column>

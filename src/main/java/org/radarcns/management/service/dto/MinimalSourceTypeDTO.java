@@ -7,7 +7,7 @@ public class MinimalSourceTypeDTO {
 
     private long id;
 
-    private String deviceModel;
+    private String model;
 
     public long getId() {
         return id;
@@ -17,11 +17,11 @@ public class MinimalSourceTypeDTO {
         this.id = id;
     }
 
-    public String getDeviceModel() {
-        return deviceModel;
+    public String getModel() {
+        return model;
     }
 
-    public void setDeviceModel(String deviceModel) {
-        this.deviceModel = deviceModel;
+    public void setModel(String model) {
+        this.model = model;
     }
 }

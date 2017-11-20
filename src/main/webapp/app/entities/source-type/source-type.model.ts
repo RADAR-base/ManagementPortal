@@ -7,8 +7,8 @@ const enum SourceTypeScope {
 export class SourceType {
     constructor(
         public id?: number,
-        public deviceProducer?: string,
-        public deviceModel?: string,
+        public producer?: string,
+        public model?: string,
         public catalogVersion?: string,
         public sourceTypeScope?: SourceTypeScope,
         public sourceDataId?: number,

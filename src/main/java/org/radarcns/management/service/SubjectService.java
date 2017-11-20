@@ -205,8 +205,8 @@ public class SubjectService {
 
         List<Source> sources = subjectRepository
             .findSubjectSourcesBySourceType(subject.getUser().getLogin(),
-                sourceType.getDeviceProducer(),
-                sourceType.getDeviceModel(), sourceType.getCatalogVersion());
+                sourceType.getProducer(),
+                sourceType.getModel(), sourceType.getCatalogVersion());
 
         // update meta-data for existing sources
         if(sourceRegistrationDTO.getSourceId()!=null) {
@@ -255,8 +255,8 @@ public class SubjectService {
                 errorParams
                     .put("message", "A Source of SourceType with the specified producer and model "
                         + "already registered for subject login");
-                errorParams.put("producer", sourceType.getDeviceProducer());
-                errorParams.put("model", sourceType.getDeviceModel());
+                errorParams.put("producer", sourceType.getProducer());
+                errorParams.put("model", sourceType.getModel());
                 errorParams.put("subject-id", subject.getUser().getLogin());
                 throw new CustomConflictException("Conflict", errorParams);
             }
@@ -271,8 +271,8 @@ public class SubjectService {
                 .put("message", "Cannot find assigned source with sourceId or a source of sourceType"
                     + " with the specified producer and model "
                     + " is already registered for subject login ");
-            errorParams.put("producer", sourceType.getDeviceProducer());
-            errorParams.put("model", sourceType.getDeviceModel());
+            errorParams.put("producer", sourceType.getProducer());
+            errorParams.put("model", sourceType.getModel());
             errorParams.put("subject-id", subject.getUser().getLogin());
             errorParams.put("sourceId", sourceRegistrationDTO.getSourceId().toString());
             throw new CustomParameterizedException("InvalidRequest" , errorParams);

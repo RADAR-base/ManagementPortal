@@ -6,7 +6,6 @@ export class Source {
         public sourceId?: string,
         public sourceName?: string,
         public expectedSourceName?: string,
-        public deviceCategory?: string,
         public assigned?: boolean,
         public sourceType?: SourceType,
         public project?: MinimalProject,

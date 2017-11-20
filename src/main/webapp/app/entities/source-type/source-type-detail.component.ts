@@ -48,6 +48,6 @@ export class SourceTypeDetailComponent implements OnInit, OnDestroy {
 
     registerChangeInSourceTypes() {
         this.eventSubscriber = this.eventManager.subscribe('sourceTypeListModification',
-            (response) => this.load(this.sourceType.deviceProducer, this.sourceType.deviceModel, this.sourceType.catalogVersion));
+            (response) => this.load(this.sourceType.producer, this.sourceType.model, this.sourceType.catalogVersion));
     }
 }

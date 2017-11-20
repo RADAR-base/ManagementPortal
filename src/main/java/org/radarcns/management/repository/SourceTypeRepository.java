@@ -22,18 +22,18 @@ public interface SourceTypeRepository extends JpaRepository<SourceType,Long> {
     SourceType findOneWithEagerRelationships(@Param("id") Long id);
 
     @Query("select sourceType from SourceType sourceType left join fetch sourceType.sourceData "
-        + "where sourceType.deviceProducer =:producer "
-        + "and sourceType.deviceModel =:model "
+        + "where sourceType.producer =:producer "
+        + "and sourceType.model =:model "
         + "and sourceType.catalogVersion = :version")
     Optional<SourceType> findOneWithEagerRelationshipsByProducerAndModelAndVersion(
         @Param("producer") String producer, @Param("model") String model , @Param("version") String version);
 
     @Query("select sourceType from SourceType sourceType left join fetch sourceType.sourceData "
-        + "where sourceType.deviceProducer =:producer")
+        + "where sourceType.producer =:producer")
     List<SourceType> findWithEagerRelationshipsByProducer(@Param("producer") String producer);
 
     @Query("select sourceType from SourceType sourceType left join fetch sourceType.sourceData "
-        + "where sourceType.deviceProducer =:producer and sourceType.deviceModel =:model")
+        + "where sourceType.producer =:producer and sourceType.model =:model")
     List<SourceType> findWithEagerRelationshipsByProducerAndModel(
         @Param("producer") String producer, @Param("model") String model);
 }

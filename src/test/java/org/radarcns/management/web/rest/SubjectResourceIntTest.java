@@ -67,8 +67,8 @@ public class SubjectResourceIntTest {
 
     private static final SubjectDTO.SubjectStatus DEFAULT_STATUS = SubjectDTO.SubjectStatus.ACTIVATED;
 
-    private static final String DEVICE_MODEL = "App";
-    private static final String DEVICE_PRODUCER ="THINC-IT App";
+    private static final String MODEL = "App";
+    private static final String PRODUCER ="THINC-IT App";
     private static final String DEVICE_VERSION = "v1";
 
     @Autowired
@@ -375,7 +375,7 @@ public class SubjectResourceIntTest {
     private MinimalSourceDetailsDTO createSourceWithDeviceId() {
         // Create a source description
         MinimalSourceDetailsDTO sourceRegistrationDTO = new MinimalSourceDetailsDTO();
-        sourceRegistrationDTO.setSourceName(DEVICE_PRODUCER + " " + DEVICE_MODEL);
+        sourceRegistrationDTO.setSourceName(PRODUCER + " " + MODEL);
         sourceRegistrationDTO.getAttributes().put("some", "value");
 
         List<SourceTypeDTO> sourceTypes = sourceTypeService.findAll().stream()
@@ -393,7 +393,7 @@ public class SubjectResourceIntTest {
     private MinimalSourceDetailsDTO createSourceWithoutDeviceId() {
         // Create a source description
         MinimalSourceDetailsDTO sourceRegistrationDTO = new MinimalSourceDetailsDTO();
-        sourceRegistrationDTO.setSourceName(DEVICE_PRODUCER + " " + DEVICE_MODEL);
+        sourceRegistrationDTO.setSourceName(PRODUCER + " " + MODEL);
         sourceRegistrationDTO.getAttributes().put("some", "value");
 
         List<SourceTypeDTO> sourceTypes = sourceTypeService.findAll().stream()
@@ -403,8 +403,8 @@ public class SubjectResourceIntTest {
         assertThat(sourceTypes.size()).isGreaterThan(0);
         SourceTypeDTO sourceType = sourceTypes.get(0);
         sourceRegistrationDTO.setSourceTypeCatalogVersion(sourceType.getCatalogVersion());
-        sourceRegistrationDTO.setSourceTypeModel(sourceType.getDeviceModel());
-        sourceRegistrationDTO.setSourceTypeProducer(sourceType.getDeviceProducer());
+        sourceRegistrationDTO.setSourceTypeModel(sourceType.getModel());
+        sourceRegistrationDTO.setSourceTypeProducer(sourceType.getProducer());
 
         assertThat(sourceRegistrationDTO.getSourceId()).isNull();
         return sourceRegistrationDTO;

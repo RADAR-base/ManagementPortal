@@ -52,7 +52,7 @@
         <div class="form-group">
             <label jhiTranslate="managementPortalApp.source.sourceType" for="field_sourceType">Source Type</label>
             <select class="form-control" id="field_sourceType" name="sourceType" [(ngModel)]="source.sourceType" required>
-                <option [ngValue]="sourceTypeOption.id === source.sourceType?.id ? source.sourceType : sourceTypeOption" *ngFor="let sourceTypeOption of sourceTypes; trackBy: trackSourceTypeById">{{sourceTypeOption.deviceModel}}</option>
+                <option [ngValue]="sourceTypeOption.id === source.sourceType?.id ? source.sourceType : sourceTypeOption" *ngFor="let sourceTypeOption of sourceTypes; trackBy: trackSourceTypeById">{{sourceTypeOption.model}}</option>
             </select>
         </div>
 

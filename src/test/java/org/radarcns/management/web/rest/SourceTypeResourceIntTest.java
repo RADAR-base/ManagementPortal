@@ -52,11 +52,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = ManagementPortalApp.class)
 public class SourceTypeResourceIntTest {
 
-    private static final String DEFAULT_DEVICE_PRODUCER = "AAAAAAAAAA";
-    private static final String UPDATED_DEVICE_PRODUCER = "BBBBBBBBBB";
+    private static final String DEFAULT_PRODUCER = "AAAAAAAAAA";
+    private static final String UPDATED_PRODUCER = "BBBBBBBBBB";
 
-    private static final String DEFAULT_DEVICE_MODEL = "AAAAAAAAAA";
-    private static final String UPDATED_DEVICE_MODEL = "BBBBBBBBBB";
+    private static final String DEFAULT_MODEL = "AAAAAAAAAA";
+    private static final String UPDATED_MODEL = "BBBBBBBBBB";
 
     private static final String DEFAULT_DEVICE_VERSION = "AAAAAAAAAA";
     private static final String UPDATED_DEVICE_VERSION = "AAAAAAAAAA";
@@ -122,9 +122,9 @@ public class SourceTypeResourceIntTest {
      */
     public static SourceType createEntity(EntityManager em) {
         SourceType sourceType = new SourceType()
-            .deviceProducer(DEFAULT_DEVICE_PRODUCER)
-            .deviceModel(DEFAULT_DEVICE_MODEL)
-            .deviceVersion(DEFAULT_DEVICE_VERSION)
+            .producer(DEFAULT_PRODUCER)
+            .model(DEFAULT_MODEL)
+            .catalogVersion(DEFAULT_DEVICE_VERSION)
             .sourceTypeScope(DEFAULT_SOURCE_TYPE_SCOPE);
         return sourceType;
     }
@@ -150,8 +150,8 @@ public class SourceTypeResourceIntTest {
         List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
         assertThat(sourceTypeList).hasSize(databaseSizeBeforeCreate + 1);
         SourceType testSourceType = sourceTypeList.get(sourceTypeList.size() - 1);
-        assertThat(testSourceType.getDeviceProducer()).isEqualTo(DEFAULT_DEVICE_PRODUCER);
-        assertThat(testSourceType.getDeviceModel()).isEqualTo(DEFAULT_DEVICE_MODEL);
+        assertThat(testSourceType.getProducer()).isEqualTo(DEFAULT_PRODUCER);
+        assertThat(testSourceType.getModel()).isEqualTo(DEFAULT_MODEL);
         assertThat(testSourceType.getSourceTypeScope()).isEqualTo(DEFAULT_SOURCE_TYPE_SCOPE);
         assertThat(testSourceType.getCatalogVersion()).isEqualTo(DEFAULT_DEVICE_VERSION);
     }
@@ -178,10 +178,10 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void checkDeviceModelIsRequired() throws Exception {
+    public void checkModelIsRequired() throws Exception {
         int databaseSizeBeforeTest = sourceTypeRepository.findAll().size();
         // set the field null
-        sourceType.setDeviceModel(null);
+        sourceType.setModel(null);
 
         // Create the SourceType, which fails.
         SourceTypeDTO sourceTypeDTO = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
@@ -219,7 +219,7 @@ public class SourceTypeResourceIntTest {
     public void checkVersionIsRequired() throws Exception {
         int databaseSizeBeforeTest = sourceTypeRepository.findAll().size();
         // set the field null
-        sourceType.deviceVersion(null);
+        sourceType.catalogVersion(null);
 
         // Create the SourceType, which fails.
         SourceTypeDTO sourceTypeDTO = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
@@ -244,8 +244,8 @@ public class SourceTypeResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(sourceType.getId().intValue())))
-            .andExpect(jsonPath("$.[*].deviceProducer").value(hasItem(DEFAULT_DEVICE_PRODUCER.toString())))
-            .andExpect(jsonPath("$.[*].deviceModel").value(hasItem(DEFAULT_DEVICE_MODEL.toString())))
+            .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER.toString())))
+            .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL.toString())))
             .andExpect(jsonPath("$.[*].sourceTypeScope").value(hasItem(DEFAULT_SOURCE_TYPE_SCOPE.toString())));
     }
 
@@ -257,12 +257,12 @@ public class SourceTypeResourceIntTest {
 
         // Get the sourceType
         restSourceTypeMockMvc.perform(get("/api/source-types/{prodcuer}/{model}/{version}",
-            sourceType.getDeviceProducer(), sourceType.getDeviceModel(), sourceType.getCatalogVersion()))
+            sourceType.getProducer(), sourceType.getModel(), sourceType.getCatalogVersion()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(sourceType.getId().intValue()))
-            .andExpect(jsonPath("$.deviceProducer").value(DEFAULT_DEVICE_PRODUCER.toString()))
-            .andExpect(jsonPath("$.deviceModel").value(DEFAULT_DEVICE_MODEL.toString()))
+            .andExpect(jsonPath("$.producer").value(DEFAULT_PRODUCER.toString()))
+            .andExpect(jsonPath("$.model").value(DEFAULT_MODEL.toString()))
             .andExpect(jsonPath("$.sourceTypeScope").value(DEFAULT_SOURCE_TYPE_SCOPE.toString()));
     }
 
@@ -285,8 +285,8 @@ public class SourceTypeResourceIntTest {
         // Update the sourceType
         SourceType updatedSourceType = sourceTypeRepository.findOne(sourceType.getId());
         updatedSourceType
-            .deviceProducer(UPDATED_DEVICE_PRODUCER)
-            .deviceModel(UPDATED_DEVICE_MODEL)
+            .producer(UPDATED_PRODUCER)
+            .model(UPDATED_MODEL)
             .sourceTypeScope(UPDATED_SOURCE_TYPE_SCOPE);
         SourceTypeDTO sourceTypeDTO = sourceTypeMapper.sourceTypeToSourceTypeDTO(updatedSourceType);
 
@@ -299,8 +299,8 @@ public class SourceTypeResourceIntTest {
         List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
         assertThat(sourceTypeList).hasSize(databaseSizeBeforeUpdate);
         SourceType testSourceType = sourceTypeList.get(sourceTypeList.size() - 1);
-        assertThat(testSourceType.getDeviceProducer()).isEqualTo(UPDATED_DEVICE_PRODUCER);
-        assertThat(testSourceType.getDeviceModel()).isEqualTo(UPDATED_DEVICE_MODEL);
+        assertThat(testSourceType.getProducer()).isEqualTo(UPDATED_PRODUCER);
+        assertThat(testSourceType.getModel()).isEqualTo(UPDATED_MODEL);
         assertThat(testSourceType.getSourceTypeScope()).isEqualTo(UPDATED_SOURCE_TYPE_SCOPE);
     }
 
@@ -332,7 +332,7 @@ public class SourceTypeResourceIntTest {
 
         // Get the sourceType
         restSourceTypeMockMvc.perform(delete("/api/source-types/{prodcuer}/{model}/{version}",
-            sourceType.getDeviceProducer(), sourceType.getDeviceModel(), sourceType.getCatalogVersion())
+            sourceType.getProducer(), sourceType.getModel(), sourceType.getCatalogVersion())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 

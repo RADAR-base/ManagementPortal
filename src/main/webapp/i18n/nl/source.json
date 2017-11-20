@@ -17,7 +17,6 @@
             },
             "sourceId": "Source Id",
             "sourceName": "Source Naam",
-            "deviceCategory": "Source Category",
             "assigned": "Assigned",
             "unassigned": "Unassigned",
             "sourceType": "Source Type",

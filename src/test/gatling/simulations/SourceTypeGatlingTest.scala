@@ -80,7 +80,7 @@ class SourceTypeGatlingTest extends Simulation {
             .exec(http("Create new sourceType")
             .post("/api/source-types")
             .headers(headers_http_authenticated)
-            .body(StringBody("""{"id":null, "deviceProducer":"SAMPLE_TEXT", "deviceModel":"SAMPLE_TEXT", "sourceTypeScope":null}""")).asJSON
+            .body(StringBody("""{"id":null, "producer":"SAMPLE_TEXT", "model":"SAMPLE_TEXT", "sourceTypeScope":null}""")).asJSON
             .check(status.is(201))
             .check(headerRegex("Location", "(.*)").saveAs("new_sourceType_url"))).exitHereIfFailed
             .pause(10)
