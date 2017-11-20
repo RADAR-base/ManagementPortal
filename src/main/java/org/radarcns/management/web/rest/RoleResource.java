@@ -65,8 +65,10 @@ public class RoleResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new role cannot already have an ID")).body(null);
         }
         RoleDTO result = roleService.save(roleDTO);
-        return ResponseEntity.created(new URI("/api/roles/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+        return ResponseEntity.created(new URI("/api/roles/" + result.getProjectName() + "/" +
+                result.getAuthorityName()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getProjectName() + "/" +
+                    result.getAuthorityName()))
             .body(result);
     }
 
