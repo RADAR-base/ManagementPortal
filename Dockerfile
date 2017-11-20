@@ -10,7 +10,6 @@ RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
 WORKDIR /app
 COPY build.gradle gradle.properties gradlew package.json postcss.config.js proxy.conf.json settings.gradle tsconfig-aot.json tsconfig.json tslint.json yarn.lock /app/
 COPY gradle gradle
-COPY changelogs changelogs
 COPY webpack webpack
 COPY radar-auth radar-auth
 COPY oauth-client-util oauth-client-util

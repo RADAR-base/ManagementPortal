@@ -36,6 +36,10 @@
 
     <changeSet id="201708301031-2" author="dverbeec@its.jnj.com" context="dev, test">
         <loadData encoding="UTF-8"
+                  file="config/liquibase/oauth_client_details.csv"
+                  separator=";"
+                  tableName="oauth_client_details"/>
+        <loadData encoding="UTF-8"
                   file="config/liquibase/project.csv"
                   separator=";"
                   tableName="project"/>
