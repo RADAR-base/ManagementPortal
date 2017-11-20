@@ -18,7 +18,7 @@
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <th><span jhiTranslate="managementPortalApp.subject.pairSources.deviceType">Device type</span></th>
+                    <th><span jhiTranslate="managementPortalApp.subject.pairSources.sourceType">Device type</span></th>
                     <th><span jhiTranslate="managementPortalApp.subject.pairSources.sourceName">Source Name</span></th>
                     <th><span jhiTranslate="managementPortalApp.subject.pairSources.expectedSourceName">Physical ID</span></th>
                     <th></th>
@@ -26,7 +26,7 @@
                 </thead>
                 <tbody>
                 <tr *ngFor="let source of assignedSources; trackBy: trackDeviceById">
-                    <td>{{source.deviceTypeProducer}} {{source.deviceTypeModel}}</td>
+                    <td>{{source.sourceTypeProducer}} {{source.sourceTypeModel}}</td>
                     <td>{{source.sourceName}}</td>
                     <td>{{source.expectedSourceName}}</td>
                     <td>
@@ -43,7 +43,7 @@
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <th><span jhiTranslate="managementPortalApp.subject.pairSources.deviceType">Device type</span></th>
+                    <th><span jhiTranslate="managementPortalApp.subject.pairSources.sourceType">Device type</span></th>
                     <th><span jhiTranslate="managementPortalApp.subject.pairSources.sourceName">Source Name</span></th>
                     <th><span jhiTranslate="managementPortalApp.subject.pairSources.expectedSourceName">Physical ID</span></th>
                     <th></th>
@@ -51,7 +51,7 @@
                 </thead>
                 <tbody>
                 <tr *ngFor="let source of assignableSources; trackBy: trackDeviceById">
-                    <td>{{source.deviceTypeProducer}} {{source.deviceTypeModel}}</td>
+                    <td>{{source.sourceTypeProducer}} {{source.sourceTypeModel}}</td>
                     <td>{{source.sourceName}}</td>
                     <td>{{source.expectedSourceName}}</td>
                     <td>

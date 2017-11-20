@@ -5,7 +5,7 @@ import { Response } from '@angular/http';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 
-import { DeviceType } from '../device-type';
+import { SourceType } from '../source-type';
 import {MinimalProject} from "../project/project.model";
 import {ProjectService} from "../project/project.service";
 import {GeneralSourcePopupService} from "./general-source-popup.service";
@@ -21,7 +21,7 @@ export class GeneralSourceDialogComponent implements OnInit {
     source: Source;
     authorities: any[];
     isSaving: boolean;
-    deviceTypes: DeviceType[];
+    sourceTypes: SourceType[];
     projects: MinimalProject[];
     constructor(
         public activeModal: NgbActiveModal,
@@ -40,20 +40,20 @@ export class GeneralSourceDialogComponent implements OnInit {
         this.projectService.findAll(true).subscribe(
             (res: Response) => { this.projects = res.json(); }, (res: Response) => this.onError(res.json()));
         if(this.source.project) {
-            this.projectService.findDeviceTypesByName(this.source.project.projectName).subscribe((res: Response) => {
-                this.deviceTypes = res.json();
+            this.projectService.findSourceTypesByName(this.source.project.projectName).subscribe((res: Response) => {
+                this.sourceTypes = res.json();
             });
         }
     }
 
     public onProjectChange(project: any) {
         if(project!=null) {
-            this.projectService.findDeviceTypesByName(project.projectName).subscribe((res: Response) => {
-                this.deviceTypes = res.json();
+            this.projectService.findSourceTypesByName(project.projectName).subscribe((res: Response) => {
+                this.sourceTypes = res.json();
             });
         }
         else {
-            this.deviceTypes = null;
+            this.sourceTypes = null;
         }
     }
 
@@ -94,7 +94,7 @@ export class GeneralSourceDialogComponent implements OnInit {
         this.alertService.error(error.message, null, null);
     }
 
-    trackDeviceTypeById(index: number, item: DeviceType) {
+    trackSourceTypeById(index: number, item: SourceType) {
         return item.id;
     }
     trackProjectById(index: number, item: MinimalProject) {

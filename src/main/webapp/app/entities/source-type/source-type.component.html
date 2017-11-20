@@ -1,0 +1,75 @@
+<div>
+    <h2>
+        <span jhiTranslate="managementPortalApp.sourceType.home.title">Source Types</span>
+        <button class="btn btn-primary float-right create-source-type" [routerLink]="['/', { outlets: { popup: ['source-type-new'] } }]">
+            <span class="fa fa-plus"></span>
+            <span  jhiTranslate="managementPortalApp.sourceType.home.createLabel">
+            Create new Source Type
+            </span>
+        </button>
+    </h2>
+    <jhi-alert></jhi-alert>
+    <div class="row">
+    </div>
+    <br/>
+    <div class="table-responsive" *ngIf="sourceTypes">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+            <th><span jhiTranslate="global.field.id">ID</span></th>
+            <th><span jhiTranslate="managementPortalApp.sourceType.deviceProducer">Device Producer</span></th>
+            <th><span jhiTranslate="managementPortalApp.sourceType.deviceModel">Device Model</span></th>
+            <th><span jhiTranslate="managementPortalApp.sourceType.catalogVersion">Catalog Version</span></th>
+            <th><span jhiTranslate="managementPortalApp.sourceType.sourceRegistration">With dynamic id</span></th>
+            <th><span jhiTranslate="managementPortalApp.sourceType.sourceTypeScope">Source Type Scope</span></th>
+            <th><span jhiTranslate="managementPortalApp.sourceType.sourceData">Source data</span></th>
+            <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let sourceType of sourceTypes ;trackBy: trackId">
+                <td><a [routerLink]="['../source-type', sourceType.deviceProducer, sourceType.deviceModel, sourceType.catalogVersion ]">{{sourceType.id}}</a></td>
+                <td>{{sourceType.deviceProducer}}</td>
+                <td>{{sourceType.deviceModel}}</td>
+                <td>{{sourceType.catalogVersion}}</td>
+                <td>
+                    <span class="badge badge-info" *ngIf="!sourceType.canRegisterDynamically"
+                          jhiTranslate="managementPortalApp.sourceType.manualRegistration">Static Identifiers</span>
+                    <span class="badge badge-success" *ngIf="sourceType.canRegisterDynamically"
+                          jhiTranslate="managementPortalApp.sourceType.dynamicRegistration">Dynamic Identifiers</span>
+                </td>
+                <td jhiTranslate="{{'managementPortalApp.SourceTypeScope.' + sourceType.sourceTypeScope}}">{{sourceType.sourceTypeScope}}</td>
+                <td>
+                    <span *ngFor="let sourceData of sourceType.sourceData; let last = last">
+                            <a class="form-control-static" [routerLink]="['../source-data', sourceData?.sourceDataType ]">{{sourceData.sourceDataType}}</a>{{last ? '' : ', '}}
+                        </span>
+                </td>
+                <td class="text-right">
+                    <div class="btn-group flex-btn-group-container">
+                        <button type="submit"
+                                [routerLink]="['../source-type', sourceType.deviceProducer, sourceType.deviceModel, sourceType.catalogVersion ]"
+                                class="btn btn-info btn-sm">
+                            <span class="fa fa-eye"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: ['source-type', sourceType.deviceProducer, sourceType.deviceModel, sourceType.catalogVersion, 'edit']} }]"
+                                replaceUrl="true"
+                                class="btn btn-primary btn-sm">
+                            <span class="fa fa-pencil"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: ['source-type', sourceType.deviceProducer, sourceType.deviceModel, sourceType.catalogVersion, 'delete']} }]"
+                                replaceUrl="true"
+                                class="btn btn-danger btn-sm">
+                            <span class="fa fa-remove"></span>
+                            <span class="hidden-md-down" jhiTranslate="entity.action.delete">Delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

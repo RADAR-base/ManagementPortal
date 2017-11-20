@@ -1,7 +1,7 @@
 package org.radarcns.management.service;
 
 import org.radarcns.auth.authorization.AuthoritiesConstants;
-import org.radarcns.management.domain.DeviceType;
+import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Source;
@@ -31,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -195,19 +194,19 @@ public class SubjectService {
 
     /**
      * Creates or updates a source for a subject.It creates and assigns a source of a for a
-     * dynamicallyRegister-able deviceType. Currently, it is
-     * allowed to create only once source of a dynamicallyRegistrable deviceType per subject.
+     * dynamicallyRegister-able sourceType. Currently, it is
+     * allowed to create only once source of a dynamicallyRegistrable sourceType per subject.
      * Otherwise finds the matching source and updates meta-data
      */
     @Transactional
-    public MinimalSourceDetailsDTO assignOrUpdateSource(Subject subject, DeviceType deviceType, Project project,
+    public MinimalSourceDetailsDTO assignOrUpdateSource(Subject subject, SourceType sourceType, Project project,
         MinimalSourceDetailsDTO sourceRegistrationDTO) {
         Source assignedSource = null;
 
         List<Source> sources = subjectRepository
             .findSubjectSourcesBySourceType(subject.getUser().getLogin(),
-                deviceType.getDeviceProducer(),
-                deviceType.getDeviceModel(), deviceType.getCatalogVersion());
+                sourceType.getDeviceProducer(),
+                sourceType.getDeviceModel(), sourceType.getCatalogVersion());
 
         // update meta-data for existing sources
         if(sourceRegistrationDTO.getSourceId()!=null) {
@@ -232,14 +231,14 @@ public class SubjectService {
                 throw new CustomNotFoundException("Conflict", errorParams);
             }
         }
-        else if (deviceType.getCanRegisterDynamically()) {
+        else if (sourceType.getCanRegisterDynamically()) {
             // create a source and register meta data
-            // we allow only one source of a device-type per subject
+            // we allow only one source of a source-type per subject
             if (sources.isEmpty()) {
                 Source source1 = new Source()
                         .project(project)
                         .assigned(true)
-                        .deviceType(deviceType);
+                        .sourceType(sourceType);
                 source1.getAttributes().putAll(sourceRegistrationDTO.getAttributes());
                 // if source name is provided update source name
                 if (Objects.nonNull(sourceRegistrationDTO.getSourceName())) {
@@ -250,30 +249,30 @@ public class SubjectService {
                 assignedSource = source1;
                 subject.getSources().add(source1);
             } else {
-                log.error("A Source of DeviceType with the specified producer and model "
+                log.error("A Source of SourceType with the specified producer and model "
                     + "already registered for subject login");
                 Map<String, String> errorParams = new HashMap<>();
                 errorParams
-                    .put("message", "A Source of DeviceType with the specified producer and model "
+                    .put("message", "A Source of SourceType with the specified producer and model "
                         + "already registered for subject login");
-                errorParams.put("producer", deviceType.getDeviceProducer());
-                errorParams.put("model", deviceType.getDeviceModel());
+                errorParams.put("producer", sourceType.getDeviceProducer());
+                errorParams.put("model", sourceType.getDeviceModel());
                 errorParams.put("subject-id", subject.getUser().getLogin());
                 throw new CustomConflictException("Conflict", errorParams);
             }
         }
 
         if (assignedSource == null) {
-            log.error("Cannot find assigned source with sourceId or a source of deviceType"
+            log.error("Cannot find assigned source with sourceId or a source of sourceType"
                 + " with the specified producer and model "
                 + " is already registered for subject login ");
             Map<String, String> errorParams = new HashMap<>();
             errorParams
-                .put("message", "Cannot find assigned source with sourceId or a source of deviceType"
+                .put("message", "Cannot find assigned source with sourceId or a source of sourceType"
                     + " with the specified producer and model "
                     + " is already registered for subject login ");
-            errorParams.put("producer", deviceType.getDeviceProducer());
-            errorParams.put("model", deviceType.getDeviceModel());
+            errorParams.put("producer", sourceType.getDeviceProducer());
+            errorParams.put("model", sourceType.getDeviceModel());
             errorParams.put("subject-id", subject.getUser().getLogin());
             errorParams.put("sourceId", sourceRegistrationDTO.getSourceId().toString());
             throw new CustomParameterizedException("InvalidRequest" , errorParams);

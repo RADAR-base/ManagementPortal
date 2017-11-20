@@ -16,7 +16,7 @@ public interface SourceDataMapper {
 
     List<SourceDataDTO> sourceDataToSourceDataDTOs(List<SourceData> sourceData);
 
-    @Mapping(target = "deviceTypes", ignore = true)
+    @Mapping(target = "sourceTypes", ignore = true)
     SourceData sourceDataDTOToSourceData(SourceDataDTO sourceDataDTO);
 
     List<SourceData> sourceDataDTOsToSourceData(List<SourceDataDTO> sourceDataDTOs);

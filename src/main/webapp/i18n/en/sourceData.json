@@ -19,7 +19,7 @@
             "processingState": "Processing State",
             "keySchema": "keySchema",
             "frequency": "Frequency",
-            "deviceType": "Device Type"
+            "sourceType": "Source Type"
         }
     }
 }

@@ -20,7 +20,7 @@
             "deviceCategory": "Source Category",
             "assigned": "Assigned",
             "unassigned": "Unassigned",
-            "deviceType": "Device Type",
+            "sourceType": "Source Type",
             "project": "Project",
             "expectedSourceName" : "Fysiek ID",
             "sourceAlreadyAdded" : "Deze source is al in uw lijst toegevoegd"

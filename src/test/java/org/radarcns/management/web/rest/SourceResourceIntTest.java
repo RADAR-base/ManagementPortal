@@ -7,12 +7,12 @@ import org.radarcns.management.ManagementPortalApp;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.security.JwtAuthenticationFilter;
-import org.radarcns.management.service.DeviceTypeService;
+import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.ProjectService;
 import org.radarcns.management.service.SourceService;
-import org.radarcns.management.service.dto.DeviceTypeDTO;
+import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.SourceDTO;
-import org.radarcns.management.service.mapper.DeviceTypeMapper;
+import org.radarcns.management.service.mapper.SourceTypeMapper;
 import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
 
@@ -77,10 +77,10 @@ public class SourceResourceIntTest {
     private ProjectService projectService;
 
     @Autowired
-    private DeviceTypeService deviceTypeService;
+    private SourceTypeService sourceTypeService;
 
     @Autowired
-    private DeviceTypeMapper deviceTypeMapper;
+    private SourceTypeMapper sourceTypeMapper;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -138,9 +138,9 @@ public class SourceResourceIntTest {
     @Before
     public void initTest() {
         source = createEntity(em);
-        List<DeviceTypeDTO> deviceTypeDTOS = deviceTypeService.findAll();
-        assertThat(deviceTypeDTOS.size()).isGreaterThan(0);
-        source.setDeviceType(deviceTypeMapper.deviceTypeDTOToDeviceType(deviceTypeDTOS.get(0)));
+        List<SourceTypeDTO> sourceTypeDTOS = sourceTypeService.findAll();
+        assertThat(sourceTypeDTOS.size()).isGreaterThan(0);
+        source.setSourceType(sourceTypeMapper.sourceTypeDTOToSourceType(sourceTypeDTOS.get(0)));
     }
 
     @Test

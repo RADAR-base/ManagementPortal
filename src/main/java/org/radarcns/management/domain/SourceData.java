@@ -80,7 +80,7 @@ public class SourceData implements Serializable {
     @ManyToMany(mappedBy = "sourceData" , fetch = FetchType.EAGER)
     @JsonIgnore
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    private Set<DeviceType> deviceTypes = new HashSet<>();
+    private Set<SourceType> sourceTypes = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -142,24 +142,24 @@ public class SourceData implements Serializable {
         this.frequency = frequency;
     }
 
-    public Set<DeviceType> getDeviceTypes() {
-        return deviceTypes;
+    public Set<SourceType> getSourceTypes() {
+        return sourceTypes;
     }
 
-    public SourceData deviceTypes(Set<DeviceType> deviceTypes) {
-        this.deviceTypes = deviceTypes;
+    public SourceData sourceTypes(Set<SourceType> sourceTypes) {
+        this.sourceTypes = sourceTypes;
         return this;
     }
 
-    public SourceData addDeviceType(DeviceType deviceType) {
-        this.deviceTypes.add(deviceType);
-        deviceType.getSourceData().add(this);
+    public SourceData addSourceType(SourceType sourceType) {
+        this.sourceTypes.add(sourceType);
+        sourceType.getSourceData().add(this);
         return this;
     }
 
-    public SourceData removeDeviceType(DeviceType deviceType) {
-        this.deviceTypes.remove(deviceType);
-        deviceType.getSourceData().remove(this);
+    public SourceData removeSourceType(SourceType sourceType) {
+        this.sourceTypes.remove(sourceType);
+        sourceType.getSourceData().remove(this);
         return this;
     }
 
@@ -211,8 +211,8 @@ public class SourceData implements Serializable {
         this.enabled = enabled;
     }
 
-    public void setDeviceTypes(Set<DeviceType> deviceTypes) {
-        this.deviceTypes = deviceTypes;
+    public void setSourceTypes(Set<SourceType> sourceTypes) {
+        this.sourceTypes = sourceTypes;
     }
 
     @Override
@@ -241,6 +241,6 @@ public class SourceData implements Serializable {
             + frequency + '\'' + ", unit='" + unit + '\'' + ", processingState=" + processingState
             + ", dataClass='" + dataClass + '\'' + ", keySchema='" + keySchema + '\''
             + ", valueSchema='" + valueSchema + '\'' + ", topic='" + topic + '\'' + ", provider='"
-            + provider + '\'' + ", enabled=" + enabled + ", deviceTypes=" + deviceTypes + '}';
+            + provider + '\'' + ", enabled=" + enabled + ", sourceTypes=" + sourceTypes + '}';
     }
 }

@@ -27,7 +27,7 @@ public class SourceDTO implements Serializable {
     private Boolean assigned;
 
     @NotNull
-    private DeviceTypeDTO deviceType;
+    private SourceTypeDTO sourceType;
 
     private MinimalProjectDetailsDTO project;
 
@@ -62,12 +62,12 @@ public class SourceDTO implements Serializable {
         this.assigned = assigned;
     }
 
-    public DeviceTypeDTO getDeviceType() {
-        return deviceType;
+    public SourceTypeDTO getSourceType() {
+        return sourceType;
     }
 
-    public void setDeviceType(DeviceTypeDTO deviceType) {
-        this.deviceType= deviceType;
+    public void setSourceType(SourceTypeDTO sourceType) {
+        this.sourceType= sourceType;
     }
 
     public MinimalProjectDetailsDTO getProject() {
@@ -130,7 +130,7 @@ public class SourceDTO implements Serializable {
             ", sourceName='" + sourceName + '\'' +
             ", deviceCategory='" + deviceCategory + '\'' +
             ", assigned=" + assigned +
-            ", deviceType=" + deviceType +
+            ", sourceType=" + sourceType +
             ", project=" + project +
             '}';
     }

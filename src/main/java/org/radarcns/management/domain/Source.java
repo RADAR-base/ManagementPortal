@@ -67,7 +67,7 @@ public class Source implements Serializable {
     private Set<Subject> subjects = new HashSet<>();
 
     @ManyToOne
-    private DeviceType deviceType;
+    private SourceType sourceType;
 
     @ManyToOne
     private Project project;
@@ -106,7 +106,7 @@ public class Source implements Serializable {
             this.sourceId = UUID.randomUUID();
         }
         if(this.sourceName == null) {
-            this.sourceName = String.join("-", this.getDeviceType().getDeviceModel(),
+            this.sourceName = String.join("-", this.getSourceType().getDeviceModel(),
                     this.sourceId.toString().substring(0,8));
         }
     }
@@ -136,16 +136,16 @@ public class Source implements Serializable {
         this.assigned = assigned;
     }
 
-    public void setDeviceType(DeviceType deviceType) {
-        this.deviceType = deviceType;
+    public void setSourceType(SourceType sourceType) {
+        this.sourceType = sourceType;
     }
 
-    public DeviceType getDeviceType() {
-        return deviceType;
+    public SourceType getSourceType() {
+        return sourceType;
     }
 
-    public Source deviceType(DeviceType deviceType) {
-        this.deviceType = deviceType;
+    public Source sourceType(SourceType sourceType) {
+        this.sourceType = sourceType;
         return this;
     }
 
@@ -244,7 +244,7 @@ public class Source implements Serializable {
             ", sourceName='" + sourceName + '\'' +
             ", deviceCategory='" + deviceCategory + '\'' +
             ", assigned=" + assigned +
-            ", deviceType=" + deviceType +
+            ", sourceType=" + sourceType +
             ", project=" + project +
             '}';
     }

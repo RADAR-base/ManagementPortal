@@ -40,7 +40,7 @@ public class ProjectDTO implements Serializable {
 
     private Long projectAdmin;
 
-    private Set<DeviceTypeDTO> deviceTypes = new HashSet<>();
+    private Set<SourceTypeDTO> sourceTypes = new HashSet<>();
 
     private Set<AttributeMapDTO> attributes = new HashSet<>();
 
@@ -108,12 +108,12 @@ public class ProjectDTO implements Serializable {
         this.projectAdmin = projectAdmin;
     }
 
-    public Set<DeviceTypeDTO> getDeviceTypes() {
-        return deviceTypes;
+    public Set<SourceTypeDTO> getSourceTypes() {
+        return sourceTypes;
     }
 
-    public void setDeviceTypes(Set<DeviceTypeDTO> deviceTypes) {
-        this.deviceTypes = deviceTypes;
+    public void setSourceTypes(Set<SourceTypeDTO> sourceTypes) {
+        this.sourceTypes = sourceTypes;
     }
 
     public Set<AttributeMapDTO> getAttributes() {

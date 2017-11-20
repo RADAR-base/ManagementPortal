@@ -19,7 +19,7 @@
             "processingState": "Processing State",
             "dataFormat": "Data Format",
             "frequency": "Frequency",
-            "deviceType": "Device Type"
+            "sourceType": "Source Type"
         }
     }
 }

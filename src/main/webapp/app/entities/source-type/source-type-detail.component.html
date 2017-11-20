@@ -1,0 +1,54 @@
+
+<div *ngIf="sourceType">
+    <h2><span jhiTranslate="managementPortalApp.sourceType.detail.title">Source Type</span> {{sourceType.deviceProducer}}
+    {{sourceType.deviceModel}} ({{sourceType.catalogVersion}}) </h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="managementPortalApp.sourceType.deviceProducer">Device Producer</span></dt>
+        <dd>
+            <span>{{sourceType.deviceProducer}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.sourceType.deviceModel">Device Model</span></dt>
+        <dd>
+            <span>{{sourceType.deviceModel}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.sourceType.catalogVersion">Device Version</span></dt>
+        <dd>
+            <span>{{sourceType.catalogVersion}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.sourceType.sourceTypeScope">Source Type Scope</span></dt>
+        <dd>
+            <span jhiTranslate="{{'managementPortalApp.SourceTypeScope.' + sourceType.sourceTypeScope}}">{{sourceType.sourceTypeScope}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.sourceType.sourceData">Source data</span></dt>
+        <dd>
+            <span *ngFor="let sourceData of sourceType.sourceData; let last = last">
+                <a [routerLink]="['/source-data', sourceData?.sourceDataType ]">{{sourceData.sourceDataType}}</a>{{last ? '' : ', '}}
+            </span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.sourceType.name">Name</span></dt>
+        <dd>
+            <span>{{sourceType.name}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.sourceType.appProvider">App provider</span></dt>
+        <dd>
+            <span>{{sourceType.appProvider}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.sourceType.assessmentType">Assessment Type</span></dt>
+        <dd>
+            <span>{{sourceType.assessmentType}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.sourceType.description">Description</span></dt>
+        <dd>
+            <span>{{sourceType.description}}</span>
+        </dd>
+    </dl>
+
+    <button type="submit"
+            (click)="previousState()"
+            class="btn btn-info">
+        <span class="fa fa-arrow-left"></span>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+    </button>
+
+</div>

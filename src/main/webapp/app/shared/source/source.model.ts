@@ -1,4 +1,4 @@
-import {DeviceType} from "../../entities/device-type/device-type.model";
+import {SourceType} from "../../entities/source-type/source-type.model";
 import {MinimalProject} from "../../entities/project/project.model";
 export class Source {
     constructor(
@@ -8,7 +8,7 @@ export class Source {
         public expectedSourceName?: string,
         public deviceCategory?: string,
         public assigned?: boolean,
-        public deviceType?: DeviceType,
+        public sourceType?: SourceType,
         public project?: MinimalProject,
     ) {
         this.assigned = false;
@@ -18,10 +18,10 @@ export class Source {
 export class MinimalSource {
     constructor(
         public id?: number,
-        public deviceType?: number,
-        public deviceTypeProducer?: string,
-        public deviceTypeModel?: string,
-        public deviceTypeVersion?: string,
+        public sourceType?: number,
+        public sourceTypeProducer?: string,
+        public sourceTypeModel?: string,
+        public sourceTypeVersion?: string,
         public expectedSourceName?: string | null,
         public sourceId?: string,
         public sourceName?: string,

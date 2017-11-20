@@ -46,7 +46,7 @@
                 <constraints nullable="false" />
             </column>
 
-            <column name="device_type_id" type="bigint">
+            <column name="source_type_id" type="bigint">
                 <constraints nullable="true" />
             </column>
 

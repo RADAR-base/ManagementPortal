@@ -1,31 +1,21 @@
 package org.radarcns.management.service;
 
 
-import org.radarcns.management.domain.DeviceType;
+import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Project;
-import org.radarcns.management.domain.Role;
-import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.ProjectRepository;
-import org.radarcns.auth.authorization.AuthoritiesConstants;
-import org.radarcns.management.service.dto.DeviceTypeDTO;
+import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
-import org.radarcns.management.service.dto.UserDTO;
-import org.radarcns.management.service.mapper.DeviceTypeMapper;
+import org.radarcns.management.service.mapper.SourceTypeMapper;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing Project.
@@ -43,7 +33,7 @@ public class ProjectService {
     private ProjectMapper projectMapper;
 
     @Autowired
-    private DeviceTypeMapper deviceTypeMapper;
+    private SourceTypeMapper sourceTypeMapper;
 
     @Autowired
     private UserService userService;
@@ -149,10 +139,10 @@ public class ProjectService {
      *  @return the entity
      */
     @Transactional(readOnly = true)
-    public List<DeviceTypeDTO> findDeviceTypesById(Long id) {
-        log.debug("Request to get Project.deviceTypes of project: {}", id);
-        List<DeviceType> deviceTypes = projectRepository.findDeviceTypesByProjectId(id);
-        return deviceTypeMapper.deviceTypesToDeviceTypeDTOs(deviceTypes);
+    public List<SourceTypeDTO> findSourceTypesById(Long id) {
+        log.debug("Request to get Project.sourceTypes of project: {}", id);
+        List<SourceType> sourceTypes = projectRepository.findSourceTypesByProjectId(id);
+        return sourceTypeMapper.sourceTypesToSourceTypeDTOs(sourceTypes);
     }
 
     /**

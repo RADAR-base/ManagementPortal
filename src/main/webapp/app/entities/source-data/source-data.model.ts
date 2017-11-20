@@ -12,7 +12,7 @@ export class SourceData {
         public processingState?: ProcessingState,
         public keySchema?: string,
         public frequency?: string,
-        public deviceTypeId?: number,
+        public sourceTypeId?: number,
     ) {
     }
 }

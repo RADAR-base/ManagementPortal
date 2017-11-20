@@ -8,7 +8,7 @@ import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 import { SourceData } from './source-data.model';
 import { SourceDataPopupService } from './source-data-popup.service';
 import { SourceDataService } from './source-data.service';
-import { DeviceType, DeviceTypeService } from '../device-type';
+import { SourceType, SourceTypeService } from '../source-type';
 
 @Component({
     selector: 'jhi-source-data-dialog',
@@ -20,13 +20,13 @@ export class SourceDataDialogComponent implements OnInit {
     authorities: any[];
     isSaving: boolean;
 
-    devicetypes: DeviceType[];
+    // sourceTypes: SourceType[];
     constructor(
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
         private alertService: AlertService,
         private sourceDataService: SourceDataService,
-        private deviceTypeService: DeviceTypeService,
+        private sourceTypeService: SourceTypeService,
         private eventManager: EventManager
     ) {
         this.jhiLanguageService.setLocations(['sourceData', 'processingState']);
@@ -35,8 +35,8 @@ export class SourceDataDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN' , 'ROLE_PROJECT_ADMIN'];
-        this.deviceTypeService.query().subscribe(
-            (res: Response) => { this.devicetypes = res.json(); }, (res: Response) => this.onError(res.json()));
+        // this.sourceTypeService.query().subscribe(
+        //     (res: Response) => { this.sourceTypes = res.json(); }, (res: Response) => this.onError(res.json()));
     }
     clear() {
         this.activeModal.dismiss('cancel');
@@ -75,7 +75,7 @@ export class SourceDataDialogComponent implements OnInit {
         this.alertService.error(error.message, null, null);
     }
 
-    trackDeviceTypeById(index: number, item: DeviceType) {
+    trackSourceTypeById(index: number, item: SourceType) {
         return item.id;
     }
 

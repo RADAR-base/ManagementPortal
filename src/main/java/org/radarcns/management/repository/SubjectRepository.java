@@ -53,10 +53,10 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
     List<Subject> findAllByExternalId(@Param("externalId") String externalId);
 
     @Query("select subject.sources from Subject subject left join subject.sources sources "
-        + "join sources.deviceType deviceType "
-        + "where deviceType.deviceProducer = :producer "
-        + "and deviceType.deviceModel = :model "
-        + "and deviceType.catalogVersion =:version "
+        + "join sources.sourceType sourceType "
+        + "where sourceType.deviceProducer = :producer "
+        + "and sourceType.deviceModel = :model "
+        + "and sourceType.catalogVersion =:version "
         + "and subject.user.login = :login")
     List<Source> findSubjectSourcesBySourceType(@Param("login") String login,
         @Param("producer") String producer, @Param("model") String model,
