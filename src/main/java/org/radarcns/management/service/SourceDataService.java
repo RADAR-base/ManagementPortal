@@ -78,13 +78,13 @@ public class SourceDataService {
     /**
      *  Get one sourceData by name.
      *
-     *  @param sensorName the sensorName of the entity
+     *  @param sourceDataType the sourceDataType of the entity
      *  @return the entity
      */
     @Transactional(readOnly = true)
-    public Optional<SourceDataDTO> findOneBySensorName(String sensorName) {
-        log.debug("Request to get SourceData : {}", sensorName);
-        return sourceDataRepository.findOneBySensorName(sensorName)
+    public Optional<SourceDataDTO> findOneBySourceDataType(String sourceDataType) {
+        log.debug("Request to get SourceData : {}", sourceDataType);
+        return sourceDataRepository.findOneBySourceDataType(sourceDataType)
             .map(sourceDataMapper::sourceDataToSourceDataDTO);
     }
 

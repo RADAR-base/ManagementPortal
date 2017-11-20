@@ -46,8 +46,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = ManagementPortalApp.class)
 public class SourceDataResourceIntTest {
 
-    private static final String DEFAULT_SENSOR_NAME = "AAAAAAAAAA";
-    private static final String UPDATED_SENSOR_NAME = "BBBBBBBBBB";
+    private static final String DEFAULT_SOURCE_DATA_TYPE = "AAAAAAAAAA";
+    private static final String UPDATED_SOURCE_DATA_TYPE = "BBBBBBBBBB";
 
     private static final ProcessingState DEFAULT_PROCESSING_STATE = ProcessingState.RAW;
     private static final ProcessingState UPDATED_PROCESSING_STATE = ProcessingState.DERIVED;
@@ -112,7 +112,7 @@ public class SourceDataResourceIntTest {
      */
     public static SourceData createEntity(EntityManager em) {
         SourceData sourceData = new SourceData()
-            .sensorName(DEFAULT_SENSOR_NAME)
+            .sourceDataType(DEFAULT_SOURCE_DATA_TYPE)
             .processingState(DEFAULT_PROCESSING_STATE)
             .keySchema(DEFAULT_KEY_SCHEMA)
             .frequency(DEFAULT_FREQUENCY);
@@ -140,7 +140,7 @@ public class SourceDataResourceIntTest {
         List<SourceData> sourceDataList = sourceDataRepository.findAll();
         assertThat(sourceDataList).hasSize(databaseSizeBeforeCreate + 1);
         SourceData testSourceData = sourceDataList.get(sourceDataList.size() - 1);
-        assertThat(testSourceData.getSensorName()).isEqualTo(DEFAULT_SENSOR_NAME);
+        assertThat(testSourceData.getSourceDataType()).isEqualTo(DEFAULT_SOURCE_DATA_TYPE);
         assertThat(testSourceData.getProcessingState()).isEqualTo(DEFAULT_PROCESSING_STATE);
         assertThat(testSourceData.getKeySchema()).isEqualTo(DEFAULT_KEY_SCHEMA);
         assertThat(testSourceData.getFrequency()).isEqualTo(DEFAULT_FREQUENCY);
@@ -171,7 +171,7 @@ public class SourceDataResourceIntTest {
     public void checkSensorTypeIsRequired() throws Exception {
         int databaseSizeBeforeTest = sourceDataRepository.findAll().size();
         // set the field null
-        sourceData.setSensorName(null);
+        sourceData.setSourceDataType(null);
 
         // Create the SourceData, which fails.
         SourceDataDTO sourceDataDTO = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
@@ -196,7 +196,7 @@ public class SourceDataResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(sourceData.getId().intValue())))
-            .andExpect(jsonPath("$.[*].sensorName").value(hasItem(DEFAULT_SENSOR_NAME.toString())))
+            .andExpect(jsonPath("$.[*].sourceDataType").value(hasItem(DEFAULT_SOURCE_DATA_TYPE.toString())))
             .andExpect(jsonPath("$.[*].processingState").value(hasItem(DEFAULT_PROCESSING_STATE.toString())))
             .andExpect(jsonPath("$.[*].keySchema").value(hasItem(DEFAULT_KEY_SCHEMA.toString())))
             .andExpect(jsonPath("$.[*].frequency").value(hasItem(DEFAULT_FREQUENCY.toString())));
@@ -209,11 +209,11 @@ public class SourceDataResourceIntTest {
         sourceDataRepository.saveAndFlush(sourceData);
 
         // Get the sourceData
-        restSourceDataMockMvc.perform(get("/api/source-data/{sensorName}", sourceData.getSensorName()))
+        restSourceDataMockMvc.perform(get("/api/source-data/{sourceDataType}", sourceData.getSourceDataType()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(sourceData.getId().intValue()))
-            .andExpect(jsonPath("$.sensorName").value(DEFAULT_SENSOR_NAME.toString()))
+            .andExpect(jsonPath("$.sourceDataType").value(DEFAULT_SOURCE_DATA_TYPE.toString()))
             .andExpect(jsonPath("$.processingState").value(DEFAULT_PROCESSING_STATE.toString()))
             .andExpect(jsonPath("$.keySchema").value(DEFAULT_KEY_SCHEMA.toString()))
             .andExpect(jsonPath("$.frequency").value(DEFAULT_FREQUENCY.toString()));
@@ -223,8 +223,8 @@ public class SourceDataResourceIntTest {
     @Transactional
     public void getNonExistingSourceData() throws Exception {
         // Get the sourceData
-        restSourceDataMockMvc.perform(get("/api/source-data/{sensorName}", DEFAULT_SENSOR_NAME +
-            DEFAULT_SENSOR_NAME))
+        restSourceDataMockMvc.perform(get("/api/source-data/{sourceDataType}", DEFAULT_SOURCE_DATA_TYPE +
+            DEFAULT_SOURCE_DATA_TYPE))
             .andExpect(status().isNotFound());
     }
 
@@ -238,7 +238,7 @@ public class SourceDataResourceIntTest {
         // Update the sourceData
         SourceData updatedSourceData = sourceDataRepository.findOne(sourceData.getId());
         updatedSourceData
-            .sensorName(UPDATED_SENSOR_NAME)
+            .sourceDataType(UPDATED_SOURCE_DATA_TYPE)
             .processingState(UPDATED_PROCESSING_STATE)
             .keySchema(UPDATED_KEY_SCHEMA)
             .frequency(UPDATED_FREQUENCY);
@@ -253,7 +253,7 @@ public class SourceDataResourceIntTest {
         List<SourceData> sourceDataList = sourceDataRepository.findAll();
         assertThat(sourceDataList).hasSize(databaseSizeBeforeUpdate);
         SourceData testSourceData = sourceDataList.get(sourceDataList.size() - 1);
-        assertThat(testSourceData.getSensorName()).isEqualTo(UPDATED_SENSOR_NAME);
+        assertThat(testSourceData.getSourceDataType()).isEqualTo(UPDATED_SOURCE_DATA_TYPE);
         assertThat(testSourceData.getProcessingState()).isEqualTo(UPDATED_PROCESSING_STATE);
         assertThat(testSourceData.getKeySchema()).isEqualTo(UPDATED_KEY_SCHEMA);
         assertThat(testSourceData.getFrequency()).isEqualTo(UPDATED_FREQUENCY);
@@ -286,7 +286,7 @@ public class SourceDataResourceIntTest {
         int databaseSizeBeforeDelete = sourceDataRepository.findAll().size();
 
         // Get the sourceData
-        restSourceDataMockMvc.perform(delete("/api/source-data/{sensorName}", sourceData.getSensorName())
+        restSourceDataMockMvc.perform(delete("/api/source-data/{sourceDataType}", sourceData.getSourceDataType())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 

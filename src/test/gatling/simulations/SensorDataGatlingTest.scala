@@ -80,7 +80,7 @@ class SourceDataGatlingTest extends Simulation {
             .exec(http("Create new sourceData")
             .post("/api/source-data")
             .headers(headers_http_authenticated)
-            .body(StringBody("""{"id":null, "sensorName":"SAMPLE_TEXT", "processingState":null, "keySchema":"SAMPLE_TEXT", "frequency":"SAMPLE_TEXT"}""")).asJSON
+            .body(StringBody("""{"id":null, "sourceDataType":"SAMPLE_TEXT", "processingState":null, "keySchema":"SAMPLE_TEXT", "frequency":"SAMPLE_TEXT"}""")).asJSON
             .check(status.is(201))
             .check(headerRegex("Location", "(.*)").saveAs("new_sourceData_url"))).exitHereIfFailed
             .pause(10)

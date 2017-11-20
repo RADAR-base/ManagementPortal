@@ -24,8 +24,8 @@ export class SourceDataService {
         });
     }
 
-    find(sensorName: string): Observable<SourceData> {
-        return this.http.get(`${this.resourceUrl}/${sensorName}`).map((res: Response) => {
+    find(sourceDataType: string): Observable<SourceData> {
+        return this.http.get(`${this.resourceUrl}/${sourceDataType}`).map((res: Response) => {
             return res.json();
         });
     }
@@ -36,8 +36,8 @@ export class SourceDataService {
         ;
     }
 
-    delete(sensorName: string): Observable<Response> {
-        return this.http.delete(`${this.resourceUrl}/${sensorName}`);
+    delete(sourceDataType: string): Observable<Response> {
+        return this.http.delete(`${this.resourceUrl}/${sourceDataType}`);
     }
     private createRequestOption(req?: any): BaseRequestOptions {
         const options: BaseRequestOptions = new BaseRequestOptions();

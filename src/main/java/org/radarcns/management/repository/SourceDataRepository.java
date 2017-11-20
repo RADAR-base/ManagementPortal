@@ -12,5 +12,5 @@ import java.util.Optional;
  */
 @SuppressWarnings("unused")
 public interface SourceDataRepository extends JpaRepository<SourceData,Long> {
-    Optional<SourceData> findOneBySensorName(String sensorName);
+    Optional<SourceData> findOneBySourceDataType(String sourceDataType);
 }

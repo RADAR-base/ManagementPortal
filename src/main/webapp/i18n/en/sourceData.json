@@ -15,7 +15,7 @@
             "detail": {
                 "title": "Source data"
             },
-            "sensorName": "Sensor Name",
+            "sourceDataType": "Source Data Type",
             "processingState": "Processing State",
             "keySchema": "keySchema",
             "frequency": "Frequency",

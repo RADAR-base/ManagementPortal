@@ -27,13 +27,13 @@ export class SourceDataDetailComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.subscription = this.route.params.subscribe((params) => {
-            this.load(params['sensorName']);
+            this.load(params['sourceDataType']);
         });
         this.registerChangeInSourceData();
     }
 
-    load(sensorName) {
-        this.sourceDataService.find(sensorName).subscribe((sourceData) => {
+    load(sourceDataType) {
+        this.sourceDataService.find(sourceDataType).subscribe((sourceData) => {
             this.sourceData = sourceData;
         });
     }
@@ -47,6 +47,6 @@ export class SourceDataDetailComponent implements OnInit, OnDestroy {
     }
 
     registerChangeInSourceData() {
-        this.eventSubscriber = this.eventManager.subscribe('sourceDataListModification', (response) => this.load(this.sourceData.sensorName));
+        this.eventSubscriber = this.eventManager.subscribe('sourceDataListModification', (response) => this.load(this.sourceData.sourceDataType));
     }
 }

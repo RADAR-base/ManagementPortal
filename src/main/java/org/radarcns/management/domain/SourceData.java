@@ -37,10 +37,10 @@ public class SourceData implements Serializable {
     @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
     private Long id;
 
-    //Sensor name.
+    //SourceData type e.g. ACCELEROMETER, TEMPERATURE.
     @NotNull
-    @Column(name = "sensor_name", nullable = false, unique = true)
-    private String sensorName;
+    @Column(name = "source_data_type", nullable = false)
+    private String sourceDataType;
 
     //Default data frequency
     @Column(name = "frequency")
@@ -59,16 +59,18 @@ public class SourceData implements Serializable {
     @Column(name = "data_class")
     private String dataClass;
 
-
     @Column(name = "key_schema")
     private String keySchema;
+
 
     @Column(name = "value_schema")
     private String valueSchema;
 
+    // source data topic
     @Column(name = "topic")
     private String topic;
 
+    // app provider
     @Column(name = "provider")
     private String provider;
 
@@ -88,17 +90,17 @@ public class SourceData implements Serializable {
         this.id = id;
     }
 
-    public String getSensorName() {
-        return sensorName;
+    public String getSourceDataType() {
+        return sourceDataType;
     }
 
-    public SourceData sensorName(String sensorName) {
-        this.sensorName = sensorName;
+    public SourceData sourceDataType(String sourceDataType) {
+        this.sourceDataType = sourceDataType;
         return this;
     }
 
-    public void setSensorName(String sensorName) {
-        this.sensorName = sensorName;
+    public void setSourceDataType(String sourceDataType) {
+        this.sourceDataType = sourceDataType;
     }
 
     public ProcessingState getProcessingState() {
@@ -235,7 +237,7 @@ public class SourceData implements Serializable {
 
     @Override
     public String toString() {
-        return "SourceData{" + "id=" + id + ", sensorName='" + sensorName + '\'' + ", frequency='"
+        return "SourceData{" + "id=" + id + ", sourceDataType='" + sourceDataType + '\'' + ", frequency='"
             + frequency + '\'' + ", unit='" + unit + '\'' + ", processingState=" + processingState
             + ", dataClass='" + dataClass + '\'' + ", keySchema='" + keySchema + '\''
             + ", valueSchema='" + valueSchema + '\'' + ", topic='" + topic + '\'' + ", provider='"
