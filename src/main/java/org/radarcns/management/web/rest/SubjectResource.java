@@ -122,8 +122,8 @@ public class SubjectResource {
         }
 
         SubjectDTO result = subjectService.createSubject(subjectDTO);
-        return ResponseEntity.created(new URI("/api/subjects/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+        return ResponseEntity.created(new URI("/api/subjects/" + result.getLogin()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getLogin()))
             .body(result);
     }
 
@@ -155,7 +155,7 @@ public class SubjectResource {
                 subjectDTO.getProject().getProjectName(), subjectDTO.getLogin());
         SubjectDTO result = subjectService.updateSubject(subjectDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getLogin()))
             .body(result);
     }
 
@@ -190,7 +190,7 @@ public class SubjectResource {
 
         SubjectDTO result = subjectService.discontinueSubject(subjectDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getLogin()))
             .body(result);
     }
 
