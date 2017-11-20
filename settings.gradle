@@ -1,3 +1,4 @@
 rootProject.name = 'management-portal'
 include 'oauth-client-util'
 include 'radar-auth'
+include 'managementportal-client'
