@@ -35,7 +35,7 @@ export class OAuthClientDialogComponent implements OnInit  {
         private oauthClientSerivce: OAuthClientService,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['oauthClient']);
+        this.jhiLanguageService.addLocation('oauthClient');
         this.availableGrants = ['authorization_code', 'implicit', 'client_credentials', 'refresh_token', 'password'];
     }
 

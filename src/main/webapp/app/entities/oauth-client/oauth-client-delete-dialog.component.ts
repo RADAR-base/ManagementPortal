@@ -23,7 +23,7 @@ export class OAuthClientDeleteDialogComponent implements OnInit {
         public activeModal: NgbActiveModal,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['oauthClient']);
+        this.jhiLanguageService.addLocation('oauthClient');
     }
 
     ngOnInit() {
