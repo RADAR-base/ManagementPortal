@@ -144,7 +144,7 @@
             </column>
             <column name="resource_ids" type="varchar(255)"/>
             <column name="client_secret" type="varchar(255)"/>
-            <column name="scope" type="varchar(255)"/>
+            <column name="scope" type="varchar(2048)"/>
             <column name="authorized_grant_types" type="varchar(255)"/>
             <column name="web_server_redirect_uri" type="varchar(255)"/>
             <column name="authorities" type="varchar(255)"/>
