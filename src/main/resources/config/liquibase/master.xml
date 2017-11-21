@@ -18,7 +18,6 @@
 
     <include file="classpath:config/liquibase/changelog/00000000000010_added_entity_constraints_Project.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/00000000000011_added_entity_constraints_Source.xml" relativeToChangelogFile="false"/>
-    <include file="classpath:config/liquibase/changelog/00000000000012_added_entity_constraints_SourceType.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/00000000000013_added_entity_constraints_Role.xml" relativeToChangelogFile="false"/>
 
     <include file="classpath:config/liquibase/changelog/00000000000014_added_demo_data.xml" relativeToChangelogFile="false"/>

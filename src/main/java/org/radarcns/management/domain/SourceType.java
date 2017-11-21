@@ -5,7 +5,19 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -58,12 +70,8 @@ public class SourceType implements Serializable {
     @Column(name = "dynamic_registration" , nullable = false)
     private Boolean canRegisterDynamically = false;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    @JoinTable(name = "source_type_source_data",
-               joinColumns = @JoinColumn(name="source_types_id", referencedColumnName="id"),
-               inverseJoinColumns = @JoinColumn(name="source_data_id", referencedColumnName="id"))
-    private Set<SourceData> sourceData = new HashSet<>();
+    @OneToMany(mappedBy = "sourceType" , fetch = FetchType.EAGER)
+    private Set<SourceData> sourceData;
 
     @ManyToMany(mappedBy = "sourceTypes")
     @JsonIgnore
@@ -136,18 +144,6 @@ public class SourceType implements Serializable {
 
     public SourceType sourceData(Set<SourceData> sourceData) {
         this.sourceData = sourceData;
-        return this;
-    }
-
-    public SourceType addSourceData(SourceData sourceData) {
-        this.sourceData.add(sourceData);
-        sourceData.getSourceTypes().add(this);
-        return this;
-    }
-
-    public SourceType removeSourceData(SourceData sourceData) {
-        this.sourceData.remove(sourceData);
-        sourceData.getSourceTypes().remove(this);
         return this;
     }
 

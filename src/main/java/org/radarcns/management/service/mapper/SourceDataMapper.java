@@ -1,10 +1,10 @@
 package org.radarcns.management.service.mapper;
 
-import org.radarcns.management.domain.*;
-import org.radarcns.management.service.dto.SourceDataDTO;
-
-import org.mapstruct.*;
 import java.util.List;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.radarcns.management.domain.SourceData;
+import org.radarcns.management.service.dto.SourceDataDTO;
 
 /**
  * Mapper for the entity SourceData and its DTO SourceDataDTO.
@@ -16,7 +16,7 @@ public interface SourceDataMapper {
 
     List<SourceDataDTO> sourceDataToSourceDataDTOs(List<SourceData> sourceData);
 
-    @Mapping(target = "sourceTypes", ignore = true)
+    @Mapping(target = "sourceType", ignore = true)
     SourceData sourceDataDTOToSourceData(SourceDataDTO sourceDataDTO);
 
     List<SourceData> sourceDataDTOsToSourceData(List<SourceDataDTO> sourceDataDTOs);

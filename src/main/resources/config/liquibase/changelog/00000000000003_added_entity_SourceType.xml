@@ -60,17 +60,6 @@
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
 
-        <createTable tableName="source_type_source_data">
-            <column name="source_data_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="source_types_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-
-        <addPrimaryKey columnNames="source_types_id, source_data_id" tableName="source_type_source_data"/>
-
         <createIndex indexName="idx_source_type_producer_model_version"
                      tableName="source_type"
                      unique="true">

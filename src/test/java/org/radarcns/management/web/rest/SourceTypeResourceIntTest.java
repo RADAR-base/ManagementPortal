@@ -12,7 +12,9 @@ import org.radarcns.management.repository.SourceTypeRepository;
 import org.radarcns.management.repository.SourceDataRepository;
 import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.radarcns.management.service.SourceTypeService;
+import org.radarcns.management.service.dto.SourceDataDTO;
 import org.radarcns.management.service.dto.SourceTypeDTO;
+import org.radarcns.management.service.mapper.SourceDataMapper;
 import org.radarcns.management.service.mapper.SourceTypeMapper;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +74,9 @@ public class SourceTypeResourceIntTest {
 
     @Autowired
     private SourceTypeService sourceTypeService;
+
+    @Autowired
+    private SourceDataMapper sourceDataMapper;
 
     @Autowired
     private SourceDataRepository sourceDataRepository;
@@ -141,6 +146,9 @@ public class SourceTypeResourceIntTest {
 
         // Create the SourceType
         SourceTypeDTO sourceTypeDTO = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
+        SourceDataDTO sourceDataDTO = sourceDataMapper.sourceDataToSourceDataDTO
+                (SourceDataResourceIntTest.createEntity(em));
+        sourceTypeDTO.getSourceData().add(sourceDataDTO);
         restSourceTypeMockMvc.perform(post("/api/source-types")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(sourceTypeDTO)))
@@ -154,6 +162,13 @@ public class SourceTypeResourceIntTest {
         assertThat(testSourceType.getModel()).isEqualTo(DEFAULT_MODEL);
         assertThat(testSourceType.getSourceTypeScope()).isEqualTo(DEFAULT_SOURCE_TYPE_SCOPE);
         assertThat(testSourceType.getCatalogVersion()).isEqualTo(DEFAULT_DEVICE_VERSION);
+        assertThat(testSourceType.getSourceData()).hasSize(1);
+        SourceData testSourceData = testSourceType.getSourceData().iterator().next();
+        assertThat(testSourceData.getSourceDataType()).isEqualTo(sourceDataDTO.getSourceDataType());
+        assertThat(testSourceData.getSourceDataName()).isEqualTo(sourceDataDTO.getSourceDataName());
+        assertThat(testSourceData.getProcessingState()).isEqualTo(sourceDataDTO.getProcessingState());
+        assertThat(testSourceData.getKeySchema()).isEqualTo(sourceDataDTO.getKeySchema());
+        assertThat(testSourceData.getFrequency()).isEqualTo(sourceDataDTO.getFrequency());
     }
 
     @Test

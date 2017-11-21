@@ -28,6 +28,10 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liqui
                 <constraints nullable="false" unique="true"/>
             </column>
 
+            <column name="source_type_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+
             <column name="frequency" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
