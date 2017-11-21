@@ -70,7 +70,6 @@ public class SourceType implements Serializable {
     @Column(name = "dynamic_registration" , nullable = false)
     private Boolean canRegisterDynamically = false;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "sourceType" , fetch = FetchType.EAGER)
     private Set<SourceData> sourceData;
 

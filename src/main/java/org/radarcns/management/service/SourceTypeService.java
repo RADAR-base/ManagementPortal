@@ -1,9 +1,9 @@
 package org.radarcns.management.service;
 
-import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.SourceData;
-import org.radarcns.management.repository.SourceTypeRepository;
+import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.repository.SourceDataRepository;
+import org.radarcns.management.repository.SourceTypeRepository;
 import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.mapper.SourceTypeMapper;
 import org.slf4j.Logger;
@@ -44,10 +44,12 @@ public class SourceTypeService {
     public SourceTypeDTO save(SourceTypeDTO sourceTypeDTO) {
         log.debug("Request to save SourceType : {}", sourceTypeDTO);
         SourceType sourceType = sourceTypeMapper.sourceTypeDTOToSourceType(sourceTypeDTO);
-        for(SourceData data : sourceType.getSourceData()) {
-            sourceDataRepository.save(sourceType.getSourceData());
+        // populate the SourceType of our SourceData's
+        for (SourceData data : sourceType.getSourceData()) {
+            data.setSourceType(sourceType);
         }
         sourceType = sourceTypeRepository.save(sourceType);
+        sourceDataRepository.save(sourceType.getSourceData());
         return sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
     }
 
