@@ -1,6 +1,10 @@
 package org.radarcns.management.config;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.radarcns.auth.authorization.Permission;
@@ -21,7 +25,9 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -77,16 +83,15 @@ public class OAuthClientLoader {
         try (FileInputStream inputStream = new FileInputStream(file)) {
             logger.info("Loading OAuth clients from " + file.getAbsolutePath());
             CsvMapper mapper = new CsvMapper();
-            CsvSchema schema = mapper.schemaFor(BaseClientDetails.class)
-                    // CsvSchema uses the @JsonPropertyOrder to define column order, however that
-                    // annotation is not present on BaseClientDetails so we need to read the
-                    // header and pass the column names to the schema manually in order for it to
-                    // know the order
+            CsvSchema schema = mapper.schemaFor(CustomBaseClientDetails.class)
+                    // CsvSchema uses the @JsonPropertyOrder to define column order, it does not
+                    // read the header. Let's read the header ourselves and provide that as
+                    // column order
                     .withColumnReordering(true)
                     .sortedBy(getCsvFileColumnOrder(file))
                     .withColumnSeparator(SEPARATOR)
                     .withHeader();
-            MappingIterator<BaseClientDetails> iterator = mapper.readerFor(BaseClientDetails.class)
+            MappingIterator<BaseClientDetails> iterator = mapper.readerFor(CustomBaseClientDetails.class)
                     .with(schema).readValues(inputStream);
             while (iterator.hasNext()) {
                 loadOAuthClient(iterator.nextValue());
@@ -124,6 +129,38 @@ public class OAuthClientLoader {
         } catch (Exception ex) {
             logger.error("Unable to read header from OAuth clients file: " + ex.getMessage(), ex);
             return null;
+        }
+    }
+
+    /**
+     * Custom class that will also deserialize the additional_information field. This field holds
+     * a JSON structure that needs to be converted to a Map<String, Object>. This field is
+     * {@link com.fasterxml.jackson.annotation.JsonIgnore}d in BaseClientDetails but we need it.
+     */
+    private static class CustomBaseClientDetails extends BaseClientDetails {
+
+        @JsonProperty("additional_information")
+        private Map<String, Object> additionalInformation = new LinkedHashMap<>();
+
+        @Override
+        public Map<String, Object> getAdditionalInformation() {
+            return additionalInformation;
+        }
+
+        @JsonSetter("additional_information")
+        public void setAdditionalInformation(String additionalInformation) {
+            if (Objects.isNull(additionalInformation) || additionalInformation.equals("")) {
+                this.additionalInformation = Collections.emptyMap();
+                return;
+            }
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                this.additionalInformation = mapper.readValue(additionalInformation,
+                        new TypeReference<Map<String, Object>>() {});
+            } catch (Exception ex) {
+                logger.error("Unable to parse additional_information field for client " +
+                        getClientId() + ": " + ex.getMessage(), ex);
+            }
         }
     }
 }
