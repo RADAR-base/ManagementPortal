@@ -23,7 +23,7 @@
             <th><span jhiTranslate="managementPortalApp.project.startDate">Start Date</span></th>
             <th><span jhiTranslate="managementPortalApp.project.projectStatus">Project Status</span></th>
             <th><span jhiTranslate="managementPortalApp.project.endDate">End Date</span></th>
-            <th><span jhiTranslate="managementPortalApp.project.deviceType">Device Type</span></th>
+            <th><span jhiTranslate="managementPortalApp.project.sourceType">Source Type</span></th>
             <th><span jhiTranslate="managementPortalApp.project.attributeDataKey">MetaData Key</span></th>
             <th><span jhiTranslate="managementPortalApp.project.attributeDataValue">MetaData value</span></th>
             <th></th>
@@ -39,8 +39,8 @@
                 <td jhiTranslate="{{'managementPortalApp.ProjectStatus.' + project.projectStatus}}">{{project.projectStatus}}</td>
                 <td>{{project.endDate | date:'medium'}}</td>
                 <td>
-                    <span *ngFor="let deviceType of project.deviceTypes; let last = last">
-                            <a class="form-control-static" [routerLink]="['../device-type', deviceType?.id ]">{{deviceType.deviceModel}}</a>{{last ? '' : ', '}}
+                    <span *ngFor="let sourceType of project.sourceTypes; let last = last">
+                            <a class="form-control-static" [routerLink]="['../source-type', sourceType?.id ]">{{sourceType.model}}</a>{{last ? '' : ', '}}
                         </span>
                 </td>
                 <td>

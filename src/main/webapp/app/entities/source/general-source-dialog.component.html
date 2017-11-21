@@ -50,9 +50,9 @@
         </div>
 
         <div class="form-group">
-            <label jhiTranslate="managementPortalApp.source.deviceType" for="field_deviceType">Device Type</label>
-            <select class="form-control" id="field_deviceType" name="deviceType" [(ngModel)]="source.deviceType" required>
-                <option [ngValue]="deviceTypeOption.id === source.deviceType?.id ? source.deviceType : deviceTypeOption" *ngFor="let deviceTypeOption of deviceTypes; trackBy: trackDeviceTypeById">{{deviceTypeOption.deviceModel}}</option>
+            <label jhiTranslate="managementPortalApp.source.sourceType" for="field_sourceType">Source Type</label>
+            <select class="form-control" id="field_sourceType" name="sourceType" [(ngModel)]="source.sourceType" required>
+                <option [ngValue]="sourceTypeOption.id === source.sourceType?.id ? source.sourceType : sourceTypeOption" *ngFor="let sourceTypeOption of sourceTypes; trackBy: trackSourceTypeById">{{sourceTypeOption.model}}</option>
             </select>
         </div>
 

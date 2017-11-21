@@ -25,7 +25,7 @@ sourceData: SourceData[];
         private eventManager: EventManager,
         private principal: Principal
     ) {
-        this.jhiLanguageService.setLocations(['sourceData', 'dataType']);
+        this.jhiLanguageService.setLocations(['sourceData', 'processingState']);
     }
 
     loadAll() {

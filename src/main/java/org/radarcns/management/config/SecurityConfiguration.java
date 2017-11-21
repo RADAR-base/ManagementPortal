@@ -113,7 +113,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             "/api/account/change_password",
             "/api/authenticate",
             "/api/authorities/*",
-            "/api/device-types/*",
+            "/api/source-types/*",
             "/api/oauthclients/*",
             "/api/profile-info/*",
             "/api/projects/*",

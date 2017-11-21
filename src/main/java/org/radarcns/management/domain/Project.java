@@ -66,10 +66,10 @@ public class Project implements Serializable {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    @JoinTable(name = "project_device_type",
+    @JoinTable(name = "project_source_type",
                joinColumns = @JoinColumn(name="projects_id", referencedColumnName="id"),
-               inverseJoinColumns = @JoinColumn(name="device_types_id", referencedColumnName="id"))
-    private Set<DeviceType> deviceTypes = new HashSet<>();
+               inverseJoinColumns = @JoinColumn(name="source_types_id", referencedColumnName="id"))
+    private Set<SourceType> sourceTypes = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name="attribute_key")
@@ -197,29 +197,29 @@ public class Project implements Serializable {
         this.projectAdmin = projectAdmin;
     }
 
-    public Set<DeviceType> getDeviceTypes() {
-        return deviceTypes;
+    public Set<SourceType> getSourceTypes() {
+        return sourceTypes;
     }
 
-    public Project deviceTypes(Set<DeviceType> deviceTypes) {
-        this.deviceTypes = deviceTypes;
+    public Project sourceTypes(Set<SourceType> sourceTypes) {
+        this.sourceTypes = sourceTypes;
         return this;
     }
 
-    public Project addDeviceType(DeviceType deviceType) {
-        this.deviceTypes.add(deviceType);
-        deviceType.getProjects().add(this);
+    public Project addSourceType(SourceType sourceType) {
+        this.sourceTypes.add(sourceType);
+        sourceType.getProjects().add(this);
         return this;
     }
 
-    public Project removeDeviceType(DeviceType deviceType) {
-        this.deviceTypes.remove(deviceType);
-        deviceType.getProjects().remove(this);
+    public Project removeSourceType(SourceType sourceType) {
+        this.sourceTypes.remove(sourceType);
+        sourceType.getProjects().remove(this);
         return this;
     }
 
-    public void setDeviceTypes(Set<DeviceType> deviceTypes) {
-        this.deviceTypes = deviceTypes;
+    public void setSourceTypes(Set<SourceType> sourceTypes) {
+        this.sourceTypes = sourceTypes;
     }
 
     public Map<String, String> getAttributes() {

@@ -80,7 +80,7 @@ class SourceGatlingTest extends Simulation {
             .exec(http("Create new source")
             .post("/api/sources")
             .headers(headers_http_authenticated)
-            .body(StringBody("""{"id":null, "sourceId":"SAMPLE_TEXT", "deviceCategory":"SAMPLE_TEXT", "activated":null}""")).asJSON
+            .body(StringBody("""{"id":null, "sourceId":"SAMPLE_TEXT", "activated":null}""")).asJSON
             .check(status.is(201))
             .check(headerRegex("Location", "(.*)").saveAs("new_source_url"))).exitHereIfFailed
             .pause(10)

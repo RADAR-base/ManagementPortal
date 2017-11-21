@@ -23,7 +23,7 @@
             "projectStatus": "Project Status",
             "endDate": "End Date",
             "projectAdmin": "Project Admin",
-            "deviceType": "Device Type",
+            "sourceType": "Source Type",
             "attributeDataKey" : "Tag",
             "attributeDataValue" : "Value"
         }

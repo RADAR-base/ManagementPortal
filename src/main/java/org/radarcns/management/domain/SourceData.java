@@ -3,7 +3,7 @@ package org.radarcns.management.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.radarcns.management.domain.enumeration.DataType;
+import org.radarcns.management.domain.enumeration.ProcessingState;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,10 +37,15 @@ public class SourceData implements Serializable {
     @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
     private Long id;
 
-    //Sensor name.
+    //SourceData type e.g. ACCELEROMETER, TEMPERATURE.
     @NotNull
-    @Column(name = "sensor_name", nullable = false, unique = true)
-    private String sensorName;
+    @Column(name = "source_data_type", nullable = false)
+    private String sourceDataType;
+
+    // this will be the unique human readable identifier of
+    @NotNull
+    @Column(name = "source_data_name", nullable = false , unique = true)
+    private String sourceDataName;
 
     //Default data frequency
     @Column(name = "frequency")
@@ -52,23 +57,25 @@ public class SourceData implements Serializable {
 
     // Define if the samples are RAW data or instead they the result of some computation
     @Enumerated(EnumType.STRING)
-    @Column(name = "data_type")
-    private DataType dataType;
+    @Column(name = "processing_state")
+    private ProcessingState processingState;
 
     //  the storage
     @Column(name = "data_class")
     private String dataClass;
 
-
     @Column(name = "key_schema")
     private String keySchema;
+
 
     @Column(name = "value_schema")
     private String valueSchema;
 
+    // source data topic
     @Column(name = "topic")
     private String topic;
 
+    // app provider
     @Column(name = "provider")
     private String provider;
 
@@ -78,7 +85,7 @@ public class SourceData implements Serializable {
     @ManyToMany(mappedBy = "sourceData" , fetch = FetchType.EAGER)
     @JsonIgnore
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    private Set<DeviceType> deviceTypes = new HashSet<>();
+    private Set<SourceType> sourceTypes = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -88,30 +95,35 @@ public class SourceData implements Serializable {
         this.id = id;
     }
 
-    public String getSensorName() {
-        return sensorName;
+    public String getSourceDataType() {
+        return sourceDataType;
     }
 
-    public SourceData sensorName(String sensorName) {
-        this.sensorName = sensorName;
+    public SourceData sourceDataType(String sourceDataType) {
+        this.sourceDataType = sourceDataType;
         return this;
     }
 
-    public void setSensorName(String sensorName) {
-        this.sensorName = sensorName;
-    }
-
-    public DataType getDataType() {
-        return dataType;
-    }
-
-    public SourceData dataType(DataType dataType) {
-        this.dataType = dataType;
+    public SourceData sourceDataName(String sourceDataName) {
+        this.sourceDataName = sourceDataName;
         return this;
     }
 
-    public void setDataType(DataType dataType) {
-        this.dataType = dataType;
+    public void setSourceDataType(String sourceDataType) {
+        this.sourceDataType = sourceDataType;
+    }
+
+    public ProcessingState getProcessingState() {
+        return processingState;
+    }
+
+    public SourceData processingState(ProcessingState processingState) {
+        this.processingState = processingState;
+        return this;
+    }
+
+    public void setProcessingState(ProcessingState processingState) {
+        this.processingState = processingState;
     }
 
     public String getKeySchema() {
@@ -140,24 +152,24 @@ public class SourceData implements Serializable {
         this.frequency = frequency;
     }
 
-    public Set<DeviceType> getDeviceTypes() {
-        return deviceTypes;
+    public Set<SourceType> getSourceTypes() {
+        return sourceTypes;
     }
 
-    public SourceData deviceTypes(Set<DeviceType> deviceTypes) {
-        this.deviceTypes = deviceTypes;
+    public SourceData sourceTypes(Set<SourceType> sourceTypes) {
+        this.sourceTypes = sourceTypes;
         return this;
     }
 
-    public SourceData addDeviceType(DeviceType deviceType) {
-        this.deviceTypes.add(deviceType);
-        deviceType.getSourceData().add(this);
+    public SourceData addSourceType(SourceType sourceType) {
+        this.sourceTypes.add(sourceType);
+        sourceType.getSourceData().add(this);
         return this;
     }
 
-    public SourceData removeDeviceType(DeviceType deviceType) {
-        this.deviceTypes.remove(deviceType);
-        deviceType.getSourceData().remove(this);
+    public SourceData removeSourceType(SourceType sourceType) {
+        this.sourceTypes.remove(sourceType);
+        sourceType.getSourceData().remove(this);
         return this;
     }
 
@@ -209,8 +221,16 @@ public class SourceData implements Serializable {
         this.enabled = enabled;
     }
 
-    public void setDeviceTypes(Set<DeviceType> deviceTypes) {
-        this.deviceTypes = deviceTypes;
+    public void setSourceTypes(Set<SourceType> sourceTypes) {
+        this.sourceTypes = sourceTypes;
+    }
+
+    public String getSourceDataName() {
+        return sourceDataName;
+    }
+
+    public void setSourceDataName(String sourceDataName) {
+        this.sourceDataName = sourceDataName;
     }
 
     @Override
@@ -235,10 +255,10 @@ public class SourceData implements Serializable {
 
     @Override
     public String toString() {
-        return "SourceData{" + "id=" + id + ", sensorName='" + sensorName + '\'' + ", frequency='"
-            + frequency + '\'' + ", unit='" + unit + '\'' + ", dataType=" + dataType
+        return "SourceData{" + "id=" + id + ", sourceDataType='" + sourceDataType + '\'' + ", frequency='"
+            + frequency + '\'' + ", unit='" + unit + '\'' + ", processingState=" + processingState
             + ", dataClass='" + dataClass + '\'' + ", keySchema='" + keySchema + '\''
             + ", valueSchema='" + valueSchema + '\'' + ", topic='" + topic + '\'' + ", provider='"
-            + provider + '\'' + ", enabled=" + enabled + ", deviceTypes=" + deviceTypes + '}';
+            + provider + '\'' + ", enabled=" + enabled + ", sourceTypes=" + sourceTypes + '}';
     }
 }
