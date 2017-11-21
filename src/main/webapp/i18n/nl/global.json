@@ -8,7 +8,7 @@
             "entities": {
                 "main": "Entiteiten",
                 "source": "Source",
-                "deviceType": "Device Type",
+                "sourceType": "Source Type",
                 "project": "Project",
                 "oauth-clients": "OAuth Clients",
                 "sourceData": "Source data",

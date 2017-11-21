@@ -17,8 +17,9 @@
             <thead>
             <tr>
             <th><span jhiTranslate="global.field.id">ID</span></th>
-            <th><span jhiTranslate="managementPortalApp.sourceData.sensorName">Sensor Type</span></th>
-            <th><span jhiTranslate="managementPortalApp.sourceData.dataType">Data Type</span></th>
+            <th><span jhiTranslate="managementPortalApp.sourceData.sourceDataType">Source Data Type</span></th>
+            <th><span jhiTranslate="managementPortalApp.sourceData.sourceDataName">Source Data Name</span></th>
+            <th><span jhiTranslate="managementPortalApp.sourceData.processingState">Processing State</span></th>
             <th><span jhiTranslate="managementPortalApp.sourceData.keySchema">Key schema</span></th>
             <th><span jhiTranslate="managementPortalApp.sourceData.frequency">Frequency</span></th>
             <th></th>
@@ -27,27 +28,28 @@
             <tbody>
             <tr *ngFor="let sourceData of sourceData ;trackBy: trackId">
                 <td>{{sourceData.id}}</td>
-                <td><a [routerLink]="['../source-data', sourceData.sensorName ]">{{sourceData.sensorName}}</a></td>
-                <td jhiTranslate="{{'managementPortalApp.DataType.' + sourceData.dataType}}">{{sourceData.dataType}}</td>
+                <td>{{sourceData.sourceDataType}}</td>
+                <td><a [routerLink]="['../source-data', sourceData.sourceDataName ]">{{sourceData.sourceDataName}}</a></td>
+                <td jhiTranslate="{{'managementPortalApp.processingState.' + sourceData.processingState}}">{{sourceData.processingState}}</td>
                 <td>{{sourceData.keySchema}}</td>
                 <td>{{sourceData.frequency}}</td>
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"
-                                [routerLink]="['../source-data', sourceData.sensorName ]"
+                                [routerLink]="['../source-data', sourceData.sourceDataName ]"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
                         </button>
                         <button type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'source-data/'+ sourceData.sensorName + '/edit'} }]"
+                                [routerLink]="['/', { outlets: { popup: 'source-data/'+ sourceData.sourceDataName + '/edit'} }]"
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>
                             <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
                         </button>
                         <button type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'source-data/'+ sourceData.sensorName + '/delete'} }]"
+                                [routerLink]="['/', { outlets: { popup: 'source-data/'+ sourceData.sourceDataName + '/delete'} }]"
                                 replaceUrl="true"
                                 class="btn btn-danger btn-sm">
                             <span class="fa fa-remove"></span>

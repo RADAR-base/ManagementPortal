@@ -8,7 +8,7 @@ import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 import { Source } from './source.model';
 import { SourcePopupService } from './source-popup.service';
 import { SourceService } from './source.service';
-import {DeviceType} from "../../entities/device-type/device-type.model";
+import {SourceType} from "../../entities/source-type/source-type.model";
 import {ProjectService} from "../../entities/project/project.service";
 
 @Component({
@@ -20,7 +20,7 @@ export class SourceDialogComponent implements OnInit {
     source: Source;
     authorities: any[];
     isSaving: boolean;
-    deviceTypes: DeviceType[];
+    sourceTypes: SourceType[];
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -37,8 +37,8 @@ export class SourceDialogComponent implements OnInit {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         if(this.source.project) {
-            this.projectService.findDeviceTypesByName(this.source.project.projectName).subscribe((res: Response) => {
-                this.deviceTypes = res.json();
+            this.projectService.findSourceTypesByName(this.source.project.projectName).subscribe((res: Response) => {
+                this.sourceTypes = res.json();
             });
         }
     }
@@ -80,7 +80,7 @@ export class SourceDialogComponent implements OnInit {
         this.alertService.error(error.message, null, null);
     }
 
-    trackDeviceTypeById(index: number, item: DeviceType) {
+    trackSourceTypeById(index: number, item: SourceType) {
         return item.id;
     }
 

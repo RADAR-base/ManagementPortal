@@ -61,8 +61,8 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liqui
             <column name="project_name" type="varchar(255)"/>
         </createIndex>
 
-        <createTable tableName="project_device_type">
-            <column name="device_types_id" type="bigint">
+        <createTable tableName="project_source_type">
+            <column name="source_types_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
             <column name="projects_id" type="bigint">
@@ -70,7 +70,7 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liqui
             </column>
         </createTable>
 
-        <addPrimaryKey columnNames="projects_id, device_types_id" tableName="project_device_type"/>
+        <addPrimaryKey columnNames="projects_id, source_types_id" tableName="project_source_type"/>
 
     </changeSet>
 </databaseChangeLog>

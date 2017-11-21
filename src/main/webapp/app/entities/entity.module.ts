@@ -1,6 +1,6 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
-import { ManagementPortalDeviceTypeModule } from './device-type/device-type.module';
+import { ManagementPortalSourceTypeModule } from './source-type/source-type.module';
 import { ManagementPortalProjectModule } from './project/project.module';
 import { ManagementPortalSourceDataModule } from './source-data/source-data.module';
 import { ManagementPortalRoleModule } from "./role/role.module";
@@ -12,7 +12,7 @@ import { ManagementPortalOAuthClientModule } from './oauth-client/oauth-client.m
 @NgModule({
     imports: [
         ManagementPortalSourceModule,
-        ManagementPortalDeviceTypeModule,
+        ManagementPortalSourceTypeModule,
         ManagementPortalProjectModule,
         ManagementPortalSourceDataModule,
         ManagementPortalRoleModule,
