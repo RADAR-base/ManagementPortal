@@ -101,8 +101,11 @@ managementportal:
     frontend:
         clientId: ManagementPortalapp
         clientSecret:
-        clientScopes: read,write
+        accessTokenValiditySeconds: 14400
+        refreshTokenValiditySeconds: 259200
         sesssionTimeout : 86400
+    oauth:
+        clientsFile: /mp-includes/config/oauth_client_details.csv
 
 # ===================================================================
 # JHipster specific properties

@@ -101,7 +101,11 @@ managementportal:
     frontend:
         clientId: ManagementPortalapp
         clientSecret: my-secret-token-to-change-in-production
+        accessTokenValiditySeconds: 14400
+        refreshTokenValiditySeconds: 259200
         sessionTimeout : 86400 # session for rft cookie
+    oauth:
+        clientsFile: src/main/docker/etc/config/oauth_client_details.csv
 
 # ===================================================================
 # JHipster specific properties

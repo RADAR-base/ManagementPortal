@@ -27,7 +27,7 @@ ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
 
 # Add the war and changelogs files from build stage
 COPY --from=builder /app/build/libs/*.war /app.war
-COPY --from=builder /app/src/main/docker/etc/config /mp-includes/config
+COPY --from=builder /app/src/main/docker/etc /mp-includes
 
 EXPOSE 8080 5701/udp
 CMD echo "The application will start in ${JHIPSTER_SLEEP}s..." && \
