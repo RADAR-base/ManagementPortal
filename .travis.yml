@@ -24,12 +24,15 @@ before_install:
   - java -version
   - sudo /etc/init.d/mysql stop
   - sudo /etc/init.d/postgresql stop
+  - npm install -g npm@5 # skip this if you are using node 9
+  - npm install -g greenkeeper-lockfile@1
   # Repo for Yarn
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH=$HOME/.yarn/bin:$PATH
 install:
   - yarn install
 before_script:
+  - greenkeeper-lockfile-update
   - cp src/test/resources/config/keystore.jks src/main/resources/config/keystore.jks # we need the keystore to run our app, and we need our app to run e2e tests
   - ./gradlew bootRun 1> /dev/null &
   - sleep 60 # give spring boot some time to start
@@ -39,6 +42,7 @@ script:
   - yarn e2e
   - ./gradlew bootRepackage -Pprod -x test
 after_script:
+  - greenkeeper-lockfile-upload
   - ./gradlew sendCoverageToCodacy
 deploy:
   - provider: releases
