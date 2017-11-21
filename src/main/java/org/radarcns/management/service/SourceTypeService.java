@@ -45,7 +45,7 @@ public class SourceTypeService {
         log.debug("Request to save SourceType : {}", sourceTypeDTO);
         SourceType sourceType = sourceTypeMapper.sourceTypeDTOToSourceType(sourceTypeDTO);
         for(SourceData data : sourceType.getSourceData()) {
-            sourceDataRepository.save(data);
+            sourceDataRepository.save(sourceType.getSourceData());
         }
         sourceType = sourceTypeRepository.save(sourceType);
         return sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
@@ -59,7 +59,8 @@ public class SourceTypeService {
     @Transactional(readOnly = true)
     public List<SourceTypeDTO> findAll() {
         log.debug("Request to get all SourceTypes");
-        return sourceTypeRepository.findAllWithEagerRelationships().stream()
+        List<SourceType> result = sourceTypeRepository.findAllWithEagerRelationships();
+        return result.stream()
             .map(sourceTypeMapper::sourceTypeToSourceTypeDTO)
             .collect(Collectors.toCollection(LinkedList::new));
 

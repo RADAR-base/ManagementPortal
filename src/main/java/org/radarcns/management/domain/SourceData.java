@@ -1,10 +1,8 @@
 package org.radarcns.management.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.radarcns.management.domain.enumeration.ProcessingState;
-
+import java.io.Serializable;
+import java.util.Objects;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -13,14 +11,14 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.radarcns.management.domain.enumeration.ProcessingState;
 
 /**
  * A SourceData.
@@ -44,7 +42,7 @@ public class SourceData implements Serializable {
 
     // this will be the unique human readable identifier of
     @NotNull
-    @Column(name = "source_data_name", nullable = false , unique = true)
+    @Column(name = "source_data_name", nullable = false, unique = true)
     private String sourceDataName;
 
     //Default data frequency
@@ -82,10 +80,9 @@ public class SourceData implements Serializable {
     @Column(name = "enabled")
     private boolean enabled = true;
 
-    @ManyToMany(mappedBy = "sourceData" , fetch = FetchType.EAGER)
-    @JsonIgnore
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    private Set<SourceType> sourceTypes = new HashSet<>();
+    @ManyToOne()
+    @JoinColumn(name = "source_type_id")
+    private SourceType sourceType;
 
     public Long getId() {
         return id;
@@ -152,25 +149,12 @@ public class SourceData implements Serializable {
         this.frequency = frequency;
     }
 
-    public Set<SourceType> getSourceTypes() {
-        return sourceTypes;
+    public SourceType getSourceType() {
+        return sourceType;
     }
 
-    public SourceData sourceTypes(Set<SourceType> sourceTypes) {
-        this.sourceTypes = sourceTypes;
-        return this;
-    }
-
-    public SourceData addSourceType(SourceType sourceType) {
-        this.sourceTypes.add(sourceType);
-        sourceType.getSourceData().add(this);
-        return this;
-    }
-
-    public SourceData removeSourceType(SourceType sourceType) {
-        this.sourceTypes.remove(sourceType);
-        sourceType.getSourceData().remove(this);
-        return this;
+    public void setSourceType(SourceType sourceType) {
+        this.sourceType = sourceType;
     }
 
     public String getUnit() {
@@ -181,7 +165,7 @@ public class SourceData implements Serializable {
         this.unit = unit;
     }
 
-    public String  getDataClass() {
+    public String getDataClass() {
         return dataClass;
     }
 
@@ -221,9 +205,6 @@ public class SourceData implements Serializable {
         this.enabled = enabled;
     }
 
-    public void setSourceTypes(Set<SourceType> sourceTypes) {
-        this.sourceTypes = sourceTypes;
-    }
 
     public String getSourceDataName() {
         return sourceDataName;
@@ -255,10 +236,11 @@ public class SourceData implements Serializable {
 
     @Override
     public String toString() {
-        return "SourceData{" + "id=" + id + ", sourceDataType='" + sourceDataType + '\'' + ", frequency='"
+        return "SourceData{" + "id=" + id + ", sourceDataType='" + sourceDataType + '\''
+            + ", frequency='"
             + frequency + '\'' + ", unit='" + unit + '\'' + ", processingState=" + processingState
             + ", dataClass='" + dataClass + '\'' + ", keySchema='" + keySchema + '\''
             + ", valueSchema='" + valueSchema + '\'' + ", topic='" + topic + '\'' + ", provider='"
-            + provider + '\'' + ", enabled=" + enabled + ", sourceTypes=" + sourceTypes + '}';
+            + provider + '\'' + ", enabled=" + enabled + ", sourceTypes=" + sourceType + '}';
     }
 }

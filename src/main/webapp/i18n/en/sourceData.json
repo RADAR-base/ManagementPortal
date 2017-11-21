@@ -22,5 +22,8 @@
             "frequency": "Frequency",
             "sourceType": "Source Type"
         }
+    },
+    "error" : {
+        "sourceDataNameAvailable" : "SourceDataName is already in use"
     }
 }

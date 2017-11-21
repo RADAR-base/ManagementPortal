@@ -48,10 +48,6 @@
                   separator=";"
                   tableName="source_type"/>
         <loadData encoding="UTF-8"
-                  file="config/liquibase/source_type_source_data.csv"
-                  separator=";"
-                  tableName="source_type_source_data"/>
-        <loadData encoding="UTF-8"
                   file="config/liquibase/project_source_type.csv"
                   separator=";"
                   tableName="project_source_type"/>
