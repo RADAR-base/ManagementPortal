@@ -16,7 +16,7 @@ export class Project {
         public startDate?: any,
         public projectStatus?: ProjectStatus,
         public endDate?: any,
-        public deviceTypeId?: number,
+        public sourceTypeId?: number,
         public attributes ?: Attribute[]
     ) {
     }

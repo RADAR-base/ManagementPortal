@@ -6,15 +6,15 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.authorization.Permission;
-import org.radarcns.management.domain.DeviceType;
+import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.SecurityUtils;
-import org.radarcns.management.service.DeviceTypeService;
+import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.SubjectService;
-import org.radarcns.management.service.dto.DeviceTypeDTO;
+import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
@@ -77,7 +77,7 @@ public class SubjectResource {
     private ProjectRepository projectRepository;
 
     @Autowired
-    private DeviceTypeService deviceTypeService;
+    private SourceTypeService sourceTypeService;
 
     @Autowired
     private HttpServletRequest servletRequest;
@@ -272,8 +272,8 @@ public class SubjectResource {
      * POST  /subjects/:login/sources: Assign a source to the specified user
      *
      * The request body is a {@link MinimalSourceDetailsDTO}. At minimum, the source should
-     * define it's device type by either supplying the deviceTypeId, or the combination of
-     * (deviceTypeProducer, deviceTypeModel, deviceTypeCatalogVersion) fields. A source ID will
+     * define it's source type by either supplying the sourceTypeId, or the combination of
+     * (sourceTypeProducer, sourceTypeModel, sourceTypeCatalogVersion) fields. A source ID will
      * be automatically generated. The source ID will be a new random UUID, and the source name,
      * if not provided, will be the device model, appended with a dash and the first eight
      * characters of the UUID. The sources will be created and assigned to the specified user.
@@ -289,9 +289,9 @@ public class SubjectResource {
     @ApiResponses({
             @ApiResponse(code = 200, message = "An existing source was assigned"),
             @ApiResponse(code = 201, message = "A new source was created and assigned"),
-            @ApiResponse(code = 400, message = "You must supply either a Device Type ID, or the "
-                    + "combination of (deviceTypeProducer, deviceTypeModel, catalogVersion)"),
-            @ApiResponse(code = 404, message = "Either the subject or the device type was not "
+            @ApiResponse(code = 400, message = "You must supply either a Source Type ID, or the "
+                    + "combination of (sourceTypeProducer, sourceTypeModel, catalogVersion)"),
+            @ApiResponse(code = 404, message = "Either the subject or the source type was not "
                     + "found.")
     })
     @Timed
@@ -316,38 +316,38 @@ public class SubjectResource {
                     " is not assigned to any project. Could not find project for this subject."));
         }
         Role role = roleOptional.get();
-        // find out device type id of supplied device
-        Long deviceTypeId = sourceDTO.getDeviceTypeId();
-        if (Objects.isNull(deviceTypeId)) {
+        // find out source type id of supplied source
+        Long sourceTypeId = sourceDTO.getSourceTypeId();
+        if (Objects.isNull(sourceTypeId)) {
             // check if combination (producer, model, version) is present
-            final String msg = "You must supply either the deviceTypeId, or the combination of "
-                    + "(deviceTypeProducer, deviceTypeModel, catalogVersion) fields.";
+            final String msg = "You must supply either the sourceTypeId, or the combination of "
+                    + "(sourceTypeProducer, sourceTypeModel, catalogVersion) fields.";
             try {
-                String producer = Objects.requireNonNull(sourceDTO.getDeviceTypeProducer(), msg);
-                String model = Objects.requireNonNull(sourceDTO.getDeviceTypeModel(), msg);
-                String version = Objects.requireNonNull(sourceDTO.getDeviceTypeCatalogVersion(),
+                String producer = Objects.requireNonNull(sourceDTO.getSourceTypeProducer(), msg);
+                String model = Objects.requireNonNull(sourceDTO.getSourceTypeModel(), msg);
+                String version = Objects.requireNonNull(sourceDTO.getSourceTypeCatalogVersion(),
                         msg);
-                DeviceTypeDTO deviceTypeDTO = deviceTypeService
+                SourceTypeDTO sourceTypeDTO = sourceTypeService
                         .findByProducerAndModelAndVersion(producer, model, version);
-                if (Objects.isNull(deviceTypeDTO)) {
+                if (Objects.isNull(sourceTypeDTO)) {
                     return ResponseEntity.notFound().build();
                 }
-                deviceTypeId = deviceTypeDTO.getId();
+                sourceTypeId = sourceTypeDTO.getId();
             } catch (NullPointerException ex) {
                 log.error(ex.getMessage() + ", supplied sourceDTO: " + sourceDTO.toString());
                 throw new CustomParameterizedException(ex.getMessage());
             }
         }
-        // find whether the relevant device-type is available in the subject's project
-        Optional<DeviceType> deviceType;
-        deviceType = projectRepository.findDeviceTypeByProjectIdAndDeviceTypeId(
-                role.getProject().getId(), deviceTypeId);
+        // find whether the relevant source-type is available in the subject's project
+        Optional<SourceType> sourceType;
+        sourceType = projectRepository.findSourceTypeByProjectIdAndSourceTypeId(
+                role.getProject().getId(), sourceTypeId);
 
-        if (!deviceType.isPresent()) {
+        if (!sourceType.isPresent()) {
             // return bad request
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(HeaderUtil
-                .createAlert("deviceTypeNotAvailable",
-                    "No device-type found for device type ID " + sourceDTO.getDeviceTypeId()
+                .createAlert("sourceTypeNotAvailable",
+                    "No source-type found for source type ID " + sourceDTO.getSourceTypeId()
                         + " in relevant project")).body(null);
         }
 
@@ -361,7 +361,7 @@ public class SubjectResource {
 
         // handle the source registration
         MinimalSourceDetailsDTO sourceRegistered = subjectService
-                .assignOrUpdateSource(sub, deviceType.get(), role.getProject(), sourceDTO);
+                .assignOrUpdateSource(sub, sourceType.get(), role.getProject(), sourceDTO);
 
         // Return the correct response type, either created if a new source was created, or ok if
         // an existing source was provided. If an existing source was given but not found, the

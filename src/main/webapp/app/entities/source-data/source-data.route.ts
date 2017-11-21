@@ -22,7 +22,7 @@ export const sourceDataRoute: Routes = [
     },
     canActivate: [UserRouteAccessService]
   }, {
-    path: 'source-data/:sensorName',
+    path: 'source-data/:sourceDataName',
     component: SourceDataDetailComponent,
     data: {
         authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
@@ -44,7 +44,7 @@ export const sourceDataPopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'source-data/:sensorName/edit',
+    path: 'source-data/:sourceDataName/edit',
     component: SourceDataPopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
@@ -54,7 +54,7 @@ export const sourceDataPopupRoute: Routes = [
     outlet: 'popup'
   },
   {
-    path: 'source-data/:sensorName/delete',
+    path: 'source-data/:sourceDataName/delete',
     component: SourceDataDeletePopupComponent,
     data: {
         authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],

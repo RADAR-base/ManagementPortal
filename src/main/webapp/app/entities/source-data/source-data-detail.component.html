@@ -1,16 +1,20 @@
 
 <div *ngIf="sourceData">
-    <h2><span jhiTranslate="managementPortalApp.sourceData.detail.title">Source data</span> {{sourceData.sensorName}}</h2>
+    <h2><span jhiTranslate="managementPortalApp.sourceData.detail.title">Source data</span> {{sourceData.sourceDataName}}</h2>
     <hr>
     <jhi-alert-error></jhi-alert-error>
     <dl class="row-md jh-entity-details">
-        <dt><span jhiTranslate="managementPortalApp.sourceData.sensorName">Sensor Name</span></dt>
+        <dt><span jhiTranslate="managementPortalApp.sourceData.sourceDataType">Source Data Type</span></dt>
         <dd>
-            <span>{{sourceData.sensorName}}</span>
+            <span>{{sourceData.sourceDataType}}</span>
         </dd>
-        <dt><span jhiTranslate="managementPortalApp.sourceData.dataType">Data Type</span></dt>
+        <dt><span jhiTranslate="managementPortalApp.sourceData.sourceDataType">Source Data Name</span></dt>
         <dd>
-            <span jhiTranslate="{{'managementPortalApp.DataType.' + sourceData.dataType}}">{{sourceData.dataType}}</span>
+            <span>{{sourceData.sourceDataName}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.sourceData.processingState">Processing State</span></dt>
+        <dd>
+            <span jhiTranslate="{{'managementPortalApp.processingState.' + sourceData.processingState}}">{{sourceData.processingState}}</span>
         </dd>
         <dt><span jhiTranslate="managementPortalApp.sourceData.keySchema">Data Format</span></dt>
         <dd>
@@ -29,7 +33,7 @@
     </button>
 
     <button type="button"
-            [routerLink]="['/', { outlets: { popup: ['source-data', sourceData.sensorName, 'edit']} }]"
+            [routerLink]="['/', { outlets: { popup: ['source-data', sourceData.sourceDataName, 'edit']} }]"
             replaceUrl="true"
             class="btn btn-primary">
         <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>

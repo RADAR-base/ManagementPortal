@@ -22,15 +22,15 @@ export class SourceDataDeleteDialogComponent {
         public activeModal: NgbActiveModal,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['sourceData', 'dataType']);
+        this.jhiLanguageService.setLocations(['sourceData', 'processingState']);
     }
 
     clear() {
         this.activeModal.dismiss('cancel');
     }
 
-    confirmDelete(sensorName: string) {
-        this.sourceDataService.delete(sensorName).subscribe((response) => {
+    confirmDelete(sourceDataName: string) {
+        this.sourceDataService.delete(sourceDataName).subscribe((response) => {
             this.eventManager.broadcast({
                 name: 'sourceDataListModification',
                 content: 'Deleted an sourceData'
@@ -57,7 +57,7 @@ export class SourceDataDeletePopupComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
             this.modalRef = this.sourceDataPopupService
-                .open(SourceDataDeleteDialogComponent, params['sensorName']);
+                .open(SourceDataDeleteDialogComponent, params['sourceDataName']);
         });
     }
 

@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Mapper for the entity Project and its DTO ProjectDTO.
  */
-@Mapper(componentModel = "spring", uses = {DeviceTypeMapper.class, })
+@Mapper(componentModel = "spring", uses = {SourceTypeMapper.class, })
 @DecoratedWith(ProjectMapperDecorator.class)
 public interface ProjectMapper {
 

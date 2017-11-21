@@ -1,0 +1,9 @@
+{
+    "managementPortalApp": {
+        "processingState" : {
+            "null": "",
+            "RAW": "RAW",
+            "DERIVED": "DERIVED"
+        }
+    }
+}

@@ -17,10 +17,9 @@
             },
             "sourceId": "Source ID",
             "sourceName": "Source Name",
-            "deviceCategory": "Device Category",
             "assigned": "Assigned",
             "unassigned": "Unassigned",
-            "deviceType": "Device Type",
+            "sourceType": "Source Type",
             "project": "Project",
             "expectedSourceName" : "Physical ID",
             "sourceAlreadyAdded" : "This source has been already added in your list"

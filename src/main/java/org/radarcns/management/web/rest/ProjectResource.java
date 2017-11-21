@@ -11,7 +11,7 @@ import org.radarcns.management.security.SecurityUtils;
 import org.radarcns.management.service.ProjectService;
 import org.radarcns.management.service.RoleService;
 import org.radarcns.management.service.SourceService;
-import org.radarcns.management.service.dto.DeviceTypeDTO;
+import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.RoleDTO;
@@ -168,15 +168,15 @@ public class ProjectResource {
      * @param projectName the projectName of the projectDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the projectDTO, or with status 404 (Not Found)
      */
-    @GetMapping("/projects/{projectName}/device-types")
+    @GetMapping("/projects/{projectName}/source-types")
     @Timed
-    public List<DeviceTypeDTO> getDeviceTypesOfProject(@PathVariable String projectName) {
+    public List<SourceTypeDTO> getSourceTypesOfProject(@PathVariable String projectName) {
         log.debug("REST request to get Project : {}", projectName);
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
             checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ, projectDTO.getProjectName());
         }
-        return projectService.findDeviceTypesById(projectDTO.getId());
+        return projectService.findSourceTypesById(projectDTO.getId());
     }
 
 
@@ -230,7 +230,7 @@ public class ProjectResource {
         if (projectDTO != null) {
             checkPermissionOnProject(getJWT(servletRequest), SOURCE_READ, projectDTO.getProjectName());
         }
-        
+
         if(Objects.nonNull(assigned)) {
             if (minimized) {
                 return ResponseEntity.ok(sourceService

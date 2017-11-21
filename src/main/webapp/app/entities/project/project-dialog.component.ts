@@ -8,7 +8,7 @@ import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 import { Project } from './project.model';
 import { ProjectPopupService } from './project-popup.service';
 import { ProjectService } from './project.service';
-import { DeviceType, DeviceTypeService } from '../device-type';
+import { SourceType, SourceTypeService } from '../source-type';
 
 @Component({
     selector: 'jhi-project-dialog',
@@ -20,7 +20,7 @@ export class ProjectDialogComponent implements OnInit  {
     authorities: any[];
     isSaving: boolean;
 
-    devicetypes: DeviceType[];
+    sourceTypes: SourceType[];
     keys : string[];
     attributeComponentEventPrefix : 'projectAttributes';
     constructor(
@@ -28,7 +28,7 @@ export class ProjectDialogComponent implements OnInit  {
         private jhiLanguageService: JhiLanguageService,
         private alertService: AlertService,
         private projectService: ProjectService,
-        private deviceTypeService: DeviceTypeService,
+        private sourceTypeService: SourceTypeService,
         private eventManager: EventManager
     ) {
         this.jhiLanguageService.setLocations(['project', 'projectStatus' , 'source' , 'subject' , 'user-management']);
@@ -37,8 +37,8 @@ export class ProjectDialogComponent implements OnInit  {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN' , 'ROLE_PROJECT_ADMIN'];
-        this.deviceTypeService.query().subscribe(
-            (res: Response) => { this.devicetypes = res.json(); }, (res: Response) => this.onError(res.json()));
+        this.sourceTypeService.query().subscribe(
+            (res: Response) => { this.sourceTypes = res.json(); }, (res: Response) => this.onError(res.json()));
         this.keys = ['Work-package', 'Phase' , 'External-project-url' , 'External-project-id'];
         this.registerChangesInProject();
     }
@@ -79,7 +79,7 @@ export class ProjectDialogComponent implements OnInit  {
         this.alertService.error(error.message, null, null);
     }
 
-    trackDeviceTypeById(index: number, item: DeviceType) {
+    trackSourceTypeById(index: number, item: SourceType) {
         return item.id;
     }
 

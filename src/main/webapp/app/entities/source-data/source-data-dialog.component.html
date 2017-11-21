@@ -13,22 +13,34 @@
                    [(ngModel)]="sourceData.id" readonly />
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.sensorName" for="field_sensorName">Sensor Name</label>
-            <input type="text" class="form-control" name="sensorName" id="field_sensorName"
-                [(ngModel)]="sourceData.sensorName"
+            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.sourceDataType" for="field_sourceDataType">Source Data Type</label>
+            <input type="text" class="form-control" name="sourceDataType" id="field_sourceDataType"
+                [(ngModel)]="sourceData.sourceDataType"
             required />
-            <div [hidden]="!(editForm.controls.sensorName?.dirty && editForm.controls.sensorName?.invalid)">
+            <div [hidden]="!(editForm.controls.sourceDataType?.dirty && editForm.controls.sourceDataType?.invalid)">
                 <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.sensorName?.errors?.required" jhiTranslate="entity.validation.required">
+                   [hidden]="!editForm.controls.sourceDataType?.errors?.required" jhiTranslate="entity.validation.required">
                    This field is required.
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.dataType" for="field_dataType">Data Type</label>
-            <select class="form-control" name="dataType" [(ngModel)]="sourceData.dataType" id="field_dataType" >
-                <option value="RAW" jhiTranslate="managementPortalApp.DataType.RAW">RAW</option>
-                <option value="DERIVED" jhiTranslate="managementPortalApp.DataType.DERIVED">DERIVED</option>
+            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.sourceDataName" for="field_sourceDataName">Source Data Name</label>
+            <input type="text" class="form-control" name="sourceDataName" id="field_sourceDataName"
+                   [(ngModel)]="sourceData.sourceDataName"
+                   required />
+            <div [hidden]="!(editForm.controls.sourceDataName?.dirty && editForm.controls.sourceDataName?.invalid)">
+                <small class="form-text text-danger"
+                       [hidden]="!editForm.controls.sourceDataName?.errors?.required" jhiTranslate="entity.validation.required">
+                    This field is required.
+                </small>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.processingState" for="field_processingState">Processing State</label>
+            <select class="form-control" name="processingState" [(ngModel)]="sourceData.processingState" id="field_processingState" >
+                <option value="RAW" jhiTranslate="managementPortalApp.processingState.RAW">RAW</option>
+                <option value="DERIVED" jhiTranslate="managementPortalApp.processingState.DERIVED">DERIVED</option>
             </select>
         </div>
         <div class="form-group">

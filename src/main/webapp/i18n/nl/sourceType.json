@@ -1,9 +1,36 @@
 {
     "managementPortalApp": {
-        "SourceType" : {
-            "null": "",
-            "ACTIVE": "ACTIVE",
-            "PASSIVE": "PASSIVE"
+        "sourceType" : {
+            "home": {
+                "title": "Source Types",
+                "createLabel": "Maak een nieuwe Source Type",
+                "createOrEditLabel": "Maak of wijzig een Source Type"
+            },
+            "created": "A new Source Type is created with identifier {{ param }}",
+            "updated": "A Source Type is updated with identifier {{ param }}",
+            "deleted": "A Source Type is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Bent u zeker dat u Source Type {{ id }} wilt verwijderen?"
+            },
+            "detail": {
+                "title": "Source Type"
+            },
+            "producer": "Producer",
+            "model": "Model",
+            "catalogVersion": "Catalog Version",
+            "sourceTypeScope": "Source Type Scope",
+            "sourceData": "Source data",
+            "project": "Project",
+            "sourceRegistration" : "Source Registratie",
+            "dynamicRegistration": "Dynamisch source Registratie",
+            "manualRegistration": "Met de hand Source Registratie",
+            "name": "naam",
+            "description": "Beschrijving",
+            "assessmentType": "beoordeling Type",
+            "appProvider": "App provider"
         }
+    },
+    "error": {
+        "sourceTypeAvailable" : "Een SourceType met bepaalde producent, model en versie is al beschikbaar"
     }
 }
