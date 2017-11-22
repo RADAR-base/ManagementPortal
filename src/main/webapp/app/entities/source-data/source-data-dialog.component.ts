@@ -20,7 +20,7 @@ export class SourceDataDialogComponent implements OnInit {
     authorities: any[];
     isSaving: boolean;
 
-    // sourceTypes: SourceType[];
+    sourceTypes: SourceType[];
     constructor(
         public activeModal: NgbActiveModal,
         private jhiLanguageService: JhiLanguageService,
@@ -35,8 +35,8 @@ export class SourceDataDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN' , 'ROLE_PROJECT_ADMIN'];
-        // this.sourceTypeService.query().subscribe(
-        //     (res: Response) => { this.sourceTypes = res.json(); }, (res: Response) => this.onError(res.json()));
+        this.sourceTypeService.query().subscribe(
+            (res: Response) => { this.sourceTypes = res.json(); }, (res: Response) => this.onError(res.json()));
     }
     clear() {
         this.activeModal.dismiss('cancel');

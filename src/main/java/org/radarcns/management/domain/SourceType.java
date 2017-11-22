@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -21,6 +20,8 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.radarcns.management.domain.enumeration.SourceTypeScope;
 
 /**
@@ -71,6 +72,8 @@ public class SourceType implements Serializable {
     private Boolean canRegisterDynamically = false;
 
     @OneToMany(mappedBy = "sourceType" , fetch = FetchType.EAGER)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE )
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<SourceData> sourceData;
 
     @ManyToMany(mappedBy = "sourceTypes")
@@ -144,6 +147,18 @@ public class SourceType implements Serializable {
 
     public SourceType sourceData(Set<SourceData> sourceData) {
         this.sourceData = sourceData;
+        return this;
+    }
+
+    public SourceType addSourceData(SourceData sourceData) {
+        this.sourceData.add(sourceData);
+        sourceData.setSourceType(this);
+        return this;
+    }
+
+    public SourceType removeSourceData(SourceData sourceData) {
+        this.sourceData.remove(sourceData);
+        sourceData.setSourceType(null);
         return this;
     }
 
