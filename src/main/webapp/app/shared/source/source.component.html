@@ -40,7 +40,7 @@
             <tbody>
             <tr *ngFor="let source of sources ;trackBy: trackId">
                 <td>{{source.id}}</td>
-                <td><a [routerLink]="['../source', source.sourceName ]">{{source.sourceName}}</a></td>
+                <td><a [routerLink]="['/source', source.sourceName ]">{{source.sourceName}}</a></td>
                 <td>{{source.expectedSourceName}}</td>
                 <td>{{source.sourceId}}</td>
                 <td>
@@ -51,7 +51,7 @@
                 </td>
                 <td>
                     <div *ngIf="source.sourceType">
-                        <a [routerLink]="['/source-type', source.sourceType?.id ]" >{{source.sourceType.model}}</a>
+                        <a [routerLink]="['/source-type', source.sourceType?.producer , source.sourceType?.model , source.sourceType?.catalogVersion ]" >{{source.sourceType.model }}</a>
                     </div>
                 </td>
                 <td *ngIf="!isProjectSpecific">
