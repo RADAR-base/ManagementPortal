@@ -36,7 +36,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -139,10 +141,22 @@ public class OAuthClientsResourceIntTest {
     @Test
     @Transactional
     public void createAndFetchOAuthClient() throws Exception {
+        // fetch the created oauth client and check the json result
         restProjectMockMvc.perform(get("/api/oauth-clients/" + details.getClientId())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.clientId").value(equalTo(details.getClientId())));
+                .andExpect(jsonPath("$.clientId").value(equalTo(details.getClientId())))
+                .andExpect(jsonPath("$.clientSecret").value(nullValue()))
+                .andExpect(jsonPath("$.accessTokenValiditySeconds").value(equalTo(details
+                        .getAccessTokenValiditySeconds().intValue())))
+                .andExpect(jsonPath("$.refreshTokenValiditySeconds").value(equalTo(details
+                        .getRefreshTokenValiditySeconds().intValue())))
+                .andExpect(jsonPath("$.scope").value(contains(details.getScope().toArray())))
+                .andExpect(jsonPath("$.autoApproveScopes").value(contains(details
+                        .getAutoApproveScopes().toArray())))
+                .andExpect(jsonPath("$.authorizedGrantTypes").value(contains(details
+                        .getAuthorizedGrantTypes().toArray())))
+                .andExpect(jsonPath("$.authorities").value(contains(details.getAuthorities().toArray())));
 
         ClientDetails testDetails = clientDetailsList.stream().filter(
                 d -> d.getClientId().equals(details.getClientId())).findFirst().get();
@@ -163,6 +177,15 @@ public class OAuthClientsResourceIntTest {
         assertThat(testDetails.getAdditionalInformation()).containsAllEntriesOf(
                 details.getAdditionalInformation()
         );
+    }
+
+    @Test
+    @Transactional
+    public void dupliceOAuthClient() throws Exception {
+        restProjectMockMvc.perform(post("/api/oauth-clients")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(details)))
+                .andExpect(status().isConflict());
     }
 
     @Test
