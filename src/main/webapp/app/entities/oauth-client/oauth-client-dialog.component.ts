@@ -51,7 +51,7 @@ export class OAuthClientDialogComponent implements OnInit  {
         // transform array of resources to a comma seperated string so we can bind a single text box to it
         this.resourcesList = this.client.resourceIds.join(", ");
         // transform array of auto-approve scopes to a comma seperated string so we can bind a single text box to it
-        this.autoApproveScopeList = this.client.autoApproveScopes.join(", ");
+        this.autoApproveScopeList = this.client.autoApproveScopes ? this.client.autoApproveScopes.join(", ") : "";
         this.dynamicRegistrationKey = 'dynamic_registration';
         this.dynamicRegistration = this.client.additionalInformation[this.dynamicRegistrationKey] == 'true';
         this.authorities = ['ROLE_SYS_ADMIN'];
