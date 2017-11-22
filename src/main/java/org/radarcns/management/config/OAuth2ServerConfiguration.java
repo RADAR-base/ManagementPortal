@@ -49,11 +49,8 @@ import java.util.Arrays;
 @Configuration
 public class OAuth2ServerConfiguration {
 
-    private final DataSource dataSource;
-
-    public OAuth2ServerConfiguration(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
+    @Autowired
+    private DataSource dataSource;
 
     @Configuration
     @Order(-20)
@@ -89,22 +86,17 @@ public class OAuth2ServerConfiguration {
     @EnableResourceServer
     protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
-        private final TokenStore tokenStore;
+        @Autowired
+        private TokenStore tokenStore;
 
-        private final Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint;
+        @Autowired
+        private Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint;
 
-        private final AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
+        @Autowired
+        private AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
 
-        private final CorsFilter corsFilter;
-
-        public ResourceServerConfiguration(TokenStore tokenStore, Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint,
-            AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler, CorsFilter corsFilter) {
-
-            this.tokenStore = tokenStore;
-            this.http401UnauthorizedEntryPoint = http401UnauthorizedEntryPoint;
-            this.ajaxLogoutSuccessHandler = ajaxLogoutSuccessHandler;
-            this.corsFilter = corsFilter;
-        }
+        @Autowired
+        private CorsFilter corsFilter;
 
         @Override
         public void configure(HttpSecurity http) throws Exception {
