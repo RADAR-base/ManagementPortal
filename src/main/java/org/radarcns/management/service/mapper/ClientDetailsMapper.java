@@ -1,9 +1,10 @@
 package org.radarcns.management.service.mapper;
 
-import org.mapstruct.BeanMapping;
+import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.radarcns.management.service.dto.ClientDetailsDTO;
+import org.radarcns.management.service.mapper.decorator.ClientDetailsMapperDecorator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.provider.ClientDetails;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
  * Created by dverbeec on 7/09/2017.
  */
 @Mapper(componentModel = "spring", uses = {BaseClientDetails.class})
+@DecoratedWith(ClientDetailsMapperDecorator.class)
 public interface ClientDetailsMapper {
 
     @Mapping(target = "clientSecret", ignore = true)
