@@ -1,0 +1,29 @@
+{
+    "managementPortalApp": {
+        "sourceData" : {
+            "home": {
+                "title": "Source data",
+                "createLabel": "Create a new Source data",
+                "createOrEditLabel": "Create or edit a Source data"
+            },
+            "created": "A new Source data is created with identifier {{ param }}",
+            "updated": "A Source data is updated with identifier {{ param }}",
+            "deleted": "A Source data is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Source data {{ id }}?"
+            },
+            "detail": {
+                "title": "Source data"
+            },
+            "sourceDataType": "Source Data Type",
+            "sourceDataName": "Source Data Name",
+            "processingState": "Processing State",
+            "keySchema": "keySchema",
+            "frequency": "Frequency",
+            "sourceType": "Source Type"
+        }
+    },
+    "error" : {
+        "sourceDataNameAvailable" : "SourceDataName is already in use"
+    }
+}

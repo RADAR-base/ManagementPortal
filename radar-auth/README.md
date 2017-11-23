@@ -10,7 +10,7 @@ Add the dependency to your project.
 
 Gradle:
 ```groovy
-compile group: 'org.radarcns', name: 'radar-auth', version: '0.2.1'
+compile group: 'org.radarcns', name: 'radar-auth', version: '0.3.0'
 ```
 
 The library expects the identity server configuration in a file called `radar-is.yml`. Either set 
@@ -63,7 +63,7 @@ are:
 - `checkPermissionOnSubject()`: to check a permission in the context of a subject
 
 All of these methods will first check for a correct OAuth scope to be present. Scopes should have
-the following structure: `ENTITY.OPERATION`. Where `ENTITY` is any of `DEVICETYPE, SENSORDATA, 
+the following structure: `ENTITY.OPERATION`. Where `ENTITY` is any of `SOURCETYPE, SOURCEDATA, 
 SOURCE, SUBJECT, USER, ROLE, PROJECT, OAUTHCLIENTS, AUDIT, AUTHORITY, MEASUREMENT` and `OPERATION`
 is any of `CREATE, UPDATE, READ, WRITE`. If a correct scope is present, access is granted 
 immediately. Therefore it is recommended only to use scopes when there is no user, as is the case

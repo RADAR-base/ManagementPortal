@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <property name="now" value="now()" dbms="h2"/>
+
+    <property name="now" value="now()" dbms="mysql"/>
+    <property name="autoIncrement" value="true"/>
+
+    <property name="floatType" value="float4" dbms="postgresql, h2"/>
+    <property name="floatType" value="float" dbms="mysql, oracle, mssql"/>
+
+    <property name="uuid_type" value="uuid" dbms="postgresql, h2"/>
+    <property name="uuid_type" value="uniqueidentifier" dbms="mssql"/>
+    <property name="uuid_type" value="RAW(32)" dbms="oracle"/>
+
+    <!--
+        Added the entSourcevice.
+    -->
+    <changeSet id="00000000000002" author="jhipster">
+        <createTable tableName="radar_source">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="source_id" type="${uuid_type}">
+                <constraints unique="true" nullable="false" />
+            </column>
+
+            <column name="source_name" type="varchar(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+
+            <column name="expected_source_name" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="assigned" type="boolean">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="source_type_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="project_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
+        </createTable>
+
+        <createIndex tableName="radar_source" indexName="idx_source_name" unique="true">
+            <column name="source_name" type="varchar(255)"/>
+        </createIndex>
+
+    </changeSet>
+</databaseChangeLog>

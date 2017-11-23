@@ -4,7 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.repository.SourceRepository;
-import org.radarcns.management.service.DeviceTypeService;
+import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.ProjectService;
 import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
@@ -60,7 +60,7 @@ public class SourceResource {
     private SourceRepository sourceRepository;
 
     @Autowired
-    private DeviceTypeService deviceTypeService;
+    private SourceTypeService sourceTypeService;
 
     @Autowired
     private HttpServletRequest servletRequest;

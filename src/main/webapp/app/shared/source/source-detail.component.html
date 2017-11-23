@@ -20,10 +20,10 @@
         <dd>
             <span>{{source.assigned}}</span>
         </dd>
-        <dt><span jhiTranslate="managementPortalApp.source.deviceType">Device Type</span></dt>
+        <dt><span jhiTranslate="managementPortalApp.source.sourceType">Source Type</span></dt>
         <dd>
-            <div *ngIf="source.deviceType">
-                <a [routerLink]="['/device-type', source.deviceType?.deviceProducer, source.deviceType?.deviceModel, source.deviceType?.catalogVersion]">{{source.deviceType.deviceModel}}</a>
+            <div *ngIf="source.sourceType">
+                <a [routerLink]="['/source-type', source.sourceType?.producer, source.sourceType?.model, source.sourceType?.catalogVersion]">{{source.sourceType.model}}</a>
             </div>
         </dd>
         <dt><span jhiTranslate="managementPortalApp.source.project">Project</span></dt>

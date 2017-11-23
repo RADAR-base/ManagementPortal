@@ -1,0 +1,29 @@
+{
+    "managementPortalApp": {
+        "sourceData" : {
+            "home": {
+                "title": "Source data",
+                "createLabel": "Maak een nieuwe Source data",
+                "createOrEditLabel": "Maak of wijzig een Source data"
+            },
+            "created": "A new Source data is created with identifier {{ param }}",
+            "updated": "A Source data is updated with identifier {{ param }}",
+            "deleted": "A Source data is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Bent u zeker dat u Source data {{ id }} wilt verwijderen?"
+            },
+            "detail": {
+                "title": "Source data"
+            },
+            "sourceDataType": "Source Data Type",
+            "sourceDataName": "Source Data Name",
+            "processingState": "Processing State",
+            "dataFormat": "Data Format",
+            "frequency": "Frequency",
+            "sourceType": "Source Type"
+        }
+    },
+    "error" : {
+        "sourceDataNameAvailable" : "SourceDataName al in gebruik"
+    }
+}

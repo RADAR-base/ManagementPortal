@@ -70,9 +70,11 @@ export class NavbarComponent implements OnInit {
     loadRelevantProjects() {
         this.principal.identity().then((account) => {
             this.currentAccount = account;
-            this.userService.findProject(this.currentAccount.login).subscribe(res  => {
-                this.projects = res.json();
-            });
+            if (this.currentAccount) {
+                this.userService.findProject(this.currentAccount.login).subscribe(res => {
+                    this.projects = res.json();
+                });
+            }
         });
     }
 

@@ -1,0 +1,41 @@
+
+<div *ngIf="sourceData">
+    <h2><span jhiTranslate="managementPortalApp.sourceData.detail.title">Source data</span> {{sourceData.sourceDataName}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="managementPortalApp.sourceData.sourceDataType">Source Data Type</span></dt>
+        <dd>
+            <span>{{sourceData.sourceDataType}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.sourceData.sourceDataType">Source Data Name</span></dt>
+        <dd>
+            <span>{{sourceData.sourceDataName}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.sourceData.processingState">Processing State</span></dt>
+        <dd>
+            <span jhiTranslate="{{'managementPortalApp.processingState.' + sourceData.processingState}}">{{sourceData.processingState}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.sourceData.keySchema">Data Format</span></dt>
+        <dd>
+            <span>{{sourceData.keySchema}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.sourceData.frequency">Frequency</span></dt>
+        <dd>
+            <span>{{sourceData.frequency}}</span>
+        </dd>
+    </dl>
+
+    <button type="submit"
+            (click)="previousState()"
+            class="btn btn-info">
+        <span class="fa fa-arrow-left"></span>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+    </button>
+
+    <button type="button"
+            [routerLink]="['/', { outlets: { popup: ['source-data', sourceData.sourceDataName, 'edit']} }]"
+            replaceUrl="true"
+            class="btn btn-primary">
+        <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+    </button>
+</div>

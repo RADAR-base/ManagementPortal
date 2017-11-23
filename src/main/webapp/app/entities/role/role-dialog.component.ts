@@ -35,7 +35,7 @@ export class RoleDialogComponent implements OnInit {
         private principal: Principal,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['role', 'dataType']);
+        this.jhiLanguageService.setLocations(['role', 'processingState']);
     }
 
     ngOnInit() {
@@ -103,7 +103,7 @@ export class RoleDialogComponent implements OnInit {
 }
 
 @Component({
-    selector: 'jhi-sensor-data-popup',
+    selector: 'jhi-source-data-popup',
     template: ''
 })
 export class RolePopupComponent implements OnInit, OnDestroy {

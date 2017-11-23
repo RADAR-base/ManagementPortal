@@ -61,7 +61,7 @@
                 </td>
                 <td>
                     <span *ngFor="let sources of subject.sources; let last = last">
-                        <a class="form-control-static" [routerLink]="['/source', sources.id ]">{{sources.deviceTypeModel}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
+                        <a class="form-control-static" [routerLink]="['/source', sources.sourceName ]">{{sources.sourceTypeModel}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
                     </span>
                 </td>
                 <td>

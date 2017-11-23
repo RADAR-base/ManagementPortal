@@ -9,9 +9,9 @@ import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.JwtAuthenticationFilter;
-import org.radarcns.management.service.DeviceTypeService;
+import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.SubjectService;
-import org.radarcns.management.service.dto.DeviceTypeDTO;
+import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
@@ -67,8 +67,8 @@ public class SubjectResourceIntTest {
 
     private static final SubjectDTO.SubjectStatus DEFAULT_STATUS = SubjectDTO.SubjectStatus.ACTIVATED;
 
-    private static final String DEVICE_MODEL = "App";
-    private static final String DEVICE_PRODUCER ="THINC-IT App";
+    private static final String MODEL = "App";
+    private static final String PRODUCER ="THINC-IT App";
     private static final String DEVICE_VERSION = "v1";
 
     @Autowired
@@ -81,7 +81,7 @@ public class SubjectResourceIntTest {
     private SubjectService subjectService;
 
     @Autowired
-    private DeviceTypeService deviceTypeService;
+    private SourceTypeService sourceTypeService;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -111,7 +111,7 @@ public class SubjectResourceIntTest {
         ReflectionTestUtils.setField(subjectResource, "subjectRepository" , subjectRepository);
         ReflectionTestUtils.setField(subjectResource, "subjectMapper" , subjectMapper);
         ReflectionTestUtils.setField(subjectResource, "projectRepository" , projectRepository);
-        ReflectionTestUtils.setField(subjectResource, "deviceTypeService", deviceTypeService);
+        ReflectionTestUtils.setField(subjectResource, "sourceTypeService", sourceTypeService);
         ReflectionTestUtils.setField(subjectResource, "servletRequest", servletRequest);
 
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
@@ -375,16 +375,16 @@ public class SubjectResourceIntTest {
     private MinimalSourceDetailsDTO createSourceWithDeviceId() {
         // Create a source description
         MinimalSourceDetailsDTO sourceRegistrationDTO = new MinimalSourceDetailsDTO();
-        sourceRegistrationDTO.setSourceName(DEVICE_PRODUCER + " " + DEVICE_MODEL);
+        sourceRegistrationDTO.setSourceName(PRODUCER + " " + MODEL);
         sourceRegistrationDTO.getAttributes().put("some", "value");
 
-        List<DeviceTypeDTO> deviceTypes = deviceTypeService.findAll().stream()
+        List<SourceTypeDTO> sourceTypes = sourceTypeService.findAll().stream()
                 .filter(dt -> dt.getCanRegisterDynamically())
                 .collect(Collectors.toList());
 
-        assertThat(deviceTypes.size()).isGreaterThan(0);
-        DeviceTypeDTO deviceType = deviceTypes.get(0);
-        sourceRegistrationDTO.setDeviceTypeId(deviceType.getId());
+        assertThat(sourceTypes.size()).isGreaterThan(0);
+        SourceTypeDTO sourceType = sourceTypes.get(0);
+        sourceRegistrationDTO.setSourceTypeId(sourceType.getId());
 
         assertThat(sourceRegistrationDTO.getSourceId()).isNull();
         return sourceRegistrationDTO;
@@ -393,18 +393,18 @@ public class SubjectResourceIntTest {
     private MinimalSourceDetailsDTO createSourceWithoutDeviceId() {
         // Create a source description
         MinimalSourceDetailsDTO sourceRegistrationDTO = new MinimalSourceDetailsDTO();
-        sourceRegistrationDTO.setSourceName(DEVICE_PRODUCER + " " + DEVICE_MODEL);
+        sourceRegistrationDTO.setSourceName(PRODUCER + " " + MODEL);
         sourceRegistrationDTO.getAttributes().put("some", "value");
 
-        List<DeviceTypeDTO> deviceTypes = deviceTypeService.findAll().stream()
+        List<SourceTypeDTO> sourceTypes = sourceTypeService.findAll().stream()
                 .filter(dt -> dt.getCanRegisterDynamically())
                 .collect(Collectors.toList());
 
-        assertThat(deviceTypes.size()).isGreaterThan(0);
-        DeviceTypeDTO deviceType = deviceTypes.get(0);
-        sourceRegistrationDTO.setDeviceTypeCatalogVersion(deviceType.getCatalogVersion());
-        sourceRegistrationDTO.setDeviceTypeModel(deviceType.getDeviceModel());
-        sourceRegistrationDTO.setDeviceTypeProducer(deviceType.getDeviceProducer());
+        assertThat(sourceTypes.size()).isGreaterThan(0);
+        SourceTypeDTO sourceType = sourceTypes.get(0);
+        sourceRegistrationDTO.setSourceTypeCatalogVersion(sourceType.getCatalogVersion());
+        sourceRegistrationDTO.setSourceTypeModel(sourceType.getModel());
+        sourceRegistrationDTO.setSourceTypeProducer(sourceType.getProducer());
 
         assertThat(sourceRegistrationDTO.getSourceId()).isNull();
         return sourceRegistrationDTO;
