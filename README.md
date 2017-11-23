@@ -19,7 +19,7 @@ keytool -genkey -alias selfsigned -keyalg RSA -keystore src/main/docker/etc/conf
 2. Then, make sure [Docker][] and [Docker-Compose][] are installed on your system.
 3. Finally, we can start the stack with `docker-compose -f src/main/docker/app.yml up -d`.
 
-The docker image can be pulled by running `docker pull radarcns/management-portal:0.2.0`.
+The docker image can be pulled by running `docker pull radarcns/management-portal:0.3.0`.
 
 ## Configuration
 
