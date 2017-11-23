@@ -21,7 +21,6 @@ export class SourceTypeDialogComponent implements OnInit {
     authorities: any[];
     isSaving: boolean;
 
-    sourceData: SourceData[];
 
     projects: Project[];
     constructor(
@@ -39,8 +38,6 @@ export class SourceTypeDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
-        this.sourceDataService.query().subscribe(
-            (res: Response) => { this.sourceData = res.json(); }, (res: Response) => this.onError(res.json()));
         this.projectService.query().subscribe(
             (res: Response) => { this.projects = res.json(); }, (res: Response) => this.onError(res.json()));
     }
@@ -79,10 +76,6 @@ export class SourceTypeDialogComponent implements OnInit {
 
     private onError(error) {
         this.alertService.error(error.message, null, null);
-    }
-
-    trackSourceDataById(index: number, item: SourceData) {
-        return item.id;
     }
 
     trackProjectById(index: number, item: Project) {

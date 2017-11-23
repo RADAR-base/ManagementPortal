@@ -153,7 +153,7 @@ public class SubjectService {
         }
         // update participant role
         Set<Role> managedRoles = subject.getUser().getRoles().stream()
-            .filter(r -> !r.getAuthority().equals(AuthoritiesConstants.PARTICIPANT))
+            .filter(r -> !AuthoritiesConstants.PARTICIPANT.equals(r.getAuthority().getName()))
             .collect(Collectors.toSet());
         managedRoles.add(getProjectParticipantRole(subjectDTO.getProject()));
         subject.getUser().setRoles(managedRoles);

@@ -18,8 +18,8 @@ public class Permission {
 
     public enum Entity {
         // ManagementPortal entities
-        DEVICETYPE,
-        SENSORDATA,
+        SOURCETYPE,
+        SOURCEDATA,
         SOURCE,
         SUBJECT,
         USER,
@@ -40,22 +40,22 @@ public class Permission {
         DELETE
     }
 
-    public static final Permission DEVICETYPE_CREATE =
-            new Permission(Entity.DEVICETYPE, Operation.CREATE);
-    public static final Permission DEVICETYPE_READ =
-            new Permission(Entity.DEVICETYPE, Operation.READ);
-    public static final Permission DEVICETYPE_UPDATE =
-            new Permission(Entity.DEVICETYPE, Operation.UPDATE);
-    public static final Permission DEVICETYPE_DELETE =
-            new Permission(Entity.DEVICETYPE, Operation.DELETE);
-    public static final Permission SENSORDATA_CREATE =
-            new Permission(Entity.SENSORDATA, Operation.CREATE);
-    public static final Permission SENSORDATA_READ =
-            new Permission(Entity.SENSORDATA, Operation.READ);
-    public static final Permission SENSORDATA_UPDATE =
-            new Permission(Entity.SENSORDATA, Operation.UPDATE);
-    public static final Permission SENSORDATA_DELETE =
-            new Permission(Entity.SENSORDATA, Operation.DELETE);
+    public static final Permission SOURCETYPE_CREATE =
+            new Permission(Entity.SOURCETYPE, Operation.CREATE);
+    public static final Permission SOURCETYPE_READ =
+            new Permission(Entity.SOURCETYPE, Operation.READ);
+    public static final Permission SOURCETYPE_UPDATE =
+            new Permission(Entity.SOURCETYPE, Operation.UPDATE);
+    public static final Permission SOURCETYPE_DELETE =
+            new Permission(Entity.SOURCETYPE, Operation.DELETE);
+    public static final Permission SOURCEDATA_CREATE =
+            new Permission(Entity.SOURCEDATA, Operation.CREATE);
+    public static final Permission SOURCEDATA_READ =
+            new Permission(Entity.SOURCEDATA, Operation.READ);
+    public static final Permission SOURCEDATA_UPDATE =
+            new Permission(Entity.SOURCEDATA, Operation.UPDATE);
+    public static final Permission SOURCEDATA_DELETE =
+            new Permission(Entity.SOURCEDATA, Operation.DELETE);
     public static final Permission SOURCE_CREATE = new Permission(Entity.SOURCE, Operation.CREATE);
     public static final Permission SOURCE_READ = new Permission(Entity.SOURCE, Operation.READ);
     public static final Permission SOURCE_UPDATE = new Permission(Entity.SOURCE, Operation.UPDATE);

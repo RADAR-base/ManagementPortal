@@ -31,10 +31,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import static org.radarcns.auth.authorization.Permission.DEVICETYPE_CREATE;
-import static org.radarcns.auth.authorization.Permission.DEVICETYPE_DELETE;
-import static org.radarcns.auth.authorization.Permission.DEVICETYPE_READ;
-import static org.radarcns.auth.authorization.Permission.DEVICETYPE_UPDATE;
+import static org.radarcns.auth.authorization.Permission.SOURCETYPE_CREATE;
+import static org.radarcns.auth.authorization.Permission.SOURCETYPE_DELETE;
+import static org.radarcns.auth.authorization.Permission.SOURCETYPE_READ;
+import static org.radarcns.auth.authorization.Permission.SOURCETYPE_UPDATE;
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarcns.management.security.SecurityUtils.getJWT;
 
@@ -69,7 +69,7 @@ public class SourceTypeResource {
     @Timed
     public ResponseEntity<SourceTypeDTO> createSourceType(@Valid @RequestBody SourceTypeDTO sourceTypeDTO) throws URISyntaxException {
         log.debug("REST request to save SourceType : {}", sourceTypeDTO);
-        checkPermission(getJWT(servletRequest), DEVICETYPE_CREATE);
+        checkPermission(getJWT(servletRequest), SOURCETYPE_CREATE);
         if (sourceTypeDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new sourceType cannot already have an ID")).body(null);
         }
@@ -105,7 +105,7 @@ public class SourceTypeResource {
         if (sourceTypeDTO.getId() == null) {
             return createSourceType(sourceTypeDTO);
         }
-        checkPermission(getJWT(servletRequest), DEVICETYPE_UPDATE);
+        checkPermission(getJWT(servletRequest), SOURCETYPE_UPDATE);
         SourceTypeDTO result = sourceTypeService.save(sourceTypeDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceTypeDTO.getId().toString()))
@@ -120,7 +120,7 @@ public class SourceTypeResource {
     @GetMapping("/source-types")
     @Timed
     public ResponseEntity<List<SourceTypeDTO>> getAllSourceTypes() {
-        checkPermission(getJWT(servletRequest), DEVICETYPE_READ);
+        checkPermission(getJWT(servletRequest), SOURCETYPE_READ);
         return ResponseEntity.ok(sourceTypeService.findAll());
     }
 
@@ -132,7 +132,7 @@ public class SourceTypeResource {
     @GetMapping("/source-types/{producer}")
     @Timed
     public ResponseEntity<List<SourceTypeDTO>> getSourceTypes(@PathVariable String producer) {
-        checkPermission(getJWT(servletRequest), DEVICETYPE_READ);
+        checkPermission(getJWT(servletRequest), SOURCETYPE_READ);
         return ResponseEntity.ok(sourceTypeService.findByProducer(producer));
     }
 
@@ -148,7 +148,7 @@ public class SourceTypeResource {
     @Timed
     public ResponseEntity<List<SourceTypeDTO>> getSourceTypes(@PathVariable String producer,
             @PathVariable String model) {
-        checkPermission(getJWT(servletRequest), DEVICETYPE_READ);
+        checkPermission(getJWT(servletRequest), SOURCETYPE_READ);
         return ResponseEntity.ok(sourceTypeService.findByProducerAndModel(producer, model));
     }
 
@@ -164,7 +164,7 @@ public class SourceTypeResource {
     @Timed
     public ResponseEntity<SourceTypeDTO> getSourceTypes(@PathVariable String producer,
         @PathVariable String model, @PathVariable String version) {
-        checkPermission(getJWT(servletRequest), DEVICETYPE_READ);
+        checkPermission(getJWT(servletRequest), SOURCETYPE_READ);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(
             sourceTypeService.findByProducerAndModelAndVersion(producer, model, version)));
     }
@@ -182,7 +182,7 @@ public class SourceTypeResource {
     @Timed
     public ResponseEntity<Void> deleteSourceType(@PathVariable String producer,
         @PathVariable String model, @PathVariable String version) {
-        checkPermission(getJWT(servletRequest), DEVICETYPE_DELETE);
+        checkPermission(getJWT(servletRequest), SOURCETYPE_DELETE);
         SourceTypeDTO sourceTypeDTO = sourceTypeService
             .findByProducerAndModelAndVersion(producer, model, version);
         if (Objects.isNull(sourceTypeDTO)) {

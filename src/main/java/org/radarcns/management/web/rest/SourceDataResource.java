@@ -1,9 +1,9 @@
 package org.radarcns.management.web.rest;
 
-import static org.radarcns.auth.authorization.Permission.SENSORDATA_CREATE;
-import static org.radarcns.auth.authorization.Permission.SENSORDATA_DELETE;
-import static org.radarcns.auth.authorization.Permission.SENSORDATA_READ;
-import static org.radarcns.auth.authorization.Permission.SENSORDATA_UPDATE;
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_CREATE;
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_DELETE;
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_READ;
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_UPDATE;
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarcns.management.security.SecurityUtils.getJWT;
 
@@ -59,7 +59,7 @@ public class SourceDataResource {
     @Timed
     public ResponseEntity<SourceDataDTO> createSourceData(@Valid @RequestBody SourceDataDTO sourceDataDTO) throws URISyntaxException {
         log.debug("REST request to save SourceData : {}", sourceDataDTO);
-        checkPermission(getJWT(servletRequest), SENSORDATA_CREATE);
+        checkPermission(getJWT(servletRequest), SOURCEDATA_CREATE);
         if (sourceDataDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new sourceData cannot already have an ID")).body(null);
         }
@@ -90,7 +90,7 @@ public class SourceDataResource {
         if (sourceDataDTO.getId() == null) {
             return createSourceData(sourceDataDTO);
         }
-        checkPermission(getJWT(servletRequest), SENSORDATA_UPDATE);
+        checkPermission(getJWT(servletRequest), SOURCEDATA_UPDATE);
         SourceDataDTO result = sourceDataService.save(sourceDataDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceDataDTO.getId().toString()))
@@ -106,7 +106,7 @@ public class SourceDataResource {
     @Timed
     public List<SourceDataDTO> getAllSourceData() {
         log.debug("REST request to get all SourceData");
-        checkPermission(getJWT(servletRequest), SENSORDATA_READ);
+        checkPermission(getJWT(servletRequest), SOURCEDATA_READ);
         return sourceDataService.findAll();
     }
 
@@ -119,7 +119,7 @@ public class SourceDataResource {
     @GetMapping("/source-data/{sourceDataName}")
     @Timed
     public ResponseEntity<SourceDataDTO> getSourceData(@PathVariable String sourceDataName) {
-        checkPermission(getJWT(servletRequest), SENSORDATA_READ);
+        checkPermission(getJWT(servletRequest), SOURCEDATA_READ);
         return ResponseUtil.wrapOrNotFound(sourceDataService.findOneBySourceDataName(sourceDataName));
     }
 
@@ -132,7 +132,7 @@ public class SourceDataResource {
     @DeleteMapping("/source-data/{sourceDataName}")
     @Timed
     public ResponseEntity<Void> deleteSourceData(@PathVariable String sourceDataName) {
-        checkPermission(getJWT(servletRequest), SENSORDATA_DELETE);
+        checkPermission(getJWT(servletRequest), SOURCEDATA_DELETE);
         Optional<SourceDataDTO> sourceDataDTO = sourceDataService.findOneBySourceDataName(sourceDataName);
         if (!sourceDataDTO.isPresent()) {
             return ResponseEntity.notFound().build();

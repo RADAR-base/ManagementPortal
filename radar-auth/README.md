@@ -63,7 +63,7 @@ are:
 - `checkPermissionOnSubject()`: to check a permission in the context of a subject
 
 All of these methods will first check for a correct OAuth scope to be present. Scopes should have
-the following structure: `ENTITY.OPERATION`. Where `ENTITY` is any of `DEVICETYPE, SENSORDATA, 
+the following structure: `ENTITY.OPERATION`. Where `ENTITY` is any of `SOURCETYPE, SOURCEDATA, 
 SOURCE, SUBJECT, USER, ROLE, PROJECT, OAUTHCLIENTS, AUDIT, AUTHORITY, MEASUREMENT` and `OPERATION`
 is any of `CREATE, UPDATE, READ, WRITE`. If a correct scope is present, access is granted 
 immediately. Therefore it is recommended only to use scopes when there is no user, as is the case
