@@ -9,14 +9,13 @@ import org.radarcns.management.service.dto.SourceDataDTO;
 /**
  * Mapper for the entity SourceData and its DTO SourceDataDTO.
  */
-@Mapper(componentModel = "spring", uses = {})
+@Mapper(componentModel = "spring", uses = {SourceTypeMapper.class})
 public interface SourceDataMapper {
 
     SourceDataDTO sourceDataToSourceDataDTO(SourceData sourceData);
 
     List<SourceDataDTO> sourceDataToSourceDataDTOs(List<SourceData> sourceData);
 
-    @Mapping(target = "sourceType", ignore = true)
     SourceData sourceDataDTOToSourceData(SourceDataDTO sourceDataDTO);
 
     List<SourceData> sourceDataDTOsToSourceData(List<SourceDataDTO> sourceDataDTOs);
@@ -36,6 +35,4 @@ public interface SourceDataMapper {
         sourceData.setId(id);
         return sourceData;
     }
-
-
 }

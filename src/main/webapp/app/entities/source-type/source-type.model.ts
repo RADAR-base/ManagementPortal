@@ -21,3 +21,13 @@ export class SourceType {
     ) {
     }
 }
+
+export class MinimalSourceType {
+    constructor(
+        public id?: number,
+        public producer?: string,
+        public model?: string,
+        public catalogVersion?: string,
+    ) {
+    }
+}

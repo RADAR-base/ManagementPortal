@@ -25,6 +25,13 @@
             </div>
         </div>
         <div class="form-group">
+            <label jhiTranslate="managementPortalApp.sourceData.sourceType" for="field_sourceType">Source Type</label>
+            <select class="form-control" id="field_sourceType" name="sourceType" [(ngModel)]="sourceData.sourceType" >
+                <option [ngValue]="null"></option>
+                <option [ngValue]="sourceTypeOption" *ngFor="let sourceTypeOption of sourceTypes; trackBy: trackSourceTypeById">{{sourceTypeOption.model}}</option>
+            </select>
+        </div>
+        <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.sourceDataName" for="field_sourceDataName">Source Data Name</label>
             <input type="text" class="form-control" name="sourceDataName" id="field_sourceDataName"
                    [(ngModel)]="sourceData.sourceDataName"

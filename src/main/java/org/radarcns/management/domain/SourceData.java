@@ -2,16 +2,13 @@ package org.radarcns.management.domain;
 
 import java.io.Serializable;
 import java.util.Objects;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -81,7 +78,6 @@ public class SourceData extends AbstractAuditingEntity implements Serializable {
     private boolean enabled = true;
 
     @ManyToOne()
-    @JoinColumn(name = "source_type_id")
     private SourceType sourceType;
 
     public Long getId() {
@@ -155,6 +151,11 @@ public class SourceData extends AbstractAuditingEntity implements Serializable {
 
     public void setSourceType(SourceType sourceType) {
         this.sourceType = sourceType;
+    }
+
+    public SourceData sourceType(SourceType sourceType) {
+        this.sourceType = sourceType;
+        return this;
     }
 
     public String getUnit() {
@@ -241,6 +242,6 @@ public class SourceData extends AbstractAuditingEntity implements Serializable {
             + frequency + '\'' + ", unit='" + unit + '\'' + ", processingState=" + processingState
             + ", dataClass='" + dataClass + '\'' + ", keySchema='" + keySchema + '\''
             + ", valueSchema='" + valueSchema + '\'' + ", topic='" + topic + '\'' + ", provider='"
-            + provider + '\'' + ", enabled=" + enabled + ", sourceTypes=" + sourceType + '}';
+            + provider + '\'' + ", enabled=" + enabled + '}';
     }
 }

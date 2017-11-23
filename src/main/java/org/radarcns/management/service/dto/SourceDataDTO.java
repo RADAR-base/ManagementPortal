@@ -43,6 +43,8 @@ public class SourceDataDTO implements Serializable {
 
     private boolean enabled = true;
 
+    private MinimalSourceTypeDTO sourceType;
+
     public Long getId() {
         return id;
     }
@@ -137,6 +139,14 @@ public class SourceDataDTO implements Serializable {
 
     public void setSourceDataName(String sourceDataName) {
         this.sourceDataName = sourceDataName;
+    }
+
+    public MinimalSourceTypeDTO getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(MinimalSourceTypeDTO sourceType) {
+        this.sourceType = sourceType;
     }
 
     @Override
