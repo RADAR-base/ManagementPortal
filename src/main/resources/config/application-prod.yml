@@ -101,8 +101,7 @@ managementportal:
     frontend:
         clientId: ManagementPortalapp
         clientSecret:
-        clientScopes: read,write
-        sesssionTimeout : 86400
+        sessionTimeout : 86400 # not supported yet
 
 # ===================================================================
 # JHipster specific properties
