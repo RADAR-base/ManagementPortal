@@ -10,6 +10,7 @@ import org.radarcns.management.service.dto.ClientPairInfoDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.ClientDetailsMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
+import org.radarcns.management.web.rest.errors.CustomConflictException;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
 import org.radarcns.management.web.rest.errors.CustomParameterizedException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -44,6 +45,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -194,6 +196,15 @@ public class OAuthClientsResource {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_CREATE);
         // check if we have an ID field supplied
         checkClientFields(clientDetailsDTO);
+        // check if the client id exists
+        try {
+            ClientDetails existing = clientDetailsService.loadClientByClientId(clientDetailsDTO
+                    .getClientId());
+            throw new CustomConflictException("An OAuth client with that ID already exists",
+                    Collections.singletonMap("client_id", clientDetailsDTO.getClientId()));
+        } catch (NoSuchClientException ex) {
+            // Client does not exist yet, we can go ahead and create it
+        }
         ClientDetails details = clientDetailsMapper
                 .clientDetailsDTOToClientDetails(clientDetailsDTO);
         clientDetailsService.addClientDetails(details);
