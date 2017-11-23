@@ -1,7 +1,6 @@
 package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
@@ -15,10 +14,11 @@ import org.radarcns.management.web.rest.errors.CustomNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.audit.AuditEvent;
+import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -80,6 +80,9 @@ public class OAuthClientsResource {
     @Autowired
     private HttpServletRequest servletRequest;
 
+    @Autowired
+    private AuditEventRepository eventRepository;
+
     @GetMapping("/oauthclients")
     @Timed
     public ResponseEntity<List<ClientDetailsDTO>> getOAuthClients() {
@@ -119,8 +122,6 @@ public class OAuthClientsResource {
 
         // lookup the subject
         Subject subject = getSubject(login);
-        log.info("Pair client request for subject login: {}", login);
-
         SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
 
         // Users who can update a subject can also generate a refresh token for that subject
@@ -136,12 +137,14 @@ public class OAuthClientsResource {
         user.getAuthorities().stream()
             .forEach(a -> authorities.add(new SimpleGrantedAuthority(a.getName())));
 
-        log.info("Requesting token with scopes: [" + String.join(",", details.getScope()) + "] and "
-            + " resource ids: [" + String.join(",", details.getResourceIds()) + "]");
         OAuth2AccessToken token = createToken(clientId, user.getLogin(), authorities,
             details.getScope(), details.getResourceIds());
 
         ClientPairInfoDTO cpi = new ClientPairInfoDTO(token.getRefreshToken().getValue());
+
+        // generate audit event
+        eventRepository.add(new AuditEvent(currentUser.getLogin(),"PAIR_CLIENT_REQUEST",
+                "client_id=" + clientId, "subject_login=" + login));
 
         return new ResponseEntity<>(cpi, HttpStatus.OK);
     }
