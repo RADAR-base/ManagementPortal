@@ -30,7 +30,7 @@ plugins {
 
 allprojects {
     group 'org.radarcns'
-    version '0.2.1'
+    version '0.3.0'
 
     apply plugin: 'java'
     apply plugin: 'java-library'

@@ -47,8 +47,8 @@ public class OAuth2TokenRequestPostZuulFilter extends ZuulFilter {
         final String requestURI = ctx.getRequest().getRequestURI();
         final String requestMethod = ctx.getRequest().getMethod();
         Collection<String> activeProfiles = Arrays.asList(env.getActiveProfiles());
-        try {
-            final InputStream is = ctx.getResponseDataStream();
+
+        try (final InputStream is = ctx.getResponseDataStream()) {
             String responseBody = IOUtils.toString(is, "UTF-8");
             if (responseBody.contains("refresh_token")) {
                 final Map<String, Object> responseMap = mapper
