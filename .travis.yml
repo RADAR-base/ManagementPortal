@@ -37,7 +37,12 @@ script:
   - ./gradlew test
   - yarn test
   - yarn e2e
-  - ./gradlew bootRepackage -Pprod -x test
+  - ./gradlew bootRepackage -Pprod buildDocker -x test
+  - killall java # stop running MP instance
+  - docker-compose -f src/main/docker/app.yml up -d # spin up production mode application
+  - sleep 60 # wait for app to start up
+  - yarn e2e # run e2e tests against production mode
+  - docker-compose -f src/main/docker/app.yml down -v # clean up containers and volumes
 after_script:
   - ./gradlew sendCoverageToCodacy
 deploy:
