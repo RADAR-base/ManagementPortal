@@ -1,0 +1,26 @@
+{
+    "managementPortalApp": {
+        "oauthClient": {
+            "home": {
+                "title": "OAuth Clients",
+                "createLabel": "Registreer nieuwe OAuth Client",
+                "createOrEditLabel": "Maak of wijzig OAuth Client"
+            },
+            "deleted": "OAuth client met client id {{ id }} werd verwijderd",
+            "delete": {
+                "question": "Weet je zeker dat je OAuth client {{ id }} wil verwijderen?"
+            },
+            "clientId": "Client ID",
+            "clientSecret": "Client Secret",
+            "scope": "Scope",
+            "resourceIds": "Resources",
+            "authorizedGrantTypes": "Grant Types",
+            "autoApprove": "Auto Approve",
+            "accessTokenValidity": "Access Token Validity",
+            "refreshTokenValidity": "Refresh Token Validity",
+            "authorities": "Authorities",
+            "additionalInformation": "Additional Information",
+            "actions": "Actions"
+        }
+    }
+}

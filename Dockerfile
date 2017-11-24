@@ -10,7 +10,6 @@ RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
 WORKDIR /app
 COPY build.gradle gradle.properties gradlew package.json postcss.config.js proxy.conf.json settings.gradle tsconfig-aot.json tsconfig.json tslint.json yarn.lock /app/
 COPY gradle gradle
-COPY changelogs changelogs
 COPY webpack webpack
 COPY radar-auth radar-auth
 COPY oauth-client-util oauth-client-util
@@ -28,7 +27,7 @@ ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
 
 # Add the war and changelogs files from build stage
 COPY --from=builder /app/build/libs/*.war /app.war
-COPY --from=builder /app/src/main/docker/etc/config /mp-includes/config
+COPY --from=builder /app/src/main/docker/etc /mp-includes
 
 EXPOSE 8080 5701/udp
 CMD echo "The application will start in ${JHIPSTER_SLEEP}s..." && \

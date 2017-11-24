@@ -119,7 +119,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             "/api/authenticate",
             "/api/authorities/*",
             "/api/source-types/*",
-            "/api/oauthclients/*",
+            "/api/oauth-clients/*",
             "/api/profile-info/*",
             "/api/projects/*",
             "/api/roles/*",
