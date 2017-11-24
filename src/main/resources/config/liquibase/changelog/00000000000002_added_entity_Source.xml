@@ -38,15 +38,11 @@
                 <constraints nullable="true" />
             </column>
 
-            <column name="device_category" type="varchar(255)">
-                <constraints nullable="true" />
-            </column>
-
             <column name="assigned" type="boolean">
                 <constraints nullable="false" />
             </column>
 
-            <column name="device_type_id" type="bigint">
+            <column name="source_type_id" type="bigint">
                 <constraints nullable="true" />
             </column>
 
@@ -54,6 +50,14 @@
                 <constraints nullable="true" />
             </column>
 
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp"/>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
 

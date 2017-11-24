@@ -1,7 +1,20 @@
 package org.radarcns.management.web.rest;
 
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_CREATE;
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_DELETE;
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_READ;
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
+
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import org.radarcns.management.service.SourceDataService;
 import org.radarcns.management.service.dto.SourceDataDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -17,20 +30,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
-
-import static org.radarcns.auth.authorization.Permission.SENSORDATA_CREATE;
-import static org.radarcns.auth.authorization.Permission.SENSORDATA_DELETE;
-import static org.radarcns.auth.authorization.Permission.SENSORDATA_READ;
-import static org.radarcns.auth.authorization.Permission.SENSORDATA_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing SourceData.
@@ -60,9 +59,14 @@ public class SourceDataResource {
     @Timed
     public ResponseEntity<SourceDataDTO> createSourceData(@Valid @RequestBody SourceDataDTO sourceDataDTO) throws URISyntaxException {
         log.debug("REST request to save SourceData : {}", sourceDataDTO);
-        checkPermission(getJWT(servletRequest), SENSORDATA_CREATE);
+        checkPermission(getJWT(servletRequest), SOURCEDATA_CREATE);
         if (sourceDataDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new sourceData cannot already have an ID")).body(null);
+        }
+        if(sourceDataService.findOneBySourceDataName(sourceDataDTO.getSourceDataName()).isPresent()) {
+            return ResponseEntity.badRequest()
+                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceDataNameAvailable", "Source Data Name already in use"))
+                .body(null);
         }
         SourceDataDTO result = sourceDataService.save(sourceDataDTO);
         return ResponseEntity.created(new URI("/api/source-data/" + result.getId()))
@@ -86,7 +90,7 @@ public class SourceDataResource {
         if (sourceDataDTO.getId() == null) {
             return createSourceData(sourceDataDTO);
         }
-        checkPermission(getJWT(servletRequest), SENSORDATA_UPDATE);
+        checkPermission(getJWT(servletRequest), SOURCEDATA_UPDATE);
         SourceDataDTO result = sourceDataService.save(sourceDataDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceDataDTO.getId().toString()))
@@ -102,39 +106,39 @@ public class SourceDataResource {
     @Timed
     public List<SourceDataDTO> getAllSourceData() {
         log.debug("REST request to get all SourceData");
-        checkPermission(getJWT(servletRequest), SENSORDATA_READ);
+        checkPermission(getJWT(servletRequest), SOURCEDATA_READ);
         return sourceDataService.findAll();
     }
 
     /**
-     * GET  /source-data/:sensorName : get the "sensorName" sourceData.
+     * GET  /source-data/:sourceDataName : get the "sourceDataName" sourceData.
      *
-     * @param sensorName the sensorName of the sourceDataDTO to retrieve
+     * @param sourceDataName the sourceDataName of the sourceDataDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the sourceDataDTO, or with status 404 (Not Found)
      */
-    @GetMapping("/source-data/{sensorName}")
+    @GetMapping("/source-data/{sourceDataName}")
     @Timed
-    public ResponseEntity<SourceDataDTO> getSourceData(@PathVariable String sensorName) {
-        checkPermission(getJWT(servletRequest), SENSORDATA_READ);
-        return ResponseUtil.wrapOrNotFound(sourceDataService.findOneBySensorName(sensorName));
+    public ResponseEntity<SourceDataDTO> getSourceData(@PathVariable String sourceDataName) {
+        checkPermission(getJWT(servletRequest), SOURCEDATA_READ);
+        return ResponseUtil.wrapOrNotFound(sourceDataService.findOneBySourceDataName(sourceDataName));
     }
 
     /**
-     * DELETE  /source-data/:sensorName : delete the "sensorName" sourceData.
+     * DELETE  /source-data/:sourceDataName : delete the "sourceDataName" sourceData.
      *
-     * @param sensorName the sensorName of the sourceDataDTO to delete
+     * @param sourceDataName the sourceDataName of the sourceDataDTO to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @DeleteMapping("/source-data/{sensorName}")
+    @DeleteMapping("/source-data/{sourceDataName}")
     @Timed
-    public ResponseEntity<Void> deleteSourceData(@PathVariable String sensorName) {
-        checkPermission(getJWT(servletRequest), SENSORDATA_DELETE);
-        Optional<SourceDataDTO> sourceDataDTO = sourceDataService.findOneBySensorName(sensorName);
+    public ResponseEntity<Void> deleteSourceData(@PathVariable String sourceDataName) {
+        checkPermission(getJWT(servletRequest), SOURCEDATA_DELETE);
+        Optional<SourceDataDTO> sourceDataDTO = sourceDataService.findOneBySourceDataName(sourceDataName);
         if (!sourceDataDTO.isPresent()) {
             return ResponseEntity.notFound().build();
         }
         sourceDataService.delete(sourceDataDTO.get().getId());
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, sensorName)).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, sourceDataName)).build();
     }
 
 }

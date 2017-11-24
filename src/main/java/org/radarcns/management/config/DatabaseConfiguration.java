@@ -8,6 +8,7 @@ import liquibase.integration.spring.SpringLiquibase;
 import org.h2.tools.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.context.annotation.Bean;
@@ -30,11 +31,8 @@ public class DatabaseConfiguration {
 
     private final Logger log = LoggerFactory.getLogger(DatabaseConfiguration.class);
 
-    private final Environment env;
-
-    public DatabaseConfiguration(Environment env) {
-        this.env = env;
-    }
+    @Autowired
+    private Environment env;
 
     /**
      * Open the TCP port for the H2 database, so it is available remotely.

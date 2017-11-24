@@ -21,6 +21,7 @@ export class AuditsComponent implements OnInit {
     reverse: boolean;
     toDate: string;
     totalItems: number;
+    objectKeys = Object.keys;
 
     constructor(
         private jhiLanguageService: JhiLanguageService,

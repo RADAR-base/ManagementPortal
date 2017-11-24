@@ -12,15 +12,15 @@ import org.radarcns.management.service.mapper.decorator.SourceMapperDecorator;
 /**
  * Mapper for the entity Source and its DTO SourceDTO.
  */
-@Mapper(componentModel = "spring", uses = {DeviceTypeMapper.class, ProjectMapper.class})
+@Mapper(componentModel = "spring", uses = {SourceTypeMapper.class, ProjectMapper.class})
 @DecoratedWith(SourceMapperDecorator.class)
 public interface SourceMapper {
     SourceDTO sourceToSourceDTO(Source source);
 
-    @Mapping(source = "deviceType.id", target = "deviceTypeId")
-    @Mapping(source = "deviceType.deviceProducer", target = "deviceTypeProducer")
-    @Mapping(source = "deviceType.deviceModel", target = "deviceTypeModel")
-    @Mapping(source = "deviceType.catalogVersion", target = "deviceTypeCatalogVersion")
+    @Mapping(source = "sourceType.id", target = "sourceTypeId")
+    @Mapping(source = "sourceType.producer", target = "sourceTypeProducer")
+    @Mapping(source = "sourceType.model", target = "sourceTypeModel")
+    @Mapping(source = "sourceType.catalogVersion", target = "sourceTypeCatalogVersion")
     MinimalSourceDetailsDTO sourceToMinimalSourceDetailsDTO(Source source);
 
     List<MinimalSourceDetailsDTO> sourcesToMinimalSourceDetailsDTOs(List<Source> sources);

@@ -11,8 +11,11 @@ import net.logstash.logback.appender.LogstashSocketAppender;
 import net.logstash.logback.stacktrace.ShortenedThrowableConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.PostConstruct;
 
 @Configuration
 public class LoggingConfiguration {
@@ -21,17 +24,17 @@ public class LoggingConfiguration {
 
     private LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
 
-    private final String appName;
+    @Value("${spring.application.name}")
+    private String appName;
 
-    private final String serverPort;
+    @Value("${server.port}")
+    private String serverPort;
 
-    private final JHipsterProperties jHipsterProperties;
+    @Autowired
+    private JHipsterProperties jHipsterProperties;
 
-    public LoggingConfiguration(@Value("${spring.application.name}") String appName, @Value("${server.port}") String serverPort,
-         JHipsterProperties jHipsterProperties) {
-        this.appName = appName;
-        this.serverPort = serverPort;
-        this.jHipsterProperties = jHipsterProperties;
+    @PostConstruct
+    public void setUpLogstash() {
         if (jHipsterProperties.getLogging().getLogstash().isEnabled()) {
             addLogstashAppender(context);
 

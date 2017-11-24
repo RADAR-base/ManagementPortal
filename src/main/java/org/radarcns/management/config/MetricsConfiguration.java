@@ -34,18 +34,11 @@ public class MetricsConfiguration extends MetricsConfigurerAdapter {
 
     private HealthCheckRegistry healthCheckRegistry = new HealthCheckRegistry();
 
-    private final JHipsterProperties jHipsterProperties;
-
-    private HikariDataSource hikariDataSource;
-
-    public MetricsConfiguration(JHipsterProperties jHipsterProperties) {
-        this.jHipsterProperties = jHipsterProperties;
-    }
+    @Autowired
+    private JHipsterProperties jHipsterProperties;
 
     @Autowired(required = false)
-    public void setHikariDataSource(HikariDataSource hikariDataSource) {
-        this.hikariDataSource = hikariDataSource;
-    }
+    private HikariDataSource hikariDataSource;
 
     @Override
     @Bean

@@ -15,11 +15,15 @@
             "detail": {
                 "title": "Source data"
             },
-            "sensorType": "Sensor Type",
-            "dataType": "Data Type",
+            "sourceDataType": "Source Data Type",
+            "sourceDataName": "Source Data Name",
+            "processingState": "Processing State",
             "dataFormat": "Data Format",
             "frequency": "Frequency",
-            "deviceType": "Device Type"
+            "sourceType": "Source Type"
         }
+    },
+    "error" : {
+        "sourceDataNameAvailable" : "SourceDataName al in gebruik"
     }
 }

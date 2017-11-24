@@ -8,10 +8,10 @@
     -->
     <changeSet id="00000000000011" author="nivethika@thehyve.nl">
 
-        <addForeignKeyConstraint baseColumnNames="device_type_id"
+        <addForeignKeyConstraint baseColumnNames="source_type_id"
                                  baseTableName="radar_source"
-                                 constraintName="fk_device_device_type_id"
+                                 constraintName="fk_source_source_type_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="device_type"/>
+                                 referencedTableName="source_type"/>
     </changeSet>
 </databaseChangeLog>

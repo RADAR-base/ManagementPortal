@@ -1,31 +1,50 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-//import { RouterModule } from '@angular/router';
+import { FormsModule} from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
 import { ManagementPortalSharedModule } from '../../shared';
 import {
 OAuthClientService,
 OAuthClientComponent,
+OAuthClientPopupService,
+OAuthClientDialogComponent,
+OAuthClientPopupComponent,
+OAuthClientDeleteDialogComponent,
+OAuthClientDeletePopupComponent,
+oauthClientRoute,
+oauthClientPopupRoute
 } from './';
 
-/*
+
 const ENTITY_STATES = [
-...subjectRoute,
-...subjectPopupRoute,
+    ...oauthClientRoute,
+    ...oauthClientPopupRoute
 ];
-*/
+
 
 @NgModule({
     imports: [
-        ManagementPortalSharedModule
+        ManagementPortalSharedModule,
+        RouterModule.forRoot(ENTITY_STATES, { useHash: true }),
+        FormsModule
     ],
     declarations: [
-        OAuthClientComponent
+        OAuthClientComponent,
+        OAuthClientDialogComponent,
+        OAuthClientPopupComponent,
+        OAuthClientDeleteDialogComponent,
+        OAuthClientDeletePopupComponent
     ],
     entryComponents: [
-        OAuthClientComponent
+        OAuthClientComponent,
+        OAuthClientDialogComponent,
+        OAuthClientPopupComponent,
+        OAuthClientDeleteDialogComponent,
+        OAuthClientDeletePopupComponent
     ],
     providers: [
-        OAuthClientService
+        OAuthClientService,
+        OAuthClientPopupService
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

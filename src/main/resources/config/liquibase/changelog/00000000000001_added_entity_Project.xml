@@ -52,6 +52,14 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liqui
                 <constraints nullable="true" />
             </column>
 
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp"/>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
         <dropDefaultValue tableName="project" columnName="start_date" columnDataType="datetime"/>
@@ -61,8 +69,8 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liqui
             <column name="project_name" type="varchar(255)"/>
         </createIndex>
 
-        <createTable tableName="project_device_type">
-            <column name="device_types_id" type="bigint">
+        <createTable tableName="project_source_type">
+            <column name="source_types_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
             <column name="projects_id" type="bigint">
@@ -70,7 +78,7 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liqui
             </column>
         </createTable>
 
-        <addPrimaryKey columnNames="projects_id, device_types_id" tableName="project_device_type"/>
+        <addPrimaryKey columnNames="projects_id, source_types_id" tableName="project_source_type"/>
 
     </changeSet>
 </databaseChangeLog>

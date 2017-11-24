@@ -56,8 +56,8 @@ export class ProjectService {
             ;
     }
 
-    findDeviceTypesByName(projectName: string): Observable<Response> {
-        return this.http.get(`${this.resourceUrl}/${projectName}/device-types`);
+    findSourceTypesByName(projectName: string): Observable<Response> {
+        return this.http.get(`${this.resourceUrl}/${projectName}/source-types`);
     }
 
     delete(projectName: string): Observable<Response> {

@@ -9,10 +9,10 @@ import java.util.UUID;
  */
 public class MinimalSourceDetailsDTO {
     private Long id;
-    private Long deviceTypeId;
-    private String deviceTypeProducer;
-    private String deviceTypeModel;
-    private String deviceTypeCatalogVersion;
+    private Long sourceTypeId;
+    private String sourceTypeProducer;
+    private String sourceTypeModel;
+    private String sourceTypeCatalogVersion;
     private String expectedSourceName;
     private UUID sourceId;
     private String sourceName;
@@ -28,12 +28,12 @@ public class MinimalSourceDetailsDTO {
 
     private Map<String, String> attributes = new HashMap<>();
 
-    public Long getDeviceTypeId() {
-        return deviceTypeId;
+    public Long getSourceTypeId() {
+        return sourceTypeId;
     }
 
-    public void setDeviceTypeId(Long deviceTypeId) {
-        this.deviceTypeId = deviceTypeId;
+    public void setSourceTypeId(Long sourceTypeId) {
+        this.sourceTypeId = sourceTypeId;
     }
 
     public String getExpectedSourceName() {
@@ -76,38 +76,38 @@ public class MinimalSourceDetailsDTO {
         this.attributes = attributes;
     }
 
-    public String getDeviceTypeCatalogVersion() {
-        return deviceTypeCatalogVersion;
+    public String getSourceTypeCatalogVersion() {
+        return sourceTypeCatalogVersion;
     }
 
-    public void setDeviceTypeCatalogVersion(String deviceTypeCatalogVersion) {
-        this.deviceTypeCatalogVersion = deviceTypeCatalogVersion;
+    public void setSourceTypeCatalogVersion(String sourceTypeCatalogVersion) {
+        this.sourceTypeCatalogVersion = sourceTypeCatalogVersion;
     }
 
-    public String getDeviceTypeModel() {
-        return deviceTypeModel;
+    public String getSourceTypeModel() {
+        return sourceTypeModel;
     }
 
-    public void setDeviceTypeModel(String deviceTypeModel) {
-        this.deviceTypeModel = deviceTypeModel;
+    public void setSourceTypeModel(String sourceTypeModel) {
+        this.sourceTypeModel = sourceTypeModel;
     }
 
-    public String getDeviceTypeProducer() {
-        return deviceTypeProducer;
+    public String getSourceTypeProducer() {
+        return sourceTypeProducer;
     }
 
-    public void setDeviceTypeProducer(String deviceTypeProducer) {
-        this.deviceTypeProducer = deviceTypeProducer;
+    public void setSourceTypeProducer(String sourceTypeProducer) {
+        this.sourceTypeProducer = sourceTypeProducer;
     }
 
     @Override
     public String toString() {
         return "MinimalSourceDetailsDTO{"
                 + "id=" + id
-                + ", deviceTypeId=" + deviceTypeId
-                + ", deviceTypeProducer='" + deviceTypeProducer + '\''
-                + ", deviceTypeModel='" + deviceTypeModel + '\''
-                + ", deviceTypeCatalogVersion='" + deviceTypeCatalogVersion + '\''
+                + ", sourceTypeId=" + sourceTypeId
+                + ", sourceTypeProducer='" + sourceTypeProducer + '\''
+                + ", sourceTypeModel='" + sourceTypeModel + '\''
+                + ", sourceTypeCatalogVersion='" + sourceTypeCatalogVersion + '\''
                 + ", expectedSourceName='" + expectedSourceName + '\''
                 + ", sourceId=" + sourceId
                 + ", sourceName='" + sourceName + '\''

@@ -7,7 +7,7 @@
     <include file="classpath:config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/00000000000001_added_entity_Project.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/00000000000002_added_entity_Source.xml" relativeToChangelogFile="false"/>
-    <include file="classpath:config/liquibase/changelog/00000000000003_added_entity_DeviceType.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/00000000000003_added_entity_SourceType.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/00000000000004_added_entity_SourceData.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/00000000000005_added_entity_Role.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/00000000000006_added_entity_Subject.xml" relativeToChangelogFile="false"/>
@@ -18,7 +18,6 @@
 
     <include file="classpath:config/liquibase/changelog/00000000000010_added_entity_constraints_Project.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/00000000000011_added_entity_constraints_Source.xml" relativeToChangelogFile="false"/>
-    <include file="classpath:config/liquibase/changelog/00000000000012_added_entity_constraints_DeviceType.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/00000000000013_added_entity_constraints_Role.xml" relativeToChangelogFile="false"/>
 
     <include file="classpath:config/liquibase/changelog/00000000000014_added_demo_data.xml" relativeToChangelogFile="false"/>

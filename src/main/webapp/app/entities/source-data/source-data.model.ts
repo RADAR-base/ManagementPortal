@@ -1,5 +1,7 @@
 
-const enum DataType {
+import {MinimalSourceType, SourceType} from "../source-type/source-type.model";
+
+const enum ProcessingState {
     'RAW',
     'DERIVED'
 
@@ -7,12 +9,12 @@ const enum DataType {
 export class SourceData {
     constructor(
         public id?: number,
-        public sensorName?: string,
-        public sensorType?: string,
-        public dataType?: DataType,
+        public sourceDataType?: string,
+        public sourceDataName?: string,
+        public processingState?: ProcessingState,
         public keySchema?: string,
         public frequency?: string,
-        public deviceTypeId?: number,
+        public sourceType?: MinimalSourceType,
     ) {
     }
 }

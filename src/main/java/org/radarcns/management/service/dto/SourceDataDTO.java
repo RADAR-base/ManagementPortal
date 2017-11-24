@@ -1,7 +1,7 @@
 package org.radarcns.management.service.dto;
 
 
-import org.radarcns.management.domain.enumeration.DataType;
+import org.radarcns.management.domain.enumeration.ProcessingState;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -14,9 +14,12 @@ public class SourceDataDTO implements Serializable {
 
     private Long id;
 
-    //Sensor name.
+    //Source data type.
     @NotNull
-    private String sensorName;
+    private String sourceDataType;
+
+
+    private String sourceDataName;
 
     //Default data frequency
     private String frequency;
@@ -25,10 +28,10 @@ public class SourceDataDTO implements Serializable {
     private String unit;
 
     // Define if the samples are RAW data or instead they the result of some computation
-    private DataType dataType;
+    private ProcessingState processingState;
 
     //  the storage
-    private DataType dataClass;
+    private ProcessingState dataClass;
 
     private String keySchema;
 
@@ -39,6 +42,8 @@ public class SourceDataDTO implements Serializable {
     private String provider;
 
     private boolean enabled = true;
+
+    private MinimalSourceTypeDTO sourceType;
 
     public Long getId() {
         return id;
@@ -56,12 +61,12 @@ public class SourceDataDTO implements Serializable {
         this.frequency = frequency;
     }
 
-    public String getSensorName() {
-        return sensorName;
+    public String getSourceDataType() {
+        return sourceDataType;
     }
 
-    public void setSensorName(String sensorName) {
-        this.sensorName = sensorName;
+    public void setSourceDataType(String sourceDataType) {
+        this.sourceDataType = sourceDataType;
     }
 
     public String getUnit() {
@@ -72,19 +77,19 @@ public class SourceDataDTO implements Serializable {
         this.unit = unit;
     }
 
-    public DataType getDataType() {
-        return dataType;
+    public ProcessingState getProcessingState() {
+        return processingState;
     }
 
-    public void setDataType(DataType dataType) {
-        this.dataType = dataType;
+    public void setProcessingState(ProcessingState processingState) {
+        this.processingState = processingState;
     }
 
-    public DataType getDataClass() {
+    public ProcessingState getDataClass() {
         return dataClass;
     }
 
-    public void setDataClass(DataType dataClass) {
+    public void setDataClass(ProcessingState dataClass) {
         this.dataClass = dataClass;
     }
 
@@ -128,6 +133,22 @@ public class SourceDataDTO implements Serializable {
         this.enabled = enabled;
     }
 
+    public String getSourceDataName() {
+        return sourceDataName;
+    }
+
+    public void setSourceDataName(String sourceDataName) {
+        this.sourceDataName = sourceDataName;
+    }
+
+    public MinimalSourceTypeDTO getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(MinimalSourceTypeDTO sourceType) {
+        this.sourceType = sourceType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -152,10 +173,11 @@ public class SourceDataDTO implements Serializable {
     public String toString() {
         return "SourceDataDTO{"
             + "id=" + id
-            + ", sensorName='" + sensorName + '\''
+            + ", sourceDataType='" + sourceDataType + '\''
+            + ", sourceDataName='" + sourceDataName + '\''
             + ", frequency='" + frequency + '\''
             + ", unit='" + unit + '\''
-            + ", dataType=" + dataType
+            + ", processingState=" + processingState
             + ", dataClass=" + dataClass
             + ", keySchema='" + keySchema + '\''
             + ", valueSchema='" + valueSchema + '\''

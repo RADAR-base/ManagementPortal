@@ -36,20 +36,17 @@ public class WebConfigurer implements ServletContextInitializer, EmbeddedServlet
 
     private final Logger log = LoggerFactory.getLogger(WebConfigurer.class);
 
-    private final Environment env;
+    @Autowired
+    private Environment env;
 
-    private final JHipsterProperties jHipsterProperties;
+    @Autowired
+    private JHipsterProperties jHipsterProperties;
 
-    private final HazelcastInstance hazelcastInstance;
+    @Autowired
+    private HazelcastInstance hazelcastInstance;
 
+    @Autowired(required = false)
     private MetricRegistry metricRegistry;
-
-    public WebConfigurer(Environment env, JHipsterProperties jHipsterProperties, HazelcastInstance hazelcastInstance) {
-
-        this.env = env;
-        this.jHipsterProperties = jHipsterProperties;
-        this.hazelcastInstance = hazelcastInstance;
-    }
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
@@ -182,10 +179,5 @@ public class WebConfigurer implements ServletContextInitializer, EmbeddedServlet
         h2ConsoleServlet.addMapping("/h2-console/*");
         h2ConsoleServlet.setInitParameter("-properties", "src/main/resources/");
         h2ConsoleServlet.setLoadOnStartup(1);
-    }
-
-    @Autowired(required = false)
-    public void setMetricRegistry(MetricRegistry metricRegistry) {
-        this.metricRegistry = metricRegistry;
     }
 }
