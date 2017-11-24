@@ -4,6 +4,8 @@ import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +36,8 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
     @Autowired
     private AuditEventRepository auditEventRepository;
+
+    private final Logger logger = LoggerFactory.getLogger(ClaimsTokenEnhancer.class);
 
     @Value("${spring.application.name}")
     private String appName;
@@ -80,8 +84,10 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
         // audit event for a granted token, there is an open issue about oauth2 audit events in
         // spring security but it has been inactive for a long time:
         // https://github.com/spring-projects/spring-security-oauth/issues/223
+        Map<String, Object> auditData = auditData(accessToken, authentication);
         auditEventRepository.add(new AuditEvent(userName, GRANT_TOKEN_EVENT,
-                auditData(accessToken, authentication)));
+                auditData));
+        logger.info("[{}] for {}: {}", GRANT_TOKEN_EVENT, userName, auditData.toString());
 
         return accessToken;
     }
@@ -100,11 +106,6 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
         OAuth2Request request = authentication.getOAuth2Request();
         result.put("clientId", request.getClientId());
         result.put("grantType", request.getGrantType());
-        if (authentication.getDetails() instanceof OAuth2AuthenticationDetails) {
-            OAuth2AuthenticationDetails details =
-                    (OAuth2AuthenticationDetails) authentication.getDetails();
-            result.put("remoteAddress", details.getRemoteAddress());
-        }
         return result;
     }
 }
