@@ -102,6 +102,9 @@ managementportal:
         clientId: ManagementPortalapp
         clientSecret: my-secret-token-to-change-in-production
         sessionTimeout : 86400 # session for rft cookie
+    catalogueServer:
+        enableAutoImport: false
+        serverUrl:
 
 # ===================================================================
 # JHipster specific properties

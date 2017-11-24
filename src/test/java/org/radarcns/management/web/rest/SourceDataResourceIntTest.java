@@ -1,7 +1,24 @@
 package org.radarcns.management.web.rest;
 
-import org.radarcns.management.ManagementPortalApp;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.MockitoAnnotations;
+import org.radarcns.management.ManagementPortalTestApp;
 import org.radarcns.management.domain.SourceData;
 import org.radarcns.management.domain.enumeration.ProcessingState;
 import org.radarcns.management.repository.SourceDataRepository;
@@ -10,11 +27,6 @@ import org.radarcns.management.service.SourceDataService;
 import org.radarcns.management.service.dto.SourceDataDTO;
 import org.radarcns.management.service.mapper.SourceDataMapper;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -27,23 +39,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 /**
  * Test class for the SourceDataResource REST controller.
  *
  * @see SourceDataResource
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = ManagementPortalApp.class)
+@SpringBootTest(classes = ManagementPortalTestApp.class)
 public class SourceDataResourceIntTest {
 
     private static final String DEFAULT_SOURCE_DATA_TYPE = "AAAAAAAAAA";

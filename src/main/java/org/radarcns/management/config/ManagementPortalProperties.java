@@ -1,5 +1,7 @@
 package org.radarcns.management.config;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -11,6 +13,8 @@ public class ManagementPortalProperties {
 
     private final Frontend frontend = new Frontend();
 
+    private final CatalogueServer catalogueServer = new CatalogueServer();
+
     public ManagementPortalProperties.Frontend getFrontend() {
         return frontend;
     }
@@ -19,6 +23,9 @@ public class ManagementPortalProperties {
         return mail;
     }
 
+    public CatalogueServer getCatalogueServer() {
+        return catalogueServer;
+    }
     public static class Mail {
 
         private String from = "";
@@ -72,6 +79,29 @@ public class ManagementPortalProperties {
 
         public void setSessionTimeout(Integer sessionTimeout) {
             this.sessionTimeout = sessionTimeout;
+        }
+    }
+
+    public static class CatalogueServer {
+
+        private boolean enableAutoImport = false;
+
+        private String serverUrl;
+
+        public String getServerUrl() {
+            return serverUrl;
+        }
+
+        public void setServerUrl(String serverUrl) {
+            this.serverUrl = serverUrl;
+        }
+
+        public boolean isEnableAutoImport() {
+            return enableAutoImport;
+        }
+
+        public void setEnableAutoImport(boolean enableAutoImport) {
+            this.enableAutoImport = enableAutoImport;
         }
     }
 

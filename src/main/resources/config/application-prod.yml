@@ -98,6 +98,9 @@ managementportal:
         clientId: ManagementPortalapp
         clientSecret:
         sessionTimeout : 86400 # not supported yet
+    catalogueServer:
+        enableAutoImport: false
+        serverUrl:
 
 # ===================================================================
 # JHipster specific properties

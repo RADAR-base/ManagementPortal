@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.radarcns.management.ManagementPortalApp;
+import org.radarcns.management.ManagementPortalTestApp;
 import org.radarcns.management.domain.enumeration.ProjectStatus;
 import org.radarcns.management.service.dto.AttributeMapDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Created by nivethika on 31-8-17.
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = ManagementPortalApp.class)
+@SpringBootTest(classes = ManagementPortalTestApp.class)
 @Transactional
 public class RedcapIntegrationWorkFlowOnServiceLevelTest {
 
