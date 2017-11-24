@@ -6,6 +6,7 @@ import { ManagementPortalSourceDataModule } from './source-data/source-data.modu
 import { ManagementPortalRoleModule } from "./role/role.module";
 import { ManagementPortalSubjectModule } from "./subject/general.subject.module";
 import { ManagementPortalSourceModule } from "./source/general-source.module";
+import { ManagementPortalOAuthClientModule } from './oauth-client/oauth-client.module';
 /* jhipster-needle-add-entity-module-import - JHipster will add entity modules imports here */
 
 @NgModule({
@@ -15,7 +16,8 @@ import { ManagementPortalSourceModule } from "./source/general-source.module";
         ManagementPortalProjectModule,
         ManagementPortalSourceDataModule,
         ManagementPortalRoleModule,
-        ManagementPortalSubjectModule
+        ManagementPortalSubjectModule,
+        ManagementPortalOAuthClientModule
         /* jhipster-needle-add-entity-module - JHipster will add entity modules here */
     ],
     declarations: [],

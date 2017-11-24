@@ -6,7 +6,7 @@ import { OAuthClient } from './oauth-client.model';
 @Injectable()
 export class OAuthClientService {
 
-private resourceUrl = 'api/oauthclients';
+private resourceUrl = 'api/oauth-clients';
 
 constructor(private http: Http) { }
 

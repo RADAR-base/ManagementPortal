@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -80,7 +81,9 @@ public class OAuth2ServerConfiguration {
 
     @Bean
     public JdbcClientDetailsService jdbcClientDetailsService() {
-        return new JdbcClientDetailsService(dataSource);
+        JdbcClientDetailsService clientDetailsService = new JdbcClientDetailsService(dataSource);
+        clientDetailsService.setPasswordEncoder(new BCryptPasswordEncoder());
+        return clientDetailsService;
     }
 
     @Configuration
@@ -194,7 +197,8 @@ public class OAuth2ServerConfiguration {
         public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
             oauthServer.allowFormAuthenticationForClients()
                        .checkTokenAccess("isAuthenticated()")
-                       .tokenKeyAccess("isAnonymous() || isAuthenticated()");
+                       .tokenKeyAccess("isAnonymous() || isAuthenticated()")
+                       .passwordEncoder(new BCryptPasswordEncoder());
         }
 
         @Bean

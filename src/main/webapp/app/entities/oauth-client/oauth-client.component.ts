@@ -17,6 +17,7 @@ export class OAuthClientComponent implements OnInit, OnDestroy {
     oauthClients: OAuthClient[];
     currentAccount: any;
     eventSubscriber: Subscription;
+    objectKeys = Object.keys;
 
     constructor(
         private jhiLanguageService: JhiLanguageService,

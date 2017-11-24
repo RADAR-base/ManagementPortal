@@ -7,7 +7,7 @@ import {Subject} from "../../shared/subject/subject.model";
 @Injectable()
 export class OAuthClientPairInfoService {
 
-private resourceUrl = 'api/oauthclients/pair';
+private resourceUrl = 'api/oauth-clients/pair';
 
 constructor(private http: Http) { }
 
