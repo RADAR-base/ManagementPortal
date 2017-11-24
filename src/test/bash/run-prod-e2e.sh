@@ -11,8 +11,10 @@ set -ev
 
 sed -i 's|http://localhost:8080/|http://localhost:8080/managementportal/|' src/test/javascript/protractor.conf.js
 sed -i "s/DEBUG_INFO_ENABLED: options.env === 'dev'/DEBUG_INFO_ENABLED: true/" webpack/webpack.common.js
+grep baseUrl src/test/javascript/protractor.conf.js
+grep DEBUG webpack/webpack.common.js
 docker-compose -f src/main/docker/app.yml up -d # spin up production mode application
-sleep 60 # wait for app to start up
+sleep 120 # wait for app to start up
 docker-compose -f src/main/docker/app.yml logs # show output of app startup
 yarn e2e # run e2e tests against production mode
 docker-compose -f src/main/docker/app.yml down -v # clean up containers and volumes
