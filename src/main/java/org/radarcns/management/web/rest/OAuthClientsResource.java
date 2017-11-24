@@ -145,7 +145,8 @@ public class OAuthClientsResource {
         // generate audit event
         eventRepository.add(new AuditEvent(currentUser.getLogin(),"PAIR_CLIENT_REQUEST",
                 "client_id=" + clientId, "subject_login=" + login));
-
+        log.info("[{}] by {}: client_id={}, subject_login={}", "PAIR_CLIENT_REQUEST", currentUser
+                .getLogin(), clientId, login);
         return new ResponseEntity<>(cpi, HttpStatus.OK);
     }
 
@@ -177,7 +178,7 @@ public class OAuthClientsResource {
             return clientDetailsService.loadClientByClientId(clientId);
         }
         catch (NoSuchClientException e) {
-            log.info("Pair client request for unknown client id: {}", clientId);
+            log.error("Pair client request for unknown client id: {}", clientId);
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Client ID not found");
             errorParams.put("clientId", clientId);
@@ -189,7 +190,7 @@ public class OAuthClientsResource {
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
 
         if (!subject.isPresent()) {
-            log.info("Pair client request for unknown subject login: {}", login);
+            log.error("Pair client request for unknown subject login: {}", login);
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Subject ID not found");
             errorParams.put("subjectLogin", login);

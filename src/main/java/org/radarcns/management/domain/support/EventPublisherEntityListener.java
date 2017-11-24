@@ -27,6 +27,9 @@ import java.util.Map;
 @Component
 public class EventPublisherEntityListener {
 
+    public static final String ENTITY_CREATED = "ENTITY_CREATED";
+    public static final String ENTITY_UPDATED = "ENTITY_UPDATED";
+    public static final String ENTITY_REMOVED = "ENTITY_REMOVED";
     @Autowired
     private AuditEventRepository auditEventRepository;
 
@@ -35,7 +38,7 @@ public class EventPublisherEntityListener {
     @PostPersist
     public void publishPersistEvent(AbstractAuditingEntity entity) {
         AutowireHelper.autowire(this, auditEventRepository);
-        AuditEvent event = new AuditEvent(entity.getCreatedBy(), "ENTITY_CREATED",
+        AuditEvent event = new AuditEvent(entity.getCreatedBy(), ENTITY_CREATED,
                 createData(entity));
         auditEventRepository.add(event);
     }
@@ -43,7 +46,7 @@ public class EventPublisherEntityListener {
     @PostUpdate
     public void publishUpdateEvent(AbstractAuditingEntity entity) {
         AutowireHelper.autowire(this, auditEventRepository);
-        AuditEvent event = new AuditEvent(entity.getLastModifiedBy(), "ENTITY_UPDATED",
+        AuditEvent event = new AuditEvent(entity.getLastModifiedBy(), ENTITY_UPDATED,
                 createData(entity));
         auditEventRepository.add(event);
     }
@@ -51,7 +54,7 @@ public class EventPublisherEntityListener {
     @PostRemove
     public void publishRemoveEvent(AbstractAuditingEntity entity) {
         AutowireHelper.autowire(this, auditEventRepository);
-        AuditEvent event = new AuditEvent(SecurityUtils.getCurrentUserLogin(), "ENTITY_REMOVED",
+        AuditEvent event = new AuditEvent(SecurityUtils.getCurrentUserLogin(), ENTITY_REMOVED,
                 createData(entity));
         auditEventRepository.add(event);
     }
