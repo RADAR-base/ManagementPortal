@@ -30,7 +30,7 @@ import org.radarcns.management.domain.enumeration.SourceTypeScope;
 @Entity
 @Table(name = "source_type")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class SourceType implements Serializable {
+public class SourceType extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

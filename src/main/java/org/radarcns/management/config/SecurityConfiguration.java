@@ -5,11 +5,14 @@ import io.github.jhipster.security.AjaxLogoutSuccessHandler;
 import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
 import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.BeanInitializationException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -30,22 +33,24 @@ import javax.servlet.Filter;
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    @Autowired
+    private AuthenticationManagerBuilder authenticationManagerBuilder;
 
-    private final UserDetailsService userDetailsService;
+    @Autowired
+    private UserDetailsService userDetailsService;
 
-    public SecurityConfiguration(AuthenticationManagerBuilder authenticationManagerBuilder, UserDetailsService userDetailsService) {
-
-        this.authenticationManagerBuilder = authenticationManagerBuilder;
-        this.userDetailsService = userDetailsService;
-    }
+    @Autowired
+    ApplicationEventPublisher applicationEventPublisher;
 
     @PostConstruct
     public void init() {
         try {
             authenticationManagerBuilder
                 .userDetailsService(userDetailsService)
-                    .passwordEncoder(passwordEncoder());
+                    .passwordEncoder(passwordEncoder())
+                .and()
+                    .authenticationEventPublisher(
+                            new DefaultAuthenticationEventPublisher(applicationEventPublisher));
         } catch (Exception e) {
             throw new BeanInitializationException("Security configuration failed", e);
         }

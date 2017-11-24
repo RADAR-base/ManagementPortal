@@ -19,7 +19,7 @@ import org.hibernate.annotations.CascadeType;
 @Entity
 @Table(name = "subject")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Subject implements Serializable {
+public class Subject extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

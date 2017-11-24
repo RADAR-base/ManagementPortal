@@ -17,6 +17,8 @@ import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.audit.AuditEvent;
+import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -91,6 +93,9 @@ public class OAuthClientsResource {
 
     @Autowired
     private HttpServletRequest servletRequest;
+
+    @Autowired
+    private AuditEventRepository eventRepository;
 
     private static final String ENTITY_NAME = "oauthClient";
     private static final String PROTECTED_KEY = "protected";
@@ -237,8 +242,6 @@ public class OAuthClientsResource {
 
         // lookup the subject
         Subject subject = getSubject(login);
-        log.info("Pair client request for subject login: {}", login);
-
         SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
 
         // Users who can update a subject can also generate a refresh token for that subject
@@ -255,13 +258,16 @@ public class OAuthClientsResource {
         user.getAuthorities().stream()
             .forEach(a -> authorities.add(new SimpleGrantedAuthority(a.getName())));
 
-        log.info("Requesting token with scopes: [" + String.join(",", details.getScope()) + "] and "
-            + " resource ids: [" + String.join(",", details.getResourceIds()) + "]");
         OAuth2AccessToken token = createToken(clientId, user.getLogin(), authorities,
             details.getScope(), details.getResourceIds());
 
         ClientPairInfoDTO cpi = new ClientPairInfoDTO(token.getRefreshToken().getValue());
 
+        // generate audit event
+        eventRepository.add(new AuditEvent(currentUser.getLogin(),"PAIR_CLIENT_REQUEST",
+                "client_id=" + clientId, "subject_login=" + login));
+        log.info("[{}] by {}: client_id={}, subject_login={}", "PAIR_CLIENT_REQUEST", currentUser
+                .getLogin(), clientId, login);
         return new ResponseEntity<>(cpi, HttpStatus.OK);
     }
 
@@ -316,7 +322,7 @@ public class OAuthClientsResource {
             return clientDetailsService.loadClientByClientId(clientId);
         }
         catch (NoSuchClientException e) {
-            log.info("Pair client request for unknown client id: {}", clientId);
+            log.error("Pair client request for unknown client id: {}", clientId);
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Client ID not found");
             errorParams.put("clientId", clientId);
@@ -328,7 +334,7 @@ public class OAuthClientsResource {
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
 
         if (!subject.isPresent()) {
-            log.info("Pair client request for unknown subject login: {}", login);
+            log.error("Pair client request for unknown subject login: {}", login);
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Subject ID not found");
             errorParams.put("subjectLogin", login);
