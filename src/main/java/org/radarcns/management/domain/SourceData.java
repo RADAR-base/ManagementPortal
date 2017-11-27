@@ -14,10 +14,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.enumeration.ProcessingState;
 
 /**
@@ -42,6 +45,7 @@ public class SourceData extends AbstractAuditingEntity implements Serializable {
 
     // this will be the unique human readable identifier of
     @NotNull
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
     @Column(name = "source_data_name", nullable = false, unique = true)
     private String sourceDataName;
 
