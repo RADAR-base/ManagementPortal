@@ -34,12 +34,15 @@
         <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.sourceDataName" for="field_sourceDataName">Source Data Name</label>
             <input type="text" class="form-control" name="sourceDataName" id="field_sourceDataName"
-                   [(ngModel)]="sourceData.sourceDataName"
-                   required />
+                   [(ngModel)]="sourceData.sourceDataName" required pattern="[_'.@A-Za-z0-9-]*" />
             <div [hidden]="!(editForm.controls.sourceDataName?.dirty && editForm.controls.sourceDataName?.invalid)">
                 <small class="form-text text-danger"
                        [hidden]="!editForm.controls.sourceDataName?.errors?.required" jhiTranslate="entity.validation.required">
                     This field is required.
+                </small>
+                <small class="form-text text-danger"
+                        [hidden]="!editForm.controls.sourceDataName?.errors?.pattern" jhiTranslate="entity.validation.pattern" translateValues="{pattern: 'alphanumerics, dash (-), underscore (_) and period (.)'}">
+                    Validation error.
                 </small>
             </div>
         </div>

@@ -15,36 +15,45 @@
         <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.sourceType.producer" for="field_producer">Producer</label>
             <input type="text" class="form-control" name="producer" id="field_producer"
-                [(ngModel)]="sourceType.producer"
-             required />
+                [(ngModel)]="sourceType.producer" required pattern="[_'.@A-Za-z0-9-]*" />
             <div [hidden]="!(editForm.controls.producer?.dirty && editForm.controls.producer?.invalid)">
                 <small class="form-text text-danger"
                        [hidden]="!editForm.controls.producer?.errors?.required" jhiTranslate="entity.validation.required">
                     This field is required.
+                </small>
+                <small class="form-text text-danger"
+                        [hidden]="!editForm.controls.producer?.errors?.pattern" jhiTranslate="entity.validation.pattern" translateValues="{pattern: 'alphanumerics, dash (-), underscore (_) and period (.)'}">
+                    Validation error.
                 </small>
             </div>
         </div>
         <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.sourceType.model" for="field_model">Model</label>
             <input type="text" class="form-control" name="model" id="field_model"
-                [(ngModel)]="sourceType.model"
-            required />
+                [(ngModel)]="sourceType.model" required pattern="[_'.@A-Za-z0-9-]*" />
             <div [hidden]="!(editForm.controls.model?.dirty && editForm.controls.model?.invalid)">
                 <small class="form-text text-danger"
                    [hidden]="!editForm.controls.model?.errors?.required" jhiTranslate="entity.validation.required">
                    This field is required.
+                </small>
+                <small class="form-text text-danger"
+                        [hidden]="!editForm.controls.model?.errors?.pattern" jhiTranslate="entity.validation.pattern" translateValues="{pattern: 'alphanumerics, dash (-), underscore (_) and period (.)'}">
+                    Validation error.
                 </small>
             </div>
         </div>
         <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.sourceType.catalogVersion" for="field_catalogVersion">Device Version</label>
             <input type="text" class="form-control" name="catalogVersion" id="field_catalogVersion"
-                   [(ngModel)]="sourceType.catalogVersion"
-                   required />
+                   [(ngModel)]="sourceType.catalogVersion" required pattern="[_'.@A-Za-z0-9-]*" />
             <div [hidden]="!(editForm.controls.catalogVersion?.dirty && editForm.controls.catalogVersion?.invalid)">
                 <small class="form-text text-danger"
                        [hidden]="!editForm.controls.catalogVersion?.errors?.required" jhiTranslate="entity.validation.required">
                     This field is required.
+                </small>
+                <small class="form-text text-danger"
+                        [hidden]="!editForm.controls.catalogVersion?.errors?.pattern" jhiTranslate="entity.validation.pattern" translateValues="{pattern: 'alphanumerics, dash (-), underscore (_) and period (.)'}">
+                    Validation error.
                 </small>
             </div>
         </div>
