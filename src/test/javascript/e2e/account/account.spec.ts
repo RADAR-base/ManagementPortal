@@ -11,7 +11,7 @@ describe('account', () => {
     var originalTimeOut;
 
     beforeAll(() => {
-        browser.get('/');
+        browser.get('#');
     });
 
     beforeEach(() => {

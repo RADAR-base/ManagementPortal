@@ -11,7 +11,7 @@ describe('Create, assign, unassign and delete source', () => {
     const sourceName = 'test-source-1';
 
     beforeAll(() => {
-        browser.get('/');
+        browser.get('#');
 
         accountMenu.click();
         login.click();
