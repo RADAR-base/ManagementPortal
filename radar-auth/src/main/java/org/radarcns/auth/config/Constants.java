@@ -1,4 +1,4 @@
-package org.radarcns.management.config;
+package org.radarcns.auth.config;
 
 /**
  * Application constants.

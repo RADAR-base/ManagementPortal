@@ -1,6 +1,6 @@
 package org.radarcns.management.repository;
 
-import org.radarcns.management.config.Constants;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.config.audit.AuditEventConverter;
 import org.radarcns.management.domain.PersistentAuditEvent;
 

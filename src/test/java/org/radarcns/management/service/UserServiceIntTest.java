@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.radarcns.management.ManagementPortalTestApp;
-import org.radarcns.management.config.Constants;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.service.dto.UserDTO;

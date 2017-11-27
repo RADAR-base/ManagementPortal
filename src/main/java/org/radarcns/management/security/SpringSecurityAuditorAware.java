@@ -1,6 +1,6 @@
 package org.radarcns.management.security;
 
-import org.radarcns.management.config.Constants;
+import org.radarcns.auth.config.Constants;
 
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
