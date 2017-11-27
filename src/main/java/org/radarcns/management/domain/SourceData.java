@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -15,6 +16,8 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.radarcns.management.domain.enumeration.ProcessingState;
 
 /**
@@ -77,7 +80,9 @@ public class SourceData extends AbstractAuditingEntity implements Serializable {
     @Column(name = "enabled")
     private boolean enabled = true;
 
-    @ManyToOne()
+    @ManyToOne(fetch= FetchType.LAZY)
+    @NotFound(
+        action = NotFoundAction.IGNORE) // avoids exception from orphan object fetch
     private SourceType sourceType;
 
     public Long getId() {

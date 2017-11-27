@@ -1,9 +1,10 @@
 {
     "managementPortalApp": {
         "SourceTypeScope" : {
-            "null": "",
+            "null": "NOT STATED",
             "ACTIVE": "ACTIVE",
-            "PASSIVE": "PASSIVE"
+            "PASSIVE": "PASSIVE",
+            "MONITOR": "MONITOR"
         }
     }
 }

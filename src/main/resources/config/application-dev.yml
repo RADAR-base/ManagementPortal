@@ -106,6 +106,9 @@ managementportal:
         sessionTimeout : 86400 # session for rft cookie
     oauth:
         clientsFile: src/main/docker/etc/config/oauth_client_details.csv
+    catalogueServer:
+        enableAutoImport: false
+        serverUrl:
 
 # ===================================================================
 # JHipster specific properties

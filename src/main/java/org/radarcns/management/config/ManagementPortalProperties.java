@@ -13,6 +13,8 @@ public class ManagementPortalProperties {
 
     private final Oauth oauth = new Oauth();
 
+    private final CatalogueServer catalogueServer = new CatalogueServer();
+
     public ManagementPortalProperties.Frontend getFrontend() {
         return frontend;
     }
@@ -25,6 +27,9 @@ public class ManagementPortalProperties {
         return oauth;
     }
 
+    public CatalogueServer getCatalogueServer() {
+        return catalogueServer;
+    }
     public static class Mail {
 
         private String from = "";
@@ -110,6 +115,29 @@ public class ManagementPortalProperties {
 
         public void setClientsFile(String clientsFile) {
             this.clientsFile = clientsFile;
+        }
+    }
+
+    public static class CatalogueServer {
+
+        private boolean enableAutoImport = false;
+
+        private String serverUrl;
+
+        public String getServerUrl() {
+            return serverUrl;
+        }
+
+        public void setServerUrl(String serverUrl) {
+            this.serverUrl = serverUrl;
+        }
+
+        public boolean isEnableAutoImport() {
+            return enableAutoImport;
+        }
+
+        public void setEnableAutoImport(boolean enableAutoImport) {
+            this.enableAutoImport = enableAutoImport;
         }
     }
 

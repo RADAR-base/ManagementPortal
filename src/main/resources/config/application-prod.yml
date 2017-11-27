@@ -102,6 +102,10 @@ managementportal:
         sesssionTimeout : 86400
     oauth:
         clientsFile: /mp-includes/config/oauth_client_details.csv
+        sessionTimeout : 86400 # not supported yet
+    catalogueServer:
+        enableAutoImport: false
+        serverUrl:
 
 # ===================================================================
 # JHipster specific properties
