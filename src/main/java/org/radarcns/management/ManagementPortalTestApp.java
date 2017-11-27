@@ -23,6 +23,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.core.env.Environment;
 
+/**
+ * This is the application configuration that excludes CommandLineRunner(i.e the sourceTypeLoader).
+ * This is used for testing to replicate the application setup without SourceTypeLoader.
+ */
 @ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = SourceTypeLoader.class))
 @EnableZuulProxy
 @EnableAutoConfiguration(exclude = {MetricFilterAutoConfiguration.class, MetricRepositoryAutoConfiguration.class})
