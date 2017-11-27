@@ -14,7 +14,7 @@ public class UserDTO {
 
     private Long id;
 
-    @Pattern(regexp = Constants.LOGIN_REGEX)
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
     @Size(min = 1, max = 50)
     private String login;
 
