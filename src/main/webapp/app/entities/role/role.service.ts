@@ -25,7 +25,7 @@ export class RoleService {
     }
 
     find(projectName: string, authorityName: string): Observable<Role> {
-        return this.http.get(`${this.resourceUrl}/${projectName}/${authorityName}`).map((res: Response) => {
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(projectName)}/${encodeURIComponent(authorityName)}`).map((res: Response) => {
             return res.json();
         });
     }
@@ -41,7 +41,7 @@ export class RoleService {
     }
 
     delete(projectName: string, authorityName: string): Observable<Response> {
-        return this.http.delete(`${this.resourceUrl}/${projectName}/${authorityName}`);
+        return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(projectName)}/${encodeURIComponent(authorityName)}`);
     }
     private createRequestOption(req?: any): BaseRequestOptions {
         const options: BaseRequestOptions = new BaseRequestOptions();
