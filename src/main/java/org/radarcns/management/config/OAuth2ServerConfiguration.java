@@ -13,10 +13,13 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -47,11 +50,8 @@ import java.util.Arrays;
 @Configuration
 public class OAuth2ServerConfiguration {
 
-    private final DataSource dataSource;
-
-    public OAuth2ServerConfiguration(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
+    @Autowired
+    private DataSource dataSource;
 
     @Configuration
     @Order(-20)
@@ -80,29 +80,26 @@ public class OAuth2ServerConfiguration {
 
     @Bean
     public JdbcClientDetailsService jdbcClientDetailsService() {
-        return new JdbcClientDetailsService(dataSource);
+        JdbcClientDetailsService clientDetailsService = new JdbcClientDetailsService(dataSource);
+        clientDetailsService.setPasswordEncoder(new BCryptPasswordEncoder());
+        return clientDetailsService;
     }
 
     @Configuration
     @EnableResourceServer
     protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
-        private final TokenStore tokenStore;
+        @Autowired
+        private TokenStore tokenStore;
 
-        private final Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint;
+        @Autowired
+        private Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint;
 
-        private final AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
+        @Autowired
+        private AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
 
-        private final CorsFilter corsFilter;
-
-        public ResourceServerConfiguration(TokenStore tokenStore, Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint,
-            AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler, CorsFilter corsFilter) {
-
-            this.tokenStore = tokenStore;
-            this.http401UnauthorizedEntryPoint = http401UnauthorizedEntryPoint;
-            this.ajaxLogoutSuccessHandler = ajaxLogoutSuccessHandler;
-            this.corsFilter = corsFilter;
-        }
+        @Autowired
+        private CorsFilter corsFilter;
 
         @Override
         public void configure(HttpSecurity http) throws Exception {
@@ -137,8 +134,21 @@ public class OAuth2ServerConfiguration {
 
         @Override
         public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
-            resources.resourceId("res_ManagementPortal").tokenStore(tokenStore);
+            resources.resourceId("res_ManagementPortal")
+                    .tokenStore(tokenStore)
+                    .eventPublisher(new CustomEventPublisher());
         }
+
+        protected static class CustomEventPublisher extends DefaultAuthenticationEventPublisher {
+            @Override
+            public void publishAuthenticationSuccess(Authentication authentication) {
+                // OAuth2AuthenticationProcessingFilter publishes an authentication success audit
+                // event for EVERY successful OAuth request to our API resoruces, this is way too
+                // much so we override the event publisher to not publish these events.
+
+            }
+        }
+
     }
 
     @Configuration
@@ -194,7 +204,8 @@ public class OAuth2ServerConfiguration {
         public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
             oauthServer.allowFormAuthenticationForClients()
                        .checkTokenAccess("isAuthenticated()")
-                       .tokenKeyAccess("isAnonymous() || isAuthenticated()");
+                       .tokenKeyAccess("isAnonymous() || isAuthenticated()")
+                       .passwordEncoder(new BCryptPasswordEncoder());
         }
 
         @Bean

@@ -25,8 +25,8 @@ import org.radarcns.management.domain.enumeration.ProcessingState;
  */
 @Entity
 @Table(name = "source_data")
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class SourceData implements Serializable {
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+public class SourceData extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

@@ -5,32 +5,33 @@ export class OAuthClient {
     public scope?: string[];
     public resourceIds?: string[];
     public authorizedGrantTypes?: string[];
-    public autoApprove?: boolean;
-    public accessTokenValidity?: number;
-    public refreshTokenValidity?: number;
+    public autoApproveScopes?: string[];
+    public accessTokenValiditySeconds?: number;
+    public refreshTokenValiditySeconds?: number;
     public authorities?: string[];
     public additionalInformation?: any;
 
     constructor(
-        clientId: string,
+        clientId?: string,
         clientSecret?: string,
         scope?: string[],
         resourceIds?: string[],
         authorizedGrantTypes?: string[],
-        autoApprove?: boolean,
-        accessTokenValidity?: number,
-        refreshTokenValidity?: number,
+        autoApproveScopes?: string[],
+        accessTokenValiditySeconds?: number,
+        refreshTokenValiditySeconds?: number,
         authorities?: string[],
         additionalInformation?: any
     ) {
-        this.clientSecret = clientSecret ? clientSecret : null,
-        this.scope = scope ? scope : null,
-        this.resourceIds = resourceIds ? resourceIds : null,
-        this.authorizedGrantTypes = authorizedGrantTypes ? authorizedGrantTypes : null,
-        this.autoApprove = autoApprove ? autoApprove : null,
-        this.accessTokenValidity = accessTokenValidity ? accessTokenValidity : null,
-        this.refreshTokenValidity = refreshTokenValidity ? refreshTokenValidity : null,
-        this.authorities = authorities ? authorities : null,
-        this.additionalInformation = additionalInformation ? additionalInformation : null
+        this.clientId = clientId ? clientId : '';
+        this.clientSecret = clientSecret ? clientSecret : '',
+        this.scope = scope ? scope : [],
+        this.resourceIds = resourceIds ? resourceIds : [],
+        this.authorizedGrantTypes = authorizedGrantTypes ? authorizedGrantTypes : [],
+        this.autoApproveScopes = autoApproveScopes ? autoApproveScopes : [],
+        this.accessTokenValiditySeconds = accessTokenValiditySeconds ? accessTokenValiditySeconds : 0,
+        this.refreshTokenValiditySeconds = refreshTokenValiditySeconds ? refreshTokenValiditySeconds : 0,
+        this.authorities = authorities ? authorities : [],
+        this.additionalInformation = additionalInformation ? additionalInformation : {}
     }
 }

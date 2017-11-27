@@ -97,6 +97,11 @@ managementportal:
     frontend:
         clientId: ManagementPortalapp
         clientSecret:
+        accessTokenValiditySeconds: 14400
+        refreshTokenValiditySeconds: 259200
+        sesssionTimeout : 86400
+    oauth:
+        clientsFile: /mp-includes/config/oauth_client_details.csv
         sessionTimeout : 86400 # not supported yet
     catalogueServer:
         enableAutoImport: false

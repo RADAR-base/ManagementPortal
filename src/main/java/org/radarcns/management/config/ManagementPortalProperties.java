@@ -1,7 +1,5 @@
 package org.radarcns.management.config;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -13,6 +11,8 @@ public class ManagementPortalProperties {
 
     private final Frontend frontend = new Frontend();
 
+    private final Oauth oauth = new Oauth();
+
     private final CatalogueServer catalogueServer = new CatalogueServer();
 
     public ManagementPortalProperties.Frontend getFrontend() {
@@ -21,6 +21,10 @@ public class ManagementPortalProperties {
 
     public ManagementPortalProperties.Mail getMail() {
         return mail;
+    }
+
+    public ManagementPortalProperties.Oauth getOauth() {
+        return oauth;
     }
 
     public CatalogueServer getCatalogueServer() {
@@ -55,6 +59,10 @@ public class ManagementPortalProperties {
 
         private String clientSecret = "";
 
+        private Integer accessTokenValiditySeconds = 4 * 60 * 60;
+
+        private Integer refreshTokenValiditySeconds = 72 * 60 * 60;
+
         private Integer sessionTimeout = 24*60*60; // a day
 
         public String getClientId() {
@@ -79,6 +87,34 @@ public class ManagementPortalProperties {
 
         public void setSessionTimeout(Integer sessionTimeout) {
             this.sessionTimeout = sessionTimeout;
+        }
+
+        public Integer getAccessTokenValiditySeconds() {
+            return accessTokenValiditySeconds;
+        }
+
+        public void setAccessTokenValiditySeconds(Integer accessTokenValiditySeconds) {
+            this.accessTokenValiditySeconds = accessTokenValiditySeconds;
+        }
+
+        public Integer getRefreshTokenValiditySeconds() {
+            return refreshTokenValiditySeconds;
+        }
+
+        public void setRefreshTokenValiditySeconds(Integer refreshTokenValiditySeconds) {
+            this.refreshTokenValiditySeconds = refreshTokenValiditySeconds;
+        }
+    }
+
+    public static class Oauth {
+        private String clientsFile;
+
+        public String getClientsFile() {
+            return clientsFile;
+        }
+
+        public void setClientsFile(String clientsFile) {
+            this.clientsFile = clientsFile;
         }
     }
 
