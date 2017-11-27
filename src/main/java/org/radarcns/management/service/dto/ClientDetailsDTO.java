@@ -12,10 +12,11 @@ public class ClientDetailsDTO {
     private Set<String> scope;
     private Set<String> resourceIds;
     private Set<String> authorizedGrantTypes;
-    private Boolean autoApprove;
-    private Long accessTokenValidity;
-    private Long refreshTokenValidity;
+    private Set<String> autoApproveScopes;
+    private Long accessTokenValiditySeconds;
+    private Long refreshTokenValiditySeconds;
     private Set<String> authorities;
+    private Set<String> registeredRedirectUri;
     private Map<String, String> additionalInformation;
 
     public ClientDetailsDTO() {
@@ -107,15 +108,15 @@ public class ClientDetailsDTO {
      *
      * @return
      */
-    public Boolean getAutoApprove() {
-        return autoApprove;
+    public Set<String> getAutoApproveScopes() {
+        return autoApproveScopes;
     }
 
     /**
-     * Set the autoApprove
+     * Set the autoApproveScopes
      */
-    public void setAutoApprove(Boolean autoApprove) {
-        this.autoApprove = autoApprove;
+    public void setAutoApproveScopes(Set<String> autoApproveScopes) {
+        this.autoApproveScopes = autoApproveScopes;
     }
 
     /**
@@ -123,15 +124,15 @@ public class ClientDetailsDTO {
      *
      * @return
      */
-    public Long getAccessTokenValidity() {
-        return accessTokenValidity;
+    public Long getAccessTokenValiditySeconds() {
+        return accessTokenValiditySeconds;
     }
 
     /**
-     * Set the accessTokenValidity
+     * Set the accessTokenValiditySeconds
      */
-    public void setAccessTokenValidity(Long accessTokenValidity) {
-        this.accessTokenValidity = accessTokenValidity;
+    public void setAccessTokenValiditySeconds(Long accessTokenValiditySeconds) {
+        this.accessTokenValiditySeconds = accessTokenValiditySeconds;
     }
 
     /**
@@ -139,15 +140,15 @@ public class ClientDetailsDTO {
      *
      * @return
      */
-    public Long getRefreshTokenValidity() {
-        return refreshTokenValidity;
+    public Long getRefreshTokenValiditySeconds() {
+        return refreshTokenValiditySeconds;
     }
 
     /**
-     * Set the refreshTokenValidity
+     * Set the refreshTokenValiditySeconds
      */
-    public void setRefreshTokenValidity(Long refreshTokenValidity) {
-        this.refreshTokenValidity = refreshTokenValidity;
+    public void setRefreshTokenValiditySeconds(Long refreshTokenValiditySeconds) {
+        this.refreshTokenValiditySeconds = refreshTokenValiditySeconds;
     }
 
     /**
@@ -164,6 +165,14 @@ public class ClientDetailsDTO {
      */
     public void setAuthorities(Set<String> authorities) {
         this.authorities = authorities;
+    }
+
+    public Set<String> getRegisteredRedirectUri() {
+        return registeredRedirectUri;
+    }
+
+    public void setRegisteredRedirectUri(Set<String> registeredRedirectUri) {
+        this.registeredRedirectUri = registeredRedirectUri;
     }
 
     public Map<String, String> getAdditionalInformation() {

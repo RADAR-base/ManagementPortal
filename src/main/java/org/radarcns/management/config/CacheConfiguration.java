@@ -13,6 +13,7 @@ import com.hazelcast.config.MaxSizeConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.cache.CacheManager;
@@ -30,11 +31,8 @@ public class CacheConfiguration {
 
     private final Logger log = LoggerFactory.getLogger(CacheConfiguration.class);
 
-    private final Environment env;
-
-    public CacheConfiguration(Environment env) {
-        this.env = env;
-    }
+    @Autowired
+    private Environment env;
 
     @PreDestroy
     public void destroy() {

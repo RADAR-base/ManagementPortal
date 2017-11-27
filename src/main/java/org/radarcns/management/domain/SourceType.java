@@ -20,8 +20,8 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.radarcns.management.domain.enumeration.SourceTypeScope;
 
 /**
@@ -30,7 +30,7 @@ import org.radarcns.management.domain.enumeration.SourceTypeScope;
 @Entity
 @Table(name = "source_type")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class SourceType implements Serializable {
+public class SourceType extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -71,9 +71,9 @@ public class SourceType implements Serializable {
     @Column(name = "dynamic_registration" , nullable = false)
     private Boolean canRegisterDynamically = false;
 
-    @OneToMany(mappedBy = "sourceType" , fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "sourceType" , fetch = FetchType.EAGER , orphanRemoval = true)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE )
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @Cascade({CascadeType.DELETE , CascadeType.SAVE_UPDATE})
     private Set<SourceData> sourceData;
 
     @ManyToMany(mappedBy = "sourceTypes")

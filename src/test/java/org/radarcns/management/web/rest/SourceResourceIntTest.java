@@ -1,31 +1,45 @@
 package org.radarcns.management.web.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
 import java.util.UUID;
-
-import org.radarcns.management.ManagementPortalApp;
-
-import org.radarcns.management.domain.Source;
-import org.radarcns.management.repository.SourceRepository;
-import org.radarcns.management.security.JwtAuthenticationFilter;
-import org.radarcns.management.service.SourceTypeService;
-import org.radarcns.management.service.ProjectService;
-import org.radarcns.management.service.SourceService;
-import org.radarcns.management.service.dto.SourceTypeDTO;
-import org.radarcns.management.service.dto.SourceDTO;
-import org.radarcns.management.service.mapper.SourceTypeMapper;
-import org.radarcns.management.service.mapper.SourceMapper;
-import org.radarcns.management.web.rest.errors.ExceptionTranslator;
-
+import javax.persistence.EntityManager;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
+import org.radarcns.management.ManagementPortalTestApp;
+import org.radarcns.management.domain.Source;
+import org.radarcns.management.repository.SourceRepository;
+import org.radarcns.management.security.JwtAuthenticationFilter;
+import org.radarcns.management.service.ProjectService;
+import org.radarcns.management.service.SourceService;
+import org.radarcns.management.service.SourceTypeService;
+import org.radarcns.management.service.dto.SourceDTO;
+import org.radarcns.management.service.dto.SourceTypeDTO;
+import org.radarcns.management.service.mapper.SourceMapper;
+import org.radarcns.management.service.mapper.SourceTypeMapper;
+import org.radarcns.management.web.rest.errors.ExceptionTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockFilterConfig;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -33,25 +47,14 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 /**
  * Test class for the DeviceResource REST controller.
  *
  * @see SourceResource
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = ManagementPortalApp.class)
+@SpringBootTest(classes = ManagementPortalTestApp.class)
+@WithMockUser
 public class SourceResourceIntTest {
 
     private static final UUID DEFAULT_SOURCE_PHYSICAL_ID = UUID.randomUUID();

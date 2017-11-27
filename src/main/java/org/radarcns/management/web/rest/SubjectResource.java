@@ -23,6 +23,8 @@ import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.audit.AuditEvent;
+import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -81,6 +83,9 @@ public class SubjectResource {
 
     @Autowired
     private HttpServletRequest servletRequest;
+
+    @Autowired
+    private AuditEventRepository eventRepository;
 
     /**
      * POST  /subjects : Create a new subject.
@@ -188,6 +193,10 @@ public class SubjectResource {
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
                 subjectDTO.getProject().getProjectName(), subjectDTO.getLogin());
 
+        // In principle this is already captured by the PostUpdate event listener, adding this
+        // event just makes it more clear a subject was discontinued.
+        eventRepository.add(new AuditEvent(SecurityUtils.getCurrentUserLogin(),
+                "SUBJECT_DISCONTINUE", "subject_login=" + subjectDTO.getLogin()));
         SubjectDTO result = subjectService.discontinueSubject(subjectDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getId().toString()))

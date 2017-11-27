@@ -32,7 +32,7 @@ describe('Project e2e test', () => {
         });
     });
 
-    it('should load create Project dialog', function () {
+    it('should load create Project dialog', () => {
         element(by.css('button.create-project')).click().then(() => {
             const expectVal = /managementPortalApp.project.home.createOrEditLabel/;
             element.all(by.css('h4.modal-title')).first().getAttribute('jhiTranslate').then((value) => {
