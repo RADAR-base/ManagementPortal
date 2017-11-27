@@ -54,7 +54,6 @@ public class Source extends AbstractAuditingEntity implements Serializable {
     @Column(name = "source_name", nullable = false, unique = true)
     private String sourceName;
 
-    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
     @Column(name = "expected_source_name")
     private String expectedSourceName;
 
