@@ -214,7 +214,8 @@ public class OAuthClientsResource {
                 .clientDetailsDTOToClientDetails(clientDetailsDTO);
         clientDetailsService.addClientDetails(details);
         ClientDetails created = getOAuthClient(clientDetailsDTO.getClientId());
-        return ResponseEntity.created(new URI("/api/oauth-clients/" + created.getClientId()))
+        return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "oauth-clients",
+                created.getClientId())))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, created.getClientId()))
                 .body(clientDetailsMapper.clientDetailsToClientDetailsDTO(created));
     }

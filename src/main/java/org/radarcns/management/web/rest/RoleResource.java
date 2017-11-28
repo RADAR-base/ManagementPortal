@@ -24,7 +24,6 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
 
 import static org.radarcns.auth.authorization.Permission.ROLE_CREATE;
 import static org.radarcns.auth.authorization.Permission.ROLE_READ;
@@ -65,9 +64,10 @@ public class RoleResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new role cannot already have an ID")).body(null);
         }
         RoleDTO result = roleService.save(roleDTO);
-        return ResponseEntity.created(new URI("/api/roles/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
-            .body(result);
+        return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "roles",
+                result.getProjectName(), result.getAuthorityName())))
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getProjectName() +
+                        " - " + result.getAuthorityName())).body(result);
     }
 
     /**
