@@ -16,7 +16,7 @@ sed -i "s|contexts: prod|contexts: dev|" src/main/resources/config/application-p
 ./gradlew bootRepackage -Pprod buildDocker -x test
 docker-compose -f src/main/docker/app.yml up -d # spin up production mode application
 # wait for app to start up
-echo -n "Waiting for application startup"
+echo "Waiting for application startup"
 until curl -s http://localhost:8080/managementportal/ > /dev/null
 do
   echo -n "." # waiting
