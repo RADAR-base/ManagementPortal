@@ -175,6 +175,12 @@ public class SourceData extends AbstractAuditingEntity implements Serializable {
         this.unit = unit;
     }
 
+    public SourceData unit(String unit) {
+        this.unit = unit;
+        return this;
+    }
+
+
     public String getDataClass() {
         return dataClass;
     }
@@ -191,12 +197,22 @@ public class SourceData extends AbstractAuditingEntity implements Serializable {
         this.valueSchema = valueSchema;
     }
 
+    public SourceData valueSchema(String valueSchema) {
+        this.valueSchema = valueSchema;
+        return this;
+    }
+
     public String getTopic() {
         return topic;
     }
 
     public void setTopic(String topic) {
         this.topic = topic;
+    }
+
+    public SourceData topic(String topic) {
+        this.topic = topic;
+        return this;
     }
 
     public String getProvider() {
@@ -214,7 +230,6 @@ public class SourceData extends AbstractAuditingEntity implements Serializable {
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
-
 
     public String getSourceDataName() {
         return sourceDataName;

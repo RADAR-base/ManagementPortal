@@ -7,16 +7,16 @@ import io.swagger.annotations.ApiResponses;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.authorization.Permission;
 import org.radarcns.auth.config.Constants;
-import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Role;
+import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.SecurityUtils;
 import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.SubjectService;
-import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
+import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.CustomParameterizedException;
@@ -128,9 +128,10 @@ public class SubjectResource {
         }
 
         SubjectDTO result = subjectService.createSubject(subjectDTO);
-        return ResponseEntity.created(new URI("/api/subjects/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
-            .body(result);
+        return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "subjects",
+                result.getLogin())))
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getLogin()))
+                .body(result);
     }
 
     /**
@@ -161,7 +162,7 @@ public class SubjectResource {
                 subjectDTO.getProject().getProjectName(), subjectDTO.getLogin());
         SubjectDTO result = subjectService.updateSubject(subjectDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getLogin()))
             .body(result);
     }
 
@@ -200,7 +201,7 @@ public class SubjectResource {
                 "SUBJECT_DISCONTINUE", "subject_login=" + subjectDTO.getLogin()));
         SubjectDTO result = subjectService.discontinueSubject(subjectDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getLogin()))
             .body(result);
     }
 

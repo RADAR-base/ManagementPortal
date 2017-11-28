@@ -14,6 +14,7 @@ import {
     sourceTypeRoute,
     sourceTypePopupRoute,
 } from './';
+import {FormsModule} from "@angular/forms";
 
 const ENTITY_STATES = [
     ...sourceTypeRoute,
@@ -23,7 +24,8 @@ const ENTITY_STATES = [
 @NgModule({
     imports: [
         ManagementPortalSharedModule,
-        RouterModule.forRoot(ENTITY_STATES, { useHash: true })
+        RouterModule.forRoot(ENTITY_STATES, { useHash: true }),
+        FormsModule
     ],
     declarations: [
         SourceTypeComponent,

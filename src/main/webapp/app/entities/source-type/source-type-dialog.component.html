@@ -72,20 +72,20 @@
         </div>
 
         <div class="form-group">
-            <tr>
-                <td>
-                    <label class="form-control-label"
-                           jhiTranslate="managementPortalApp.sourceType.dynamicRegistration"
-                           for="field_hasDynamicId">Has dynamic id</label>
-                </td>
-                <td>
-                    <span>
-                    <input type="checkbox" class="form-control" name="hasDynamicId"
-                           id="field_hasDynamicId"
-                           [(ngModel)]="sourceType.canRegisterDynamically"/>
-                        </span>
-                </td>
-            </tr>
+            <label class="form-control-label" for="field_hasDynamicId"
+                   jhiTranslate="managementPortalApp.sourceType.dynamicRegistration">Dynamic Source Registraion
+            </label>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input type="checkbox" id="field_hasDynamicId" class="form-check-input"
+                           name="hasDynamicId" [checked]="sourceType.canRegisterDynamically"
+                           (change)="sourceType.canRegisterDynamically = !sourceType.canRegisterDynamically"/>
+                    Dynamic Source Registration
+                </label>
+            </div>
+            <small id="dynamicRegistrationHelp" class="form-text text-muted">If enabled this will
+                allow the OAuth client to dynamically register data sources.
+            </small>
         </div>
 
         <div class="form-group">

@@ -85,9 +85,12 @@ public class SourceTypeResource {
             throw new CustomConflictException("sourceTypeAvailable", errorParams);
         }
         SourceTypeDTO result = sourceTypeService.save(sourceTypeDTO);
-        return ResponseEntity.created(new URI("/api/source-types/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
-            .body(result);
+        return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "source-types",
+                result.getProducer(), result.getModel(), result.getCatalogVersion())))
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME,
+                        String.join(" ", result.getProducer(), result.getModel(),
+                                result.getCatalogVersion())))
+                .body(result);
     }
 
     /**
@@ -197,5 +200,4 @@ public class SourceTypeResource {
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME,
             String.join(" ", producer, model, version))).build();
     }
-
 }

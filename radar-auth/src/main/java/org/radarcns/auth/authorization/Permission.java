@@ -165,4 +165,13 @@ public class Permission {
     public String toString() {
         return "Permission{entity=" + entity + ", operation=" + operation + '}';
     }
+
+    /**
+     * Turn this permission into an OAuth scope name and return it
+     *
+     * @return the OAuth scope representation of this permission
+     */
+    public String scopeName() {
+        return entity.name() + "." + operation.name();
+    }
 }

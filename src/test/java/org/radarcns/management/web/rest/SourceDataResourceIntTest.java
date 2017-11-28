@@ -59,11 +59,20 @@ public class SourceDataResourceIntTest {
     private static final ProcessingState DEFAULT_PROCESSING_STATE = ProcessingState.RAW;
     private static final ProcessingState UPDATED_PROCESSING_STATE = ProcessingState.DERIVED;
 
-    private static final String DEFAULT_KEY_SCHEMA = "AAAAAAAAAA";
-    private static final String UPDATED_KEY_SCHEMA = "BBBBBBBBBB";
+    private static final String DEFAULT_KEY_SCHEMA = "AAAAAAAAAAC";
+    private static final String UPDATED_KEY_SCHEMA = "BBBBBBBBBBC";
 
-    private static final String DEFAULT_FREQUENCY = "AAAAAAAAAA";
-    private static final String UPDATED_FREQUENCY = "BBBBBBBBBB";
+    private static final String DEFAULT_VALUE_SCHEMA = "AAAAAAAAAAA";
+    private static final String UPDATED_VALUE_SCHEMA = "BBBBBBBBBBB";
+
+    private static final String DEFAULT_FREQUENCY = "AAAAAAAAAAAA";
+    private static final String UPDATED_FREQUENCY = "BBBBBBBBBBBB";
+
+    private static final String DEFAULT_UNTI = "AAAAAAAAAAAAAAC";
+    private static final String UPDATED_UNIT = "BBBBBBBBBBBBBBC";
+
+    private static final String DEFAULT_TOPIC = "AAAAAAAAAAAAAAA";
+    private static final String UPDATED_TOPIC = "BBBBBBBBBBBBBBB";
 
     @Autowired
     private SourceDataRepository sourceDataRepository;
@@ -123,7 +132,11 @@ public class SourceDataResourceIntTest {
             .sourceDataName(DEFAULT_SOURCE_DATA_NAME)
             .processingState(DEFAULT_PROCESSING_STATE)
             .keySchema(DEFAULT_KEY_SCHEMA)
+            .valueSchema(DEFAULT_VALUE_SCHEMA)
+            .topic(DEFAULT_TOPIC)
+            .unit(DEFAULT_UNTI)
             .frequency(DEFAULT_FREQUENCY);
+
         return sourceData;
     }
 
@@ -152,7 +165,10 @@ public class SourceDataResourceIntTest {
         assertThat(testSourceData.getSourceDataName()).isEqualTo(DEFAULT_SOURCE_DATA_NAME);
         assertThat(testSourceData.getProcessingState()).isEqualTo(DEFAULT_PROCESSING_STATE);
         assertThat(testSourceData.getKeySchema()).isEqualTo(DEFAULT_KEY_SCHEMA);
+        assertThat(testSourceData.getValueSchema()).isEqualTo(DEFAULT_VALUE_SCHEMA);
         assertThat(testSourceData.getFrequency()).isEqualTo(DEFAULT_FREQUENCY);
+        assertThat(testSourceData.getTopic()).isEqualTo(DEFAULT_TOPIC);
+        assertThat(testSourceData.getUnit()).isEqualTo(DEFAULT_UNTI);
     }
 
     @Test
@@ -177,7 +193,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void checkSensorTypeIsRequired() throws Exception {
+    public void checkSourceDataTypeIsRequired() throws Exception {
         int databaseSizeBeforeTest = sourceDataRepository.findAll().size();
         // set the field null
         sourceData.setSourceDataType(null);
@@ -209,6 +225,9 @@ public class SourceDataResourceIntTest {
             .andExpect(jsonPath("$.[*].sourceDataName").value(hasItem(DEFAULT_SOURCE_DATA_NAME.toString())))
             .andExpect(jsonPath("$.[*].processingState").value(hasItem(DEFAULT_PROCESSING_STATE.toString())))
             .andExpect(jsonPath("$.[*].keySchema").value(hasItem(DEFAULT_KEY_SCHEMA.toString())))
+            .andExpect(jsonPath("$.[*].valueSchema").value(hasItem(DEFAULT_VALUE_SCHEMA.toString())))
+            .andExpect(jsonPath("$.[*].unit").value(hasItem(DEFAULT_UNTI.toString())))
+            .andExpect(jsonPath("$.[*].topic").value(hasItem(DEFAULT_TOPIC.toString())))
             .andExpect(jsonPath("$.[*].frequency").value(hasItem(DEFAULT_FREQUENCY.toString())));
     }
 
@@ -227,6 +246,9 @@ public class SourceDataResourceIntTest {
             .andExpect(jsonPath("$.sourceDataName").value(DEFAULT_SOURCE_DATA_NAME.toString()))
             .andExpect(jsonPath("$.processingState").value(DEFAULT_PROCESSING_STATE.toString()))
             .andExpect(jsonPath("$.keySchema").value(DEFAULT_KEY_SCHEMA.toString()))
+            .andExpect(jsonPath("$.valueSchema").value(DEFAULT_VALUE_SCHEMA.toString()))
+            .andExpect(jsonPath("$.unit").value(DEFAULT_UNTI.toString()))
+            .andExpect(jsonPath("$.topic").value(DEFAULT_TOPIC.toString()))
             .andExpect(jsonPath("$.frequency").value(DEFAULT_FREQUENCY.toString()));
     }
 
@@ -253,6 +275,9 @@ public class SourceDataResourceIntTest {
             .sourceDataName(UPDATED_SOURCE_DATA_NAME)
             .processingState(UPDATED_PROCESSING_STATE)
             .keySchema(UPDATED_KEY_SCHEMA)
+            .valueSchema(UPDATED_VALUE_SCHEMA)
+            .topic(UPDATED_TOPIC)
+            .unit(UPDATED_UNIT)
             .frequency(UPDATED_FREQUENCY);
         SourceDataDTO sourceDataDTO = sourceDataMapper.sourceDataToSourceDataDTO(updatedSourceData);
 
@@ -269,6 +294,9 @@ public class SourceDataResourceIntTest {
         assertThat(testSourceData.getSourceDataName()).isEqualTo(UPDATED_SOURCE_DATA_NAME);
         assertThat(testSourceData.getProcessingState()).isEqualTo(UPDATED_PROCESSING_STATE);
         assertThat(testSourceData.getKeySchema()).isEqualTo(UPDATED_KEY_SCHEMA);
+        assertThat(testSourceData.getValueSchema()).isEqualTo(UPDATED_VALUE_SCHEMA);
+        assertThat(testSourceData.getTopic()).isEqualTo(UPDATED_TOPIC);
+        assertThat(testSourceData.getUnit()).isEqualTo(UPDATED_UNIT);
         assertThat(testSourceData.getFrequency()).isEqualTo(UPDATED_FREQUENCY);
     }
 
