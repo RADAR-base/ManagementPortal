@@ -242,8 +242,18 @@ public class SubjectService {
                 source1.getAttributes().putAll(sourceRegistrationDTO.getAttributes());
                 // if source name is provided update source name
                 if (Objects.nonNull(sourceRegistrationDTO.getSourceName())) {
-                    // append the generated source-name to given source-name to avoid conflicts
+                    // append the auto generated source-name to given source-name to avoid conflicts
                     source1.setSourceName(sourceRegistrationDTO.getSourceName()+"_"+source1.getSourceName());
+                }
+
+                Optional<Source> sourceToUpdate = sourceRepository.findOneBySourceName(source1.getSourceName());
+                if(sourceToUpdate.isPresent()) {
+                    log.error("Cannot create a source with existing source-name {}" , source1.getSourceName());
+                    Map<String, String> errorParams = new HashMap<>();
+                    errorParams.put("message",
+                        "SourceName already in use. Cannot create a source with source-name ");
+                    errorParams.put("source-name", source1.getSourceName());
+                    throw new CustomNotFoundException("Conflict", errorParams);
                 }
                 source1 = sourceRepository.save(source1);
 
