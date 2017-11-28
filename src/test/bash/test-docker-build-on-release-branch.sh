@@ -6,7 +6,7 @@
 
 set -ev
 
-if [[ $TRAVIS_BRANCH == add-production-* ]]
+if [[ $TRAVIS_BRANCH == release-* ]]
 then
   docker build -t managementportal .
 fi
