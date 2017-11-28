@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.apache.commons.codec.binary.Base64;
+import org.radarcns.auth.authorization.Permission;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.io.InputStream;
@@ -13,6 +14,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 /**
  * Created by dverbeec on 29/06/2017.
@@ -21,7 +23,7 @@ public class OAuthHelper {
     public static String VALID_TOKEN;
     public static DecodedJWT SUPER_USER_TOKEN;
 
-    public static final String[] SCOPES = {};
+    public static final String[] SCOPES = allScopes();
     public static final String[] AUTHORITIES = {"ROLE_SYS_ADMIN"};
     public static final String[] ROLES = {};
     public static final String[] SOURCES = {};
@@ -88,7 +90,14 @@ public class OAuthHelper {
                 .withClaim("client_id", CLIENT)
                 .withClaim("user_name", USER)
                 .withClaim("jti", JTI)
+                .withClaim("grant_type", "password")
                 .sign(algorithm);
         SUPER_USER_TOKEN = JWT.decode(VALID_TOKEN);
+    }
+
+    private static String[] allScopes() {
+        return Permission.allPermissions().stream()
+                .map(Permission::scopeName)
+                .collect(Collectors.toList()).toArray(new String[Permission.allPermissions().size()]);
     }
 }

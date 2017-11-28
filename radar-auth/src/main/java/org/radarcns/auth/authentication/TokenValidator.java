@@ -9,6 +9,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bouncycastle.util.io.pem.PemReader;
+import org.radarcns.auth.authorization.RadarAuthorization;
 import org.radarcns.auth.config.ServerConfig;
 import org.radarcns.auth.config.YamlServerConfig;
 import org.radarcns.auth.exception.TokenValidationException;
@@ -22,6 +23,11 @@ import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Validates JWT token signed by the Management Portal. It is synchronized and may be used from
@@ -30,6 +36,9 @@ import java.time.Instant;
 public class TokenValidator {
 
     protected static final Logger log = LoggerFactory.getLogger(TokenValidator.class);
+    // additional required claims apart from the required JWT claims
+    protected static final List<String> REQUIRED_CLAIMS = Arrays.asList(
+            RadarAuthorization.GRANT_TYPE_CLAIM, RadarAuthorization.SCOPE_CLAIM);
 
     private final ServerConfig config;
     private JWTVerifier verifier;
@@ -95,7 +104,16 @@ public class TokenValidator {
      */
     public DecodedJWT validateAccessToken(String token) throws TokenValidationException {
         try {
-            return getVerifier().verify(token);
+            DecodedJWT jwt = getVerifier().verify(token);
+            Set<String> claims = jwt.getClaims().keySet();
+            Set<String> missing = REQUIRED_CLAIMS.stream()
+                    .filter(c -> !claims.contains(c))
+                    .collect(Collectors.toSet());
+            if (!missing.isEmpty()) {
+                throw new TokenValidationException("The following required claims were missing "
+                        + "from the token: " + String.join(", ", missing));
+            }
+            return jwt;
         } catch (SignatureVerificationException sve) {
             log.warn("Client presented a token with an incorrect signature, fetching public key"
                     + " again. Token: {}", token);

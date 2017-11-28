@@ -57,13 +57,6 @@ public class RadarAuthorizationTest {
     }
 
     @Test
-    public void testIsSuperUser() {
-        assertFalse(RadarAuthorization.isSuperUser(TokenTestUtils.PROJECT_ADMIN_TOKEN));
-        assertFalse(RadarAuthorization.isSuperUser(TokenTestUtils.SCOPE_TOKEN));
-        assertTrue(RadarAuthorization.isSuperUser(TokenTestUtils.SUPER_USER_TOKEN));
-    }
-
-    @Test
     public void testCheckPermission() {
         DecodedJWT token = TokenTestUtils.SUPER_USER_TOKEN;
         Permission.allPermissions().stream()
@@ -174,7 +167,6 @@ public class RadarAuthorizationTest {
                     fail();
                 });
 
-        assertFalse(RadarAuthorization.isSuperUser(token));
         assertFalse(RadarAuthorization.isJustParticipant(token, ""));
     }
 
