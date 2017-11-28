@@ -242,7 +242,8 @@ public class SubjectService {
                 source1.getAttributes().putAll(sourceRegistrationDTO.getAttributes());
                 // if source name is provided update source name
                 if (Objects.nonNull(sourceRegistrationDTO.getSourceName())) {
-                    source1.setSourceName(sourceRegistrationDTO.getSourceName());
+                    // append the generated source-name to given source-name to avoid conflicts
+                    source1.setSourceName(sourceRegistrationDTO.getSourceName()+"_"+source1.getSourceName());
                 }
                 source1 = sourceRepository.save(source1);
 
