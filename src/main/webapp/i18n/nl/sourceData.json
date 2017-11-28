@@ -2,7 +2,7 @@
     "managementPortalApp": {
         "sourceData" : {
             "home": {
-                "title": "Source data",
+                "title": "Source Data",
                 "createLabel": "Maak een nieuwe Source data",
                 "createOrEditLabel": "Maak of wijzig een Source data"
             },
@@ -21,8 +21,8 @@
             "keySchema": "Key Schema",
             "valueSchema": "Value Schema",
             "topic": "Topic",
-            "frequency": "frequentie",
-            "unit": "eenheid",
+            "frequency": "Frequentie",
+            "unit": "Eenheid",
             "sourceType": "Source Type"
         }
     },
