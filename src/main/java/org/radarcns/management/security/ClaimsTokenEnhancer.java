@@ -1,5 +1,6 @@
 package org.radarcns.management.security;
 
+import org.radarcns.auth.authorization.RadarAuthorization;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
@@ -13,6 +14,7 @@ import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.util.OAuth2Utils;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
@@ -63,7 +65,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
                         .map(role -> role.getProject().getProjectName() + ":"
                                 + role.getAuthority().getName())
                         .collect(Collectors.toList());
-                additionalInfo.put("roles", roles);
+                additionalInfo.put(RadarAuthorization.ROLES_CLAIM, roles);
 
             }
 
@@ -72,11 +74,12 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
             List<String> sourceIds = assignedSources.stream()
                     .map(s -> s.getSourceId().toString())
                     .collect(Collectors.toList());
-            additionalInfo.put("sources", sourceIds);
+            additionalInfo.put(RadarAuthorization.SOURCES_CLAIM, sourceIds);
         }
         // add iat and iss optional JWT claims
         additionalInfo.put("iat", Instant.now().getEpochSecond());
         additionalInfo.put("iss", appName);
+        additionalInfo.put(RadarAuthorization.GRANT_TYPE_CLAIM, authentication.getOAuth2Request().getGrantType());
         ((DefaultOAuth2AccessToken) accessToken)
             .setAdditionalInformation(additionalInfo);
 
