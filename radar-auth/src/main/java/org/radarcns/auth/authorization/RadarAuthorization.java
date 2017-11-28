@@ -22,6 +22,9 @@ public class RadarAuthorization {
     public static final String AUTHORITIES_CLAIM = "authorities";
     public static final String ROLES_CLAIM = "roles";
     public static final String SCOPE_CLAIM = "scope";
+    public static final String SOURCES_CLAIM = "sources";
+    public static final String GRANT_TYPE_CLAIM = "grant_type";
+    private static final String CLIENT_CREDENTIALS = "client_credentials";
 
     /**
      * Check if the user authenticated with the given token has the given permission. Not taking
@@ -31,17 +34,10 @@ public class RadarAuthorization {
      */
     public static void checkPermission(DecodedJWT token, Permission permission) {
         log.debug("Checking permission {} for user {}", permission.toString(), token.getSubject());
-        if (hasScope(token, permission)) {
-            return;
-        }
-        Set<String> authsGranted = getAuthorities(token);
-        // effectively takes intersection of both sets
-        authsGranted.retainAll(Permissions.allowedAuthorities(permission));
-        if (authsGranted.isEmpty()) {
-            log.info("User {} does not have permission {}", token.getSubject(),
-                    permission.toString());
-            throw new NotAuthorizedException(String.format("User %s does not have permission %s",
-                token.getSubject(), permission.toString()));
+        checkScope(token, permission);
+        if (!isClientCredentials(token)) {
+            // it's not a client_credentials token, so we need both scope and authority
+            checkPermission(token, permission, getAuthorities(token));
         }
     }
 
@@ -55,16 +51,9 @@ public class RadarAuthorization {
             String projectName) {
         log.debug("Checking permission {} for user {} in project {}", permission.toString(),
                 token.getSubject(), projectName);
-        if (isSuperUser(token) || hasScope(token, permission)) {
-            return;
-        }
-        Set<String> authsGranted = getAuthoritiesForProject(token, projectName);
-        authsGranted.retainAll(Permissions.allowedAuthorities(permission));
-        if (authsGranted.isEmpty()) {
-            log.info("User {} does not have permission {} in project {}",
-                    token.getSubject(), permission.toString(), projectName);
-            throw new NotAuthorizedException(String.format("User %s does not have permission %s in "
-                + "project %s", token.getSubject(), permission.toString(), projectName));
+        checkScope(token, permission);
+        if (!isClientCredentials(token)) {
+            checkPermission(token, permission, getAuthoritiesForProject(token, projectName));
         }
     }
 
@@ -80,35 +69,25 @@ public class RadarAuthorization {
             String projectName, String subjectName) {
         log.debug("Checking permission {} for user {} on subject {} in project {}",
                 permission.toString(), token.getSubject(), subjectName, projectName);
-        if (isSuperUser(token) || hasScope(token, permission)) {
-            return;
-        }
-        // we're allowed to read our own data
-        if (token.getSubject().equals(subjectName) && Permissions.allowedAuthorities(permission)
-                .contains(AuthoritiesConstants.PARTICIPANT)) {
-            return;
-        }
-        // if we're only a participant, and we're not the subject we request data for,
-        // we don't have access
-        if (isJustParticipant(token, projectName)) {
-            throw new NotAuthorizedException(String.format("User %s does not have permission %s in "
-                    + "project %s for subject %s", token.getSubject(), permission.toString(),
-                    projectName, subjectName));
-        } else {
-            // otherwise we have other roles and we should check on a project level
-            checkPermissionOnProject(token, permission, projectName);
-        }
-    }
+        checkScope(token, permission);
+        if (!isClientCredentials(token)) {
+            // we're allowed to read our own data
+            if (token.getSubject().equals(subjectName) && Permissions.allowedAuthorities(permission)
+                    .contains(AuthoritiesConstants.PARTICIPANT)) {
+                return;
+            }
 
-    /**
-     * Check if the given user is a super user.
-     * @param token The token of the user to check
-     * @return true if the user has a superuser authority, false otherwise
-     */
-    public static boolean isSuperUser(DecodedJWT token) {
-        return token.getClaims().containsKey(AUTHORITIES_CLAIM)
-                && token.getClaim(AUTHORITIES_CLAIM).asList(String.class)
-                .contains(AuthoritiesConstants.SYS_ADMIN);
+            // if we're only a participant, and we're not the subject we request data for,
+            // we don't have access
+            if (isJustParticipant(token, projectName)) {
+                throw new NotAuthorizedException(String.format("User %s does not have permission"
+                        + " %s in project %s for subject %s", token.getSubject(),
+                        permission.toString(), projectName, subjectName));
+            } else {
+                // otherwise we have other roles and we should check on a project level
+                checkPermission(token, permission, getAuthoritiesForProject(token, projectName));
+            }
+        }
     }
 
     /**
@@ -130,20 +109,35 @@ public class RadarAuthorization {
 
     private static Set<String> getAuthoritiesForProject(DecodedJWT token, String projectName) {
         // get all project-based authorities
-        return token.getClaims().containsKey(ROLES_CLAIM)
+        Set<String> result = token.getClaims().containsKey(ROLES_CLAIM)
                 ? token.getClaim(ROLES_CLAIM).asList(String.class).stream()
                         .filter(s -> s.startsWith(projectName + ":"))
                         .map(s -> s.split(":")[1])
                         .collect(Collectors.toSet())
-                : Collections.emptySet();
+                : new HashSet<>();
+        // also add SYS_ADMIN authority if we have it
+        if (token.getClaims().containsKey(AUTHORITIES_CLAIM)
+                && token.getClaim(AUTHORITIES_CLAIM).asList(String.class)
+                .contains(AuthoritiesConstants.SYS_ADMIN)) {
+            result.add(AuthoritiesConstants.SYS_ADMIN);
+        }
+        return result;
     }
 
     private static boolean hasScope(DecodedJWT token, Permission permission) {
-        return token.getClaims().containsKey(SCOPE_CLAIM)
-                ? token.getClaim(SCOPE_CLAIM).asList(String.class)
-                        .contains(permission.getEntity().toString()
-                            + "." + permission.getOperation().toString())
-                : false;
+        return token.getClaim(SCOPE_CLAIM).asList(String.class).contains(permission.scopeName());
+    }
+
+    protected static void checkPermission(DecodedJWT token, Permission permission,
+            Set<String> authsGranted) {
+        // Take intersection of both sets
+        authsGranted.retainAll(Permissions.allowedAuthorities(permission));
+        if (authsGranted.isEmpty()) {
+            log.info("User {} does not have permission {}", token.getSubject(),
+                    permission.toString());
+            throw new NotAuthorizedException(String.format("User %s does not have permission %s",
+                    token.getSubject(), permission.toString()));
+        }
     }
 
     private static Set<String> getAuthorities(DecodedJWT token) {
@@ -159,5 +153,18 @@ public class RadarAuthorization {
             result.addAll(token.getClaim(AUTHORITIES_CLAIM).asList(String.class));
         }
         return result;
+    }
+
+    private static void checkScope(DecodedJWT token, Permission permission) {
+        if (hasScope(token, permission)) {
+            return;
+        } else {
+            throw new NotAuthorizedException(String.format("Client %s does not have "
+                    + "permission %s", token.getSubject(), permission.toString()));
+        }
+    }
+
+    private static boolean isClientCredentials(DecodedJWT token) {
+        return token.getClaim(GRANT_TYPE_CLAIM).asString().equals(CLIENT_CREDENTIALS);
     }
 }

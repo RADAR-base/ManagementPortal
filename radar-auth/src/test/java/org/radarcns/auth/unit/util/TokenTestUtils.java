@@ -4,6 +4,9 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.apache.commons.codec.binary.Base64;
+import org.radarcns.auth.authorization.AuthoritiesConstants;
+import org.radarcns.auth.authorization.Permission;
+import org.radarcns.auth.authorization.Permissions;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -12,7 +15,9 @@ import java.security.cert.Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 /**
  * Created by dverbeec on 29/06/2017.
@@ -29,8 +34,8 @@ public class TokenTestUtils {
     public static DecodedJWT SUPER_USER_TOKEN;
     public static DecodedJWT MULTIPLE_ROLES_IN_PROJECT_TOKEN;
 
-    public static final String[] SCOPES = {"scope1", "scope2"};
     public static final String[] AUTHORITIES = {"ROLE_SYS_ADMIN", "ROLE_USER"};
+    public static final String[] ALL_SCOPES = allScopes();
     public static final String[] ROLES = {"PROJECT1:ROLE_PROJECT_ADMIN",
             "PROJECT2:ROLE_PARTICIPANT"};
     public static final String[] SOURCES = {};
@@ -91,13 +96,14 @@ public class TokenTestUtils {
             .withExpiresAt(Date.from(past))
             .withAudience(CLIENT)
             .withSubject(USER)
-            .withArrayClaim("scope", SCOPES)
+            .withArrayClaim("scope", ALL_SCOPES)
             .withArrayClaim("authorities", AUTHORITIES)
             .withArrayClaim("roles", ROLES)
             .withArrayClaim("sources", SOURCES)
             .withClaim("client_id", CLIENT)
             .withClaim("user_name", USER)
             .withClaim("jti", JTI)
+            .withClaim("grant_type", "password")
             .sign(algorithm);
     }
 
@@ -115,13 +121,14 @@ public class TokenTestUtils {
             .withExpiresAt(Date.from(exp))
             .withAudience(CLIENT)
             .withSubject(USER)
-            .withArrayClaim("scope", SCOPES)
+            .withArrayClaim("scope", ALL_SCOPES)
             .withArrayClaim("authorities", new String[] {"ROLE_PROJECT_ADMIN"})
             .withArrayClaim("roles", ROLES)
             .withArrayClaim("sources", new String[] {})
             .withClaim("client_id", CLIENT)
             .withClaim("user_name", USER)
             .withClaim("jti", JTI)
+            .withClaim("grant_type", "password")
             .sign(psk);
     }
 
@@ -132,13 +139,14 @@ public class TokenTestUtils {
                 .withExpiresAt(Date.from(exp))
                 .withAudience("SOME_AUDIENCE")
                 .withSubject(USER)
-                .withArrayClaim("scope", SCOPES)
+                .withArrayClaim("scope", ALL_SCOPES)
                 .withArrayClaim("authorities", new String[] {"ROLE_PROJECT_ADMIN"})
                 .withArrayClaim("roles", ROLES)
                 .withArrayClaim("sources", new String[] {})
                 .withClaim("client_id", CLIENT)
                 .withClaim("user_name", USER)
                 .withClaim("jti", JTI)
+                .withClaim("grant_type", "password")
                 .sign(algorithm);
     }
 
@@ -149,7 +157,7 @@ public class TokenTestUtils {
                 .withExpiresAt(Date.from(exp))
                 .withAudience(CLIENT)
                 .withSubject(USER)
-                .withArrayClaim("scope", SCOPES)
+                .withArrayClaim("scope", ALL_SCOPES)
                 .withArrayClaim("authorities", new String[] {"ROLE_PROJECT_ADMIN"})
                 .withArrayClaim("roles", new String[] {"PROJECT2:ROLE_PROJECT_ADMIN",
                         "PROJECT2:ROLE_PARTICIPANT"})
@@ -157,6 +165,7 @@ public class TokenTestUtils {
                 .withClaim("client_id", CLIENT)
                 .withClaim("user_name", USER)
                 .withClaim("jti", JTI)
+                .withClaim("grant_type", "password")
                 .sign(algorithm);
 
         MULTIPLE_ROLES_IN_PROJECT_TOKEN = JWT.decode(multipleRolesInProjectToken);
@@ -169,13 +178,15 @@ public class TokenTestUtils {
                 .withExpiresAt(Date.from(exp))
                 .withAudience(CLIENT)
                 .withSubject(USER)
-                .withArrayClaim("scope", SCOPES)
-                .withArrayClaim("authorities", new String[] {"ROLE_PROJECT_ADMIN"})
+                .withArrayClaim("scope", ALL_SCOPES)
+                .withArrayClaim("authorities", new String[] {"ROLE_PROJECT_ADMIN",
+                        "ROLE_PARTICIPANT"})
                 .withArrayClaim("roles", ROLES)
                 .withArrayClaim("sources", new String[] {})
                 .withClaim("client_id", CLIENT)
                 .withClaim("user_name", USER)
                 .withClaim("jti", JTI)
+                .withClaim("grant_type", "password")
                 .sign(algorithm);
 
         PROJECT_ADMIN_TOKEN = JWT.decode(projectAdminToken);
@@ -188,13 +199,14 @@ public class TokenTestUtils {
                 .withExpiresAt(Date.from(exp))
                 .withAudience(CLIENT)
                 .withSubject(USER)
-                .withArrayClaim("scope", SCOPES)
+                .withArrayClaim("scope", ALL_SCOPES)
                 .withArrayClaim("authorities", AUTHORITIES)
                 .withArrayClaim("roles", ROLES)
                 .withArrayClaim("sources", SOURCES)
                 .withClaim("client_id", CLIENT)
                 .withClaim("user_name", USER)
                 .withClaim("jti", JTI)
+                .withClaim("grant_type", "password")
                 .sign(algorithm);
         SUPER_USER_TOKEN = JWT.decode(VALID_TOKEN);
     }
@@ -210,7 +222,14 @@ public class TokenTestUtils {
                         "SUBJECT.READ"})
                 .withClaim("client_id", "i'm a trusted oauth client")
                 .withClaim("jti", JTI)
+                .withClaim("grant_type", "client_credentials")
                 .sign(algorithm);
         SCOPE_TOKEN = JWT.decode(token);
+    }
+
+    private static String[] allScopes() {
+        return Permission.allPermissions().stream()
+                .map(Permission::scopeName)
+                .collect(Collectors.toList()).toArray(new String[Permission.allPermissions().size()]);
     }
 }
