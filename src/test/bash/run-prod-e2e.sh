@@ -12,6 +12,7 @@ set -ev
 
 sed -i "s|new plugin.BaseHrefWebpackPlugin({ baseHref: '/' })|new plugin.BaseHrefWebpackPlugin({ baseHref: '/managementportal/' })|" webpack/webpack.dev.js
 sed -i "s|baseUrl: 'http://localhost:8080/',|baseUrl: 'http://localhost:8080/managementportal/',|" src/test/javascript/protractor.conf.js
+sed -i "s|contexts: prod|contexts: dev|" src/main/resources/config/application-prod.yml # set liquibase context to dev so it loads demo data
 ./gradlew bootRepackage -Pprod buildDocker -x test
 docker-compose -f src/main/docker/app.yml up -d # spin up production mode application
 # wait for app to start up
@@ -28,3 +29,4 @@ yarn e2e # run e2e tests against production mode
 docker-compose -f src/main/docker/app.yml down -v # clean up containers and volumes
 git checkout src/test/javascript/protractor.conf.js
 git checkout webpack/webpack.prod.js
+git checkout src/main/resources/config/application-prod.yml
