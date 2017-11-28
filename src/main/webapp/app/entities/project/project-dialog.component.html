@@ -15,12 +15,15 @@
         <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.project.projectName" for="field_projectName">Project Name</label>
             <input type="text" class="form-control" name="projectName" id="field_projectName"
-                [(ngModel)]="project.projectName"
-            required />
+                [(ngModel)]="project.projectName" required pattern="[_'.@A-Za-z0-9-]*" />
             <div [hidden]="!(editForm.controls.projectName?.dirty && editForm.controls.projectName?.invalid)">
                 <small class="form-text text-danger"
                    [hidden]="!editForm.controls.projectName?.errors?.required" jhiTranslate="entity.validation.required">
                    This field is required.
+                </small>
+                <small class="form-text text-danger"
+                        [hidden]="!editForm.controls.projectName?.errors?.pattern" jhiTranslate="entity.validation.pattern" translateValues="{pattern: 'alphanumerics, dash (-), underscore (_) and period (.)'}">
+                    Validation error.
                 </small>
             </div>
         </div>

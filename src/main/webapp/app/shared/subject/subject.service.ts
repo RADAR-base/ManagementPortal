@@ -33,7 +33,7 @@ export class SubjectService {
     }
 
     find(login: string): Observable<Subject> {
-        return this.http.get(`${this.resourceUrl}/${login}`).map((res: Response) => {
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}`).map((res: Response) => {
             return res.json();
         });
     }
@@ -45,7 +45,7 @@ export class SubjectService {
     }
 
     delete(login: string): Observable<Response> {
-        return this.http.delete(`${this.resourceUrl}/${login}`);
+        return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(login)}`);
     }
     private createRequestOption(req?: any): BaseRequestOptions {
         const options: BaseRequestOptions = new BaseRequestOptions();

@@ -25,7 +25,7 @@ export class SourceDataService {
     }
 
     find(sourceDataName: string): Observable<SourceData> {
-        return this.http.get(`${this.resourceUrl}/${sourceDataName}`).map((res: Response) => {
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(sourceDataName)}`).map((res: Response) => {
             return res.json();
         });
     }
@@ -37,7 +37,7 @@ export class SourceDataService {
     }
 
     delete(sourceDataName: string): Observable<Response> {
-        return this.http.delete(`${this.resourceUrl}/${sourceDataName}`);
+        return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(sourceDataName)}`);
     }
     private createRequestOption(req?: any): BaseRequestOptions {
         const options: BaseRequestOptions = new BaseRequestOptions();

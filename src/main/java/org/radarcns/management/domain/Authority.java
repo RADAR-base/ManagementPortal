@@ -6,9 +6,11 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.radarcns.auth.config.Constants;
 
 /**
  * An authority (a security role) used by Spring Security.
@@ -23,6 +25,7 @@ public class Authority implements Serializable {
     @NotNull
     @Size(min = 0, max = 50)
     @Id
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
     @Column(length = 50)
     private String name;
 

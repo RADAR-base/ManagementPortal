@@ -32,7 +32,7 @@ export class ProjectService {
     }
 
     find(projectName: string): Observable<Project> {
-        return this.http.get(`${this.resourceUrl}/${projectName}`).map((res: Response) => {
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(projectName)}`).map((res: Response) => {
             const jsonResponse = res.json();
             jsonResponse.startDate = this.dateUtils
                 .convertDateTimeFromServer(jsonResponse.startDate);
@@ -61,7 +61,7 @@ export class ProjectService {
     }
 
     delete(projectName: string): Observable<Response> {
-        return this.http.delete(`${this.resourceUrl}/${projectName}`);
+        return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(projectName)}`);
     }
 
     private convertResponse(res: any): any {

@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.authorization.Permission;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Subject;
@@ -242,7 +243,7 @@ public class SubjectResource {
      * @return the ResponseEntity with status 200 (OK) and with body the subjectDTO, or with status
      * 404 (Not Found)
      */
-    @GetMapping("/subjects/{login}")
+    @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<SubjectDTO> getSubject(@PathVariable String login) {
         log.debug("REST request to get Subject : {}", login);
@@ -262,7 +263,7 @@ public class SubjectResource {
      * @param login the login of the subjectDTO to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @DeleteMapping("/subjects/{login}")
+    @DeleteMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<Void> deleteSubject(@PathVariable String login) {
         log.debug("REST request to delete Subject : {}", login);
@@ -295,7 +296,7 @@ public class SubjectResource {
      * @return The {@link MinimalSourceDetailsDTO} completed with all identifying fields.
      *
      */
-    @PostMapping("/subjects/{login}/sources")
+    @PostMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/sources")
     @ApiResponses({
             @ApiResponse(code = 200, message = "An existing source was assigned"),
             @ApiResponse(code = 201, message = "A new source was created and assigned"),
@@ -387,7 +388,7 @@ public class SubjectResource {
         }
     }
 
-    @GetMapping("/subjects/{login}/sources")
+    @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/sources")
     @Timed
     public ResponseEntity<List<MinimalSourceDetailsDTO>> getSubjectSources(
         @PathVariable String login) {

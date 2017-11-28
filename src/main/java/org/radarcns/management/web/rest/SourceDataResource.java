@@ -2,6 +2,7 @@ package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.service.SourceDataService;
 import org.radarcns.management.service.dto.SourceDataDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -118,7 +119,7 @@ public class SourceDataResource {
      * @param sourceDataName the sourceDataName of the sourceDataDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the sourceDataDTO, or with status 404 (Not Found)
      */
-    @GetMapping("/source-data/{sourceDataName}")
+    @GetMapping("/source-data/{sourceDataName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<SourceDataDTO> getSourceData(@PathVariable String sourceDataName) {
         checkPermission(getJWT(servletRequest), SOURCEDATA_READ);
@@ -131,7 +132,7 @@ public class SourceDataResource {
      * @param sourceDataName the sourceDataName of the sourceDataDTO to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @DeleteMapping("/source-data/{sourceDataName}")
+    @DeleteMapping("/source-data/{sourceDataName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<Void> deleteSourceData(@PathVariable String sourceDataName) {
         checkPermission(getJWT(servletRequest), SOURCEDATA_DELETE);

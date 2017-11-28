@@ -27,6 +27,7 @@
         }
     },
     "error" : {
-        "sourceDataNameAvailable" : "SourceDataName is already in use"
+        "sourceDataNameAvailable" : "SourceDataName is already in use",
+        "validation": "Validation error, check the entered values in the fields."
     }
 }

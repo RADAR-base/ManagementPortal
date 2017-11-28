@@ -1,7 +1,7 @@
 package org.radarcns.management.service;
 
 import org.radarcns.auth.authorization.AuthoritiesConstants;
-import org.radarcns.management.config.Constants;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;

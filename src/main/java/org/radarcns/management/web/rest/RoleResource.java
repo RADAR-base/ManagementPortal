@@ -3,6 +3,7 @@ package org.radarcns.management.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.service.RoleService;
 import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -125,7 +126,7 @@ public class RoleResource {
      * @param authorityName The authority name
      * @return the ResponseEntity with status 200 (OK) and with body the roleDTO, or with status 404 (Not Found)
      */
-    @GetMapping("/roles/{projectName}/{authorityName}")
+    @GetMapping("/roles/{projectName:" + Constants.ENTITY_ID_REGEX + "}/{authorityName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<RoleDTO> getRole(@PathVariable String projectName,
         @PathVariable String authorityName) {

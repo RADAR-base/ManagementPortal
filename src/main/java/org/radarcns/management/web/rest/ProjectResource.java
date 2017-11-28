@@ -3,6 +3,7 @@ package org.radarcns.management.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.radarcns.auth.authorization.Permission;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.SecurityUtils;
@@ -146,7 +147,7 @@ public class ProjectResource {
      * @param projectName the projectName of the projectDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the projectDTO, or with status 404 (Not Found)
      */
-    @GetMapping("/projects/{projectName}")
+    @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<ProjectDTO> getProject(@PathVariable String projectName) {
         log.debug("REST request to get Project : {}", projectName);
@@ -163,7 +164,7 @@ public class ProjectResource {
      * @param projectName the projectName of the projectDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the projectDTO, or with status 404 (Not Found)
      */
-    @GetMapping("/projects/{projectName}/source-types")
+    @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/source-types")
     @Timed
     public List<SourceTypeDTO> getSourceTypesOfProject(@PathVariable String projectName) {
         log.debug("REST request to get Project : {}", projectName);
@@ -181,7 +182,7 @@ public class ProjectResource {
      * @param projectName the projectName of the projectDTO to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @DeleteMapping("/projects/{projectName}")
+    @DeleteMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<Void> deleteProject(@PathVariable String projectName) {
         log.debug("REST request to delete Project : {}", projectName);
@@ -198,7 +199,7 @@ public class ProjectResource {
      *
      * @return the ResponseEntity with status 200 (OK) and the list of roles in body
      */
-    @GetMapping("/projects/{projectName}/roles")
+    @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/roles")
     @Timed
     public List<RoleDTO> getRolesByProject(@PathVariable String projectName) {
         log.debug("REST request to get all Roles for project {}", projectName);
@@ -214,7 +215,7 @@ public class ProjectResource {
      *
      * @return the ResponseEntity with status 200 (OK) and the list of sources in body
      */
-    @GetMapping("/projects/{projectName}/sources")
+    @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/sources")
     @Timed
     public ResponseEntity getAllSourcesForProject(@PathVariable String projectName,
             @RequestParam(value = "assigned", required = false) Boolean assigned,
@@ -247,7 +248,7 @@ public class ProjectResource {
         }
     }
 
-    @GetMapping("/projects/{projectName}/subjects")
+    @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/subjects")
     @Timed
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(@PathVariable String projectName) {
         checkPermissionOnProject(SecurityUtils.getJWT(servletRequest), Permission.SUBJECT_READ,

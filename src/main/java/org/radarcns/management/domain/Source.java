@@ -3,6 +3,7 @@ package org.radarcns.management.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.radarcns.auth.config.Constants;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -20,6 +21,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,6 +50,7 @@ public class Source extends AbstractAuditingEntity implements Serializable {
     private UUID sourceId;
 
     @NotNull
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
     @Column(name = "source_name", nullable = false, unique = true)
     private String sourceName;
 

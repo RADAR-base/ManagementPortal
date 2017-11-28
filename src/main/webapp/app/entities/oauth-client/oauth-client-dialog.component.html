@@ -13,7 +13,17 @@
         <div class="form-group">
             <label class="form-control-label" for="id" jhiTranslate="managementPortalApp.oauthClient.clientId">Client ID</label>
             <input *ngIf="!newClient" type="text" class="form-control" id="id" name="id" [(ngModel)]="client.clientId" readonly />
-            <input *ngIf="newClient" type="text" class="form-control" id="id" name="id" [(ngModel)]="client.clientId" required />
+            <input *ngIf="newClient" type="text" class="form-control" id="id" name="id" [(ngModel)]="client.clientId" required pattern="[_'.@A-Za-z0-9-]*" />
+            <div [hidden]="!(editForm.controls.id?.dirty && editForm.controls.id?.invalid)">
+                <small class="form-text text-danger"
+                       [hidden]="!editForm.controls.id?.errors?.required" jhiTranslate="entity.validation.required">
+                    This field is required.
+                </small>
+                <small class="form-text text-danger"
+                        [hidden]="!editForm.controls.id?.errors?.pattern" jhiTranslate="entity.validation.pattern" translateValues="{pattern: 'alphanumerics, dash (-), underscore (_) and period (.)'}">
+                    Validation error.
+                </small>
+            </div>
         </div>
         <div class="form-group">
             <label class="form-control-label" for="secret" jhiTranslate="managementPortalApp.oauthClient.clientSecret">Client Secret</label>
@@ -21,17 +31,35 @@
                 <input type="text" class="form-control" id="secret" name="clientSecret" [(ngModel)]="client.clientSecret" [disabled]="protectedClient" [required]="newClient" />
                 <span class="input-group-btn"><button class="btn btn-secondary" type="button" (click)="generateRandomSecret()"><span class="fa fa-magic">&nbsp;</span>Randomize</button></span>
             </div>
+            <div [hidden]="!newClient || (newClient && !(editForm.controls.clientSecret?.dirty && editForm.controls.clientSecret?.invalid))">
+                <small class="form-text text-danger"
+                       [hidden]="!editForm.controls.clientSecret?.errors?.required" jhiTranslate="entity.validation.required">
+                    This field is required.
+                </small>
+            </div>
             <small id="secretHelp" class="form-text text-muted" *ngIf="!newClient">If this field is left empty the secret will not be modified.</small>
         </div>
         <div class="form-group">
             <label class="form-control-label" for="scope" jhiTranslate="managementPortalApp.oauthClient.scope">Scope</label>
             <input type="text" class="form-control" id="scope" name="scope" [(ngModel)]="scopeList" [disabled]="protectedClient" required />
             <small id="scopeHelp" class="form-text text-muted">Comma seperated list of scopes. Scopes should have the following structure: ENTITY.OPERATION. See the <a href="https://github.com/RADAR-CNS/ManagementPortal/tree/master/radar-auth">radar-auth library documentation</a> for more information.</small>
+            <div [hidden]="!(editForm.controls.scope?.dirty && editForm.controls.scope?.invalid)">
+                <small class="form-text text-danger"
+                       [hidden]="!editForm.controls.scope?.errors?.required" jhiTranslate="entity.validation.required">
+                    This field is required.
+                </small>
+            </div>
         </div>
         <div class="form-group">
             <label class="form-control-label" for="resourceIds" jhiTranslate="managementPortalApp.oauthClient.resourceIds">Resources</label>
             <input type="text" class="form-control" id="resourceIds" name="resourceIds" [(ngModel)]="resourcesList" [disabled]="protectedClient" required />
             <small id="resourceIdsHelp" class="form-text text-muted">Comma seperated list of allowed resource IDs.</small>
+            <div [hidden]="!(editForm.controls.resourceIds?.dirty && editForm.controls.resourceIds?.invalid)">
+                <small class="form-text text-danger"
+                       [hidden]="!editForm.controls.resourceIds?.errors?.required" jhiTranslate="entity.validation.required">
+                    This field is required.
+                </small>
+            </div>
         </div>
         <div class="form-group">
             <label class="form-control-label" for="grantTypes" jhiTranslate="managementPortalApp.oauthClient.authorizedGrantTypes">Grant Types</label>
@@ -51,10 +79,30 @@
         <div class="form-group">
             <label class="form-control-label" for="accessTokenValidity" jhiTranslate="managementPortalApp.oauthClient.accessTokenValidity">Access Token Validity</label>
             <input type="text" class="form-control" id="accessTokenValidity" name="accessTokenValidity" [(ngModel)]="client.accessTokenValiditySeconds" [disabled]="protectedClient" required pattern="\d+" />
+            <div [hidden]="!(editForm.controls.accessTokenValidity?.dirty && editForm.controls.accessTokenValidity?.invalid)">
+                <small class="form-text text-danger"
+                       [hidden]="!editForm.controls.accessTokenValidity?.errors?.required" jhiTranslate="entity.validation.required">
+                    This field is required.
+                </small>
+                <small class="form-text text-danger"
+                        [hidden]="!editForm.controls.accessTokenValidity?.errors?.pattern" jhiTranslate="entity.validation.number">
+                    This field is numeric.
+                </small>
+            </div>
         </div>
         <div class="form-group">
             <label class="form-control-label" for="refreshTokenValidity" jhiTranslate="managementPortalApp.oauthClient.refreshTokenValidity">Refresh Token Validity</label>
             <input type="text" class="form-control" id="refreshTokenValidity" name="refreshTokenValidity" [(ngModel)]="client.refreshTokenValiditySeconds" [disabled]="protectedClient" required pattern="\d+" />
+            <div [hidden]="!(editForm.controls.refreshTokenValidity?.dirty && editForm.controls.refreshTokenValidity?.invalid)">
+                <small class="form-text text-danger"
+                       [hidden]="!editForm.controls.refreshTokenValidity?.errors?.required" jhiTranslate="entity.validation.required">
+                    This field is required.
+                </small>
+                <small class="form-text text-danger"
+                        [hidden]="!editForm.controls.refreshTokenValidity?.errors?.pattern" jhiTranslate="entity.validation.number">
+                    This field is numeric.
+                </small>
+            </div>
         </div>
         <div class="form-group">
             <label class="form-control-label" for="dynamicRegistration" jhiTranslate="managementPortalApp.oauthClient.additionalInformation">Additional Information</label>
