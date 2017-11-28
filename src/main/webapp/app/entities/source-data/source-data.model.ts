@@ -13,7 +13,10 @@ export class SourceData {
         public sourceDataName?: string,
         public processingState?: ProcessingState,
         public keySchema?: string,
+        public valueSchema?: string,
+        public topic?: string,
         public frequency?: string,
+        public unit?: string,
         public sourceType?: MinimalSourceType,
     ) {
     }
