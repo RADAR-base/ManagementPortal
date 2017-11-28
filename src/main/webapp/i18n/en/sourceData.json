@@ -18,8 +18,11 @@
             "sourceDataType": "Source Data Type",
             "sourceDataName": "Source Data Name",
             "processingState": "Processing State",
-            "keySchema": "keySchema",
+            "keySchema": "Key Schema",
+            "valueSchema": "Value Schema",
+            "topic": "Topic",
             "frequency": "Frequency",
+            "unit": "Unit",
             "sourceType": "Source Type"
         }
     },
