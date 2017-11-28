@@ -13,14 +13,14 @@
         <div class="form-group">
             <label class="form-control-label" for="id" jhiTranslate="managementPortalApp.oauthClient.clientId">Client ID</label>
             <input *ngIf="!newClient" type="text" class="form-control" id="id" name="id" [(ngModel)]="client.clientId" readonly />
-            <input *ngIf="newClient" type="text" class="form-control" id="id" name="id" [(ngModel)]="client.clientId" required pattern="[_'.@A-Za-z0-9-]*" />
+            <input *ngIf="newClient" type="text" class="form-control" id="id" name="id" [(ngModel)]="client.clientId" required pattern="[_'.@A-Za-z0-9- ]*" />
             <div [hidden]="!(editForm.controls.id?.dirty && editForm.controls.id?.invalid)">
                 <small class="form-text text-danger"
                        [hidden]="!editForm.controls.id?.errors?.required" jhiTranslate="entity.validation.required">
                     This field is required.
                 </small>
                 <small class="form-text text-danger"
-                        [hidden]="!editForm.controls.id?.errors?.pattern" jhiTranslate="entity.validation.pattern" translateValues="{pattern: 'alphanumerics, dash (-), underscore (_) and period (.)'}">
+                        [hidden]="!editForm.controls.id?.errors?.pattern" jhiTranslate="entity.validation.pattern" translateValues="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
                     Validation error.
                 </small>
             </div>

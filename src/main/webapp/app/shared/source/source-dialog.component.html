@@ -16,14 +16,14 @@
             <label class="form-control-label" jhiTranslate="managementPortalApp.source.sourceName" for="field_sourceName">Source Name</label>
             <input type="text" class="form-control" name="sourceName" id="field_sourceName"
                    [(ngModel)]="source.sourceName"
-                   required pattern="[_'.@A-Za-z0-9-]*" />
+                   required pattern="[_'.@A-Za-z0-9- ]*" />
             <div [hidden]="!(editForm.controls.sourceName?.dirty && editForm.controls.sourceName?.invalid)">
                 <small class="form-text text-danger"
                        [hidden]="!editForm.controls.sourceName?.errors?.required" jhiTranslate="entity.validation.required">
                     This field is required.
                 </small>
                 <small class="form-text text-danger"
-                        [hidden]="!editForm.controls.sourceName?.errors?.pattern" jhiTranslate="entity.validation.pattern" translateValues="{pattern: 'alphanumerics, dash (-), underscore (_) and period (.)'}">
+                        [hidden]="!editForm.controls.sourceName?.errors?.pattern" jhiTranslate="entity.validation.pattern" translateValues="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
                     Validation error.
                 </small>
             </div>
