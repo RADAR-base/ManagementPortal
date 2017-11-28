@@ -10,7 +10,7 @@ describe('Subject e2e test', () => {
     const logout = element(by.id('logout'));
 
     beforeAll(() => {
-        browser.get('/');
+        browser.get('#');
 
         accountMenu.click();
         login.click();
