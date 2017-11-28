@@ -1,6 +1,7 @@
 package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
@@ -123,7 +124,7 @@ public class OAuthClientsResource {
      * @param id the client id for which to fetch the details
      * @return the client as a {@link ClientDetailsDTO}
      */
-    @GetMapping("/oauth-clients/{id}")
+    @GetMapping("/oauth-clients/{id:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<ClientDetailsDTO> getOAuthClientById(@PathVariable("id") String id) {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_READ);
@@ -174,7 +175,7 @@ public class OAuthClientsResource {
      * @param id The id of the client to delete
      * @return a ResponseEntity indicating success or failure
      */
-    @DeleteMapping("/oauth-clients/{id}")
+    @DeleteMapping("/oauth-clients/{id:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<Void> deleteOAuthClient(@PathVariable String id) {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_DELETE);
