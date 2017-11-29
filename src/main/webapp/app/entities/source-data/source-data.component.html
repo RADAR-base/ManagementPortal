@@ -32,7 +32,7 @@
                 <td><a [routerLink]="['../source-data', sourceData.sourceDataName ]">{{sourceData.sourceDataName}}</a></td>
                 <td jhiTranslate="{{'managementPortalApp.processingState.' + sourceData.processingState}}">{{sourceData.processingState}}</td>
                 <td>{{sourceData.topic}}</td>
-                <td ><a *ngIf="sourceData.sourceType" [routerLink]="['/source-type', sourceData.sourceType.producer , sourceData.sourceType.model , sourceData.sourceType.catalogVersion ]">{{sourceData.sourceType?.model}}</a></td>
+                <td ><a *ngIf="sourceData.sourceType" [routerLink]="['/source-type', sourceData.sourceType.producer , sourceData.sourceType.model , sourceData.sourceType.catalogVersion ]">{{sourceData.sourceType.producer+"_"+sourceData.sourceType?.model+"_"+sourceData.sourceType.catalogVersion}}</a></td>
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"

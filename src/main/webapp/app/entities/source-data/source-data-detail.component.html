@@ -39,7 +39,7 @@
         <dt><span jhiTranslate="managementPortalApp.sourceData.sourceType">Source Type</span></dt>
         <dd>
             <span *ngIf="sourceData.sourceType">
-                <a  [routerLink]="['/source-type', sourceData.sourceType.producer , sourceData.sourceType.model , sourceData.sourceType.catalogVersion ]">{{sourceData.sourceType?.model}}</a>
+                <a  [routerLink]="['/source-type', sourceData.sourceType.producer , sourceData.sourceType.model , sourceData.sourceType.catalogVersion ]">{{sourceData.sourceType?.producer+"_"+sourceData.sourceType?.model+"_"+sourceData.sourceType?.catalogVersion}}</a>
             </span>
         </dd>
     </dl>

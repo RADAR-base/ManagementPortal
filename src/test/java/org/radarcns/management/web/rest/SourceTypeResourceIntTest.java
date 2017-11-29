@@ -55,10 +55,10 @@ import org.springframework.transaction.annotation.Transactional;
 @WithMockUser
 public class SourceTypeResourceIntTest {
 
-    private static final String DEFAULT_PRODUCER = "AAAAAAAAAA";
+    private static final String DEFAULT_PRODUCER = "AAAAA AAAAA";
     private static final String UPDATED_PRODUCER = "BBBBBBBBBB";
 
-    private static final String DEFAULT_MODEL = "AAAAAAAAAA";
+    private static final String DEFAULT_MODEL = "AAAAA AAAAA";
     private static final String UPDATED_MODEL = "BBBBBBBBBB";
 
     private static final String DEFAULT_DEVICE_VERSION = "AAAAAAAAAA";

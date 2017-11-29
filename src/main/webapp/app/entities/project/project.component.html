@@ -40,7 +40,7 @@
                 <td>{{project.endDate | date:'medium'}}</td>
                 <td>
                     <span *ngFor="let sourceType of project.sourceTypes; let last = last">
-                            <a class="form-control-static" [routerLink]="['../source-type', sourceType?.producer , sourceType?.model , sourceType?.catalogVersion]">{{sourceType.model}}</a>{{last ? '' : ', '}}
+                            <a class="form-control-static" [routerLink]="['../source-type', sourceType?.producer , sourceType?.model , sourceType?.catalogVersion]">{{sourceType.producer+"_"+sourceType.model+"_"+sourceType.catalogVersion}}</a>{{last ? '' : ', '}}
                         </span>
                 </td>
                 <td>
