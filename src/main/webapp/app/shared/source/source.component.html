@@ -51,7 +51,7 @@
                 </td>
                 <td>
                     <div *ngIf="source.sourceType">
-                        <a [routerLink]="['/source-type', source.sourceType?.producer , source.sourceType?.model , source.sourceType?.catalogVersion ]" >{{source.sourceType.model }}</a>
+                        <a [routerLink]="['/source-type', source.sourceType?.producer , source.sourceType?.model , source.sourceType?.catalogVersion ]" >{{source.sourceType.producer+"_"+source.sourceType.model +"_"+source.sourceType.catalogVersion}}</a>
                     </div>
                 </td>
                 <td *ngIf="!isProjectSpecific">

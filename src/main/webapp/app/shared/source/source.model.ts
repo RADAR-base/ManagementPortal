@@ -20,7 +20,7 @@ export class MinimalSource {
         public sourceType?: number,
         public sourceTypeProducer?: string,
         public sourceTypeModel?: string,
-        public sourceTypeVersion?: string,
+        public sourceTypeCatalogVersion?: string,
         public expectedSourceName?: string | null,
         public sourceId?: string,
         public sourceName?: string,
