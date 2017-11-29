@@ -1,20 +1,8 @@
 package org.radarcns.management.web.rest;
 
-import static org.radarcns.auth.authorization.Permission.SOURCEDATA_CREATE;
-import static org.radarcns.auth.authorization.Permission.SOURCEDATA_DELETE;
-import static org.radarcns.auth.authorization.Permission.SOURCEDATA_READ;
-import static org.radarcns.auth.authorization.Permission.SOURCEDATA_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
-
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.service.SourceDataService;
 import org.radarcns.management.service.dto.SourceDataDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -30,6 +18,20 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_CREATE;
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_DELETE;
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_READ;
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing SourceData.
@@ -69,9 +71,10 @@ public class SourceDataResource {
                 .body(null);
         }
         SourceDataDTO result = sourceDataService.save(sourceDataDTO);
-        return ResponseEntity.created(new URI("/api/source-data/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
-            .body(result);
+        return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "source-data",
+                result.getSourceDataName())))
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getSourceDataName()))
+                .body(result);
     }
 
     /**
@@ -116,7 +119,7 @@ public class SourceDataResource {
      * @param sourceDataName the sourceDataName of the sourceDataDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the sourceDataDTO, or with status 404 (Not Found)
      */
-    @GetMapping("/source-data/{sourceDataName}")
+    @GetMapping("/source-data/{sourceDataName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<SourceDataDTO> getSourceData(@PathVariable String sourceDataName) {
         checkPermission(getJWT(servletRequest), SOURCEDATA_READ);
@@ -129,7 +132,7 @@ public class SourceDataResource {
      * @param sourceDataName the sourceDataName of the sourceDataDTO to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @DeleteMapping("/source-data/{sourceDataName}")
+    @DeleteMapping("/source-data/{sourceDataName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<Void> deleteSourceData(@PathVariable String sourceDataName) {
         checkPermission(getJWT(servletRequest), SOURCEDATA_DELETE);

@@ -82,8 +82,14 @@ public class Permission {
             new Permission(Entity.PROJECT, Operation.UPDATE);
     public static final Permission PROJECT_DELETE =
             new Permission(Entity.PROJECT, Operation.DELETE);
+    public static final Permission OAUTHCLIENTS_CREATE =
+            new Permission(Entity.OAUTHCLIENTS, Operation.CREATE);
     public static final Permission OAUTHCLIENTS_READ =
             new Permission(Entity.OAUTHCLIENTS, Operation.READ);
+    public static final Permission OAUTHCLIENTS_UPDATE =
+            new Permission(Entity.OAUTHCLIENTS, Operation.UPDATE);
+    public static final Permission OAUTHCLIENTS_DELETE =
+            new Permission(Entity.OAUTHCLIENTS, Operation.DELETE);
     public static final Permission AUDIT_READ = new Permission(Entity.AUDIT, Operation.READ);
     public static final Permission AUTHORITY_READ =
             new Permission(Entity.AUTHORITY, Operation.READ);
@@ -158,5 +164,14 @@ public class Permission {
     @Override
     public String toString() {
         return "Permission{entity=" + entity + ", operation=" + operation + '}';
+    }
+
+    /**
+     * Turn this permission into an OAuth scope name and return it
+     *
+     * @return the OAuth scope representation of this permission
+     */
+    public String scopeName() {
+        return entity.name() + "." + operation.name();
     }
 }

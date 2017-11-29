@@ -18,10 +18,13 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.enumeration.SourceTypeScope;
 
 /**
@@ -30,7 +33,7 @@ import org.radarcns.management.domain.enumeration.SourceTypeScope;
 @Entity
 @Table(name = "source_type")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class SourceType implements Serializable {
+public class SourceType extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,6 +42,8 @@ public class SourceType implements Serializable {
     @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
     private Long id;
 
+    @NotNull
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
     @Column(name = "producer")
     private String producer;
 
@@ -55,10 +60,12 @@ public class SourceType implements Serializable {
     private String appProvider;
 
     @NotNull
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
     @Column(name = "model", nullable = false )
     private String model;
 
     @NotNull
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
     @Column(name = "catalog_version", nullable = false)
     private String catalogVersion;
 
@@ -71,9 +78,9 @@ public class SourceType implements Serializable {
     @Column(name = "dynamic_registration" , nullable = false)
     private Boolean canRegisterDynamically = false;
 
-    @OneToMany(mappedBy = "sourceType" , fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "sourceType" , fetch = FetchType.EAGER , orphanRemoval = true)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE )
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @Cascade({CascadeType.DELETE , CascadeType.SAVE_UPDATE})
     private Set<SourceData> sourceData;
 
     @ManyToMany(mappedBy = "sourceTypes")

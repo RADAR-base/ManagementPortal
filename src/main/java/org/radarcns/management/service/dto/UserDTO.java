@@ -5,7 +5,7 @@ import java.util.Set;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.Email;
-import org.radarcns.management.config.Constants;
+import org.radarcns.auth.config.Constants;
 
 /**
  * A DTO representing a user, with his authorities.
@@ -14,7 +14,7 @@ public class UserDTO {
 
     private Long id;
 
-    @Pattern(regexp = Constants.LOGIN_REGEX)
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
     @Size(min = 1, max = 50)
     private String login;
 

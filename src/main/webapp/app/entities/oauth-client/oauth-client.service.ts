@@ -6,7 +6,7 @@ import { OAuthClient } from './oauth-client.model';
 @Injectable()
 export class OAuthClientService {
 
-private resourceUrl = 'api/oauthclients';
+private resourceUrl = 'api/oauth-clients';
 
 constructor(private http: Http) { }
 
@@ -25,7 +25,7 @@ constructor(private http: Http) { }
     }
 
     find(id: string): Observable<OAuthClient> {
-        return this.http.get(`${this.resourceUrl}/${id}`).map((res: Response) => {
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(id)}`).map((res: Response) => {
             return res.json();
         });
     }
@@ -37,7 +37,7 @@ constructor(private http: Http) { }
     }
 
     delete(id: string): Observable<Response> {
-        return this.http.delete(`${this.resourceUrl}/${id}`);
+        return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(id)}`);
     }
     private createRequestOption(req?: any): BaseRequestOptions {
         const options: BaseRequestOptions = new BaseRequestOptions();

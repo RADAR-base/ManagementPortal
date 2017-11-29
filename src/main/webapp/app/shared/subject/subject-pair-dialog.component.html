@@ -15,7 +15,7 @@
         <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.subject.login">Login</label>
             <input type="text" class="form-control" name="login" #loginInput="ngModel"
-                   [(ngModel)]="subject.login" required minlength=1 maxlength=50 pattern="^[_'.@A-Za-z0-9-]*$" [disabled]="subject.id">
+                   [(ngModel)]="subject.login" required minlength=1 maxlength=50 pattern="^[_'.@A-Za-z0-9- ]*$" [disabled]="subject.id">
         </div>
 
         <div class="form-group">

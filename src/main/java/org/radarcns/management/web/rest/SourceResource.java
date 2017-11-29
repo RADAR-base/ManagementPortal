@@ -2,21 +2,17 @@ package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
-import org.radarcns.auth.authorization.AuthoritiesConstants;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.repository.SourceRepository;
-import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.ProjectService;
 import org.radarcns.management.service.SourceService;
-import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
-import org.radarcns.management.service.dto.ProjectDTO;
+import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,7 +34,6 @@ import static org.radarcns.auth.authorization.Permission.SOURCE_DELETE;
 import static org.radarcns.auth.authorization.Permission.SOURCE_READ;
 import static org.radarcns.auth.authorization.Permission.SOURCE_UPDATE;
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
 import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
@@ -96,11 +90,11 @@ public class SourceResource {
                     "A new source must have the 'assigned' field specified")).body(null);
         } else {
             SourceDTO result = sourceService.save(sourceDTO);
-            return ResponseEntity.created(new URI("/api/sources/" + result.getId()))
-                .headers(
-                    HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
-                .body(result);
-        }
+            return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "sources",
+                    result.getSourceName())))
+                    .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getSourceName()))
+                    .body(result);
+            }
     }
 
     /**
@@ -145,7 +139,7 @@ public class SourceResource {
      * @param sourceName the name of the sourceDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the sourceDTO, or with status 404 (Not Found)
      */
-    @GetMapping("/sources/{sourceName}")
+    @GetMapping("/sources/{sourceName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<SourceDTO> getSource(@PathVariable String sourceName) {
         log.debug("REST request to get Source : {}", sourceName);
@@ -159,7 +153,7 @@ public class SourceResource {
      * @param sourceName the id of the sourceDTO to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @DeleteMapping("/sources/{sourceName}")
+    @DeleteMapping("/sources/{sourceName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<Void> deleteSource(@PathVariable String sourceName) {
         log.debug("REST request to delete Source : {}", sourceName);

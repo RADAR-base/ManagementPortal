@@ -6,16 +6,17 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.authorization.Permission;
-import org.radarcns.management.domain.SourceType;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Role;
+import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.SecurityUtils;
 import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.SubjectService;
-import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
+import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.CustomParameterizedException;
@@ -23,6 +24,8 @@ import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.audit.AuditEvent;
+import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -82,6 +85,9 @@ public class SubjectResource {
     @Autowired
     private HttpServletRequest servletRequest;
 
+    @Autowired
+    private AuditEventRepository eventRepository;
+
     /**
      * POST  /subjects : Create a new subject.
      *
@@ -122,9 +128,10 @@ public class SubjectResource {
         }
 
         SubjectDTO result = subjectService.createSubject(subjectDTO);
-        return ResponseEntity.created(new URI("/api/subjects/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
-            .body(result);
+        return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "subjects",
+                result.getLogin())))
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getLogin()))
+                .body(result);
     }
 
     /**
@@ -155,7 +162,7 @@ public class SubjectResource {
                 subjectDTO.getProject().getProjectName(), subjectDTO.getLogin());
         SubjectDTO result = subjectService.updateSubject(subjectDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getLogin()))
             .body(result);
     }
 
@@ -188,9 +195,13 @@ public class SubjectResource {
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
                 subjectDTO.getProject().getProjectName(), subjectDTO.getLogin());
 
+        // In principle this is already captured by the PostUpdate event listener, adding this
+        // event just makes it more clear a subject was discontinued.
+        eventRepository.add(new AuditEvent(SecurityUtils.getCurrentUserLogin(),
+                "SUBJECT_DISCONTINUE", "subject_login=" + subjectDTO.getLogin()));
         SubjectDTO result = subjectService.discontinueSubject(subjectDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, subjectDTO.getLogin()))
             .body(result);
     }
 
@@ -232,7 +243,7 @@ public class SubjectResource {
      * @return the ResponseEntity with status 200 (OK) and with body the subjectDTO, or with status
      * 404 (Not Found)
      */
-    @GetMapping("/subjects/{login}")
+    @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<SubjectDTO> getSubject(@PathVariable String login) {
         log.debug("REST request to get Subject : {}", login);
@@ -252,7 +263,7 @@ public class SubjectResource {
      * @param login the login of the subjectDTO to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @DeleteMapping("/subjects/{login}")
+    @DeleteMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<Void> deleteSubject(@PathVariable String login) {
         log.debug("REST request to delete Subject : {}", login);
@@ -285,7 +296,7 @@ public class SubjectResource {
      * @return The {@link MinimalSourceDetailsDTO} completed with all identifying fields.
      *
      */
-    @PostMapping("/subjects/{login}/sources")
+    @PostMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/sources")
     @ApiResponses({
             @ApiResponse(code = 200, message = "An existing source was assigned"),
             @ApiResponse(code = 201, message = "A new source was created and assigned"),
@@ -377,7 +388,7 @@ public class SubjectResource {
         }
     }
 
-    @GetMapping("/subjects/{login}/sources")
+    @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/sources")
     @Timed
     public ResponseEntity<List<MinimalSourceDetailsDTO>> getSubjectSources(
         @PathVariable String login) {

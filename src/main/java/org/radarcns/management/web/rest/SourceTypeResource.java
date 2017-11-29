@@ -2,6 +2,7 @@ package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.repository.SourceTypeRepository;
 import org.radarcns.management.service.SourceTypeService;
@@ -84,9 +85,12 @@ public class SourceTypeResource {
             throw new CustomConflictException("sourceTypeAvailable", errorParams);
         }
         SourceTypeDTO result = sourceTypeService.save(sourceTypeDTO);
-        return ResponseEntity.created(new URI("/api/source-types/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
-            .body(result);
+        return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "source-types",
+                result.getProducer(), result.getModel(), result.getCatalogVersion())))
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME,
+                        String.join(" ", result.getProducer(), result.getModel(),
+                                result.getCatalogVersion())))
+                .body(result);
     }
 
     /**
@@ -129,7 +133,7 @@ public class SourceTypeResource {
      * @param producer The producer
      * @return A list of objects matching the producer
      */
-    @GetMapping("/source-types/{producer}")
+    @GetMapping("/source-types/{producer:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<List<SourceTypeDTO>> getSourceTypes(@PathVariable String producer) {
         checkPermission(getJWT(servletRequest), SOURCETYPE_READ);
@@ -144,7 +148,8 @@ public class SourceTypeResource {
      * @param model The model
      * @return A list of objects matching the producer and model
      */
-    @GetMapping("/source-types/{producer}/{model}")
+    @GetMapping("/source-types/{producer:" + Constants.ENTITY_ID_REGEX + "}/{model:"
+            + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<List<SourceTypeDTO>> getSourceTypes(@PathVariable String producer,
             @PathVariable String model) {
@@ -160,7 +165,8 @@ public class SourceTypeResource {
      * @param version The version
      * @return A single SourceType object matching the producer, model and version
      */
-    @GetMapping("/source-types/{producer}/{model}/{version}")
+    @GetMapping("/source-types/{producer:" + Constants.ENTITY_ID_REGEX + "}/{model:"
+            + Constants.ENTITY_ID_REGEX + "}/{version:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<SourceTypeDTO> getSourceTypes(@PathVariable String producer,
         @PathVariable String model, @PathVariable String version) {
@@ -178,7 +184,8 @@ public class SourceTypeResource {
      * @param version The version
      * @return the ResponseEntity with status 200 (OK)
      */
-    @DeleteMapping("/source-types/{producer}/{model}/{version}")
+    @DeleteMapping("/source-types/{producer:" + Constants.ENTITY_ID_REGEX + "}/{model:"
+            + Constants.ENTITY_ID_REGEX + "}/{version:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<Void> deleteSourceType(@PathVariable String producer,
         @PathVariable String model, @PathVariable String version) {
@@ -193,5 +200,4 @@ public class SourceTypeResource {
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME,
             String.join(" ", producer, model, version))).build();
     }
-
 }

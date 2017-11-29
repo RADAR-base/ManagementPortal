@@ -31,6 +31,7 @@
         }
     },
     "error": {
-        "sourceTypeAvailable" : "A SourceType with given producer,model and version is already available"
+        "sourceTypeAvailable" : "A SourceType with given producer,model and version is already available",
+        "validation": "Validation error, check the entered values in the fields."
     }
 }

@@ -11,9 +11,12 @@ import java.util.Set;
 import java.util.Objects;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.enumeration.ProjectStatus;
 
 /**
@@ -22,7 +25,7 @@ import org.radarcns.management.domain.enumeration.ProjectStatus;
 @Entity
 @Table(name = "project")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Project implements Serializable {
+public class Project extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -32,6 +35,7 @@ public class Project implements Serializable {
     private Long id;
 
     @NotNull
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
     @Column(name = "project_name", nullable = false , unique = true)
     private String projectName;
 

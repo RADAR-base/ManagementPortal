@@ -39,6 +39,7 @@
         "project" : "Project"
     },
     "error": {
-        "rolesRequired": "One or more roles are required"
+        "rolesRequired": "One or more roles are required",
+        "validation": "Validation error, check the entered values in the fields."
     }
 }

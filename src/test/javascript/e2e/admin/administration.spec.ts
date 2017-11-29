@@ -10,7 +10,7 @@ describe('administration', () => {
     const logout = element(by.id('logout'));
 
     beforeAll(() => {
-        browser.get('/');
+        browser.get('#');
 
         accountMenu.click();
         login.click();

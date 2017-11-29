@@ -2,7 +2,7 @@
     "managementPortalApp": {
         "sourceData" : {
             "home": {
-                "title": "Source data",
+                "title": "Source Data",
                 "createLabel": "Create a new Source data",
                 "createOrEditLabel": "Create or edit a Source data"
             },
@@ -18,12 +18,16 @@
             "sourceDataType": "Source Data Type",
             "sourceDataName": "Source Data Name",
             "processingState": "Processing State",
-            "keySchema": "keySchema",
+            "keySchema": "Key Schema",
+            "valueSchema": "Value Schema",
+            "topic": "Topic",
             "frequency": "Frequency",
+            "unit": "Unit",
             "sourceType": "Source Type"
         }
     },
     "error" : {
-        "sourceDataNameAvailable" : "SourceDataName is already in use"
+        "sourceDataNameAvailable" : "SourceDataName is already in use",
+        "validation": "Validation error, check the entered values in the fields."
     }
 }

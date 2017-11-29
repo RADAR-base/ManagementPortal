@@ -1,8 +1,6 @@
-import { AuditData } from './audit-data.model';
-
 export class Audit {
     constructor(
-        public data: AuditData,
+        public data: Map<string, string>,
         public principal: string,
         public timestamp: string,
         public type: string

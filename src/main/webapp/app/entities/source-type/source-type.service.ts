@@ -25,7 +25,7 @@ export class SourceTypeService {
     }
 
     find(producer: string, model: string, version: string): Observable<SourceType> {
-        return this.http.get(`${this.resourceUrl}/${producer}/${model}/${version}`).map((res: Response) => {
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(producer)}/${encodeURIComponent(model)}/${encodeURIComponent(version)}`).map((res: Response) => {
             return res.json();
         });
     }
@@ -37,7 +37,7 @@ export class SourceTypeService {
     }
 
     delete(producer: string, model: string, version: string): Observable<Response> {
-        return this.http.delete(`${this.resourceUrl}/${producer}/${model}/${version}`);
+        return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(producer)}/${encodeURIComponent(model)}/${encodeURIComponent(version)}`);
     }
     private createRequestOption(req?: any): BaseRequestOptions {
         const options: BaseRequestOptions = new BaseRequestOptions();

@@ -1,40 +1,5 @@
 package org.radarcns.management.web.rest;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.MockitoAnnotations;
-import org.radarcns.management.ManagementPortalApp;
-import org.radarcns.management.domain.Subject;
-import org.radarcns.management.repository.ProjectRepository;
-import org.radarcns.management.repository.SubjectRepository;
-import org.radarcns.management.security.JwtAuthenticationFilter;
-import org.radarcns.management.service.SourceTypeService;
-import org.radarcns.management.service.SubjectService;
-import org.radarcns.management.service.dto.SourceTypeDTO;
-import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
-import org.radarcns.management.service.dto.ProjectDTO;
-import org.radarcns.management.service.dto.SubjectDTO;
-import org.radarcns.management.service.mapper.SubjectMapper;
-import org.radarcns.management.web.rest.errors.ExceptionTranslator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.mock.web.MockFilterConfig;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertEquals;
@@ -47,13 +12,49 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.MockitoAnnotations;
+import org.radarcns.management.ManagementPortalTestApp;
+import org.radarcns.management.domain.Subject;
+import org.radarcns.management.repository.ProjectRepository;
+import org.radarcns.management.repository.SubjectRepository;
+import org.radarcns.management.security.JwtAuthenticationFilter;
+import org.radarcns.management.service.SourceTypeService;
+import org.radarcns.management.service.SubjectService;
+import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
+import org.radarcns.management.service.dto.ProjectDTO;
+import org.radarcns.management.service.dto.SourceTypeDTO;
+import org.radarcns.management.service.dto.SubjectDTO;
+import org.radarcns.management.service.mapper.SubjectMapper;
+import org.radarcns.management.web.rest.errors.ExceptionTranslator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.mock.web.MockFilterConfig;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * Test class for the SubjectResource REST controller.
  *
  * @see SubjectResource
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = ManagementPortalApp.class)
+@SpringBootTest(classes = ManagementPortalTestApp.class)
+@WithMockUser
 public class SubjectResourceIntTest {
 
     private static final String DEFAULT_EXTERNAL_LINK = "AAAAAAAAAA";
@@ -68,7 +69,7 @@ public class SubjectResourceIntTest {
     private static final SubjectDTO.SubjectStatus DEFAULT_STATUS = SubjectDTO.SubjectStatus.ACTIVATED;
 
     private static final String MODEL = "App";
-    private static final String PRODUCER ="THINC-IT App";
+    private static final String PRODUCER ="THINC-IT";
     private static final String DEVICE_VERSION = "v1";
 
     @Autowired
@@ -375,7 +376,7 @@ public class SubjectResourceIntTest {
     private MinimalSourceDetailsDTO createSourceWithDeviceId() {
         // Create a source description
         MinimalSourceDetailsDTO sourceRegistrationDTO = new MinimalSourceDetailsDTO();
-        sourceRegistrationDTO.setSourceName(PRODUCER + " " + MODEL);
+        sourceRegistrationDTO.setSourceName(PRODUCER + "-" + MODEL);
         sourceRegistrationDTO.getAttributes().put("some", "value");
 
         List<SourceTypeDTO> sourceTypes = sourceTypeService.findAll().stream()
@@ -393,7 +394,7 @@ public class SubjectResourceIntTest {
     private MinimalSourceDetailsDTO createSourceWithoutDeviceId() {
         // Create a source description
         MinimalSourceDetailsDTO sourceRegistrationDTO = new MinimalSourceDetailsDTO();
-        sourceRegistrationDTO.setSourceName(PRODUCER + " " + MODEL);
+        sourceRegistrationDTO.setSourceName(PRODUCER + "-" + MODEL);
         sourceRegistrationDTO.getAttributes().put("some", "value");
 
         List<SourceTypeDTO> sourceTypes = sourceTypeService.findAll().stream()

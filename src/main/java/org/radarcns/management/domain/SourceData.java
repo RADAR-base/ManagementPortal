@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -13,8 +14,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.enumeration.ProcessingState;
 
 /**
@@ -23,7 +29,7 @@ import org.radarcns.management.domain.enumeration.ProcessingState;
 @Entity
 @Table(name = "source_data")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class SourceData implements Serializable {
+public class SourceData extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,6 +45,7 @@ public class SourceData implements Serializable {
 
     // this will be the unique human readable identifier of
     @NotNull
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
     @Column(name = "source_data_name", nullable = false, unique = true)
     private String sourceDataName;
 
@@ -77,7 +84,9 @@ public class SourceData implements Serializable {
     @Column(name = "enabled")
     private boolean enabled = true;
 
-    @ManyToOne()
+    @ManyToOne(fetch= FetchType.LAZY)
+    @NotFound(
+        action = NotFoundAction.IGNORE) // avoids exception from orphan object fetch
     private SourceType sourceType;
 
     public Long getId() {
@@ -166,6 +175,12 @@ public class SourceData implements Serializable {
         this.unit = unit;
     }
 
+    public SourceData unit(String unit) {
+        this.unit = unit;
+        return this;
+    }
+
+
     public String getDataClass() {
         return dataClass;
     }
@@ -182,12 +197,22 @@ public class SourceData implements Serializable {
         this.valueSchema = valueSchema;
     }
 
+    public SourceData valueSchema(String valueSchema) {
+        this.valueSchema = valueSchema;
+        return this;
+    }
+
     public String getTopic() {
         return topic;
     }
 
     public void setTopic(String topic) {
         this.topic = topic;
+    }
+
+    public SourceData topic(String topic) {
+        this.topic = topic;
+        return this;
     }
 
     public String getProvider() {
@@ -205,7 +230,6 @@ public class SourceData implements Serializable {
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
-
 
     public String getSourceDataName() {
         return sourceDataName;

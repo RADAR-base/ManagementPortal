@@ -26,7 +26,8 @@
         }
     },
     "error": {
-        "sourceNameExists": " Source Name is already registered",
-        "sourceIsAssigned": "Cannot edit/delete a currently assigned source."
+        "sourceNameExists": "Source Name is already registered.",
+        "sourceIsAssigned": "Cannot edit/delete a currently assigned source.",
+        "validation": "Validation error, check the entered values in the fields."
     }
 }

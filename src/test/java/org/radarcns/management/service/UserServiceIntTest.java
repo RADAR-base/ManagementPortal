@@ -1,31 +1,28 @@
 package org.radarcns.management.service;
 
-import org.junit.Before;
-import org.radarcns.management.ManagementPortalApp;
-import org.radarcns.management.domain.User;
-import org.radarcns.management.config.Constants;
-import org.radarcns.management.repository.UserRepository;
-import org.radarcns.management.service.dto.UserDTO;
-import java.time.ZonedDateTime;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.radarcns.management.service.mapper.UserMapper;
-import org.radarcns.management.service.util.RandomUtil;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Optional;
+import javax.persistence.EntityManager;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.radarcns.management.ManagementPortalTestApp;
+import org.radarcns.auth.config.Constants;
+import org.radarcns.management.domain.User;
+import org.radarcns.management.repository.UserRepository;
+import org.radarcns.management.service.dto.UserDTO;
+import org.radarcns.management.service.mapper.UserMapper;
+import org.radarcns.management.service.util.RandomUtil;
 import org.radarcns.management.web.rest.UserResourceIntTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.test.context.junit4.SpringRunner;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-
-import javax.persistence.EntityManager;
-import java.util.Optional;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.*;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Test class for the UserResource REST controller.
@@ -33,7 +30,7 @@ import static org.assertj.core.api.Assertions.*;
  * @see UserService
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = ManagementPortalApp.class)
+@SpringBootTest(classes = ManagementPortalTestApp.class)
 @Transactional
 public class UserServiceIntTest {
 

@@ -28,18 +28,21 @@
             <label jhiTranslate="managementPortalApp.sourceData.sourceType" for="field_sourceType">Source Type</label>
             <select class="form-control" id="field_sourceType" name="sourceType" [(ngModel)]="sourceData.sourceType" >
                 <option [ngValue]="null"></option>
-                <option [ngValue]="sourceTypeOption" *ngFor="let sourceTypeOption of sourceTypes; trackBy: trackSourceTypeById">{{sourceTypeOption.model}}</option>
+                <option [ngValue]="sourceTypeOption.id === sourceData.sourceType?.id ? sourceData.sourceType: sourceTypeOption" *ngFor="let sourceTypeOption of sourceTypes; trackBy: trackSourceTypeById">{{sourceTypeOption.producer+"_"+sourceTypeOption.model+"_"+sourceTypeOption.catalogVersion}}</option>
             </select>
         </div>
         <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.sourceDataName" for="field_sourceDataName">Source Data Name</label>
             <input type="text" class="form-control" name="sourceDataName" id="field_sourceDataName"
-                   [(ngModel)]="sourceData.sourceDataName"
-                   required />
+                   [(ngModel)]="sourceData.sourceDataName" required pattern="[_'.@A-Za-z0-9- ]*" />
             <div [hidden]="!(editForm.controls.sourceDataName?.dirty && editForm.controls.sourceDataName?.invalid)">
                 <small class="form-text text-danger"
                        [hidden]="!editForm.controls.sourceDataName?.errors?.required" jhiTranslate="entity.validation.required">
                     This field is required.
+                </small>
+                <small class="form-text text-danger"
+                        [hidden]="!editForm.controls.sourceDataName?.errors?.pattern" jhiTranslate="entity.validation.pattern" translateValues="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
+                    Validation error.
                 </small>
             </div>
         </div>
@@ -51,10 +54,22 @@
             </select>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.keySchema" for="field_dataFormat">Key schema</label>
-            <input type="text" class="form-control" name="keySchema" id="field_dataFormat"
+            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.topic" for="field_topic">Topic</label>
+            <input type="text" class="form-control" name="topic" id="field_topic"
+                   [(ngModel)]="sourceData.topic"
+            />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.keySchema" for="field_keySchema">Key schema</label>
+            <input type="text" class="form-control" name="keySchema" id="field_keySchema"
                 [(ngModel)]="sourceData.keySchema"
              />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.valueSchema" for="field_valueSchema">Value schema</label>
+            <input type="text" class="form-control" name="valueSchema" id="field_valueSchema"
+                   [(ngModel)]="sourceData.valueSchema"
+            />
         </div>
         <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.frequency" for="field_frequency">Frequency</label>
@@ -62,6 +77,13 @@
                 [(ngModel)]="sourceData.frequency"
              />
         </div>
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.unit" for="field_unit">Unit</label>
+            <input type="text" class="form-control" name="unit" id="field_unit"
+                   [(ngModel)]="sourceData.unit"
+            />
+        </div>
+
 
     </div>
     <div class="modal-footer">

@@ -3,7 +3,7 @@ package org.radarcns.management.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
-import org.radarcns.management.config.Constants;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
@@ -131,9 +131,10 @@ public class UserResource {
         } else {
             User newUser = userService.createUser(managedUserVM);
             mailService.sendCreationEmail(newUser);
-            return ResponseEntity.created(new URI("/api/users/" + newUser.getLogin()))
-                .headers(HeaderUtil.createAlert( "userManagement.created", newUser.getLogin()))
-                .body(newUser);
+            return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "users",
+                    newUser.getLogin())))
+                    .headers(HeaderUtil.createAlert( "userManagement.created", newUser.getLogin()))
+                    .body(newUser);
         }
     }
 
@@ -212,7 +213,7 @@ public class UserResource {
      * @param login the login of the user to find
      * @return the ResponseEntity with status 200 (OK) and with body the "login" user, or with status 404 (Not Found)
      */
-    @GetMapping("/users/{login:" + Constants.LOGIN_REGEX + "}")
+    @GetMapping("/users/{login:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<UserDTO> getUser(@PathVariable String login) {
         log.debug("REST request to get User : {}", login);
@@ -226,7 +227,7 @@ public class UserResource {
      * @param login
      * @return
      */
-    @GetMapping("/users/{login:" + Constants.LOGIN_REGEX + "}/projects")
+    @GetMapping("/users/{login:" + Constants.ENTITY_ID_REGEX + "}/projects")
     @Timed
     public List<ProjectDTO> getUserProjects(@PathVariable String login) {
         log.debug("REST request to get User's project : {}", login);
@@ -240,7 +241,7 @@ public class UserResource {
      * @param login the login of the user to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @DeleteMapping("/users/{login:" + Constants.LOGIN_REGEX + "}")
+    @DeleteMapping("/users/{login:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<Void> deleteUser(@PathVariable String login) {
         log.debug("REST request to delete User: {}", login);

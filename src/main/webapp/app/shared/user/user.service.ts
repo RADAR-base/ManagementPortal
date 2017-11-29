@@ -19,11 +19,11 @@ export class UserService {
     }
 
     find(login: string): Observable<User> {
-        return this.http.get(`${this.resourceUrl}/${login}`).map((res: Response) => res.json());
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}`).map((res: Response) => res.json());
     }
 
     findProject(login: string): Observable<Response> {
-        return this.http.get(`${this.resourceUrl}/${login}/projects`);
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/projects`);
     }
 
     query(req?: any): Observable<Response> {
@@ -44,7 +44,7 @@ export class UserService {
     }
 
     delete(login: string): Observable<Response> {
-        return this.http.delete(`${this.resourceUrl}/${login}`);
+        return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(login)}`);
     }
 
     findByProjectAndAuthority(req: any) : Observable<Response> {

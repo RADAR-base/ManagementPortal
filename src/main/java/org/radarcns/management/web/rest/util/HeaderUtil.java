@@ -3,6 +3,12 @@ package org.radarcns.management.web.rest.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * Utility class for HTTP headers creation.
  */
@@ -40,5 +46,30 @@ public final class HeaderUtil {
         headers.add("X-managementPortalApp-error", "error." + errorKey);
         headers.add("X-managementPortalApp-params", entityName);
         return headers;
+    }
+
+    /**
+     * URLEncode each component, prefix and join them by forward slashes.
+     *
+     * E.g. <code>buildPath("api", "projects", "radar/1")</code> results in the string
+     * <code>/api/projects/radar%2F1</code>.
+     *
+     * @param components The components of the path.
+     * @return A String where the components are URLEncoded and joined by forward slashes.
+     */
+    public static String buildPath(String... components) {
+        return Arrays.stream(components)
+                .filter(Objects::nonNull)
+                .filter(c -> !c.isEmpty())
+                .map(c -> {
+                    // try-catch needs to be inside the lambda
+                    try {
+                        return URLEncoder.encode(c, "UTF-8");
+                    } catch (UnsupportedEncodingException ex) {
+                        log.error(ex.getMessage());
+                        return "";
+                    }
+                })
+                .reduce("", (a, b) -> String.join("/", a, b));
     }
 }

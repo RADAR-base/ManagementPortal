@@ -3,6 +3,7 @@ package org.radarcns.management.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.service.RoleService;
 import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -24,7 +25,6 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
 
 import static org.radarcns.auth.authorization.Permission.ROLE_CREATE;
 import static org.radarcns.auth.authorization.Permission.ROLE_READ;
@@ -65,9 +65,10 @@ public class RoleResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new role cannot already have an ID")).body(null);
         }
         RoleDTO result = roleService.save(roleDTO);
-        return ResponseEntity.created(new URI("/api/roles/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
-            .body(result);
+        return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "roles",
+                result.getProjectName(), result.getAuthorityName())))
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getProjectName() +
+                        " - " + result.getAuthorityName())).body(result);
     }
 
     /**
@@ -125,7 +126,7 @@ public class RoleResource {
      * @param authorityName The authority name
      * @return the ResponseEntity with status 200 (OK) and with body the roleDTO, or with status 404 (Not Found)
      */
-    @GetMapping("/roles/{projectName}/{authorityName}")
+    @GetMapping("/roles/{projectName:" + Constants.ENTITY_ID_REGEX + "}/{authorityName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<RoleDTO> getRole(@PathVariable String projectName,
         @PathVariable String authorityName) {

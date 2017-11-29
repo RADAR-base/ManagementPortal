@@ -8,7 +8,7 @@
         <dd>
             <span>{{sourceData.sourceDataType}}</span>
         </dd>
-        <dt><span jhiTranslate="managementPortalApp.sourceData.sourceDataType">Source Data Name</span></dt>
+        <dt><span jhiTranslate="managementPortalApp.sourceData.sourceDataName">Source Data Name</span></dt>
         <dd>
             <span>{{sourceData.sourceDataName}}</span>
         </dd>
@@ -16,13 +16,31 @@
         <dd>
             <span jhiTranslate="{{'managementPortalApp.processingState.' + sourceData.processingState}}">{{sourceData.processingState}}</span>
         </dd>
-        <dt><span jhiTranslate="managementPortalApp.sourceData.keySchema">Data Format</span></dt>
+        <dt><span jhiTranslate="managementPortalApp.sourceData.keySchema">Key Schema</span></dt>
         <dd>
             <span>{{sourceData.keySchema}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.sourceData.valueSchema">Value Schema</span></dt>
+        <dd>
+            <span>{{sourceData.valueSchema}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.sourceData.topic">Topic</span></dt>
+        <dd>
+            <span>{{sourceData.topic}}</span>
         </dd>
         <dt><span jhiTranslate="managementPortalApp.sourceData.frequency">Frequency</span></dt>
         <dd>
             <span>{{sourceData.frequency}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.sourceData.unit">Unit</span></dt>
+        <dd>
+            <span>{{sourceData.unit}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.sourceData.sourceType">Source Type</span></dt>
+        <dd>
+            <span *ngIf="sourceData.sourceType">
+                <a  [routerLink]="['/source-type', sourceData.sourceType.producer , sourceData.sourceType.model , sourceData.sourceType.catalogVersion ]">{{sourceData.sourceType?.producer+"_"+sourceData.sourceType?.model+"_"+sourceData.sourceType?.catalogVersion}}</a>
+            </span>
         </dd>
     </dl>
 

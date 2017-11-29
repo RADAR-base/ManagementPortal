@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -34,6 +35,17 @@ public class ExceptionTranslator {
     @ResponseBody
     public ErrorVM processConcurrencyError(ConcurrencyFailureException ex) {
         return new ErrorVM(ErrorConstants.ERR_CONCURRENCY_FAILURE);
+    }
+
+    @ExceptionHandler(TransactionSystemException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorVM processValidationError(TransactionSystemException ex) {
+        // TODO: this is the top level exception that is thrown when e.g. a
+        // ConstraintValidationException occurs. Need to investigate what other exceptions result
+        // in this one and probably add a check for it.
+        ErrorVM dto = new ErrorVM(ErrorConstants.ERR_VALIDATION, ex.getMessage());
+        return dto;
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

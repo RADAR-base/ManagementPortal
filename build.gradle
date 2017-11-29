@@ -30,7 +30,7 @@ plugins {
 
 allprojects {
     group 'org.radarcns'
-    version '0.3.0'
+    version '0.3.1'
 
     apply plugin: 'java'
     apply plugin: 'java-library'
@@ -79,24 +79,18 @@ if (OperatingSystem.current().isWindows()) {
         addResources = false
         dependsOn pathingJar
         doFirst {
-            classpath = files("$buildDir/classes/main", "$buildDir/resources/main", pathingJar.archivePath , "$rootDir/changelogs")
+            classpath = files("$buildDir/classes/main", "$buildDir/resources/main", pathingJar.archivePath)
         }
     }
 } else {
     bootRun {
         addResources = false
-        doFirst {
-            classpath += files("$rootDir/changelogs")
-        }
-
     }
 }
 
 test {
     include '**/*UnitTest*'
     include '**/*IntTest*'
-
-    classpath += files("$rootDir/changelogs")
 
     // uncomment if the tests reports are not generated
     // see https://github.com/jhipster/generator-jhipster/pull/2771 and https://github.com/jhipster/generator-jhipster/pull/4484
@@ -106,8 +100,6 @@ test {
 
 task cucumberTest(type: Test) {
     include '**/CucumberTest*'
-
-    classpath += files("$rootDir/changelogs")
 
     // uncomment if the tests reports are not generated
     // see https://github.com/jhipster/generator-jhipster/pull/2771 and https://github.com/jhipster/generator-jhipster/pull/4484
@@ -184,6 +176,7 @@ dependencies {
     compile "com.fasterxml.jackson.datatype:jackson-datatype-hppc"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5"
+    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-csv"
     compile "com.fasterxml.jackson.core:jackson-annotations"
     compile "com.fasterxml.jackson.core:jackson-databind"
     compile ("com.ryantenney.metrics:metrics-spring:${metrics_spring_version}")

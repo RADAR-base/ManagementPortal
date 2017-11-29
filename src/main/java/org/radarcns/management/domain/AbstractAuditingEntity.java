@@ -7,6 +7,8 @@ import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import org.hibernate.envers.Audited;
+import org.radarcns.management.domain.support.EventPublisherEntityListener;
+import org.radarcns.management.domain.support.LogPublisherEntityListener;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -19,7 +21,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
  */
 @MappedSuperclass
 @Audited
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners({AuditingEntityListener.class, EventPublisherEntityListener.class,
+        LogPublisherEntityListener.class})
 public abstract class AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
