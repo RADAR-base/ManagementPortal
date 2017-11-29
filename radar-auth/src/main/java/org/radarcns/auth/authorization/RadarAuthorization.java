@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -165,6 +166,6 @@ public class RadarAuthorization {
     }
 
     private static boolean isClientCredentials(DecodedJWT token) {
-        return token.getClaim(GRANT_TYPE_CLAIM).asString().equals(CLIENT_CREDENTIALS);
+        return CLIENT_CREDENTIALS.equals(token.getClaim(GRANT_TYPE_CLAIM).asString());
     }
 }
