@@ -59,12 +59,12 @@ deploy:
     on:
       tags: true
   - provider: releases
-      api_key: ${GH_TOKEN}
-      file_glob: true
-      file: "build/swagger-spec/*.json"
-      skip_cleanup: true
-      on:
-        tags: true
+    api_key: ${GH_TOKEN}
+    file_glob: true
+    file: "build/swagger-spec/*.json"
+    skip_cleanup: true
+    on:
+      tags: true
   - provider: script
     script: ./gradlew oauth-client-util:bintrayUpload
     skip_cleanup: true
