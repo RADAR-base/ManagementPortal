@@ -134,7 +134,7 @@ public class OAuthClientLoader {
 
     /**
      * Custom class that will also deserialize the additional_information field. This field holds
-     * a JSON structure that needs to be converted to a Map<String, Object>. This field is
+     * a JSON structure that needs to be converted to a {@code Map<String, Object>}. This field is
      * {@link com.fasterxml.jackson.annotation.JsonIgnore}d in BaseClientDetails but we need it.
      */
     private static class CustomBaseClientDetails extends BaseClientDetails {
