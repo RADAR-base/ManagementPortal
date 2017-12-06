@@ -12,6 +12,7 @@ ManagementPortal is an application which is used to manage pilot studies for [RA
 - [Configuration](#configuration)
   * [Environment Variables](#environment-variables)
   * [OAuth Clients](#oauth-clients)
+- [Documentation](#documentation)
 - [Development](#development)
   * [Managing dependencies](#managing-dependencies)
   * [Using angular-cli](#using-angular-cli)
@@ -75,6 +76,18 @@ If your client is supposed to work with the 'Pair app' feature, you need to set 
 `additional_information` map called `dynamic_registration` to `true`. See the aRMT and pRMT
 clients for an example. If you want to prevent an OAuth client from being altered through the UI,
 you can add a key `protected` and set it to `true` in the `additional_information` map. 
+
+## Documentation
+
+Visit our [Github pages](https://radar-cns.github.io/ManagementPortal) site to find links to the
+Javadoc and API docs.
+
+The pages site is published from the `gh-pages` branch, which has its own history. If you want to
+contribute to the documentation, it is probably more convenient to clone a separate copy of this
+repository for working on the `gh-pages` branch:
+```bash
+git clone --branch gh-pages https://github.com/RADAR-CNS/ManagementPortal.git ManagementPortal-docs
+```
 
 ## Development
 
