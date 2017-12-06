@@ -46,6 +46,7 @@ script:
   - ./gradlew bootRepackage -Pprod buildDocker -x test
   - ./gradlew generateOpenApiSpec
   - ./gradlew generateJavaClient
+  - echo "include 'managementportal-client'" >> settings.gradle # make this a sub-project so we can build artifacts and javadoc easily
   - killall java # stop running MP instance
   - ./src/test/bash/run-prod-e2e.sh
   - ./src/test/bash/test-docker-build-on-release-branch.sh
