@@ -9,12 +9,11 @@ ManagementPortal is an application which is used to manage pilot studies for [RA
 ## Table of contents
 
 - [Quickstart](#quickstart)
-  * [Development](#development)
-  * [Production](#production)
+  * [Using Docker-Compose](#using-docker-compose)
+  * [Build from source](#build-from-source)
 - [Configuration](#configuration)
   * [Environment Variables](#environment-variables)
   * [OAuth Clients](#oauth-clients)
-- [Documentation](#documentation)
 - [Development](#development)
   * [Managing dependencies](#managing-dependencies)
   * [Using angular-cli](#using-angular-cli)
@@ -23,39 +22,13 @@ ManagementPortal is an application which is used to manage pilot studies for [RA
   * [Client tests](#client-tests)
   * [Other tests](#other-tests)
 - [Using Docker to simplify development (optional)](#using-docker-to-simplify-development--optional-)
-- [Continuous Integration (optional)](#continuous-integration--optional-)
+- [Documentation](#documentation)
 - [Client libraries](#client-libraries)
 
 ## Quickstart
 
-ManagementPortal can be run with either development or production profile. The table below lists the
-main differences between the profiles:
-
-|                                  | Development     | Production                        |
-|----------------------------------|-----------------|-----------------------------------|
-| Database type                    | In-memory       | Postgres                          |
-| Demo data loaded                 | Yes             | No                                |
-| External configuration necessary | No              | Yes                               |
-| Context path of the application  | `/`             | `/managementportal`               |
-| Need to build from source        | Yes             | No, if using image from Dockerhub |
-
-Regardless of the profile, you'll need to generate a key pair for signing JWT tokens as follows:
-```shell
-keytool -genkey -alias selfsigned -keyalg RSA -keystore src/main/docker/etc/config/keystore.jks -keysize 4048 -storepass radarbase
-```
-**Make sure the key password and store password are the same!** This is a requirement for Spring Security.
-
-### Development
-
-1. [Node.js][]: We use Node to run a development web server and build the project.
-   Depending on your system, you can install Node either from source or as a pre-packaged bundle.
-2. [Yarn][]: We use Yarn to manage Node dependencies.
-   Depending on your system, you can install Yarn either from source or as a pre-packaged bundle.
-
-Then you can start ManagementPortal by simply running `./gradlew bootRun`. This will start an in
-memory database and ManagementPortal. The default password for the `admin` account is `admin`.
-
-### Production
+Management Portal can be easily run either by running from source or by using provided `docker-compose` file.
+### Using Docker-Compose
 
 The quickest way to get ManagementPortal up and running in production mode is by using the included
 docker-compose files. 
@@ -65,8 +38,35 @@ docker-compose files.
 This will start a Postgres database and ManagementPortal. The default password for the `admin`
 account is `admin`.
 
-The docker image can be pulled by running `docker pull radarcns/management-portal:0.3.1`.
+### Build from source
+you must install and configure the following dependencies on your machine to run from source.
+1. [Node.js][]: We use Node to run a development web server and build the project.
+   Depending on your system, you can install Node either from source or as a pre-packaged bundle.
+2. [Yarn][]: We use Yarn to manage Node dependencies.
+   Depending on your system, you can install Yarn either from source or as a pre-packaged bundle.
+3. Generate a key pair for signing JWT tokens as follows:
+   ```shell
+   keytool -genkey -alias selfsigned -keyalg RSA -keystore src/main/resources/config/keystore.jks -keysize 4048 -storepass radarbase
+   ```
+   **Make sure the key password and store password are the same!** This is a requirement for Spring Security.
 
+4. **Profile configurations :** ManagementPortal can be run with either `development` or `production` profile. The table below lists the
+main differences between the profiles are mentioned in the table below. Configure the application using the property file at `src/main/resources/config/application-<profile>.yml`.Read more about configurations [here](#configuration)
+    
+5. Run ManagementPortal by running `./gradlew bootRun -Pprod` or `./gradlew bootRun -Pdev`. Development mode will start an in
+memory database and ManagementPortal. 
+6. You can login to the application using `admin:admin`. Please don't forgot to change the password of `admin`, if you are using the application on production environment.
+
+
+|                                  | Development     | Production                        |
+|----------------------------------|-----------------|-----------------------------------|
+| Database type                    | In-memory       | Postgres                          |
+| Demo data loaded                 | Yes             | No                                |
+| Context path of the application  | `/`             | `/managementportal`               |
+
+
+
+The docker image can be pulled by running `docker pull radarcns/management-portal:0.3.1`.
 ## Configuration
 
 Management Portal comes with a set of default values for its configuration. You can either modify
@@ -99,24 +99,11 @@ for other options on overriding the default configuration.
 
 ### OAuth Clients
 
-You can add OAuth clients at runtime through the UI, or you can add them to the OAuth clients file
+ManagementPortal uses `OAuth2` workflow to provide authentication and authorization. To add new OAuth clients, you can add at runtime through the UI, or you can add them to the OAuth clients file
 referenced by the `MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE` configuration option.
-If your client is supposed to work with the 'Pair app' feature, you need to set a key in it's
-`additional_information` map called `dynamic_registration` to `true`. See the aRMT and pRMT
-clients for an example. If you want to prevent an OAuth client from being altered through the UI,
-you can add a key `protected` and set it to `true` in the `additional_information` map. 
-
-## Documentation
-
-Visit our [Github pages](https://radar-cns.github.io/ManagementPortal) site to find links to the
-Javadoc and API docs.
-
-The pages site is published from the `gh-pages` branch, which has its own history. If you want to
-contribute to the documentation, it is probably more convenient to clone a separate copy of this
-repository for working on the `gh-pages` branch:
-```bash
-git clone --branch gh-pages https://github.com/RADAR-CNS/ManagementPortal.git ManagementPortal-docs
-```
+- If your client is supposed to work with the `Pair app` feature, you need to set a key called `dynamic_registration` to `true` like this `{"dynamic_registration": true}` in its `additional_information` map. See the aRMT and pRMT
+clients for an example. 
+- If you want to prevent an OAuth client from being altered through the UI, you can add a key `{"protected": true}` in the `additional_information` map. 
 
 ## Development
 
@@ -248,7 +235,17 @@ Then run:
     docker-compose -f src/main/docker/app.yml up -d
 
 For more information refer to [Using Docker and Docker-Compose][], this page also contains information on the docker-compose sub-generator (`yo jhipster:docker-compose`), which is able to generate docker configurations for one or several JHipster applications.
+## Documentation
 
+Visit our [Github pages](https://radar-cns.github.io/ManagementPortal) site to find links to the
+Javadoc and API docs.
+
+The pages site is published from the `gh-pages` branch, which has its own history. If you want to
+contribute to the documentation, it is probably more convenient to clone a separate copy of this
+repository for working on the `gh-pages` branch:
+```bash
+git clone --branch gh-pages https://github.com/RADAR-CNS/ManagementPortal.git ManagementPortal-docs
+```
 ## Client libraries
 
 This project provides a Gradle task to generate an [OpenAPI] specification from which client libraries can be automatically generated:
