@@ -27,13 +27,17 @@ ManagementPortal is an application which is used to manage pilot studies for [RA
 
 ## Quickstart
 
-Management Portal can be easily run either by running from source or by using provided `docker-compose` file.
+Management Portal can be easily run either by running from source or by using the provided `docker-compose` file.
 ### Using Docker-Compose
 
 The quickest way to get ManagementPortal up and running in production mode is by using the included
 docker-compose files. 
 1. Make sure [Docker][] and [Docker-Compose][] are installed on your system.
-2. Now, we can start the stack with `docker-compose -f src/main/docker/management-portal.yml up -d`.
+2. Generate a key pair for signing JWT tokens as follows:
+   ```shell
+   keytool -genkey -alias selfsigned -keyalg RSA -keystore src/main/docker/etc/config/keystore.jks -keysize 4048 -storepass radarbase
+   ```
+3. Now, we can start the stack with `docker-compose -f src/main/docker/management-portal.yml up -d`.
 
 This will start a Postgres database and ManagementPortal. The default password for the `admin`
 account is `admin`.
