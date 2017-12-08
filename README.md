@@ -9,6 +9,8 @@ ManagementPortal is an application which is used to manage pilot studies for [RA
 ## Table of contents
 
 - [Quickstart](#quickstart)
+  * [Development](#development)
+  * [Production](#production)
 - [Configuration](#configuration)
   * [Environment Variables](#environment-variables)
   * [OAuth Clients](#oauth-clients)
@@ -24,26 +26,53 @@ ManagementPortal is an application which is used to manage pilot studies for [RA
 - [Continuous Integration (optional)](#continuous-integration--optional-)
 - [Client libraries](#client-libraries)
 
-
 ## Quickstart
 
-The quickest way to get ManagementPortal up and running in production mode is by using the included
-docker-compose files. 
-1. First, we need to generate a key pair for signing JWT tokens as follows:
+ManagementPortal can be run with either development or production profile. The table below lists the
+main differences between the profiles:
+
+|                                  | Development     | Production                        |
+|----------------------------------|-----------------|-----------------------------------|
+| Database type                    | In-memory       | Postgres                          |
+| Demo data loaded                 | Yes             | No                                |
+| External configuration necessary | No              | Yes                               |
+| Context path of the application  | `/`             | `/managementportal`               |
+| Need to build from source        | Yes             | No, if using image from Dockerhub |
+
+Regardless of the profile, you'll need to generate a key pair for signing JWT tokens as follows:
 ```shell
 keytool -genkey -alias selfsigned -keyalg RSA -keystore src/main/docker/etc/config/keystore.jks -keysize 4048 -storepass radarbase
 ```
 **Make sure the key password and store password are the same!** This is a requirement for Spring Security.
 
-2. Then, make sure [Docker][] and [Docker-Compose][] are installed on your system.
-3. Finally, we can start the stack with `docker-compose -f src/main/docker/management-portal.yml up -d`.
+### Development
+
+1. [Node.js][]: We use Node to run a development web server and build the project.
+   Depending on your system, you can install Node either from source or as a pre-packaged bundle.
+2. [Yarn][]: We use Yarn to manage Node dependencies.
+   Depending on your system, you can install Yarn either from source or as a pre-packaged bundle.
+
+Then you can start ManagementPortal by simply running `./gradlew bootRun`. This will start an in
+memory database and ManagementPortal. The default password for the `admin` account is `admin`.
+
+### Production
+
+The quickest way to get ManagementPortal up and running in production mode is by using the included
+docker-compose files. 
+1. Make sure [Docker][] and [Docker-Compose][] are installed on your system.
+2. Now, we can start the stack with `docker-compose -f src/main/docker/management-portal.yml up -d`.
+
+This will start a Postgres database and ManagementPortal. The default password for the `admin`
+account is `admin`.
 
 The docker image can be pulled by running `docker pull radarcns/management-portal:0.3.1`.
 
 ## Configuration
 
-Management Portal comes with a set of default values for its configuration. These defaults are most
-easily overridden by using environment variables.
+Management Portal comes with a set of default values for its configuration. You can either modify
+the `application.yml` and `appliation-prod.yml` (or `application-dev.yml` when running the
+development profile) before building the application, or override the defaults using environment
+variables.
 
 ### Environment Variables
 
@@ -220,16 +249,14 @@ Then run:
 
 For more information refer to [Using Docker and Docker-Compose][], this page also contains information on the docker-compose sub-generator (`yo jhipster:docker-compose`), which is able to generate docker configurations for one or several JHipster applications.
 
-## Continuous Integration (optional)
-
-To configure CI for your project, run the ci-cd sub-generator (`yo jhipster:ci-cd`), this will let you generate configuration files for a number of Continuous Integration systems. Consult the [Setting up Continuous Integration][] page for more information.
-
 ## Client libraries
 
 This project provides a Gradle task to generate an [OpenAPI] specification from which client libraries can be automatically generated:
 ```bash
 ./gradlew generateOpenApiSpec
 ```
+ManagementPortal needs to be running and be accessible at `http://localhost:8080` for this task to work.
+
 The resulting file can be imported into the [Swagger editor], or used with [Swagger codegen] to generate client libraries. A Gradle task for generating a Java client is also provided for convenience:
 ```bash
 ./gradlew generateJavaClient
