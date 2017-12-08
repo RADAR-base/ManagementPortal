@@ -115,7 +115,7 @@ jhipster:
         default-include-pattern: /api/.*
         title: ManagementPortal API
         description: ManagementPortal API documentation
-        version: 0.3.1
+        version: 0.3.2-SNAPSHOT
         terms-of-service-url:
         contact-name:
         contact-url:
