@@ -131,5 +131,9 @@
         "idexists": "A new {{entityName}} cannot already have an ID",
         "invalidsubjectstate": "Een stopgezette deelnemer kan niet geactiveerd worden"
     },
-    "footer": "Dit is uw voettekst"
+    "footer": "Dit is uw voettekst",
+    "common" : {
+        "showMore": " Meer",
+        "showLess": " Minder"
+    }
 }
