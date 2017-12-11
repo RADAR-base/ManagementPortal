@@ -79,6 +79,7 @@
         <div class="form-group">
             <label class="form-control-label" for="accessTokenValidity" jhiTranslate="managementPortalApp.oauthClient.accessTokenValidity">Access Token Validity</label>
             <input type="text" class="form-control" id="accessTokenValidity" name="accessTokenValidity" [(ngModel)]="client.accessTokenValiditySeconds" [disabled]="protectedClient" required pattern="\d+" />
+            <small id="accessTokenValidityHelp" class="form-text text-muted">Token validity period in seconds.</small>
             <div [hidden]="!(editForm.controls.accessTokenValidity?.dirty && editForm.controls.accessTokenValidity?.invalid)">
                 <small class="form-text text-danger"
                        [hidden]="!editForm.controls.accessTokenValidity?.errors?.required" jhiTranslate="entity.validation.required">
@@ -93,6 +94,7 @@
         <div class="form-group">
             <label class="form-control-label" for="refreshTokenValidity" jhiTranslate="managementPortalApp.oauthClient.refreshTokenValidity">Refresh Token Validity</label>
             <input type="text" class="form-control" id="refreshTokenValidity" name="refreshTokenValidity" [(ngModel)]="client.refreshTokenValiditySeconds" [disabled]="protectedClient" required pattern="\d+" />
+            <small id="refreshTokenValidityHelp" class="form-text text-muted">Token validity period in seconds.</small>
             <div [hidden]="!(editForm.controls.refreshTokenValidity?.dirty && editForm.controls.refreshTokenValidity?.invalid)">
                 <small class="form-text text-danger"
                        [hidden]="!editForm.controls.refreshTokenValidity?.errors?.required" jhiTranslate="entity.validation.required">
