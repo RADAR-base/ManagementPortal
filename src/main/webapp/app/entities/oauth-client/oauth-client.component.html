@@ -33,10 +33,10 @@
                     <tr *ngFor="let client of oauthClients ;trackBy: trackId">
                         <td>{{client.clientId}}</td>
                         <!--<td><span *ngFor="let scope of client.scope; let last = last"><span class="badge badge-primary">{{scope}}</span>{{last ? "" : "&nbsp;"}}</span></td>-->
-                        <td><show-more [scopes]='client.scope'></show-more></td>
+                        <td><show-more [items]='client.scope'></show-more></td>
                         <td><span *ngFor="let resource of client.resourceIds; let last = last"><span class="badge badge-default">{{resource }}</span>{{last ? "" : "&nbsp;"}}</span></td>
                         <td><span *ngFor="let granttype of client.authorizedGrantTypes; let last = last"><span class="badge badge-default">{{granttype }}</span>{{last ? "" : "&nbsp;"}}</span></td>
-                        <td><show-more [scopes]='client.autoApproveScopes'></show-more></td>
+                        <td><show-more [items]='client.autoApproveScopes'></show-more></td>
                         <td>{{convertSeconds(client.accessTokenValiditySeconds)}}</td>
                         <td>{{convertSeconds(client.refreshTokenValiditySeconds)}}</td>
                         <td><span *ngFor="let infoKey of objectKeys(client.additionalInformation); let last = last"><span class="badge badge-info">{{infoKey }}: {{client.additionalInformation[infoKey]}}</span>{{last ? "" : "&nbsp;"}}</span></td>

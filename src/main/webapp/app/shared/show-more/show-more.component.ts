@@ -3,8 +3,10 @@ import {Component, Input, OnInit} from '@angular/core';
 @Component({
     selector: 'show-more',
     template: `
-        <div >
-            <span *ngFor="let scope of scopes; let last = last"><span class="badge badge-primary">{{scope}}</span>{{last ? "" : "&nbsp;"}}</span>
+        <div>
+            <span *ngFor="let item of items; let last = last">
+                <span class="badge badge-primary">{{item}}</span>
+            </span>
         </div>
         <button *ngIf='isCollapsed'
                 (click)="expand()"
@@ -13,7 +15,7 @@ import {Component, Input, OnInit} from '@angular/core';
             <span class="fa fa-angle-down"></span>
             <span class="hidden-md-down" jhiTranslate="common.showMore">More</span>
         </button>
-        <button [hidden]="this.scopes && this.scopes.length < 10"
+        <button [hidden]="this.items && this.items.length < this.maxLength"
                 *ngIf='!isCollapsed'
                 (click)="collapse()"
                 type="button"
@@ -21,12 +23,7 @@ import {Component, Input, OnInit} from '@angular/core';
             <span class="fa fa-angle-up"></span>
             <span class="hidden-md-down" jhiTranslate="common.showLess">Less</span>
         </button>
-    `,
-    styles: [`
-        div.collapsed {
-            overflow: hidden;
-        }
-    `]
+    `
 })
 /**
  * This component collapses if number of array items are more than 10 and allows to expand
@@ -34,23 +31,24 @@ import {Component, Input, OnInit} from '@angular/core';
  */
 export class ShowMoreComponent implements OnInit{
     isCollapsed: boolean = false;
-    @Input() scopes?: string[];
+    @Input() items?: string[];
+    maxLength =10;
 
-    allScopes?: string[];
+    allItems?: string[];
     ngOnInit() {
-        this.allScopes = this.scopes;
-        if(this.scopes && this.scopes.length > 10){
+        this.allItems = this.items;
+        if(this.items && this.items.length > this.maxLength){
             this.collapse();
         }
     }
 
     expand() {
-        this.scopes = this.allScopes;
+        this.items = this.allItems;
         this.isCollapsed = false;
     }
 
     collapse() {
-        this.scopes = this.scopes.slice(0,10);
+        this.items = this.items.slice(0,this.maxLength);
         this.isCollapsed = true;
     }
 }
