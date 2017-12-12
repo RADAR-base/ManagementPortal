@@ -1,5 +1,7 @@
 package org.radarcns.management.web.rest.errors;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +32,8 @@ public class CustomParameterizedException extends RuntimeException {
     public CustomParameterizedException(String message, String... params) {
         super(message);
         this.message = message;
+        // add default timestamp first, so a timestamp key in the paramMap will overwrite it
+        this.paramMap.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         if (params != null && params.length > 0) {
             for (int i = 0; i < params.length; i++) {
                 paramMap.put(PARAM + i, params[i]);
@@ -40,6 +44,8 @@ public class CustomParameterizedException extends RuntimeException {
     public CustomParameterizedException(String message, Map<String, String> paramMap) {
         super(message);
         this.message = message;
+        // add default timestamp first, so a timestamp key in the paramMap will overwrite it
+        this.paramMap.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         this.paramMap.putAll(paramMap);
     }
 
