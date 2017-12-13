@@ -88,6 +88,21 @@ if (OperatingSystem.current().isWindows()) {
     }
 }
 
+checkstyle {
+    toolVersion '6.16'
+    ignoreFailures true
+}
+
+pmd {
+    toolVersion = '5.5.2'
+    ignoreFailures = true
+
+    consoleOutput = true
+
+    ruleSets = []
+    ruleSetFiles = files("config/pmd/ruleset.xml")
+}
+
 test {
     include '**/*UnitTest*'
     include '**/*IntTest*'
