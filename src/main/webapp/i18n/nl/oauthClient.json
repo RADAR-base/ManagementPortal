@@ -6,7 +6,9 @@
                 "createLabel": "Registreer nieuwe OAuth Client",
                 "createOrEditLabel": "Maak of wijzig OAuth Client"
             },
-            "deleted": "OAuth client met client id {{ id }} werd verwijderd",
+            "created": "OAuth client met client id {{ param }} werd aangemaakt",
+            "updated": "OAuth client met client id {{ param }} werd bijgewerkt",
+            "deleted": "OAuth client met client id {{ param }} werd verwijderd",
             "delete": {
                 "question": "Weet je zeker dat je OAuth client {{ id }} wil verwijderen?"
             },
@@ -20,7 +22,10 @@
             "refreshTokenValidity": "Refresh Token Validity",
             "authorities": "Authorities",
             "additionalInformation": "Additional Information",
-            "actions": "Actions"
+            "actions": "Actions",
+            "error": {
+                "validation": "Validation fout, controleer de ingevoerde waarden."
+            }
         }
     }
 }
