@@ -5,7 +5,7 @@ import {Component, Input, OnInit} from '@angular/core';
     template: `
         <div>
             <span *ngFor="let item of items; let last = last">
-                <span class="badge badge-primary">{{item}}</span>
+                <span class="{{spanClass}}">{{item}}</span>
             </span>
         </div>
         <button *ngIf='isCollapsed'
@@ -32,6 +32,7 @@ import {Component, Input, OnInit} from '@angular/core';
 export class ShowMoreComponent implements OnInit{
     isCollapsed: boolean = false;
     @Input() items?: string[];
+    @Input() spanClass : string;
     maxLength =10;
 
     allItems?: string[];
