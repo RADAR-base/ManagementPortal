@@ -117,7 +117,7 @@ public class SourceTypeResource {
         checkPermission(getJWT(servletRequest), SOURCETYPE_UPDATE);
         SourceTypeDTO result = sourceTypeService.save(sourceTypeDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceTypeDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, displayName(sourceTypeDTO)))
             .body(result);
     }
 
@@ -199,10 +199,15 @@ public class SourceTypeResource {
             .findByProducerAndModelAndVersion(producer, model, version);
         if (Objects.isNull(sourceTypeDTO)) {
             return ResponseEntity.notFound().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
-                "notfound", String.join(" ", producer, model, version))).build();
+                "notfound", displayName(sourceTypeDTO))).build();
         }
         sourceTypeService.delete(sourceTypeDTO.getId());
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME,
-            String.join(" ", producer, model, version))).build();
+                displayName(sourceTypeDTO))).build();
+    }
+
+    private String displayName(SourceTypeDTO sourceType) {
+        return String.join(" ", sourceType.getProducer(), sourceType.getModel(),
+                sourceType.getCatalogVersion());
     }
 }

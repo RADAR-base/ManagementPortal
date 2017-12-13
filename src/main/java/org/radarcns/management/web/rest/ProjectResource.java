@@ -121,7 +121,7 @@ public class ProjectResource {
                 projectDTO.getProjectName());
         ProjectDTO result = projectService.save(projectDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, projectDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, projectDTO.getProjectName()))
             .body(result);
     }
 

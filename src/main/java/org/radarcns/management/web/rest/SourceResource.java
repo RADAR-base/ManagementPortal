@@ -107,7 +107,7 @@ public class SourceResource {
         checkPermission(getJWT(servletRequest), SOURCE_UPDATE);
         SourceDTO result = sourceService.save(sourceDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceDTO.getSourceName()))
             .body(result);
     }
 
