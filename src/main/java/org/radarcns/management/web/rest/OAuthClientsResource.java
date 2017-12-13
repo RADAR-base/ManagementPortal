@@ -202,8 +202,7 @@ public class OAuthClientsResource {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_CREATE);
         // check if the client id exists
         try {
-            clientDetailsService.loadClientByClientId(clientDetailsDTO
-                    .getClientId());
+            clientDetailsService.loadClientByClientId(clientDetailsDTO.getClientId());
             throw new CustomConflictException(ErrorConstants.ERR_CLIENT_ID_EXISTS,
                     Collections.singletonMap("client_id", clientDetailsDTO.getClientId()),
                     new URI(HeaderUtil.buildPath("api", "oauth-clients",
