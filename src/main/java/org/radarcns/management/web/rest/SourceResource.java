@@ -57,33 +57,34 @@ public class SourceResource {
      * POST  /sources : Create a new source.
      *
      * @param sourceDTO the sourceDTO to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new sourceDTO, or with status 400 (Bad Request) if the source has already an ID
+     * @return the ResponseEntity with status 201 (Created) and with body the new sourceDTO, or with
+     * status 400 (Bad Request) if the source has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/sources")
     @Timed
-    public ResponseEntity<SourceDTO> createSource(@Valid @RequestBody SourceDTO sourceDTO) throws URISyntaxException {
+    public ResponseEntity<SourceDTO> createSource(@Valid @RequestBody SourceDTO sourceDTO)
+            throws URISyntaxException {
         log.debug("REST request to save Source : {}", sourceDTO);
         checkPermission(getJWT(servletRequest), SOURCE_CREATE);
         if (sourceDTO.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new source cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
+                    "idexists", "A new source cannot already have an ID")).build();
         } else if (sourceDTO.getSourceId() != null) {
-            return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceIdExists", "A new source cannot already have a Source ID"))
-                .body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
+                    "sourceIdExists", "A new source cannot already have a Source ID")).build();
         } else if (sourceRepository.findOneBySourceName(sourceDTO.getSourceName()).isPresent()) {
-            return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceNameExists", "Source name already in use"))
-                .body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
+                    "sourceNameExists", "Source name already in use")).build();
         } else if (sourceDTO.getAssigned() == null) {
             return ResponseEntity.badRequest()
                 .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceAssignedRequired",
                     "A new source must have the 'assigned' field specified")).body(null);
         } else {
             SourceDTO result = sourceService.save(sourceDTO);
-            return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "sources",
-                    result.getSourceName())))
-                    .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getSourceName()))
+            String name = result.getSourceName();
+            return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "sources", name)))
+                    .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, name))
                     .body(result);
             }
     }
@@ -99,7 +100,8 @@ public class SourceResource {
      */
     @PutMapping("/sources")
     @Timed
-    public ResponseEntity<SourceDTO> updateSource(@Valid @RequestBody SourceDTO sourceDTO) throws URISyntaxException {
+    public ResponseEntity<SourceDTO> updateSource(@Valid @RequestBody SourceDTO sourceDTO)
+            throws URISyntaxException {
         log.debug("REST request to update Source : {}", sourceDTO);
         if (sourceDTO.getId() == null) {
             return createSource(sourceDTO);
@@ -121,14 +123,15 @@ public class SourceResource {
     public ResponseEntity<List<SourceDTO>> getAllSources() {
         log.debug("REST request to get all Sources");
         checkPermission(getJWT(servletRequest), SOURCE_READ);
-        return ResponseUtil.wrapOrNotFound(Optional.of(sourceService.findAll()));
+        return ResponseEntity.ok(sourceService.findAll());
     }
 
     /**
      * GET  /sources/:sourceName : get the source with this sourceName
      *
      * @param sourceName the name of the sourceDTO to retrieve
-     * @return the ResponseEntity with status 200 (OK) and with body the sourceDTO, or with status 404 (Not Found)
+     * @return the ResponseEntity with status 200 (OK) and with body the sourceDTO, or with status
+     * 404 (Not Found)
      */
     @GetMapping("/sources/{sourceName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
@@ -154,13 +157,12 @@ public class SourceResource {
             return ResponseEntity.notFound().build();
         }
         if (sourceDTO.get().getAssigned()) {
-            return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceIsAssigned", "Cannot delete an assigned source"))
-                .body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
+                    "sourceIsAssigned", "Cannot delete an assigned source")).build();
         }
         sourceService.delete(sourceDTO.get().getId());
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, sourceName))
-            .build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME,
+                sourceName)).build();
     }
 
 }
