@@ -64,19 +64,25 @@ public class SourceTypeResource {
      * POST  /source-types : Create a new sourceType.
      *
      * @param sourceTypeDTO the sourceTypeDTO to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new sourceTypeDTO, or with status 400 (Bad Request) if the sourceType has already an ID
+     * @return the ResponseEntity with status 201 (Created) and with body the new sourceTypeDTO, or
+     * with status 400 (Bad Request) if the sourceType has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/source-types")
     @Timed
-    public ResponseEntity<SourceTypeDTO> createSourceType(@Valid @RequestBody SourceTypeDTO sourceTypeDTO) throws URISyntaxException {
+    public ResponseEntity<SourceTypeDTO> createSourceType(@Valid @RequestBody
+            SourceTypeDTO sourceTypeDTO) throws URISyntaxException {
         log.debug("REST request to save SourceType : {}", sourceTypeDTO);
         checkPermission(getJWT(servletRequest), SOURCETYPE_CREATE);
         if (sourceTypeDTO.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new sourceType cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
+                    "idexists", "A new sourceType cannot already have an ID")).build();
         }
         Optional<SourceType> existing = sourceTypeRepository
-            .findOneWithEagerRelationshipsByProducerAndModelAndVersion(sourceTypeDTO.getProducer(), sourceTypeDTO.getModel(), sourceTypeDTO.getCatalogVersion());
+                .findOneWithEagerRelationshipsByProducerAndModelAndVersion(
+                        sourceTypeDTO.getProducer(), sourceTypeDTO.getModel(),
+                        sourceTypeDTO.getCatalogVersion());
+
         if (existing.isPresent()) {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "A SourceType with the specified producer, model and "
@@ -92,9 +98,7 @@ public class SourceTypeResource {
         SourceTypeDTO result = sourceTypeService.save(sourceTypeDTO);
         return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "source-types",
                 result.getProducer(), result.getModel(), result.getCatalogVersion())))
-                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME,
-                        String.join(" ", result.getProducer(), result.getModel(),
-                                result.getCatalogVersion())))
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, displayName(result)))
                 .body(result);
     }
 
@@ -109,7 +113,8 @@ public class SourceTypeResource {
      */
     @PutMapping("/source-types")
     @Timed
-    public ResponseEntity<SourceTypeDTO> updateSourceType(@Valid @RequestBody SourceTypeDTO sourceTypeDTO) throws URISyntaxException {
+    public ResponseEntity<SourceTypeDTO> updateSourceType(@Valid @RequestBody
+            SourceTypeDTO sourceTypeDTO) throws URISyntaxException {
         log.debug("REST request to update SourceType : {}", sourceTypeDTO);
         if (sourceTypeDTO.getId() == null) {
             return createSourceType(sourceTypeDTO);
@@ -198,8 +203,7 @@ public class SourceTypeResource {
         SourceTypeDTO sourceTypeDTO = sourceTypeService
             .findByProducerAndModelAndVersion(producer, model, version);
         if (Objects.isNull(sourceTypeDTO)) {
-            return ResponseEntity.notFound().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
-                "notfound", displayName(sourceTypeDTO))).build();
+            return ResponseEntity.notFound().build();
         }
         sourceTypeService.delete(sourceTypeDTO.getId());
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME,
