@@ -1,5 +1,7 @@
 package org.radarcns.management.service;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +31,7 @@ import org.radarcns.management.service.util.RandomUtil;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
 import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -186,7 +189,7 @@ public class SubjectService {
      */
     @Transactional
     public MinimalSourceDetailsDTO assignOrUpdateSource(Subject subject, SourceType sourceType, Project project,
-        MinimalSourceDetailsDTO sourceRegistrationDTO) {
+        MinimalSourceDetailsDTO sourceRegistrationDTO) throws URISyntaxException {
         Source assignedSource = null;
 
         List<Source> sources = subjectRepository
@@ -255,7 +258,8 @@ public class SubjectService {
                 errorParams.put("producer", sourceType.getProducer());
                 errorParams.put("model", sourceType.getModel());
                 errorParams.put("subject-id", subject.getUser().getLogin());
-                throw new CustomConflictException("Conflict", errorParams);
+                throw new CustomConflictException("Conflict", errorParams, new URI(HeaderUtil
+                        .buildPath("api", "subjects", subject.getUser().getLogin(), "sources")));
             }
         }
 

@@ -1,10 +1,12 @@
 package org.radarcns.management.web.rest.errors;
 
 import org.radarcns.auth.exception.NotAuthorizedException;
+import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
@@ -84,10 +86,11 @@ public class ExceptionTranslator {
     }
 
     @ExceptionHandler(CustomConflictException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ResponseBody
-    public ParameterizedErrorVM processParameterizedConflict(CustomConflictException ex) {
-        return ex.getErrorVM();
+    public ResponseEntity<ParameterizedErrorVM> processParameterizedConflict(
+            CustomConflictException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .headers(HeaderUtil.createAlert(ex.getMessage(), ex.getConflictingResource().toString()))
+                .body(ex.getErrorVM());
     }
 
     @ExceptionHandler(AccessDeniedException.class)

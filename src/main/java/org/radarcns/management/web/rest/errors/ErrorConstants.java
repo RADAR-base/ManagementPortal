@@ -8,6 +8,7 @@ public final class ErrorConstants {
     public static final String ERR_METHOD_NOT_SUPPORTED = "error.methodNotSupported";
     public static final String ERR_MEDIA_TYPE_NOT_SUPPORTED = "error.mediaTypeNotSupported";
     public static final String ERR_INTERNAL_SERVER_ERROR = "error.internalServerError";
+    public static final String ERR_SOURCE_TYPE_EXISTS = "error.sourceTypeExists";
 
     private ErrorConstants() {
     }

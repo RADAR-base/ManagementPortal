@@ -208,8 +208,9 @@ public class OAuthClientsResource {
                     .getClientId());
             // throw exception if a client already exist with a given id
             throw new CustomConflictException("An OAuth client with that ID already exists",
-                    Collections.singletonMap("client_id", clientDetailsDTO.getClientId()));
-
+                    Collections.singletonMap("client_id", clientDetailsDTO.getClientId()),
+                    new URI(HeaderUtil.buildPath("api", "oauth-clients",
+                            clientDetailsDTO.getClientId())));
         } catch (NoSuchClientException ex) {
             // Client does not exist yet, we can go ahead and create it
         }
@@ -352,7 +353,7 @@ public class OAuthClientsResource {
         Map<String, Object> info = details.getAdditionalInformation();
         if (Objects.nonNull(info) && info.containsKey(PROTECTED_KEY)
                 && info.get(PROTECTED_KEY).toString().equalsIgnoreCase("true")) {
-            throw new CustomParameterizedException("Modification of a protected OAuth client is "
+            throw new AccessDeniedException("Modification of a protected OAuth client is "
                     + "not allowed.");
         }
     }

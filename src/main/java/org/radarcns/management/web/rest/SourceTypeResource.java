@@ -8,6 +8,7 @@ import org.radarcns.management.repository.SourceTypeRepository;
 import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
+import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,11 +79,15 @@ public class SourceTypeResource {
             .findOneWithEagerRelationshipsByProducerAndModelAndVersion(sourceTypeDTO.getProducer(), sourceTypeDTO.getModel(), sourceTypeDTO.getCatalogVersion());
         if (existing.isPresent()) {
             Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("message", "A SourceType with the specified producer and model "
-                + "already exists. This combination needs to be unique.");
+            errorParams.put("message", "A SourceType with the specified producer, model and "
+                + "version already exists. This combination needs to be unique.");
             errorParams.put("producer", sourceTypeDTO.getProducer());
             errorParams.put("model", sourceTypeDTO.getModel());
-            throw new CustomConflictException("sourceTypeAvailable", errorParams);
+            errorParams.put("catalogVersion", sourceTypeDTO.getCatalogVersion());
+            throw new CustomConflictException(ErrorConstants.ERR_SOURCE_TYPE_EXISTS, errorParams,
+                    new URI(HeaderUtil.buildPath("api", "source-types",
+                            sourceTypeDTO.getProducer(), sourceTypeDTO.getModel(),
+                            sourceTypeDTO.getCatalogVersion())));
         }
         SourceTypeDTO result = sourceTypeService.save(sourceTypeDTO);
         return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "source-types",
