@@ -6,7 +6,9 @@
                 "createLabel": "Register new OAuth Client",
                 "createOrEditLabel": "Create or edit an OAuth Client"
             },
-            "deleted": "Deleted OAuth client with client id {{ id }}",
+            "created": "A new OAuth client is created with client id {{ param }}",
+            "updated": "An OAuth client is updated with client id {{ param }}",
+            "deleted": "An OAuth client is deleted with client id {{ param }}",
             "delete": {
                 "question": "Are you sure you want to delete OAuth client {{ id }}?"
             },
