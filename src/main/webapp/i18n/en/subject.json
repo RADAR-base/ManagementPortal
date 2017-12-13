@@ -67,6 +67,8 @@
     "error": {
         "patientEmailRequired": "A valid email is required to activate the subject account",
         "subjectExists" : "A subject with given project-id and external-id already exists",
-        "validation": "Validation error, check the entered values in the fields."
+        "validation": "Validation error, check the entered values in the fields.",
+        "loginNotParticipant": "Supplied login is not a participant in any study",
+        "sourceNotFound": "Supplied source can not be found"
     }
 }
