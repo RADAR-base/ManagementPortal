@@ -193,8 +193,7 @@ public class ProjectResource {
             checkPermissionOnProject(getJWT(servletRequest), PROJECT_DELETE,
                     projectDTO.getProjectName());
         } else {
-            return ResponseEntity.notFound().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
-                    "url.not.found", "Project not found: " + projectName)).build();
+            return ResponseEntity.notFound().build();
         }
         projectService.delete(projectDTO.getId());
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(
@@ -215,8 +214,7 @@ public class ProjectResource {
             checkPermissionOnProject(getJWT(servletRequest), ROLE_READ,
                     projectDTO.getProjectName());
         } else {
-            return ResponseEntity.notFound().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
-                    "url.not.found", "Project not found: " + projectName)).build();
+            return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(roleService.getRolesByProject(projectName));
     }
@@ -238,8 +236,7 @@ public class ProjectResource {
             checkPermissionOnProject(getJWT(servletRequest), SOURCE_READ,
                     projectDTO.getProjectName());
         } else {
-            return ResponseEntity.notFound().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
-                    "url.not.found", "Project not found: " + projectName)).build();
+            return ResponseEntity.notFound().build();
         }
 
         if(Objects.nonNull(assigned)) {
@@ -276,8 +273,7 @@ public class ProjectResource {
             checkPermissionOnProject(SecurityUtils.getJWT(servletRequest), Permission.SUBJECT_READ,
                     projectName);
         } else {
-            return ResponseEntity.notFound().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
-                    "url.not.found", "Project not found: " + projectName)).build();
+            return ResponseEntity.notFound().build();
         }
         log.debug("REST request to get all subjects for project {}", projectName);
         List<Subject> subjects = subjectRepository.findAllByProjectName(projectName);
