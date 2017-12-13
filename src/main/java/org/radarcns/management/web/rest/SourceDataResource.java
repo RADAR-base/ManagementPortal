@@ -5,6 +5,7 @@ import io.github.jhipster.web.util.ResponseUtil;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.service.SourceDataService;
 import org.radarcns.management.service.dto.SourceDataDTO;
+import org.radarcns.management.web.rest.errors.CustomConflictException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,26 +56,29 @@ public class SourceDataResource {
      * POST  /source-data : Create a new sourceData.
      *
      * @param sourceDataDTO the sourceDataDTO to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new sourceDataDTO, or with status 400 (Bad Request) if the sourceData has already an ID
+     * @return the ResponseEntity with status 201 (Created) and with body the new sourceDataDTO, or
+     * with status 400 (Bad Request) if the sourceData has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/source-data")
     @Timed
-    public ResponseEntity<SourceDataDTO> createSourceData(@Valid @RequestBody SourceDataDTO sourceDataDTO) throws URISyntaxException {
+    public ResponseEntity<SourceDataDTO> createSourceData(@Valid @RequestBody SourceDataDTO
+            sourceDataDTO) throws URISyntaxException {
         log.debug("REST request to save SourceData : {}", sourceDataDTO);
         checkPermission(getJWT(servletRequest), SOURCEDATA_CREATE);
         if (sourceDataDTO.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new sourceData cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
+                    "idexists", "A new sourceData cannot already have an ID")).build();
         }
-        if(sourceDataService.findOneBySourceDataName(sourceDataDTO.getSourceDataName()).isPresent()) {
-            return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceDataNameAvailable", "Source Data Name already in use"))
-                .body(null);
+        String name = sourceDataDTO.getSourceDataName();
+        if(sourceDataService.findOneBySourceDataName(name).isPresent()) {
+            throw new CustomConflictException("error.sourceDataNameAvailable",
+                    Collections.singletonMap("sourceDataName", name),
+                    new URI(HeaderUtil.buildPath("api", "source-data", name)));
         }
         SourceDataDTO result = sourceDataService.save(sourceDataDTO);
-        return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "source-data",
-                result.getSourceDataName())))
-                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getSourceDataName()))
+        return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "source-data", name)))
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, name))
                 .body(result);
     }
 
@@ -88,17 +93,17 @@ public class SourceDataResource {
      */
     @PutMapping("/source-data")
     @Timed
-    public ResponseEntity<SourceDataDTO> updateSourceData(@Valid @RequestBody SourceDataDTO sourceDataDTO) throws URISyntaxException {
+    public ResponseEntity<SourceDataDTO> updateSourceData(@Valid @RequestBody SourceDataDTO
+            sourceDataDTO) throws URISyntaxException {
         log.debug("REST request to update SourceData : {}", sourceDataDTO);
         if (sourceDataDTO.getId() == null) {
             return createSourceData(sourceDataDTO);
         }
         checkPermission(getJWT(servletRequest), SOURCEDATA_UPDATE);
         SourceDataDTO result = sourceDataService.save(sourceDataDTO);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME,
-                    sourceDataDTO.getSourceDataName()))
-            .body(result);
+        return ResponseEntity.ok().headers(HeaderUtil
+                .createEntityUpdateAlert(ENTITY_NAME, sourceDataDTO.getSourceDataName()))
+                .body(result);
     }
 
     /**
@@ -118,13 +123,15 @@ public class SourceDataResource {
      * GET  /source-data/:sourceDataName : get the "sourceDataName" sourceData.
      *
      * @param sourceDataName the sourceDataName of the sourceDataDTO to retrieve
-     * @return the ResponseEntity with status 200 (OK) and with body the sourceDataDTO, or with status 404 (Not Found)
+     * @return the ResponseEntity with status 200 (OK) and with body the sourceDataDTO, or with
+     * status 404 (Not Found)
      */
     @GetMapping("/source-data/{sourceDataName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<SourceDataDTO> getSourceData(@PathVariable String sourceDataName) {
         checkPermission(getJWT(servletRequest), SOURCEDATA_READ);
-        return ResponseUtil.wrapOrNotFound(sourceDataService.findOneBySourceDataName(sourceDataName));
+        return ResponseUtil.wrapOrNotFound(sourceDataService
+                .findOneBySourceDataName(sourceDataName));
     }
 
     /**
@@ -137,12 +144,14 @@ public class SourceDataResource {
     @Timed
     public ResponseEntity<Void> deleteSourceData(@PathVariable String sourceDataName) {
         checkPermission(getJWT(servletRequest), SOURCEDATA_DELETE);
-        Optional<SourceDataDTO> sourceDataDTO = sourceDataService.findOneBySourceDataName(sourceDataName);
+        Optional<SourceDataDTO> sourceDataDTO = sourceDataService
+                .findOneBySourceDataName(sourceDataName);
         if (!sourceDataDTO.isPresent()) {
             return ResponseEntity.notFound().build();
         }
         sourceDataService.delete(sourceDataDTO.get().getId());
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, sourceDataName)).build();
+        return ResponseEntity.ok().headers(HeaderUtil
+                .createEntityDeletionAlert(ENTITY_NAME, sourceDataName)).build();
     }
 
 }
