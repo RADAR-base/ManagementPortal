@@ -46,7 +46,7 @@ describe('Project e2e test', () => {
         // find the table row that contains the protected badge, and assert it contains zero enabled buttons
         element(by.cssContainingText('span.badge-info', 'protected: true')).element(by.xpath('ancestor::tr'))
                 .all(by.css('button')).filter((button) => button.isEnabled()).count().then((count) =>
-            expect(count).toEqual(0));
+            expect(count).toEqual(2));// show more, show less buttons are enabled
     });
 
     afterAll(function () {
