@@ -19,10 +19,6 @@ public class ClientDetailsDTO {
     private Set<String> registeredRedirectUri;
     private Map<String, String> additionalInformation;
 
-    public ClientDetailsDTO() {
-
-    }
-
     /**
      * Get the ClientId
      *

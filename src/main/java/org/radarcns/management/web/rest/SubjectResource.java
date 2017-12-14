@@ -1,11 +1,27 @@
 package org.radarcns.management.web.rest;
 
+import static org.radarcns.auth.authorization.Permission.SUBJECT_CREATE;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_DELETE;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_READ;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
+
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
+import javax.servlet.http.HttpServletRequest;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
-import org.radarcns.auth.authorization.Permission;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.SourceType;
@@ -37,24 +53,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import static org.radarcns.auth.authorization.Permission.SUBJECT_CREATE;
-import static org.radarcns.auth.authorization.Permission.SUBJECT_DELETE;
-import static org.radarcns.auth.authorization.Permission.SUBJECT_READ;
-import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing Subject.
@@ -216,7 +214,7 @@ public class SubjectResource {
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(
             @RequestParam(value = "projectName", required = false) String projectName,
             @RequestParam(value = "externalId", required = false) String externalId) {
-        checkPermission(SecurityUtils.getJWT(servletRequest), Permission.SUBJECT_READ);
+        checkPermission(getJWT(servletRequest), SUBJECT_READ);
         log.debug("ProjectName {} and external {}", projectName, externalId);
         if (projectName != null && externalId != null) {
             Subject subject = subjectRepository

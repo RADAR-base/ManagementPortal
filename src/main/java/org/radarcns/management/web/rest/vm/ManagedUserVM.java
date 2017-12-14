@@ -1,13 +1,10 @@
 package org.radarcns.management.web.rest.vm;
 
-import org.radarcns.management.domain.Project;
-import org.radarcns.management.service.dto.ProjectDTO;
-import org.radarcns.management.service.dto.RoleDTO;
-import org.radarcns.management.service.dto.UserDTO;
-import javax.validation.constraints.Size;
-
 import java.time.ZonedDateTime;
 import java.util.Set;
+import javax.validation.constraints.Size;
+import org.radarcns.management.service.dto.RoleDTO;
+import org.radarcns.management.service.dto.UserDTO;
 
 /**
  * View Model extending the UserDTO, which is meant to be used in the user management UI.

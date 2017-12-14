@@ -1,12 +1,28 @@
 package org.radarcns.management.web.rest;
 
+import static org.radarcns.auth.authorization.Permission.PROJECT_CREATE;
+import static org.radarcns.auth.authorization.Permission.PROJECT_DELETE;
+import static org.radarcns.auth.authorization.Permission.PROJECT_READ;
+import static org.radarcns.auth.authorization.Permission.PROJECT_UPDATE;
+import static org.radarcns.auth.authorization.Permission.ROLE_READ;
+import static org.radarcns.auth.authorization.Permission.SOURCE_READ;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_READ;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
+
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
-import org.radarcns.auth.authorization.Permission;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.SubjectRepository;
-import org.radarcns.management.security.SecurityUtils;
 import org.radarcns.management.service.ProjectService;
 import org.radarcns.management.service.RoleService;
 import org.radarcns.management.service.SourceService;
@@ -14,7 +30,6 @@ import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
-import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
@@ -30,24 +45,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import static org.radarcns.auth.authorization.Permission.PROJECT_CREATE;
-import static org.radarcns.auth.authorization.Permission.PROJECT_DELETE;
-import static org.radarcns.auth.authorization.Permission.PROJECT_READ;
-import static org.radarcns.auth.authorization.Permission.PROJECT_UPDATE;
-import static org.radarcns.auth.authorization.Permission.ROLE_READ;
-import static org.radarcns.auth.authorization.Permission.SOURCE_READ;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing Project.
@@ -77,9 +74,6 @@ public class ProjectResource {
 
     @Autowired
     private SourceService sourceService;
-
-    @Autowired
-    private SourceMapper sourceMapper;
 
     /**
      * POST  /projects : Create a new project.
@@ -251,7 +245,7 @@ public class ProjectResource {
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/subjects")
     @Timed
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(@PathVariable String projectName) {
-        checkPermissionOnProject(SecurityUtils.getJWT(servletRequest), Permission.SUBJECT_READ,
+        checkPermissionOnProject(getJWT(servletRequest), SUBJECT_READ,
             projectName);
         log.debug("REST request to get all subjects for project {}", projectName);
         List<Subject> subjects = subjectRepository.findAllByProjectName(projectName);

@@ -1,10 +1,18 @@
 package org.radarcns.management.service;
 
+import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
-import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Source;
+import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.AuthorityRepository;
@@ -17,7 +25,6 @@ import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
-import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
@@ -28,15 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Created by nivethika on 26-5-17.
@@ -51,9 +49,6 @@ public class SubjectService {
     private SubjectMapper subjectMapper;
 
     @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
     private ProjectMapper projectMapper;
 
     @Autowired
@@ -61,9 +56,6 @@ public class SubjectService {
 
     @Autowired
     private AuthorityRepository authorityRepository;
-
-    @Autowired
-    private SourceService sourceService;
 
     @Autowired
     private SourceRepository sourceRepository;
@@ -75,13 +67,7 @@ public class SubjectService {
     private RoleRepository roleRepository;
 
     @Autowired
-    private MailService mailService;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private UserService userService;
 
 
     @Transactional

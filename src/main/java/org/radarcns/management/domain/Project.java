@@ -79,7 +79,7 @@ public class Project extends AbstractAuditingEntity implements Serializable {
     @MapKeyColumn(name="attribute_key")
     @Column(name="attribute_value")
     @CollectionTable(name="project_metadata" ,  joinColumns = @JoinColumn(name = "id"))
-    Map<String, String> attributes = new HashMap<>();
+    private Map<String, String> attributes = new HashMap<>();
 
     public Long getId() {
         return id;

@@ -3,8 +3,6 @@ package org.radarcns.management.filters;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import java.io.UnsupportedEncodingException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.HttpMethod;
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.slf4j.Logger;
@@ -20,11 +18,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class OAuth2TokenRequestPreZuulFilter extends ZuulFilter {
 
-    static final String REFRESH_TOKEN_COOKIE = "rft";
+    protected static final String REFRESH_TOKEN_COOKIE = "rft";
     @Autowired
     private  ManagementPortalProperties managementPortalProperties;
 
-    Logger logger = LoggerFactory.getLogger(OAuth2TokenRequestPreZuulFilter.class);
+    private Logger logger = LoggerFactory.getLogger(OAuth2TokenRequestPreZuulFilter.class);
     @Override
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
@@ -40,17 +38,17 @@ public class OAuth2TokenRequestPreZuulFilter extends ZuulFilter {
         return null;
     }
 
-    private String extractRefreshToken(HttpServletRequest req) {
-        final Cookie[] cookies = req.getCookies();
-        if (cookies != null) {
-            for (int i = 0; i < cookies.length; i++) {
-                if (cookies[i].getName().equalsIgnoreCase(REFRESH_TOKEN_COOKIE)) {
-                    return cookies[i].getValue();
-                }
-            }
-        }
-        return null;
-    }
+//    private String extractRefreshToken(HttpServletRequest req) {
+//        final Cookie[] cookies = req.getCookies();
+//        if (cookies != null) {
+//            for (int i = 0; i < cookies.length; i++) {
+//                if (cookies[i].getName().equalsIgnoreCase(REFRESH_TOKEN_COOKIE)) {
+//                    return cookies[i].getValue();
+//                }
+//            }
+//        }
+//        return null;
+//    }
 
     @Override
     public boolean shouldFilter() {

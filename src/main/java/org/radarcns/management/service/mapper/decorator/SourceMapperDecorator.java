@@ -1,13 +1,11 @@
 package org.radarcns.management.service.mapper.decorator;
 
+import java.util.Optional;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.mapper.SourceMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import java.util.Optional;
 
 /**
  * Created by nivethika on 13-6-17.

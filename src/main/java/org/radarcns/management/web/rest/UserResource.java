@@ -165,12 +165,12 @@ public class UserResource {
                 .body(null);
         }
 
-        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(managedUserVM.getLogin());
-        if (subject.isPresent()) {
+        Optional<Subject> subject = subjectRepository
+            .findOneWithEagerBySubjectLogin(managedUserVM.getLogin());
+        if (subject.isPresent() && managedUserVM.isActivated() && subject.get().isRemoved()) {
             // if the subject is also a user, check if the removed/activated states are valid
-            if (managedUserVM.isActivated() && subject.get().isRemoved()) {
-                throw new CustomParameterizedException("error.invalidsubjectstate");
-            }
+            throw new CustomParameterizedException("error.invalidsubjectstate");
+
         }
 
         Optional<UserDTO> updatedUser = userService.updateUser(managedUserVM);

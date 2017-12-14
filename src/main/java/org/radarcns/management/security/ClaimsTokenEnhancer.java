@@ -1,5 +1,12 @@
 package org.radarcns.management.security;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.radarcns.auth.authorization.RadarAuthorization;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.User;
@@ -14,19 +21,9 @@ import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.common.util.OAuth2Utils;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
-import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
-
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
@@ -97,6 +94,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        // nothing to do for now
     }
 
     private Map<String, Object> auditData(OAuth2AccessToken accessToken,

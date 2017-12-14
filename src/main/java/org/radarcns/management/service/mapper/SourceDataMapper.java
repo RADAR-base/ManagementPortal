@@ -2,7 +2,6 @@ package org.radarcns.management.service.mapper;
 
 import java.util.List;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.radarcns.management.domain.SourceData;
 import org.radarcns.management.service.dto.SourceDataDTO;
 

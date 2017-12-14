@@ -89,15 +89,15 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @Column(name = "reset_date")
     private ZonedDateTime resetDate = null;
 
-    @JsonIgnore
-    @ManyToMany()
-    @JoinTable(
-        name = "radar_user_authority",
-        joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
-        inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "name")})
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    @BatchSize(size = 20)
-    private Set<Authority> authorities = new HashSet<>();
+//    @JsonIgnore
+//    @ManyToMany()
+//    @JoinTable(
+//        name = "radar_user_authority",
+//        joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+//        inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "name")})
+//    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+//    @BatchSize(size = 20)
+//    private Set<Authority> authorities = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
