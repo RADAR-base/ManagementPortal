@@ -72,7 +72,7 @@ public class AuditResourceIntTest {
     private MockMvc restAuditMockMvc;
 
     @Before
-    public void setup() throws ServletException {
+    public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         AuditEventService auditEventService =
             new AuditEventService(auditEventRepository, auditEventConverter);
