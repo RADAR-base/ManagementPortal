@@ -42,6 +42,8 @@ describe('Subject e2e test', () => {
         });
     });
 
+    // Subject creation covered in scenarios/discontinue-subject-should-unassign-source.spec.ts
+
     afterAll(function () {
         accountMenu.click();
         logout.click();
