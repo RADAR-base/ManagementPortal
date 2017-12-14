@@ -68,7 +68,9 @@
         "patientEmailRequired": "Er is een geldige e-mail nodig om het vakaccount te activeren",
         "subjectExists" : "Er bestaat al een onderwerp met een gegeven project-id en extern id",
         "loginNotParticipant": "Opgegeven login is geen deelnemer in een studie",
-        "sourceNotFound": "Opgegeven source kan niet gevonden worden"
+        "loginRequired": "A subject login is required",
+        "sourceNotFound": "Opgegeven source kan niet gevonden worden",
+        "validation": "Validatie fout, controleer de ingevoerde waarden."
     }
 
 }

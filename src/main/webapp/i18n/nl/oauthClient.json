@@ -24,7 +24,7 @@
             "additionalInformation": "Additional Information",
             "actions": "Actions",
             "error": {
-                "validation": "Validation fout, controleer de ingevoerde waarden."
+                "validation": "Validatie fout, controleer de ingevoerde waarden."
             }
         }
     }
