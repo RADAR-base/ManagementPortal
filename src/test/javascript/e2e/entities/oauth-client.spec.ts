@@ -90,11 +90,10 @@ describe('Project e2e test', () => {
         element(by.cssContainingText('td', 'test-client')).element(by.xpath('ancestor::tr'))
                 .element(by.cssContainingText('button', 'Delete')).click().then(() => {
             browser.waitForAngular();
-            element(by.cssContainingText('jhi-oauth-client-delete-dialog button.btn-danger', 'Delete')).click().then(() =>{
-                // there should be a notification popup
-                element(by.css('.alert-success')).element(by.css('pre')).getText().then((value) => {
-                    expect(value).toMatch(/An OAuth client is deleted with client id test-client/);
-                });
+            element(by.cssContainingText('jhi-oauth-client-delete-dialog button.btn-danger', 'Delete')).click();
+            // there should be a notification popup
+            element(by.css('jhi-alert')).element(by.css('pre')).getText().then((value) => {
+                expect(value).toMatch(/An OAuth client is deleted with client id test-client/);
             });
         });
     });
