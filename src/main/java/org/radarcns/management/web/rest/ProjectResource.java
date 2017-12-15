@@ -270,8 +270,7 @@ public class ProjectResource {
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(@PathVariable String projectName) {
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
-            checkPermissionOnProject(SecurityUtils.getJWT(servletRequest), Permission.SUBJECT_READ,
-                    projectName);
+            checkPermissionOnProject(getJWT(servletRequest), SUBJECT_READ, projectName);
         } else {
             return ResponseEntity.notFound().build();
         }
