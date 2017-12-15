@@ -17,7 +17,8 @@ public class CustomConflictException extends RuntimeException {
     private final URI conflictingResource;
     private final Map<String, String> paramMap = new HashMap<>();
 
-    public CustomConflictException(String message, Map<String, String> paramMap, URI conflictingResource) {
+    public CustomConflictException(String message, Map<String, String> paramMap,
+            URI conflictingResource) {
         super(message);
         Objects.requireNonNull(message, "message can not be null");
         Objects.requireNonNull(paramMap, "paramMap can not be null");
@@ -25,7 +26,8 @@ public class CustomConflictException extends RuntimeException {
         this.message = message;
         this.conflictingResource = conflictingResource;
         // add default timestamp first, so a timestamp key in the paramMap will overwrite it
-        this.paramMap.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        this.paramMap.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                .format(new Date()));
         this.paramMap.put("conflict", conflictingResource.toString());
         this.paramMap.putAll(paramMap);
     }
