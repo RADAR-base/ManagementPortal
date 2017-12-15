@@ -23,7 +23,9 @@
             "projectStatus": "Project Status",
             "endDate": "End Date",
             "projectAdmin": "Project Admin",
-            "sourceType": "Source Type"
+            "sourceType": "Source Type",
+            "attributeDataKey" : "Tag",
+            "attributeDataValue" : "Waarde"
         }
     }
 }

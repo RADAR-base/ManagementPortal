@@ -31,6 +31,7 @@
         }
     },
     "error": {
-        "sourceTypeExists" : "Een SourceType met bepaalde producent, model en versie bestaat al"
+        "sourceTypeExists" : "Een SourceType met bepaalde producent, model en versie bestaat al",
+        "validation": "Validatie fout, controleer de ingevoerde waarden."
     }
 }

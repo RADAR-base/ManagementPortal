@@ -27,6 +27,7 @@
         }
     },
     "error" : {
-        "sourceDataNameAvailable" : "SourceDataName al in gebruik"
+        "sourceDataNameAvailable" : "SourceDataName al in gebruik",
+        "validation": "Validatie fout, controleer de ingevoerde waarden."
     }
 }
