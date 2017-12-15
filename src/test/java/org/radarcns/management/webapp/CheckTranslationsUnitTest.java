@@ -51,9 +51,11 @@ public class CheckTranslationsUnitTest {
                 .forEach(path -> {
                     Map<String, List<String>> keys = loadJsonKeysFromDirectory(path);
                     // find differences, prepend all keys with the name of the current language
-                    differencesFound.putAll(findDifferences(BASE_DICTIONARY, keys).entrySet().stream()
-                        .collect(Collectors.toMap(e -> String.join("/", path.getName(), e.getKey()),
-                                e -> e.getValue())));
+                    differencesFound.putAll(findDifferences(BASE_DICTIONARY, keys).entrySet()
+                            .stream()
+                            .collect(Collectors.toMap(
+                                    e -> String.join("/", path.getName(), e.getKey()),
+                                    e -> e.getValue())));
                 });
         // If there were missing elements, first print out all of them and only then fail the
         // test, so we can fix all translations at once.

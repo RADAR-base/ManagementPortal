@@ -13,7 +13,6 @@ import org.radarcns.management.service.mapper.ClientDetailsMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
-import org.radarcns.management.web.rest.errors.CustomParameterizedException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
