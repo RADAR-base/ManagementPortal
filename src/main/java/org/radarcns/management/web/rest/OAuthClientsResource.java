@@ -204,12 +204,12 @@ public class OAuthClientsResource {
         checkClientFields(clientDetailsDTO);
         // check if the client id exists
         try {
-            ClientDetails existing = clientDetailsService.loadClientByClientId(clientDetailsDTO
+            clientDetailsService.loadClientByClientId(clientDetailsDTO
                     .getClientId());
-            if(Objects.nonNull(existing)) {
-                throw new CustomConflictException("An OAuth client with that ID already exists",
+            // throw exception if a client already exist with a given id
+            throw new CustomConflictException("An OAuth client with that ID already exists",
                     Collections.singletonMap("client_id", clientDetailsDTO.getClientId()));
-            }
+
         } catch (NoSuchClientException ex) {
             // Client does not exist yet, we can go ahead and create it
         }
