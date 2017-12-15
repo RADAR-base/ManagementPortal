@@ -86,7 +86,7 @@ public class SourceTypeResource {
         if (existing.isPresent()) {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "A SourceType with the specified producer, model and "
-                + "version already exists. This combination needs to be unique.");
+                    + "version already exists. This combination needs to be unique.");
             errorParams.put("producer", sourceTypeDTO.getProducer());
             errorParams.put("model", sourceTypeDTO.getModel());
             errorParams.put("catalogVersion", sourceTypeDTO.getCatalogVersion());

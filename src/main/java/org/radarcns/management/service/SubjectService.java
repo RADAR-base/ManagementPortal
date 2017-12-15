@@ -153,7 +153,8 @@ public class SubjectService {
 
 
     public List<SubjectDTO> findAll() {
-        return subjectMapper.subjectsToSubjectDTOs(subjectRepository.findAllWithEagerRelationships());
+        return subjectMapper.subjectsToSubjectDTOs(subjectRepository
+                .findAllWithEagerRelationships());
     }
 
     public SubjectDTO discontinueSubject(SubjectDTO subjectDTO) {
@@ -188,8 +189,9 @@ public class SubjectService {
      * Otherwise finds the matching source and updates meta-data
      */
     @Transactional
-    public MinimalSourceDetailsDTO assignOrUpdateSource(Subject subject, SourceType sourceType, Project project,
-        MinimalSourceDetailsDTO sourceRegistrationDTO) throws URISyntaxException {
+    public MinimalSourceDetailsDTO assignOrUpdateSource(Subject subject, SourceType sourceType,
+            Project project, MinimalSourceDetailsDTO sourceRegistrationDTO)
+            throws URISyntaxException {
         Source assignedSource = null;
 
         List<Source> sources = subjectRepository
@@ -200,7 +202,8 @@ public class SubjectService {
         // update meta-data for existing sources
         if(sourceRegistrationDTO.getSourceId()!=null) {
             // for manually registered devices only add meta-data
-            Optional<Source> sourceToUpdate = subjectRepository.findSubjectSourcesBySourceId(subject.getUser().getLogin(), sourceRegistrationDTO.getSourceId());
+            Optional<Source> sourceToUpdate = subjectRepository.findSubjectSourcesBySourceId(
+                    subject.getUser().getLogin(), sourceRegistrationDTO.getSourceId());
             if (sourceToUpdate.isPresent()) {
                 Source source = sourceToUpdate.get();
                 if(sourceRegistrationDTO.getSourceName()!=null) {
@@ -232,12 +235,15 @@ public class SubjectService {
                 // if source name is provided update source name
                 if (Objects.nonNull(sourceRegistrationDTO.getSourceName())) {
                     // append the auto generated source-name to given source-name to avoid conflicts
-                    source1.setSourceName(sourceRegistrationDTO.getSourceName()+"_"+source1.getSourceName());
+                    source1.setSourceName(sourceRegistrationDTO.getSourceName() + "_" +
+                            source1.getSourceName());
                 }
 
-                Optional<Source> sourceToUpdate = sourceRepository.findOneBySourceName(source1.getSourceName());
+                Optional<Source> sourceToUpdate = sourceRepository.findOneBySourceName(
+                        source1.getSourceName());
                 if(sourceToUpdate.isPresent()) {
-                    log.error("Cannot create a source with existing source-name {}" , source1.getSourceName());
+                    log.error("Cannot create a source with existing source-name {}" ,
+                            source1.getSourceName());
                     Map<String, String> errorParams = new HashMap<>();
                     errorParams.put("message",
                         "SourceName already in use. Cannot create a source with source-name ");
@@ -269,9 +275,9 @@ public class SubjectService {
                 + " is already registered for subject login ");
             Map<String, String> errorParams = new HashMap<>();
             errorParams
-                .put("message", "Cannot find assigned source with sourceId or a source of sourceType"
-                    + " with the specified producer and model "
-                    + " is already registered for subject login ");
+                .put("message", "Cannot find assigned source with sourceId or a source of "
+                        + "sourceType with the specified producer and model is already "
+                        + "registered for subject login ");
             errorParams.put("producer", sourceType.getProducer());
             errorParams.put("model", sourceType.getModel());
             errorParams.put("subject-id", subject.getUser().getLogin());
@@ -288,7 +294,8 @@ public class SubjectService {
      * @return list of sources
      */
     public List<MinimalSourceDetailsDTO> getSources(Subject subject) {
-        List<Source> sources = subjectRepository.findSourcesBySubjectLogin(subject.getUser().getLogin());
+        List<Source> sources = subjectRepository.findSourcesBySubjectLogin(subject.getUser()
+                .getLogin());
 
         return sourceMapper.sourcesToMinimalSourceDetailsDTOs(sources);
     }

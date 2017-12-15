@@ -33,7 +33,8 @@ public class CustomParameterizedException extends RuntimeException {
         super(message);
         this.message = message;
         // add default timestamp first, so a timestamp key in the paramMap will overwrite it
-        this.paramMap.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        this.paramMap.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                .format(new Date()));
         if (params != null && params.length > 0) {
             for (int i = 0; i < params.length; i++) {
                 paramMap.put(PARAM + i, params[i]);
@@ -45,7 +46,8 @@ public class CustomParameterizedException extends RuntimeException {
         super(message);
         this.message = message;
         // add default timestamp first, so a timestamp key in the paramMap will overwrite it
-        this.paramMap.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        this.paramMap.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                .format(new Date()));
         this.paramMap.putAll(paramMap);
     }
 

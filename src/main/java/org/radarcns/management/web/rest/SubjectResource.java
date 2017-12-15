@@ -115,12 +115,13 @@ public class SubjectResource {
         }
         if (subjectDTO.getLogin() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil
-                    .createFailureAlert(ENTITY_NAME, "loginrequired", "A subject login is required"))
+                    .createFailureAlert(ENTITY_NAME, "loginrequired",
+                            "A subject login is required"))
                     .build();
         }
         if (subjectDTO.getExternalId() != null && !subjectDTO.getExternalId().isEmpty() &&
-            subjectRepository.findOneByProjectNameAndExternalId(subjectDTO.getProject()
-                    .getProjectName(), subjectDTO.getExternalId()).isPresent()) {
+                subjectRepository.findOneByProjectNameAndExternalId(subjectDTO.getProject()
+                        .getProjectName(), subjectDTO.getExternalId()).isPresent()) {
             return ResponseEntity.badRequest().headers(HeaderUtil
                     .createFailureAlert(ENTITY_NAME, "subjectExists",
                             "A subject with given project-id and external-id already exists"))
