@@ -51,12 +51,7 @@ describe('SourceType e2e test', () => {
             element(by.id('field_sourceTypeScope')).all(by.tagName('option')).then(function(options){
               options[0].click();
             });
-            element(by.css('jhi-source-type-dialog')).element(by.buttonText('Save')).click().then(() => {
-                // there should be a notification popup
-                element(by.css('.alert-success')).element(by.css('pre')).getText().then((value) => {
-                    expect(value).toMatch(/A new Source Type is created with identifier test-producer test-model v1/);
-                });
-            });
+            element(by.css('jhi-source-type-dialog')).element(by.buttonText('Save')).click();
         });
     });
     
@@ -64,12 +59,7 @@ describe('SourceType e2e test', () => {
         element(by.cssContainingText('td', 'test-producer')).element(by.xpath('ancestor::tr'))
                 .element(by.cssContainingText('button', 'Edit')).click().then(() => {
             browser.waitForAngular();
-            element(by.cssContainingText('button.btn-primary', 'Save')).click().then(() => {
-                // there should be a notification popup
-                element(by.css('.alert-success')).element(by.css('pre')).getText().then((value) => {
-                    expect(value).toMatch(/A Source Type is updated with identifier test-producer test-model v1/);
-                });
-            });
+            element(by.cssContainingText('button.btn-primary', 'Save')).click();
         });
     });
 
@@ -77,12 +67,7 @@ describe('SourceType e2e test', () => {
         element(by.cssContainingText('td', 'test-producer')).element(by.xpath('ancestor::tr'))
                 .element(by.cssContainingText('button', 'Delete')).click().then(() => {
             browser.waitForAngular();
-            element(by.cssContainingText('jhi-source-type-delete-dialog button.btn-danger', 'Delete')).click().then(() =>{
-                // there should be a notification popup
-                element(by.css('.alert-success')).element(by.css('pre')).getText().then((value) => {
-                    expect(value).toMatch(/A Source Type is deleted with identifier test-producer test-model v1/);
-                });
-            });
+            element(by.cssContainingText('jhi-source-type-delete-dialog button.btn-danger', 'Delete')).click();
         });
     });
 

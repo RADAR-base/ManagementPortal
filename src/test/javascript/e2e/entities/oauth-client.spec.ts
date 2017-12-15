@@ -64,12 +64,7 @@ describe('OAuth Clients e2e test', () => {
             element(by.id('accessTokenValidity')).sendKeys('3600');
             element(by.id('refreshTokenValidity')).clear();
             element(by.id('refreshTokenValidity')).sendKeys('7200');
-            element(by.cssContainingText('button.btn-primary', 'Save')).click().then(() =>{
-                // there should be a notification popup
-                element(by.css('.alert-success')).element(by.css('pre')).getText().then((value) => {
-                    expect(value).toMatch(/A new OAuth client is created with client id test-client/);
-                });
-            });
+            element(by.cssContainingText('button.btn-primary', 'Save')).click();
         });
     });
 
@@ -77,12 +72,7 @@ describe('OAuth Clients e2e test', () => {
         element(by.cssContainingText('td', 'test-client')).element(by.xpath('ancestor::tr'))
                 .element(by.cssContainingText('button', 'Edit')).click().then(() => {
             browser.waitForAngular();
-            element(by.cssContainingText('button.btn-primary', 'Save')).click().then(() =>{
-                // there should be a notification popup
-                element(by.css('.alert-success')).element(by.css('pre')).getText().then((value) => {
-                    expect(value).toMatch(/An OAuth client is updated with client id test-client/);
-                });
-            });
+            element(by.cssContainingText('button.btn-primary', 'Save')).click();
         });
     });
 
@@ -90,12 +80,7 @@ describe('OAuth Clients e2e test', () => {
         element(by.cssContainingText('td', 'test-client')).element(by.xpath('ancestor::tr'))
                 .element(by.cssContainingText('button', 'Delete')).click().then(() => {
             browser.waitForAngular();
-            element(by.cssContainingText('jhi-oauth-client-delete-dialog button.btn-danger', 'Delete')).click().then(() =>{
-                // there should be a notification popup
-                element(by.css('.alert-success')).element(by.css('pre')).getText().then((value) => {
-                    expect(value).toMatch(/An OAuth client is deleted with client id test-client/);
-                });
-            });
+            element(by.cssContainingText('jhi-oauth-client-delete-dialog button.btn-danger', 'Delete')).click();
         });
     });
 

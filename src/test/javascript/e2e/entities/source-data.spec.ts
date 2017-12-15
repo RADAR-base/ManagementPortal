@@ -46,12 +46,7 @@ describe('SourceData e2e test', () => {
         element(by.css('button.create-source-data')).click().then(() => {
             element(by.id('field_sourceDataType')).sendKeys('TEST-TYPE');
             element(by.id('field_sourceDataName')).sendKeys('TEST-SENSOR');
-            element(by.css('jhi-source-data-dialog')).element(by.buttonText('Save')).click().then(() => {
-                // there should be a notification popup
-                element(by.css('.alert-success')).element(by.css('pre')).getText().then((value) => {
-                    expect(value).toMatch(/A new Source Data is created with identifier TEST-SENSOR/);
-                });
-            });
+            element(by.css('jhi-source-data-dialog')).element(by.buttonText('Save')).click();
         });
     });
     
@@ -59,12 +54,7 @@ describe('SourceData e2e test', () => {
         element(by.cssContainingText('td', 'TEST-SENSOR')).element(by.xpath('ancestor::tr'))
                 .element(by.cssContainingText('button', 'Edit')).click().then(() => {
             browser.waitForAngular();
-            element(by.cssContainingText('button.btn-primary', 'Save')).click().then(() => {
-                // there should be a notification popup
-                element(by.css('.alert-success')).element(by.css('pre')).getText().then((value) => {
-                    expect(value).toMatch(/A Source Data is updated with identifier TEST-SENSOR/);
-                });
-            });
+            element(by.cssContainingText('button.btn-primary', 'Save')).click();
         });
     });
 
@@ -72,12 +62,7 @@ describe('SourceData e2e test', () => {
         element(by.cssContainingText('td', 'TEST-SENSOR')).element(by.xpath('ancestor::tr'))
                 .element(by.cssContainingText('button', 'Delete')).click().then(() => {
             browser.waitForAngular();
-            element(by.cssContainingText('jhi-source-data-delete-dialog button.btn-danger', 'Delete')).click().then(() =>{
-                // there should be a notification popup
-                element(by.css('.alert-success')).element(by.css('pre')).getText().then((value) => {
-                    expect(value).toMatch(/A Source Data is deleted with identifier TEST-SENSOR/);
-                });
-            });
+            element(by.cssContainingText('jhi-source-data-delete-dialog button.btn-danger', 'Delete')).click();
         });
     });
 

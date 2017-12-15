@@ -48,12 +48,7 @@ describe('Project e2e test', () => {
             element(by.id('field_projectName')).sendKeys('test-project');
             element(by.id('field_description')).sendKeys('Best test project in the world');
             element(by.id('field_location')).sendKeys('in-memory');
-            element(by.cssContainingText('jhi-project-dialog button.btn-primary', 'Save')).click().then(() => {
-                // there should be a notification popup
-                element(by.css('.alert-success')).element(by.css('pre')).getText().then((value) => {
-                    expect(value).toMatch(/A new Project is created with identifier test-project/);
-                });
-            });
+            element(by.cssContainingText('jhi-project-dialog button.btn-primary', 'Save')).click();
         });
     });
 
@@ -61,12 +56,7 @@ describe('Project e2e test', () => {
         element(by.cssContainingText('td', 'test-project')).element(by.xpath('ancestor::tr'))
                 .element(by.cssContainingText('button', 'Edit')).click().then(() => {
             browser.waitForAngular();
-            element(by.cssContainingText('button.btn-primary', 'Save')).click().then(() => {
-                // there should be a notification popup
-                element(by.css('.alert-success')).element(by.css('pre')).getText().then((value) => {
-                    expect(value).toMatch(/A Project is updated with identifier test-project/);
-                });
-            });
+            element(by.cssContainingText('button.btn-primary', 'Save')).click();
         });
     });
 
@@ -74,12 +64,7 @@ describe('Project e2e test', () => {
         element(by.cssContainingText('td', 'test-project')).element(by.xpath('ancestor::tr'))
                 .element(by.cssContainingText('button', 'Delete')).click().then(() => {
             browser.waitForAngular();
-            element(by.cssContainingText('jhi-project-delete-dialog button.btn-danger', 'Delete')).click().then(() =>{
-                // there should be a notification popup
-                element(by.css('.alert-success')).element(by.css('pre')).getText().then((value) => {
-                    expect(value).toMatch(/A Project is deleted with identifier test-project/);
-                });
-            });
+            element(by.cssContainingText('jhi-project-delete-dialog button.btn-danger', 'Delete')).click();
         });
     });
 
