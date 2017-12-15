@@ -226,14 +226,14 @@ public class OAuthClientsResourceIntTest {
         restProjectMockMvc.perform(delete("/api/oauth-clients/" + details.getClientId())
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
 
         // expect we can not update it now
         details.setRefreshTokenValiditySeconds(20L);
         restProjectMockMvc.perform(put("/api/oauth-clients")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
     }
 
     public static ClientDetailsDTO createClient() {
