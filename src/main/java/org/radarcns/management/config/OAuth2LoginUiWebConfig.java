@@ -1,7 +1,15 @@
 package org.radarcns.management.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.common.util.OAuth2Utils;
@@ -14,18 +22,6 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.HtmlUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 /**
  * Created by dverbeec on 6/07/2017.
  */
@@ -34,9 +30,7 @@ import java.util.stream.Stream;
 public class OAuth2LoginUiWebConfig {
 
     @Autowired
-    ClientDetailsService clientDetailsService;
-
-    private Logger log = LoggerFactory.getLogger(OAuth2LoginUiWebConfig.class);
+    private ClientDetailsService clientDetailsService;
 
     @RequestMapping("/login")
     public ModelAndView getLogin(HttpServletRequest request, HttpServletResponse response) throws

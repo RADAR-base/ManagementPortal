@@ -1,5 +1,12 @@
 package org.radarcns.management.service;
 
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Project;
@@ -14,7 +21,6 @@ import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
-import org.radarcns.management.service.mapper.RoleMapper;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
 import org.slf4j.Logger;
@@ -26,14 +32,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * Service class for managing users.
@@ -64,9 +62,6 @@ public class UserService {
 
     @Autowired
     private  AuthorityRepository authorityRepository;
-
-    @Autowired
-    private RoleMapper roleMapper;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);

@@ -1,21 +1,19 @@
 package org.radarcns.management.service;
 
 
-import org.radarcns.management.domain.SourceType;
+import java.util.List;
 import org.radarcns.management.domain.Project;
+import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.repository.ProjectRepository;
-import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
-import org.radarcns.management.service.mapper.SourceTypeMapper;
+import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
-import org.radarcns.management.service.mapper.UserMapper;
+import org.radarcns.management.service.mapper.SourceTypeMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 /**
  * Service Implementation for managing Project.
@@ -35,11 +33,6 @@ public class ProjectService {
     @Autowired
     private SourceTypeMapper sourceTypeMapper;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private UserMapper userMapper;
 
     /**
      * Save a project.
@@ -62,40 +55,6 @@ public class ProjectService {
      */
     @Transactional(readOnly = true)
     public List findAll(Boolean fetchMinimal) {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        List<String> currentUserAuthorities = authentication.getAuthorities().stream()
-//            .map(GrantedAuthority::getAuthority)
-//            .collect(Collectors.toList());
-//
-//        List<Project> projects = new LinkedList<>();
-//        if(currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN) ||
-//            currentUserAuthorities.contains(AuthoritiesConstants.EXTERNAL_ERF_INTEGRATOR)) {
-//            log.debug("Request to get all Projects");
-//            projects = projectRepository.findAllWithEagerRelationships();
-//        }
-//        else if(currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
-//            log.debug("Request to get project admin's project Projects");
-//            String name = authentication.getName();
-//            Optional<UserDTO> user = userService.getUserWithAuthoritiesByLogin(name);
-//            if (user.isPresent()) {
-//                User currentUser = userMapper.userDTOToUser(user.get());
-//                List<Role> pAdminRoles = currentUser.getRoles().stream()
-//                    // get all roles that are a PROJECT_ADMIN role
-//                    .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PROJECT_ADMIN))
-//                    .collect(Collectors.toList());
-//                pAdminRoles.stream()
-//                    .forEach(r -> log.debug("Found PROJECT_ADMIN role for project with id {}",
-//                        r.getProject().getId()));
-//                projects.addAll(pAdminRoles.stream()
-//                    // map them into projects
-//                    .map(r -> projectRepository.findOneWithEagerRelationships(r.getProject().getId()))
-//                    .collect(Collectors.toList()));
-//            }
-//            else {
-//                log.debug("Could find a user with name {}", name);
-//            }
-//        }
-
         List<Project> projects = projectRepository.findAllWithEagerRelationships();
         if(!fetchMinimal){
             return projectMapper.projectsToProjectDTOs(projects);

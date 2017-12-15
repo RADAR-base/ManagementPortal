@@ -25,7 +25,6 @@ import org.radarcns.management.ManagementPortalTestApp;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.security.JwtAuthenticationFilter;
-import org.radarcns.management.service.ProjectService;
 import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.dto.SourceDTO;
@@ -77,9 +76,6 @@ public class SourceResourceIntTest {
     private SourceService sourceService;
 
     @Autowired
-    private ProjectService projectService;
-
-    @Autowired
     private SourceTypeService sourceTypeService;
 
     @Autowired
@@ -111,7 +107,6 @@ public class SourceResourceIntTest {
         ReflectionTestUtils.setField(sourceResource, "servletRequest", servletRequest);
         ReflectionTestUtils.setField(sourceResource, "sourceService", sourceService);
         ReflectionTestUtils.setField(sourceResource, "sourceRepository", sourceRepository);
-        ReflectionTestUtils.setField(sourceResource, "projectService", projectService);
 
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
         filter.init(new MockFilterConfig());

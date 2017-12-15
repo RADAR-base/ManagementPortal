@@ -23,7 +23,6 @@ import org.radarcns.management.ManagementPortalTestApp;
 import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
-import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.service.MailService;
 import org.radarcns.management.service.UserService;
@@ -52,9 +51,6 @@ public class AccountResourceIntTest {
     private UserRepository userRepository;
 
     @Autowired
-    private AuthorityRepository authorityRepository;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
@@ -69,7 +65,7 @@ public class AccountResourceIntTest {
     private MockMvc restUserMockMvc;
 
     @Before
-    public void setup() {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         doNothing().when(mockMailService).sendActivationEmail(anyObject());
 
