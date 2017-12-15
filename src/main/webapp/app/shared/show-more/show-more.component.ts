@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, OnChanges, SimpleChanges} from '@angular/core';
 
 @Component({
     selector: 'show-more',
@@ -29,7 +29,7 @@ import {Component, Input, OnInit} from '@angular/core';
  * This component collapses if number of array items are more than 10 and allows to expand
  * and collapse in the view.
  */
-export class ShowMoreComponent implements OnInit{
+export class ShowMoreComponent implements OnInit, OnChanges {
     isCollapsed: boolean = false;
     @Input() items?: string[];
     @Input() spanClass : string;
@@ -37,10 +37,11 @@ export class ShowMoreComponent implements OnInit{
 
     allItems?: string[];
     ngOnInit() {
-        this.allItems = this.items;
-        if(this.items && this.items.length > this.maxLength){
-            this.collapse();
-        }
+        this.itemsChanged();
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        this.itemsChanged();
     }
 
     expand() {
@@ -51,5 +52,12 @@ export class ShowMoreComponent implements OnInit{
     collapse() {
         this.items = this.items.slice(0,this.maxLength);
         this.isCollapsed = true;
+    }
+
+    private itemsChanged() {
+        this.allItems = this.items;
+        if(this.items && this.items.length > this.maxLength){
+            this.collapse();
+        }
     }
 }
