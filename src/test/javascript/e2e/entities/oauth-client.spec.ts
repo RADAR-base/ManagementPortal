@@ -76,6 +76,7 @@ describe('Project e2e test', () => {
     it('should be able to edit OAuth Client', () => {
         element(by.cssContainingText('td', 'test-client')).element(by.xpath('ancestor::tr'))
                 .element(by.cssContainingText('button', 'Edit')).click().then(() => {
+            browser.waitForAngular();
             element(by.cssContainingText('button.btn-primary', 'Save')).click().then(() =>{
                 // there should be a notification popup
                 element(by.css('.alert-success')).element(by.css('pre')).getText().then((value) => {
@@ -88,6 +89,7 @@ describe('Project e2e test', () => {
     it('should be able to delete OAuth Client', () => {
         element(by.cssContainingText('td', 'test-client')).element(by.xpath('ancestor::tr'))
                 .element(by.cssContainingText('button', 'Delete')).click().then(() => {
+            browser.waitForAngular();
             element(by.cssContainingText('jhi-oauth-client-delete-dialog button.btn-danger', 'Delete')).click().then(() =>{
                 // there should be a notification popup
                 element(by.css('.alert-success')).element(by.css('pre')).getText().then((value) => {
