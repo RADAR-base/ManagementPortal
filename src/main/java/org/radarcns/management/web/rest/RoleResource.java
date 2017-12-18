@@ -146,6 +146,6 @@ public class RoleResource {
      * @return the display name
      */
     private String displayName(RoleDTO role) {
-        return role.getProjectName() + " - " + role.getAuthorityName();
+        return role.getProjectName() + ": " + role.getAuthorityName();
     }
 }
