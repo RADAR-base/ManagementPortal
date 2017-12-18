@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -92,6 +93,13 @@ public class ExceptionTranslator {
                 .headers(HeaderUtil.createAlert(ex.getMessage(), ex.getConflictingResource()
                         .toString()))
                 .body(ex.getErrorVM());
+    }
+
+    @ExceptionHandler(IllegalOperationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorVM processIllegalOperation(IllegalOperationException ex) {
+        return new ErrorVM(ErrorConstants.ERR_ILLEGAL_OPERATION, ex.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
