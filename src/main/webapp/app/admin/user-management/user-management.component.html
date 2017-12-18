@@ -32,15 +32,14 @@
                 <td>{{user.login}}</td>
                 <td>{{user.email}}</td>
                 <td>
-                    <span class="badge badge-danger hand" (click)="setActive(user, true)" *ngIf="!user.activated"
+                    <span class="badge badge-danger "  *ngIf="!user.activated"
                           jhiTranslate="userManagement.deactivated">Deactivated</span>
-                    <span class="badge badge-success hand" (click)="setActive(user, false)" *ngIf="user.activated"
+                    <span class="badge badge-success "  *ngIf="user.activated"
                           jhiTranslate="userManagement.activated">Activated</span>
                 </td>
                 <td>{{user.langKey}}</td>
                 <td>
                     <div *ngFor="let role of user.roles">
-                        <!--<span class="tag tag-info">{{ role.authorityName }}</span>-->
                         <span *ngIf="role.authorityName === 'ROLE_SYS_ADMIN'">{{role.authorityName}}</span>
                         <a *ngIf="role.authorityName != 'ROLE_SYS_ADMIN'" [routerLink]="['/role', role.projectName, role.authorityName ]" >{{role.authorityName}}</a>
                     </div>
@@ -87,7 +86,7 @@
             <jhi-item-count [page]="page" [total]="queryCount" [itemsPerPage]="itemsPerPage"></jhi-item-count>
         </div>
         <div class="row justify-content-center">
-            <ngb-pagination [collectionSize]="totalItems" [(page)]="page" (pageChange)="loadPage(page)"></ngb-pagination>
+            <ngb-pagination [collectionSize]="totalItems" [(pageSize)]="itemsPerPage" [(page)]="page" (pageChange)="loadPage(page)"></ngb-pagination>
         </div>
     </div>
 </div>
