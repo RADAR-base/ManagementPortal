@@ -15,13 +15,13 @@
     <div class="table-responsive" *ngIf="sourceTypes">
         <table class="table table-striped">
             <thead>
-            <tr>
-            <th><span jhiTranslate="global.field.id">ID</span></th>
-            <th><span jhiTranslate="managementPortalApp.sourceType.producer">Producer</span></th>
-            <th><span jhiTranslate="managementPortalApp.sourceType.model">Model</span></th>
-            <th><span jhiTranslate="managementPortalApp.sourceType.catalogVersion">Catalog Version</span></th>
-            <th><span jhiTranslate="managementPortalApp.sourceType.sourceRegistration">With dynamic id</span></th>
-            <th><span jhiTranslate="managementPortalApp.sourceType.sourceTypeScope">Source Type Scope</span></th>
+            <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
+            <th jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span><span class="fa fa-sort"></span></th>
+            <th jhiSortBy="producer"><span jhiTranslate="managementPortalApp.sourceType.producer">Producer</span><span class="fa fa-sort"></span></th>
+            <th jhiSortBy="model"><span jhiTranslate="managementPortalApp.sourceType.model">Model</span><span class="fa fa-sort"></span></th>
+            <th jhiSortBy="catalogVersion"><span jhiTranslate="managementPortalApp.sourceType.catalogVersion">Catalog Version</span><span class="fa fa-sort"></span></th>
+            <th jhiSortBy="canRegisterDynamically"><span jhiTranslate="managementPortalApp.sourceType.sourceRegistration">With dynamic id</span><span class="fa fa-sort"></span></th>
+            <th jhiSortBy="sourceTypeScope"><span jhiTranslate="managementPortalApp.sourceType.sourceTypeScope">Source Type Scope</span><span class="fa fa-sort"></span></th>
             <th><span jhiTranslate="managementPortalApp.sourceType.sourceData">Source data</span></th>
             <th></th>
             </tr>
@@ -71,5 +71,13 @@
             </tr>
             </tbody>
         </table>
+    </div>
+    <div *ngIf="sourceTypes">
+        <div class="row justify-content-center">
+            <jhi-item-count [page]="page" [total]="queryCount" [itemsPerPage]="itemsPerPage"></jhi-item-count>
+        </div>
+        <div class="row justify-content-center">
+            <ngb-pagination [collectionSize]="totalItems" [(pageSize)]="itemsPerPage" boundaryLinks = true [(page)]="page" (pageChange)="loadPage(page)"></ngb-pagination>
+        </div>
     </div>
 </div>

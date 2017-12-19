@@ -1,5 +1,9 @@
 package org.radarcns.management.service;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.radarcns.management.domain.SourceData;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.repository.SourceDataRepository;
@@ -9,13 +13,10 @@ import org.radarcns.management.service.mapper.SourceTypeMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing SourceType.
@@ -94,7 +95,8 @@ public class SourceTypeService {
     /**
      * Fetch SourceType by producer and model
      */
-    public SourceTypeDTO findByProducerAndModelAndVersion(String producer, String model , String version) {
+    public SourceTypeDTO findByProducerAndModelAndVersion(String producer, String model,
+        String version) {
         log.debug("Request to get SourceType by producer and model and version: {}, {}, {}",
             producer, model, version);
         Optional<SourceType> sourceType = sourceTypeRepository
@@ -107,11 +109,9 @@ public class SourceTypeService {
      */
     public List<SourceTypeDTO> findByProducer(String producer) {
         log.debug("Request to get SourceType by producer: {}", producer);
-        List<SourceType> sourceTypes = sourceTypeRepository
-            .findWithEagerRelationshipsByProducer(producer);
-        List<SourceTypeDTO> sourceTypeDTOs = sourceTypeMapper.sourceTypesToSourceTypeDTOs(
-            sourceTypes);
-        return sourceTypeDTOs;
+        return sourceTypeMapper.sourceTypesToSourceTypeDTOs(
+            sourceTypeRepository
+                .findWithEagerRelationshipsByProducer(producer));
     }
 
     /**
@@ -124,5 +124,11 @@ public class SourceTypeService {
         List<SourceTypeDTO> sourceTypeDTOs = sourceTypeMapper.sourceTypesToSourceTypeDTOs(
             sourceTypes);
         return sourceTypeDTOs;
+    }
+
+    public Page<SourceTypeDTO> findAll(Pageable pageable) {
+        log.debug("Request to get SourceTypes");
+        return sourceTypeRepository.findAll(pageable)
+            .map(sourceTypeMapper::sourceTypeToSourceTypeDTO);
     }
 }
