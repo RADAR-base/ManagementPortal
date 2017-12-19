@@ -23,6 +23,7 @@ import {DictionaryMapperComponent} from "./dictionary-mapper/dictionary-mapper.c
 import {CommonUserMgmtComponent} from "./user/common-user-management.component";
 import {RouterModule} from "@angular/router";
 import {ShowMoreComponent} from "./show-more/show-more.component";
+import {ResolvePagingParams} from "./commons";
 
 @NgModule({
     imports: [
@@ -51,6 +52,7 @@ import {ShowMoreComponent} from "./show-more/show-more.component";
         UserService,
         AuthorityService,
         DatePipe,
+        ResolvePagingParams
     ],
     entryComponents: [JhiLoginModalComponent],
     exports: [

@@ -233,6 +233,27 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
+    public void getAllSourceDataWithPagination() throws Exception {
+        // Initialize the database
+        sourceDataRepository.saveAndFlush(sourceData);
+
+        // Get all the sourceDataList
+        restSourceDataMockMvc.perform(get("/api/source-data?page=0&size=5&sort=id,desc"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(sourceData.getId().intValue())))
+            .andExpect(jsonPath("$.[*].sourceDataType").value(hasItem(DEFAULT_SOURCE_DATA_TYPE.toString())))
+            .andExpect(jsonPath("$.[*].sourceDataName").value(hasItem(DEFAULT_SOURCE_DATA_NAME.toString())))
+            .andExpect(jsonPath("$.[*].processingState").value(hasItem(DEFAULT_PROCESSING_STATE.toString())))
+            .andExpect(jsonPath("$.[*].keySchema").value(hasItem(DEFAULT_KEY_SCHEMA.toString())))
+            .andExpect(jsonPath("$.[*].valueSchema").value(hasItem(DEFAULT_VALUE_SCHEMA.toString())))
+            .andExpect(jsonPath("$.[*].unit").value(hasItem(DEFAULT_UNTI.toString())))
+            .andExpect(jsonPath("$.[*].topic").value(hasItem(DEFAULT_TOPIC.toString())))
+            .andExpect(jsonPath("$.[*].frequency").value(hasItem(DEFAULT_FREQUENCY.toString())));
+    }
+
+    @Test
+    @Transactional
     public void getSourceData() throws Exception {
         // Initialize the database
         sourceDataRepository.saveAndFlush(sourceData);

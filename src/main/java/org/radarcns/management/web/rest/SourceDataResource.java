@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import org.radarcns.auth.config.Constants;
 import org.radarcns.management.service.SourceDataService;
 import org.radarcns.management.service.dto.SourceDataDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -137,7 +138,7 @@ public class SourceDataResource {
      * @param sourceDataName the sourceDataName of the sourceDataDTO to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @DeleteMapping("/source-data/{sourceDataName:" + Constants.ENTITY_ID_REGEX + "}")
+    @DeleteMapping("/source-data/{sourceDataName}")
     @Timed
     public ResponseEntity<Void> deleteSourceData(@PathVariable String sourceDataName) {
         checkPermission(getJWT(servletRequest), SOURCEDATA_DELETE);

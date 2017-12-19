@@ -14,8 +14,6 @@ import {
     sourceDataRoute,
     sourceDataPopupRoute,
 } from './';
-import {SourceDataResolvePagingParams} from "./source-data.route";
-
 const ENTITY_STATES = [
     ...sourceDataRoute,
     ...sourceDataPopupRoute,
@@ -44,7 +42,6 @@ const ENTITY_STATES = [
     providers: [
         SourceDataService,
         SourceDataPopupService,
-        SourceDataResolvePagingParams
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

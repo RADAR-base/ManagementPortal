@@ -11,29 +11,16 @@ import { SourceDataDeletePopupComponent } from './source-data-delete-dialog.comp
 
 import { Principal } from '../../shared';
 import {PROJECT_ADMIN, SYSTEM_ADMIN} from "../../shared/constants/common.constants";
+import {ResolvePagingParams} from "../../shared/commons";
 
-@Injectable()
-export class SourceDataResolvePagingParams implements Resolve<any> {
 
-    constructor(private paginationUtil: PaginationUtil) {}
-
-    resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-        const page = route.queryParams['page'] ? route.queryParams['page'] : '1';
-        const sort = route.queryParams['sort'] ? route.queryParams['sort'] : 'id,asc';
-        return {
-            page: this.paginationUtil.parsePage(page),
-            predicate: this.paginationUtil.parsePredicate(sort),
-            ascending: this.paginationUtil.parseAscending(sort)
-        };
-    }
-}
 
 export const sourceDataRoute: Routes = [
   {
     path: 'source-data',
     component: SourceDataComponent,
     resolve: {
-      'pagingParams': SourceDataResolvePagingParams
+      'pagingParams': ResolvePagingParams
     },
     data: {
         authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
