@@ -310,7 +310,8 @@ public class OAuthClientsResource {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Client ID not found");
             errorParams.put("clientId", clientId);
-            throw new CustomNotFoundException("Client ID not found", errorParams);
+            throw new CustomNotFoundException(ErrorConstants.ERR_OAUTH_CLIENT_ID_NOT_FOUND,
+                    errorParams);
         }
     }
 
@@ -322,7 +323,7 @@ public class OAuthClientsResource {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Subject ID not found");
             errorParams.put("subjectLogin", login);
-            throw new CustomNotFoundException("Subject ID not found", errorParams);
+            throw new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND, errorParams);
         }
 
         return subject.get();

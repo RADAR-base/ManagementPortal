@@ -1,15 +1,5 @@
 package org.radarcns.management.service;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
@@ -31,6 +21,7 @@ import org.radarcns.management.service.util.RandomUtil;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
 import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +29,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by nivethika on 26-5-17.
@@ -216,7 +218,7 @@ public class SubjectService {
                 errorParams.put("message",
                         "Cannot find a Source of sourceId already registered for subject login");
                 errorParams.put("sourceId", sourceRegistrationDTO.getSourceId().toString());
-                throw new CustomNotFoundException("Conflict", errorParams);
+                throw new CustomNotFoundException(ErrorConstants.ERR_SOURCE_NOT_FOUND, errorParams);
             }
         }
         else if (sourceType.getCanRegisterDynamically()) {
@@ -244,26 +246,32 @@ public class SubjectService {
                     errorParams.put("message",
                             "SourceName already in use. Cannot create a source with source-name ");
                     errorParams.put("source-name", source1.getSourceName());
-                    throw new CustomNotFoundException("Conflict", errorParams);
+                    throw new CustomNotFoundException(ErrorConstants.ERR_SOURCE_NAME_EXISTS,
+                            errorParams);
                 }
                 source1 = sourceRepository.save(source1);
 
                 assignedSource = source1;
                 subject.getSources().add(source1);
             } else {
-                log.error("A Source of SourceType with the specified producer and model already "
-                        + "registered for subject login");
+                log.error("A Source of SourceType with the specified producer, model and version "
+                        + "was already registered for subject login");
                 Map<String, String> errorParams = new HashMap<>();
-                errorParams.put("message", "A Source of SourceType with the specified producer "
-                        + "and model already registered for subject login");
+                errorParams.put("message", "A Source of SourceType with the specified producer, "
+                        + "model and version was already registered for subject login");
                 errorParams.put("producer", sourceType.getProducer());
                 errorParams.put("model", sourceType.getModel());
+                errorParams.put("catalogVersion", sourceType.getCatalogVersion());
                 errorParams.put("subject-id", subject.getUser().getLogin());
-                throw new CustomConflictException("Conflict", errorParams, new URI(HeaderUtil
-                        .buildPath("api", "subjects", subject.getUser().getLogin(), "sources")));
+                throw new CustomConflictException(ErrorConstants.ERR_SOURCE_TYPE_EXISTS,
+                        errorParams, new URI(HeaderUtil.buildPath("api", "subjects",
+                                subject.getUser().getLogin(), "sources")));
             }
         }
 
+        /** TODO: all of the above codepaths lead to an initialized assignedSource or throw an
+        /* exception, so probably we can safely remove this check.
+         */
         if (assignedSource == null) {
             log.error("Cannot find assigned source with sourceId or a source of sourceType with "
                     + "the specified producer and model is already registered for subject login ");

@@ -25,7 +25,9 @@
             "actions": "Actions",
             "error": {
                 "validation": "Validatie fout, controleer de ingevoerde waarden.",
-                "oAuthClientProtected": "{{ param0 }} is een beschermde OAuth client en kan niet gewijzigd worden"
+                "oAuthClientProtected": "{{ param0 }} is een beschermde OAuth client en kan niet gewijzigd worden",
+                "oAuthClientIdNotFound": "De client id kon niet gevonden worden",
+                "subjectNotFound": "De deelnemer login kon niet gevonden worden"
             }
         }
     }
