@@ -10,7 +10,7 @@ public final class ErrorConstants {
     public static final String ERR_INTERNAL_SERVER_ERROR = "error.internalServerError";
     public static final String ERR_SOURCE_TYPE_EXISTS = "error.sourceTypeExists";
     public static final String ERR_CLIENT_ID_EXISTS = "error.clientIdExists";
-    public static final String ERR_ILLEGAL_OPERATION = "error.illegalOperation";
+    public static final String ERR_OAUTH_CLIENT_PROTECTED = "error.oAuthClientProtected";
 
     private ErrorConstants() {
     }

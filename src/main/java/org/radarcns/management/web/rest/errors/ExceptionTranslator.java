@@ -94,13 +94,6 @@ public class ExceptionTranslator {
                 .body(ex.getErrorVM());
     }
 
-    @ExceptionHandler(IllegalOperationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public ErrorVM processIllegalOperation(IllegalOperationException ex) {
-        return new ErrorVM(ErrorConstants.ERR_ILLEGAL_OPERATION, ex.getMessage());
-    }
-
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody

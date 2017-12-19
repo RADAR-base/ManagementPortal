@@ -145,8 +145,7 @@
         "userexists": "Login name already used!",
         "emailexists": "Email is already in use!",
         "idexists": "A new {{entityName}} cannot already have an ID",
-        "invalidsubjectstate": "Een stopgezette deelnemer kan niet geactiveerd worden",
-        "illegalOperation": "De gevraagde operatie is ongeldig"
+        "invalidsubjectstate": "Een stopgezette deelnemer kan niet geactiveerd worden"
     },
     "footer": "Dit is uw voettekst",
     "common" : {

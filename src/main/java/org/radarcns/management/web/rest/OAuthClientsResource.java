@@ -13,8 +13,8 @@ import org.radarcns.management.service.mapper.ClientDetailsMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
+import org.radarcns.management.web.rest.errors.CustomParameterizedException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
-import org.radarcns.management.web.rest.errors.IllegalOperationException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -332,8 +332,8 @@ public class OAuthClientsResource {
         Map<String, Object> info = details.getAdditionalInformation();
         if (Objects.nonNull(info) && info.containsKey(PROTECTED_KEY)
                 && info.get(PROTECTED_KEY).toString().equalsIgnoreCase("true")) {
-            throw new IllegalOperationException("Modification of a protected OAuth client is "
-                    + "not allowed.");
+            throw new CustomParameterizedException(ErrorConstants.ERR_OAUTH_CLIENT_PROTECTED,
+                    details.getClientId());
         }
     }
 }

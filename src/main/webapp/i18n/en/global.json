@@ -145,8 +145,7 @@
         "userexists": "Login name already used!",
         "emailexists": "Email is already in use!",
         "idexists": "A new {{ entityName }} cannot already have an ID",
-        "invalidsubjectstate": "A discontinued subject can not be activated",
-        "illegalOperation": "The requested operation is not valid."
+        "invalidsubjectstate": "A discontinued subject can not be activated"
     },
     "footer": "For more details, read the user guide <a target=\"_blank\" href=\"https://github.com/RADAR-CNS/ManagementPortal/wiki/User-Guide\">here.</a>",
     "common" : {

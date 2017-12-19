@@ -24,7 +24,8 @@
             "additionalInformation": "Additional Information",
             "actions": "Actions",
             "error": {
-                "validation": "Validation error, check the entered values in the fields."
+                "validation": "Validation error, check the entered values in the fields.",
+                "oAuthClientProtected": "{{ param0 }} is a protected OAuth client can not be modified"
             }
         }
     }

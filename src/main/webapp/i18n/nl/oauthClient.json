@@ -24,7 +24,8 @@
             "additionalInformation": "Additional Information",
             "actions": "Actions",
             "error": {
-                "validation": "Validatie fout, controleer de ingevoerde waarden."
+                "validation": "Validatie fout, controleer de ingevoerde waarden.",
+                "oAuthClientProtected": "{{ param0 }} is een beschermde OAuth client en kan niet gewijzigd worden"
             }
         }
     }
