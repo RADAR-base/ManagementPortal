@@ -269,7 +269,7 @@ public class SubjectService {
             }
         }
 
-        /** TODO: all of the above codepaths lead to an initialized assignedSource or throw an
+        /** all of the above codepaths lead to an initialized assignedSource or throw an
         /* exception, so probably we can safely remove this check.
          */
         if (assignedSource == null) {
