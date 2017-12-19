@@ -107,8 +107,8 @@ managementportal:
     oauth:
         clientsFile: src/main/docker/etc/config/oauth_client_details.csv
     catalogueServer:
-        enableAutoImport: true
-        serverUrl: http://localhost:9010/source-types
+        enableAutoImport: false
+        serverUrl:
 
 # ===================================================================
 # JHipster specific properties
