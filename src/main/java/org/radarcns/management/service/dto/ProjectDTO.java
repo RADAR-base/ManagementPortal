@@ -14,6 +14,8 @@ import org.radarcns.management.domain.enumeration.ProjectStatus;
  */
 public class ProjectDTO implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     public static final String EXTERNAL_PROJECT_URL_KEY = "External-project-url";
     public static final String EXTERNAL_PROJECT_ID_KEY = "External-project-id";
     public static final String WORK_PACKAGE_KEY = "Work-package";
@@ -134,10 +136,11 @@ public class ProjectDTO implements Serializable {
         }
 
         ProjectDTO projectDTO = (ProjectDTO) o;
+        if (id ==null || projectDTO.id ==null) {
+            return  false;
+        }
 
-        if ( ! Objects.equals(id, projectDTO.id)) { return false; }
-
-        return true;
+        return Objects.equals(id, projectDTO.id);
     }
 
     @Override

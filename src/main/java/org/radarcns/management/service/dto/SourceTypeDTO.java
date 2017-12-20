@@ -13,6 +13,8 @@ import org.radarcns.management.domain.enumeration.SourceTypeScope;
  */
 public class SourceTypeDTO implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private Long id;
 
     @NotNull
@@ -148,9 +150,9 @@ public class SourceTypeDTO implements Serializable {
 
         SourceTypeDTO sourceTypeDTO = (SourceTypeDTO) o;
 
-        if ( ! Objects.equals(id, sourceTypeDTO.id)) { return false; }
+        if ( id == null || sourceTypeDTO.id == null ) { return false; }
 
-        return true;
+        return Objects.equals(id, sourceTypeDTO.id);
     }
 
     @Override
@@ -178,9 +180,6 @@ public class SourceTypeDTO implements Serializable {
         private String producer;
         private String model;
         private String version;
-
-        public SourceTypeId() {
-        }
 
         public SourceTypeId producer(String producer) {
             this.producer = producer;

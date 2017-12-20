@@ -2,12 +2,8 @@ package org.radarcns.management.service.catalog;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CatalogSourceData {
-
-    private static final Logger logger = LoggerFactory.getLogger(CatalogSourceData.class);
 
     @JsonProperty("app_provider")
     private String appProvider;

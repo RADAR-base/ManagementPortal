@@ -128,6 +128,9 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
             case INVALID:
                 subject.getUser().setActivated(true);
                 subject.setRemoved(true);
+                break;
+            default:
+                break;
         }
         return subject;
     }

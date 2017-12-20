@@ -1,10 +1,10 @@
 package org.radarcns.management.service;
 
 import org.radarcns.auth.authorization.AuthoritiesConstants;
-import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Source;
+import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.AuthorityRepository;
@@ -17,11 +17,12 @@ import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
-import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
 import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.ErrorConstants;
+import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -51,9 +54,6 @@ public class SubjectService {
     private SubjectMapper subjectMapper;
 
     @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
     private ProjectMapper projectMapper;
 
     @Autowired
@@ -61,9 +61,6 @@ public class SubjectService {
 
     @Autowired
     private AuthorityRepository authorityRepository;
-
-    @Autowired
-    private SourceService sourceService;
 
     @Autowired
     private SourceRepository sourceRepository;
@@ -75,13 +72,7 @@ public class SubjectService {
     private RoleRepository roleRepository;
 
     @Autowired
-    private MailService mailService;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private UserService userService;
 
 
     @Transactional
@@ -95,9 +86,8 @@ public class SubjectService {
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
         user.setPassword(encryptedPassword);
         user.setResetKey(RandomUtil.generateResetKey());
-        user.setLangKey(
-            "en"); // setting default language key to "en", required to set email context,
-        // Find a workaround
+        // setting default language key to "en", required to set email context, Find a workaround
+        user.setLangKey("en");
         user.setResetDate(ZonedDateTime.now());
         // default subject is activated.
         user.setActivated(true);
@@ -118,15 +108,14 @@ public class SubjectService {
      */
     private Role getProjectParticipantRole(ProjectDTO projectDTO) {
 
-        Role role = roleRepository
-            .findOneByProjectIdAndAuthorityName(projectDTO.getId(),
+        Role role = roleRepository.findOneByProjectIdAndAuthorityName(projectDTO.getId(),
                 AuthoritiesConstants.PARTICIPANT);
         if (role != null) {
             return role;
         } else {
             Role subjectRole = new Role();
             subjectRole.setAuthority(
-                authorityRepository.findByAuthorityName(AuthoritiesConstants.PARTICIPANT));
+                    authorityRepository.findByAuthorityName(AuthoritiesConstants.PARTICIPANT));
             subjectRole.setProject(projectMapper.projectDTOToProject(projectDTO));
             roleRepository.save(subjectRole);
             return subjectRole;
@@ -142,19 +131,19 @@ public class SubjectService {
         //  TODO : add security and owner check for the resource
         Subject subject = subjectRepository.findOne(subjectDTO.getId());
         //reset all the sources assigned to a subject to unassigned
-        for(Source source : subject.getSources()) {
+        for (Source source : subject.getSources()) {
             source.setAssigned(false);
             sourceRepository.save(source);
         }
         //set only the devices assigned to a subject as assigned
         subjectMapper.safeUpdateSubjectFromDTO(subjectDTO, subject);
-        for(Source source : subject.getSources()) {
+        for (Source source : subject.getSources()) {
             source.setAssigned(true);
         }
         // update participant role
         Set<Role> managedRoles = subject.getUser().getRoles().stream()
-            .filter(r -> !AuthoritiesConstants.PARTICIPANT.equals(r.getAuthority().getName()))
-            .collect(Collectors.toSet());
+                .filter(r -> !AuthoritiesConstants.PARTICIPANT.equals(r.getAuthority().getName()))
+                .collect(Collectors.toSet());
         managedRoles.add(getProjectParticipantRole(subjectDTO.getProject()));
         subject.getUser().setRoles(managedRoles);
         subject = subjectRepository.save(subject);
@@ -164,7 +153,8 @@ public class SubjectService {
 
 
     public List<SubjectDTO> findAll() {
-        return subjectMapper.subjectsToSubjectDTOs(subjectRepository.findAllWithEagerRelationships());
+        return subjectMapper.subjectsToSubjectDTOs(subjectRepository
+                .findAllWithEagerRelationships());
     }
 
     public SubjectDTO discontinueSubject(SubjectDTO subjectDTO) {
@@ -199,19 +189,21 @@ public class SubjectService {
      * Otherwise finds the matching source and updates meta-data
      */
     @Transactional
-    public MinimalSourceDetailsDTO assignOrUpdateSource(Subject subject, SourceType sourceType, Project project,
-        MinimalSourceDetailsDTO sourceRegistrationDTO) {
+    public MinimalSourceDetailsDTO assignOrUpdateSource(Subject subject, SourceType sourceType,
+            Project project, MinimalSourceDetailsDTO sourceRegistrationDTO)
+            throws URISyntaxException {
         Source assignedSource = null;
 
         List<Source> sources = subjectRepository
-            .findSubjectSourcesBySourceType(subject.getUser().getLogin(),
-                sourceType.getProducer(),
-                sourceType.getModel(), sourceType.getCatalogVersion());
+                .findSubjectSourcesBySourceType(subject.getUser().getLogin(),
+                        sourceType.getProducer(), sourceType.getModel(),
+                        sourceType.getCatalogVersion());
 
         // update meta-data for existing sources
         if(sourceRegistrationDTO.getSourceId()!=null) {
             // for manually registered devices only add meta-data
-            Optional<Source> sourceToUpdate = subjectRepository.findSubjectSourcesBySourceId(subject.getUser().getLogin(), sourceRegistrationDTO.getSourceId());
+            Optional<Source> sourceToUpdate = subjectRepository.findSubjectSourcesBySourceId(
+                    subject.getUser().getLogin(), sourceRegistrationDTO.getSourceId());
             if (sourceToUpdate.isPresent()) {
                 Source source = sourceToUpdate.get();
                 if(sourceRegistrationDTO.getSourceName()!=null) {
@@ -221,14 +213,12 @@ public class SubjectService {
                 sourceRepository.save(source);
                 assignedSource = source;
             } else {
-                log.error("Cannot find a Source of sourceId "
-                    + "already registered for subject login");
+                log.error("Cannot find a Source of sourceId already registered for subject login");
                 Map<String, String> errorParams = new HashMap<>();
                 errorParams.put("message",
-                    "Cannot find a Source of sourceId "
-                        + "already registered for subject login");
+                        "Cannot find a Source of sourceId already registered for subject login");
                 errorParams.put("sourceId", sourceRegistrationDTO.getSourceId().toString());
-                throw new CustomNotFoundException("Conflict", errorParams);
+                throw new CustomNotFoundException(ErrorConstants.ERR_SOURCE_NOT_FOUND, errorParams);
             }
         }
         else if (sourceType.getCanRegisterDynamically()) {
@@ -243,45 +233,52 @@ public class SubjectService {
                 // if source name is provided update source name
                 if (Objects.nonNull(sourceRegistrationDTO.getSourceName())) {
                     // append the auto generated source-name to given source-name to avoid conflicts
-                    source1.setSourceName(sourceRegistrationDTO.getSourceName()+"_"+source1.getSourceName());
+                    source1.setSourceName(sourceRegistrationDTO.getSourceName() + "_"
+                            + source1.getSourceName());
                 }
 
-                Optional<Source> sourceToUpdate = sourceRepository.findOneBySourceName(source1.getSourceName());
+                Optional<Source> sourceToUpdate = sourceRepository.findOneBySourceName(
+                        source1.getSourceName());
                 if(sourceToUpdate.isPresent()) {
-                    log.error("Cannot create a source with existing source-name {}" , source1.getSourceName());
+                    log.error("Cannot create a source with existing source-name {}",
+                            source1.getSourceName());
                     Map<String, String> errorParams = new HashMap<>();
                     errorParams.put("message",
-                        "SourceName already in use. Cannot create a source with source-name ");
+                            "SourceName already in use. Cannot create a source with source-name ");
                     errorParams.put("source-name", source1.getSourceName());
-                    throw new CustomNotFoundException("Conflict", errorParams);
+                    throw new CustomNotFoundException(ErrorConstants.ERR_SOURCE_NAME_EXISTS,
+                            errorParams);
                 }
                 source1 = sourceRepository.save(source1);
 
                 assignedSource = source1;
                 subject.getSources().add(source1);
             } else {
-                log.error("A Source of SourceType with the specified producer and model "
-                    + "already registered for subject login");
+                log.error("A Source of SourceType with the specified producer, model and version "
+                        + "was already registered for subject login");
                 Map<String, String> errorParams = new HashMap<>();
-                errorParams
-                    .put("message", "A Source of SourceType with the specified producer and model "
-                        + "already registered for subject login");
+                errorParams.put("message", "A Source of SourceType with the specified producer, "
+                        + "model and version was already registered for subject login");
                 errorParams.put("producer", sourceType.getProducer());
                 errorParams.put("model", sourceType.getModel());
+                errorParams.put("catalogVersion", sourceType.getCatalogVersion());
                 errorParams.put("subject-id", subject.getUser().getLogin());
-                throw new CustomConflictException("Conflict", errorParams);
+                throw new CustomConflictException(ErrorConstants.ERR_SOURCE_TYPE_EXISTS,
+                        errorParams, new URI(HeaderUtil.buildPath("api", "subjects",
+                                subject.getUser().getLogin(), "sources")));
             }
         }
 
+        /** all of the above codepaths lead to an initialized assignedSource or throw an
+        /* exception, so probably we can safely remove this check.
+         */
         if (assignedSource == null) {
-            log.error("Cannot find assigned source with sourceId or a source of sourceType"
-                + " with the specified producer and model "
-                + " is already registered for subject login ");
+            log.error("Cannot find assigned source with sourceId or a source of sourceType with "
+                    + "the specified producer and model is already registered for subject login ");
             Map<String, String> errorParams = new HashMap<>();
-            errorParams
-                .put("message", "Cannot find assigned source with sourceId or a source of sourceType"
-                    + " with the specified producer and model "
-                    + " is already registered for subject login ");
+            errorParams.put("message", "Cannot find assigned source with sourceId or a source of "
+                    + "sourceType with the specified producer and model is already registered "
+                    + "for subject login ");
             errorParams.put("producer", sourceType.getProducer());
             errorParams.put("model", sourceType.getModel());
             errorParams.put("subject-id", subject.getUser().getLogin());
@@ -298,7 +295,8 @@ public class SubjectService {
      * @return list of sources
      */
     public List<MinimalSourceDetailsDTO> getSources(Subject subject) {
-        List<Source> sources = subjectRepository.findSourcesBySubjectLogin(subject.getUser().getLogin());
+        List<Source> sources = subjectRepository.findSourcesBySubjectLogin(subject.getUser()
+                .getLogin());
 
         return sourceMapper.sourcesToMinimalSourceDetailsDTOs(sources);
     }
@@ -307,7 +305,7 @@ public class SubjectService {
         subjectRepository.findOneWithEagerBySubjectLogin(login).ifPresent(subject -> {
             unassignAllSources(subject);
             subjectRepository.delete(subject);
-                log.debug("Deleted Subject: {}", subject);
-            });
+            log.debug("Deleted Subject: {}", subject);
+        });
     }
 }

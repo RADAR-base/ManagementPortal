@@ -19,7 +19,7 @@ buildscript {
         classpath "org.springframework.build.gradle:propdeps-plugin:0.0.7"
         classpath "com.moowork.gradle:gradle-node-plugin:1.1.1"
         classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
-        classpath "io.swagger:swagger-codegen:2.2.2"
+        classpath "io.swagger:swagger-codegen:2.2.3"
         //jhipster-needle-gradle-buildscript-dependency - JHipster will add additional gradle build script plugins here
     }
 }
@@ -86,6 +86,21 @@ if (OperatingSystem.current().isWindows()) {
     bootRun {
         addResources = false
     }
+}
+
+checkstyle {
+    toolVersion '6.16'
+    ignoreFailures true
+}
+
+pmd {
+    toolVersion = '5.5.2'
+    ignoreFailures = true
+
+    consoleOutput = true
+
+    ruleSets = []
+    ruleSetFiles = files("config/pmd/ruleset.xml")
 }
 
 test {
@@ -274,45 +289,33 @@ bootBuildInfo.mustRunAfter cleanResources
 idea.module.downloadSources = true
 
 task generateOpenApiSpec(dependsOn: 'classes', group: 'Swagger',
-        description: 'Runs the application to fetch the OpenAPI spec from the Swagger endpoint') {
+        description: 'Fetch the OpenAPI spec from the Swagger endpoint. The application needs to be running at http://localhost:8080/.') {
     outputs.file(swaggerFileLocation)
     doLast {
-        String java_home = System.getenv("JAVA_HOME")
-        String java = Paths.get(java_home, "bin", "java").toAbsolutePath()
-        ProcessBuilder pb = new ProcessBuilder(java, "-cp",
-            sourceSets.main.runtimeClasspath.getAsPath(), "org.radarcns.management.ManagementPortalApp")
-        pb.directory(projectDir)
-        File outFile = File.createTempFile("managementportalrun", ".out")
-        // the redirect seems to be necessary for the process to be able to start properly
-        pb.redirectOutput(outFile)
-        Process mp = pb.start()
-
         // Create parent dir to swagger file
         File swaggerFile = new File(swaggerFileLocation);
         swaggerFile.getParentFile().mkdirs();
 
         def generated = false
-        println("Waiting for application to start up")
-        try {
-            // try once every second to see if the application has started up
-            while (!generated) {
+        def tries = 0
+        def MAX_TRIES = 20
+
+        println()
+        while (!generated) {
+            ProcessBuilder curlPb = new ProcessBuilder("curl", apiDocsEndpoint, "-o",
+                swaggerFileLocation, "--connect-timeout", "1")
+            curlPb.directory(projectDir)
+            Process curlProcess = curlPb.start()
+            curlProcess.waitFor()
+            generated = curlProcess.exitValue() == 0
+            if (!generated) {
                 System.out.print("#")
                 System.out.flush()
-                ProcessBuilder curlPb = new ProcessBuilder("curl", apiDocsEndpoint, "-o",
-                    swaggerFileLocation, "--connect-timeout", "1")
-                curlPb.directory(projectDir)
-                Process curlProcess = curlPb.start()
-                curlProcess.waitFor()
-                generated = curlProcess.exitValue() == 0
+                sleep(5000)
             }
-            println()
-            println("Swagger file generated at " + swaggerFileLocation)
         }
-        finally {
-            // stop the managementportal process
-            mp.waitForOrKill(1)
-            outFile.delete()
-        }
+        println()
+        println("Swagger file generated at " + swaggerFileLocation)
     }
 }
 
@@ -334,11 +337,14 @@ task generateJavaClient(dependsOn: 'generateOpenApiSpec', group: 'Swagger',
         config.setGroupId("org.radarcns")
         config.setArtifactVersion(version)
         config.setAdditionalProperties([
-            'apiPackage'   : 'org.radarcns.management.client.api',
-            'modelPackage' : 'org.radarcns.management.client.model',
-
+                'apiPackage'   : 'org.radarcns.management.client.api',
+                'modelPackage' : 'org.radarcns.management.client.model',
+                'appName'        : rootProject.name,
+                'appDescription' : description,
+                'licenceUrl'     : 'http://apache.org/licenses/LICENSE-2.0.html'
         ])
         new DefaultGenerator().opts(config.toClientOptInput()).generate()
+        file("managementportal-client/build.gradle") << file("mp-client-publishing.txt").text
         println("Client generated at " + swaggerTargetFolder)
     }
 }

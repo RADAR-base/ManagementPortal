@@ -14,6 +14,7 @@ import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
 import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -143,11 +145,9 @@ public class OAuthClientsResource {
      */
     @PutMapping("/oauth-clients")
     @Timed
-    public ResponseEntity<ClientDetailsDTO> updateOAuthClient(@RequestBody ClientDetailsDTO
+    public ResponseEntity<ClientDetailsDTO> updateOAuthClient(@Valid @RequestBody ClientDetailsDTO
             clientDetailsDTO) {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_UPDATE);
-        // check if we have an ID field supplied
-        checkClientFields(clientDetailsDTO);
         // getOAuthClient checks if the id exists
         checkProtected(getOAuthClient(clientDetailsDTO.getClientId()));
         ClientDetails details = clientDetailsMapper
@@ -197,17 +197,16 @@ public class OAuthClientsResource {
      */
     @PostMapping("/oauth-clients")
     @Timed
-    public ResponseEntity<ClientDetailsDTO> createOAuthClient(@RequestBody ClientDetailsDTO
+    public ResponseEntity<ClientDetailsDTO> createOAuthClient(@Valid @RequestBody ClientDetailsDTO
             clientDetailsDTO) throws URISyntaxException {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_CREATE);
-        // check if we have an ID field supplied
-        checkClientFields(clientDetailsDTO);
         // check if the client id exists
         try {
-            ClientDetails existing = clientDetailsService.loadClientByClientId(clientDetailsDTO
-                    .getClientId());
-            throw new CustomConflictException("An OAuth client with that ID already exists",
-                    Collections.singletonMap("client_id", clientDetailsDTO.getClientId()));
+            clientDetailsService.loadClientByClientId(clientDetailsDTO.getClientId());
+            throw new CustomConflictException(ErrorConstants.ERR_CLIENT_ID_EXISTS,
+                    Collections.singletonMap("client_id", clientDetailsDTO.getClientId()),
+                    new URI(HeaderUtil.buildPath("api", "oauth-clients",
+                            clientDetailsDTO.getClientId())));
         } catch (NoSuchClientException ex) {
             // Client does not exist yet, we can go ahead and create it
         }
@@ -273,23 +272,6 @@ public class OAuthClientsResource {
         return new ResponseEntity<>(cpi, HttpStatus.OK);
     }
 
-    /**
-     * Check a supplied ClientDetailsDTO for necessary fields. ClientID is the only required one.
-     *
-     * @param client The ClientDetailsDTO to check
-     * @throws CustomParameterizedException if the client ID is null or empty.
-     */
-    private void checkClientFields(ClientDetailsDTO client) throws CustomParameterizedException {
-        try {
-            Objects.requireNonNull(client.getClientId(), "Client ID can not be null");
-        } catch (NullPointerException ex) {
-            throw new CustomParameterizedException(ex.getMessage());
-        }
-        if (client.getClientId().equals("")) {
-            throw new CustomParameterizedException("Client ID can not be empty");
-        }
-    }
-
     private OAuth2AccessToken createToken(String clientId, String login,
         Set<GrantedAuthority> authorities, Set<String> scope, Set<String> resourceIds) {
         Map<String, String> requestParameters = new HashMap<>();
@@ -328,7 +310,8 @@ public class OAuthClientsResource {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Client ID not found");
             errorParams.put("clientId", clientId);
-            throw new CustomNotFoundException("Client ID not found", errorParams);
+            throw new CustomNotFoundException(ErrorConstants.ERR_OAUTH_CLIENT_ID_NOT_FOUND,
+                    errorParams);
         }
     }
 
@@ -340,7 +323,7 @@ public class OAuthClientsResource {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Subject ID not found");
             errorParams.put("subjectLogin", login);
-            throw new CustomNotFoundException("Subject ID not found", errorParams);
+            throw new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND, errorParams);
         }
 
         return subject.get();
@@ -350,8 +333,8 @@ public class OAuthClientsResource {
         Map<String, Object> info = details.getAdditionalInformation();
         if (Objects.nonNull(info) && info.containsKey(PROTECTED_KEY)
                 && info.get(PROTECTED_KEY).toString().equalsIgnoreCase("true")) {
-            throw new CustomParameterizedException("Modification of a protected OAuth client is "
-                    + "not allowed.");
+            throw new CustomParameterizedException(ErrorConstants.ERR_OAUTH_CLIENT_PROTECTED,
+                    details.getClientId());
         }
     }
 }

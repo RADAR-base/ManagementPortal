@@ -3,6 +3,7 @@ os:
 services:
   - docker
 addons:
+  chrome: stable
   apt:
     packages:
       - docker-ce # necessary for testing the Dockerfile, which is a multi-stage build see: https://github.com/travis-ci/travis-ci/issues/8181
@@ -43,6 +44,9 @@ script:
   - yarn test
   - yarn e2e
   - ./gradlew bootRepackage -Pprod buildDocker -x test
+  - ./gradlew generateOpenApiSpec
+  - ./gradlew generateJavaClient
+  - echo "include 'managementportal-client'" >> settings.gradle # make this a sub-project so we can build artifacts and javadoc easily
   - killall java # stop running MP instance
   - ./src/test/bash/run-prod-e2e.sh
   - ./src/test/bash/test-docker-build-on-release-branch.sh
@@ -56,6 +60,13 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
+  - provider: releases
+    api_key: ${GH_TOKEN}
+    file_glob: true
+    file: "build/swagger-spec/*.json"
+    skip_cleanup: true
+    on:
+      tags: true
   - provider: script
     script: ./gradlew oauth-client-util:bintrayUpload
     skip_cleanup: true
@@ -63,6 +74,11 @@ deploy:
       tags: true
   - provider: script
     script: ./gradlew radar-auth:bintrayUpload
+    skip_cleanup: true
+    on:
+      tags: true
+  - provider: script
+    script: ./gradlew managementportal-client:bintrayUpload
     skip_cleanup: true
     on:
       tags: true

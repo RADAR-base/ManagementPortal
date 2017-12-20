@@ -19,7 +19,7 @@
             "model": "Model",
             "catalogVersion": "Catalog Version",
             "sourceTypeScope": "Source Type Scope",
-            "sourceData": "Source data",
+            "sourceData": "Source Data",
             "project": "Project",
             "sourceRegistration" : "Source registration",
             "dynamicRegistration": "Dynamic source registration",
@@ -31,7 +31,8 @@
         }
     },
     "error": {
-        "sourceTypeAvailable" : "A SourceType with given producer,model and version is already available",
-        "validation": "Validation error, check the entered values in the fields."
+        "sourceTypeExists": "A SourceType with given producer, model and version already exists.",
+        "validation": "Validation error, check the entered values in the fields.",
+        "sourceTypeInUse": "This SourceType can not be deleted, it is still in use by the following projects: {{ param0 }}"
     }
 }

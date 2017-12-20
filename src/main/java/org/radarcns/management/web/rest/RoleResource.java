@@ -53,22 +53,25 @@ public class RoleResource {
      * POST  /Roles : Create a new role.
      *
      * @param roleDTO the roleDTO to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new RoleDTO, or with status 400 (Bad Request) if the Role has already an ID
+     * @return the ResponseEntity with status 201 (Created) and with body the new RoleDTO, or with
+     * status 400 (Bad Request) if the Role has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/roles")
     @Timed
-    public ResponseEntity<RoleDTO> createRole(@Valid @RequestBody RoleDTO roleDTO) throws URISyntaxException {
+    public ResponseEntity<RoleDTO> createRole(@Valid @RequestBody RoleDTO roleDTO)
+            throws URISyntaxException {
         log.debug("REST request to save Role : {}", roleDTO);
         checkPermissionOnProject(getJWT(servletRequest), ROLE_CREATE, roleDTO.getProjectName());
         if (roleDTO.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new role cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
+                    "idexists", "A new role cannot already have an ID")).body(null);
         }
         RoleDTO result = roleService.save(roleDTO);
         return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "roles",
                 result.getProjectName(), result.getAuthorityName())))
-                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getProjectName() +
-                        " - " + result.getAuthorityName())).body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, displayName(result)))
+                .body(result);
     }
 
     /**
@@ -82,7 +85,8 @@ public class RoleResource {
      */
     @PutMapping("/roles")
     @Timed
-    public ResponseEntity<RoleDTO> updateRole(@Valid @RequestBody RoleDTO roleDTO) throws URISyntaxException {
+    public ResponseEntity<RoleDTO> updateRole(@Valid @RequestBody RoleDTO roleDTO)
+            throws URISyntaxException {
         log.debug("REST request to update Role : {}", roleDTO);
         if (roleDTO.getId() == null) {
             return createRole(roleDTO);
@@ -90,7 +94,7 @@ public class RoleResource {
         checkPermissionOnProject(getJWT(servletRequest), ROLE_UPDATE, roleDTO.getProjectName());
         RoleDTO result = roleService.save(roleDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, roleDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, displayName(roleDTO)))
             .body(result);
     }
 
@@ -135,4 +139,13 @@ public class RoleResource {
             .findOneByProjectNameAndAuthorityName(projectName, authorityName));
     }
 
+    /**
+     * Create a user-friendly display name for a given role. Useful for passing to the
+     * notification system
+     * @param role The role to create a user-friendly display for
+     * @return the display name
+     */
+    private String displayName(RoleDTO role) {
+        return role.getProjectName() + ": " + role.getAuthorityName();
+    }
 }

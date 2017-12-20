@@ -10,10 +10,10 @@
         </button>
     </h4>
 
-    <jhi-alert></jhi-alert>
     <div class="row">
     </div>
     <br/>
+    <jhi-alert></jhi-alert>
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
@@ -32,13 +32,14 @@
             <tbody>
                     <tr *ngFor="let client of oauthClients ;trackBy: trackId">
                         <td>{{client.clientId}}</td>
-                        <td><span *ngFor="let scope of client.scope; let last = last"><span class="badge badge-primary">{{scope}}</span>{{last ? "" : "&nbsp;"}}</span></td>
-                        <td><span *ngFor="let resource of client.resourceIds; let last = last"><span class="badge badge-default">{{resource}}</span>{{last ? "" : "&nbsp;"}}</span></td>
-                        <td><span *ngFor="let granttype of client.authorizedGrantTypes; let last = last"><span class="badge badge-default">{{granttype}}</span>{{last ? "" : "&nbsp;"}}</span></td>
-                        <td><span *ngFor="let scope of client.autoApproveScopes; let last = last"><span class="badge badge-primary">{{scope}}</span>{{last ? "" : "&nbsp;"}}</span></td>
-                        <td>{{client.accessTokenValiditySeconds}}</td>
-                        <td>{{client.refreshTokenValiditySeconds}}</td>
-                        <td><span *ngFor="let infoKey of objectKeys(client.additionalInformation); let last = last"><span class="badge badge-info">{{infoKey}}: {{client.additionalInformation[infoKey]}}</span>{{last ? "" : "&nbsp;"}}</span></td>
+                        <!--<td><span *ngFor="let scope of client.scope; let last = last"><span class="badge badge-primary">{{scope}}</span>{{last ? "" : "&nbsp;"}}</span></td>-->
+                        <td><show-more [items]='client.scope' [spanClass]='"badge badge-primary"'></show-more></td>
+                        <td><span *ngFor="let resource of client.resourceIds; let last = last"><span class="badge badge-default">{{resource }}</span>{{last ? "" : "&nbsp;"}}</span></td>
+                        <td><span *ngFor="let granttype of client.authorizedGrantTypes; let last = last"><span class="badge badge-default">{{granttype }}</span>{{last ? "" : "&nbsp;"}}</span></td>
+                        <td><show-more [items]='client.autoApproveScopes' [spanClass]='"badge badge-primary"'></show-more></td>
+                        <td>{{convertSeconds(client.accessTokenValiditySeconds)}}</td>
+                        <td>{{convertSeconds(client.refreshTokenValiditySeconds)}}</td>
+                        <td><span *ngFor="let infoKey of objectKeys(client.additionalInformation); let last = last"><span class="badge badge-info">{{infoKey }}: {{client.additionalInformation[infoKey]}}</span>{{last ? "" : "&nbsp;"}}</span></td>
                         <td class="text-right">
                             <div class="btn-group flex-btn-group-container">
                                 <button type="submit"

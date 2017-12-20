@@ -2,7 +2,6 @@ package org.radarcns.management.service.mapper;
 
 
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.radarcns.management.domain.Authority;

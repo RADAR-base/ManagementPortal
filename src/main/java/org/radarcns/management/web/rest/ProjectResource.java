@@ -1,12 +1,28 @@
 package org.radarcns.management.web.rest;
 
+import static org.radarcns.auth.authorization.Permission.PROJECT_CREATE;
+import static org.radarcns.auth.authorization.Permission.PROJECT_DELETE;
+import static org.radarcns.auth.authorization.Permission.PROJECT_READ;
+import static org.radarcns.auth.authorization.Permission.PROJECT_UPDATE;
+import static org.radarcns.auth.authorization.Permission.ROLE_READ;
+import static org.radarcns.auth.authorization.Permission.SOURCE_READ;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_READ;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
+
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
-import org.radarcns.auth.authorization.Permission;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.SubjectRepository;
-import org.radarcns.management.security.SecurityUtils;
 import org.radarcns.management.service.ProjectService;
 import org.radarcns.management.service.RoleService;
 import org.radarcns.management.service.SourceService;
@@ -14,7 +30,6 @@ import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
-import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
@@ -30,24 +45,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import static org.radarcns.auth.authorization.Permission.PROJECT_CREATE;
-import static org.radarcns.auth.authorization.Permission.PROJECT_DELETE;
-import static org.radarcns.auth.authorization.Permission.PROJECT_READ;
-import static org.radarcns.auth.authorization.Permission.PROJECT_UPDATE;
-import static org.radarcns.auth.authorization.Permission.ROLE_READ;
-import static org.radarcns.auth.authorization.Permission.SOURCE_READ;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing Project.
@@ -78,23 +75,23 @@ public class ProjectResource {
     @Autowired
     private SourceService sourceService;
 
-    @Autowired
-    private SourceMapper sourceMapper;
-
     /**
      * POST  /projects : Create a new project.
      *
      * @param projectDTO the projectDTO to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new projectDTO, or with status 400 (Bad Request) if the project has already an ID
+     * @return the ResponseEntity with status 201 (Created) and with body the new projectDTO, or
+     * with status 400 (Bad Request) if the project has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/projects")
     @Timed
-    public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO) throws URISyntaxException {
+    public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO)
+            throws URISyntaxException {
         log.debug("REST request to save Project : {}", projectDTO);
         checkPermission(getJWT(servletRequest), PROJECT_CREATE);
         if (projectDTO.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new project cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
+                    ENTITY_NAME, "idexists", "A new project cannot already have an ID")).body(null);
         }
         ProjectDTO result = projectService.save(projectDTO);
         return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "projects",
@@ -114,15 +111,17 @@ public class ProjectResource {
      */
     @PutMapping("/projects")
     @Timed
-    public ResponseEntity<ProjectDTO> updateProject(@Valid @RequestBody ProjectDTO projectDTO) throws URISyntaxException {
+    public ResponseEntity<ProjectDTO> updateProject(@Valid @RequestBody ProjectDTO projectDTO)
+            throws URISyntaxException {
         log.debug("REST request to update Project : {}", projectDTO);
         if (projectDTO.getId() == null) {
             return createProject(projectDTO);
         }
-        checkPermissionOnProject(getJWT(servletRequest), PROJECT_UPDATE, projectDTO.getProjectName());
+        checkPermissionOnProject(getJWT(servletRequest), PROJECT_UPDATE,
+                projectDTO.getProjectName());
         ProjectDTO result = projectService.save(projectDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, projectDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, projectDTO.getProjectName()))
             .body(result);
     }
 
@@ -133,9 +132,8 @@ public class ProjectResource {
      */
     @GetMapping("/projects")
     @Timed
-    public List<ProjectDTO> getAllProjects(
-            @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
-                minimized) {
+    public List<ProjectDTO> getAllProjects(@RequestParam(name = "minimized", required = false,
+            defaultValue = "false") Boolean minimized) {
         log.debug("REST request to get Projects");
         checkPermission(getJWT(servletRequest), PROJECT_READ);
         return projectService.findAll(minimized);
@@ -145,7 +143,8 @@ public class ProjectResource {
      * GET  /projects/:projectName : get the project with this name
      *
      * @param projectName the projectName of the projectDTO to retrieve
-     * @return the ResponseEntity with status 200 (OK) and with body the projectDTO, or with status 404 (Not Found)
+     * @return the ResponseEntity with status 200 (OK) and with body the projectDTO, or with
+     * status 404 (Not Found)
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
@@ -153,7 +152,8 @@ public class ProjectResource {
         log.debug("REST request to get Project : {}", projectName);
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
-            checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ, projectDTO.getProjectName());
+            checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ,
+                    projectDTO.getProjectName());
         }
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(projectDTO));
     }
@@ -162,7 +162,8 @@ public class ProjectResource {
      * GET  /projects/:projectName : get the "projectName" project.
      *
      * @param projectName the projectName of the projectDTO to retrieve
-     * @return the ResponseEntity with status 200 (OK) and with body the projectDTO, or with status 404 (Not Found)
+     * @return the ResponseEntity with status 200 (OK) and with body the projectDTO, or with
+     * status 404 (Not Found)
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/source-types")
     @Timed
@@ -170,7 +171,8 @@ public class ProjectResource {
         log.debug("REST request to get Project : {}", projectName);
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
-            checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ, projectDTO.getProjectName());
+            checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ,
+                    projectDTO.getProjectName());
         }
         return projectService.findSourceTypesById(projectDTO.getId());
     }
@@ -188,10 +190,14 @@ public class ProjectResource {
         log.debug("REST request to delete Project : {}", projectName);
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
-            checkPermissionOnProject(getJWT(servletRequest), PROJECT_DELETE, projectDTO.getProjectName());
+            checkPermissionOnProject(getJWT(servletRequest), PROJECT_DELETE,
+                    projectDTO.getProjectName());
+        } else {
+            return ResponseEntity.notFound().build();
         }
         projectService.delete(projectDTO.getId());
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, projectName)).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(
+                ENTITY_NAME, projectName)).build();
     }
 
     /**
@@ -201,13 +207,16 @@ public class ProjectResource {
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/roles")
     @Timed
-    public List<RoleDTO> getRolesByProject(@PathVariable String projectName) {
+    public ResponseEntity<List<RoleDTO>> getRolesByProject(@PathVariable String projectName) {
         log.debug("REST request to get all Roles for project {}", projectName);
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
-            checkPermissionOnProject(getJWT(servletRequest), ROLE_READ, projectDTO.getProjectName());
+            checkPermissionOnProject(getJWT(servletRequest), ROLE_READ,
+                    projectDTO.getProjectName());
+        } else {
+            return ResponseEntity.notFound().build();
         }
-        return roleService.getRolesByProject(projectName);
+        return ResponseEntity.ok(roleService.getRolesByProject(projectName));
     }
 
     /**
@@ -224,7 +233,10 @@ public class ProjectResource {
         log.debug("REST request to get all Sources");
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
-            checkPermissionOnProject(getJWT(servletRequest), SOURCE_READ, projectDTO.getProjectName());
+            checkPermissionOnProject(getJWT(servletRequest), SOURCE_READ,
+                    projectDTO.getProjectName());
+        } else {
+            return ResponseEntity.notFound().build();
         }
 
         if(Objects.nonNull(assigned)) {
@@ -248,15 +260,22 @@ public class ProjectResource {
         }
     }
 
+    /**
+     * Get /projects/{projectName}/subjects : get all subjects for a given project
+     * @param projectName The name of the project
+     * @return The subjects in the project or 404 if there is no such project
+     */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/subjects")
     @Timed
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(@PathVariable String projectName) {
-        checkPermissionOnProject(SecurityUtils.getJWT(servletRequest), Permission.SUBJECT_READ,
-            projectName);
+        ProjectDTO projectDTO = projectService.findOneByName(projectName);
+        if (projectDTO != null) {
+            checkPermissionOnProject(getJWT(servletRequest), SUBJECT_READ, projectName);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
         log.debug("REST request to get all subjects for project {}", projectName);
         List<Subject> subjects = subjectRepository.findAllByProjectName(projectName);
-        return ResponseUtil
-            .wrapOrNotFound(Optional.of(subjectMapper.subjectsToSubjectDTOs(subjects)));
+        return ResponseEntity.ok(subjectMapper.subjectsToSubjectDTOs(subjects));
     }
-
 }

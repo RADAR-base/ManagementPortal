@@ -33,7 +33,7 @@ import static org.radarcns.management.security.SecurityUtils.getJWT;
 public class AuditResource {
 
     @Autowired
-    HttpServletRequest servletRequest;
+    private HttpServletRequest servletRequest;
 
     @Autowired
     private AuditEventService auditEventService;

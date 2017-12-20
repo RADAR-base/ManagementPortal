@@ -1,6 +1,7 @@
 package org.radarcns.management.domain;
 
 import java.io.Serializable;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -50,11 +51,12 @@ public class Authority implements Serializable {
 
         Authority authority = (Authority) o;
 
-        if (name != null ? !name.equals(authority.name) : authority.name != null) {
+
+        if (name == null || authority.name == null ) {
             return false;
         }
 
-        return true;
+        return Objects.equals(name, authority.name);
     }
 
     @Override

@@ -14,7 +14,6 @@ import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
-import org.radarcns.management.service.mapper.RoleMapper;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
 import org.slf4j.Logger;
@@ -65,46 +64,43 @@ public class UserService {
     @Autowired
     private  AuthorityRepository authorityRepository;
 
-    @Autowired
-    private RoleMapper roleMapper;
-
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
         return userRepository.findOneByActivationKey(key)
-            .map(user -> {
-                // activate given user for the registration key.
-                user.setActivated(true);
-                user.setActivationKey(null);
-                log.debug("Activated user: {}", user);
-                return user;
-            });
+                .map(user -> {
+                    // activate given user for the registration key.
+                    user.setActivated(true);
+                    user.setActivationKey(null);
+                    log.debug("Activated user: {}", user);
+                    return user;
+                });
     }
 
     public Optional<User> completePasswordReset(String newPassword, String key) {
         log.debug("Reset user password for reset key {}", key);
 
         return userRepository.findOneByResetKey(key)
-            .filter(user -> {
-                ZonedDateTime oneDayAgo = ZonedDateTime.now().minusHours(24);
-                return user.getResetDate().isAfter(oneDayAgo);
-            })
-            .map(user -> {
-                user.setPassword(passwordEncoder.encode(newPassword));
-                user.setResetKey(null);
-                user.setResetDate(null);
-                user.setActivated(true);
-                return user;
-            });
+                .filter(user -> {
+                    ZonedDateTime oneDayAgo = ZonedDateTime.now().minusHours(24);
+                    return user.getResetDate().isAfter(oneDayAgo);
+                })
+                .map(user -> {
+                    user.setPassword(passwordEncoder.encode(newPassword));
+                    user.setResetKey(null);
+                    user.setResetDate(null);
+                    user.setActivated(true);
+                    return user;
+                });
     }
 
     public Optional<User> requestPasswordReset(String mail) {
         return userRepository.findOneByEmail(mail)
-            .filter(User::getActivated)
-            .map(user -> {
-                user.setResetKey(RandomUtil.generateResetKey());
-                user.setResetDate(ZonedDateTime.now());
-                return user;
-            });
+                .filter(User::getActivated)
+                .map(user -> {
+                    user.setResetKey(RandomUtil.generateResetKey());
+                    user.setResetDate(ZonedDateTime.now());
+                    return user;
+                });
     }
 
     public User createUser(UserDTO userDTO) {
@@ -133,8 +129,7 @@ public class UserService {
     private Set<Role> getUserRoles(UserDTO userDTO) {
         Set<Role> roles = new HashSet<>();
         for (RoleDTO roleDTO : userDTO.getRoles()) {
-            Role role = roleRepository
-                .findOneByProjectIdAndAuthorityName(roleDTO.getProjectId(),
+            Role role = roleRepository.findOneByProjectIdAndAuthorityName(roleDTO.getProjectId(),
                     roleDTO.getAuthorityName());
             if (role == null || role.getId() == null) {
                 Role currentRole = new Role();
@@ -180,22 +175,22 @@ public class UserService {
      */
     public Optional<UserDTO> updateUser(UserDTO userDTO) {
         return Optional.of(userRepository
-            .findOne(userDTO.getId()))
-            .map(user -> {
-                user.setLogin(userDTO.getLogin());
-                user.setFirstName(userDTO.getFirstName());
-                user.setLastName(userDTO.getLastName());
-                user.setEmail(userDTO.getEmail());
-                user.setActivated(userDTO.isActivated());
-                user.setLangKey(userDTO.getLangKey());
-                Set<Role> managedRoles = user.getRoles();
-                managedRoles.clear();
-                managedRoles.addAll(getUserRoles(userDTO));
+                .findOne(userDTO.getId()))
+                .map(user -> {
+                    user.setLogin(userDTO.getLogin());
+                    user.setFirstName(userDTO.getFirstName());
+                    user.setLastName(userDTO.getLastName());
+                    user.setEmail(userDTO.getEmail());
+                    user.setActivated(userDTO.isActivated());
+                    user.setLangKey(userDTO.getLangKey());
+                    Set<Role> managedRoles = user.getRoles();
+                    managedRoles.clear();
+                    managedRoles.addAll(getUserRoles(userDTO));
 
-                log.debug("Changed Information for User: {}", user);
-                return user;
-            })
-            .map(userMapper::userToUserDTO);
+                    log.debug("Changed Information for User: {}", user);
+                    return user;
+                })
+                .map(userMapper::userToUserDTO);
     }
 
     public void deleteUser(String login) {
@@ -217,12 +212,12 @@ public class UserService {
     public Page<UserDTO> getAllManagedUsers(Pageable pageable) {
         log.debug("Request to get all Users");
         return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER)
-            .map(userMapper::userToUserDTO);
+                .map(userMapper::userToUserDTO);
         }
 
     @Transactional(readOnly = true)
     public Optional<UserDTO> getUserWithAuthoritiesByLogin(String login) {
-        return userRepository.findOneWithAuthoritiesByLogin(login).map(userMapper::userToUserDTO);
+        return userRepository.findOneWithRolesByLogin(login).map(userMapper::userToUserDTO);
     }
 
     @Transactional(readOnly = true)
@@ -244,14 +239,9 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User getUserWithAuthorities(Long id) {
-        return userRepository.findOneWithAuthoritiesById(id);
-    }
-
-    @Transactional(readOnly = true)
     public User getUserWithAuthorities() {
-        return userRepository.findOneWithAuthoritiesByLogin(SecurityUtils.getCurrentUserLogin())
-            .orElse(null);
+        return userRepository.findOneWithRolesByLogin(SecurityUtils.getCurrentUserLogin())
+                .orElse(null);
     }
 
 
@@ -265,7 +255,7 @@ public class UserService {
     public void removeNotActivatedUsers() {
         ZonedDateTime now = ZonedDateTime.now();
         List<User> users = userRepository
-            .findAllByActivatedIsFalseAndCreatedDateBefore(now.minusDays(3));
+                .findAllByActivatedIsFalseAndCreatedDateBefore(now.minusDays(3));
         for (User user : users) {
             log.debug("Deleting not activated user {}", user.getLogin());
             userRepository.delete(user);
@@ -275,16 +265,16 @@ public class UserService {
     public Page<UserDTO> findAllByProjectNameAndAuthority(Pageable pageable, String projectName,
             String authority) {
         return userRepository.findAllByProjectNameAndAuthority(pageable, projectName, authority)
-            .map(userMapper::userToUserDTO);
+                .map(userMapper::userToUserDTO);
     }
 
     public Page<UserDTO> findAllByAuthority(Pageable pageable, String authority) {
         return userRepository.findAllByAuthority(pageable, authority)
-            .map(userMapper::userToUserDTO);
+                .map(userMapper::userToUserDTO);
     }
 
     public Page<UserDTO> findAllByProjectName(Pageable pageable, String projectName) {
         return userRepository.findAllByProjectName(pageable, projectName)
-            .map(userMapper::userToUserDTO);
+                .map(userMapper::userToUserDTO);
     }
 }

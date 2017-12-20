@@ -11,7 +11,7 @@
                 "sourceType": "Source Type",
                 "project": "Projects",
                 "oauth-clients": "OAuth Clients",
-                "sourceData": "Source data",
+                "sourceData": "Source Data",
                 "subject": "Subject",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
@@ -147,5 +147,9 @@
         "idexists": "A new {{ entityName }} cannot already have an ID",
         "invalidsubjectstate": "A discontinued subject can not be activated"
     },
-    "footer": "For more details, read the user guide <a target=\"_blank\" href=\"https://github.com/RADAR-CNS/ManagementPortal/wiki/User-Guide\">here.</a>"
+    "footer": "For more details, read the user guide <a target=\"_blank\" href=\"https://github.com/RADAR-CNS/ManagementPortal/wiki/User-Guide\">here.</a>",
+    "common" : {
+        "showMore": " More",
+        "showLess": " Less"
+    }
 }

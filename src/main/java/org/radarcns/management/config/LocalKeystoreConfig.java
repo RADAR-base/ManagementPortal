@@ -13,7 +13,7 @@ import java.security.interfaces.RSAPublicKey;
  */
 public class LocalKeystoreConfig implements ServerConfig {
 
-    RSAPublicKey publicKey;
+    private RSAPublicKey publicKey;
 
     public LocalKeystoreConfig() {
         KeyPair keyPair = new KeyStoreKeyFactory(
