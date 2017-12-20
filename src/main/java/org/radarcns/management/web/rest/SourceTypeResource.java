@@ -3,7 +3,6 @@ package org.radarcns.management.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.radarcns.auth.config.Constants;
-import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.repository.SourceTypeRepository;
 import org.radarcns.management.service.SourceTypeService;
