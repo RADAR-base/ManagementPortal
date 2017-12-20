@@ -56,6 +56,7 @@ describe('SourceType e2e test', () => {
     });
     
     it('should be able to edit SourceType', () => {
+        browser.waitForAngular();
         element(by.cssContainingText('td', 'test-producer')).element(by.xpath('ancestor::tr'))
                 .element(by.cssContainingText('button', 'Edit')).click().then(() => {
             browser.waitForAngular();

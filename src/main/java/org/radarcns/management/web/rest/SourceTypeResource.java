@@ -6,8 +6,10 @@ import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.repository.SourceTypeRepository;
 import org.radarcns.management.service.SourceTypeService;
+import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
+import org.radarcns.management.web.rest.errors.CustomParameterizedException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
@@ -204,6 +206,15 @@ public class SourceTypeResource {
             .findByProducerAndModelAndVersion(producer, model, version);
         if (Objects.isNull(sourceTypeDTO)) {
             return ResponseEntity.notFound().build();
+        }
+        List<ProjectDTO> projects = sourceTypeService.findProjectsBySourceType(producer, model,
+                version);
+        if (!projects.isEmpty()) {
+            throw new CustomParameterizedException(ErrorConstants.ERR_SOURCE_TYPE_IN_USE,
+                    projects.stream()
+                            .map(p -> p.getProjectName())
+                            .reduce((s1, s2) -> String.join(", ", s1, s2))
+                            .get()); // we know the list is not empty so calling get() is safe here
         }
         sourceTypeService.delete(sourceTypeDTO.getId());
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME,

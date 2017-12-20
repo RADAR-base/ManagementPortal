@@ -51,6 +51,7 @@ describe('SourceData e2e test', () => {
     });
     
     it('should be able to edit SourceData', () => {
+        browser.waitForAngular();
         element(by.cssContainingText('td', 'TEST-SENSOR')).element(by.xpath('ancestor::tr'))
                 .element(by.cssContainingText('button', 'Edit')).click().then(() => {
             browser.waitForAngular();
