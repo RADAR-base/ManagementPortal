@@ -6,7 +6,9 @@
                 "createLabel": "Register new OAuth Client",
                 "createOrEditLabel": "Create or edit an OAuth Client"
             },
-            "deleted": "Deleted OAuth client with client id {{ id }}",
+            "created": "A new OAuth client is created with client id {{ param }}",
+            "updated": "An OAuth client is updated with client id {{ param }}",
+            "deleted": "An OAuth client is deleted with client id {{ param }}",
             "delete": {
                 "question": "Are you sure you want to delete OAuth client {{ id }}?"
             },
@@ -22,7 +24,10 @@
             "additionalInformation": "Additional Information",
             "actions": "Actions",
             "error": {
-                "validation": "Validation error, check the entered values in the fields."
+                "validation": "Validation error, check the entered values in the fields.",
+                "oAuthClientProtected": "{{ param0 }} is a protected OAuth client can not be modified",
+                "oAuthClientIdNotFound": "The client id could not be found",
+                "subjectNotFound": "The subject login could not be found"
             }
         }
     }

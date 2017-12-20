@@ -43,6 +43,31 @@ describe('Project e2e test', () => {
         });
     });
 
+    it('should be able to create Project', () => {
+        element(by.css('button.create-project')).click().then(() => {
+            element(by.id('field_projectName')).sendKeys('test-project');
+            element(by.id('field_description')).sendKeys('Best test project in the world');
+            element(by.id('field_location')).sendKeys('in-memory');
+            element(by.cssContainingText('jhi-project-dialog button.btn-primary', 'Save')).click();
+        });
+    });
+
+    it('should be able to edit Project', () => {
+        element(by.cssContainingText('td', 'test-project')).element(by.xpath('ancestor::tr'))
+                .element(by.cssContainingText('button', 'Edit')).click().then(() => {
+            browser.waitForAngular();
+            element(by.cssContainingText('button.btn-primary', 'Save')).click();
+        });
+    });
+
+    it('should be able to delete Project', () => {
+        element(by.cssContainingText('td', 'test-project')).element(by.xpath('ancestor::tr'))
+                .element(by.cssContainingText('button', 'Delete')).click().then(() => {
+            browser.waitForAngular();
+            element(by.cssContainingText('jhi-project-delete-dialog button.btn-danger', 'Delete')).click();
+        });
+    });
+
     afterAll(function () {
         accountMenu.click();
         logout.click();

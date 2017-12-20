@@ -1,5 +1,6 @@
 package org.radarcns.management.service.dto;
 
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.Set;
 
@@ -7,6 +8,7 @@ import java.util.Set;
  * Created by dverbeec on 7/09/2017.
  */
 public class ClientDetailsDTO {
+    @NotNull
     private String clientId;
     private String clientSecret;
     private Set<String> scope;

@@ -3,17 +3,17 @@
         "sourceData" : {
             "home": {
                 "title": "Source Data",
-                "createLabel": "Maak een nieuwe Source data",
-                "createOrEditLabel": "Maak of wijzig een Source data"
+                "createLabel": "Maak een nieuwe Source Data",
+                "createOrEditLabel": "Maak of wijzig een Source Data"
             },
-            "created": "A new Source data is created with identifier {{ param }}",
-            "updated": "A Source data is updated with identifier {{ param }}",
-            "deleted": "A Source data is deleted with identifier {{ param }}",
+            "created": "A new Source Data is created with identifier {{ param }}",
+            "updated": "A Source Data is updated with identifier {{ param }}",
+            "deleted": "A Source Data is deleted with identifier {{ param }}",
             "delete": {
-                "question": "Bent u zeker dat u Source data {{ id }} wilt verwijderen?"
+                "question": "Bent u zeker dat u Source Data {{ id }} wilt verwijderen?"
             },
             "detail": {
-                "title": "Source data"
+                "title": "Source Data"
             },
             "sourceDataType": "Source Data Type",
             "sourceDataName": "Source Data Name",
@@ -27,6 +27,7 @@
         }
     },
     "error" : {
-        "sourceDataNameAvailable" : "SourceDataName al in gebruik"
+        "sourceDataNameAvailable" : "SourceDataName al in gebruik",
+        "validation": "Validatie fout, controleer de ingevoerde waarden."
     }
 }

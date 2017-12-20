@@ -66,7 +66,13 @@
     },
     "error": {
         "patientEmailRequired": "Er is een geldige e-mail nodig om het vakaccount te activeren",
-        "subjectExists" : "Er bestaat al een onderwerp met een gegeven project-id en extern id"
+        "subjectExists" : "Er bestaat al een onderwerp met een gegeven project-id en extern id",
+        "loginNotParticipant": "Opgegeven login is geen deelnemer in een studie",
+        "loginRequired": "A subject login is required",
+        "sourceNotFound": "Er is geen source met deze naam toegewezen aan de deelnemer.",
+        "sourceNameExists": "Er bestaat reeds een source met deze naam.",
+        "validation": "Validatie fout, controleer de ingevoerde waarden.",
+        "sourceTypeExists": "De deelnemer werd reeds een source van dit type toegewezen."
     }
 
 }

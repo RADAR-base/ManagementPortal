@@ -42,6 +42,30 @@ describe('SourceData e2e test', () => {
         });
     });
 
+    it('should be able to create SourceData', function () {
+        element(by.css('button.create-source-data')).click().then(() => {
+            element(by.id('field_sourceDataType')).sendKeys('TEST-TYPE');
+            element(by.id('field_sourceDataName')).sendKeys('TEST-SENSOR');
+            element(by.css('jhi-source-data-dialog')).element(by.buttonText('Save')).click();
+        });
+    });
+    
+    it('should be able to edit SourceData', () => {
+        element(by.cssContainingText('td', 'TEST-SENSOR')).element(by.xpath('ancestor::tr'))
+                .element(by.cssContainingText('button', 'Edit')).click().then(() => {
+            browser.waitForAngular();
+            element(by.cssContainingText('button.btn-primary', 'Save')).click();
+        });
+    });
+
+    it('should be able to delete SourceData', () => {
+        element(by.cssContainingText('td', 'TEST-SENSOR')).element(by.xpath('ancestor::tr'))
+                .element(by.cssContainingText('button', 'Delete')).click().then(() => {
+            browser.waitForAngular();
+            element(by.cssContainingText('jhi-source-data-delete-dialog button.btn-danger', 'Delete')).click();
+        });
+    });
+
     afterAll(function () {
         accountMenu.click();
         logout.click();
