@@ -42,6 +42,8 @@ describe('Source e2e test', () => {
         });
     });
 
+    // Source creation and deletion already covered in scenarios/create-and-assign-source.spec.ts
+    
     afterAll(function () {
         accountMenu.click();
         logout.click();

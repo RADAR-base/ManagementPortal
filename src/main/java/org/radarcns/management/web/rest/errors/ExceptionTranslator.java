@@ -1,6 +1,7 @@
 package org.radarcns.management.web.rest.errors;
 
 import org.radarcns.auth.exception.NotAuthorizedException;
+import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -72,7 +73,8 @@ public class ExceptionTranslator {
     @ExceptionHandler(CustomParameterizedException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ParameterizedErrorVM processParameterizedValidationError(CustomParameterizedException ex) {
+    public ParameterizedErrorVM processParameterizedValidationError(
+            CustomParameterizedException ex) {
         return ex.getErrorVM();
     }
 
@@ -84,10 +86,12 @@ public class ExceptionTranslator {
     }
 
     @ExceptionHandler(CustomConflictException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ResponseBody
-    public ParameterizedErrorVM processParameterizedConflict(CustomConflictException ex) {
-        return ex.getErrorVM();
+    public ResponseEntity<ParameterizedErrorVM> processParameterizedConflict(
+            CustomConflictException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .headers(HeaderUtil.createAlert(ex.getMessage(), ex.getConflictingResource()
+                        .toString()))
+                .body(ex.getErrorVM());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -107,8 +111,8 @@ public class ExceptionTranslator {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-    public ErrorVM processMethodNotSupportedException(HttpRequestMethodNotSupportedException exception) {
-        return new ErrorVM(ErrorConstants.ERR_METHOD_NOT_SUPPORTED, exception.getMessage());
+    public ErrorVM processMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
+        return new ErrorVM(ErrorConstants.ERR_METHOD_NOT_SUPPORTED, ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
@@ -116,13 +120,16 @@ public class ExceptionTranslator {
         BodyBuilder builder;
         ErrorVM errorVM;
         logger.error("Failed to process message", ex);
-        ResponseStatus responseStatus = AnnotationUtils.findAnnotation(ex.getClass(), ResponseStatus.class);
+        ResponseStatus responseStatus = AnnotationUtils.findAnnotation(ex.getClass(),
+                ResponseStatus.class);
         if (responseStatus != null) {
             builder = ResponseEntity.status(responseStatus.value());
-            errorVM = new ErrorVM("error." + responseStatus.value().value(), responseStatus.reason());
+            errorVM = new ErrorVM("error." + responseStatus.value().value(),
+                    responseStatus.reason());
         } else {
             builder = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
-            errorVM = new ErrorVM(ErrorConstants.ERR_INTERNAL_SERVER_ERROR, "Internal server error");
+            errorVM = new ErrorVM(ErrorConstants.ERR_INTERNAL_SERVER_ERROR,
+                    "Internal server error");
         }
         return builder.body(errorVM);
     }

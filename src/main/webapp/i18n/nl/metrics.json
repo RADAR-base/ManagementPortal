@@ -74,7 +74,15 @@
             "cachename": "Cache naam",
             "hits": "Hits",
             "misses": "Misses",
-            "evictions": "Uitzetting aantal"
+            "evictions": "Uitzetting aantal",
+            "gets": "Cache lees operaties",
+            "puts": "Cache schrijf operaties",
+            "removals": "Cache verwijder operaties",
+            "hitPercent": "Cache Hit %",
+            "missPercent": "Cache Miss %",
+            "averageGetTime": "Gemiddelde lees tijd (µs)",
+            "averagePutTime": "Gemiddelde schrijf tijd (µs)",
+            "averageRemoveTime": "Gemiddelde verwijder tijd (µs)"
         },
         "datasource": {
             "usage": "Gebruik",

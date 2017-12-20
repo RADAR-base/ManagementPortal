@@ -27,6 +27,19 @@
         "createdDate": "Aanmaak datum",
         "lastModifiedBy": "Laatst aangepast door",
         "lastModifiedDate": "Laatst aangepast datum",
+        "role" : {
+            "title" : "Rol",
+            "create" : "Toevoegen",
+            "authorityName" : "Authority",
+            "project" : "Project",
+            "error" : {
+                "alreadyExist" : "Deze rol werd al toegevoegd"
+            }
+        },
         "project": "Project"
+    },
+    "error": {
+        "rolesRequired": "Er moet minstens &‌eacute;&‌eacute;n rol toegekend worden",
+        "validation": "Validatie fout, controleer de ingevoerde waarden."
     }
 }

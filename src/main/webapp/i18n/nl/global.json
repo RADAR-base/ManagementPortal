@@ -11,7 +11,7 @@
                 "sourceType": "Source Type",
                 "project": "Project",
                 "oauth-clients": "OAuth Clients",
-                "sourceData": "Source data",
+                "sourceData": "Source Data",
                 "subject": "Subject",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
@@ -27,6 +27,8 @@
             "admin": {
                 "main": "Administrator",
                 "userManagement": "User management",
+                "role": "Rol management",
+                "project": "Project management",
                 "tracker": "User tracker",
                 "metrics": "Statistieken",
                 "health": "Status",
@@ -89,10 +91,22 @@
         },
         "ribbon": {
             "dev":"Ontwikkeling"
+        },
+        "attribute" : {
+            "title" : "Eigenschappen",
+            "key" : "Eigenschap",
+            "value" : "Waarde",
+            "add" : "Toevoegen",
+            "error" : {
+                "alreadyExist" : "Deze eigenschap komt reeds voor in de lijst"
+            }
+
         }
     },
     "entity": {
         "action": {
+            "addblob": "Blob toevoegen",
+            "addimage": "Afbeelding toevoegen",
             "back": "Terug",
             "cancel": "Annuleren",
             "delete": "Verwijderen",
@@ -115,6 +129,8 @@
             "maxlength": "Dit veld kan niet langer zijn dan {{max}} tekens.",
             "min": "Dit veld moet minstens {{min}} zijn.",
             "max": "Dit veld kan niet langer zijn dan {{max}}.",
+            "minbytes": "Dit veld moet minstens {{ min }} bytes zijn.",
+            "maxbytes": "Dit veld kan niet meer dan {{ max }} bytes bevatten.",
             "pattern": "Dit veld zou het patroon moeten volgen {{pattern}}.",
             "number": "Dit veld zou een getal moeten zijn.",
             "datetimelocal": "Dit veld zou een datum en tijd moeten zijn."
