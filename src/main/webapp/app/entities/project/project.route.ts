@@ -11,10 +11,14 @@ import { ProjectDeletePopupComponent } from './project-delete-dialog.component';
 
 import { Principal } from '../../shared';
 import {SYSTEM_ADMIN, PROJECT_ADMIN} from "../../shared/constants/common.constants";
+import {ResolvePagingParams} from "../../shared/commons";
 
 export const projectRoute: Routes = [
   {
     path: 'project',
+    resolve: {
+        'pagingParams': ResolvePagingParams
+    },
     component: ProjectComponent,
     data: {
         authorities: [SYSTEM_ADMIN],

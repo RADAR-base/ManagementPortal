@@ -141,12 +141,15 @@ public class ProjectResource {
      */
     @GetMapping("/projects")
     @Timed
-    public List<ProjectDTO> getAllProjects(
+    public ResponseEntity getAllProjects(@ApiParam Pageable pageable,
         @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
             minimized) {
         log.debug("REST request to get Projects");
         checkPermission(getJWT(servletRequest), PROJECT_READ);
-        return projectService.findAll(minimized);
+        Page page = projectService.findAll(minimized , pageable);
+        HttpHeaders headers = PaginationUtil
+            .generatePaginationHttpHeaders(page, "/api/projects/");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     /**
