@@ -274,13 +274,17 @@ public class ProjectResource {
 
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/subjects")
     @Timed
-    public ResponseEntity<List<SubjectDTO>> getAllSubjects(@PathVariable String projectName) {
+    public ResponseEntity<List<SubjectDTO>> getAllSubjects(@ApiParam Pageable pageable,
+        @PathVariable String projectName) {
         checkPermissionOnProject(getJWT(servletRequest), SUBJECT_READ,
             projectName);
         log.debug("REST request to get all subjects for project {}", projectName);
-        List<Subject> subjects = subjectRepository.findAllByProjectName(projectName);
-        return ResponseUtil
-            .wrapOrNotFound(Optional.of(subjectMapper.subjectsToSubjectDTOs(subjects)));
+        Page<SubjectDTO> page = subjectRepository.findAllByProjectName(pageable , projectName)
+            .map(subjectMapper::subjectToSubjectDTO);
+        HttpHeaders headers = PaginationUtil
+            .generatePaginationHttpHeaders(page, "/api/projects/" + projectName +
+                "/subjects");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
 }

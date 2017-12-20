@@ -80,6 +80,7 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
 
     ngOnDestroy() {
         this.eventManager.destroy(this.eventSubscriber);
+        this.routeData.unsubscribe();
     }
 
     trackId(index: number, item: Source) {
