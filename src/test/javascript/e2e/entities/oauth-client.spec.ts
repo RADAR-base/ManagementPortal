@@ -69,6 +69,7 @@ describe('OAuth Clients e2e test', () => {
     });
 
     it('should be able to edit OAuth Client', () => {
+        browser.waitForAngular();
         element(by.cssContainingText('td', 'test-client')).element(by.xpath('ancestor::tr'))
                 .element(by.cssContainingText('button', 'Edit')).click().then(() => {
             browser.waitForAngular();

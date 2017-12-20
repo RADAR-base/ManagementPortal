@@ -53,6 +53,7 @@ describe('Project e2e test', () => {
     });
 
     it('should be able to edit Project', () => {
+        browser.waitForAngular();
         element(by.cssContainingText('td', 'test-project')).element(by.xpath('ancestor::tr'))
                 .element(by.cssContainingText('button', 'Edit')).click().then(() => {
             browser.waitForAngular();
