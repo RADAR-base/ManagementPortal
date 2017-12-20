@@ -22,7 +22,6 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
-import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.service.ProjectService;
 import org.radarcns.management.service.RoleService;
