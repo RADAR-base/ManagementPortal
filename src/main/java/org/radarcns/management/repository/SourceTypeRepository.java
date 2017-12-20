@@ -1,6 +1,8 @@
 package org.radarcns.management.repository;
 
 import java.util.Optional;
+
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.SourceType;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,10 +17,12 @@ import java.util.List;
 @SuppressWarnings("unused")
 public interface SourceTypeRepository extends JpaRepository<SourceType,Long> {
 
-    @Query("select distinct sourceType from SourceType sourceType left join fetch sourceType.sourceData")
+    @Query("select distinct sourceType from SourceType sourceType left join fetch sourceType"
+            + ".sourceData")
     List<SourceType> findAllWithEagerRelationships();
 
-    @Query("select sourceType from SourceType sourceType left join fetch sourceType.sourceData where sourceType.id =:id")
+    @Query("select sourceType from SourceType sourceType left join fetch sourceType.sourceData "
+            + "where sourceType.id =:id")
     SourceType findOneWithEagerRelationships(@Param("id") Long id);
 
     @Query("select sourceType from SourceType sourceType left join fetch sourceType.sourceData "
@@ -26,7 +30,8 @@ public interface SourceTypeRepository extends JpaRepository<SourceType,Long> {
         + "and sourceType.model =:model "
         + "and sourceType.catalogVersion = :version")
     Optional<SourceType> findOneWithEagerRelationshipsByProducerAndModelAndVersion(
-        @Param("producer") String producer, @Param("model") String model , @Param("version") String version);
+        @Param("producer") String producer, @Param("model") String model,
+            @Param("version") String version);
 
     @Query("select sourceType from SourceType sourceType left join fetch sourceType.sourceData "
         + "where sourceType.producer =:producer")
@@ -36,4 +41,10 @@ public interface SourceTypeRepository extends JpaRepository<SourceType,Long> {
         + "where sourceType.producer =:producer and sourceType.model =:model")
     List<SourceType> findWithEagerRelationshipsByProducerAndModel(
         @Param("producer") String producer, @Param("model") String model);
+
+    @Query("select distinct sourceType.projects from SourceType sourceType left join sourceType"
+            + ".projects where sourceType.producer =:producer and sourceType.model =:model "
+            + "and sourceType.catalogVersion = :version")
+    List<Project> findProjectsBySourceType(@Param("producer") String producer,
+            @Param("model") String model , @Param("version") String version);
 }

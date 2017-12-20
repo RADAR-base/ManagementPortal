@@ -32,6 +32,7 @@
     },
     "error": {
         "sourceTypeExists" : "Een SourceType met bepaalde producent, model en versie bestaat al",
-        "validation": "Validatie fout, controleer de ingevoerde waarden."
+        "validation": "Validatie fout, controleer de ingevoerde waarden.",
+        "sourceTypeInUse": "Deze SourceType kan niet verwijderd worden, het is nog in gebruik deze projecten: {{ param0 }}"
     }
 }
