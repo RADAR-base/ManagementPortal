@@ -26,8 +26,10 @@
         }
     },
     "error": {
+        "sourceIdExists": "A new source cannot already have a Source ID",
         "sourceNameExists": "Source Name is already registered.",
         "sourceIsAssigned": "Cannot edit/delete a currently assigned source.",
+        "sourceAssignedRequired": "A new source must have the 'assigned' field specified.",
         "validation": "Validation error, check the entered values in the fields."
     }
 }

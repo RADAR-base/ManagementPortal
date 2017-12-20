@@ -23,8 +23,11 @@ import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.repository.SourceTypeRepository;
 import org.radarcns.management.service.SourceTypeService;
+import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
+import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
@@ -74,33 +77,36 @@ public class SourceTypeResource {
      */
     @PostMapping("/source-types")
     @Timed
-    public ResponseEntity<SourceTypeDTO> createSourceType(
-        @Valid @RequestBody SourceTypeDTO sourceTypeDTO) throws URISyntaxException {
+    public ResponseEntity<SourceTypeDTO> createSourceType(@Valid @RequestBody
+            SourceTypeDTO sourceTypeDTO) throws URISyntaxException {
         log.debug("REST request to save SourceType : {}", sourceTypeDTO);
         checkPermission(getJWT(servletRequest), SOURCETYPE_CREATE);
         if (sourceTypeDTO.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                .createFailureAlert(ENTITY_NAME, "idexists",
-                    "A new sourceType cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
+                    "idexists", "A new sourceType cannot already have an ID")).build();
         }
         Optional<SourceType> existing = sourceTypeRepository
-            .findOneWithEagerRelationshipsByProducerAndModelAndVersion(sourceTypeDTO.getProducer(),
-                sourceTypeDTO.getModel(), sourceTypeDTO.getCatalogVersion());
+                .findOneWithEagerRelationshipsByProducerAndModelAndVersion(
+                        sourceTypeDTO.getProducer(), sourceTypeDTO.getModel(),
+                        sourceTypeDTO.getCatalogVersion());
+
         if (existing.isPresent()) {
             Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("message", "A SourceType with the specified producer and model "
-                + "already exists. This combination needs to be unique.");
+            errorParams.put("message", "A SourceType with the specified producer, model and "
+                    + "version already exists. This combination needs to be unique.");
             errorParams.put("producer", sourceTypeDTO.getProducer());
             errorParams.put("model", sourceTypeDTO.getModel());
-            throw new CustomConflictException("sourceTypeAvailable", errorParams);
+            errorParams.put("catalogVersion", sourceTypeDTO.getCatalogVersion());
+            throw new CustomConflictException(ErrorConstants.ERR_SOURCE_TYPE_EXISTS, errorParams,
+                    new URI(HeaderUtil.buildPath("api", "source-types",
+                            sourceTypeDTO.getProducer(), sourceTypeDTO.getModel(),
+                            sourceTypeDTO.getCatalogVersion())));
         }
         SourceTypeDTO result = sourceTypeService.save(sourceTypeDTO);
         return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "source-types",
-            result.getProducer(), result.getModel(), result.getCatalogVersion())))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME,
-                String.join(" ", result.getProducer(), result.getModel(),
-                    result.getCatalogVersion())))
-            .body(result);
+                result.getProducer(), result.getModel(), result.getCatalogVersion())))
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, displayName(result)))
+                .body(result);
     }
 
     /**
@@ -114,8 +120,8 @@ public class SourceTypeResource {
      */
     @PutMapping("/source-types")
     @Timed
-    public ResponseEntity<SourceTypeDTO> updateSourceType(
-        @Valid @RequestBody SourceTypeDTO sourceTypeDTO) throws URISyntaxException {
+    public ResponseEntity<SourceTypeDTO> updateSourceType(@Valid @RequestBody
+            SourceTypeDTO sourceTypeDTO) throws URISyntaxException {
         log.debug("REST request to update SourceType : {}", sourceTypeDTO);
         if (sourceTypeDTO.getId() == null) {
             return createSourceType(sourceTypeDTO);
@@ -123,8 +129,7 @@ public class SourceTypeResource {
         checkPermission(getJWT(servletRequest), SOURCETYPE_UPDATE);
         SourceTypeDTO result = sourceTypeService.save(sourceTypeDTO);
         return ResponseEntity.ok()
-            .headers(
-                HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceTypeDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, displayName(sourceTypeDTO)))
             .body(result);
     }
 
@@ -209,11 +214,24 @@ public class SourceTypeResource {
         SourceTypeDTO sourceTypeDTO = sourceTypeService
             .findByProducerAndModelAndVersion(producer, model, version);
         if (Objects.isNull(sourceTypeDTO)) {
-            return ResponseEntity.notFound().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
-                "notfound", String.join(" ", producer, model, version))).build();
+            return ResponseEntity.notFound().build();
+        }
+        List<ProjectDTO> projects = sourceTypeService.findProjectsBySourceType(producer, model,
+                version);
+        if (!projects.isEmpty()) {
+            throw new CustomParameterizedException(ErrorConstants.ERR_SOURCE_TYPE_IN_USE,
+                    projects.stream()
+                            .map(p -> p.getProjectName())
+                            .reduce((s1, s2) -> String.join(", ", s1, s2))
+                            .get()); // we know the list is not empty so calling get() is safe here
         }
         sourceTypeService.delete(sourceTypeDTO.getId());
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME,
-            String.join(" ", producer, model, version))).build();
+                displayName(sourceTypeDTO))).build();
+    }
+
+    private String displayName(SourceTypeDTO sourceType) {
+        return String.join(" ", sourceType.getProducer(), sourceType.getModel(),
+                sourceType.getCatalogVersion());
     }
 }

@@ -11,7 +11,7 @@
                 "sourceType": "Source Type",
                 "project": "Projects",
                 "oauth-clients": "OAuth Clients",
-                "sourceData": "Source data",
+                "sourceData": "Source Data",
                 "subject": "Subject",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },

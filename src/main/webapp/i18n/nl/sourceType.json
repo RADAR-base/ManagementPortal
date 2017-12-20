@@ -19,7 +19,7 @@
             "model": "Model",
             "catalogVersion": "Catalog Version",
             "sourceTypeScope": "Source Type Scope",
-            "sourceData": "Source data",
+            "sourceData": "Source Data",
             "project": "Project",
             "sourceRegistration" : "Source Registratie",
             "dynamicRegistration": "Dynamisch source Registratie",
@@ -31,6 +31,8 @@
         }
     },
     "error": {
-        "sourceTypeAvailable" : "Een SourceType met bepaalde producent, model en versie is al beschikbaar"
+        "sourceTypeExists" : "Een SourceType met bepaalde producent, model en versie bestaat al",
+        "validation": "Validatie fout, controleer de ingevoerde waarden.",
+        "sourceTypeInUse": "Deze SourceType kan niet verwijderd worden, het is nog in gebruik deze projecten: {{ param0 }}"
     }
 }

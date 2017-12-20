@@ -17,6 +17,7 @@ import io.swagger.annotations.ApiResponses;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -107,27 +108,29 @@ public class SubjectResource {
         if (subjectDTO.getProject() == null || subjectDTO.getProject().getId() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil
                     .createFailureAlert(ENTITY_NAME, "projectrequired",
-                            "A subject should be assigned to a project")).body(null);
+                            "A subject should be assigned to a project")).build();
         }
         checkPermissionOnProject(getJWT(servletRequest), SUBJECT_CREATE,
                 subjectDTO.getProject().getProjectName());
 
         if (subjectDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil
-                .createFailureAlert(ENTITY_NAME, "idexists",
-                    "A new subject cannot already have an ID")).body(null);
+                    .createFailureAlert(ENTITY_NAME, "idexists",
+                        "A new subject cannot already have an ID")).build();
         }
         if (subjectDTO.getLogin() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil
-                .createFailureAlert(ENTITY_NAME, "loginrequired", "A subject login is required"))
-                .body(null);
+                    .createFailureAlert(ENTITY_NAME, "loginrequired",
+                            "A subject login is required"))
+                    .build();
         }
         if (subjectDTO.getExternalId() != null && !subjectDTO.getExternalId().isEmpty() &&
-            subjectRepository.findOneByProjectNameAndExternalId(subjectDTO.getProject().getProjectName(),
-                subjectDTO.getExternalId()).isPresent()) {
+                subjectRepository.findOneByProjectNameAndExternalId(subjectDTO.getProject()
+                        .getProjectName(), subjectDTO.getExternalId()).isPresent()) {
             return ResponseEntity.badRequest().headers(HeaderUtil
-                .createFailureAlert(ENTITY_NAME, "subjectExists",
-                    "A subject with given project-id and external-id already exists")).body(null);
+                    .createFailureAlert(ENTITY_NAME, "subjectExists",
+                            "A subject with given project-id and external-id already exists"))
+                    .build();
         }
 
         SubjectDTO result = subjectService.createSubject(subjectDTO);
@@ -157,8 +160,6 @@ public class SubjectResource {
                             "A subject should be assigned to a project")).body(null);
         }
         if (subjectDTO.getId() == null) {
-            checkPermissionOnProject(getJWT(servletRequest), SUBJECT_CREATE,
-                    subjectDTO.getProject().getProjectName());
             return createSubject(subjectDTO);
         }
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
@@ -222,10 +223,13 @@ public class SubjectResource {
         checkPermission(getJWT(servletRequest), SUBJECT_READ);
         log.debug("ProjectName {} and external {}", projectName, externalId);
         if (projectName != null && externalId != null) {
-            Subject subject = subjectRepository
-                .findOneByProjectNameAndExternalId(projectName, externalId).get();
-            SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
-            return ResponseUtil.wrapOrNotFound(Optional.of(Collections.singletonList(subjectDTO)));
+            Optional<Subject> subject = subjectRepository
+                    .findOneByProjectNameAndExternalId(projectName, externalId);
+            if (!subject.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+            SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject.get());
+            return ResponseEntity.ok(Collections.singletonList(subjectDTO));
         } else if (projectName == null && externalId != null) {
             List<Subject> subjects = subjectRepository.findAllByExternalId(externalId);
             return ResponseUtil
@@ -320,9 +324,7 @@ public class SubjectResource {
         // check the subject id
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         if (!subject.isPresent()) {
-            return ResponseUtil.wrapOrNotFound(Optional.empty(), HeaderUtil.createFailureAlert(
-                ENTITY_NAME, "notfound", "Subject with subject-id " + login +
-                    " was not found."));
+            return ResponseEntity.notFound().build();
         }
         Subject sub = subject.get();
         // find the PARTICIPANT role for this subject
@@ -331,17 +333,18 @@ public class SubjectResource {
                 .findFirst();
         if (!roleOptional.isPresent()) {
             // no participant role found
-            return ResponseUtil.wrapOrNotFound(Optional.empty(), HeaderUtil.createFailureAlert(
-                ENTITY_NAME, "notfound", "Subject with subject-id " + login +
-                    " is not assigned to any project. Could not find project for this subject."));
+            HashMap<String, String> params = new HashMap<>();
+            params.put("message", "Supplied login is not a participant in any study, a source can"
+                    + "not be assigned.");
+            params.put("login", login);
+            throw new CustomParameterizedException("error.loginNotParticipant", params);
         }
         Role role = roleOptional.get();
         // find out source type id of supplied source
         Long sourceTypeId = sourceDTO.getSourceTypeId();
-        if (Objects.isNull(sourceTypeId)) {
+        if (sourceTypeId == null) {
             // check if combination (producer, model, version) is present
-            final String msg = "You must supply either the sourceTypeId, or the combination of "
-                    + "(sourceTypeProducer, sourceTypeModel, catalogVersion) fields.";
+            final String msg = "error.sourceNotFound";
             try {
                 String producer = Objects.requireNonNull(sourceDTO.getSourceTypeProducer(), msg);
                 String model = Objects.requireNonNull(sourceDTO.getSourceTypeModel(), msg);
@@ -350,12 +353,17 @@ public class SubjectResource {
                 SourceTypeDTO sourceTypeDTO = sourceTypeService
                         .findByProducerAndModelAndVersion(producer, model, version);
                 if (Objects.isNull(sourceTypeDTO)) {
-                    return ResponseEntity.notFound().build();
+                    return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
+                            ENTITY_NAME, "sourceNotFound", String.join(" ", producer, model,
+                                    version))).build();
                 }
                 sourceTypeId = sourceTypeDTO.getId();
             } catch (NullPointerException ex) {
                 log.error(ex.getMessage() + ", supplied sourceDTO: " + sourceDTO.toString());
-                throw new CustomParameterizedException(ex.getMessage());
+                throw new CustomParameterizedException(ex.getMessage(),
+                        Collections.singletonMap("message", "You must supply either the "
+                                + "sourceTypeId, or the combination of "
+                                + "(sourceTypeProducer, sourceTypeModel, catalogVersion) fields."));
             }
         }
         // find whether the relevant source-type is available in the subject's project
@@ -366,9 +374,8 @@ public class SubjectResource {
         if (!sourceType.isPresent()) {
             // return bad request
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(HeaderUtil
-                .createAlert("sourceTypeNotAvailable",
-                    "No source-type found for source type ID " + sourceDTO.getSourceTypeId()
-                        + " in relevant project")).body(null);
+                .createAlert("sourceTypeNotAvailable", "The source type is not registered in the"
+                        + " given project")).build();
         }
 
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, role.getProject()
@@ -387,8 +394,9 @@ public class SubjectResource {
         // an existing source was provided. If an existing source was given but not found, the
         // assignOrUpdateSource would throw an error and we would not reach this point.
         if (!existing) {
-            return ResponseEntity.created(new URI("/api/sources/" + sourceRegistered.getSourceName())).headers(
-                    HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, login))
+            return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "sources",
+                    sourceRegistered.getSourceName())))
+                    .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, login))
                     .body(sourceRegistered);
         }
         else {
@@ -404,18 +412,13 @@ public class SubjectResource {
         // check the subject id
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         if (!subject.isPresent()) {
-            return ResponseUtil.wrapOrNotFound(Optional.empty(), HeaderUtil.createFailureAlert(
-                ENTITY_NAME, "notfound", "Subject with subject-id " + login +
-                    " was not found."));
+            return ResponseEntity.notFound().build();
         }
 
         SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject.get());
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, subjectDTO.getProject()
                 .getProjectName(), subjectDTO.getLogin());
 
-        // handle the source registration
-        List<MinimalSourceDetailsDTO> sources = subjectService.getSources(subject.get());
-
-        return ResponseEntity.ok().body(sources);
+        return ResponseEntity.ok().body(subjectService.getSources(subject.get()));
     }
 }
