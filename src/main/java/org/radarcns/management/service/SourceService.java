@@ -96,26 +96,23 @@ public class SourceService {
 
     /**
      * Returns all sources by project in {@link SourceDTO} format
-     * @param projectId
+     *
      * @return list of sources
      */
-    public List<SourceDTO> findAllByProjectId(Long projectId) {
-        return sourceRepository.findAllSourcesByProjectId(projectId)
-            .stream()
-            .map(sourceMapper::sourceToSourceDTO)
-            .collect(Collectors.toCollection(LinkedList::new));
+    public Page<SourceDTO> findAllByProjectId(Long projectId, Pageable pageable) {
+        return sourceRepository.findAllSourcesByProjectId(projectId, pageable)
+            .map(sourceMapper::sourceToSourceDTO);
     }
 
     /**
      * Returns all sources by project in {@link MinimalSourceDetailsDTO} format
-     * @param projectId
+     *
      * @return list of sources
      */
-    public List<MinimalSourceDetailsDTO> findAllMinimalSourceDetailsByProject(Long projectId) {
-        return sourceRepository.findAllSourcesByProjectId(projectId)
-            .stream()
-            .map(sourceMapper::sourceToMinimalSourceDetailsDTO)
-            .collect(Collectors.toCollection(LinkedList::new));
+    public Page<MinimalSourceDetailsDTO> findAllMinimalSourceDetailsByProject(Long projectId,
+        Pageable pageable) {
+        return sourceRepository.findAllSourcesByProjectId(projectId, pageable)
+            .map(sourceMapper::sourceToMinimalSourceDetailsDTO);
     }
 
     /**

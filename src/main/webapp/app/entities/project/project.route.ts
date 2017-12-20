@@ -21,7 +21,8 @@ export const projectRoute: Routes = [
         pageTitle: 'managementPortalApp.project.home.title'
     },
     canActivate: [UserRouteAccessService]
-  }, {
+  },
+  {
     path: 'project/:projectName',
     component: ProjectDetailComponent,
     data: {
