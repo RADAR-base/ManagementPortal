@@ -1,10 +1,8 @@
 package org.radarcns.management.web.rest.vm;
 
-import java.time.ZonedDateTime;
-import java.util.Set;
-import javax.validation.constraints.Size;
-import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.service.dto.UserDTO;
+
+import javax.validation.constraints.Size;
 
 /**
  * View Model extending the UserDTO, which is meant to be used in the user management UI.
@@ -22,19 +20,12 @@ public class ManagedUserVM extends UserDTO {
         // Empty constructor needed for Jackson.
     }
 
-    public ManagedUserVM(Long id, String login, String password, String firstName, String lastName,
-                         String email, boolean activated, String langKey,
-                         String createdBy, ZonedDateTime createdDate, String lastModifiedBy, ZonedDateTime lastModifiedDate,
-                        Set<RoleDTO> roles) {
-
-        super(id, login, firstName, lastName, email, activated, langKey,
-            createdBy, createdDate, lastModifiedBy, lastModifiedDate,  roles);
-
-        this.password = password;
-    }
-
     public String getPassword() {
         return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override

@@ -12,7 +12,7 @@ public class HttpUtil {
     /**
      * Checks whether given {@link URL} can be reachable
      * @param urlServer
-     * @return {@Code true} if reachable, {@Code otherwise}
+     * @return {@code true} if reachable, {@code false} otherwise
      */
     public static boolean isReachable(URL urlServer) {
         try {
