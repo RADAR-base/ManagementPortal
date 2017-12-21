@@ -33,7 +33,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<SourceType> findSourceTypesByProjectId(@Param("id") Long id);
 
     @Query(
-            "select distinct sourceType from Project project left join project.sourceTypes sourceType "
+            "select distinct sourceType from Project project "
+            + "left join project.sourceTypes sourceType "
             + "where project.id =:id "
             + "and sourceType.id = :sourceTypeId ")
     Optional<SourceType> findSourceTypeByProjectIdAndSourceTypeId(@Param("id") Long id,

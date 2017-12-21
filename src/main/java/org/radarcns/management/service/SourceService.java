@@ -110,7 +110,7 @@ public class SourceService {
      * @return list of sources
      */
     public Page<MinimalSourceDetailsDTO> findAllMinimalSourceDetailsByProject(Long projectId,
-        Pageable pageable) {
+            Pageable pageable) {
         return sourceRepository.findAllSourcesByProjectId(projectId, pageable)
             .map(sourceMapper::sourceToMinimalSourceDetailsDTO);
     }

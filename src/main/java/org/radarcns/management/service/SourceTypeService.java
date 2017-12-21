@@ -75,6 +75,17 @@ public class SourceTypeService {
     }
 
     /**
+     * Get all sourceTypes with pagination
+     * @param pageable params
+     * @return the list of entities
+     */
+    public Page<SourceTypeDTO> findAll(Pageable pageable) {
+        log.debug("Request to get SourceTypes");
+        return sourceTypeRepository.findAll(pageable)
+            .map(sourceTypeMapper::sourceTypeToSourceTypeDTO);
+    }
+
+    /**
      *  Get one sourceType by id.
      *
      *  @param id the id of the entity
@@ -132,12 +143,6 @@ public class SourceTypeService {
         List<SourceTypeDTO> sourceTypeDTOs = sourceTypeMapper.sourceTypesToSourceTypeDTOs(
             sourceTypes);
         return sourceTypeDTOs;
-    }
-
-    public Page<SourceTypeDTO> findAll(Pageable pageable) {
-        log.debug("Request to get SourceTypes");
-        return sourceTypeRepository.findAll(pageable)
-            .map(sourceTypeMapper::sourceTypeToSourceTypeDTO);
     }
 
     /**

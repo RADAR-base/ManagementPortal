@@ -130,7 +130,7 @@ public class SourceResource {
         log.debug("REST request to get all Sources");
         Page<SourceDTO> page = sourceService.findAll(pageable);
         HttpHeaders headers = PaginationUtil
-            .generatePaginationHttpHeaders(page, "/api/source-types");
+                .generatePaginationHttpHeaders(page, "/api/source-types");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 

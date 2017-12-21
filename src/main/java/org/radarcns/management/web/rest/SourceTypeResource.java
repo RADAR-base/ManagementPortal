@@ -145,7 +145,7 @@ public class SourceTypeResource {
         checkPermission(getJWT(servletRequest), SOURCETYPE_READ);
         Page<SourceTypeDTO> page = sourceTypeService.findAll(pageable);
         HttpHeaders headers = PaginationUtil
-            .generatePaginationHttpHeaders(page, "/api/source-types");
+                .generatePaginationHttpHeaders(page, "/api/source-types");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 

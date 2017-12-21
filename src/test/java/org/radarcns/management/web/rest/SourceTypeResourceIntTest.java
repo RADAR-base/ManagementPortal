@@ -262,7 +262,8 @@ public class SourceTypeResourceIntTest {
             .andExpect(jsonPath("$.[*].id").value(hasItem(sourceType.getId().intValue())))
             .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER.toString())))
             .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL.toString())))
-            .andExpect(jsonPath("$.[*].catalogVersion").value(hasItem(DEFAULT_DEVICE_VERSION.toString())))
+            .andExpect(
+                jsonPath("$.[*].catalogVersion").value(hasItem(DEFAULT_DEVICE_VERSION)))
             .andExpect(jsonPath("$.[*].sourceTypeScope").value(hasItem(DEFAULT_SOURCE_TYPE_SCOPE.toString())));
     }
 
@@ -280,7 +281,8 @@ public class SourceTypeResourceIntTest {
             .andExpect(jsonPath("$.[*].id").value(hasItem(sourceType.getId().intValue())))
             .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER.toString())))
             .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL.toString())))
-            .andExpect(jsonPath("$.[*].catalogVersion").value(hasItem(DEFAULT_DEVICE_VERSION.toString())))
+            .andExpect(jsonPath("$.[*].catalogVersion")
+                .value(hasItem(DEFAULT_DEVICE_VERSION)))
             .andExpect(jsonPath("$.[*].sourceTypeScope").value(hasItem(DEFAULT_SOURCE_TYPE_SCOPE.toString())));
     }
 

@@ -218,8 +218,8 @@ public class SubjectResource {
     @GetMapping("/subjects")
     @Timed
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(@ApiParam Pageable pageable,
-        @RequestParam(value = "projectName", required = false) String projectName,
-        @RequestParam(value = "externalId", required = false) String externalId) {
+            @RequestParam(value = "projectName", required = false) String projectName,
+            @RequestParam(value = "externalId", required = false) String externalId) {
         checkPermission(getJWT(servletRequest), SUBJECT_READ);
         log.debug("ProjectName {} and external {}", projectName, externalId);
         if (projectName != null && externalId != null) {
@@ -237,9 +237,9 @@ public class SubjectResource {
         } else if (projectName != null) {
 
             Page<SubjectDTO> page = subjectRepository.findAllByProjectName( pageable , projectName)
-                .map(subjectMapper::subjectToSubjectDTO);
+                    .map(subjectMapper::subjectToSubjectDTO);
             HttpHeaders headers = PaginationUtil
-                .generatePaginationHttpHeaders(page, "/api/subjects");
+                    .generatePaginationHttpHeaders(page, "/api/subjects");
             return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
         }
         log.debug("REST request to get all Subjects");
@@ -408,7 +408,7 @@ public class SubjectResource {
     @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/sources")
     @Timed
     public ResponseEntity<List<MinimalSourceDetailsDTO>> getSubjectSources(
-        @PathVariable String login) {
+            @PathVariable String login) {
         // check the subject id
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         if (!subject.isPresent()) {

@@ -122,7 +122,8 @@ public class SourceDataResource {
         log.debug("REST request to get all SourceData");
         checkPermission(getJWT(servletRequest), SOURCEDATA_READ);
         Page<SourceDataDTO> page = sourceDataService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/source-data");
+        HttpHeaders headers = PaginationUtil
+                .generatePaginationHttpHeaders(page, "/api/source-data");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 

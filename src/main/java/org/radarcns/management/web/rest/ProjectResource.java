@@ -93,18 +93,18 @@ public class ProjectResource {
     @PostMapping("/projects")
     @Timed
     public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO)
-            throws URISyntaxException {
+        throws URISyntaxException {
         log.debug("REST request to save Project : {}", projectDTO);
         checkPermission(getJWT(servletRequest), PROJECT_CREATE);
         if (projectDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
-                    ENTITY_NAME, "idexists", "A new project cannot already have an ID")).body(null);
+                ENTITY_NAME, "idexists", "A new project cannot already have an ID")).body(null);
         }
         ProjectDTO result = projectService.save(projectDTO);
         return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "projects",
-                result.getProjectName())))
-                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getProjectName()))
-                .body(result);
+            result.getProjectName())))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getProjectName()))
+            .body(result);
     }
 
     /**
@@ -119,13 +119,13 @@ public class ProjectResource {
     @PutMapping("/projects")
     @Timed
     public ResponseEntity<ProjectDTO> updateProject(@Valid @RequestBody ProjectDTO projectDTO)
-            throws URISyntaxException {
+        throws URISyntaxException {
         log.debug("REST request to update Project : {}", projectDTO);
         if (projectDTO.getId() == null) {
             return createProject(projectDTO);
         }
         checkPermissionOnProject(getJWT(servletRequest), PROJECT_UPDATE,
-                projectDTO.getProjectName());
+            projectDTO.getProjectName());
         ProjectDTO result = projectService.save(projectDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, projectDTO.getProjectName()))
@@ -140,13 +140,13 @@ public class ProjectResource {
     @GetMapping("/projects")
     @Timed
     public ResponseEntity getAllProjects(@ApiParam Pageable pageable,
-        @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
+            @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
             minimized) {
         log.debug("REST request to get Projects");
         checkPermission(getJWT(servletRequest), PROJECT_READ);
-        Page page = projectService.findAll(minimized , pageable);
+        Page page = projectService.findAll(minimized, pageable);
         HttpHeaders headers = PaginationUtil
-            .generatePaginationHttpHeaders(page, "/api/projects/");
+                .generatePaginationHttpHeaders(page, "/api/projects/");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
@@ -154,8 +154,8 @@ public class ProjectResource {
      * GET  /projects/:projectName : get the project with this name
      *
      * @param projectName the projectName of the projectDTO to retrieve
-     * @return the ResponseEntity with status 200 (OK) and with body the projectDTO, or with
-     * status 404 (Not Found)
+     * @return the ResponseEntity with status 200 (OK) and with body the projectDTO, or with status
+     * 404 (Not Found)
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
@@ -164,7 +164,7 @@ public class ProjectResource {
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
             checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ,
-                    projectDTO.getProjectName());
+                projectDTO.getProjectName());
         }
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(projectDTO));
     }
@@ -173,8 +173,8 @@ public class ProjectResource {
      * GET  /projects/:projectName : get the "projectName" project.
      *
      * @param projectName the projectName of the projectDTO to retrieve
-     * @return the ResponseEntity with status 200 (OK) and with body the projectDTO, or with
-     * status 404 (Not Found)
+     * @return the ResponseEntity with status 200 (OK) and with body the projectDTO, or with status
+     * 404 (Not Found)
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/source-types")
     @Timed
@@ -183,7 +183,7 @@ public class ProjectResource {
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
             checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ,
-                    projectDTO.getProjectName());
+                projectDTO.getProjectName());
         }
         return projectService.findSourceTypesById(projectDTO.getId());
     }
@@ -202,13 +202,13 @@ public class ProjectResource {
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
             checkPermissionOnProject(getJWT(servletRequest), PROJECT_DELETE,
-                    projectDTO.getProjectName());
+                projectDTO.getProjectName());
         } else {
             return ResponseEntity.notFound().build();
         }
         projectService.delete(projectDTO.getId());
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(
-                ENTITY_NAME, projectName)).build();
+            ENTITY_NAME, projectName)).build();
     }
 
     /**
@@ -223,7 +223,7 @@ public class ProjectResource {
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
             checkPermissionOnProject(getJWT(servletRequest), ROLE_READ,
-                    projectDTO.getProjectName());
+                projectDTO.getProjectName());
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -238,15 +238,15 @@ public class ProjectResource {
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/sources")
     @Timed
     public ResponseEntity getAllSourcesForProject(@ApiParam Pageable pageable,
-        @PathVariable String projectName,
-        @RequestParam(value = "assigned", required = false) Boolean assigned,
-        @RequestParam(name = "minimized", required = false, defaultValue = "false")
+            @PathVariable String projectName,
+            @RequestParam(value = "assigned", required = false) Boolean assigned,
+            @RequestParam(name = "minimized", required = false, defaultValue = "false")
             Boolean minimized) {
         log.debug("REST request to get all Sources");
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
             checkPermissionOnProject(getJWT(servletRequest), SOURCE_READ,
-                    projectDTO.getProjectName());
+                projectDTO.getProjectName());
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -254,25 +254,25 @@ public class ProjectResource {
         if (Objects.nonNull(assigned)) {
             if (minimized) {
                 return ResponseEntity.ok(sourceService
-                    .findAllMinimalSourceDetailsByProjectAndAssigned(projectDTO.getId(), assigned));
+                        .findAllMinimalSourceDetailsByProjectAndAssigned(projectDTO.getId(), assigned));
             } else {
                 return ResponseEntity.ok(sourceService
-                    .findAllByProjectAndAssigned(projectDTO.getId(), assigned));
+                        .findAllByProjectAndAssigned(projectDTO.getId(), assigned));
             }
         } else {
             if (minimized) {
                 Page<MinimalSourceDetailsDTO> page = sourceService
-                    .findAllMinimalSourceDetailsByProject
+                        .findAllMinimalSourceDetailsByProject
                         (projectDTO.getId(), pageable);
                 HttpHeaders headers = PaginationUtil
-                    .generatePaginationHttpHeaders(page,
+                        .generatePaginationHttpHeaders(page,
                         "/api/projects/" + projectName + "/sources");
                 return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
             } else {
                 Page<SourceDTO> page = sourceService
-                    .findAllByProjectId(projectDTO.getId(), pageable);
+                        .findAllByProjectId(projectDTO.getId(), pageable);
                 HttpHeaders headers = PaginationUtil
-                    .generatePaginationHttpHeaders(page,
+                        .generatePaginationHttpHeaders(page,
                         "/api/projects/" + projectName + "/sources");
                 return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
             }
@@ -281,13 +281,14 @@ public class ProjectResource {
 
     /**
      * Get /projects/{projectName}/subjects : get all subjects for a given project
+     *
      * @param projectName The name of the project
      * @return The subjects in the project or 404 if there is no such project
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/subjects")
     @Timed
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(@ApiParam Pageable pageable,
-        @PathVariable String projectName) {
+            @PathVariable String projectName) {
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
             checkPermissionOnProject(getJWT(servletRequest), SUBJECT_READ, projectName);
@@ -295,10 +296,10 @@ public class ProjectResource {
             return ResponseEntity.notFound().build();
         }
         log.debug("REST request to get all subjects for project {}", projectName);
-        Page<SubjectDTO> page = subjectRepository.findAllByProjectName(pageable , projectName)
-            .map(subjectMapper::subjectToSubjectDTO);
+        Page<SubjectDTO> page = subjectRepository.findAllByProjectName(pageable, projectName)
+                .map(subjectMapper::subjectToSubjectDTO);
         HttpHeaders headers = PaginationUtil
-            .generatePaginationHttpHeaders(page, "/api/projects/" + projectName +
+                .generatePaginationHttpHeaders(page, "/api/projects/" + projectName +
                 "/subjects");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
