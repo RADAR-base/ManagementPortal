@@ -1,16 +1,13 @@
 package org.radarcns.auth.authorization;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Authorization helper class for RADAR. This class checks if the authenticated user is allowed to
