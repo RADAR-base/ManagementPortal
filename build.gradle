@@ -103,6 +103,10 @@ pmd {
     ruleSetFiles = files("config/pmd/ruleset.xml")
 }
 
+pmdTest {
+    ruleSetFiles = files("config/pmd/test_ruleset.xml")
+}
+
 test {
     include '**/*UnitTest*'
     include '**/*IntTest*'
