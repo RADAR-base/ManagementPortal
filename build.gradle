@@ -91,7 +91,6 @@ if (OperatingSystem.current().isWindows()) {
 checkstyle {
     toolVersion '6.16'
     ignoreFailures true
-    configFile = file('checkstyle.xml')
 }
 
 pmd {
@@ -101,7 +100,11 @@ pmd {
     consoleOutput = true
 
     ruleSets = []
-    ruleSetFiles = files("ruleset.xml")
+    ruleSetFiles = files("config/pmd/ruleset.xml")
+}
+
+pmdTest {
+    ruleSetFiles = files("config/pmd/test_ruleset.xml")
 }
 
 test {

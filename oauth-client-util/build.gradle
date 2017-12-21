@@ -68,6 +68,7 @@ checkstyle {
 
     // ignore tests
     sourceSets = [sourceSets.main, sourceSets.test]
+    configFile = file('../config/checkstyle/checkstyle.xml')
 }
 
 pmd {
@@ -80,11 +81,11 @@ pmd {
     consoleOutput = true
 
     ruleSets = []
-    ruleSetFiles = files("config/pmd/ruleset.xml")
+    ruleSetFiles = files("../config/pmd/ruleset.xml")
 }
 
 pmdTest {
-    ruleSetFiles = files("config/pmd/test_ruleset.xml")
+    ruleSetFiles = files("../config/pmd/test_ruleset.xml")
 }
 
 
