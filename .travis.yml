@@ -37,6 +37,7 @@ install:
 before_script:
   - cp src/test/resources/config/keystore.jks src/main/resources/config/keystore.jks # we need the keystore to run our app, and we need our app to run e2e tests
   - chmod +x src/test/bash/*.sh
+  - chmod +x util/*.sh
   - ./gradlew bootRun 1> /dev/null &
   - sleep 60 # give spring boot some time to start
 script:
@@ -52,6 +53,8 @@ script:
   - ./src/test/bash/test-docker-build-on-release-branch.sh
 after_script:
   - ./gradlew sendCoverageToCodacy
+after_success:
+  - ./util/update-gh-pages-docs.sh
 deploy:
   - provider: releases
     api_key: ${GH_TOKEN}
