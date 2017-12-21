@@ -60,17 +60,16 @@ public class SourceTypeService {
     }
 
     /**
-     *  Get all the sourceTypes.
+     * Get all the sourceTypes.
      *
-     *  @return the list of entities
+     * @return the list of entities
      */
     @Transactional(readOnly = true)
     public List<SourceTypeDTO> findAll() {
         log.debug("Request to get all SourceTypes");
         List<SourceType> result = sourceTypeRepository.findAllWithEagerRelationships();
-        return result.stream()
-                .map(sourceTypeMapper::sourceTypeToSourceTypeDTO)
-                .collect(Collectors.toCollection(LinkedList::new));
+        return result.stream().map(sourceTypeMapper::sourceTypeToSourceTypeDTO)
+            .collect(Collectors.toCollection(LinkedList::new));
 
     }
 
