@@ -15,24 +15,25 @@
     <div class="table-responsive" *ngIf="sourceData">
         <table class="table table-striped">
             <thead>
-            <tr>
-            <th><span jhiTranslate="global.field.id">ID</span></th>
-            <th><span jhiTranslate="managementPortalApp.sourceData.sourceDataType">Source Data Type</span></th>
-            <th><span jhiTranslate="managementPortalApp.sourceData.sourceDataName">Source Data Name</span></th>
-            <th><span jhiTranslate="managementPortalApp.sourceData.processingState">Processing State</span></th>
-            <th><span jhiTranslate="managementPortalApp.sourceData.topic">Topic</span></th>
-            <th><span jhiTranslate="managementPortalApp.sourceData.sourceType">Source Type</span></th>
-            <th></th>
+            <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
+                <th jhiSortBy="id" ><span jhiTranslate="global.field.id">ID</span><span class="fa fa-sort"></span></th>
+                <th jhiSortBy="sourceDataType"><span jhiTranslate="managementPortalApp.sourceData.sourceDataType">Source Data Type</span><span class="fa fa-sort"></span></th>
+                <th jhiSortBy="sourceDataName"><span jhiTranslate="managementPortalApp.sourceData.sourceDataName">Source Data Name</span><span class="fa fa-sort"></span></th>
+                <th jhiSortBy="processingState"><span jhiTranslate="managementPortalApp.sourceData.processingState">Processing State</span><span class="fa fa-sort"></span></th>
+                <th><span jhiTranslate="managementPortalApp.sourceData.keySchema">Key schema</span></th>
+                <th><span jhiTranslate="managementPortalApp.sourceData.frequency">Frequency</span></th>
+                <th><span jhiTranslate="managementPortalApp.sourceData.sourceType">Source Type</span></th>
+                <th></th>
             </tr>
             </thead>
-            <tbody>
             <tr *ngFor="let sourceData of sourceData ;trackBy: trackId">
                 <td>{{sourceData.id}}</td>
                 <td>{{sourceData.sourceDataType}}</td>
                 <td><a [routerLink]="['../source-data', sourceData.sourceDataName ]">{{sourceData.sourceDataName}}</a></td>
                 <td jhiTranslate="{{'managementPortalApp.processingState.' + sourceData.processingState}}">{{sourceData.processingState}}</td>
-                <td>{{sourceData.topic}}</td>
-                <td ><a *ngIf="sourceData.sourceType" [routerLink]="['/source-type', sourceData.sourceType.producer , sourceData.sourceType.model , sourceData.sourceType.catalogVersion ]">{{sourceData.sourceType.producer+"_"+sourceData.sourceType?.model+"_"+sourceData.sourceType.catalogVersion}}</a></td>
+                <td>{{sourceData.keySchema}}</td>
+                <td>{{sourceData.frequency}}</td>
+                <td ><a *ngIf="sourceData.sourceType" [routerLink]="['/source-type', sourceData.sourceType.producer , sourceData.sourceType.model , sourceData.sourceType.catalogVersion ]">{{sourceData.sourceType?.producer+"_"+sourceData.sourceType?.model+"_"+sourceData.sourceType?.catalogVersion}}</a></td>
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"
@@ -60,5 +61,13 @@
             </tr>
             </tbody>
         </table>
+    </div>
+    <div *ngIf="sourceData">
+        <div class="row justify-content-center">
+            <jhi-item-count [page]="page" [total]="queryCount" [itemsPerPage]="itemsPerPage"></jhi-item-count>
+        </div>
+        <div class="row justify-content-center">
+            <ngb-pagination [collectionSize]="totalItems" [(pageSize)]="itemsPerPage" boundaryLinks = true [(page)]="page" (pageChange)="loadPage(page)"></ngb-pagination>
+        </div>
     </div>
 </div>

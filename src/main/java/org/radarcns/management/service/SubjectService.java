@@ -26,6 +26,8 @@ import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -152,9 +154,9 @@ public class SubjectService {
     }
 
 
-    public List<SubjectDTO> findAll() {
-        return subjectMapper.subjectsToSubjectDTOs(subjectRepository
-                .findAllWithEagerRelationships());
+    public Page<SubjectDTO> findAll(Pageable pageable) {
+        return subjectRepository.findAllWithEagerRelationships(pageable)
+            .map(subjectMapper::subjectToSubjectDTO);
     }
 
     public SubjectDTO discontinueSubject(SubjectDTO subjectDTO) {

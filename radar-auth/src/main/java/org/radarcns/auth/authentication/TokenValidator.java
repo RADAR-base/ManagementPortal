@@ -8,14 +8,6 @@ import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.bouncycastle.util.io.pem.PemReader;
-import org.radarcns.auth.authorization.RadarAuthorization;
-import org.radarcns.auth.config.ServerConfig;
-import org.radarcns.auth.config.YamlServerConfig;
-import org.radarcns.auth.exception.TokenValidationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URLConnection;
@@ -23,11 +15,17 @@ import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.bouncycastle.util.io.pem.PemReader;
+import org.radarcns.auth.authorization.RadarAuthorization;
+import org.radarcns.auth.config.ServerConfig;
+import org.radarcns.auth.config.YamlServerConfig;
+import org.radarcns.auth.exception.TokenValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Validates JWT token signed by the Management Portal. It is synchronized and may be used from

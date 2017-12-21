@@ -5,6 +5,8 @@ import java.util.UUID;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.Subject;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,13 +19,17 @@ import java.util.List;
 @SuppressWarnings("unused")
 public interface SubjectRepository extends JpaRepository<Subject, Long> {
 
-    @Query("select distinct subject from Subject subject left join fetch subject.sources")
-    List<Subject> findAllWithEagerRelationships();
+    @Query( value = "select distinct subject from Subject subject left join fetch subject.sources",
+            countQuery = "select distinct count(subject) from Subject subject")
+    Page<Subject> findAllWithEagerRelationships(Pageable pageable);
 
-    @Query("select distinct subject from Subject subject left join fetch subject.sources "
-        + "left join fetch subject.user user "
-        + "join user.roles roles where roles.project.projectName = :projectName")
-    List<Subject> findAllByProjectName(@Param("projectName") String projectName);
+    @Query(value = "select distinct subject from Subject subject left join fetch subject.sources "
+            + "left join fetch subject.user user "
+            + "join user.roles roles where roles.project.projectName = :projectName",
+            countQuery = "select distinct count(subject) from Subject subject "
+            + "left join subject.user user left join user.roles roles "
+            + "where roles.project.projectName = :projectName")
+    Page<Subject> findAllByProjectName(Pageable pageable, @Param("projectName") String projectName);
 
     @Query("select subject from Subject subject left join fetch subject.sources "
         + "where subject.id =:id")

@@ -8,6 +8,8 @@ import org.radarcns.management.service.mapper.SourceMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,6 +60,18 @@ public class SourceService {
     }
 
     /**
+     *  Get all the sourceData with pagination.
+     *
+     *  @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<SourceDTO> findAll(Pageable pageable) {
+        log.debug("Request to get SourceData with pagination");
+        return  sourceRepository.findAll(pageable)
+            .map(sourceMapper::sourceToSourceDTO);
+    }
+
+    /**
      *  Get one source by name
      *
      *  @param sourceName the name of the source
@@ -82,26 +96,23 @@ public class SourceService {
 
     /**
      * Returns all sources by project in {@link SourceDTO} format
-     * @param projectId
+     *
      * @return list of sources
      */
-    public List<SourceDTO> findAllByProjectId(Long projectId) {
-        return sourceRepository.findAllSourcesByProjectId(projectId)
-            .stream()
-            .map(sourceMapper::sourceToSourceDTO)
-            .collect(Collectors.toCollection(LinkedList::new));
+    public Page<SourceDTO> findAllByProjectId(Long projectId, Pageable pageable) {
+        return sourceRepository.findAllSourcesByProjectId(pageable , projectId)
+            .map(sourceMapper::sourceToSourceDTO);
     }
 
     /**
      * Returns all sources by project in {@link MinimalSourceDetailsDTO} format
-     * @param projectId
+     *
      * @return list of sources
      */
-    public List<MinimalSourceDetailsDTO> findAllMinimalSourceDetailsByProject(Long projectId) {
-        return sourceRepository.findAllSourcesByProjectId(projectId)
-            .stream()
-            .map(sourceMapper::sourceToMinimalSourceDetailsDTO)
-            .collect(Collectors.toCollection(LinkedList::new));
+    public Page<MinimalSourceDetailsDTO> findAllMinimalSourceDetailsByProject(Long projectId,
+            Pageable pageable) {
+        return sourceRepository.findAllSourcesByProjectId(pageable , projectId)
+            .map(sourceMapper::sourceToMinimalSourceDetailsDTO);
     }
 
     /**

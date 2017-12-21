@@ -9,6 +9,7 @@ import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
+import io.swagger.annotations.ApiParam;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -20,9 +21,14 @@ import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
+import org.radarcns.management.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -120,10 +126,12 @@ public class SourceResource {
      */
     @GetMapping("/sources")
     @Timed
-    public ResponseEntity<List<SourceDTO>> getAllSources() {
+    public ResponseEntity<List<SourceDTO>> getAllSources(@ApiParam Pageable pageable) {
         log.debug("REST request to get all Sources");
-        checkPermission(getJWT(servletRequest), SOURCE_READ);
-        return ResponseEntity.ok(sourceService.findAll());
+        Page<SourceDTO> page = sourceService.findAll(pageable);
+        HttpHeaders headers = PaginationUtil
+                .generatePaginationHttpHeaders(page, "/api/source-types");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     /**

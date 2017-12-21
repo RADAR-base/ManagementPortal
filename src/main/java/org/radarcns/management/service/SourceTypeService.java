@@ -1,5 +1,9 @@
 package org.radarcns.management.service;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.radarcns.management.domain.SourceData;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.repository.SourceDataRepository;
@@ -11,13 +15,10 @@ import org.radarcns.management.service.mapper.SourceTypeMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing SourceType.
@@ -59,18 +60,28 @@ public class SourceTypeService {
     }
 
     /**
-     *  Get all the sourceTypes.
+     * Get all the sourceTypes.
      *
-     *  @return the list of entities
+     * @return the list of entities
      */
     @Transactional(readOnly = true)
     public List<SourceTypeDTO> findAll() {
         log.debug("Request to get all SourceTypes");
         List<SourceType> result = sourceTypeRepository.findAllWithEagerRelationships();
-        return result.stream()
-                .map(sourceTypeMapper::sourceTypeToSourceTypeDTO)
-                .collect(Collectors.toCollection(LinkedList::new));
+        return result.stream().map(sourceTypeMapper::sourceTypeToSourceTypeDTO)
+            .collect(Collectors.toCollection(LinkedList::new));
 
+    }
+
+    /**
+     * Get all sourceTypes with pagination
+     * @param pageable params
+     * @return the list of entities
+     */
+    public Page<SourceTypeDTO> findAll(Pageable pageable) {
+        log.debug("Request to get SourceTypes");
+        return sourceTypeRepository.findAll(pageable)
+            .map(sourceTypeMapper::sourceTypeToSourceTypeDTO);
     }
 
     /**

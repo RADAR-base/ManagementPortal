@@ -1,7 +1,24 @@
 package org.radarcns.management.web.rest;
 
+import static org.radarcns.auth.authorization.Permission.SOURCETYPE_CREATE;
+import static org.radarcns.auth.authorization.Permission.SOURCETYPE_DELETE;
+import static org.radarcns.auth.authorization.Permission.SOURCETYPE_READ;
+import static org.radarcns.auth.authorization.Permission.SOURCETYPE_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
+
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
+import io.swagger.annotations.ApiParam;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.repository.SourceTypeRepository;
@@ -12,9 +29,14 @@ import org.radarcns.management.web.rest.errors.CustomConflictException;
 import org.radarcns.management.web.rest.errors.CustomParameterizedException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
+import org.radarcns.management.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,23 +46,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-
-import static org.radarcns.auth.authorization.Permission.SOURCETYPE_CREATE;
-import static org.radarcns.auth.authorization.Permission.SOURCETYPE_DELETE;
-import static org.radarcns.auth.authorization.Permission.SOURCETYPE_READ;
-import static org.radarcns.auth.authorization.Permission.SOURCETYPE_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing SourceType.
@@ -131,13 +136,17 @@ public class SourceTypeResource {
     /**
      * GET  /source-types : get all the sourceTypes.
      *
+     * @param pageable parameters
      * @return the ResponseEntity with status 200 (OK) and the list of sourceTypes in body
      */
     @GetMapping("/source-types")
     @Timed
-    public ResponseEntity<List<SourceTypeDTO>> getAllSourceTypes() {
+    public ResponseEntity<List<SourceTypeDTO>> getAllSourceTypes(@ApiParam Pageable pageable) {
         checkPermission(getJWT(servletRequest), SOURCETYPE_READ);
-        return ResponseEntity.ok(sourceTypeService.findAll());
+        Page<SourceTypeDTO> page = sourceTypeService.findAll(pageable);
+        HttpHeaders headers = PaginationUtil
+                .generatePaginationHttpHeaders(page, "/api/source-types");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     /**

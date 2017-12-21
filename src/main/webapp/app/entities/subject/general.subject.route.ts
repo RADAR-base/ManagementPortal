@@ -5,10 +5,14 @@ import { UserRouteAccessService } from '../../shared';
 import {GeneralSubjectComponent} from "./general.subject.component";
 import {GeneralSubjectPopupComponent} from "./general.subject-dialog.component";
 import {SYSTEM_ADMIN} from "../../shared/constants/common.constants";
+import {ResolvePagingParams} from "../../shared/commons";
 
 export const subjectRoute: Routes = [
   {
     path: 'subject',
+    resolve: {
+        'pagingParams': ResolvePagingParams
+    },
     component: GeneralSubjectComponent,
     data: {
         authorities: ['ROLE_SYS_ADMIN'],

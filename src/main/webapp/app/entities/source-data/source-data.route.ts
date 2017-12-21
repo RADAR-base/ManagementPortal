@@ -11,11 +11,17 @@ import { SourceDataDeletePopupComponent } from './source-data-delete-dialog.comp
 
 import { Principal } from '../../shared';
 import {PROJECT_ADMIN, SYSTEM_ADMIN} from "../../shared/constants/common.constants";
+import {ResolvePagingParams} from "../../shared/commons";
+
+
 
 export const sourceDataRoute: Routes = [
   {
     path: 'source-data',
     component: SourceDataComponent,
+    resolve: {
+      'pagingParams': ResolvePagingParams
+    },
     data: {
         authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.sourceData.home.title'

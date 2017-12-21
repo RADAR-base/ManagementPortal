@@ -1,15 +1,35 @@
 package org.radarcns.management.web.rest;
 
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_CREATE;
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_DELETE;
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_READ;
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
+
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
+import io.swagger.annotations.ApiParam;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.service.SourceDataService;
 import org.radarcns.management.service.dto.SourceDataDTO;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
+import org.radarcns.management.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,22 +39,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static org.radarcns.auth.authorization.Permission.SOURCEDATA_CREATE;
-import static org.radarcns.auth.authorization.Permission.SOURCEDATA_DELETE;
-import static org.radarcns.auth.authorization.Permission.SOURCEDATA_READ;
-import static org.radarcns.auth.authorization.Permission.SOURCEDATA_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
-
 /**
  * REST controller for managing SourceData.
  */
@@ -109,14 +113,18 @@ public class SourceDataResource {
     /**
      * GET  /source-data : get all the sourceData.
      *
+     * @param pageable parameters
      * @return the ResponseEntity with status 200 (OK) and the list of sourceData in body
      */
     @GetMapping("/source-data")
     @Timed
-    public List<SourceDataDTO> getAllSourceData() {
+    public ResponseEntity<List<SourceDataDTO>> getAllSourceData(@ApiParam Pageable pageable) {
         log.debug("REST request to get all SourceData");
         checkPermission(getJWT(servletRequest), SOURCEDATA_READ);
-        return sourceDataService.findAll();
+        Page<SourceDataDTO> page = sourceDataService.findAll(pageable);
+        HttpHeaders headers = PaginationUtil
+                .generatePaginationHttpHeaders(page, "/api/source-data");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     /**

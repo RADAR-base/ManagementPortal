@@ -256,14 +256,36 @@ public class SourceTypeResourceIntTest {
         sourceTypeRepository.saveAndFlush(sourceType);
 
         // Get all the sourceTypeList
-        restSourceTypeMockMvc.perform(get("/api/source-types?sort=id,desc"))
+        restSourceTypeMockMvc.perform(get("/api/source-types"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(sourceType.getId().intValue())))
             .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER.toString())))
             .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL.toString())))
+            .andExpect(
+                jsonPath("$.[*].catalogVersion").value(hasItem(DEFAULT_DEVICE_VERSION)))
             .andExpect(jsonPath("$.[*].sourceTypeScope").value(hasItem(DEFAULT_SOURCE_TYPE_SCOPE.toString())));
     }
+
+
+    @Test
+    @Transactional
+    public void getAllSourceTypesWithPagination() throws Exception {
+        // Initialize the database
+        sourceTypeRepository.saveAndFlush(sourceType);
+
+        // Get all the sourceTypeList
+        restSourceTypeMockMvc.perform(get("/api/source-types?page=0&size=5&sort=id,desc"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(sourceType.getId().intValue())))
+            .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER.toString())))
+            .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL.toString())))
+            .andExpect(jsonPath("$.[*].catalogVersion")
+                .value(hasItem(DEFAULT_DEVICE_VERSION)))
+            .andExpect(jsonPath("$.[*].sourceTypeScope").value(hasItem(DEFAULT_SOURCE_TYPE_SCOPE.toString())));
+    }
+
 
     @Test
     @Transactional

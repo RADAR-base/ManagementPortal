@@ -11,11 +11,15 @@ import { SourceTypeDeletePopupComponent } from './source-type-delete-dialog.comp
 
 import { Principal } from '../../shared';
 import {PROJECT_ADMIN, SYSTEM_ADMIN} from "../../shared/constants/common.constants";
+import {ResolvePagingParams} from "../../shared/commons";
 
 export const sourceTypeRoute: Routes = [
   {
     path: 'source-type',
     component: SourceTypeComponent,
+    resolve: {
+        'pagingParams': ResolvePagingParams
+    },
     data: {
         authorities: [SYSTEM_ADMIN],
         pageTitle: 'managementPortalApp.sourceType.home.title'

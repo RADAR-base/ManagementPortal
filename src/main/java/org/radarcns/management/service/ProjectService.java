@@ -12,6 +12,8 @@ import org.radarcns.management.service.mapper.SourceTypeMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,12 +56,12 @@ public class ProjectService {
      *  @return the list of entities
      */
     @Transactional(readOnly = true)
-    public List findAll(Boolean fetchMinimal) {
-        List<Project> projects = projectRepository.findAllWithEagerRelationships();
+    public Page findAll(Boolean fetchMinimal , Pageable pageable) {
+        Page<Project> projects = projectRepository.findAllWithEagerRelationships(pageable);
         if(!fetchMinimal){
-            return projectMapper.projectsToProjectDTOs(projects);
+            return projects.map(projectMapper::projectToProjectDTO);
         } else {
-            return projectMapper.projectsToMinimalProjectDetailsDTOs(projects);
+            return projects.map(projectMapper::projectToMinimalProjectDetailsDTO);
         }
     }
 
