@@ -254,7 +254,8 @@ public class ProjectResource {
         if (Objects.nonNull(assigned)) {
             if (minimized) {
                 return ResponseEntity.ok(sourceService
-                        .findAllMinimalSourceDetailsByProjectAndAssigned(projectDTO.getId(), assigned));
+                        .findAllMinimalSourceDetailsByProjectAndAssigned(
+                            projectDTO.getId(), assigned));
             } else {
                 return ResponseEntity.ok(sourceService
                         .findAllByProjectAndAssigned(projectDTO.getId(), assigned));
@@ -299,8 +300,8 @@ public class ProjectResource {
         Page<SubjectDTO> page = subjectRepository.findAllByProjectName(pageable, projectName)
                 .map(subjectMapper::subjectToSubjectDTO);
         HttpHeaders headers = PaginationUtil
-                .generatePaginationHttpHeaders(page, "/api/projects/" + projectName +
-                "/subjects");
+                .generatePaginationHttpHeaders(page, "/api/projects/" + projectName
+                    + "/subjects");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 }
