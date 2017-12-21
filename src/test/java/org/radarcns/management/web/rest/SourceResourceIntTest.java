@@ -59,8 +59,6 @@ public class SourceResourceIntTest {
     private static final UUID DEFAULT_SOURCE_PHYSICAL_ID = UUID.randomUUID();
     private static final UUID UPDATED_SOURCE_PHYSICAL_ID = DEFAULT_SOURCE_PHYSICAL_ID;
 
-    private static final String DEFAULT_SOURCE_CATEGORY = "AAAAAAAAAA";
-    private static final String UPDATED_SOURCE_CATEGORY = "BBBBBBBBBB";
     private static final String DEFAULT_SOURCE_NAME = "CCCCCCCCCC";
 
     private static final Boolean DEFAULT_ASSIGNED = false;
@@ -101,7 +99,7 @@ public class SourceResourceIntTest {
     private Source source;
 
     @Before
-    public void setup() throws ServletException {
+    public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         SourceResource sourceResource = new SourceResource();
         ReflectionTestUtils.setField(sourceResource, "servletRequest", servletRequest);

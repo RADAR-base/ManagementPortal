@@ -95,7 +95,7 @@ checkstyle {
 
 pmd {
     toolVersion = '5.5.2'
-    ignoreFailures = true
+    ignoreFailures = false
 
     consoleOutput = true
 
@@ -120,6 +120,10 @@ task cucumberTest(type: Test) {
     // see https://github.com/jhipster/generator-jhipster/pull/2771 and https://github.com/jhipster/generator-jhipster/pull/4484
     // ignoreFailures true
     reports.html.enabled = true
+}
+
+pmdTest {
+    ruleSetFiles = files("config/pmd/test_ruleset.xml")
 }
 
 test.finalizedBy(cucumberTest)

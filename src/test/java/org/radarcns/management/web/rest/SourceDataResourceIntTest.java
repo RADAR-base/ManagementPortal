@@ -103,7 +103,7 @@ public class SourceDataResourceIntTest {
     private SourceData sourceData;
 
     @Before
-    public void setup() throws ServletException {
+    public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         SourceDataResource sourceDataResource = new SourceDataResource();
         ReflectionTestUtils.setField(sourceDataResource, "sourceDataService", sourceDataService);
@@ -221,14 +221,14 @@ public class SourceDataResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(sourceData.getId().intValue())))
-            .andExpect(jsonPath("$.[*].sourceDataType").value(hasItem(DEFAULT_SOURCE_DATA_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].sourceDataName").value(hasItem(DEFAULT_SOURCE_DATA_NAME.toString())))
+            .andExpect(jsonPath("$.[*].sourceDataType").value(hasItem(DEFAULT_SOURCE_DATA_TYPE)))
+            .andExpect(jsonPath("$.[*].sourceDataName").value(hasItem(DEFAULT_SOURCE_DATA_NAME)))
             .andExpect(jsonPath("$.[*].processingState").value(hasItem(DEFAULT_PROCESSING_STATE.toString())))
-            .andExpect(jsonPath("$.[*].keySchema").value(hasItem(DEFAULT_KEY_SCHEMA.toString())))
-            .andExpect(jsonPath("$.[*].valueSchema").value(hasItem(DEFAULT_VALUE_SCHEMA.toString())))
-            .andExpect(jsonPath("$.[*].unit").value(hasItem(DEFAULT_UNTI.toString())))
-            .andExpect(jsonPath("$.[*].topic").value(hasItem(DEFAULT_TOPIC.toString())))
-            .andExpect(jsonPath("$.[*].frequency").value(hasItem(DEFAULT_FREQUENCY.toString())));
+            .andExpect(jsonPath("$.[*].keySchema").value(hasItem(DEFAULT_KEY_SCHEMA)))
+            .andExpect(jsonPath("$.[*].valueSchema").value(hasItem(DEFAULT_VALUE_SCHEMA)))
+            .andExpect(jsonPath("$.[*].unit").value(hasItem(DEFAULT_UNTI)))
+            .andExpect(jsonPath("$.[*].topic").value(hasItem(DEFAULT_TOPIC)))
+            .andExpect(jsonPath("$.[*].frequency").value(hasItem(DEFAULT_FREQUENCY)));
     }
 
     @Test
@@ -242,14 +242,14 @@ public class SourceDataResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(sourceData.getId().intValue())))
-            .andExpect(jsonPath("$.[*].sourceDataType").value(hasItem(DEFAULT_SOURCE_DATA_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].sourceDataName").value(hasItem(DEFAULT_SOURCE_DATA_NAME.toString())))
+            .andExpect(jsonPath("$.[*].sourceDataType").value(hasItem(DEFAULT_SOURCE_DATA_TYPE)))
+            .andExpect(jsonPath("$.[*].sourceDataName").value(hasItem(DEFAULT_SOURCE_DATA_NAME)))
             .andExpect(jsonPath("$.[*].processingState").value(hasItem(DEFAULT_PROCESSING_STATE.toString())))
-            .andExpect(jsonPath("$.[*].keySchema").value(hasItem(DEFAULT_KEY_SCHEMA.toString())))
-            .andExpect(jsonPath("$.[*].valueSchema").value(hasItem(DEFAULT_VALUE_SCHEMA.toString())))
-            .andExpect(jsonPath("$.[*].unit").value(hasItem(DEFAULT_UNTI.toString())))
-            .andExpect(jsonPath("$.[*].topic").value(hasItem(DEFAULT_TOPIC.toString())))
-            .andExpect(jsonPath("$.[*].frequency").value(hasItem(DEFAULT_FREQUENCY.toString())));
+            .andExpect(jsonPath("$.[*].keySchema").value(hasItem(DEFAULT_KEY_SCHEMA)))
+            .andExpect(jsonPath("$.[*].valueSchema").value(hasItem(DEFAULT_VALUE_SCHEMA)))
+            .andExpect(jsonPath("$.[*].unit").value(hasItem(DEFAULT_UNTI)))
+            .andExpect(jsonPath("$.[*].topic").value(hasItem(DEFAULT_TOPIC)))
+            .andExpect(jsonPath("$.[*].frequency").value(hasItem(DEFAULT_FREQUENCY)));
     }
 
     @Test
@@ -263,14 +263,14 @@ public class SourceDataResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(sourceData.getId().intValue()))
-            .andExpect(jsonPath("$.sourceDataType").value(DEFAULT_SOURCE_DATA_TYPE.toString()))
-            .andExpect(jsonPath("$.sourceDataName").value(DEFAULT_SOURCE_DATA_NAME.toString()))
+            .andExpect(jsonPath("$.sourceDataType").value(DEFAULT_SOURCE_DATA_TYPE))
+            .andExpect(jsonPath("$.sourceDataName").value(DEFAULT_SOURCE_DATA_NAME))
             .andExpect(jsonPath("$.processingState").value(DEFAULT_PROCESSING_STATE.toString()))
-            .andExpect(jsonPath("$.keySchema").value(DEFAULT_KEY_SCHEMA.toString()))
-            .andExpect(jsonPath("$.valueSchema").value(DEFAULT_VALUE_SCHEMA.toString()))
-            .andExpect(jsonPath("$.unit").value(DEFAULT_UNTI.toString()))
-            .andExpect(jsonPath("$.topic").value(DEFAULT_TOPIC.toString()))
-            .andExpect(jsonPath("$.frequency").value(DEFAULT_FREQUENCY.toString()));
+            .andExpect(jsonPath("$.keySchema").value(DEFAULT_KEY_SCHEMA))
+            .andExpect(jsonPath("$.valueSchema").value(DEFAULT_VALUE_SCHEMA))
+            .andExpect(jsonPath("$.unit").value(DEFAULT_UNTI))
+            .andExpect(jsonPath("$.topic").value(DEFAULT_TOPIC))
+            .andExpect(jsonPath("$.frequency").value(DEFAULT_FREQUENCY));
     }
 
     @Test

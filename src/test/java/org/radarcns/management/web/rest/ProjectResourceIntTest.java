@@ -107,7 +107,7 @@ public class ProjectResourceIntTest {
     private Project project;
 
     @Before
-    public void setup() throws ServletException {
+    public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         ProjectResource projectResource = new ProjectResource();
         ReflectionTestUtils.setField(projectResource, "projectService", projectService);
@@ -262,10 +262,10 @@ public class ProjectResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(project.getId().intValue())))
-            .andExpect(jsonPath("$.[*].projectName").value(hasItem(DEFAULT_PROJECT_NAME.toString())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
-            .andExpect(jsonPath("$.[*].organization").value(hasItem(DEFAULT_ORGANIZATION.toString())))
-            .andExpect(jsonPath("$.[*].location").value(hasItem(DEFAULT_LOCATION.toString())))
+            .andExpect(jsonPath("$.[*].projectName").value(hasItem(DEFAULT_PROJECT_NAME)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].organization").value(hasItem(DEFAULT_ORGANIZATION)))
+            .andExpect(jsonPath("$.[*].location").value(hasItem(DEFAULT_LOCATION)))
             .andExpect(jsonPath("$.[*].startDate").value(hasItem(sameInstant(DEFAULT_START_DATE))))
             .andExpect(jsonPath("$.[*].projectStatus").value(hasItem(DEFAULT_PROJECT_STATUS.toString())))
             .andExpect(jsonPath("$.[*].endDate").value(hasItem(sameInstant(DEFAULT_END_DATE))))
@@ -283,10 +283,10 @@ public class ProjectResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(project.getId().intValue()))
-            .andExpect(jsonPath("$.projectName").value(DEFAULT_PROJECT_NAME.toString()))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
-            .andExpect(jsonPath("$.organization").value(DEFAULT_ORGANIZATION.toString()))
-            .andExpect(jsonPath("$.location").value(DEFAULT_LOCATION.toString()))
+            .andExpect(jsonPath("$.projectName").value(DEFAULT_PROJECT_NAME))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
+            .andExpect(jsonPath("$.organization").value(DEFAULT_ORGANIZATION))
+            .andExpect(jsonPath("$.location").value(DEFAULT_LOCATION))
             .andExpect(jsonPath("$.startDate").value(sameInstant(DEFAULT_START_DATE)))
             .andExpect(jsonPath("$.projectStatus").value(DEFAULT_PROJECT_STATUS.toString()))
             .andExpect(jsonPath("$.endDate").value(sameInstant(DEFAULT_END_DATE)))

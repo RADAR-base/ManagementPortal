@@ -3,10 +3,6 @@ package org.radarcns.management.web.rest;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.apache.commons.codec.binary.Base64;
-import org.radarcns.auth.authorization.Permission;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
-
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
@@ -15,6 +11,8 @@ import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 import java.util.Date;
 import java.util.stream.Collectors;
+import org.radarcns.auth.authorization.Permission;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 /**
  * Created by dverbeec on 29/06/2017.
@@ -63,11 +61,10 @@ public class OAuthHelper {
         RSAPublicKey publicKey = (RSAPublicKey) cert.getPublicKey();
 
         keyStream.close();
-        String publicKeyString = new String(new Base64().encode(publicKey.getEncoded()));
-        initVars(publicKeyString, Algorithm.RSA256(publicKey, privateKey));
+        initVars(Algorithm.RSA256(publicKey, privateKey));
     }
 
-    private static void initVars(String publicKey, Algorithm algorithm) {
+    private static void initVars(Algorithm algorithm) {
         Instant exp = Instant.now().plusSeconds(30 * 60);
         Instant iat = Instant.now();
 

@@ -70,7 +70,6 @@ public class SubjectResourceIntTest {
 
     private static final String MODEL = "App";
     private static final String PRODUCER ="THINC-IT";
-    private static final String DEVICE_VERSION = "v1";
 
     @Autowired
     private SubjectRepository subjectRepository;
@@ -105,7 +104,7 @@ public class SubjectResourceIntTest {
     private MockMvc restSubjectMockMvc;
 
     @Before
-    public void setup() throws ServletException {
+    public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         SubjectResource subjectResource = new SubjectResource();
         ReflectionTestUtils.setField(subjectResource, "subjectService" , subjectService);
@@ -198,8 +197,8 @@ public class SubjectResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(subjectDTO.getId().intValue())))
-            .andExpect(jsonPath("$.[*].externalLink").value(hasItem(DEFAULT_EXTERNAL_LINK.toString())))
-            .andExpect(jsonPath("$.[*].externalId").value(hasItem(DEFAULT_ENTERNAL_ID.toString())))
+            .andExpect(jsonPath("$.[*].externalLink").value(hasItem(DEFAULT_EXTERNAL_LINK)))
+            .andExpect(jsonPath("$.[*].externalId").value(hasItem(DEFAULT_ENTERNAL_ID)))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())));
     }
 
@@ -214,8 +213,8 @@ public class SubjectResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(subjectDTO.getId().intValue()))
-            .andExpect(jsonPath("$.externalLink").value(DEFAULT_EXTERNAL_LINK.toString()))
-            .andExpect(jsonPath("$.externalId").value(DEFAULT_ENTERNAL_ID.toString()))
+            .andExpect(jsonPath("$.externalLink").value(DEFAULT_EXTERNAL_LINK))
+            .andExpect(jsonPath("$.externalId").value(DEFAULT_ENTERNAL_ID))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()));
     }
 
