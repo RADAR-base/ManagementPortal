@@ -18,7 +18,7 @@ public interface SourceRepository extends JpaRepository<Source,Long> {
 
     List<Source> findAllSourcesByAssigned(@Param("assigned") Boolean assigned);
 
-    Page<Source> findAllSourcesByProjectId(@Param("projectId") Long projectId, Pageable pageable);
+    Page<Source> findAllSourcesByProjectId(Pageable pageable , @Param("projectId") Long projectId);
 
     List<Source> findAllSourcesByProjectIdAndAssigned(@Param("projectId") Long projectId,
         @Param("assigned") Boolean assigned);

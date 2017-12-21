@@ -100,7 +100,7 @@ public class SourceService {
      * @return list of sources
      */
     public Page<SourceDTO> findAllByProjectId(Long projectId, Pageable pageable) {
-        return sourceRepository.findAllSourcesByProjectId(projectId, pageable)
+        return sourceRepository.findAllSourcesByProjectId(pageable , projectId)
             .map(sourceMapper::sourceToSourceDTO);
     }
 
@@ -111,7 +111,7 @@ public class SourceService {
      */
     public Page<MinimalSourceDetailsDTO> findAllMinimalSourceDetailsByProject(Long projectId,
             Pageable pageable) {
-        return sourceRepository.findAllSourcesByProjectId(projectId, pageable)
+        return sourceRepository.findAllSourcesByProjectId(pageable , projectId)
             .map(sourceMapper::sourceToMinimalSourceDetailsDTO);
     }
 

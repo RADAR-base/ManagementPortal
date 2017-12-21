@@ -27,12 +27,12 @@
     <div class="table-responsive" *ngIf="subjects">
         <table class="table table-striped">
             <thead>
-            <tr>
-            <th><span jhiTranslate="global.field.id">ID</span><span class="fa fa-sort"></span></th>
-            <th><span jhiTranslate="managementPortalApp.subject.subjectId">subjectId</span></th>
+            <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
+            <th jhiSortBy="id" ><span jhiTranslate="global.field.id">ID</span><span class="fa fa-sort"></span></th>
+            <th jhiSortBy="login" ><span jhiTranslate="managementPortalApp.subject.subjectId">subjectId</span><span class="fa fa-sort"></span></th>
             <th><span jhiTranslate="managementPortalApp.subject.externalLink">External Link</span></th>
-            <th><span jhiTranslate="managementPortalApp.subject.externalId">Enternal Id</span></th>
-            <th><span jhiTranslate="managementPortalApp.subject.status.title">Status</span></th>
+            <th jhiSortBy="externalId" ><span jhiTranslate="managementPortalApp.subject.externalId">Enternal Id</span><span class="fa fa-sort"></span></th>
+            <th jhiSortBy="status" ><span jhiTranslate="managementPortalApp.subject.status.title">Status</span><span class="fa fa-sort"></span></th>
             <th *ngIf="!isProjectSpecific"><span jhiTranslate="managementPortalApp.subject.project">Project</span> <span class="fa fa-sort"></span></th>
             <th><span jhiTranslate="managementPortalApp.subject.sources">Sources</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.attributeData">Attributes</span></th>
