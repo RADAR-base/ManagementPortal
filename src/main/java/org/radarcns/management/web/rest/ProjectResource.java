@@ -125,7 +125,7 @@ public class ProjectResource {
             return createProject(projectDTO);
         }
         checkPermissionOnProject(getJWT(servletRequest), PROJECT_UPDATE,
-            projectDTO.getProjectName());
+                projectDTO.getProjectName());
         ProjectDTO result = projectService.save(projectDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, projectDTO.getProjectName()))
