@@ -50,7 +50,10 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * REST controller for managing users.
  *
- * <p>This class accesses the User entity, and needs to fetch its collection of authorities.</p> <p>
+ * <p>
+ *     This class accesses the User entity, and needs to fetch its collection of authorities.
+ * </p>
+ * <p>
  * For a normal use-case, it would be better to have an eager relationship between User and
  * Authority, and send everything to the client side: there would be no View Model and DTO, a lot
  * less code, and an outer-join which would be good for performance. </p> <p> We use a View Model

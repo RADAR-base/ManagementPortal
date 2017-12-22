@@ -78,8 +78,8 @@ public class AuditResource {
      * GET  /audits/:id : get an AuditEvent by id.
      *
      * @param id the id of the entity to get
-     * @return the ResponseEntity with status 200 (OK) and the AuditEvent in body, or status 404
-     * (Not Found)
+     * @return the ResponseEntity with status 200 (OK) and the AuditEvent in body, or status
+     * 404 (Not Found)
      */
     @GetMapping("/{id:.+}")
     public ResponseEntity<AuditEvent> get(@PathVariable Long id) {

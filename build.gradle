@@ -52,7 +52,7 @@ apply plugin: 'io.spring.dependency-management'
 defaultTasks 'bootRun'
 
 bootRepackage {
-   mainClass = 'org.radarcns.management.ManagementPortalApp'
+    mainClass = 'org.radarcns.management.ManagementPortalApp'
 }
 
 springBoot {
@@ -90,7 +90,9 @@ if (OperatingSystem.current().isWindows()) {
 
 checkstyle {
     toolVersion '6.16'
-    ignoreFailures true
+    ignoreFailures false
+
+    configFile = rootProject.file('config/checkstyle/checkstyle.xml')
 }
 
 pmd {
@@ -188,7 +190,7 @@ dependencies {
     compile "io.dropwizard.metrics:metrics-servlet:${dropwizard_metrics_version}"
     compile "io.dropwizard.metrics:metrics-json:${dropwizard_metrics_version}"
     compile "io.dropwizard.metrics:metrics-servlets:${dropwizard_metrics_version}"
-    compile ("net.logstash.logback:logstash-logback-encoder:${logstash_logback_encoder_version}") {
+    compile("net.logstash.logback:logstash-logback-encoder:${logstash_logback_encoder_version}") {
         exclude(group: 'ch.qos.logback')
     }
     compile "com.fasterxml.jackson.datatype:jackson-datatype-json-org"
@@ -198,19 +200,19 @@ dependencies {
     compile "com.fasterxml.jackson.dataformat:jackson-dataformat-csv"
     compile "com.fasterxml.jackson.core:jackson-annotations"
     compile "com.fasterxml.jackson.core:jackson-databind"
-    compile ("com.ryantenney.metrics:metrics-spring:${metrics_spring_version}")
+    compile("com.ryantenney.metrics:metrics-spring:${metrics_spring_version}")
     compile "com.hazelcast:hazelcast"
     compile "com.hazelcast:hazelcast-hibernate52:${hazelcast_hibernate52_version}"
     compile "com.hazelcast:hazelcast-spring"
     compile "javax.cache:cache-api"
     compile "org.hibernate:hibernate-core:${hibernate_version}"
-    compile ("com.zaxxer:HikariCP:${hikaricp_version}")
+    compile("com.zaxxer:HikariCP:${hikaricp_version}")
     compile "org.apache.commons:commons-lang3:${commons_lang_version}"
     compile "commons-io:commons-io:${commons_io_version}"
     compile "javax.transaction:javax.transaction-api"
     compile "org.hibernate:hibernate-envers"
     compile "org.hibernate:hibernate-validator"
-    compile ("org.liquibase:liquibase-core")
+    compile("org.liquibase:liquibase-core")
     compile "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     compile "org.springframework.boot:spring-boot-actuator"
     compile "org.springframework.boot:spring-boot-autoconfigure"
@@ -221,19 +223,19 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-data-jpa"
     compile "org.springframework.boot:spring-boot-starter-security"
     compile "org.springframework.cloud:spring-cloud-starter-zuul:${zuul_proxy_version}"
-    compile ("org.springframework.boot:spring-boot-starter-web") {
+    compile("org.springframework.boot:spring-boot-starter-web") {
         exclude module: 'spring-boot-starter-tomcat'
     }
     compile "org.springframework.boot:spring-boot-starter-undertow"
     compile "org.springframework.boot:spring-boot-starter-thymeleaf"
     compile "org.springframework.boot:spring-boot-starter-cloud-connectors"
-    compile ("org.springframework:spring-context-support")
+    compile("org.springframework:spring-context-support")
     compile "org.springframework.security:spring-security-config"
     compile "org.springframework.security:spring-security-data"
     compile "org.springframework.security:spring-security-web"
     compile "org.springframework.security:spring-security-jwt"
     compile "org.springframework.security.oauth:spring-security-oauth2:${spring_security_oauth2_version}"
-    compile ("io.springfox:springfox-swagger2:${springfox_version}") {
+    compile("io.springfox:springfox-swagger2:${springfox_version}") {
         exclude module: 'mapstruct'
     }
     compile "io.springfox:springfox-bean-validators:${springfox_version}"
@@ -287,7 +289,7 @@ if (project.hasProperty('nodeInstall')) {
 }
 
 compileJava.dependsOn processResources
-processResources.dependsOn cleanResources,bootBuildInfo
+processResources.dependsOn cleanResources, bootBuildInfo
 bootBuildInfo.mustRunAfter cleanResources
 
 idea.module.downloadSources = true
@@ -307,7 +309,7 @@ task generateOpenApiSpec(dependsOn: 'classes', group: 'Swagger',
         println()
         while (!generated) {
             ProcessBuilder curlPb = new ProcessBuilder("curl", apiDocsEndpoint, "-o",
-                swaggerFileLocation, "--connect-timeout", "1")
+                    swaggerFileLocation, "--connect-timeout", "1")
             curlPb.directory(projectDir)
             Process curlProcess = curlPb.start()
             curlProcess.waitFor()
@@ -341,11 +343,11 @@ task generateJavaClient(dependsOn: 'generateOpenApiSpec', group: 'Swagger',
         config.setGroupId("org.radarcns")
         config.setArtifactVersion(version)
         config.setAdditionalProperties([
-                'apiPackage'   : 'org.radarcns.management.client.api',
-                'modelPackage' : 'org.radarcns.management.client.model',
-                'appName'        : rootProject.name,
-                'appDescription' : description,
-                'licenceUrl'     : 'http://apache.org/licenses/LICENSE-2.0.html'
+                'apiPackage'    : 'org.radarcns.management.client.api',
+                'modelPackage'  : 'org.radarcns.management.client.model',
+                'appName'       : rootProject.name,
+                'appDescription': description,
+                'licenceUrl'    : 'http://apache.org/licenses/LICENSE-2.0.html'
         ])
         new DefaultGenerator().opts(config.toClientOptInput()).generate()
         file("managementportal-client/build.gradle") << file("mp-client-publishing.txt").text

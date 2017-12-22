@@ -24,6 +24,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/management")
 public class LogsResource {
 
+    /**
+     * Returns all the logger configurations from current logger context
+     * @return
+     */
     @GetMapping("/logs")
     @Timed
     @Secured({AuthoritiesConstants.SYS_ADMIN})
@@ -35,6 +39,10 @@ public class LogsResource {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Changes logger level
+     * @param jsonLogger param
+     */
     @PutMapping("/logs")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Timed
