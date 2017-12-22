@@ -20,7 +20,9 @@ import org.springframework.stereotype.Component;
  * EntityListener that publishes audit events to the ApplicationEventPublisher so we also have
  * separate audit logs for these events instead of only having the latest modified at and modified
  * by information. We can not autowire Spring beans into JPA classes, so we need to make use of an
- * AutowireHelper (source: https://guylabs.ch/2014/02/22/autowiring-pring-beans-in-hibernate-jpa-entity-listeners/).
+ * AutowireHelper
+ * (source:
+ * https://guylabs.ch/2014/02/22/autowiring-pring-beans-in-hibernate-jpa-entity-listeners/).
  */
 @Component
 public class EventPublisherEntityListener {

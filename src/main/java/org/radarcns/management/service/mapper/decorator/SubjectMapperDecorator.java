@@ -39,7 +39,7 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
                 .findFirst();
 
         role.ifPresent(
-                role1 -> dto.setProject(projectMapper.projectToProjectDTO(role1.getProject())));
+            role1 -> dto.setProject(projectMapper.projectToProjectDTO(role1.getProject())));
 
         return dto;
     }
