@@ -86,8 +86,10 @@ public class OAuthClientsResourceIntTest {
     private MockMvc restProjectMockMvc;
 
     private ClientDetailsDTO details;
-    List<ClientDetails> clientDetailsList;
-    int databaseSizeBeforeCreate;
+
+    private List<ClientDetails> clientDetailsList;
+
+    private int databaseSizeBeforeCreate;
 
     @Before
     public void setUp() throws Exception {

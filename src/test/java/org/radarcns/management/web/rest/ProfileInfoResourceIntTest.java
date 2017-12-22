@@ -37,7 +37,7 @@ public class ProfileInfoResourceIntTest {
     private MockMvc restProfileMockMvc;
 
     @Before
-    public void setup() {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         String mockProfile[] = {"test"};
         JHipsterProperties.Ribbon ribbon = new JHipsterProperties.Ribbon();
