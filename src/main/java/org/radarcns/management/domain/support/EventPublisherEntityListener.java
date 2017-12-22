@@ -1,5 +1,12 @@
 package org.radarcns.management.domain.support;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import javax.persistence.PostPersist;
+import javax.persistence.PostRemove;
+import javax.persistence.PostUpdate;
 import org.radarcns.management.domain.AbstractAuditingEntity;
 import org.radarcns.management.security.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,20 +16,11 @@ import org.springframework.data.auditing.CurrentDateTimeProvider;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.PostPersist;
-import javax.persistence.PostRemove;
-import javax.persistence.PostUpdate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * EntityListener that publishes audit events to the ApplicationEventPublisher so we also have
  * separate audit logs for these events instead of only having the latest modified at and modified
- * by information. We can not autowire Spring beans into JPA classes, so we need to make use of
- * an AutowireHelper (source:
- * https://guylabs.ch/2014/02/22/autowiring-pring-beans-in-hibernate-jpa-entity-listeners/).
+ * by information. We can not autowire Spring beans into JPA classes, so we need to make use of an
+ * AutowireHelper (source: https://guylabs.ch/2014/02/22/autowiring-pring-beans-in-hibernate-jpa-entity-listeners/).
  */
 @Component
 public class EventPublisherEntityListener {
@@ -62,6 +60,7 @@ public class EventPublisherEntityListener {
     /**
      * Get a standard description of the entity (class and toString() result) as well as the date
      * when the operation took place.
+     *
      * @param entity The entity for which to generate the description
      * @return a Map containing the description of the entity and date the operation took place
      */

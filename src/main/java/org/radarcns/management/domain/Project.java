@@ -1,18 +1,32 @@
 package org.radarcns.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.HashMap;
-import java.util.Map;
-import javax.persistence.*;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
 import java.util.Objects;
-
+import java.util.Set;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
@@ -36,7 +50,7 @@ public class Project extends AbstractAuditingEntity implements Serializable {
 
     @NotNull
     @Pattern(regexp = Constants.ENTITY_ID_REGEX)
-    @Column(name = "project_name", nullable = false , unique = true)
+    @Column(name = "project_name", nullable = false, unique = true)
     private String projectName;
 
     @NotNull
@@ -71,14 +85,14 @@ public class Project extends AbstractAuditingEntity implements Serializable {
     @ManyToMany(fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JoinTable(name = "project_source_type",
-               joinColumns = @JoinColumn(name="projects_id", referencedColumnName="id"),
-               inverseJoinColumns = @JoinColumn(name="source_types_id", referencedColumnName="id"))
+            joinColumns = @JoinColumn(name = "projects_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "source_types_id", referencedColumnName = "id"))
     private Set<SourceType> sourceTypes = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @MapKeyColumn(name="attribute_key")
-    @Column(name="attribute_value")
-    @CollectionTable(name="project_metadata" ,  joinColumns = @JoinColumn(name = "id"))
+    @MapKeyColumn(name = "attribute_key")
+    @Column(name = "attribute_value")
+    @CollectionTable(name = "project_metadata", joinColumns = @JoinColumn(name = "id"))
     private Map<String, String> attributes = new HashMap<>();
 
     public Long getId() {
@@ -257,15 +271,15 @@ public class Project extends AbstractAuditingEntity implements Serializable {
     @Override
     public String toString() {
         return "Project{" +
-            "id=" + id +
-            ", projectName='" + projectName + "'" +
-            ", description='" + description + "'" +
-            ", organization='" + organization + "'" +
-            ", location='" + location + "'" +
-            ", startDate='" + startDate + "'" +
-            ", projectStatus='" + projectStatus + "'" +
-            ", endDate='" + endDate + "'" +
-            ", projectAdmin='" + projectAdmin + "'" +
-            '}';
+                "id=" + id +
+                ", projectName='" + projectName + "'" +
+                ", description='" + description + "'" +
+                ", organization='" + organization + "'" +
+                ", location='" + location + "'" +
+                ", startDate='" + startDate + "'" +
+                ", projectStatus='" + projectStatus + "'" +
+                ", endDate='" + endDate + "'" +
+                ", projectAdmin='" + projectAdmin + "'" +
+                '}';
     }
 }

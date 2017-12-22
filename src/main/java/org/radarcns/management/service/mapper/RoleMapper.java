@@ -13,20 +13,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Created by nivethika on 23-5-17.
  */
-@Mapper(componentModel = "spring", uses = {ProjectMapper.class })
+@Mapper(componentModel = "spring", uses = {ProjectMapper.class})
 public abstract class RoleMapper {
 
     @Autowired
     private AuthorityRepository authorityRepository;
 
-    @Mapping(source = "authority.name" , target = "authorityName")
-    @Mapping(source = "project.id" , target = "projectId")
-    @Mapping(source = "project.projectName" , target = "projectName")
-    public abstract RoleDTO roleToRoleDTO (Role role);
+    @Mapping(source = "authority.name", target = "authorityName")
+    @Mapping(source = "project.id", target = "projectId")
+    @Mapping(source = "project.projectName", target = "projectName")
+    public abstract RoleDTO roleToRoleDTO(Role role);
 
-    @Mapping(source = "authorityName" , target = "authority")
-    @Mapping(source = "projectId" , target = "project.id")
-    @Mapping(target = "users" , ignore = true)
+    @Mapping(source = "authorityName", target = "authority")
+    @Mapping(source = "projectId", target = "project.id")
+    @Mapping(target = "users", ignore = true)
     public abstract Role roleDTOToRole(RoleDTO roleDTO);
 
     public Authority authorityFromAuthorityName(String authorityName) {
@@ -36,8 +36,6 @@ public abstract class RoleMapper {
     public abstract Set<Role> roleDTOsToRoles(Set<RoleDTO> roleDTOs);
 
     public abstract Set<RoleDTO> rolesToRoleDTOs(Set<Role> roles);
-
-
 
 
 }

@@ -51,14 +51,14 @@ public class ProjectService {
     }
 
     /**
-     *  Get all the projects.
+     * Get all the projects.
      *
-     *  @return the list of entities
+     * @return the list of entities
      */
     @Transactional(readOnly = true)
-    public Page findAll(Boolean fetchMinimal , Pageable pageable) {
+    public Page findAll(Boolean fetchMinimal, Pageable pageable) {
         Page<Project> projects = projectRepository.findAllWithEagerRelationships(pageable);
-        if(!fetchMinimal){
+        if (!fetchMinimal) {
             return projects.map(projectMapper::projectToProjectDTO);
         } else {
             return projects.map(projectMapper::projectToMinimalProjectDetailsDTO);
@@ -66,10 +66,10 @@ public class ProjectService {
     }
 
     /**
-     *  Get one project by id.
+     * Get one project by id.
      *
-     *  @param id the id of the entity
-     *  @return the entity
+     * @param id the id of the entity
+     * @return the entity
      */
     @Transactional(readOnly = true)
     public ProjectDTO findOne(Long id) {
@@ -80,10 +80,10 @@ public class ProjectService {
     }
 
     /**
-     *  Get one project by name.
+     * Get one project by name.
      *
-     *  @param name the name of the entity
-     *  @return the entity
+     * @param name the name of the entity
+     * @return the entity
      */
     @Transactional(readOnly = true)
     public ProjectDTO findOneByName(String name) {
@@ -94,10 +94,10 @@ public class ProjectService {
     }
 
     /**
-     *  Get one project by id.
+     * Get one project by id.
      *
-     *  @param id the id of the entity
-     *  @return the entity
+     * @param id the id of the entity
+     * @return the entity
      */
     @Transactional(readOnly = true)
     public List<SourceTypeDTO> findSourceTypesById(Long id) {
@@ -107,9 +107,9 @@ public class ProjectService {
     }
 
     /**
-     *  Delete the  project by id.
+     * Delete the  project by id.
      *
-     *  @param id the id of the entity
+     * @param id the id of the entity
      */
     public void delete(Long id) {
         log.debug("Request to delete Project : {}", id);

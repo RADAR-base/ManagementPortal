@@ -1,6 +1,28 @@
 package org.radarcns.management.web.rest;
 
+import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_CREATE;
+import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_DELETE;
+import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_READ;
+import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_UPDATE;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
+
 import com.codahale.metrics.annotation.Timed;
+import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
@@ -45,28 +67,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_CREATE;
-import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_DELETE;
-import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_READ;
-import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_UPDATE;
-import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
 /**
  * Created by dverbeec on 5/09/2017.
  */
@@ -234,7 +234,7 @@ public class OAuthClientsResource {
     @GetMapping("/oauth-clients/pair")
     @Timed
     public ResponseEntity<ClientPairInfoDTO> getRefreshToken(@RequestParam String login,
-            @RequestParam(value="clientId") String clientId) {
+            @RequestParam(value = "clientId") String clientId) {
         User currentUser = userService.getUserWithAuthorities();
         if (currentUser == null) {
             // We only allow this for actual logged in users for now, not for client_credentials
@@ -247,7 +247,7 @@ public class OAuthClientsResource {
 
         // Users who can update a subject can also generate a refresh token for that subject
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
-            subjectDTO.getProject().getProjectName(), subjectDTO.getLogin());
+                subjectDTO.getProject().getProjectName(), subjectDTO.getLogin());
 
         // lookup the OAuth client
         // getOAuthClient checks if the id exists
@@ -257,15 +257,15 @@ public class OAuthClientsResource {
         User user = subject.getUser();
         Set<GrantedAuthority> authorities = new HashSet<>();
         user.getAuthorities().stream()
-            .forEach(a -> authorities.add(new SimpleGrantedAuthority(a.getName())));
+                .forEach(a -> authorities.add(new SimpleGrantedAuthority(a.getName())));
 
         OAuth2AccessToken token = createToken(clientId, user.getLogin(), authorities,
-            details.getScope(), details.getResourceIds());
+                details.getScope(), details.getResourceIds());
 
         ClientPairInfoDTO cpi = new ClientPairInfoDTO(token.getRefreshToken().getValue());
 
         // generate audit event
-        eventRepository.add(new AuditEvent(currentUser.getLogin(),"PAIR_CLIENT_REQUEST",
+        eventRepository.add(new AuditEvent(currentUser.getLogin(), "PAIR_CLIENT_REQUEST",
                 "client_id=" + clientId, "subject_login=" + login));
         log.info("[{}] by {}: client_id={}, subject_login={}", "PAIR_CLIENT_REQUEST", currentUser
                 .getLogin(), clientId, login);
@@ -273,7 +273,7 @@ public class OAuthClientsResource {
     }
 
     private OAuth2AccessToken createToken(String clientId, String login,
-        Set<GrantedAuthority> authorities, Set<String> scope, Set<String> resourceIds) {
+            Set<GrantedAuthority> authorities, Set<String> scope, Set<String> resourceIds) {
         Map<String, String> requestParameters = new HashMap<>();
 
         boolean approved = true;
@@ -283,20 +283,22 @@ public class OAuthClientsResource {
         Map<String, Serializable> extensionProperties = new HashMap<>();
 
         OAuth2Request oAuth2Request = new OAuth2Request(requestParameters, clientId, authorities,
-            approved, scope, resourceIds, null, responseTypes, extensionProperties);
+                approved, scope, resourceIds, null, responseTypes, extensionProperties);
 
         UsernamePasswordAuthenticationToken authenticationToken =
-            new UsernamePasswordAuthenticationToken(login, null, authorities);
+                new UsernamePasswordAuthenticationToken(login, null, authorities);
         OAuth2Authentication auth = new OAuth2Authentication(oAuth2Request, authenticationToken);
 
         AuthorizationServerTokenServices tokenServices =
-            authorizationServerEndpointsConfiguration.getEndpointsConfigurer().getTokenServices();
+                authorizationServerEndpointsConfiguration.getEndpointsConfigurer()
+                        .getTokenServices();
 
         return tokenServices.createAccessToken(auth);
     }
 
     /**
      * Find ClientDetails by OAuth client id.
+     *
      * @param clientId The client ID to look up
      * @return a ClientDetails object with the requested client ID
      * @throws CustomNotFoundException If there is no client with the requested ID
@@ -304,8 +306,7 @@ public class OAuthClientsResource {
     private ClientDetails getOAuthClient(String clientId) throws CustomNotFoundException {
         try {
             return clientDetailsService.loadClientByClientId(clientId);
-        }
-        catch (NoSuchClientException e) {
+        } catch (NoSuchClientException e) {
             log.error("Pair client request for unknown client id: {}", clientId);
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Client ID not found");

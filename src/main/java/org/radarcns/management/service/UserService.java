@@ -1,5 +1,12 @@
 package org.radarcns.management.service;
 
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Project;
@@ -25,14 +32,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * Service class for managing users.
@@ -62,7 +61,7 @@ public class UserService {
     private UserMapper userMapper;
 
     @Autowired
-    private  AuthorityRepository authorityRepository;
+    private AuthorityRepository authorityRepository;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -134,7 +133,7 @@ public class UserService {
             if (role == null || role.getId() == null) {
                 Role currentRole = new Role();
                 currentRole.setAuthority(
-                    authorityRepository.findByAuthorityName(roleDTO.getAuthorityName()));
+                        authorityRepository.findByAuthorityName(roleDTO.getAuthorityName()));
                 if (roleDTO.getProjectId() != null) {
                     currentRole.setProject(projectRepository.getOne(roleDTO.getProjectId()));
                 }
@@ -213,7 +212,7 @@ public class UserService {
         log.debug("Request to get all Users");
         return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER)
                 .map(userMapper::userToUserDTO);
-        }
+    }
 
     @Transactional(readOnly = true)
     public Optional<UserDTO> getUserWithAuthoritiesByLogin(String login) {
@@ -224,14 +223,13 @@ public class UserService {
     public List<ProjectDTO> getProjectsAssignedToUser(String login) {
         User userByLogin = userRepository.findOneWithRolesByLogin(login).get();
         List<Project> projectsOfUser = new ArrayList<>();
-        for ( Role role : userByLogin.getRoles())
-        {
+        for (Role role : userByLogin.getRoles()) {
             // get all projects for admin
-            if(AuthoritiesConstants.SYS_ADMIN.equals(role.getAuthority().getName())) {
+            if (AuthoritiesConstants.SYS_ADMIN.equals(role.getAuthority().getName())) {
                 return projectMapper.projectsToProjectDTOs(projectRepository.findAll());
             }
             // get unique project from roles
-            if(!projectsOfUser.contains(role.getProject())){
+            if (!projectsOfUser.contains(role.getProject())) {
                 projectsOfUser.add(role.getProject());
             }
         }
@@ -246,10 +244,8 @@ public class UserService {
 
 
     /**
-     * Not activated users should be automatically deleted after 3 days.
-     * <p>
-     * This is scheduled to get fired everyday, at 01:00 (am).
-     * </p>
+     * Not activated users should be automatically deleted after 3 days. <p> This is scheduled to
+     * get fired everyday, at 01:00 (am). </p>
      */
     @Scheduled(cron = "0 0 1 * * ?")
     public void removeNotActivatedUsers() {

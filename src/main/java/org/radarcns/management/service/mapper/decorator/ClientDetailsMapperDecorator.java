@@ -1,21 +1,19 @@
 package org.radarcns.management.service.mapper.decorator;
 
 
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.radarcns.management.service.dto.ClientDetailsDTO;
 import org.radarcns.management.service.mapper.ClientDetailsMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.oauth2.provider.ClientDetails;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 /**
  * Decorator for ClientDetailsMapper. The ClientDetails interface does not expose a method to get
- * all auto-approve scopes, instead it only has a method to check if a given scope is
- * auto-approve. This decorator adds the subset of scopes for which isAutoApprove returns true to
- * the DTO.
+ * all auto-approve scopes, instead it only has a method to check if a given scope is auto-approve.
+ * This decorator adds the subset of scopes for which isAutoApprove returns true to the DTO.
  */
 public abstract class ClientDetailsMapperDecorator implements ClientDetailsMapper {
 

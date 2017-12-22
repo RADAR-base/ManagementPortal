@@ -4,6 +4,7 @@ package org.radarcns.management.service.dto;
  * Created by nivethika on 21-6-17.
  */
 public class MinimalProjectDetailsDTO {
+
     private Long id;
 
     private String projectName;

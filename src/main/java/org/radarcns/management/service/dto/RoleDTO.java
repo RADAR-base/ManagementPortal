@@ -4,6 +4,7 @@ package org.radarcns.management.service.dto;
  * Created by nivethika on 23-5-17.
  */
 public class RoleDTO {
+
     private Long id;
 
     private Long projectId;

@@ -51,7 +51,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
         String userName = SecurityUtils.getUserName(authentication);
 
-        if(userName != null) {
+        if (userName != null) {
             // add the 'sub' claim in accordance with JWT spec
             additionalInfo.put("sub", userName);
 
@@ -76,9 +76,10 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
         // add iat and iss optional JWT claims
         additionalInfo.put("iat", Instant.now().getEpochSecond());
         additionalInfo.put("iss", appName);
-        additionalInfo.put(RadarAuthorization.GRANT_TYPE_CLAIM, authentication.getOAuth2Request().getGrantType());
+        additionalInfo.put(RadarAuthorization.GRANT_TYPE_CLAIM,
+                authentication.getOAuth2Request().getGrantType());
         ((DefaultOAuth2AccessToken) accessToken)
-            .setAdditionalInformation(additionalInfo);
+                .setAdditionalInformation(additionalInfo);
 
         // HACK: since all granted tokens need to pass here, we can use this point to create an
         // audit event for a granted token, there is an open issue about oauth2 audit events in

@@ -15,7 +15,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.NotFound;
@@ -84,9 +83,9 @@ public class SourceData extends AbstractAuditingEntity implements Serializable {
     @Column(name = "enabled")
     private boolean enabled = true;
 
-    @ManyToOne(fetch= FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(
-        action = NotFoundAction.IGNORE) // avoids exception from orphan object fetch
+            action = NotFoundAction.IGNORE) // avoids exception from orphan object fetch
     private SourceType sourceType;
 
     public Long getId() {
@@ -262,10 +261,12 @@ public class SourceData extends AbstractAuditingEntity implements Serializable {
     @Override
     public String toString() {
         return "SourceData{" + "id=" + id + ", sourceDataType='" + sourceDataType + '\''
-            + ", frequency='"
-            + frequency + '\'' + ", unit='" + unit + '\'' + ", processingState=" + processingState
-            + ", dataClass='" + dataClass + '\'' + ", keySchema='" + keySchema + '\''
-            + ", valueSchema='" + valueSchema + '\'' + ", topic='" + topic + '\'' + ", provider='"
-            + provider + '\'' + ", enabled=" + enabled + '}';
+                + ", frequency='"
+                + frequency + '\'' + ", unit='" + unit + '\'' + ", processingState="
+                + processingState
+                + ", dataClass='" + dataClass + '\'' + ", keySchema='" + keySchema + '\''
+                + ", valueSchema='" + valueSchema + '\'' + ", topic='" + topic + '\''
+                + ", provider='"
+                + provider + '\'' + ", enabled=" + enabled + '}';
     }
 }

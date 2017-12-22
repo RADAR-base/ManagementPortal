@@ -25,12 +25,12 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
 
     @Override
     public ProjectDTO projectToProjectDTO(Project project) {
-        if ( project == null ) {
+        if (project == null) {
             return null;
         }
         ProjectDTO dto = delegate.projectToProjectDTO(project);
         Set<AttributeMapDTO> attributeMapDTOList = new HashSet<>();
-        if(project.getAttributes()!=null) {
+        if (project.getAttributes() != null) {
             for (Entry<String, String> entry : project.getAttributes().entrySet()) {
                 AttributeMapDTO attributeMapDTO = new AttributeMapDTO();
                 attributeMapDTO.setKey(entry.getKey());
@@ -45,12 +45,12 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
     @Override
     public Project projectDTOToProject(ProjectDTO projectDTO) {
 
-        if ( projectDTO == null ) {
+        if (projectDTO == null) {
             return null;
         }
 
         Project project = delegate.projectDTOToProject(projectDTO);
-        if(projectDTO.getAttributes()!=null && !projectDTO.getAttributes().isEmpty()) {
+        if (projectDTO.getAttributes() != null && !projectDTO.getAttributes().isEmpty()) {
             Map<String, String> attributeMap = new HashMap<>();
             for (AttributeMapDTO attributeMapDTO : projectDTO.getAttributes()) {
                 attributeMap.put(attributeMapDTO.getKey(), attributeMapDTO.getValue());
@@ -62,13 +62,13 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
 
     @Override
     public List<ProjectDTO> projectsToProjectDTOs(List<Project> projects) {
-        if ( projects == null ) {
+        if (projects == null) {
             return null;
         }
 
         List<ProjectDTO> list = new ArrayList<ProjectDTO>();
-        for ( Project project : projects ) {
-            list.add( this.projectToProjectDTO( project ) );
+        for (Project project : projects) {
+            list.add(this.projectToProjectDTO(project));
         }
 
         return list;
@@ -77,13 +77,13 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
     @Override
     public List<Project> projectDTOsToProjects(List<ProjectDTO> projectDTOs) {
 
-        if ( projectDTOs == null ) {
+        if (projectDTOs == null) {
             return null;
         }
 
         List<Project> list = new ArrayList<Project>();
-        for ( ProjectDTO projectDTO : projectDTOs ) {
-            list.add(this.projectDTOToProject( projectDTO ) );
+        for (ProjectDTO projectDTO : projectDTOs) {
+            list.add(this.projectDTOToProject(projectDTO));
         }
 
         return list;

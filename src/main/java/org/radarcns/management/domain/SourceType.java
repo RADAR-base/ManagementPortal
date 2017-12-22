@@ -19,7 +19,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
@@ -61,7 +60,7 @@ public class SourceType extends AbstractAuditingEntity implements Serializable {
 
     @NotNull
     @Pattern(regexp = Constants.ENTITY_ID_REGEX)
-    @Column(name = "model", nullable = false )
+    @Column(name = "model", nullable = false)
     private String model;
 
     @NotNull
@@ -75,12 +74,12 @@ public class SourceType extends AbstractAuditingEntity implements Serializable {
     private SourceTypeScope sourceTypeScope;
 
     @NotNull
-    @Column(name = "dynamic_registration" , nullable = false)
+    @Column(name = "dynamic_registration", nullable = false)
     private Boolean canRegisterDynamically = false;
 
-    @OneToMany(mappedBy = "sourceType" , fetch = FetchType.EAGER , orphanRemoval = true)
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE )
-    @Cascade({CascadeType.DELETE , CascadeType.SAVE_UPDATE})
+    @OneToMany(mappedBy = "sourceType", fetch = FetchType.EAGER, orphanRemoval = true)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @Cascade({CascadeType.DELETE, CascadeType.SAVE_UPDATE})
     private Set<SourceData> sourceData;
 
     @ManyToMany(mappedBy = "sourceTypes")
@@ -251,36 +250,36 @@ public class SourceType extends AbstractAuditingEntity implements Serializable {
             return false;
         }
         return Objects.equals(id, sourceType.id)
-            && Objects.equals(producer, sourceType.producer)
-            && Objects.equals(model, sourceType.model)
-            && Objects.equals(catalogVersion , sourceType.catalogVersion)
-            && Objects.equals(canRegisterDynamically , sourceType.canRegisterDynamically)
-            && Objects.equals(sourceTypeScope, sourceType.sourceTypeScope)
-            && Objects.equals(name , sourceType.name)
-            && Objects.equals(description , sourceType.description)
-            && Objects.equals(appProvider , sourceType.appProvider)
-            && Objects.equals(assessmentType , sourceType.assessmentType);
+                && Objects.equals(producer, sourceType.producer)
+                && Objects.equals(model, sourceType.model)
+                && Objects.equals(catalogVersion, sourceType.catalogVersion)
+                && Objects.equals(canRegisterDynamically, sourceType.canRegisterDynamically)
+                && Objects.equals(sourceTypeScope, sourceType.sourceTypeScope)
+                && Objects.equals(name, sourceType.name)
+                && Objects.equals(description, sourceType.description)
+                && Objects.equals(appProvider, sourceType.appProvider)
+                && Objects.equals(assessmentType, sourceType.assessmentType);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, model, producer, catalogVersion, canRegisterDynamically,
-            sourceTypeScope, name, description, appProvider, assessmentType);
+                sourceTypeScope, name, description, appProvider, assessmentType);
     }
 
     @Override
     public String toString() {
-        return "SourceType{" +
-            "id=" + id +
-            ", producer='" + producer + '\'' +
-            ", model='" + model + '\'' +
-            ", catalogVersion='" + catalogVersion + '\'' +
-            ", sourceTypeScope=" + sourceTypeScope +
-            ", canRegisterDynamically=" + canRegisterDynamically +
-            ", name='" + name + '\'' +
-            ", description=" + description +
-            ", appProvider=" + appProvider +
-            ", assessmentType=" + assessmentType +
-            '}';
+        return "SourceType{"
+                + "id=" + id
+                + ", producer='" + producer + '\''
+                + ", model='" + model + '\''
+                + ", catalogVersion='" + catalogVersion + '\''
+                + ", sourceTypeScope=" + sourceTypeScope
+                + ", canRegisterDynamically=" + canRegisterDynamically
+                + ", name='" + name + '\''
+                + ", description=" + description
+                + ", appProvider=" + appProvider
+                + ", assessmentType=" + assessmentType
+                + '}';
     }
 }

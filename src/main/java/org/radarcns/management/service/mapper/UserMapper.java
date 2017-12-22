@@ -13,7 +13,7 @@ import org.radarcns.management.service.dto.UserDTO;
 /**
  * Mapper for the entity User and its DTO UserDTO.
  */
-@Mapper(componentModel = "spring", uses = { ProjectMapper.class , RoleMapper.class})
+@Mapper(componentModel = "spring", uses = {ProjectMapper.class, RoleMapper.class})
 public interface UserMapper {
 
     UserDTO userToUserDTO(User user);
@@ -32,10 +32,11 @@ public interface UserMapper {
     User userDTOToUser(UserDTO userDTO);
 
     default Set<String> rolesToAuthorities(Set<Role> roles) {
-        if(roles == null) {
+        if (roles == null) {
             return null;
         }
-        return roles.stream().map(role -> role.getAuthority().getName()).collect(Collectors.toSet());
+        return roles.stream().map(role -> role.getAuthority().getName())
+                .collect(Collectors.toSet());
     }
 
     List<User> userDTOsToUsers(List<UserDTO> userDTOs);
@@ -58,12 +59,12 @@ public interface UserMapper {
         return user;
     }
 
-    default Set<String> stringsFromAuthorities (Set<Authority> authorities) {
+    default Set<String> stringsFromAuthorities(Set<Authority> authorities) {
         if (authorities == null) {
             return null;
         }
         return authorities.stream().map(Authority::getName)
-            .collect(Collectors.toSet());
+                .collect(Collectors.toSet());
     }
 
     default Set<Authority> authoritiesFromStrings(Set<String> strings) {

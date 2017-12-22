@@ -1,5 +1,6 @@
 package org.radarcns.management.web.rest.errors;
 
+import java.util.List;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
@@ -21,13 +22,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.util.List;
-
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures.
  */
 @ControllerAdvice
 public class ExceptionTranslator {
+
     private static final Logger logger = LoggerFactory.getLogger(ExceptionTranslator.class);
 
 
@@ -67,7 +67,7 @@ public class ExceptionTranslator {
     @ResponseBody
     public ErrorVM processValidationError(MethodArgumentTypeMismatchException ex) {
         return new ErrorVM(ErrorConstants.ERR_VALIDATION,
-            ex.getName() + ": " + ex.getMessage());
+                ex.getName() + ": " + ex.getMessage());
     }
 
     @ExceptionHandler(CustomParameterizedException.class)

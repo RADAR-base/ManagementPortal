@@ -1,11 +1,10 @@
 package org.radarcns.management.service.dto;
 
 
-import org.radarcns.management.domain.enumeration.ProcessingState;
-
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
+import javax.validation.constraints.NotNull;
+import org.radarcns.management.domain.enumeration.ProcessingState;
 
 /**
  * A DTO for the SourceData entity.
@@ -174,18 +173,18 @@ public class SourceDataDTO implements Serializable {
     @Override
     public String toString() {
         return "SourceDataDTO{"
-            + "id=" + id
-            + ", sourceDataType='" + sourceDataType + '\''
-            + ", sourceDataName='" + sourceDataName + '\''
-            + ", frequency='" + frequency + '\''
-            + ", unit='" + unit + '\''
-            + ", processingState=" + processingState
-            + ", dataClass=" + dataClass
-            + ", keySchema='" + keySchema + '\''
-            + ", valueSchema='" + valueSchema + '\''
-            + ", topic='" + topic + '\''
-            + ", provider='" + provider + '\''
-            + ", enabled=" + enabled
-            + '}';
+                + "id=" + id
+                + ", sourceDataType='" + sourceDataType + '\''
+                + ", sourceDataName='" + sourceDataName + '\''
+                + ", frequency='" + frequency + '\''
+                + ", unit='" + unit + '\''
+                + ", processingState=" + processingState
+                + ", dataClass=" + dataClass
+                + ", keySchema='" + keySchema + '\''
+                + ", valueSchema='" + valueSchema + '\''
+                + ", topic='" + topic + '\''
+                + ", provider='" + provider + '\''
+                + ", enabled=" + enabled
+                + '}';
     }
 }

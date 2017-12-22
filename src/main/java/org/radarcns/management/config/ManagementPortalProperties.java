@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = "managementportal", ignoreUnknownFields = false)
 public class ManagementPortalProperties {
+
     private final Mail mail = new Mail();
 
     private final Frontend frontend = new Frontend();
@@ -30,6 +31,7 @@ public class ManagementPortalProperties {
     public CatalogueServer getCatalogueServer() {
         return catalogueServer;
     }
+
     public static class Mail {
 
         private String from = "";
@@ -63,7 +65,7 @@ public class ManagementPortalProperties {
 
         private Integer refreshTokenValiditySeconds = 72 * 60 * 60;
 
-        private Integer sessionTimeout = 24*60*60; // a day
+        private Integer sessionTimeout = 24 * 60 * 60; // a day
 
         public String getClientId() {
             return clientId;
@@ -107,6 +109,7 @@ public class ManagementPortalProperties {
     }
 
     public static class Oauth {
+
         private String clientsFile;
 
         public String getClientsFile() {

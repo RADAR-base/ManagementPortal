@@ -114,6 +114,7 @@ public class SubjectDTO implements Serializable {
     public void setExternalLink(String externalLink) {
         this.externalLink = externalLink;
     }
+
     public String getExternalId() {
         return externalId;
     }
@@ -160,9 +161,11 @@ public class SubjectDTO implements Serializable {
 
         SubjectDTO subjectDTO = (SubjectDTO) o;
 
-        if ( id == null || subjectDTO.id == null ) { return false; }
+        if (id == null || subjectDTO.id == null) {
+            return false;
+        }
 
-        return ! Objects.equals(id, subjectDTO.id);
+        return !Objects.equals(id, subjectDTO.id);
     }
 
     @Override
@@ -173,10 +176,10 @@ public class SubjectDTO implements Serializable {
     @Override
     public String toString() {
         return "SubjectDTO{" +
-            "id=" + id +
-            ", externalLink='" + externalLink + "'" +
-            ", externalId='" + externalId + "'" +
-            ", status='" + status+ "'" +
-            '}';
+                "id=" + id +
+                ", externalLink='" + externalLink + "'" +
+                ", externalId='" + externalId + "'" +
+                ", status='" + status + "'" +
+                '}';
     }
 }

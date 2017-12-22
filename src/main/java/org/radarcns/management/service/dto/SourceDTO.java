@@ -1,11 +1,11 @@
 package org.radarcns.management.service.dto;
 
 
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import javax.validation.constraints.NotNull;
 
 /**
  * A DTO for the Source entity.
@@ -40,6 +40,7 @@ public class SourceDTO implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
+
     public UUID getSourceId() {
         return sourceId;
     }
@@ -61,7 +62,7 @@ public class SourceDTO implements Serializable {
     }
 
     public void setSourceType(SourceTypeDTO sourceType) {
-        this.sourceType= sourceType;
+        this.sourceType = sourceType;
     }
 
     public MinimalProjectDetailsDTO getProject() {
@@ -108,7 +109,7 @@ public class SourceDTO implements Serializable {
         SourceDTO sourceDTO = (SourceDTO) o;
 
         return Objects.equals(sourceId, sourceDTO.sourceId)
-            && Objects.equals(sourceName, sourceDTO.sourceName);
+                && Objects.equals(sourceName, sourceDTO.sourceName);
     }
 
     @Override
@@ -119,12 +120,12 @@ public class SourceDTO implements Serializable {
     @Override
     public String toString() {
         return "SourceDTO{" +
-            "id=" + id +
-            ", sourceId='" + sourceId + '\'' +
-            ", sourceName='" + sourceName + '\'' +
-            ", assigned=" + assigned +
-            ", sourceType=" + sourceType +
-            ", project=" + project +
-            '}';
+                "id=" + id +
+                ", sourceId='" + sourceId + '\'' +
+                ", sourceName='" + sourceName + '\'' +
+                ", assigned=" + assigned +
+                ", sourceType=" + sourceType +
+                ", project=" + project +
+                '}';
     }
 }
