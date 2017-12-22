@@ -89,14 +89,14 @@ if (OperatingSystem.current().isWindows()) {
 }
 
 checkstyle {
-    toolVersion '6.16'
-    ignoreFailures false
+    toolVersion '8.5'
+    ignoreFailures true
 
     configFile = rootProject.file('config/checkstyle/checkstyle.xml')
 }
 
 pmd {
-    toolVersion = '5.5.2'
+    toolVersion = '5.8.1'
     ignoreFailures = false
 
     consoleOutput = true
