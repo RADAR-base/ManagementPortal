@@ -7,6 +7,17 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.radarcns.auth.authorization.Permission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,18 +30,6 @@ import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 /**
  * Created by dverbeec on 20/11/2017.
  */
@@ -41,7 +40,7 @@ public class OAuthClientLoader {
     private JdbcClientDetailsService clientDetailsService;
 
     @Autowired
-    private  ManagementPortalProperties managementPortalProperties;
+    private ManagementPortalProperties managementPortalProperties;
 
     private static Logger logger = LoggerFactory.getLogger(OAuthClientLoader.class);
 
@@ -91,7 +90,8 @@ public class OAuthClientLoader {
                     .sortedBy(getCsvFileColumnOrder(file))
                     .withColumnSeparator(SEPARATOR)
                     .withHeader();
-            MappingIterator<BaseClientDetails> iterator = mapper.readerFor(CustomBaseClientDetails.class)
+            MappingIterator<BaseClientDetails> iterator = mapper
+                    .readerFor(CustomBaseClientDetails.class)
                     .with(schema).readValues(inputStream);
             while (iterator.hasNext()) {
                 loadOAuthClient(iterator.nextValue());
@@ -133,8 +133,8 @@ public class OAuthClientLoader {
     }
 
     /**
-     * Custom class that will also deserialize the additional_information field. This field holds
-     * a JSON structure that needs to be converted to a {@code Map<String, Object>}. This field is
+     * Custom class that will also deserialize the additional_information field. This field holds a
+     * JSON structure that needs to be converted to a {@code Map<String, Object>}. This field is
      * {@link com.fasterxml.jackson.annotation.JsonIgnore}d in BaseClientDetails but we need it.
      */
     private static class CustomBaseClientDetails extends BaseClientDetails {
@@ -156,7 +156,8 @@ public class OAuthClientLoader {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 this.additionalInformation = mapper.readValue(additionalInformation,
-                        new TypeReference<Map<String, Object>>() {});
+                        new TypeReference<Map<String, Object>>() {
+                        });
             } catch (Exception ex) {
                 logger.error("Unable to parse additional_information field for client " +
                         getClientId() + ": " + ex.getMessage(), ex);

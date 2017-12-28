@@ -4,6 +4,7 @@ package org.radarcns.management.service.dto;
  * Created by dverbeec on 29/08/2017.
  */
 public class ClientPairInfoDTO {
+
     private String refreshToken;
 
     public ClientPairInfoDTO(String refreshToken) {
@@ -19,8 +20,12 @@ public class ClientPairInfoDTO {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ClientPairInfoDTO)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ClientPairInfoDTO)) {
+            return false;
+        }
 
         ClientPairInfoDTO that = (ClientPairInfoDTO) o;
 

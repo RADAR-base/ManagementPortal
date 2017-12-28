@@ -11,6 +11,7 @@ import java.util.Objects;
  * Created by dverbeec on 13/09/2017.
  */
 public class CustomConflictException extends RuntimeException {
+
     private static final long serialVersionUID = 1L;
 
     private final String message;

@@ -1,10 +1,13 @@
 package org.radarcns.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.radarcns.auth.config.Constants;
-
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -22,13 +25,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.radarcns.auth.config.Constants;
 
 /**
  * A Source.
@@ -46,7 +45,7 @@ public class Source extends AbstractAuditingEntity implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "source_id", nullable = false , unique = true)
+    @Column(name = "source_id", nullable = false, unique = true)
     private UUID sourceId;
 
     @NotNull
@@ -73,9 +72,9 @@ public class Source extends AbstractAuditingEntity implements Serializable {
     private Project project;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @MapKeyColumn(name="attribute_key")
-    @Column(name="attribute_value")
-    @CollectionTable(name="source_metadata" ,  joinColumns = @JoinColumn(name = "id"))
+    @MapKeyColumn(name = "attribute_key")
+    @Column(name = "attribute_value")
+    @CollectionTable(name = "source_metadata", joinColumns = @JoinColumn(name = "id"))
     private Map<String, String> attributes = new HashMap<String, String>(); // maps from attribute name to value
 
     public Long getId() {
@@ -105,9 +104,9 @@ public class Source extends AbstractAuditingEntity implements Serializable {
         if (this.sourceId == null) {
             this.sourceId = UUID.randomUUID();
         }
-        if(this.sourceName == null) {
+        if (this.sourceName == null) {
             this.sourceName = String.join("-", this.getSourceType().getModel(),
-                    this.sourceId.toString().substring(0,8));
+                    this.sourceId.toString().substring(0, 8));
         }
     }
 
@@ -227,12 +226,12 @@ public class Source extends AbstractAuditingEntity implements Serializable {
     @Override
     public String toString() {
         return "Source{" +
-            "id=" + id +
-            ", sourceId='" + sourceId + '\'' +
-            ", sourceName='" + sourceName + '\'' +
-            ", assigned=" + assigned +
-            ", sourceType=" + sourceType +
-            ", project=" + project +
-            '}';
+                "id=" + id +
+                ", sourceId='" + sourceId + '\'' +
+                ", sourceName='" + sourceName + '\'' +
+                ", assigned=" + assigned +
+                ", sourceType=" + sourceType +
+                ", project=" + project +
+                '}';
     }
 }

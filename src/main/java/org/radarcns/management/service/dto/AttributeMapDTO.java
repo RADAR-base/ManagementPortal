@@ -15,6 +15,7 @@ public class AttributeMapDTO {
         this.key = key;
         this.value = value;
     }
+
     private String key;
 
     private String value;
@@ -47,7 +48,7 @@ public class AttributeMapDTO {
         AttributeMapDTO attributeMapDTO = (AttributeMapDTO) o;
 
         return Objects.equals(key, attributeMapDTO.key)
-            && Objects.equals(value, attributeMapDTO.value);
+                && Objects.equals(value, attributeMapDTO.value);
     }
 
     @Override
@@ -58,8 +59,8 @@ public class AttributeMapDTO {
     @Override
     public String toString() {
         return "AttributeMapDTO{" +
-            " key='" + key + "'" +
-            ", value='" + value+ "'" +
-            '}';
+                " key='" + key + "'" +
+                ", value='" + value + "'" +
+                '}';
     }
 }

@@ -7,11 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HttpUtil {
+
     private static Logger log = LoggerFactory.getLogger(HttpUtil.class);
 
     /**
      * Checks whether given {@link URL} can be reachable
-     * @param urlServer
+     *
      * @return {@code true} if reachable, {@code false} otherwise
      */
     public static boolean isReachable(URL urlServer) {

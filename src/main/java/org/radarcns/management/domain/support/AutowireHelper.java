@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AutowireHelper implements ApplicationContextAware {
+
     private static final AutowireHelper INSTANCE = new AutowireHelper();
     private static ApplicationContext applicationContext;
 
@@ -21,8 +22,8 @@ public class AutowireHelper implements ApplicationContextAware {
      * need to be autowired are null.
      *
      * @param classToAutowire the instance of the class which holds @Autowire annotations
-     * @param beansToAutowireInClass the beans which have the @Autowire annotation in the
-     *                               specified {#classToAutowire}
+     * @param beansToAutowireInClass the beans which have the @Autowire annotation in the specified
+     * {#classToAutowire}
      */
     public static void autowire(Object classToAutowire, Object... beansToAutowireInClass) {
         for (Object bean : beansToAutowireInClass) {

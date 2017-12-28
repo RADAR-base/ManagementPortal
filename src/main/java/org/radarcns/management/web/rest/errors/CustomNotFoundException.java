@@ -9,6 +9,7 @@ import java.util.Map;
  * Created by dverbeec on 7/09/2017.
  */
 public class CustomNotFoundException extends RuntimeException {
+
     private static final long serialVersionUID = 1L;
 
     private final String message;
@@ -19,7 +20,8 @@ public class CustomNotFoundException extends RuntimeException {
         super(message);
         this.message = message;
         this.paramMap.putAll(paramMap);
-        this.paramMap.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        this.paramMap
+                .put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
     }
 
     public ParameterizedErrorVM getErrorVM() {

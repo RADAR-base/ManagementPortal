@@ -44,8 +44,9 @@ public class OAuth2LoginUiWebConfig {
 
 
     @RequestMapping("/oauth/confirm_access")
-    public ModelAndView getAccessConfirmation(HttpServletRequest request, HttpServletResponse response)
-        throws Exception {
+    public ModelAndView getAccessConfirmation(HttpServletRequest request,
+            HttpServletResponse response)
+            throws Exception {
 
         Map<String, String[]> params = request.getParameterMap();
 
@@ -56,7 +57,7 @@ public class OAuth2LoginUiWebConfig {
                 .collect(Collectors.toMap(Function.identity(), p -> params.get(p)[0]));
 
         AuthorizationRequest authorizationRequest = new DefaultOAuth2RequestFactory
-            (clientDetailsService).createAuthorizationRequest(authorizationParameters);
+                (clientDetailsService).createAuthorizationRequest(authorizationParameters);
 
         TreeMap<String, Object> model = new TreeMap<>();
         model.put("authorizationRequest", authorizationRequest);
@@ -71,7 +72,7 @@ public class OAuth2LoginUiWebConfig {
         // it needs to be escaped to prevent XSS
         Map<String, String> errorParams = new HashMap<>();
         errorParams.put("date",
-            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         if (error instanceof OAuth2Exception) {
             OAuth2Exception oauthError = (OAuth2Exception) error;
             errorParams.put("status", String.format("%d", oauthError.getHttpErrorCode()));
@@ -80,9 +81,9 @@ public class OAuth2LoginUiWebConfig {
             // transform the additionalInfo map to a comma seperated list of key: value pairs
             if (oauthError.getAdditionalInformation() != null) {
                 errorParams.put("additionalInfo", HtmlUtils.htmlEscape(String.join(", ",
-                    oauthError.getAdditionalInformation().entrySet().stream()
-                        .map(entry -> entry.getKey() + ": " + entry.getValue())
-                        .collect(Collectors.toList()))));
+                        oauthError.getAdditionalInformation().entrySet().stream()
+                                .map(entry -> entry.getKey() + ": " + entry.getValue())
+                                .collect(Collectors.toList()))));
             }
         }
         // Copy non-empty entries to the model. Empty entries will not be present in the model,

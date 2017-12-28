@@ -1,12 +1,11 @@
 package org.radarcns.management.service.dto;
 
-import org.hibernate.validator.constraints.Email;
-import org.radarcns.auth.config.Constants;
-
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.time.ZonedDateTime;
 import java.util.Set;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.Email;
+import org.radarcns.auth.config.Constants;
 
 /**
  * A DTO representing a user, with his authorities.
@@ -153,16 +152,16 @@ public class UserDTO {
     @Override
     public String toString() {
         return "UserDTO{" +
-            "login='" + login + '\'' +
-            ", firstName='" + firstName + '\'' +
-            ", lastName='" + lastName + '\'' +
-            ", email='" + email + '\'' +
-            ", activated=" + activated +
-            ", langKey='" + langKey + '\'' +
-            ", createdBy=" + createdBy +
-            ", createdDate=" + createdDate +
-            ", lastModifiedBy='" + lastModifiedBy + '\'' +
-            ", lastModifiedDate=" + lastModifiedDate +
-            "}";
+                "login='" + login + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", activated=" + activated +
+                ", langKey='" + langKey + '\'' +
+                ", createdBy=" + createdBy +
+                ", createdDate=" + createdDate +
+                ", lastModifiedBy='" + lastModifiedBy + '\'' +
+                ", lastModifiedDate=" + lastModifiedDate +
+                "}";
     }
 }

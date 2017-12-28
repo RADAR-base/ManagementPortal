@@ -30,10 +30,10 @@ public class SourceTypeService {
     private final Logger log = LoggerFactory.getLogger(SourceTypeService.class);
 
     @Autowired
-    private  SourceTypeRepository sourceTypeRepository;
+    private SourceTypeRepository sourceTypeRepository;
 
     @Autowired
-    private  SourceTypeMapper sourceTypeMapper;
+    private SourceTypeMapper sourceTypeMapper;
 
     @Autowired
     private SourceDataRepository sourceDataRepository;
@@ -69,26 +69,27 @@ public class SourceTypeService {
         log.debug("Request to get all SourceTypes");
         List<SourceType> result = sourceTypeRepository.findAllWithEagerRelationships();
         return result.stream().map(sourceTypeMapper::sourceTypeToSourceTypeDTO)
-            .collect(Collectors.toCollection(LinkedList::new));
+                .collect(Collectors.toCollection(LinkedList::new));
 
     }
 
     /**
      * Get all sourceTypes with pagination
+     *
      * @param pageable params
      * @return the list of entities
      */
     public Page<SourceTypeDTO> findAll(Pageable pageable) {
         log.debug("Request to get SourceTypes");
         return sourceTypeRepository.findAll(pageable)
-            .map(sourceTypeMapper::sourceTypeToSourceTypeDTO);
+                .map(sourceTypeMapper::sourceTypeToSourceTypeDTO);
     }
 
     /**
-     *  Get one sourceType by id.
+     * Get one sourceType by id.
      *
-     *  @param id the id of the entity
-     *  @return the entity
+     * @param id the id of the entity
+     * @return the entity
      */
     @Transactional(readOnly = true)
     public SourceTypeDTO findOne(Long id) {
@@ -98,9 +99,9 @@ public class SourceTypeService {
     }
 
     /**
-     *  Delete the  sourceType by id.
+     * Delete the  sourceType by id.
      *
-     *  @param id the id of the entity
+     * @param id the id of the entity
      */
     public void delete(Long id) {
         log.debug("Request to delete SourceType : {}", id);
@@ -138,9 +139,9 @@ public class SourceTypeService {
     public List<SourceTypeDTO> findByProducerAndModel(String producer, String model) {
         log.debug("Request to get SourceType by producer and model: {}, {}", producer, model);
         List<SourceType> sourceTypes = sourceTypeRepository
-            .findWithEagerRelationshipsByProducerAndModel(producer, model);
+                .findWithEagerRelationshipsByProducerAndModel(producer, model);
         List<SourceTypeDTO> sourceTypeDTOs = sourceTypeMapper.sourceTypesToSourceTypeDTOs(
-            sourceTypes);
+                sourceTypes);
         return sourceTypeDTOs;
     }
 

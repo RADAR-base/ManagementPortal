@@ -1,14 +1,13 @@
 package org.radarcns.management.domain.support;
 
+import javax.persistence.PostPersist;
+import javax.persistence.PostRemove;
+import javax.persistence.PostUpdate;
 import org.radarcns.management.domain.AbstractAuditingEntity;
 import org.radarcns.management.security.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import javax.persistence.PostPersist;
-import javax.persistence.PostRemove;
-import javax.persistence.PostUpdate;
 
 /**
  * Entity listener that publishes entity events to log, to have a uniform, centralized logging of
@@ -35,6 +34,7 @@ public class LogPublisherEntityListener {
     @PostRemove
     public void publishRemoveEvent(AbstractAuditingEntity entity) {
         logger.info(TEMPLATE, EventPublisherEntityListener.ENTITY_REMOVED,
-                SecurityUtils.getCurrentUserLogin(), entity.getClass().getName(), entity.toString());
+                SecurityUtils.getCurrentUserLogin(), entity.getClass().getName(),
+                entity.toString());
     }
 }

@@ -51,7 +51,7 @@ public class SourceResource {
     private static final String ENTITY_NAME = "source";
 
     @Autowired
-    private  SourceService sourceService;
+    private SourceService sourceService;
 
     @Autowired
     private SourceRepository sourceRepository;
@@ -84,24 +84,24 @@ public class SourceResource {
                     "sourceNameExists", "Source name already in use")).build();
         } else if (sourceDTO.getAssigned() == null) {
             return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceAssignedRequired",
-                    "A new source must have the 'assigned' field specified")).body(null);
+                    .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceAssignedRequired",
+                            "A new source must have the 'assigned' field specified")).body(null);
         } else {
             SourceDTO result = sourceService.save(sourceDTO);
             String name = result.getSourceName();
             return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "sources", name)))
                     .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, name))
                     .body(result);
-            }
+        }
     }
 
     /**
      * PUT  /sources : Updates an existing source.
      *
      * @param sourceDTO the sourceDTO to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated sourceDTO,
-     * or with status 400 (Bad Request) if the sourceDTO is not valid,
-     * or with status 500 (Internal Server Error) if the sourceDTO couldnt be updated
+     * @return the ResponseEntity with status 200 (OK) and with body the updated sourceDTO, or with
+     * status 400 (Bad Request) if the sourceDTO is not valid, or with status 500 (Internal Server
+     * Error) if the sourceDTO couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/sources")
@@ -115,8 +115,8 @@ public class SourceResource {
         checkPermission(getJWT(servletRequest), SOURCE_UPDATE);
         SourceDTO result = sourceService.save(sourceDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceDTO.getSourceName()))
-            .body(result);
+                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceDTO.getSourceName()))
+                .body(result);
     }
 
     /**

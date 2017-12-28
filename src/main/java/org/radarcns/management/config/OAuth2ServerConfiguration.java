@@ -2,6 +2,9 @@ package org.radarcns.management.config;
 
 import io.github.jhipster.security.AjaxLogoutSuccessHandler;
 import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
+import java.security.KeyPair;
+import java.util.Arrays;
+import javax.sql.DataSource;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.security.ClaimsTokenEnhancer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +46,6 @@ import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFacto
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 
-import javax.sql.DataSource;
-import java.security.KeyPair;
-import java.util.Arrays;
-
 @Configuration
 public class OAuth2ServerConfiguration {
 
@@ -63,12 +62,12 @@ public class OAuth2ServerConfiguration {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .formLogin().loginPage("/login").permitAll()
-                .and()
+                    .formLogin().loginPage("/login").permitAll()
+                    .and()
                     .requestMatchers().antMatchers("/login",
                     "/oauth/authorize",
                     "/oauth/confirm_access")
-                .and()
+                    .and()
                     .authorizeRequests().anyRequest().authenticated();
         }
 
@@ -104,32 +103,33 @@ public class OAuth2ServerConfiguration {
         @Override
         public void configure(HttpSecurity http) throws Exception {
             http
-                .exceptionHandling()
-                .authenticationEntryPoint(http401UnauthorizedEntryPoint)
-            .and()
-                .logout()
-                .logoutUrl("/api/logout")
-                .logoutSuccessHandler(ajaxLogoutSuccessHandler)
-            .and()
-                .csrf()
-                .disable()
-                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-                .headers()
-                .frameOptions().disable()
-            .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-                .authorizeRequests()
-                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .antMatchers("/api/authenticate").permitAll()
-                .antMatchers("/api/register").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
-                .antMatchers("/api/profile-info").permitAll()
-                .antMatchers("/api/**").authenticated()
-                .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
-                .antMatchers("/v2/api-docs/**").permitAll()
-                .antMatchers("/swagger-resources/configuration/ui").permitAll()
-                .antMatchers("/swagger-ui/index.html").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN);
+                    .exceptionHandling()
+                    .authenticationEntryPoint(http401UnauthorizedEntryPoint)
+                    .and()
+                    .logout()
+                    .logoutUrl("/api/logout")
+                    .logoutSuccessHandler(ajaxLogoutSuccessHandler)
+                    .and()
+                    .csrf()
+                    .disable()
+                    .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+                    .headers()
+                    .frameOptions().disable()
+                    .and()
+                    .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .and()
+                    .authorizeRequests()
+                    .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                    .antMatchers("/api/authenticate").permitAll()
+                    .antMatchers("/api/register").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
+                    .antMatchers("/api/profile-info").permitAll()
+                    .antMatchers("/api/**").authenticated()
+                    .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
+                    .antMatchers("/v2/api-docs/**").permitAll()
+                    .antMatchers("/swagger-resources/configuration/ui").permitAll()
+                    .antMatchers("/swagger-ui/index.html")
+                    .hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN);
         }
 
         @Override
@@ -140,6 +140,7 @@ public class OAuth2ServerConfiguration {
         }
 
         protected static class CustomEventPublisher extends DefaultAuthenticationEventPublisher {
+
             @Override
             public void publishAuthenticationSuccess(Authentication authentication) {
                 // OAuth2AuthenticationProcessingFilter publishes an authentication success audit
@@ -153,7 +154,8 @@ public class OAuth2ServerConfiguration {
 
     @Configuration
     @EnableAuthorizationServer
-    protected static class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
+    protected static class AuthorizationServerConfiguration extends
+            AuthorizationServerConfigurerAdapter {
 
         @Autowired
         @Qualifier("authenticationManagerBean")
@@ -180,14 +182,14 @@ public class OAuth2ServerConfiguration {
                 throws Exception {
             TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
             tokenEnhancerChain.setTokenEnhancers(
-                Arrays.asList(tokenEnhancer(), accessTokenConverter()));
+                    Arrays.asList(tokenEnhancer(), accessTokenConverter()));
 
             endpoints
-                .authorizationCodeServices(authorizationCodeServices())
-                .approvalStore(approvalStore())
-                .tokenStore(tokenStore())
-                .tokenEnhancer(tokenEnhancerChain)
-                .authenticationManager(authenticationManager);
+                    .authorizationCodeServices(authorizationCodeServices())
+                    .approvalStore(approvalStore())
+                    .tokenStore(tokenStore())
+                    .tokenEnhancer(tokenEnhancerChain)
+                    .authenticationManager(authenticationManager);
         }
 
         @Bean
@@ -203,9 +205,9 @@ public class OAuth2ServerConfiguration {
         @Override
         public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
             oauthServer.allowFormAuthenticationForClients()
-                       .checkTokenAccess("isAuthenticated()")
-                       .tokenKeyAccess("isAnonymous() || isAuthenticated()")
-                       .passwordEncoder(new BCryptPasswordEncoder());
+                    .checkTokenAccess("isAuthenticated()")
+                    .tokenKeyAccess("isAnonymous() || isAuthenticated()")
+                    .passwordEncoder(new BCryptPasswordEncoder());
         }
 
         @Bean
@@ -213,8 +215,8 @@ public class OAuth2ServerConfiguration {
             JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
 
             KeyPair keyPair = new KeyStoreKeyFactory(
-                new ClassPathResource("/config/keystore.jks"), "radarbase".toCharArray())
-                .getKeyPair("selfsigned");
+                    new ClassPathResource("/config/keystore.jks"), "radarbase".toCharArray())
+                    .getKeyPair("selfsigned");
             converter.setKeyPair(keyPair);
 
             return converter;

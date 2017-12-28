@@ -30,8 +30,13 @@ public class Authority implements Serializable {
     @Column(length = 50)
     private String name;
 
-    public Authority() {}
-    public Authority(String authorityName) { this.name = authorityName;}
+    public Authority() {
+    }
+
+    public Authority(String authorityName) {
+        this.name = authorityName;
+    }
+
     public String getName() {
         return name;
     }
@@ -51,8 +56,7 @@ public class Authority implements Serializable {
 
         Authority authority = (Authority) o;
 
-
-        if (name == null || authority.name == null ) {
+        if (name == null || authority.name == null) {
             return false;
         }
 
@@ -67,7 +71,7 @@ public class Authority implements Serializable {
     @Override
     public String toString() {
         return "Authority{" +
-            "name='" + name + '\'' +
-            "}";
+                "name='" + name + '\'' +
+                "}";
     }
 }

@@ -93,18 +93,18 @@ public class ProjectResource {
     @PostMapping("/projects")
     @Timed
     public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO)
-        throws URISyntaxException {
+            throws URISyntaxException {
         log.debug("REST request to save Project : {}", projectDTO);
         checkPermission(getJWT(servletRequest), PROJECT_CREATE);
         if (projectDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
-                ENTITY_NAME, "idexists", "A new project cannot already have an ID")).body(null);
+                    ENTITY_NAME, "idexists", "A new project cannot already have an ID")).body(null);
         }
         ProjectDTO result = projectService.save(projectDTO);
         return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "projects",
-            result.getProjectName())))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getProjectName()))
-            .body(result);
+                result.getProjectName())))
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getProjectName()))
+                .body(result);
     }
 
     /**
@@ -119,7 +119,7 @@ public class ProjectResource {
     @PutMapping("/projects")
     @Timed
     public ResponseEntity<ProjectDTO> updateProject(@Valid @RequestBody ProjectDTO projectDTO)
-        throws URISyntaxException {
+            throws URISyntaxException {
         log.debug("REST request to update Project : {}", projectDTO);
         if (projectDTO.getId() == null) {
             return createProject(projectDTO);
@@ -128,8 +128,9 @@ public class ProjectResource {
                 projectDTO.getProjectName());
         ProjectDTO result = projectService.save(projectDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, projectDTO.getProjectName()))
-            .body(result);
+                .headers(HeaderUtil
+                        .createEntityUpdateAlert(ENTITY_NAME, projectDTO.getProjectName()))
+                .body(result);
     }
 
     /**
@@ -141,7 +142,7 @@ public class ProjectResource {
     @Timed
     public ResponseEntity getAllProjects(@ApiParam Pageable pageable,
             @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
-            minimized) {
+                    minimized) {
         log.debug("REST request to get Projects");
         checkPermission(getJWT(servletRequest), PROJECT_READ);
         Page page = projectService.findAll(minimized, pageable);
@@ -164,7 +165,7 @@ public class ProjectResource {
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
             checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ,
-                projectDTO.getProjectName());
+                    projectDTO.getProjectName());
         }
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(projectDTO));
     }
@@ -183,7 +184,7 @@ public class ProjectResource {
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
             checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ,
-                projectDTO.getProjectName());
+                    projectDTO.getProjectName());
         }
         return projectService.findSourceTypesById(projectDTO.getId());
     }
@@ -202,13 +203,13 @@ public class ProjectResource {
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
             checkPermissionOnProject(getJWT(servletRequest), PROJECT_DELETE,
-                projectDTO.getProjectName());
+                    projectDTO.getProjectName());
         } else {
             return ResponseEntity.notFound().build();
         }
         projectService.delete(projectDTO.getId());
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(
-            ENTITY_NAME, projectName)).build();
+                ENTITY_NAME, projectName)).build();
     }
 
     /**
@@ -223,7 +224,7 @@ public class ProjectResource {
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
             checkPermissionOnProject(getJWT(servletRequest), ROLE_READ,
-                projectDTO.getProjectName());
+                    projectDTO.getProjectName());
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -241,12 +242,12 @@ public class ProjectResource {
             @PathVariable String projectName,
             @RequestParam(value = "assigned", required = false) Boolean assigned,
             @RequestParam(name = "minimized", required = false, defaultValue = "false")
-            Boolean minimized) {
+                    Boolean minimized) {
         log.debug("REST request to get all Sources");
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
             checkPermissionOnProject(getJWT(servletRequest), SOURCE_READ,
-                projectDTO.getProjectName());
+                    projectDTO.getProjectName());
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -255,7 +256,7 @@ public class ProjectResource {
             if (minimized) {
                 return ResponseEntity.ok(sourceService
                         .findAllMinimalSourceDetailsByProjectAndAssigned(
-                            projectDTO.getId(), assigned));
+                                projectDTO.getId(), assigned));
             } else {
                 return ResponseEntity.ok(sourceService
                         .findAllByProjectAndAssigned(projectDTO.getId(), assigned));
@@ -264,17 +265,17 @@ public class ProjectResource {
             if (minimized) {
                 Page<MinimalSourceDetailsDTO> page = sourceService
                         .findAllMinimalSourceDetailsByProject
-                        (projectDTO.getId(), pageable);
+                                (projectDTO.getId(), pageable);
                 HttpHeaders headers = PaginationUtil
                         .generatePaginationHttpHeaders(page,
-                        "/api/projects/" + projectName + "/sources");
+                                "/api/projects/" + projectName + "/sources");
                 return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
             } else {
                 Page<SourceDTO> page = sourceService
                         .findAllByProjectId(projectDTO.getId(), pageable);
                 HttpHeaders headers = PaginationUtil
                         .generatePaginationHttpHeaders(page,
-                        "/api/projects/" + projectName + "/sources");
+                                "/api/projects/" + projectName + "/sources");
                 return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
             }
         }
@@ -301,7 +302,7 @@ public class ProjectResource {
                 .map(subjectMapper::subjectToSubjectDTO);
         HttpHeaders headers = PaginationUtil
                 .generatePaginationHttpHeaders(page, "/api/projects/" + projectName
-                    + "/subjects");
+                        + "/subjects");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 }

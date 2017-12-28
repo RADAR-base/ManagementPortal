@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 /**
  * REST controller for managing SourceData.
  */
@@ -75,7 +76,7 @@ public class SourceDataResource {
                     "idexists", "A new sourceData cannot already have an ID")).build();
         }
         String name = sourceDataDTO.getSourceDataName();
-        if(sourceDataService.findOneBySourceDataName(name).isPresent()) {
+        if (sourceDataService.findOneBySourceDataName(name).isPresent()) {
             throw new CustomConflictException("error.sourceDataNameAvailable",
                     Collections.singletonMap("sourceDataName", name),
                     new URI(HeaderUtil.buildPath("api", "source-data", name)));
@@ -90,9 +91,9 @@ public class SourceDataResource {
      * PUT  /source-data : Updates an existing sourceData.
      *
      * @param sourceDataDTO the sourceDataDTO to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated sourceDataDTO,
-     * or with status 400 (Bad Request) if the sourceDataDTO is not valid,
-     * or with status 500 (Internal Server Error) if the sourceDataDTO couldnt be updated
+     * @return the ResponseEntity with status 200 (OK) and with body the updated sourceDataDTO, or
+     * with status 400 (Bad Request) if the sourceDataDTO is not valid, or with status 500 (Internal
+     * Server Error) if the sourceDataDTO couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/source-data")

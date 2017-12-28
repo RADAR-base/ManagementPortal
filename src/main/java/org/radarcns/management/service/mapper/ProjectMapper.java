@@ -1,5 +1,6 @@
 package org.radarcns.management.service.mapper;
 
+import java.util.List;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -8,16 +9,14 @@ import org.radarcns.management.service.dto.MinimalProjectDetailsDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.mapper.decorator.ProjectMapperDecorator;
 
-import java.util.List;
-
 /**
  * Mapper for the entity Project and its DTO ProjectDTO.
  */
-@Mapper(componentModel = "spring", uses = {SourceTypeMapper.class, })
+@Mapper(componentModel = "spring", uses = {SourceTypeMapper.class,})
 @DecoratedWith(ProjectMapperDecorator.class)
 public interface ProjectMapper {
 
-    @Mapping(target = "attributes" , ignore = true)
+    @Mapping(target = "attributes", ignore = true)
     ProjectDTO projectToProjectDTO(Project project);
 
     List<ProjectDTO> projectsToProjectDTOs(List<Project> projects);
@@ -33,10 +32,13 @@ public interface ProjectMapper {
 
     Project descriptiveDTOToProject(MinimalProjectDetailsDTO minimalProjectDetailsDTO);
 
-    List<Project> descriptiveDTOsToProjects(List<MinimalProjectDetailsDTO> minimalProjectDetailsDTOS);
+    List<Project> descriptiveDTOsToProjects(
+            List<MinimalProjectDetailsDTO> minimalProjectDetailsDTOS);
+
     /**
-     * generating the fromId for all mappers if the databaseType is sql, as the class has relationship to it might need it, instead of
-     * creating a new attribute to know if the entity has any relationship from some other entity
+     * generating the fromId for all mappers if the databaseType is sql, as the class has
+     * relationship to it might need it, instead of creating a new attribute to know if the entity
+     * has any relationship from some other entity
      *
      * @param id id of the entity
      * @return the entity instance

@@ -38,7 +38,8 @@ public class CatalogSourceType {
     @JsonProperty
     private List<String> labels;
 
-    @JsonProperty @NotEmpty
+    @JsonProperty
+    @NotEmpty
     private List<CatalogSourceData> data;
 
     public String getName() {
@@ -87,11 +88,11 @@ public class CatalogSourceType {
         }
         CatalogSourceType producer = (CatalogSourceType) o;
         return Objects.equals(name, producer.name)
-            && Objects.equals(doc, producer.doc)
-            && Objects.equals(vendor, producer.vendor)
-            && Objects.equals(version, producer.version)
-            && Objects.equals(scope, producer.scope)
-            && Objects.equals(model, producer.model);
+                && Objects.equals(doc, producer.doc)
+                && Objects.equals(vendor, producer.vendor)
+                && Objects.equals(version, producer.version)
+                && Objects.equals(scope, producer.scope)
+                && Objects.equals(model, producer.model);
     }
 
     @Override

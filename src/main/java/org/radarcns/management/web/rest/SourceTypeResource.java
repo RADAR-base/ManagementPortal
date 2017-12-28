@@ -113,9 +113,9 @@ public class SourceTypeResource {
      * PUT  /source-types : Updates an existing sourceType.
      *
      * @param sourceTypeDTO the sourceTypeDTO to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated sourceTypeDTO,
-     * or with status 400 (Bad Request) if the sourceTypeDTO is not valid,
-     * or with status 500 (Internal Server Error) if the sourceTypeDTO couldnt be updated
+     * @return the ResponseEntity with status 200 (OK) and with body the updated sourceTypeDTO, or
+     * with status 400 (Bad Request) if the sourceTypeDTO is not valid, or with status 500 (Internal
+     * Server Error) if the sourceTypeDTO couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/source-types")
@@ -129,8 +129,9 @@ public class SourceTypeResource {
         checkPermission(getJWT(servletRequest), SOURCETYPE_UPDATE);
         SourceTypeDTO result = sourceTypeService.save(sourceTypeDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, displayName(sourceTypeDTO)))
-            .body(result);
+                .headers(
+                        HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, displayName(sourceTypeDTO)))
+                .body(result);
     }
 
     /**
@@ -151,6 +152,7 @@ public class SourceTypeResource {
 
     /**
      * Find the list of SourceTypes made by the given producer
+     *
      * @param producer The producer
      * @return A list of objects matching the producer
      */
@@ -162,8 +164,8 @@ public class SourceTypeResource {
     }
 
     /**
-     * Find the list of SourceTypes of the given producer and model. Can be multiple since
-     * multiple version of a single model can be made.
+     * Find the list of SourceTypes of the given producer and model. Can be multiple since multiple
+     * version of a single model can be made.
      *
      * @param producer The producer
      * @param model The model
@@ -190,10 +192,10 @@ public class SourceTypeResource {
             + Constants.ENTITY_ID_REGEX + "}/{version:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<SourceTypeDTO> getSourceTypes(@PathVariable String producer,
-        @PathVariable String model, @PathVariable String version) {
+            @PathVariable String model, @PathVariable String version) {
         checkPermission(getJWT(servletRequest), SOURCETYPE_READ);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(
-            sourceTypeService.findByProducerAndModelAndVersion(producer, model, version)));
+                sourceTypeService.findByProducerAndModelAndVersion(producer, model, version)));
     }
 
     /**
@@ -209,10 +211,10 @@ public class SourceTypeResource {
             + Constants.ENTITY_ID_REGEX + "}/{version:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<Void> deleteSourceType(@PathVariable String producer,
-        @PathVariable String model, @PathVariable String version) {
+            @PathVariable String model, @PathVariable String version) {
         checkPermission(getJWT(servletRequest), SOURCETYPE_DELETE);
         SourceTypeDTO sourceTypeDTO = sourceTypeService
-            .findByProducerAndModelAndVersion(producer, model, version);
+                .findByProducerAndModelAndVersion(producer, model, version);
         if (Objects.isNull(sourceTypeDTO)) {
             return ResponseEntity.notFound().build();
         }

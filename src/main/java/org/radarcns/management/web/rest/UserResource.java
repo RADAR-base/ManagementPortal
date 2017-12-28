@@ -1,8 +1,21 @@
 package org.radarcns.management.web.rest;
 
+import static org.radarcns.auth.authorization.Permission.PROJECT_READ;
+import static org.radarcns.auth.authorization.Permission.USER_CREATE;
+import static org.radarcns.auth.authorization.Permission.USER_DELETE;
+import static org.radarcns.auth.authorization.Permission.USER_READ;
+import static org.radarcns.auth.authorization.Permission.USER_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
+
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
@@ -34,42 +47,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
-
-import static org.radarcns.auth.authorization.Permission.PROJECT_READ;
-import static org.radarcns.auth.authorization.Permission.USER_CREATE;
-import static org.radarcns.auth.authorization.Permission.USER_DELETE;
-import static org.radarcns.auth.authorization.Permission.USER_READ;
-import static org.radarcns.auth.authorization.Permission.USER_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
 /**
  * REST controller for managing users.
  *
- * <p>This class accesses the User entity, and needs to fetch its collection of authorities.</p>
  * <p>
- * For a normal use-case, it would be better to have an eager relationship between User and Authority,
- * and send everything to the client side: there would be no View Model and DTO, a lot less code, and an outer-join
- * which would be good for performance.
+ *     This class accesses the User entity, and needs to fetch its collection of authorities.
  * </p>
  * <p>
- * We use a View Model and a DTO for 3 reasons:
- * <ul>
- * <li>We want to keep a lazy association between the user and the authorities, because people will
- * quite often do relationships with the user, and we don't want them to get the authorities all
- * the time for nothing (for performance reasons). This is the #1 goal: we should not impact our users'
- * application because of this use-case.</li>
- * <li> Not having an outer join causes n+1 requests to the database. This is not a real issue as
- * we have by default a second-level cache. This means on the first HTTP call we do the n+1 requests,
- * but then all authorities come from the cache, so in fact it's much better than doing an outer join
- * (which will get lots of data from the database, for each HTTP call).</li>
- * <li> As this manages users, for security reasons, we'd rather have a DTO layer.</li>
- * </ul>
- * <p>Another option would be to have a specific JPA entity graph to handle this case.</p>
+ * For a normal use-case, it would be better to have an eager relationship between User and
+ * Authority, and send everything to the client side: there would be no View Model and DTO, a lot
+ * less code, and an outer-join which would be good for performance. </p> <p> We use a View Model
+ * and a DTO for 3 reasons: <ul> <li>We want to keep a lazy association between the user and the
+ * authorities, because people will quite often do relationships with the user, and we don't want
+ * them to get the authorities all the time for nothing (for performance reasons). This is the #1
+ * goal: we should not impact our users' application because of this use-case.</li> <li> Not having
+ * an outer join causes n+1 requests to the database. This is not a real issue as we have by default
+ * a second-level cache. This means on the first HTTP call we do the n+1 requests, but then all
+ * authorities come from the cache, so in fact it's much better than doing an outer join (which will
+ * get lots of data from the database, for each HTTP call).</li> <li> As this manages users, for
+ * security reasons, we'd rather have a DTO layer.</li> </ul> <p>Another option would be to have a
+ * specific JPA entity graph to handle this case.</p>
  */
 @RestController
 @RequestMapping("/api")
@@ -95,45 +92,51 @@ public class UserResource {
     private HttpServletRequest servletRequest;
 
     /**
-     * POST  /users  : Creates a new user.
-     * <p>
-     * Creates a new user if the login and email are not already used, and sends an
-     * mail with an activation link.
-     * The user needs to be activated on creation.
-     * </p>
+     * POST  /users  : Creates a new user. <p> Creates a new user if the login and email are not
+     * already used, and sends an mail with an activation link. The user needs to be activated on
+     * creation. </p>
      *
      * @param managedUserVM the user to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new user, or with status 400 (Bad Request) if the login or email is already in use
+     * @return the ResponseEntity with status 201 (Created) and with body the new user, or with
+     * status 400 (Bad Request) if the login or email is already in use
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/users")
     @Timed
-    public ResponseEntity createUser(@RequestBody ManagedUserVM managedUserVM) throws URISyntaxException {
+    public ResponseEntity createUser(@RequestBody ManagedUserVM managedUserVM)
+            throws URISyntaxException {
         log.debug("REST request to save User : {}", managedUserVM);
         checkPermission(getJWT(servletRequest), USER_CREATE);
         if (managedUserVM.getId() != null) {
             return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new user cannot already have an ID"))
-                .body(null);
-        // Lowercase the user login before comparing with database
-        } else if (userRepository.findOneByLogin(managedUserVM.getLogin().toLowerCase()).isPresent()) {
+                    .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists",
+                            "A new user cannot already have an ID"))
+                    .body(null);
+            // Lowercase the user login before comparing with database
+        } else if (userRepository.findOneByLogin(managedUserVM.getLogin().toLowerCase())
+                .isPresent()) {
             return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "userexists", "Login already in use"))
-                .body(null);
+                    .headers(HeaderUtil
+                            .createFailureAlert(ENTITY_NAME, "userexists",
+                                    "Login already in use"))
+                    .body(null);
         } else if (userRepository.findOneByEmail(managedUserVM.getEmail()).isPresent()) {
             return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "emailexists", "Email already in use"))
-                .body(null);
+                    .headers(HeaderUtil
+                            .createFailureAlert(ENTITY_NAME, "emailexists",
+                                    "Email already in use"))
+                    .body(null);
         } else if (managedUserVM.getRoles() == null || managedUserVM.getRoles().isEmpty()) {
             return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "rolesRequired", "One or more roles are required"))
-                .body(null);
+                    .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "rolesRequired",
+                            "One or more roles are required"))
+                    .body(null);
         } else {
             User newUser = userService.createUser(managedUserVM);
             mailService.sendCreationEmail(newUser);
             return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "users",
                     newUser.getLogin())))
-                    .headers(HeaderUtil.createAlert( "userManagement.created", newUser.getLogin()))
+                    .headers(HeaderUtil.createAlert("userManagement.created", newUser.getLogin()))
                     .body(newUser);
         }
     }
@@ -142,9 +145,9 @@ public class UserResource {
      * PUT  /users : Updates an existing User.
      *
      * @param managedUserVM the user to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated user,
-     * or with status 400 (Bad Request) if the login or email is already in use,
-     * or with status 500 (Internal Server Error) if the user couldn't be updated
+     * @return the ResponseEntity with status 200 (OK) and with body the updated user, or with
+     * status 400 (Bad Request) if the login or email is already in use, or with status 500
+     * (Internal Server Error) if the user couldn't be updated
      */
     @PutMapping("/users")
     @Timed
@@ -152,21 +155,27 @@ public class UserResource {
         log.debug("REST request to update User : {}", managedUserVM);
         checkPermission(getJWT(servletRequest), USER_UPDATE);
         Optional<User> existingUser = userRepository.findOneByEmail(managedUserVM.getEmail());
-        if (existingUser.isPresent() && (!existingUser.get().getId().equals(managedUserVM.getId()))) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "emailexists", "Email already in use")).body(null);
+        if (existingUser.isPresent() && (!existingUser.get().getId()
+                .equals(managedUserVM.getId()))) {
+            return ResponseEntity.badRequest().headers(HeaderUtil
+                    .createFailureAlert(ENTITY_NAME, "emailexists", "Email already in use"))
+                    .body(null);
         }
         existingUser = userRepository.findOneByLogin(managedUserVM.getLogin().toLowerCase());
-        if (existingUser.isPresent() && (!existingUser.get().getId().equals(managedUserVM.getId()))) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "userexists", "Login already in use")).body(null);
+        if (existingUser.isPresent() && (!existingUser.get().getId()
+                .equals(managedUserVM.getId()))) {
+            return ResponseEntity.badRequest().headers(HeaderUtil
+                    .createFailureAlert(ENTITY_NAME, "userexists", "Login already in use"))
+                    .body(null);
         }
         if (managedUserVM.getRoles() == null || managedUserVM.getRoles().isEmpty()) {
             return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, "rolesRequired"))
-                .body(null);
+                    .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, "rolesRequired"))
+                    .body(null);
         }
 
         Optional<Subject> subject = subjectRepository
-            .findOneWithEagerBySubjectLogin(managedUserVM.getLogin());
+                .findOneWithEagerBySubjectLogin(managedUserVM.getLogin());
         if (subject.isPresent() && managedUserVM.isActivated() && subject.get().isRemoved()) {
             // if the subject is also a user, check if the removed/activated states are valid
             throw new CustomParameterizedException("error.invalidsubjectstate");
@@ -176,7 +185,7 @@ public class UserResource {
         Optional<UserDTO> updatedUser = userService.updateUser(managedUserVM);
 
         return ResponseUtil.wrapOrNotFound(updatedUser,
-            HeaderUtil.createAlert("userManagement.updated", managedUserVM.getLogin()));
+                HeaderUtil.createAlert("userManagement.updated", managedUserVM.getLogin()));
     }
 
     /**
@@ -190,8 +199,8 @@ public class UserResource {
     @GetMapping("/users")
     @Timed
     public ResponseEntity<List<UserDTO>> getAllUsers(@ApiParam Pageable pageable,
-        @RequestParam(value = "projectName" , required = false) String projectName,
-        @RequestParam(value = "authority" , required = false) String authority) {
+            @RequestParam(value = "projectName", required = false) String projectName,
+            @RequestParam(value = "authority", required = false) String authority) {
         checkPermission(getJWT(servletRequest), USER_READ);
         Page<UserDTO> page;
         if (projectName != null && authority != null) {
@@ -211,7 +220,8 @@ public class UserResource {
      * GET  /users/:login : get the "login" user.
      *
      * @param login the login of the user to find
-     * @return the ResponseEntity with status 200 (OK) and with body the "login" user, or with status 404 (Not Found)
+     * @return the ResponseEntity with status 200 (OK) and with body the "login" user, or with
+     * status 404 (Not Found)
      */
     @GetMapping("/users/{login:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
@@ -219,13 +229,12 @@ public class UserResource {
         log.debug("REST request to get User : {}", login);
         checkPermission(getJWT(servletRequest), USER_READ);
         return ResponseUtil.wrapOrNotFound(
-            userService.getUserWithAuthoritiesByLogin(login));
+                userService.getUserWithAuthoritiesByLogin(login));
     }
 
     /**
-     * Returns all project if the user is s `SYS_ADMIN`. Otherwise projects that are assigned to a user using roles.
-     * @param login
-     * @return
+     * Returns all project if the user is s `SYS_ADMIN`. Otherwise projects that are assigned to a
+     * user using roles.
      */
     @GetMapping("/users/{login:" + Constants.ENTITY_ID_REGEX + "}/projects")
     @Timed
@@ -247,6 +256,7 @@ public class UserResource {
         log.debug("REST request to delete User: {}", login);
         checkPermission(getJWT(servletRequest), USER_DELETE);
         userService.deleteUser(login);
-        return ResponseEntity.ok().headers(HeaderUtil.createAlert( "userManagement.deleted", login)).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createAlert("userManagement.deleted", login))
+                .build();
     }
 }

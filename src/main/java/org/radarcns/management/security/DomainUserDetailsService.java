@@ -1,5 +1,9 @@
 package org.radarcns.management.security;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.UserRepository;
 import org.slf4j.Logger;
@@ -11,9 +15,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Authenticate a user from the database.

@@ -37,5 +37,5 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             + "where project.id =:id "
             + "and sourceType.id = :sourceTypeId ")
     Optional<SourceType> findSourceTypeByProjectIdAndSourceTypeId(@Param("id") Long id,
-        @Param("sourceTypeId") Long sourceTypeId);
+            @Param("sourceTypeId") Long sourceTypeId);
 }

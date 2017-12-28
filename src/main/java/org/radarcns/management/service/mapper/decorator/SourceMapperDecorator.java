@@ -12,15 +12,17 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 
 public abstract class SourceMapperDecorator implements SourceMapper {
+
     @Autowired
     private SourceRepository sourceRepository;
 
     @Override
     public Source descriptiveDTOToSource(MinimalSourceDetailsDTO minimalSource) {
-        Optional<Source> sourceOpt = sourceRepository.findOneBySourceId(minimalSource.getSourceId());
+        Optional<Source> sourceOpt = sourceRepository
+                .findOneBySourceId(minimalSource.getSourceId());
         if (!sourceOpt.isPresent()) {
             throw new IllegalArgumentException("Source ID " + minimalSource.getSourceId()
-                + " not found");
+                    + " not found");
         }
         Source source = sourceOpt.get();
         source.setAssigned(minimalSource.isAssigned());

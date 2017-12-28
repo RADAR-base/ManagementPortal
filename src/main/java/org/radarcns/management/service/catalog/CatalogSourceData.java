@@ -105,6 +105,7 @@ public class CatalogSourceData {
     }
 
     public static class DataField {
+
         @JsonProperty
         private String name;
 
