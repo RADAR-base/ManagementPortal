@@ -1,5 +1,10 @@
 package org.radarcns.oauth;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import okhttp3.Authenticator;
 import okhttp3.Credentials;
 import okhttp3.FormBody;
@@ -8,12 +13,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.Route;
 import org.radarcns.exception.TokenException;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Class for handling OAuth2 client credentials grant with the RADAR platform's ManagementPortal.
@@ -89,14 +88,14 @@ public class OAuth2Client {
         return currentToken;
     }
 
-    public OkHttpClient getHttpClient() {
+    public static synchronized OkHttpClient getHttpClient() {
         if (HTTP_CLIENT == null) {
             // create a client which will supply OAuth client id and secret as HTTP basic authentication
             HTTP_CLIENT = new OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .build();
+                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .writeTimeout(10, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .build();
         }
         return HTTP_CLIENT;
     }
