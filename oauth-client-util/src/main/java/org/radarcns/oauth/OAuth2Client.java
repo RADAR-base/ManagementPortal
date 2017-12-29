@@ -5,13 +5,11 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import okhttp3.Authenticator;
 import okhttp3.Credentials;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.Route;
 import org.radarcns.exception.TokenException;
 
 /**
@@ -35,7 +33,7 @@ public class OAuth2Client {
     private Set<String> scope;
     private OAuth2AccessTokenDetails currentToken;
 
-    private static OkHttpClient HTTP_CLIENT;
+    private OkHttpClient HTTP_CLIENT;
 
     public OAuth2Client() {
         this.tokenEndpoint = null;
@@ -88,7 +86,7 @@ public class OAuth2Client {
         return currentToken;
     }
 
-    public static synchronized OkHttpClient getHttpClient() {
+    public synchronized OkHttpClient getHttpClient() {
         if (HTTP_CLIENT == null) {
             // create a client which will supply OAuth client id and secret as HTTP basic authentication
             HTTP_CLIENT = new OkHttpClient.Builder()
@@ -100,9 +98,9 @@ public class OAuth2Client {
         return HTTP_CLIENT;
     }
 
-    public static void setHttpClient(OkHttpClient httpClient) {
-        // If we had an existing OkHttpClient, it will release its resources automatically
+    public OAuth2Client httpClient(OkHttpClient httpClient) {
         HTTP_CLIENT = httpClient;
+        return this;
     }
 
     private void getNewToken() throws TokenException {
@@ -110,39 +108,18 @@ public class OAuth2Client {
         FormBody body = new FormBody.Builder().add("grant_type", "client_credentials")
             .add("scope", String.join(" ", scope)).build();
 
+        String credential = Credentials.basic(getClientId(), getClientSecret());
+
         // build the POST request to the token endpoint with the form data
         Request request = new Request.Builder()
             .addHeader("Accept", "application/json")
+            .addHeader("Authorization", credential)
             .url(getTokenEndpoint())
             .post(body)
             .build();
 
-        // We perhaps share our OkHttpClient instance with other OAuth2Client instances, or with an
-        // instance gotten from somewhere else through the setHttpClient() method, so we copy the
-        // shared instance's configuration and the authorization handler based on our instance
-        // variables to it
-        // See https://github.com/square/okhttp/wiki/Recipes#per-call-configuration
-        OkHttpClient client = getHttpClient().newBuilder()
-            .authenticator(new Authenticator() {
-
-            private int retries = 0;
-            private int maxRetries = 5;
-
-            @Override
-            public Request authenticate(Route route, Response response) throws IOException {
-                if (retries >= maxRetries) {
-                    return null;
-                }
-                retries++;
-                String credential = Credentials.basic(getClientId(), getClientSecret());
-                return response.request().newBuilder()
-                    .header("Authorization", credential)
-                    .build();
-            }
-        }).build();
-
         // make the client execute the POST request
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = getHttpClient().newCall(request).execute()) {
             currentToken = OAuth2AccessTokenDetails.getObject(response);
         }
         catch (IOException e) {
@@ -150,4 +127,3 @@ public class OAuth2Client {
         }
     }
 }
-
