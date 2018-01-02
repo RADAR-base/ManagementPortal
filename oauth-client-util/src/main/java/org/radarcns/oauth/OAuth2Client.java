@@ -33,7 +33,7 @@ public class OAuth2Client {
     private Set<String> scope;
     private OAuth2AccessTokenDetails currentToken;
 
-    private OkHttpClient HTTP_CLIENT;
+    private OkHttpClient httpClient;
 
     public OAuth2Client() {
         this.tokenEndpoint = null;
@@ -87,19 +87,19 @@ public class OAuth2Client {
     }
 
     public synchronized OkHttpClient getHttpClient() {
-        if (HTTP_CLIENT == null) {
+        if (httpClient == null) {
             // create a client which will supply OAuth client id and secret as HTTP basic authentication
-            HTTP_CLIENT = new OkHttpClient.Builder()
+            httpClient = new OkHttpClient.Builder()
                     .connectTimeout(10, TimeUnit.SECONDS)
                     .writeTimeout(10, TimeUnit.SECONDS)
                     .readTimeout(30, TimeUnit.SECONDS)
                     .build();
         }
-        return HTTP_CLIENT;
+        return httpClient;
     }
 
     public OAuth2Client httpClient(OkHttpClient httpClient) {
-        HTTP_CLIENT = httpClient;
+        this.httpClient = httpClient;
         return this;
     }
 
