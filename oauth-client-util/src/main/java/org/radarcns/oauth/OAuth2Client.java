@@ -86,7 +86,7 @@ public class OAuth2Client {
         return currentToken;
     }
 
-    public synchronized OkHttpClient getHttpClient() {
+    public OkHttpClient getHttpClient() {
         if (httpClient == null) {
             // create a client which will supply OAuth client id and secret as HTTP basic authentication
             httpClient = new OkHttpClient.Builder()
