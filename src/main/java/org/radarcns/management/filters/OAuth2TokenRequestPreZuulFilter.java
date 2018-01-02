@@ -21,7 +21,7 @@ public class OAuth2TokenRequestPreZuulFilter extends ZuulFilter {
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
 
-    private Logger logger = LoggerFactory.getLogger(OAuth2TokenRequestPreZuulFilter.class);
+    private final Logger logger = LoggerFactory.getLogger(OAuth2TokenRequestPreZuulFilter.class);
 
     @Override
     public Object run() {

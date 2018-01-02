@@ -12,7 +12,7 @@ import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFacto
  */
 public class LocalKeystoreConfig implements ServerConfig {
 
-    private RSAPublicKey publicKey;
+    private final RSAPublicKey publicKey;
 
     public LocalKeystoreConfig() {
         KeyPair keyPair = new KeyStoreKeyFactory(
