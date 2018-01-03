@@ -1,5 +1,8 @@
 package org.radarcns.management.service.mapper.decorator;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.mapstruct.MappingTarget;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.domain.Role;
@@ -11,14 +14,11 @@ import org.radarcns.management.service.mapper.SubjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 /**
  * Created by nivethika on 30-8-17.
  */
 public abstract class SubjectMapperDecorator implements SubjectMapper {
+
     @Autowired
     @Qualifier("delegate")
     private SubjectMapper delegate;
@@ -27,8 +27,8 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
     private ProjectMapper projectMapper;
 
     @Override
-    public SubjectDTO subjectToSubjectDTO(Subject subject){
-        if ( subject == null ) {
+    public SubjectDTO subjectToSubjectDTO(Subject subject) {
+        if (subject == null) {
             return null;
         }
         SubjectDTO dto = delegate.subjectToSubjectDTO(subject);
@@ -38,48 +38,49 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
                 .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PARTICIPANT))
                 .findFirst();
 
-        role.ifPresent(role1 -> dto.setProject(projectMapper.projectToProjectDTO(role1.getProject())));
+        role.ifPresent(
+            role1 -> dto.setProject(projectMapper.projectToProjectDTO(role1.getProject())));
 
         return dto;
     }
 
     @Override
-    public Subject subjectDTOToSubject(SubjectDTO subjectDTO){
+    public Subject subjectDTOToSubject(SubjectDTO subjectDTO) {
 
-        if ( subjectDTO == null ) {
+        if (subjectDTO == null) {
             return null;
         }
 
         Subject subject = delegate.subjectDTOToSubject(subjectDTO);
         extractAttributeData(subjectDTO, subject);
-        setSubjectStatus(subjectDTO,subject);
+        setSubjectStatus(subjectDTO, subject);
         return subject;
     }
 
     @Override
-    public List<SubjectDTO> subjectsToSubjectDTOs(List<Subject> subjects){
-        if ( subjects == null ) {
+    public List<SubjectDTO> subjectsToSubjectDTOs(List<Subject> subjects) {
+        if (subjects == null) {
             return null;
         }
 
         List<SubjectDTO> list = new ArrayList<>();
-        for ( Subject subject: subjects ) {
-            list.add( this.subjectToSubjectDTO( subject) );
+        for (Subject subject : subjects) {
+            list.add(this.subjectToSubjectDTO(subject));
         }
 
         return list;
     }
 
     @Override
-    public List<Subject> subjectDTOsToSubjects(List<SubjectDTO> subjectDTOS){
+    public List<Subject> subjectDTOsToSubjects(List<SubjectDTO> subjectDTOS) {
 
-        if ( subjectDTOS == null ) {
+        if (subjectDTOS == null) {
             return null;
         }
 
         List<Subject> list = new ArrayList<>();
-        for ( SubjectDTO subjectDTO: subjectDTOS ) {
-            list.add(this.subjectDTOToSubject( subjectDTO ) );
+        for (SubjectDTO subjectDTO : subjectDTOS) {
+            list.add(this.subjectDTOToSubject(subjectDTO));
         }
 
         return list;
@@ -87,9 +88,9 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
 
     @Override
     public Subject safeUpdateSubjectFromDTO(SubjectDTO subjectDTO, @MappingTarget Subject subject) {
-        Subject subjectRetrieved = delegate.safeUpdateSubjectFromDTO(subjectDTO,subject);
-        extractAttributeData(subjectDTO , subjectRetrieved);
-        setSubjectStatus(subjectDTO,subjectRetrieved);
+        Subject subjectRetrieved = delegate.safeUpdateSubjectFromDTO(subjectDTO, subject);
+        extractAttributeData(subjectDTO, subjectRetrieved);
+        setSubjectStatus(subjectDTO, subjectRetrieved);
         return subjectRetrieved;
     }
 
@@ -101,17 +102,15 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
     private SubjectStatus getSubjectStatus(Subject subject) {
         if (!subject.getUser().getActivated() && !subject.isRemoved()) {
             return SubjectStatus.DEACTIVATED;
-        }
-        else if (subject.getUser().getActivated() && !subject.isRemoved()) {
+        } else if (subject.getUser().getActivated() && !subject.isRemoved()) {
             return SubjectStatus.ACTIVATED;
-        }
-        else if (!subject.getUser().getActivated() && subject.isRemoved()) {
+        } else if (!subject.getUser().getActivated() && subject.isRemoved()) {
             return SubjectStatus.DISCONTINUED;
         }
         return SubjectStatus.INVALID;
     }
 
-    private Subject setSubjectStatus (SubjectDTO subjectDTO, Subject subject) {
+    private Subject setSubjectStatus(SubjectDTO subjectDTO, Subject subject) {
         switch (subjectDTO.getStatus()) {
             case DEACTIVATED:
                 subject.getUser().setActivated(false);
@@ -128,6 +127,9 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
             case INVALID:
                 subject.getUser().setActivated(true);
                 subject.setRemoved(true);
+                break;
+            default:
+                break;
         }
         return subject;
     }

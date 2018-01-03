@@ -8,6 +8,7 @@ import java.util.UUID;
  * Created by nivethika on 13-6-17.
  */
 public class MinimalSourceDetailsDTO {
+
     private Long id;
     private Long sourceTypeId;
     private String sourceTypeProducer;

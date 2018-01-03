@@ -1,12 +1,12 @@
 package org.radarcns.management.service.mapper;
 
-import org.radarcns.management.domain.*;
+import java.util.List;
+import org.mapstruct.DecoratedWith;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.radarcns.management.domain.Source;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SourceDTO;
-
-import org.mapstruct.*;
-import java.util.List;
-
 import org.radarcns.management.service.mapper.decorator.SourceMapperDecorator;
 
 /**
@@ -15,6 +15,7 @@ import org.radarcns.management.service.mapper.decorator.SourceMapperDecorator;
 @Mapper(componentModel = "spring", uses = {SourceTypeMapper.class, ProjectMapper.class})
 @DecoratedWith(SourceMapperDecorator.class)
 public interface SourceMapper {
+
     SourceDTO sourceToSourceDTO(Source source);
 
     @Mapping(source = "sourceType.id", target = "sourceTypeId")

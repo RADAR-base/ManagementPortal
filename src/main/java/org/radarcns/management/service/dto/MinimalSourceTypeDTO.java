@@ -12,6 +12,7 @@ public class MinimalSourceTypeDTO {
     private String producer;
 
     private String catalogVersion;
+
     public long getId() {
         return id;
     }

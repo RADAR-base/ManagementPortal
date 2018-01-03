@@ -1,32 +1,27 @@
 package org.radarcns.management.cucumber.stepdefs;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-
+import javax.servlet.ServletException;
 import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.radarcns.management.web.rest.OAuthHelper;
+import org.radarcns.management.web.rest.UserResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import org.radarcns.management.web.rest.UserResource;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 public class UserStepDefs extends StepDefs {
 
     @Autowired
     private UserResource userResource;
-
-    @Autowired
-    private HttpServletRequest servletRequest;
 
     private MockMvc restUserMockMvc;
 
@@ -39,20 +34,20 @@ public class UserStepDefs extends StepDefs {
     }
 
     @When("^I search user '(.*)'$")
-    public void i_search_user_admin(String userId) throws Throwable {
+    public void iSearchUserAdmin(String userId) throws Throwable {
         actions = restUserMockMvc.perform(get("/api/users/" + userId)
                 .accept(MediaType.APPLICATION_JSON));
     }
 
     @Then("^the user is found$")
-    public void the_user_is_found() throws Throwable {
+    public void theUserIsFound() throws Throwable {
         actions
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
     }
 
     @Then("^his last name is '(.*)'$")
-    public void his_last_name_is(String lastName) throws Throwable {
+    public void hisLastNameIs(String lastName) throws Throwable {
         actions.andExpect(jsonPath("$.lastName").value(lastName));
     }
 

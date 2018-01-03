@@ -6,7 +6,21 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.*;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -35,7 +49,7 @@ public class Subject extends AbstractAuditingEntity implements Serializable {
     private String externalId;
 
     @NotNull
-    @Column(name = "removed" , nullable = false)
+    @Column(name = "removed", nullable = false)
     private Boolean removed = false;
 
     @OneToOne
@@ -46,17 +60,17 @@ public class Subject extends AbstractAuditingEntity implements Serializable {
     @ManyToMany
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JoinTable(name = "subject_sources",
-               joinColumns = @JoinColumn(name="subjects_id", referencedColumnName="id"),
-               inverseJoinColumns = @JoinColumn(name="sources_id", referencedColumnName="id"))
+            joinColumns = @JoinColumn(name = "subjects_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "sources_id", referencedColumnName = "id"))
     @Cascade(CascadeType.SAVE_UPDATE)
     private Set<Source> sources = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @MapKeyColumn(name="attribute_key")
-    @Column(name="attribute_value")
-    @CollectionTable(name="subject_metadata" ,  joinColumns = @JoinColumn(name = "id"))
+    @MapKeyColumn(name = "attribute_key")
+    @Column(name = "attribute_value")
+    @CollectionTable(name = "subject_metadata", joinColumns = @JoinColumn(name = "id"))
     @Cascade(CascadeType.ALL)
-    Map<String, String> attributes = new HashMap<>();
+    private Map<String, String> attributes = new HashMap<>();
 
     public Long getId() {
         return id;
@@ -174,10 +188,10 @@ public class Subject extends AbstractAuditingEntity implements Serializable {
     @Override
     public String toString() {
         return "Subject{" +
-            "id=" + id +
-            ", externalLink='" + externalLink + "'" +
-            ", enternalId='" + externalId + "'" +
-            ", removed='" + removed + "'" +
-            '}';
+                "id=" + id +
+                ", externalLink='" + externalLink + "'" +
+                ", enternalId='" + externalId + "'" +
+                ", removed='" + removed + "'" +
+                '}';
     }
 }

@@ -19,7 +19,7 @@ buildscript {
         classpath "org.springframework.build.gradle:propdeps-plugin:0.0.7"
         classpath "com.moowork.gradle:gradle-node-plugin:1.1.1"
         classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
-        classpath "io.swagger:swagger-codegen:2.2.2"
+        classpath "io.swagger:swagger-codegen:2.2.3"
         //jhipster-needle-gradle-buildscript-dependency - JHipster will add additional gradle build script plugins here
     }
 }
@@ -30,7 +30,7 @@ plugins {
 
 allprojects {
     group 'org.radarcns'
-    version '0.3.1'
+    version '0.3.2'
 
     apply plugin: 'java'
     apply plugin: 'java-library'
@@ -52,7 +52,7 @@ apply plugin: 'io.spring.dependency-management'
 defaultTasks 'bootRun'
 
 bootRepackage {
-   mainClass = 'org.radarcns.management.ManagementPortalApp'
+    mainClass = 'org.radarcns.management.ManagementPortalApp'
 }
 
 springBoot {
@@ -88,6 +88,23 @@ if (OperatingSystem.current().isWindows()) {
     }
 }
 
+checkstyle {
+    toolVersion '8.5'
+    ignoreFailures true
+
+    configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+}
+
+pmd {
+    toolVersion = '5.8.1'
+    ignoreFailures = false
+
+    consoleOutput = true
+
+    ruleSets = []
+    ruleSetFiles = files("config/pmd/ruleset.xml")
+}
+
 test {
     include '**/*UnitTest*'
     include '**/*IntTest*'
@@ -105,6 +122,10 @@ task cucumberTest(type: Test) {
     // see https://github.com/jhipster/generator-jhipster/pull/2771 and https://github.com/jhipster/generator-jhipster/pull/4484
     // ignoreFailures true
     reports.html.enabled = true
+}
+
+pmdTest {
+    ruleSetFiles = files("config/pmd/test_ruleset.xml")
 }
 
 test.finalizedBy(cucumberTest)
@@ -169,7 +190,7 @@ dependencies {
     compile "io.dropwizard.metrics:metrics-servlet:${dropwizard_metrics_version}"
     compile "io.dropwizard.metrics:metrics-json:${dropwizard_metrics_version}"
     compile "io.dropwizard.metrics:metrics-servlets:${dropwizard_metrics_version}"
-    compile ("net.logstash.logback:logstash-logback-encoder:${logstash_logback_encoder_version}") {
+    compile("net.logstash.logback:logstash-logback-encoder:${logstash_logback_encoder_version}") {
         exclude(group: 'ch.qos.logback')
     }
     compile "com.fasterxml.jackson.datatype:jackson-datatype-json-org"
@@ -179,19 +200,19 @@ dependencies {
     compile "com.fasterxml.jackson.dataformat:jackson-dataformat-csv"
     compile "com.fasterxml.jackson.core:jackson-annotations"
     compile "com.fasterxml.jackson.core:jackson-databind"
-    compile ("com.ryantenney.metrics:metrics-spring:${metrics_spring_version}")
+    compile("com.ryantenney.metrics:metrics-spring:${metrics_spring_version}")
     compile "com.hazelcast:hazelcast"
     compile "com.hazelcast:hazelcast-hibernate52:${hazelcast_hibernate52_version}"
     compile "com.hazelcast:hazelcast-spring"
     compile "javax.cache:cache-api"
     compile "org.hibernate:hibernate-core:${hibernate_version}"
-    compile ("com.zaxxer:HikariCP:${hikaricp_version}")
+    compile("com.zaxxer:HikariCP:${hikaricp_version}")
     compile "org.apache.commons:commons-lang3:${commons_lang_version}"
     compile "commons-io:commons-io:${commons_io_version}"
     compile "javax.transaction:javax.transaction-api"
     compile "org.hibernate:hibernate-envers"
     compile "org.hibernate:hibernate-validator"
-    compile ("org.liquibase:liquibase-core")
+    compile("org.liquibase:liquibase-core")
     compile "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     compile "org.springframework.boot:spring-boot-actuator"
     compile "org.springframework.boot:spring-boot-autoconfigure"
@@ -202,19 +223,19 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-data-jpa"
     compile "org.springframework.boot:spring-boot-starter-security"
     compile "org.springframework.cloud:spring-cloud-starter-zuul:${zuul_proxy_version}"
-    compile ("org.springframework.boot:spring-boot-starter-web") {
+    compile("org.springframework.boot:spring-boot-starter-web") {
         exclude module: 'spring-boot-starter-tomcat'
     }
     compile "org.springframework.boot:spring-boot-starter-undertow"
     compile "org.springframework.boot:spring-boot-starter-thymeleaf"
     compile "org.springframework.boot:spring-boot-starter-cloud-connectors"
-    compile ("org.springframework:spring-context-support")
+    compile("org.springframework:spring-context-support")
     compile "org.springframework.security:spring-security-config"
     compile "org.springframework.security:spring-security-data"
     compile "org.springframework.security:spring-security-web"
     compile "org.springframework.security:spring-security-jwt"
     compile "org.springframework.security.oauth:spring-security-oauth2:${spring_security_oauth2_version}"
-    compile ("io.springfox:springfox-swagger2:${springfox_version}") {
+    compile("io.springfox:springfox-swagger2:${springfox_version}") {
         exclude module: 'mapstruct'
     }
     compile "io.springfox:springfox-bean-validators:${springfox_version}"
@@ -268,51 +289,39 @@ if (project.hasProperty('nodeInstall')) {
 }
 
 compileJava.dependsOn processResources
-processResources.dependsOn cleanResources,bootBuildInfo
+processResources.dependsOn cleanResources, bootBuildInfo
 bootBuildInfo.mustRunAfter cleanResources
 
 idea.module.downloadSources = true
 
 task generateOpenApiSpec(dependsOn: 'classes', group: 'Swagger',
-        description: 'Runs the application to fetch the OpenAPI spec from the Swagger endpoint') {
+        description: 'Fetch the OpenAPI spec from the Swagger endpoint. The application needs to be running at http://localhost:8080/.') {
     outputs.file(swaggerFileLocation)
     doLast {
-        String java_home = System.getenv("JAVA_HOME")
-        String java = Paths.get(java_home, "bin", "java").toAbsolutePath()
-        ProcessBuilder pb = new ProcessBuilder(java, "-cp",
-            sourceSets.main.runtimeClasspath.getAsPath(), "org.radarcns.management.ManagementPortalApp")
-        pb.directory(projectDir)
-        File outFile = File.createTempFile("managementportalrun", ".out")
-        // the redirect seems to be necessary for the process to be able to start properly
-        pb.redirectOutput(outFile)
-        Process mp = pb.start()
-
         // Create parent dir to swagger file
         File swaggerFile = new File(swaggerFileLocation);
         swaggerFile.getParentFile().mkdirs();
 
         def generated = false
-        println("Waiting for application to start up")
-        try {
-            // try once every second to see if the application has started up
-            while (!generated) {
+        def tries = 0
+        def MAX_TRIES = 20
+
+        println()
+        while (!generated) {
+            ProcessBuilder curlPb = new ProcessBuilder("curl", apiDocsEndpoint, "-o",
+                    swaggerFileLocation, "--connect-timeout", "1")
+            curlPb.directory(projectDir)
+            Process curlProcess = curlPb.start()
+            curlProcess.waitFor()
+            generated = curlProcess.exitValue() == 0
+            if (!generated) {
                 System.out.print("#")
                 System.out.flush()
-                ProcessBuilder curlPb = new ProcessBuilder("curl", apiDocsEndpoint, "-o",
-                    swaggerFileLocation, "--connect-timeout", "1")
-                curlPb.directory(projectDir)
-                Process curlProcess = curlPb.start()
-                curlProcess.waitFor()
-                generated = curlProcess.exitValue() == 0
+                sleep(5000)
             }
-            println()
-            println("Swagger file generated at " + swaggerFileLocation)
         }
-        finally {
-            // stop the managementportal process
-            mp.waitForOrKill(1)
-            outFile.delete()
-        }
+        println()
+        println("Swagger file generated at " + swaggerFileLocation)
     }
 }
 
@@ -334,11 +343,14 @@ task generateJavaClient(dependsOn: 'generateOpenApiSpec', group: 'Swagger',
         config.setGroupId("org.radarcns")
         config.setArtifactVersion(version)
         config.setAdditionalProperties([
-            'apiPackage'   : 'org.radarcns.management.client.api',
-            'modelPackage' : 'org.radarcns.management.client.model',
-
+                'apiPackage'    : 'org.radarcns.management.client.api',
+                'modelPackage'  : 'org.radarcns.management.client.model',
+                'appName'       : rootProject.name,
+                'appDescription': description,
+                'licenceUrl'    : 'http://apache.org/licenses/LICENSE-2.0.html'
         ])
         new DefaultGenerator().opts(config.toClientOptInput()).generate()
+        file("managementportal-client/build.gradle") << file("mp-client-publishing.txt").text
         println("Client generated at " + swaggerTargetFolder)
     }
 }

@@ -22,6 +22,8 @@ import {AttributeMapperComponent} from "./attribute-mapper/attribute-mapper.comp
 import {DictionaryMapperComponent} from "./dictionary-mapper/dictionary-mapper.component";
 import {CommonUserMgmtComponent} from "./user/common-user-management.component";
 import {RouterModule} from "@angular/router";
+import {ShowMoreComponent} from "./show-more/show-more.component";
+import {ResolvePagingParams} from "./commons";
 
 @NgModule({
     imports: [
@@ -35,6 +37,7 @@ import {RouterModule} from "@angular/router";
         AttributeMapperComponent,
         DictionaryMapperComponent,
         CommonUserMgmtComponent,
+        ShowMoreComponent
     ],
     providers: [
         CookieService,
@@ -49,6 +52,7 @@ import {RouterModule} from "@angular/router";
         UserService,
         AuthorityService,
         DatePipe,
+        ResolvePagingParams
     ],
     entryComponents: [JhiLoginModalComponent],
     exports: [
@@ -58,6 +62,7 @@ import {RouterModule} from "@angular/router";
         AttributeMapperComponent,
         DictionaryMapperComponent,
         CommonUserMgmtComponent,
+        ShowMoreComponent,
         DatePipe,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]

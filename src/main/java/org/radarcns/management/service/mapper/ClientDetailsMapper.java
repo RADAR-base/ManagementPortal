@@ -1,5 +1,12 @@
 package org.radarcns.management.service.mapper;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -10,14 +17,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 /**
  * Created by dverbeec on 7/09/2017.
  */
@@ -27,8 +26,11 @@ public interface ClientDetailsMapper {
 
     @Mapping(target = "clientSecret", ignore = true)
     ClientDetailsDTO clientDetailsToClientDetailsDTO(ClientDetails details);
+
     BaseClientDetails clientDetailsDTOToClientDetails(ClientDetailsDTO detailsDTO);
+
     List<ClientDetailsDTO> clientDetailsToClientDetailsDTO(List<ClientDetails> detailsList);
+
     List<ClientDetails> clientDetailsDTOToClientDetails(List<ClientDetailsDTO> detailsDTOList);
 
     default Collection<GrantedAuthority> map(Set<String> authorities) {

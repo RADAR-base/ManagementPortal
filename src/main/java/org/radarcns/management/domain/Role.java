@@ -149,8 +149,8 @@ public class Role extends AbstractAuditingEntity implements Serializable {
     @Override
     public String toString() {
         return "Role{" +
-            "id=" + id +
-            '}';
+                "id=" + id +
+                '}';
     }
 
 }

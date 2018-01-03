@@ -3,6 +3,7 @@ package org.radarcns.management.service.catalog;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SampleRateConfig {
+
     @JsonProperty
     private Double interval;
 

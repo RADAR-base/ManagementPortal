@@ -1,21 +1,24 @@
 package org.radarcns.management.service;
 
-import org.radarcns.management.domain.SourceData;
-import org.radarcns.management.domain.SourceType;
-import org.radarcns.management.repository.SourceDataRepository;
-import org.radarcns.management.repository.SourceTypeRepository;
-import org.radarcns.management.service.dto.SourceTypeDTO;
-import org.radarcns.management.service.mapper.SourceTypeMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.radarcns.management.domain.SourceData;
+import org.radarcns.management.domain.SourceType;
+import org.radarcns.management.repository.SourceDataRepository;
+import org.radarcns.management.repository.SourceTypeRepository;
+import org.radarcns.management.service.dto.ProjectDTO;
+import org.radarcns.management.service.dto.SourceTypeDTO;
+import org.radarcns.management.service.mapper.ProjectMapper;
+import org.radarcns.management.service.mapper.SourceTypeMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing SourceType.
@@ -27,13 +30,16 @@ public class SourceTypeService {
     private final Logger log = LoggerFactory.getLogger(SourceTypeService.class);
 
     @Autowired
-    private  SourceTypeRepository sourceTypeRepository;
+    private SourceTypeRepository sourceTypeRepository;
 
     @Autowired
-    private  SourceTypeMapper sourceTypeMapper;
+    private SourceTypeMapper sourceTypeMapper;
 
     @Autowired
     private SourceDataRepository sourceDataRepository;
+
+    @Autowired
+    private ProjectMapper projectMapper;
 
     /**
      * Save a sourceType.
@@ -54,25 +60,36 @@ public class SourceTypeService {
     }
 
     /**
-     *  Get all the sourceTypes.
+     * Get all the sourceTypes.
      *
-     *  @return the list of entities
+     * @return the list of entities
      */
     @Transactional(readOnly = true)
     public List<SourceTypeDTO> findAll() {
         log.debug("Request to get all SourceTypes");
         List<SourceType> result = sourceTypeRepository.findAllWithEagerRelationships();
-        return result.stream()
-            .map(sourceTypeMapper::sourceTypeToSourceTypeDTO)
-            .collect(Collectors.toCollection(LinkedList::new));
+        return result.stream().map(sourceTypeMapper::sourceTypeToSourceTypeDTO)
+                .collect(Collectors.toCollection(LinkedList::new));
 
     }
 
     /**
-     *  Get one sourceType by id.
+     * Get all sourceTypes with pagination
      *
-     *  @param id the id of the entity
-     *  @return the entity
+     * @param pageable params
+     * @return the list of entities
+     */
+    public Page<SourceTypeDTO> findAll(Pageable pageable) {
+        log.debug("Request to get SourceTypes");
+        return sourceTypeRepository.findAll(pageable)
+                .map(sourceTypeMapper::sourceTypeToSourceTypeDTO);
+    }
+
+    /**
+     * Get one sourceType by id.
+     *
+     * @param id the id of the entity
+     * @return the entity
      */
     @Transactional(readOnly = true)
     public SourceTypeDTO findOne(Long id) {
@@ -82,9 +99,9 @@ public class SourceTypeService {
     }
 
     /**
-     *  Delete the  sourceType by id.
+     * Delete the  sourceType by id.
      *
-     *  @param id the id of the entity
+     * @param id the id of the entity
      */
     public void delete(Long id) {
         log.debug("Request to delete SourceType : {}", id);
@@ -94,11 +111,13 @@ public class SourceTypeService {
     /**
      * Fetch SourceType by producer and model
      */
-    public SourceTypeDTO findByProducerAndModelAndVersion(String producer, String model , String version) {
+    public SourceTypeDTO findByProducerAndModelAndVersion(String producer, String model,
+            String version) {
         log.debug("Request to get SourceType by producer and model and version: {}, {}, {}",
-            producer, model, version);
+                producer, model, version);
         Optional<SourceType> sourceType = sourceTypeRepository
-            .findOneWithEagerRelationshipsByProducerAndModelAndVersion(producer, model, version);
+                .findOneWithEagerRelationshipsByProducerAndModelAndVersion(producer, model,
+                        version);
         return sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType.orElse(null));
     }
 
@@ -108,9 +127,9 @@ public class SourceTypeService {
     public List<SourceTypeDTO> findByProducer(String producer) {
         log.debug("Request to get SourceType by producer: {}", producer);
         List<SourceType> sourceTypes = sourceTypeRepository
-            .findWithEagerRelationshipsByProducer(producer);
+                .findWithEagerRelationshipsByProducer(producer);
         List<SourceTypeDTO> sourceTypeDTOs = sourceTypeMapper.sourceTypesToSourceTypeDTOs(
-            sourceTypes);
+                sourceTypes);
         return sourceTypeDTOs;
     }
 
@@ -120,9 +139,23 @@ public class SourceTypeService {
     public List<SourceTypeDTO> findByProducerAndModel(String producer, String model) {
         log.debug("Request to get SourceType by producer and model: {}, {}", producer, model);
         List<SourceType> sourceTypes = sourceTypeRepository
-            .findWithEagerRelationshipsByProducerAndModel(producer, model);
+                .findWithEagerRelationshipsByProducerAndModel(producer, model);
         List<SourceTypeDTO> sourceTypeDTOs = sourceTypeMapper.sourceTypesToSourceTypeDTOs(
-            sourceTypes);
+                sourceTypes);
         return sourceTypeDTOs;
+    }
+
+    /**
+     * Find projects associated to a particular SourceType
+     *
+     * @param producer the SourceType producer
+     * @param model the SourceType model
+     * @param version the SourceType catalogVersion
+     * @return the list of projects associated with this SourceType
+     */
+    public List<ProjectDTO> findProjectsBySourceType(String producer, String model, String
+            version) {
+        return projectMapper.projectsToProjectDTOs(sourceTypeRepository
+                .findProjectsBySourceType(producer, model, version));
     }
 }

@@ -9,12 +9,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import javax.validation.constraints.Size;
 
 /**
  * A DTO for the Subject entity.
  */
 public class SubjectDTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public enum SubjectStatus {
         DEACTIVATED,    // activated = false, removed = false
@@ -113,6 +114,7 @@ public class SubjectDTO implements Serializable {
     public void setExternalLink(String externalLink) {
         this.externalLink = externalLink;
     }
+
     public String getExternalId() {
         return externalId;
     }
@@ -159,9 +161,11 @@ public class SubjectDTO implements Serializable {
 
         SubjectDTO subjectDTO = (SubjectDTO) o;
 
-        if ( ! Objects.equals(id, subjectDTO.id)) { return false; }
+        if (id == null || subjectDTO.id == null) {
+            return false;
+        }
 
-        return true;
+        return !Objects.equals(id, subjectDTO.id);
     }
 
     @Override
@@ -172,10 +176,10 @@ public class SubjectDTO implements Serializable {
     @Override
     public String toString() {
         return "SubjectDTO{" +
-            "id=" + id +
-            ", externalLink='" + externalLink + "'" +
-            ", externalId='" + externalId + "'" +
-            ", status='" + status+ "'" +
-            '}';
+                "id=" + id +
+                ", externalLink='" + externalLink + "'" +
+                ", externalId='" + externalId + "'" +
+                ", status='" + status + "'" +
+                '}';
     }
 }

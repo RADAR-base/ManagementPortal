@@ -102,7 +102,7 @@ public class SourceTypeResourceIntTest {
     private SourceType sourceType;
 
     @Before
-    public void setup() throws ServletException {
+    public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         SourceTypeResource sourceTypeResource = new SourceTypeResource();
         ReflectionTestUtils.setField(sourceTypeResource, "sourceTypeService" , sourceTypeService);
@@ -256,14 +256,36 @@ public class SourceTypeResourceIntTest {
         sourceTypeRepository.saveAndFlush(sourceType);
 
         // Get all the sourceTypeList
-        restSourceTypeMockMvc.perform(get("/api/source-types?sort=id,desc"))
+        restSourceTypeMockMvc.perform(get("/api/source-types"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(sourceType.getId().intValue())))
-            .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER.toString())))
-            .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL.toString())))
+            .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER)))
+            .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL)))
+            .andExpect(
+                jsonPath("$.[*].catalogVersion").value(hasItem(DEFAULT_DEVICE_VERSION)))
             .andExpect(jsonPath("$.[*].sourceTypeScope").value(hasItem(DEFAULT_SOURCE_TYPE_SCOPE.toString())));
     }
+
+
+    @Test
+    @Transactional
+    public void getAllSourceTypesWithPagination() throws Exception {
+        // Initialize the database
+        sourceTypeRepository.saveAndFlush(sourceType);
+
+        // Get all the sourceTypeList
+        restSourceTypeMockMvc.perform(get("/api/source-types?page=0&size=5&sort=id,desc"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(sourceType.getId().intValue())))
+            .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER)))
+            .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL)))
+            .andExpect(jsonPath("$.[*].catalogVersion")
+                .value(hasItem(DEFAULT_DEVICE_VERSION)))
+            .andExpect(jsonPath("$.[*].sourceTypeScope").value(hasItem(DEFAULT_SOURCE_TYPE_SCOPE.toString())));
+    }
+
 
     @Test
     @Transactional
@@ -277,8 +299,8 @@ public class SourceTypeResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(sourceType.getId().intValue()))
-            .andExpect(jsonPath("$.producer").value(DEFAULT_PRODUCER.toString()))
-            .andExpect(jsonPath("$.model").value(DEFAULT_MODEL.toString()))
+            .andExpect(jsonPath("$.producer").value(DEFAULT_PRODUCER))
+            .andExpect(jsonPath("$.model").value(DEFAULT_MODEL))
             .andExpect(jsonPath("$.sourceTypeScope").value(DEFAULT_SOURCE_TYPE_SCOPE.toString()));
     }
 
@@ -303,6 +325,7 @@ public class SourceTypeResourceIntTest {
         updatedSourceType
             .producer(UPDATED_PRODUCER)
             .model(UPDATED_MODEL)
+            .catalogVersion(UPDATED_DEVICE_VERSION)
             .sourceTypeScope(UPDATED_SOURCE_TYPE_SCOPE);
         SourceTypeDTO sourceTypeDTO = sourceTypeMapper.sourceTypeToSourceTypeDTO(updatedSourceType);
 
@@ -317,6 +340,7 @@ public class SourceTypeResourceIntTest {
         SourceType testSourceType = sourceTypeList.get(sourceTypeList.size() - 1);
         assertThat(testSourceType.getProducer()).isEqualTo(UPDATED_PRODUCER);
         assertThat(testSourceType.getModel()).isEqualTo(UPDATED_MODEL);
+        assertThat(testSourceType.getCatalogVersion()).isEqualTo(UPDATED_DEVICE_VERSION);
         assertThat(testSourceType.getSourceTypeScope()).isEqualTo(UPDATED_SOURCE_TYPE_SCOPE);
     }
 

@@ -1,7 +1,15 @@
 package org.radarcns.management.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.common.util.OAuth2Utils;
@@ -14,18 +22,6 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.HtmlUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 /**
  * Created by dverbeec on 6/07/2017.
  */
@@ -34,9 +30,7 @@ import java.util.stream.Stream;
 public class OAuth2LoginUiWebConfig {
 
     @Autowired
-    ClientDetailsService clientDetailsService;
-
-    private Logger log = LoggerFactory.getLogger(OAuth2LoginUiWebConfig.class);
+    private ClientDetailsService clientDetailsService;
 
     @RequestMapping("/login")
     public ModelAndView getLogin(HttpServletRequest request, HttpServletResponse response) throws
@@ -50,8 +44,9 @@ public class OAuth2LoginUiWebConfig {
 
 
     @RequestMapping("/oauth/confirm_access")
-    public ModelAndView getAccessConfirmation(HttpServletRequest request, HttpServletResponse response)
-        throws Exception {
+    public ModelAndView getAccessConfirmation(HttpServletRequest request,
+            HttpServletResponse response)
+            throws Exception {
 
         Map<String, String[]> params = request.getParameterMap();
 
@@ -62,7 +57,7 @@ public class OAuth2LoginUiWebConfig {
                 .collect(Collectors.toMap(Function.identity(), p -> params.get(p)[0]));
 
         AuthorizationRequest authorizationRequest = new DefaultOAuth2RequestFactory
-            (clientDetailsService).createAuthorizationRequest(authorizationParameters);
+                (clientDetailsService).createAuthorizationRequest(authorizationParameters);
 
         TreeMap<String, Object> model = new TreeMap<>();
         model.put("authorizationRequest", authorizationRequest);
@@ -77,7 +72,7 @@ public class OAuth2LoginUiWebConfig {
         // it needs to be escaped to prevent XSS
         Map<String, String> errorParams = new HashMap<>();
         errorParams.put("date",
-            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         if (error instanceof OAuth2Exception) {
             OAuth2Exception oauthError = (OAuth2Exception) error;
             errorParams.put("status", String.format("%d", oauthError.getHttpErrorCode()));
@@ -86,9 +81,9 @@ public class OAuth2LoginUiWebConfig {
             // transform the additionalInfo map to a comma seperated list of key: value pairs
             if (oauthError.getAdditionalInformation() != null) {
                 errorParams.put("additionalInfo", HtmlUtils.htmlEscape(String.join(", ",
-                    oauthError.getAdditionalInformation().entrySet().stream()
-                        .map(entry -> entry.getKey() + ": " + entry.getValue())
-                        .collect(Collectors.toList()))));
+                        oauthError.getAdditionalInformation().entrySet().stream()
+                                .map(entry -> entry.getKey() + ": " + entry.getValue())
+                                .collect(Collectors.toList()))));
             }
         }
         // Copy non-empty entries to the model. Empty entries will not be present in the model,

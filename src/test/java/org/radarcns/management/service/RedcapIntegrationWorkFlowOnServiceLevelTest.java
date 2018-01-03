@@ -82,6 +82,8 @@ public class RedcapIntegrationWorkFlowOnServiceLevelTest {
                 case ProjectDTO.PHASE_KEY :
                     phaseRetrieved = attributeMapDTO.getValue();
                     break;
+                default:
+                    break;
             }
         }
 
@@ -109,8 +111,7 @@ public class RedcapIntegrationWorkFlowOnServiceLevelTest {
 
         // asset human-readable-id
         for (Map.Entry<String, String> attr : savedSubject.getAttributes().entrySet()) {
-            switch (attr.getKey()) {
-                case SubjectDTO.HUMAN_READABLE_IDENTIFIER_KEY :
+            if(SubjectDTO.HUMAN_READABLE_IDENTIFIER_KEY .equals(attr.getKey())){
                     assertEquals(humanReadableId, attr.getValue());
             }
         }

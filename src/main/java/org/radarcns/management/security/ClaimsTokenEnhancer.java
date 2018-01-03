@@ -1,5 +1,12 @@
 package org.radarcns.management.security;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.radarcns.auth.authorization.RadarAuthorization;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.User;
@@ -14,19 +21,9 @@ import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.common.util.OAuth2Utils;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
-import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
-
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
@@ -54,7 +51,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
         String userName = SecurityUtils.getUserName(authentication);
 
-        if(userName != null) {
+        if (userName != null) {
             // add the 'sub' claim in accordance with JWT spec
             additionalInfo.put("sub", userName);
 
@@ -79,9 +76,10 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
         // add iat and iss optional JWT claims
         additionalInfo.put("iat", Instant.now().getEpochSecond());
         additionalInfo.put("iss", appName);
-        additionalInfo.put(RadarAuthorization.GRANT_TYPE_CLAIM, authentication.getOAuth2Request().getGrantType());
+        additionalInfo.put(RadarAuthorization.GRANT_TYPE_CLAIM,
+                authentication.getOAuth2Request().getGrantType());
         ((DefaultOAuth2AccessToken) accessToken)
-            .setAdditionalInformation(additionalInfo);
+                .setAdditionalInformation(additionalInfo);
 
         // HACK: since all granted tokens need to pass here, we can use this point to create an
         // audit event for a granted token, there is an open issue about oauth2 audit events in
@@ -97,6 +95,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        // nothing to do for now
     }
 
     private Map<String, Object> auditData(OAuth2AccessToken accessToken,

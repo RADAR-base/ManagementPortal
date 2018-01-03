@@ -16,7 +16,7 @@ ext.jacksonVersion='2.8.5'
 
 ext.website = 'http://radar-cns.org/'
 ext.githubRepoName = 'RADAR-CNS/ManagementPortal'
-ext.githubUrl = 'https://github.com/RADAR-CNS/ManagementPortal/tree/dev/oauth-client-util'
+ext.githubUrl = 'https://github.com/RADAR-CNS/ManagementPortal/tree/master/oauth-client-util'
 ext.issueUrl = 'https://github.com/RADAR-CNS/ManagementPortal/issues'
 ext.description = 'This library can be used by client applications that want to use the client_credentials OAuth2 flow. It will manage getting the token and renewing it when necessary.'
 

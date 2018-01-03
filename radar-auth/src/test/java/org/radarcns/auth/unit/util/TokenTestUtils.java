@@ -3,11 +3,6 @@ package org.radarcns.auth.unit.util;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.apache.commons.codec.binary.Base64;
-import org.radarcns.auth.authorization.AuthoritiesConstants;
-import org.radarcns.auth.authorization.Permission;
-import org.radarcns.auth.authorization.Permissions;
-
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
@@ -15,9 +10,10 @@ import java.security.cert.Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.stream.Collectors;
+import org.apache.commons.codec.binary.Base64;
+import org.radarcns.auth.authorization.Permission;
 
 /**
  * Created by dverbeec on 29/06/2017.

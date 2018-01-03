@@ -29,7 +29,7 @@ public class LogsResourceIntTest {
     private MockMvc restLogsMockMvc;
 
     @Before
-    public void setup() {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
 
         LogsResource logsResource = new LogsResource();

@@ -1,18 +1,19 @@
 package org.radarcns.management.service;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.radarcns.management.domain.SourceData;
 import org.radarcns.management.repository.SourceDataRepository;
 import org.radarcns.management.service.dto.SourceDataDTO;
 import org.radarcns.management.service.mapper.SourceDataMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing SourceData.
@@ -27,7 +28,8 @@ public class SourceDataService {
 
     private final SourceDataMapper sourceDataMapper;
 
-    public SourceDataService(SourceDataRepository sourceDataRepository, SourceDataMapper sourceDataMapper) {
+    public SourceDataService(SourceDataRepository sourceDataRepository,
+            SourceDataMapper sourceDataMapper) {
         this.sourceDataRepository = sourceDataRepository;
         this.sourceDataMapper = sourceDataMapper;
     }
@@ -47,25 +49,37 @@ public class SourceDataService {
     }
 
     /**
-     *  Get all the sourceData.
+     * Get all the sourceData.
      *
-     *  @return the list of entities
+     * @return the list of entities
      */
     @Transactional(readOnly = true)
     public List<SourceDataDTO> findAll() {
         log.debug("Request to get all SourceData");
         List<SourceDataDTO> result = sourceDataRepository.findAll().stream()
-            .map(sourceDataMapper::sourceDataToSourceDataDTO)
-            .collect(Collectors.toCollection(LinkedList::new));
+                .map(sourceDataMapper::sourceDataToSourceDataDTO)
+                .collect(Collectors.toCollection(LinkedList::new));
 
         return result;
     }
 
     /**
-     *  Get one sourceData by id.
+     * Get all the sourceData with pagination.
      *
-     *  @param id the id of the entity
-     *  @return the entity
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<SourceDataDTO> findAll(Pageable pageable) {
+        log.debug("Request to get all SourceData");
+        return sourceDataRepository.findAll(pageable)
+                .map(sourceDataMapper::sourceDataToSourceDataDTO);
+    }
+
+    /**
+     * Get one sourceData by id.
+     *
+     * @param id the id of the entity
+     * @return the entity
      */
     @Transactional(readOnly = true)
     public SourceDataDTO findOne(Long id) {
@@ -76,22 +90,22 @@ public class SourceDataService {
     }
 
     /**
-     *  Get one sourceData by name.
+     * Get one sourceData by name.
      *
-     *  @param sourceDataName the sourceDataType of the entity
-     *  @return the entity
+     * @param sourceDataName the sourceDataType of the entity
+     * @return the entity
      */
     @Transactional(readOnly = true)
     public Optional<SourceDataDTO> findOneBySourceDataName(String sourceDataName) {
         log.debug("Request to get SourceData : {}", sourceDataName);
         return sourceDataRepository.findOneBySourceDataName(sourceDataName)
-            .map(sourceDataMapper::sourceDataToSourceDataDTO);
+                .map(sourceDataMapper::sourceDataToSourceDataDTO);
     }
 
     /**
-     *  Delete the  sourceData by id.
+     * Delete the  sourceData by id.
      *
-     *  @param id the id of the entity
+     * @param id the id of the entity
      */
     @Transactional
     public void delete(Long id) {

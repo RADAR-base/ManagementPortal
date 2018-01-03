@@ -25,7 +25,6 @@ import org.radarcns.management.ManagementPortalTestApp;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.security.JwtAuthenticationFilter;
-import org.radarcns.management.service.ProjectService;
 import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.dto.SourceDTO;
@@ -60,8 +59,6 @@ public class SourceResourceIntTest {
     private static final UUID DEFAULT_SOURCE_PHYSICAL_ID = UUID.randomUUID();
     private static final UUID UPDATED_SOURCE_PHYSICAL_ID = DEFAULT_SOURCE_PHYSICAL_ID;
 
-    private static final String DEFAULT_SOURCE_CATEGORY = "AAAAAAAAAA";
-    private static final String UPDATED_SOURCE_CATEGORY = "BBBBBBBBBB";
     private static final String DEFAULT_SOURCE_NAME = "CCCCCCCCCC";
 
     private static final Boolean DEFAULT_ASSIGNED = false;
@@ -75,9 +72,6 @@ public class SourceResourceIntTest {
 
     @Autowired
     private SourceService sourceService;
-
-    @Autowired
-    private ProjectService projectService;
 
     @Autowired
     private SourceTypeService sourceTypeService;
@@ -105,13 +99,12 @@ public class SourceResourceIntTest {
     private Source source;
 
     @Before
-    public void setup() throws ServletException {
+    public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         SourceResource sourceResource = new SourceResource();
         ReflectionTestUtils.setField(sourceResource, "servletRequest", servletRequest);
         ReflectionTestUtils.setField(sourceResource, "sourceService", sourceService);
         ReflectionTestUtils.setField(sourceResource, "sourceRepository", sourceRepository);
-        ReflectionTestUtils.setField(sourceResource, "projectService", projectService);
 
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
         filter.init(new MockFilterConfig());

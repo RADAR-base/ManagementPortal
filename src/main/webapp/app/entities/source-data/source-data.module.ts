@@ -14,7 +14,6 @@ import {
     sourceDataRoute,
     sourceDataPopupRoute,
 } from './';
-
 const ENTITY_STATES = [
     ...sourceDataRoute,
     ...sourceDataPopupRoute,

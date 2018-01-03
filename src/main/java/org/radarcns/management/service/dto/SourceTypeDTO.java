@@ -13,6 +13,8 @@ import org.radarcns.management.domain.enumeration.SourceTypeScope;
  */
 public class SourceTypeDTO implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private Long id;
 
     @NotNull
@@ -49,6 +51,7 @@ public class SourceTypeDTO implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
+
     public String getProducer() {
         return producer;
     }
@@ -56,6 +59,7 @@ public class SourceTypeDTO implements Serializable {
     public void setProducer(String producer) {
         this.producer = producer;
     }
+
     public String getModel() {
         return model;
     }
@@ -71,6 +75,7 @@ public class SourceTypeDTO implements Serializable {
     public void setModel(String model) {
         this.model = model;
     }
+
     public SourceTypeScope getSourceTypeScope() {
         return sourceTypeScope;
     }
@@ -129,8 +134,8 @@ public class SourceTypeDTO implements Serializable {
 
     public void initId() {
         this.sourceTypeId = new SourceTypeId().producer(producer)
-                                              .model(model)
-                                              .version(catalogVersion);
+                .model(model)
+                .version(catalogVersion);
     }
 
     public SourceTypeId getSourceTypeId() {
@@ -148,9 +153,11 @@ public class SourceTypeDTO implements Serializable {
 
         SourceTypeDTO sourceTypeDTO = (SourceTypeDTO) o;
 
-        if ( ! Objects.equals(id, sourceTypeDTO.id)) { return false; }
+        if (id == null || sourceTypeDTO.id == null) {
+            return false;
+        }
 
-        return true;
+        return Objects.equals(id, sourceTypeDTO.id);
     }
 
     @Override
@@ -161,26 +168,24 @@ public class SourceTypeDTO implements Serializable {
     @Override
     public String toString() {
         return "SourceTypeDTO{" +
-            "id=" + id +
-            ", producer='" + producer + "'" +
-            ", model='" + model + "'" +
-            ", catalogVersion='" + catalogVersion + "'" +
-            ", sourceTypeScope='" + sourceTypeScope + "'" +
-            ", canRegisterDynamically='" + canRegisterDynamically + "'" +
-            ", name='" + name + '\'' +
-            ", description=" + description +
-            ", appProvider=" + appProvider +
-            ", assessmentType=" + assessmentType +
-            '}';
+                "id=" + id +
+                ", producer='" + producer + "'" +
+                ", model='" + model + "'" +
+                ", catalogVersion='" + catalogVersion + "'" +
+                ", sourceTypeScope='" + sourceTypeScope + "'" +
+                ", canRegisterDynamically='" + canRegisterDynamically + "'" +
+                ", name='" + name + '\'' +
+                ", description=" + description +
+                ", appProvider=" + appProvider +
+                ", assessmentType=" + assessmentType +
+                '}';
     }
 
     private class SourceTypeId {
+
         private String producer;
         private String model;
         private String version;
-
-        public SourceTypeId() {
-        }
 
         public SourceTypeId producer(String producer) {
             this.producer = producer;

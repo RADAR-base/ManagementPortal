@@ -3,6 +3,8 @@ package org.radarcns.management.config;
 
 import io.github.jhipster.security.AjaxLogoutSuccessHandler;
 import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
+import javax.annotation.PostConstruct;
+import javax.servlet.Filter;
 import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +27,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.Filter;
-
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
@@ -40,15 +39,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private UserDetailsService userDetailsService;
 
     @Autowired
-    ApplicationEventPublisher applicationEventPublisher;
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @PostConstruct
     public void init() {
         try {
             authenticationManagerBuilder
-                .userDetailsService(userDetailsService)
+                    .userDetailsService(userDetailsService)
                     .passwordEncoder(passwordEncoder())
-                .and()
+                    .and()
                     .authenticationEventPublisher(
                             new DefaultAuthenticationEventPublisher(applicationEventPublisher));
         } catch (Exception e) {
@@ -74,25 +73,25 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring()
-            .antMatchers(HttpMethod.OPTIONS, "/**")
-            .antMatchers("/app/**/*.{js,html}")
-            .antMatchers("/bower_components/**")
-            .antMatchers("/i18n/**")
-            .antMatchers("/content/**")
-            .antMatchers("/swagger-ui/index.html")
-            .antMatchers("/api/register")
-            .antMatchers("/api/activate")
-            .antMatchers("/api/account/reset_password/init")
-            .antMatchers("/api/account/reset_password/finish")
-            .antMatchers("/test/**")
-            .antMatchers("/h2-console/**");
+                .antMatchers(HttpMethod.OPTIONS, "/**")
+                .antMatchers("/app/**/*.{js,html}")
+                .antMatchers("/bower_components/**")
+                .antMatchers("/i18n/**")
+                .antMatchers("/content/**")
+                .antMatchers("/swagger-ui/index.html")
+                .antMatchers("/api/register")
+                .antMatchers("/api/activate")
+                .antMatchers("/api/account/reset_password/init")
+                .antMatchers("/api/account/reset_password/finish")
+                .antMatchers("/test/**")
+                .antMatchers("/h2-console/**");
     }
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http
-            .httpBasic().realmName("ManagementPortal")
-            .and()
+                .httpBasic().realmName("ManagementPortal")
+                .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
@@ -115,19 +114,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         // Servlet filters do not have an API to exclude URLs, we need to exclude
         // /api/account/reset_password/*, so we need to list all other endpoints
         registration.addUrlPatterns("/api/account",
-            "/api/account/change_password",
-            "/api/authenticate",
-            "/api/authorities/*",
-            "/api/source-types/*",
-            "/api/oauth-clients/*",
-            "/api/profile-info/*",
-            "/api/projects/*",
-            "/api/roles/*",
-            "/api/source-data/*",
-            "/api/sources/*",
-            "/api/subjects/*",
-            "/api/users/*",
-            "/management/*");
+                "/api/account/change_password",
+                "/api/authenticate",
+                "/api/authorities/*",
+                "/api/source-types/*",
+                "/api/oauth-clients/*",
+                "/api/profile-info/*",
+                "/api/projects/*",
+                "/api/roles/*",
+                "/api/source-data/*",
+                "/api/sources/*",
+                "/api/subjects/*",
+                "/api/users/*",
+                "/management/*");
         registration.setName("jwtAuthenticationFilter");
         registration.setOrder(1);
         return registration;

@@ -1,6 +1,6 @@
 import { browser, element, by, $ } from 'protractor';
 
-describe('Project e2e test', () => {
+describe('OAuth Clients e2e test', () => {
 
     const username = element(by.id('username'));
     const password = element(by.id('password'));
@@ -46,7 +46,43 @@ describe('Project e2e test', () => {
         // find the table row that contains the protected badge, and assert it contains zero enabled buttons
         element(by.cssContainingText('span.badge-info', 'protected: true')).element(by.xpath('ancestor::tr'))
                 .all(by.css('button')).filter((button) => button.isEnabled()).count().then((count) =>
-            expect(count).toEqual(0));
+            expect(count).toEqual(2));// show more, show less buttons are enabled
+    });
+
+    it('should be able to create OAuth Client', () => {
+        element(by.css('jhi-oauth-client h4 button.btn-primary')).click().then(() => {
+            element(by.id('id')).sendKeys('test-client');
+            element(by.cssContainingText('button', 'Random')).click().then(() => {
+                // check if there is something put in the secret field
+                element(by.id('secret')).getAttribute('value').then((value) => expect(value.length).toBeGreaterThan(0));
+            });
+            element(by.id('scope')).sendKeys('SUBJECT.READ');
+            element(by.id('resourceIds')).sendKeys('res_ManagementPortal');
+            element(by.cssContainingText('label.form-check-label', 'refresh_token')).element(by.css('input')).click();
+            element(by.cssContainingText('label.form-check-label', 'password')).element(by.css('input')).click();
+            element(by.id('accessTokenValidity')).clear();
+            element(by.id('accessTokenValidity')).sendKeys('3600');
+            element(by.id('refreshTokenValidity')).clear();
+            element(by.id('refreshTokenValidity')).sendKeys('7200');
+            element(by.cssContainingText('button.btn-primary', 'Save')).click();
+        });
+    });
+
+    it('should be able to edit OAuth Client', () => {
+        browser.waitForAngular();
+        element(by.cssContainingText('td', 'test-client')).element(by.xpath('ancestor::tr'))
+                .element(by.cssContainingText('button', 'Edit')).click().then(() => {
+            browser.waitForAngular();
+            element(by.cssContainingText('button.btn-primary', 'Save')).click();
+        });
+    });
+
+    it('should be able to delete OAuth Client', () => {
+        element(by.cssContainingText('td', 'test-client')).element(by.xpath('ancestor::tr'))
+                .element(by.cssContainingText('button', 'Delete')).click().then(() => {
+            browser.waitForAngular();
+            element(by.cssContainingText('jhi-oauth-client-delete-dialog button.btn-danger', 'Delete')).click();
+        });
     });
 
     afterAll(function () {
