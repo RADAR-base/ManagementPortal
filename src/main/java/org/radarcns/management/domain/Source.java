@@ -75,7 +75,7 @@ public class Source extends AbstractAuditingEntity implements Serializable {
     @MapKeyColumn(name = "attribute_key")
     @Column(name = "attribute_value")
     @CollectionTable(name = "source_metadata", joinColumns = @JoinColumn(name = "id"))
-    private Map<String, String> attributes = new HashMap<String, String>(); // maps from attribute name to value
+    private Map<String, String> attributes = new HashMap<String, String>();
 
     public Long getId() {
         return id;

@@ -53,20 +53,18 @@ script:
   - ./src/test/bash/test-docker-build-on-release-branch.sh
 after_script:
   - ./gradlew sendCoverageToCodacy
-after_success:
-  - ./util/update-gh-pages-docs.sh
 deploy:
   - provider: releases
     api_key: ${GH_TOKEN}
     file_glob: true
-    file: "build/libs/*.war"
+    file:
+      - "build/libs/*.war"
+      - "build/swagger-spec/*.json"
     skip_cleanup: true
     on:
       tags: true
-  - provider: releases
-    api_key: ${GH_TOKEN}
-    file_glob: true
-    file: "build/swagger-spec/*.json"
+  - provider: script
+    script: ./util/update-gh-pages-docs.sh
     skip_cleanup: true
     on:
       tags: true

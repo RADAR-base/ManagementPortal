@@ -6,12 +6,6 @@ package org.radarcns.management.webapp;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -21,6 +15,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test class for checking that the i18n JSON files in all languages have the same fields. This
@@ -31,15 +30,15 @@ public class CheckTranslationsUnitTest {
 
     private static final String PATH = "src/main/webapp/i18n";
     private static final String BASE_LANG = "en";
-    private static File BASE_LANG_PATH;
-    private static Map<String, List<String>> BASE_DICTIONARY;
+    private static File baseLangPath;
+    private static Map<String, List<String>> baseDictionary;
 
     private static final Logger log = LoggerFactory.getLogger(CheckTranslationsUnitTest.class);
 
     @BeforeClass
     public static void loadBaseDictionary() {
-        BASE_LANG_PATH = new File(PATH, BASE_LANG);
-        BASE_DICTIONARY = loadJsonKeysFromDirectory(BASE_LANG_PATH);
+        baseLangPath = new File(PATH, BASE_LANG);
+        baseDictionary = loadJsonKeysFromDirectory(baseLangPath);
     }
 
     @Test
@@ -51,7 +50,7 @@ public class CheckTranslationsUnitTest {
                 .forEach(path -> {
                     Map<String, List<String>> keys = loadJsonKeysFromDirectory(path);
                     // find differences, prepend all keys with the name of the current language
-                    differencesFound.putAll(findDifferences(BASE_DICTIONARY, keys).entrySet()
+                    differencesFound.putAll(findDifferences(baseDictionary, keys).entrySet()
                             .stream()
                             .collect(Collectors.toMap(
                                     e -> String.join("/", path.getName(), e.getKey()),
