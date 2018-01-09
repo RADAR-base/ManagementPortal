@@ -119,8 +119,7 @@ public class OAuth2Client {
             .build();
 
         // make the client execute the POST request
-        try {
-            Response response = getHttpClient().newCall(request).execute();
+        try (Response response = getHttpClient().newCall(request).execute()){
             if (response.isSuccessful()) {
                 currentToken = OAuth2AccessTokenDetails.getObject(response);
             } else {
