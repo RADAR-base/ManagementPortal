@@ -40,7 +40,7 @@ public class OAuth2ClientTest {
 
 
     @Test
-    public void testValidTokenResponse() {
+    public void testValidTokenResponse() throws TokenException {
         stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -65,7 +65,7 @@ public class OAuth2ClientTest {
     }
 
     @Test(expected = TokenException.class)
-    public void testInvalidScope() {
+    public void testInvalidScope() throws TokenException {
         stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(400)
@@ -80,7 +80,7 @@ public class OAuth2ClientTest {
     }
 
     @Test(expected = TokenException.class)
-    public void testInvalidCredentials() {
+    public void testInvalidCredentials() throws TokenException {
         stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(401)
@@ -95,7 +95,7 @@ public class OAuth2ClientTest {
     }
 
     @Test(expected = TokenException.class)
-    public void testInvalidGrantType() {
+    public void testInvalidGrantType() throws TokenException {
         stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(401)
@@ -110,7 +110,7 @@ public class OAuth2ClientTest {
     }
 
     @Test(expected = TokenException.class)
-    public void testInvalidMapping() {
+    public void testInvalidMapping() throws TokenException {
         stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(401)
@@ -125,7 +125,7 @@ public class OAuth2ClientTest {
     }
 
     @Test(expected = TokenException.class)
-    public void testUnreachableServer() throws MalformedURLException {
+    public void testUnreachableServer() throws MalformedURLException, TokenException {
         // no http stub here so the location will be unreachable
         OAuth2Client client = new OAuth2Client()
                 .clientId("client")
@@ -137,7 +137,7 @@ public class OAuth2ClientTest {
     }
 
     @Test(expected = TokenException.class)
-    public void testParseError() {
+    public void testParseError() throws TokenException {
         stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -152,7 +152,7 @@ public class OAuth2ClientTest {
     }
 
     @Test(expected = TokenException.class)
-    public void testNotFound() {
+    public void testNotFound() throws TokenException {
         stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(404)
