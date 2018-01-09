@@ -119,8 +119,16 @@ public class OAuth2Client {
             .build();
 
         // make the client execute the POST request
-        try (Response response = getHttpClient().newCall(request).execute()) {
-            currentToken = OAuth2AccessTokenDetails.getObject(response);
+        try {
+            Response response = getHttpClient().newCall(request).execute();
+            if (response.isSuccessful()) {
+                currentToken = OAuth2AccessTokenDetails.getObject(response);
+            } else {
+                throw new TokenException("Cannot get a valid token : Response-code :" + response
+                        .code() + " received when requesting token from server with message " +
+                        response.message());
+            }
+
         }
         catch (IOException e) {
             throw new TokenException(e);

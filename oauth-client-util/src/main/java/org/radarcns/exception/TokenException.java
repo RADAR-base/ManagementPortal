@@ -3,7 +3,8 @@ package org.radarcns.exception;
 /**
  * Created by dverbeec on 31/08/2017.
  */
-public class TokenException extends RuntimeException {
+public class TokenException extends Exception {
+
     public TokenException() {
         super();
     }
