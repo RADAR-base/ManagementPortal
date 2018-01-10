@@ -21,18 +21,18 @@ public class JwtRadarToken extends AbstractRadarToken {
     public static final String SOURCES_CLAIM = "sources";
     public static final String GRANT_TYPE_CLAIM = "grant_type";
 
-    private Map<String, List<String>> roles;
-    private List<String> authorities;
-    private List<String> scopes;
-    private List<String> sources;
-    private String grantType;
-    private String subject;
-    private Date issuedAt;
-    private Date expiresAt;
-    private List<String> audience;
-    private String token;
-    private String issuer;
-    private String type;
+    private final Map<String, List<String>> roles;
+    private final List<String> authorities;
+    private final List<String> scopes;
+    private final List<String> sources;
+    private final String grantType;
+    private final String subject;
+    private final Date issuedAt;
+    private final Date expiresAt;
+    private final List<String> audience;
+    private final String token;
+    private final String issuer;
+    private final String type;
 
     /**
      * Initialize this {@code JwtRadarToken} based on the {@link DecodedJWT}. All relevant
