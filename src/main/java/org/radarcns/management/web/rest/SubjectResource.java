@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.config.Constants;
+import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Subject;
@@ -103,7 +104,7 @@ public class SubjectResource {
     @PostMapping("/subjects")
     @Timed
     public ResponseEntity<SubjectDTO> createSubject(@RequestBody SubjectDTO subjectDTO)
-            throws URISyntaxException, IllegalAccessException {
+            throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Subject : {}", subjectDTO);
         if (subjectDTO.getProject() == null || subjectDTO.getProject().getId() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil
@@ -152,7 +153,7 @@ public class SubjectResource {
     @PutMapping("/subjects")
     @Timed
     public ResponseEntity<SubjectDTO> updateSubject(@RequestBody SubjectDTO subjectDTO)
-            throws URISyntaxException, IllegalAccessException {
+            throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to update Subject : {}", subjectDTO);
         if (subjectDTO.getProject() == null || subjectDTO.getProject().getId() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil
@@ -183,7 +184,7 @@ public class SubjectResource {
     @PutMapping("/subjects/discontinue")
     @Timed
     public ResponseEntity<SubjectDTO> discontinueSubject(@RequestBody SubjectDTO subjectDTO)
-            throws URISyntaxException, IllegalAccessException {
+            throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to update Subject : {}", subjectDTO);
         if (subjectDTO.getId() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil
@@ -219,7 +220,8 @@ public class SubjectResource {
     @Timed
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(@ApiParam Pageable pageable,
             @RequestParam(value = "projectName", required = false) String projectName,
-            @RequestParam(value = "externalId", required = false) String externalId) {
+            @RequestParam(value = "externalId", required = false) String externalId)
+            throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), SUBJECT_READ);
         log.debug("ProjectName {} and external {}", projectName, externalId);
         if (projectName != null && externalId != null) {
@@ -258,7 +260,8 @@ public class SubjectResource {
      */
     @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
-    public ResponseEntity<SubjectDTO> getSubject(@PathVariable String login) {
+    public ResponseEntity<SubjectDTO> getSubject(@PathVariable String login)
+            throws NotAuthorizedException {
         log.debug("REST request to get Subject : {}", login);
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         if (!subject.isPresent()) {
@@ -278,7 +281,8 @@ public class SubjectResource {
      */
     @DeleteMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
-    public ResponseEntity<Void> deleteSubject(@PathVariable String login) {
+    public ResponseEntity<Void> deleteSubject(@PathVariable String login)
+            throws NotAuthorizedException {
         log.debug("REST request to delete Subject : {}", login);
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         if (!subject.isPresent()) {
@@ -319,7 +323,8 @@ public class SubjectResource {
     })
     @Timed
     public ResponseEntity<MinimalSourceDetailsDTO> assignSources(@PathVariable String login,
-            @RequestBody MinimalSourceDetailsDTO sourceDTO) throws URISyntaxException {
+            @RequestBody MinimalSourceDetailsDTO sourceDTO) throws URISyntaxException,
+            NotAuthorizedException {
         // check the subject id
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         if (!subject.isPresent()) {
@@ -407,7 +412,7 @@ public class SubjectResource {
     @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/sources")
     @Timed
     public ResponseEntity<List<MinimalSourceDetailsDTO>> getSubjectSources(
-            @PathVariable String login) {
+            @PathVariable String login) throws NotAuthorizedException {
         // check the subject id
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         if (!subject.isPresent()) {

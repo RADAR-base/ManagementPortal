@@ -22,6 +22,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
+import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.service.ProjectService;
 import org.radarcns.management.service.RoleService;
@@ -93,7 +94,7 @@ public class ProjectResource {
     @PostMapping("/projects")
     @Timed
     public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO)
-            throws URISyntaxException {
+            throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Project : {}", projectDTO);
         checkPermission(getJWT(servletRequest), PROJECT_CREATE);
         if (projectDTO.getId() != null) {
@@ -119,7 +120,7 @@ public class ProjectResource {
     @PutMapping("/projects")
     @Timed
     public ResponseEntity<ProjectDTO> updateProject(@Valid @RequestBody ProjectDTO projectDTO)
-            throws URISyntaxException {
+            throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to update Project : {}", projectDTO);
         if (projectDTO.getId() == null) {
             return createProject(projectDTO);
@@ -142,7 +143,7 @@ public class ProjectResource {
     @Timed
     public ResponseEntity getAllProjects(@ApiParam Pageable pageable,
             @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
-                    minimized) {
+                    minimized) throws NotAuthorizedException {
         log.debug("REST request to get Projects");
         checkPermission(getJWT(servletRequest), PROJECT_READ);
         Page page = projectService.findAll(minimized, pageable);
@@ -160,7 +161,8 @@ public class ProjectResource {
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
-    public ResponseEntity<ProjectDTO> getProject(@PathVariable String projectName) {
+    public ResponseEntity<ProjectDTO> getProject(@PathVariable String projectName)
+            throws NotAuthorizedException {
         log.debug("REST request to get Project : {}", projectName);
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
@@ -179,7 +181,8 @@ public class ProjectResource {
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/source-types")
     @Timed
-    public List<SourceTypeDTO> getSourceTypesOfProject(@PathVariable String projectName) {
+    public List<SourceTypeDTO> getSourceTypesOfProject(@PathVariable String projectName)
+            throws NotAuthorizedException {
         log.debug("REST request to get Project : {}", projectName);
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
@@ -198,7 +201,8 @@ public class ProjectResource {
      */
     @DeleteMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
-    public ResponseEntity<Void> deleteProject(@PathVariable String projectName) {
+    public ResponseEntity<Void> deleteProject(@PathVariable String projectName)
+            throws NotAuthorizedException {
         log.debug("REST request to delete Project : {}", projectName);
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
@@ -219,7 +223,8 @@ public class ProjectResource {
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/roles")
     @Timed
-    public ResponseEntity<List<RoleDTO>> getRolesByProject(@PathVariable String projectName) {
+    public ResponseEntity<List<RoleDTO>> getRolesByProject(@PathVariable String projectName)
+            throws NotAuthorizedException {
         log.debug("REST request to get all Roles for project {}", projectName);
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
@@ -242,7 +247,7 @@ public class ProjectResource {
             @PathVariable String projectName,
             @RequestParam(value = "assigned", required = false) Boolean assigned,
             @RequestParam(name = "minimized", required = false, defaultValue = "false")
-                    Boolean minimized) {
+                    Boolean minimized) throws NotAuthorizedException {
         log.debug("REST request to get all Sources");
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
@@ -290,7 +295,7 @@ public class ProjectResource {
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/subjects")
     @Timed
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(@ApiParam Pageable pageable,
-            @PathVariable String projectName) {
+            @PathVariable String projectName) throws NotAuthorizedException {
         ProjectDTO projectDTO = projectService.findOneByName(projectName);
         if (projectDTO != null) {
             checkPermissionOnProject(getJWT(servletRequest), SUBJECT_READ, projectName);

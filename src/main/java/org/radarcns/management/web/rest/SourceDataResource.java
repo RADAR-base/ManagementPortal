@@ -18,6 +18,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
+import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.service.SourceDataService;
 import org.radarcns.management.service.dto.SourceDataDTO;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
@@ -68,7 +69,7 @@ public class SourceDataResource {
     @PostMapping("/source-data")
     @Timed
     public ResponseEntity<SourceDataDTO> createSourceData(@Valid @RequestBody SourceDataDTO
-            sourceDataDTO) throws URISyntaxException {
+            sourceDataDTO) throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save SourceData : {}", sourceDataDTO);
         checkPermission(getJWT(servletRequest), SOURCEDATA_CREATE);
         if (sourceDataDTO.getId() != null) {
@@ -99,7 +100,7 @@ public class SourceDataResource {
     @PutMapping("/source-data")
     @Timed
     public ResponseEntity<SourceDataDTO> updateSourceData(@Valid @RequestBody SourceDataDTO
-            sourceDataDTO) throws URISyntaxException {
+            sourceDataDTO) throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to update SourceData : {}", sourceDataDTO);
         if (sourceDataDTO.getId() == null) {
             return createSourceData(sourceDataDTO);
@@ -119,7 +120,8 @@ public class SourceDataResource {
      */
     @GetMapping("/source-data")
     @Timed
-    public ResponseEntity<List<SourceDataDTO>> getAllSourceData(@ApiParam Pageable pageable) {
+    public ResponseEntity<List<SourceDataDTO>> getAllSourceData(@ApiParam Pageable pageable)
+            throws NotAuthorizedException {
         log.debug("REST request to get all SourceData");
         checkPermission(getJWT(servletRequest), SOURCEDATA_READ);
         Page<SourceDataDTO> page = sourceDataService.findAll(pageable);
@@ -137,7 +139,8 @@ public class SourceDataResource {
      */
     @GetMapping("/source-data/{sourceDataName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
-    public ResponseEntity<SourceDataDTO> getSourceData(@PathVariable String sourceDataName) {
+    public ResponseEntity<SourceDataDTO> getSourceData(@PathVariable String sourceDataName)
+            throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), SOURCEDATA_READ);
         return ResponseUtil.wrapOrNotFound(sourceDataService
                 .findOneBySourceDataName(sourceDataName));
@@ -151,7 +154,8 @@ public class SourceDataResource {
      */
     @DeleteMapping("/source-data/{sourceDataName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
-    public ResponseEntity<Void> deleteSourceData(@PathVariable String sourceDataName) {
+    public ResponseEntity<Void> deleteSourceData(@PathVariable String sourceDataName)
+            throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), SOURCEDATA_DELETE);
         Optional<SourceDataDTO> sourceDataDTO = sourceDataService
                 .findOneBySourceDataName(sourceDataName);

@@ -1,9 +1,11 @@
 package org.radarcns.auth.exception;
 
+import java.security.GeneralSecurityException;
+
 /**
  * Created by dverbeec on 27/09/2017.
  */
-public class NotAuthorizedException extends RuntimeException {
+public class NotAuthorizedException extends GeneralSecurityException {
     public NotAuthorizedException() {
         super();
     }

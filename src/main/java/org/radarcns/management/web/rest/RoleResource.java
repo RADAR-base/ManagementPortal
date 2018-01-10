@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.config.Constants;
+import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.service.RoleService;
 import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -59,7 +60,7 @@ public class RoleResource {
     @PostMapping("/roles")
     @Timed
     public ResponseEntity<RoleDTO> createRole(@Valid @RequestBody RoleDTO roleDTO)
-            throws URISyntaxException {
+            throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Role : {}", roleDTO);
         checkPermissionOnProject(getJWT(servletRequest), ROLE_CREATE, roleDTO.getProjectName());
         if (roleDTO.getId() != null) {
@@ -85,7 +86,7 @@ public class RoleResource {
     @PutMapping("/roles")
     @Timed
     public ResponseEntity<RoleDTO> updateRole(@Valid @RequestBody RoleDTO roleDTO)
-            throws URISyntaxException {
+            throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to update Role : {}", roleDTO);
         if (roleDTO.getId() == null) {
             return createRole(roleDTO);
@@ -135,7 +136,7 @@ public class RoleResource {
             + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<RoleDTO> getRole(@PathVariable String projectName,
-            @PathVariable String authorityName) {
+            @PathVariable String authorityName) throws NotAuthorizedException {
         checkPermissionOnProject(getJWT(servletRequest), ROLE_READ, projectName);
         return ResponseUtil.wrapOrNotFound(roleService
                 .findOneByProjectNameAndAuthorityName(projectName, authorityName));

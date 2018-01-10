@@ -26,11 +26,14 @@ public class RadarAuthorization {
 
     /**
      * Check if the user authenticated with the given token has the given permission. Not taking
-     * into account project affiliations.
+     * into account project affiliations. Throws a {@link NotAuthorizedException} if the supplied
+     * token does not have the permission.
      * @param token The token of the logged in user
      * @param permission The permission to check
+     * @throws NotAuthorizedException if the supplied token does not have the permission
      */
-    public static void checkPermission(DecodedJWT token, Permission permission) {
+    public static void checkPermission(DecodedJWT token, Permission permission)
+            throws NotAuthorizedException {
         log.debug("Checking permission {} for user {}", permission.toString(), token.getSubject());
         checkScope(token, permission);
         if (!isClientCredentials(token)) {
@@ -41,12 +44,16 @@ public class RadarAuthorization {
 
     /**
      * Check if the user authenticated with the given token has the given permission in a project.
+     * Throws a {@link NotAuthorizedException} if the supplied token does not have the permission
+     * in the given project.
      * @param token The token of the logged in user
      * @param permission The permission to check
      * @param projectName The project for which to check the permission
+     * @throws NotAuthorizedException if the supplied token does not have the permission in the
+     *     given project
      */
     public static void checkPermissionOnProject(DecodedJWT token, Permission permission,
-            String projectName) {
+            String projectName) throws NotAuthorizedException {
         log.debug("Checking permission {} for user {} in project {}", permission.toString(),
                 token.getSubject(), projectName);
         checkScope(token, permission);
@@ -57,14 +64,17 @@ public class RadarAuthorization {
 
     /**
      * Check if the user authenticated with the given token has the given permission on a specific
-     * subject in a project.
+     * subject in a project. Throws a {@link NotAuthorizedException} if the supplied token does
+     * not have the permission in the given project for the given subject.
      * @param token The token of the logged in user
      * @param permission The permission to check
      * @param projectName The project for which to check the permission
      * @param subjectName The name of the subject to check
+     * @throws NotAuthorizedException if the supplied token does not have the permission in the
+     *     given project for the given subject
      */
     public static void checkPermissionOnSubject(DecodedJWT token, Permission permission,
-            String projectName, String subjectName) {
+            String projectName, String subjectName) throws NotAuthorizedException {
         log.debug("Checking permission {} for user {} on subject {} in project {}",
                 permission.toString(), token.getSubject(), subjectName, projectName);
         checkScope(token, permission);
@@ -127,7 +137,7 @@ public class RadarAuthorization {
     }
 
     protected static void checkPermission(DecodedJWT token, Permission permission,
-            Set<String> authsGranted) {
+            Set<String> authsGranted) throws NotAuthorizedException {
         // Take intersection of both sets
         authsGranted.retainAll(Permissions.allowedAuthorities(permission));
         if (authsGranted.isEmpty()) {
@@ -153,7 +163,8 @@ public class RadarAuthorization {
         return result;
     }
 
-    private static void checkScope(DecodedJWT token, Permission permission) {
+    private static void checkScope(DecodedJWT token, Permission permission)
+            throws NotAuthorizedException {
         if (hasScope(token, permission)) {
             return;
         } else {

@@ -126,7 +126,7 @@ public class SubjectService {
 
 
     @Transactional
-    public SubjectDTO updateSubject(SubjectDTO subjectDTO) throws IllegalAccessException {
+    public SubjectDTO updateSubject(SubjectDTO subjectDTO) {
         if (subjectDTO.getId() == null) {
             return createSubject(subjectDTO);
         }
