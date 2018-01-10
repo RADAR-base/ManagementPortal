@@ -1,6 +1,5 @@
 package org.radarcns.auth.unit.authorization;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
@@ -8,13 +7,14 @@ import org.radarcns.auth.authorization.Permission;
 import org.radarcns.auth.authorization.Permissions;
 import org.radarcns.auth.authorization.RadarAuthorization;
 import org.radarcns.auth.exception.NotAuthorizedException;
+import org.radarcns.auth.token.JwtRadarToken;
+import org.radarcns.auth.token.RadarToken;
 import org.radarcns.auth.unit.util.TokenTestUtils;
 
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 /**
@@ -35,7 +35,7 @@ public class RadarAuthorizationTest {
                 .filter(e -> e.getValue().contains(AuthoritiesConstants.PROJECT_ADMIN))
                 .map(e -> e.getKey())
                 .collect(Collectors.toSet());
-        DecodedJWT token = TokenTestUtils.PROJECT_ADMIN_TOKEN;
+        RadarToken token = new JwtRadarToken(TokenTestUtils.PROJECT_ADMIN_TOKEN);
         for (Permission p : permissions) {
             RadarAuthorization.checkPermissionOnProject(token, p, project);
         }
@@ -52,13 +52,14 @@ public class RadarAuthorizationTest {
                     } catch (NotAuthorizedException ex) {
                         return;
                     }
-                    fail();
+                    fail(String.format("Token should not have permission %s on project %s",
+                            p.toString(), project));
                 });
     }
 
     @Test
     public void testCheckPermission() throws NotAuthorizedException {
-        DecodedJWT token = TokenTestUtils.SUPER_USER_TOKEN;
+        RadarToken token = new JwtRadarToken(TokenTestUtils.SUPER_USER_TOKEN);
         for (Permission p : Permission.allPermissions()) {
             RadarAuthorization.checkPermission(token, p);
         }
@@ -68,7 +69,7 @@ public class RadarAuthorizationTest {
     public void testCheckPermissionOnSelf() throws NotAuthorizedException {
         String project = "PROJECT2";
         // this token is participant in PROJECT2
-        DecodedJWT token = TokenTestUtils.PROJECT_ADMIN_TOKEN;
+        RadarToken token = new JwtRadarToken(TokenTestUtils.PROJECT_ADMIN_TOKEN);
         String subject = token.getSubject();
         for (Permission p : Arrays.asList(Permission.MEASUREMENT_CREATE,
                 Permission.MEASUREMENT_READ, Permission.SUBJECT_UPDATE, Permission.SUBJECT_READ)) {
@@ -81,7 +82,7 @@ public class RadarAuthorizationTest {
         // is only participant in project2, so should not have any permission on another subject
         String project = "PROJECT2";
         // this token is participant in PROJECT2
-        DecodedJWT token = TokenTestUtils.PROJECT_ADMIN_TOKEN;
+        RadarToken token = new JwtRadarToken(TokenTestUtils.PROJECT_ADMIN_TOKEN);
         String other = "other-subject";
         Permission.allPermissions().stream()
                 .forEach(p -> {
@@ -99,7 +100,7 @@ public class RadarAuthorizationTest {
         // project admin should have all permissions on subject in his project
         String project = "PROJECT1";
         // this token is participant in PROJECT2
-        DecodedJWT token = TokenTestUtils.PROJECT_ADMIN_TOKEN;
+        RadarToken token = new JwtRadarToken(TokenTestUtils.PROJECT_ADMIN_TOKEN);
         String subject = "some-subject";
         Set<Permission> permissions = Permission.allPermissions().stream()
                 .filter(p -> p.getEntity() == Permission.Entity.SUBJECT)
@@ -112,7 +113,7 @@ public class RadarAuthorizationTest {
     @Test
     public void testMultipleRolesInProjectToken() throws NotAuthorizedException {
         String project = "PROJECT2";
-        DecodedJWT token = TokenTestUtils.MULTIPLE_ROLES_IN_PROJECT_TOKEN;
+        RadarToken token = new JwtRadarToken(TokenTestUtils.MULTIPLE_ROLES_IN_PROJECT_TOKEN);
         String subject = "some-subject";
         Set<Permission> permissions = Permission.allPermissions().stream()
                 .filter(p -> p.getEntity() == Permission.Entity.SUBJECT)
@@ -124,7 +125,7 @@ public class RadarAuthorizationTest {
 
     @Test
     public void testScopeOnlyToken() throws NotAuthorizedException {
-        DecodedJWT token = TokenTestUtils.SCOPE_TOKEN;
+        RadarToken token = new JwtRadarToken(TokenTestUtils.SCOPE_TOKEN);
         // test that we can do the things we have a scope for
         for (Permission p : Arrays.asList(Permission.SUBJECT_READ, Permission.SUBJECT_CREATE,
                 Permission.PROJECT_READ)) {
@@ -172,8 +173,6 @@ public class RadarAuthorizationTest {
                     }
                     fail();
                 });
-
-        assertFalse(RadarAuthorization.isJustParticipant(token, ""));
     }
 
 }
