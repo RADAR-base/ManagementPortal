@@ -17,6 +17,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
+import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.dto.SourceDTO;
@@ -70,7 +71,7 @@ public class SourceResource {
     @PostMapping("/sources")
     @Timed
     public ResponseEntity<SourceDTO> createSource(@Valid @RequestBody SourceDTO sourceDTO)
-            throws URISyntaxException {
+            throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Source : {}", sourceDTO);
         checkPermission(getJWT(servletRequest), SOURCE_CREATE);
         if (sourceDTO.getId() != null) {
@@ -107,7 +108,7 @@ public class SourceResource {
     @PutMapping("/sources")
     @Timed
     public ResponseEntity<SourceDTO> updateSource(@Valid @RequestBody SourceDTO sourceDTO)
-            throws URISyntaxException {
+            throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to update Source : {}", sourceDTO);
         if (sourceDTO.getId() == null) {
             return createSource(sourceDTO);
@@ -143,7 +144,8 @@ public class SourceResource {
      */
     @GetMapping("/sources/{sourceName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
-    public ResponseEntity<SourceDTO> getSource(@PathVariable String sourceName) {
+    public ResponseEntity<SourceDTO> getSource(@PathVariable String sourceName)
+            throws NotAuthorizedException {
         log.debug("REST request to get Source : {}", sourceName);
         checkPermission(getJWT(servletRequest), SOURCE_READ);
         return ResponseUtil.wrapOrNotFound(sourceService.findOneByName(sourceName));
@@ -157,7 +159,8 @@ public class SourceResource {
      */
     @DeleteMapping("/sources/{sourceName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
-    public ResponseEntity<Void> deleteSource(@PathVariable String sourceName) {
+    public ResponseEntity<Void> deleteSource(@PathVariable String sourceName)
+            throws NotAuthorizedException {
         log.debug("REST request to delete Source : {}", sourceName);
         checkPermission(getJWT(servletRequest), SOURCE_DELETE);
         Optional<SourceDTO> sourceDTO = sourceService.findOneByName(sourceName);

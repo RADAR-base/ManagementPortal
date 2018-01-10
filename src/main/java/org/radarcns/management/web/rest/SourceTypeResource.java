@@ -20,6 +20,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
+import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.repository.SourceTypeRepository;
 import org.radarcns.management.service.SourceTypeService;
@@ -78,7 +79,7 @@ public class SourceTypeResource {
     @PostMapping("/source-types")
     @Timed
     public ResponseEntity<SourceTypeDTO> createSourceType(@Valid @RequestBody
-            SourceTypeDTO sourceTypeDTO) throws URISyntaxException {
+            SourceTypeDTO sourceTypeDTO) throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save SourceType : {}", sourceTypeDTO);
         checkPermission(getJWT(servletRequest), SOURCETYPE_CREATE);
         if (sourceTypeDTO.getId() != null) {
@@ -121,7 +122,7 @@ public class SourceTypeResource {
     @PutMapping("/source-types")
     @Timed
     public ResponseEntity<SourceTypeDTO> updateSourceType(@Valid @RequestBody
-            SourceTypeDTO sourceTypeDTO) throws URISyntaxException {
+            SourceTypeDTO sourceTypeDTO) throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to update SourceType : {}", sourceTypeDTO);
         if (sourceTypeDTO.getId() == null) {
             return createSourceType(sourceTypeDTO);
@@ -142,7 +143,8 @@ public class SourceTypeResource {
      */
     @GetMapping("/source-types")
     @Timed
-    public ResponseEntity<List<SourceTypeDTO>> getAllSourceTypes(@ApiParam Pageable pageable) {
+    public ResponseEntity<List<SourceTypeDTO>> getAllSourceTypes(@ApiParam Pageable pageable)
+            throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), SOURCETYPE_READ);
         Page<SourceTypeDTO> page = sourceTypeService.findAll(pageable);
         HttpHeaders headers = PaginationUtil
@@ -158,7 +160,8 @@ public class SourceTypeResource {
      */
     @GetMapping("/source-types/{producer:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
-    public ResponseEntity<List<SourceTypeDTO>> getSourceTypes(@PathVariable String producer) {
+    public ResponseEntity<List<SourceTypeDTO>> getSourceTypes(@PathVariable String producer)
+            throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), SOURCETYPE_READ);
         return ResponseEntity.ok(sourceTypeService.findByProducer(producer));
     }
@@ -175,7 +178,7 @@ public class SourceTypeResource {
             + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<List<SourceTypeDTO>> getSourceTypes(@PathVariable String producer,
-            @PathVariable String model) {
+            @PathVariable String model) throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), SOURCETYPE_READ);
         return ResponseEntity.ok(sourceTypeService.findByProducerAndModel(producer, model));
     }
@@ -192,7 +195,8 @@ public class SourceTypeResource {
             + Constants.ENTITY_ID_REGEX + "}/{version:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<SourceTypeDTO> getSourceTypes(@PathVariable String producer,
-            @PathVariable String model, @PathVariable String version) {
+            @PathVariable String model, @PathVariable String version)
+            throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), SOURCETYPE_READ);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(
                 sourceTypeService.findByProducerAndModelAndVersion(producer, model, version)));
@@ -211,7 +215,8 @@ public class SourceTypeResource {
             + Constants.ENTITY_ID_REGEX + "}/{version:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<Void> deleteSourceType(@PathVariable String producer,
-            @PathVariable String model, @PathVariable String version) {
+            @PathVariable String model, @PathVariable String version)
+            throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), SOURCETYPE_DELETE);
         SourceTypeDTO sourceTypeDTO = sourceTypeService
                 .findByProducerAndModelAndVersion(producer, model, version);
