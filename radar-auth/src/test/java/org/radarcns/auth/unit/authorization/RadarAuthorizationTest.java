@@ -1,14 +1,6 @@
 package org.radarcns.auth.unit.authorization;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
-
 import com.auth0.jwt.interfaces.DecodedJWT;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
@@ -17,6 +9,13 @@ import org.radarcns.auth.authorization.Permissions;
 import org.radarcns.auth.authorization.RadarAuthorization;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.auth.unit.util.TokenTestUtils;
+
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 /**
  * Created by dverbeec on 25/09/2017.
