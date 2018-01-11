@@ -1,5 +1,6 @@
 package org.radarcns.auth.token;
 
+import java.util.Collection;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.authorization.Permission;
 
@@ -50,7 +51,7 @@ public abstract class AbstractRadarToken implements RadarToken {
      */
     protected boolean hasAuthorityForPermission(Permission permission) {
         return getRoles().values().stream()
-                .flatMap(s -> s.stream())
+                .flatMap(Collection::stream)
                 .anyMatch(permission::isAuthorityAllowed)
                 || hasNonProjectRelatedAuthorityForPermission(permission);
     }

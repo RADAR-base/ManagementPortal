@@ -120,12 +120,12 @@ public class JwtRadarToken extends AbstractRadarToken {
                 .distinct()
                 .map(s -> s.split(":"))
                 .collect(Collectors.toMap(
-                    s -> s[0],  // key
-                    s -> Collections.singletonList(s[1]),  // value
-                    (projects1, projects2) -> {  // merge
-                        List<String> merged = new ArrayList<>(projects1.size() + projects2.size());
-                        merged.addAll(projects1);
-                        merged.addAll(projects2);
+                    s -> s[0],  // project
+                    s -> Collections.singletonList(s[1]),  // role
+                    (roles1, roles2) -> {  // merge
+                        List<String> merged = new ArrayList<>(roles1.size() + roles2.size());
+                        merged.addAll(roles1);
+                        merged.addAll(roles2);
                         return merged;
                     }));
     }
