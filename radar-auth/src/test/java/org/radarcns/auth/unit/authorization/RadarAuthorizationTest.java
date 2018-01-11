@@ -1,5 +1,6 @@
 package org.radarcns.auth.unit.authorization;
 
+import java.util.Map.Entry;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
@@ -33,7 +34,7 @@ public class RadarAuthorizationTest {
         // let's get all permissions a project admin has
         Set<Permission> permissions = Permissions.getPermissionMatrix().entrySet().stream()
                 .filter(e -> e.getValue().contains(AuthoritiesConstants.PROJECT_ADMIN))
-                .map(e -> e.getKey())
+                .map(Entry::getKey)
                 .collect(Collectors.toSet());
         RadarToken token = new JwtRadarToken(TokenTestUtils.PROJECT_ADMIN_TOKEN);
         for (Permission p : permissions) {
@@ -42,19 +43,18 @@ public class RadarAuthorizationTest {
 
         Set<Permission> notPermitted = Permissions.getPermissionMatrix().entrySet().stream()
                 .filter(e -> !e.getValue().contains(AuthoritiesConstants.PROJECT_ADMIN))
-                .map(e -> e.getKey())
+                .map(Entry::getKey)
                 .collect(Collectors.toSet());
 
-        notPermitted.stream()
-                .forEach(p -> {
-                    try {
-                        RadarAuthorization.checkPermissionOnProject(token, p, project);
-                    } catch (NotAuthorizedException ex) {
-                        return;
-                    }
-                    fail(String.format("Token should not have permission %s on project %s",
-                            p.toString(), project));
-                });
+        notPermitted.forEach(p -> {
+            try {
+                RadarAuthorization.checkPermissionOnProject(token, p, project);
+            } catch (NotAuthorizedException ex) {
+                return;
+            }
+            fail(String.format("Token should not have permission %s on project %s",
+                    p.toString(), project));
+        });
     }
 
     @Test
