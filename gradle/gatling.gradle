@@ -1,35 +1,36 @@
 apply plugin: 'scala'
 
-ext.gatlingSrc = "${project.rootDir.absolutePath}/src/test/gatling"
-ext.gatlingSimulations = file("${gatlingSrc}/simulations")
-
+ext.gatlingSrc = "${project.rootDir.absolutePath}/src/gatling"
+ext.gatlingSimulations = "${gatlingSrc}/scala"
 
 sourceSets {
-    test {
+    gatling {
         scala {
             srcDirs = [gatlingSimulations]
         }
     }
 }
 
-task manifestJar(dependsOn: 'compileTestScala',type: Jar) {
-    from configurations.testCompile
+dependencies {
+    gatlingCompile "io.gatling.highcharts:gatling-charts-highcharts:${gatling_version}"
+}
+
+task manifestJar(type: Jar) {
+    from configurations.gatlingCompile
     archiveName 'gatlingBooter.jar'
     doFirst {
         manifest {
             // uri is just needed for Windows-compatibility
-            attributes 'Class-Path': configurations.testCompile.files.collect{ project.uri(it) }.join(' ')
+            attributes 'Class-Path': configurations.gatlingCompile.files.collect{ project.uri(it) }.join(' ')
         }
     }
 }
 
-task gatlingRunAll(dependsOn: 'manifestJar') {
+task gatlingRunAll(dependsOn: manifestJar) {
     group = 'gatling'
     description = 'Run all available Gatling simulations.'
 
-    def tree = fileTree(dir: gatlingSimulations)
-    tree.include '**/*.scala'
-    tree.each {
+    fileTree(dir: gatlingSimulations, include: '**/*.scala').each {
         def gatlingClass = it.name.replaceFirst(".scala", "")
         gatlingRunAll.dependsOn "gatlingRun${gatlingClass}"
     }
@@ -37,13 +38,12 @@ task gatlingRunAll(dependsOn: 'manifestJar') {
 
 tasks.addRule("Pattern: gatlingRun<ID>") { String taskName ->
     if (taskName.startsWith("gatlingRun") && taskName != "gatlingRunAll") {
-        task(taskName, type: JavaExec) {
-
+        task(taskName, type: JavaExec, dependsOn: manifestJar) {
             standardInput = System.in
 
-            final def sourceSet = sourceSets.test
+            final def sourceSet = sourceSets.gatling
 
-            classpath sourceSet.output + files(manifestJar.archivePath) + files("${gatlingSrc}/conf")
+            classpath sourceSet.output + files(manifestJar.archivePath) + files("${gatlingSrc}/resources")
             main = "io.gatling.app.Gatling"
 
             environment GATLING_HOME:''
@@ -59,4 +59,3 @@ tasks.addRule("Pattern: gatlingRun<ID>") { String taskName ->
         }
     }
 }
-
