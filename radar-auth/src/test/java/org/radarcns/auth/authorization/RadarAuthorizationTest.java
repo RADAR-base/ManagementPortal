@@ -1,14 +1,10 @@
-package org.radarcns.auth.unit.authorization;
+package org.radarcns.auth.authorization;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.radarcns.auth.authorization.AuthoritiesConstants;
-import org.radarcns.auth.authorization.Permission;
-import org.radarcns.auth.authorization.Permissions;
-import org.radarcns.auth.authorization.RadarAuthorization;
 import org.radarcns.auth.exception.NotAuthorizedException;
-import org.radarcns.auth.unit.util.TokenTestUtils;
+import org.radarcns.auth.util.TokenTestUtils;
 
 import java.util.Arrays;
 import java.util.Set;
