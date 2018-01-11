@@ -56,14 +56,6 @@ pmd {
 // Build system metadata                                                     //
 //---------------------------------------------------------------------------//
 
-pom {
-    whenConfigured { p ->
-        p.dependencies = p.dependencies.findAll {
-            it.artifactId.notIn(["logback-classic"])
-        }
-    }
-}
-
 ext.pomConfig = {
     licenses {
         license {
