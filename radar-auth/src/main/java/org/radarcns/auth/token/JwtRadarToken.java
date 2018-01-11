@@ -1,11 +1,9 @@
 package org.radarcns.auth.token;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,17 +41,17 @@ public class JwtRadarToken extends AbstractRadarToken {
      */
     public JwtRadarToken(DecodedJWT jwt) {
         roles = parseRoles(jwt);
-        authorities = parseAuthorities(jwt);
-        scopes = parseScopes(jwt);
-        sources = parseSources(jwt);
-        grantType = parseGrantType(jwt);
-        subject = jwt.getSubject() == null ? "" : jwt.getSubject();
+        authorities = emptyIfNull(jwt.getClaim(AUTHORITIES_CLAIM).asList(String.class));
+        scopes = emptyIfNull(jwt.getClaim(SCOPE_CLAIM).asList(String.class));
+        sources = emptyIfNull(jwt.getClaim(SOURCES_CLAIM).asList(String.class));
+        grantType = emptyIfNull(jwt.getClaim(GRANT_TYPE_CLAIM).asString());
+        subject = emptyIfNull(jwt.getSubject());
         issuedAt = jwt.getIssuedAt();
         expiresAt = jwt.getExpiresAt();
-        audience = jwt.getAudience() == null ? Collections.emptyList() : jwt.getAudience();
-        token = jwt.getToken() == null ? "" : jwt.getToken();
-        issuer = jwt.getIssuer() == null ? "" : jwt.getIssuer();
-        type = jwt.getType() == null ? "" : jwt.getType();
+        audience = emptyIfNull(jwt.getAudience());
+        token = emptyIfNull(jwt.getToken());
+        issuer = emptyIfNull(jwt.getIssuer());
+        type = emptyIfNull(jwt.getType());
     }
 
     @Override
@@ -117,45 +115,26 @@ public class JwtRadarToken extends AbstractRadarToken {
     }
 
     private Map<String, List<String>> parseRoles(DecodedJWT jwt) {
-        if (!jwt.getClaims().containsKey(ROLES_CLAIM)) {
-            return Collections.emptyMap();
-        }
-
-        Map<String, List<String>> result = new HashMap<>();
-        List<String[]> parsedRoles = jwt.getClaim(ROLES_CLAIM).asList(String.class).stream()
+        return emptyIfNull(jwt.getClaim(ROLES_CLAIM).asList(String.class)).stream()
                 .filter(s -> s.contains(":"))
+                .distinct()
                 .map(s -> s.split(":"))
-                .collect(Collectors.toList());
-        for (String[] role : parsedRoles) {
-            if (!result.containsKey(role[0])) {
-                result.put(role[0], new LinkedList<>());
-            }
-            result.get(role[0]).add(role[1]);
-        }
-        return result;
+                .collect(Collectors.toMap(
+                    s -> s[0],  // key
+                    s -> Collections.singletonList(s[1]),  // value
+                    (projects1, projects2) -> {  // merge
+                        List<String> merged = new ArrayList<>(projects1.size() + projects2.size());
+                        merged.addAll(projects1);
+                        merged.addAll(projects2);
+                        return merged;
+                    }));
     }
 
-    private List<String> parseAuthorities(DecodedJWT jwt) {
-        return jwt.getClaims().containsKey(AUTHORITIES_CLAIM)
-                ? jwt.getClaim(AUTHORITIES_CLAIM).asList(String.class)
-                : Collections.emptyList();
+    private static String emptyIfNull(String string) {
+        return string != null ? string : "";
     }
 
-    private List<String> parseScopes(DecodedJWT jwt) {
-        return jwt.getClaims().containsKey(SCOPE_CLAIM)
-                ? jwt.getClaim(SCOPE_CLAIM).asList(String.class)
-                : Collections.emptyList();
-    }
-
-    private List<String> parseSources(DecodedJWT jwt) {
-        return jwt.getClaims().containsKey(SOURCES_CLAIM)
-                ? jwt.getClaim(SOURCES_CLAIM).asList(String.class)
-                : Collections.emptyList();
-    }
-
-    private String parseGrantType(DecodedJWT jwt) {
-        return jwt.getClaims().containsKey(GRANT_TYPE_CLAIM)
-                ? jwt.getClaim(GRANT_TYPE_CLAIM).asString()
-                : "";
+    private static List<String> emptyIfNull(List<String> list) {
+        return list != null ? list : Collections.emptyList();
     }
 }
