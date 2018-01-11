@@ -1,6 +1,5 @@
 .gradle
 build/
-bin/
 /out/
 
 # Ignore Gradle GUI config
