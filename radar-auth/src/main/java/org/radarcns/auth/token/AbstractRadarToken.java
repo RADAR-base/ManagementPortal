@@ -1,5 +1,7 @@
 package org.radarcns.auth.token;
 
+import java.util.Collection;
+import java.util.Objects;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.authorization.Permission;
 
@@ -50,7 +52,7 @@ public abstract class AbstractRadarToken implements RadarToken {
      */
     protected boolean hasAuthorityForPermission(Permission permission) {
         return getRoles().values().stream()
-                .flatMap(s -> s.stream())
+                .flatMap(Collection::stream)
                 .anyMatch(permission::isAuthorityAllowed)
                 || hasNonProjectRelatedAuthorityForPermission(permission);
     }
@@ -63,7 +65,7 @@ public abstract class AbstractRadarToken implements RadarToken {
      * @return {@code true} if any authority contains the permission, {@code false} otherwise
      */
     protected boolean hasAuthorityForPermission(Permission permission, String projectName) {
-        return getRoles().containsKey(projectName) && getRoles().get(projectName).stream()
+        return getRoles().getOrDefault(projectName, Collections.emptyList()).stream()
                 .anyMatch(permission::isAuthorityAllowed)
                 || hasNonProjectRelatedAuthorityForPermission(permission);
     }
@@ -106,7 +108,7 @@ public abstract class AbstractRadarToken implements RadarToken {
      *     {@code false} otherwise
      */
     protected boolean isJustParticipant(String projectName) {
-        return getRoles().containsKey(projectName) && getRoles().get(projectName)
-                .equals(Collections.singletonList(AuthoritiesConstants.PARTICIPANT));
+        return Objects.equals(getRoles().get(projectName),
+            Collections.singletonList(AuthoritiesConstants.PARTICIPANT));
     }
 }
