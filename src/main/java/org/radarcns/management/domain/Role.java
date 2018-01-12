@@ -84,18 +84,6 @@ public class Role extends AbstractAuditingEntity implements Serializable {
         return this;
     }
 
-    public Role addUsers(User user) {
-        this.users.add(user);
-        user.getRoles().add(this);
-        return this;
-    }
-
-    public Role removeUsers(User user) {
-        this.users.remove(user);
-        user.getRoles().remove(this);
-        return this;
-    }
-
     public void setUsers(Set<User> users) {
         this.users = users;
     }
@@ -148,9 +136,11 @@ public class Role extends AbstractAuditingEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "Role{" +
-                "id=" + id +
-                '}';
+        return "Role{"
+               + "id=" + id + ", "
+               + "project='" + (project == null ? "null" : project.getProjectName()) + "', "
+               + "authority='" + getAuthority().getName() + "', "
+               + "}";
     }
 
 }

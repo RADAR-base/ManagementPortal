@@ -33,8 +33,13 @@ public class EventPublisherEntityListener {
     @Autowired
     private AuditEventRepository auditEventRepository;
 
-    private DateTimeProvider dateTimeProvider = CurrentDateTimeProvider.INSTANCE;
+    private final DateTimeProvider dateTimeProvider = CurrentDateTimeProvider.INSTANCE;
 
+    /**
+     * Event listener to publish a persist event to the audit event repository.
+     *
+     * @param entity the entity that is persisted
+     */
     @PostPersist
     public void publishPersistEvent(AbstractAuditingEntity entity) {
         AutowireHelper.autowire(this, auditEventRepository);
@@ -43,6 +48,11 @@ public class EventPublisherEntityListener {
         auditEventRepository.add(event);
     }
 
+    /**
+     * Event listener to publish an update event to the audit event repository.
+     *
+     * @param entity the entity that is updated
+     */
     @PostUpdate
     public void publishUpdateEvent(AbstractAuditingEntity entity) {
         AutowireHelper.autowire(this, auditEventRepository);
@@ -51,6 +61,11 @@ public class EventPublisherEntityListener {
         auditEventRepository.add(event);
     }
 
+    /**
+     * Event listener to publish a remove event to the audit event repository.
+     *
+     * @param entity the entity that is removed
+     */
     @PostRemove
     public void publishRemoveEvent(AbstractAuditingEntity entity) {
         AutowireHelper.autowire(this, auditEventRepository);

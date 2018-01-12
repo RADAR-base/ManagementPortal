@@ -8,12 +8,18 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 
 /**
- * Created by dverbeec on 9/10/2017.
+ * Radar-auth server configuration for using a local keystore. This will load the MP public key
+ * from our keystore, no need to make an HTTP call to ourselves to fetch it.
  */
 public class LocalKeystoreConfig implements ServerConfig {
 
+    public static final String RES_MANAGEMENT_PORTAL = "res_ManagementPortal";
     private final RSAPublicKey publicKey;
 
+    /**
+     * Constructor will look for the keystore in the classpath at /config/keystore.jks and load
+     * the public key from it.
+     */
     public LocalKeystoreConfig() {
         KeyPair keyPair = new KeyStoreKeyFactory(
                 new ClassPathResource("/config/keystore.jks"), "radarbase".toCharArray())
@@ -28,7 +34,7 @@ public class LocalKeystoreConfig implements ServerConfig {
 
     @Override
     public String getResourceName() {
-        return "res_ManagementPortal";
+        return RES_MANAGEMENT_PORTAL;
     }
 
     @Override

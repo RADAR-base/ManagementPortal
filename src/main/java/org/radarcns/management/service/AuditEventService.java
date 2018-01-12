@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import org.radarcns.management.config.audit.AuditEventConverter;
 import org.radarcns.management.repository.PersistenceAuditEventRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,23 +19,25 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AuditEventService {
 
-    private final PersistenceAuditEventRepository persistenceAuditEventRepository;
+    @Autowired
+    private PersistenceAuditEventRepository persistenceAuditEventRepository;
 
-    private final AuditEventConverter auditEventConverter;
-
-    public AuditEventService(
-            PersistenceAuditEventRepository persistenceAuditEventRepository,
-            AuditEventConverter auditEventConverter) {
-
-        this.persistenceAuditEventRepository = persistenceAuditEventRepository;
-        this.auditEventConverter = auditEventConverter;
-    }
+    @Autowired
+    private AuditEventConverter auditEventConverter;
 
     public Page<AuditEvent> findAll(Pageable pageable) {
         return persistenceAuditEventRepository.findAll(pageable)
                 .map(auditEventConverter::convertToAuditEvent);
     }
 
+    /**
+     * Find audit events by dates.
+     *
+     * @param fromDate start of the date range
+     * @param toDate end of the date range
+     * @param pageable the pageable
+     * @return a page of audit events
+     */
     public Page<AuditEvent> findByDates(LocalDateTime fromDate, LocalDateTime toDate,
             Pageable pageable) {
         return persistenceAuditEventRepository
@@ -43,7 +46,7 @@ public class AuditEventService {
     }
 
     public Optional<AuditEvent> find(Long id) {
-        return Optional.ofNullable(persistenceAuditEventRepository.findOne(id)).map
-                (auditEventConverter::convertToAuditEvent);
+        return Optional.ofNullable(persistenceAuditEventRepository.findOne(id))
+                .map(auditEventConverter::convertToAuditEvent);
     }
 }

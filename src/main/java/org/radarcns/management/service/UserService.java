@@ -63,6 +63,12 @@ public class UserService {
     @Autowired
     private AuthorityRepository authorityRepository;
 
+    /**
+     * Activate a user with the given activation key.
+     * @param key the activation key
+     * @return an {@link Optional} which is populated with the activated user if the registration
+     *     key was found, and is empty otherwise.
+     */
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
         return userRepository.findOneByActivationKey(key)
@@ -75,6 +81,13 @@ public class UserService {
                 });
     }
 
+    /**
+     * Update a user password with a given reset key.
+     * @param newPassword the updated password
+     * @param key the reset key
+     * @return an {@link Optional} which is populated with the user whose password was reset if
+     *     the reset key was found, and is empty otherwise
+     */
     public Optional<User> completePasswordReset(String newPassword, String key) {
         log.debug("Reset user password for reset key {}", key);
 
@@ -92,6 +105,12 @@ public class UserService {
                 });
     }
 
+    /**
+     * Set a user's reset key to a new random value and set their reset date to now.
+     * @param mail the email address of the user
+     * @return an {@link Optional} which holds the user if an activated user was found with the
+     *     given email address, and is empty otherwise
+     */
     public Optional<User> requestPasswordReset(String mail) {
         return userRepository.findOneByEmail(mail)
                 .filter(User::getActivated)
@@ -102,16 +121,25 @@ public class UserService {
                 });
     }
 
-    public User createUser(UserDTO userDTO) {
+    /**
+     * Add a new user to the database.
+     *
+     * <p>The new user will not be activated and have a random password assigned. It is the
+     * responsibility of the caller to make sure the new user has a means of activating their
+     * account.</p>
+     * @param userDto the user information
+     * @return the newly created user
+     */
+    public User createUser(UserDTO userDto) {
         User user = new User();
-        user.setLogin(userDTO.getLogin());
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
-        user.setEmail(userDTO.getEmail());
-        if (userDTO.getLangKey() == null) {
+        user.setLogin(userDto.getLogin());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setEmail(userDto.getEmail());
+        if (userDto.getLangKey() == null) {
             user.setLangKey("en"); // default language
         } else {
-            user.setLangKey(userDTO.getLangKey());
+            user.setLangKey(userDto.getLangKey());
         }
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
         user.setPassword(encryptedPassword);
@@ -119,23 +147,23 @@ public class UserService {
         user.setResetDate(ZonedDateTime.now());
         user.setActivated(false);
 
-        user.setRoles(getUserRoles(userDTO));
+        user.setRoles(getUserRoles(userDto));
         userRepository.save(user);
         log.debug("Created Information for User: {}", user);
         return user;
     }
 
-    private Set<Role> getUserRoles(UserDTO userDTO) {
+    private Set<Role> getUserRoles(UserDTO userDto) {
         Set<Role> roles = new HashSet<>();
-        for (RoleDTO roleDTO : userDTO.getRoles()) {
-            Role role = roleRepository.findOneByProjectIdAndAuthorityName(roleDTO.getProjectId(),
-                    roleDTO.getAuthorityName());
+        for (RoleDTO roleDto : userDto.getRoles()) {
+            Role role = roleRepository.findOneByProjectIdAndAuthorityName(roleDto.getProjectId(),
+                    roleDto.getAuthorityName());
             if (role == null || role.getId() == null) {
                 Role currentRole = new Role();
                 currentRole.setAuthority(
-                        authorityRepository.findByAuthorityName(roleDTO.getAuthorityName()));
-                if (roleDTO.getProjectId() != null) {
-                    currentRole.setProject(projectRepository.getOne(roleDTO.getProjectId()));
+                        authorityRepository.findByAuthorityName(roleDto.getAuthorityName()));
+                if (roleDto.getProjectId() != null) {
+                    currentRole.setProject(projectRepository.getOne(roleDto.getProjectId()));
                 }
                 // supplied authorityname can be anything, so check if we actually have one
                 if (Objects.nonNull(currentRole.getAuthority())) {
@@ -169,22 +197,22 @@ public class UserService {
     /**
      * Update all information for a specific user, and return the modified user.
      *
-     * @param userDTO user to update
+     * @param userDto user to update
      * @return updated user
      */
-    public Optional<UserDTO> updateUser(UserDTO userDTO) {
+    public Optional<UserDTO> updateUser(UserDTO userDto) {
         return Optional.of(userRepository
-                .findOne(userDTO.getId()))
+                .findOne(userDto.getId()))
                 .map(user -> {
-                    user.setLogin(userDTO.getLogin());
-                    user.setFirstName(userDTO.getFirstName());
-                    user.setLastName(userDTO.getLastName());
-                    user.setEmail(userDTO.getEmail());
-                    user.setActivated(userDTO.isActivated());
-                    user.setLangKey(userDTO.getLangKey());
+                    user.setLogin(userDto.getLogin());
+                    user.setFirstName(userDto.getFirstName());
+                    user.setLastName(userDto.getLastName());
+                    user.setEmail(userDto.getEmail());
+                    user.setActivated(userDto.isActivated());
+                    user.setLangKey(userDto.getLangKey());
                     Set<Role> managedRoles = user.getRoles();
                     managedRoles.clear();
-                    managedRoles.addAll(getUserRoles(userDTO));
+                    managedRoles.addAll(getUserRoles(userDto));
 
                     log.debug("Changed Information for User: {}", user);
                     return user;
@@ -192,6 +220,10 @@ public class UserService {
                 .map(userMapper::userToUserDTO);
     }
 
+    /**
+     * Delete the user with the given login.
+     * @param login the login to delete
+     */
     public void deleteUser(String login) {
         userRepository.findOneByLogin(login).ifPresent(user -> {
             userRepository.delete(user);
@@ -199,6 +231,10 @@ public class UserService {
         });
     }
 
+    /**
+     * Change the current user's password.
+     * @param password the new password
+     */
     public void changePassword(String password) {
         userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
             String encryptedPassword = passwordEncoder.encode(password);
@@ -207,6 +243,11 @@ public class UserService {
         });
     }
 
+    /**
+     * Get a page of users.
+     * @param pageable the page information
+     * @return the requested page of users
+     */
     @Transactional(readOnly = true)
     public Page<UserDTO> getAllManagedUsers(Pageable pageable) {
         log.debug("Request to get all Users");
@@ -214,11 +255,22 @@ public class UserService {
                 .map(userMapper::userToUserDTO);
     }
 
+    /**
+     * Get the user with the given login.
+     * @param login the login
+     * @return an {@link Optional} which holds the user if one was found with the given login,
+     *     and is empty otherwise
+     */
     @Transactional(readOnly = true)
     public Optional<UserDTO> getUserWithAuthoritiesByLogin(String login) {
         return userRepository.findOneWithRolesByLogin(login).map(userMapper::userToUserDTO);
     }
 
+    /**
+     * Get the projects a given user has any role in.
+     * @param login the login of the user
+     * @return the list of projects
+     */
     @Transactional(readOnly = true)
     public List<ProjectDTO> getProjectsAssignedToUser(String login) {
         User userByLogin = userRepository.findOneWithRolesByLogin(login).get();
@@ -236,6 +288,10 @@ public class UserService {
         return projectMapper.projectsToProjectDTOs(projectsOfUser);
     }
 
+    /**
+     * Get the current user.
+     * @return the currently authenticated user, or null if no user is currently authenticated
+     */
     @Transactional(readOnly = true)
     public User getUserWithAuthorities() {
         return userRepository.findOneWithRolesByLogin(SecurityUtils.getCurrentUserLogin())

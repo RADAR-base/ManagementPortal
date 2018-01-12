@@ -153,7 +153,8 @@ public class OAuthClientsResourceIntTest {
                         .getAutoApproveScopes().toArray())))
                 .andExpect(jsonPath("$.authorizedGrantTypes").value(contains(details
                         .getAuthorizedGrantTypes().toArray())))
-                .andExpect(jsonPath("$.authorities").value(contains(details.getAuthorities().toArray())));
+                .andExpect(jsonPath("$.authorities").value(
+                        contains(details.getAuthorities().toArray())));
 
         ClientDetails testDetails = clientDetailsList.stream().filter(
                 d -> d.getClientId().equals(details.getClientId())).findFirst().get();
@@ -164,7 +165,7 @@ public class OAuthClientsResourceIntTest {
         assertThat(testDetails.getAuthorizedGrantTypes()).containsExactlyElementsOf(
                 details.getAuthorizedGrantTypes());
         details.getAutoApproveScopes().stream().forEach(scope ->
-            assertThat(testDetails.isAutoApprove(scope)).isTrue());
+                assertThat(testDetails.isAutoApprove(scope)).isTrue());
         assertThat(testDetails.getAccessTokenValiditySeconds()).isEqualTo(
                 details.getAccessTokenValiditySeconds().intValue());
         assertThat(testDetails.getRefreshTokenValiditySeconds()).isEqualTo(
@@ -238,7 +239,7 @@ public class OAuthClientsResourceIntTest {
                 .andExpect(status().isBadRequest());
     }
 
-    public static ClientDetailsDTO createClient() {
+    private static ClientDetailsDTO createClient() {
         ClientDetailsDTO result = new ClientDetailsDTO();
         result.setClientId("TEST_CLIENT");
         result.setClientSecret("TEST_SECRET");

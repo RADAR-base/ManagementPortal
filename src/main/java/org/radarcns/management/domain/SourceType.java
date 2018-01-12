@@ -156,12 +156,24 @@ public class SourceType extends AbstractAuditingEntity implements Serializable {
         return this;
     }
 
+    /**
+     * Add source data to this source type.
+     *
+     * @param sourceData the source data to add
+     * @return this source type
+     */
     public SourceType addSourceData(SourceData sourceData) {
         this.sourceData.add(sourceData);
         sourceData.setSourceType(this);
         return this;
     }
 
+    /**
+     * Remove source data from this source type.
+     *
+     * @param sourceData the source data to remove
+     * @return this source type
+     */
     public SourceType removeSourceData(SourceData sourceData) {
         this.sourceData.remove(sourceData);
         sourceData.setSourceType(null);
@@ -178,18 +190,6 @@ public class SourceType extends AbstractAuditingEntity implements Serializable {
 
     public SourceType projects(Set<Project> projects) {
         this.projects = projects;
-        return this;
-    }
-
-    public SourceType addProject(Project project) {
-        this.projects.add(project);
-        project.getSourceTypes().add(this);
-        return this;
-    }
-
-    public SourceType removeProject(Project project) {
-        this.projects.remove(project);
-        project.getSourceTypes().remove(this);
         return this;
     }
 

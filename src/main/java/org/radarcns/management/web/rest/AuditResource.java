@@ -82,7 +82,7 @@ public class AuditResource {
      *
      * @param id the id of the entity to get
      * @return the ResponseEntity with status 200 (OK) and the AuditEvent in body, or status
-     * 404 (Not Found)
+     *     404 (Not Found)
      */
     @GetMapping("/{id:.+}")
     public ResponseEntity<AuditEvent> get(@PathVariable Long id) throws NotAuthorizedException {

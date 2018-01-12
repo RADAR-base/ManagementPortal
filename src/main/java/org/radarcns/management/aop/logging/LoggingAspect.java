@@ -17,7 +17,7 @@ import java.util.Arrays;
 /**
  * Aspect for logging execution of service and repository Spring components.
  *
- * By default, it only runs with the "dev" profile.
+ * <p>By default, it only runs with the "dev" profile.</p>
  */
 @Aspect
 public class LoggingAspect {
@@ -33,7 +33,9 @@ public class LoggingAspect {
     /**
      * Pointcut that matches all repositories, services and Web REST endpoints.
      */
-    @Pointcut("within(org.radarcns.management.repository..*) || within(org.radarcns.management.service..*) || within(org.radarcns.management.web.rest..*)")
+    @Pointcut("within(org.radarcns.management.repository..*) || "
+            + "within(org.radarcns.management.service..*) || "
+            + "within(org.radarcns.management.web.rest..*)")
     public void loggingPointcut() {
         // Method is empty as this is just a Pointcut, the implementations are in the advices.
     }

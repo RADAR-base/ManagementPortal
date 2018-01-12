@@ -66,10 +66,11 @@ public class SubjectResourceIntTest {
     private static final Boolean DEFAULT_REMOVED = false;
     private static final Boolean UPDATED_REMOVED = true;
 
-    private static final SubjectDTO.SubjectStatus DEFAULT_STATUS = SubjectDTO.SubjectStatus.ACTIVATED;
+    private static final SubjectDTO.SubjectStatus DEFAULT_STATUS =
+            SubjectDTO.SubjectStatus.ACTIVATED;
 
     private static final String MODEL = "App";
-    private static final String PRODUCER ="THINC-IT";
+    private static final String PRODUCER = "THINC-IT";
 
     @Autowired
     private SubjectRepository subjectRepository;
@@ -129,33 +130,33 @@ public class SubjectResourceIntTest {
     /**
      * Create an entity for this test.
      *
-     * This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.
+     * <p>This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.</p>
      */
     public static SubjectDTO createEntityDTO(EntityManager em) {
         SubjectDTO subject = new SubjectDTO();
         subject.setExternalLink(DEFAULT_EXTERNAL_LINK);
         subject.setExternalId(DEFAULT_ENTERNAL_ID);
         subject.setStatus(SubjectDTO.SubjectStatus.ACTIVATED);
-        ProjectDTO projectDTO = new ProjectDTO();
-        projectDTO.setId(1L);
-        projectDTO.setProjectName("Radar");
-        projectDTO.setLocation("SOMEWHERE");
-        projectDTO.setDescription("test");
-        subject.setProject(projectDTO);
+        ProjectDTO projectDto = new ProjectDTO();
+        projectDto.setId(1L);
+        projectDto.setProjectName("Radar");
+        projectDto.setLocation("SOMEWHERE");
+        projectDto.setDescription("test");
+        subject.setProject(projectDto);
         return subject;
     }
 
     @Test
     @Transactional
     public void createSubject() throws Exception {
-        int databaseSizeBeforeCreate = subjectRepository.findAll().size();
+        final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
         // Create the Subject
-        SubjectDTO subjectDTO = createEntityDTO(em);
+        SubjectDTO subjectDto = createEntityDTO(em);
         restSubjectMockMvc.perform(post("/api/subjects")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
+            .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
             .andExpect(status().isCreated());
 
         // Validate the Subject in the database
@@ -172,13 +173,13 @@ public class SubjectResourceIntTest {
     @Transactional
     public void createSubjectWithExistingId() throws Exception {
         // Create a Subject
-        SubjectDTO subjectDTO = subjectService.createSubject(createEntityDTO(em));
-        int databaseSizeBeforeCreate = subjectRepository.findAll().size();
+        SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO(em));
+        final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restSubjectMockMvc.perform(post("/api/subjects")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
+            .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -190,13 +191,13 @@ public class SubjectResourceIntTest {
     @Transactional
     public void getAllSubjects() throws Exception {
         // Initialize the database
-        SubjectDTO subjectDTO = subjectService.createSubject(createEntityDTO(em));
+        SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO(em));
 
         // Get all the subjectList
         restSubjectMockMvc.perform(get("/api/subjects?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(subjectDTO.getId().intValue())))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(subjectDto.getId().intValue())))
             .andExpect(jsonPath("$.[*].externalLink").value(hasItem(DEFAULT_EXTERNAL_LINK)))
             .andExpect(jsonPath("$.[*].externalId").value(hasItem(DEFAULT_ENTERNAL_ID)))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())));
@@ -206,13 +207,13 @@ public class SubjectResourceIntTest {
     @Transactional
     public void getSubject() throws Exception {
         // Initialize the database
-        SubjectDTO subjectDTO = subjectService.createSubject(createEntityDTO(em));
+        SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO(em));
 
         // Get the subject
-        restSubjectMockMvc.perform(get("/api/subjects/{login}", subjectDTO.getLogin()))
+        restSubjectMockMvc.perform(get("/api/subjects/{login}", subjectDto.getLogin()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.id").value(subjectDTO.getId().intValue()))
+            .andExpect(jsonPath("$.id").value(subjectDto.getId().intValue()))
             .andExpect(jsonPath("$.externalLink").value(DEFAULT_EXTERNAL_LINK))
             .andExpect(jsonPath("$.externalId").value(DEFAULT_ENTERNAL_ID))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()));
@@ -230,20 +231,20 @@ public class SubjectResourceIntTest {
     @Transactional
     public void updateSubject() throws Exception {
         // Initialize the database
-        SubjectDTO subjectDTO = subjectService.createSubject(createEntityDTO(em));
-        int databaseSizeBeforeUpdate = subjectRepository.findAll().size();
+        SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO(em));
+        final int databaseSizeBeforeUpdate = subjectRepository.findAll().size();
 
         // Update the subject
-        Subject updatedSubject = subjectRepository.findOne(subjectDTO.getId());
+        Subject updatedSubject = subjectRepository.findOne(subjectDto.getId());
         updatedSubject
             .externalLink(UPDATED_EXTERNAL_LINK)
             .externalId(UPDATED_ENTERNAL_ID)
             .removed(UPDATED_REMOVED);
-        subjectDTO = subjectMapper.subjectToSubjectDTO(updatedSubject);
+        subjectDto = subjectMapper.subjectToSubjectDTO(updatedSubject);
 
         restSubjectMockMvc.perform(put("/api/subjects")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
+            .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
             .andExpect(status().isOk());
 
         // Validate the Subject in the database
@@ -258,15 +259,15 @@ public class SubjectResourceIntTest {
     @Test
     @Transactional
     public void updateNonExistingSubject() throws Exception {
-        int databaseSizeBeforeUpdate = subjectRepository.findAll().size();
+        final int databaseSizeBeforeUpdate = subjectRepository.findAll().size();
 
         // Create the Subject
-        SubjectDTO subjectDTO = createEntityDTO(em);
+        SubjectDTO subjectDto = createEntityDTO(em);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restSubjectMockMvc.perform(put("/api/subjects")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
+            .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
             .andExpect(status().isCreated());
 
         // Validate the Subject in the database
@@ -278,11 +279,11 @@ public class SubjectResourceIntTest {
     @Transactional
     public void deleteSubject() throws Exception {
         // Initialize the database
-        SubjectDTO subjectDTO = subjectService.createSubject(createEntityDTO(em));
-        int databaseSizeBeforeDelete = subjectRepository.findAll().size();
+        SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO(em));
+        final int databaseSizeBeforeDelete = subjectRepository.findAll().size();
 
         // Get the subject
-        restSubjectMockMvc.perform(delete("/api/subjects/{login}", subjectDTO.getLogin())
+        restSubjectMockMvc.perform(delete("/api/subjects/{login}", subjectDto.getLogin())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 
@@ -301,13 +302,13 @@ public class SubjectResourceIntTest {
     @Test
     @Transactional
     public void dynamicSourceRegistrationWithId() throws Exception {
-        int databaseSizeBeforeCreate = subjectRepository.findAll().size();
+        final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
         // Create the Subject
-        SubjectDTO subjectDTO = createEntityDTO(em);
+        SubjectDTO subjectDto = createEntityDTO(em);
         restSubjectMockMvc.perform(post("/api/subjects")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
+            .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
             .andExpect(status().isCreated());
 
         // Validate the Subject in the database
@@ -319,32 +320,32 @@ public class SubjectResourceIntTest {
         assertNotNull(subjectLogin);
 
         // Create a source description
-        MinimalSourceDetailsDTO sourceRegistrationDTO = createSourceWithDeviceId();
+        MinimalSourceDetailsDTO sourceRegistrationDto = createSourceWithDeviceId();
 
         restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDTO)))
+            .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.sourceId").isNotEmpty());
 
         // A source can not be assigned twice to a subject, so this call must fail
-        assertThat(sourceRegistrationDTO.getSourceId()).isNull();
+        assertThat(sourceRegistrationDto.getSourceId()).isNull();
         restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDTO)))
+            .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto)))
             .andExpect(status().is4xxClientError());
     }
 
     @Test
     @Transactional
     public void dynamicSourceRegistrationWithoutId() throws Exception {
-        int databaseSizeBeforeCreate = subjectRepository.findAll().size();
+        final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
         // Create the Subject
-        SubjectDTO subjectDTO = createEntityDTO(em);
+        SubjectDTO subjectDto = createEntityDTO(em);
         restSubjectMockMvc.perform(post("/api/subjects")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(subjectDTO)))
+                .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
                 .andExpect(status().isCreated());
 
         // Validate the Subject in the database
@@ -356,27 +357,27 @@ public class SubjectResourceIntTest {
         assertNotNull(subjectLogin);
 
         // Create a source description
-        MinimalSourceDetailsDTO sourceRegistrationDTO = createSourceWithoutDeviceId();
+        MinimalSourceDetailsDTO sourceRegistrationDto = createSourceWithoutDeviceId();
 
         restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDTO)))
+                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sourceId").isNotEmpty());
 
         // A source can not be assigned twice to a subject, so this call must fail
-        assertThat(sourceRegistrationDTO.getSourceId()).isNull();
+        assertThat(sourceRegistrationDto.getSourceId()).isNull();
         restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDTO)))
+                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto)))
                 .andExpect(status().is4xxClientError());
     }
 
     private MinimalSourceDetailsDTO createSourceWithDeviceId() {
         // Create a source description
-        MinimalSourceDetailsDTO sourceRegistrationDTO = new MinimalSourceDetailsDTO();
-        sourceRegistrationDTO.setSourceName(PRODUCER + "-" + MODEL);
-        sourceRegistrationDTO.getAttributes().put("some", "value");
+        MinimalSourceDetailsDTO sourceRegistrationDto = new MinimalSourceDetailsDTO();
+        sourceRegistrationDto.setSourceName(PRODUCER + "-" + MODEL);
+        sourceRegistrationDto.getAttributes().put("some", "value");
 
         List<SourceTypeDTO> sourceTypes = sourceTypeService.findAll().stream()
                 .filter(dt -> dt.getCanRegisterDynamically())
@@ -384,17 +385,17 @@ public class SubjectResourceIntTest {
 
         assertThat(sourceTypes.size()).isGreaterThan(0);
         SourceTypeDTO sourceType = sourceTypes.get(0);
-        sourceRegistrationDTO.setSourceTypeId(sourceType.getId());
+        sourceRegistrationDto.setSourceTypeId(sourceType.getId());
 
-        assertThat(sourceRegistrationDTO.getSourceId()).isNull();
-        return sourceRegistrationDTO;
+        assertThat(sourceRegistrationDto.getSourceId()).isNull();
+        return sourceRegistrationDto;
     }
 
     private MinimalSourceDetailsDTO createSourceWithoutDeviceId() {
         // Create a source description
-        MinimalSourceDetailsDTO sourceRegistrationDTO = new MinimalSourceDetailsDTO();
-        sourceRegistrationDTO.setSourceName(PRODUCER + "-" + MODEL);
-        sourceRegistrationDTO.getAttributes().put("some", "value");
+        MinimalSourceDetailsDTO sourceRegistrationDto = new MinimalSourceDetailsDTO();
+        sourceRegistrationDto.setSourceName(PRODUCER + "-" + MODEL);
+        sourceRegistrationDto.getAttributes().put("some", "value");
 
         List<SourceTypeDTO> sourceTypes = sourceTypeService.findAll().stream()
                 .filter(dt -> dt.getCanRegisterDynamically())
@@ -402,11 +403,11 @@ public class SubjectResourceIntTest {
 
         assertThat(sourceTypes.size()).isGreaterThan(0);
         SourceTypeDTO sourceType = sourceTypes.get(0);
-        sourceRegistrationDTO.setSourceTypeCatalogVersion(sourceType.getCatalogVersion());
-        sourceRegistrationDTO.setSourceTypeModel(sourceType.getModel());
-        sourceRegistrationDTO.setSourceTypeProducer(sourceType.getProducer());
+        sourceRegistrationDto.setSourceTypeCatalogVersion(sourceType.getCatalogVersion());
+        sourceRegistrationDto.setSourceTypeModel(sourceType.getModel());
+        sourceRegistrationDto.setSourceTypeProducer(sourceType.getProducer());
 
-        assertThat(sourceRegistrationDTO.getSourceId()).isNull();
-        return sourceRegistrationDTO;
+        assertThat(sourceRegistrationDto.getSourceId()).isNull();
+        return sourceRegistrationDto;
     }
 }

@@ -23,7 +23,7 @@ public class AutowireHelper implements ApplicationContextAware {
      *
      * @param classToAutowire the instance of the class which holds @Autowire annotations
      * @param beansToAutowireInClass the beans which have the @Autowire annotation in the specified
-     * {#classToAutowire}
+     *     {#classToAutowire}
      */
     public static void autowire(Object classToAutowire, Object... beansToAutowireInClass) {
         for (Object bean : beansToAutowireInClass) {
@@ -40,6 +40,8 @@ public class AutowireHelper implements ApplicationContextAware {
     }
 
     /**
+     * Get the singleton instance.
+     *
      * @return the singleton instance.
      */
     public static AutowireHelper getInstance() {

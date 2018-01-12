@@ -5,8 +5,12 @@ package org.radarcns.management.service.dto;
  */
 public class ClientPairInfoDTO {
 
-    private String refreshToken;
+    private final String refreshToken;
 
+    /**
+     * Initialize with the given refresh token.
+     * @param refreshToken the refresh token
+     */
     public ClientPairInfoDTO(String refreshToken) {
         if (refreshToken == null) {
             throw new IllegalArgumentException("refreshToken can not be null");

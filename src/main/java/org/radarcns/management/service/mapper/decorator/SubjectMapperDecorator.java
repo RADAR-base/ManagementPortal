@@ -39,21 +39,21 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
                 .findFirst();
 
         role.ifPresent(
-            role1 -> dto.setProject(projectMapper.projectToProjectDTO(role1.getProject())));
+                role1 -> dto.setProject(projectMapper.projectToProjectDTO(role1.getProject())));
 
         return dto;
     }
 
     @Override
-    public Subject subjectDTOToSubject(SubjectDTO subjectDTO) {
+    public Subject subjectDTOToSubject(SubjectDTO subjectDto) {
 
-        if (subjectDTO == null) {
+        if (subjectDto == null) {
             return null;
         }
 
-        Subject subject = delegate.subjectDTOToSubject(subjectDTO);
-        extractAttributeData(subjectDTO, subject);
-        setSubjectStatus(subjectDTO, subject);
+        Subject subject = delegate.subjectDTOToSubject(subjectDto);
+        extractAttributeData(subjectDto, subject);
+        setSubjectStatus(subjectDto, subject);
         return subject;
     }
 
@@ -72,31 +72,31 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
     }
 
     @Override
-    public List<Subject> subjectDTOsToSubjects(List<SubjectDTO> subjectDTOS) {
+    public List<Subject> subjectDTOsToSubjects(List<SubjectDTO> subjectDtos) {
 
-        if (subjectDTOS == null) {
+        if (subjectDtos == null) {
             return null;
         }
 
         List<Subject> list = new ArrayList<>();
-        for (SubjectDTO subjectDTO : subjectDTOS) {
-            list.add(this.subjectDTOToSubject(subjectDTO));
+        for (SubjectDTO subjectDto : subjectDtos) {
+            list.add(this.subjectDTOToSubject(subjectDto));
         }
 
         return list;
     }
 
     @Override
-    public Subject safeUpdateSubjectFromDTO(SubjectDTO subjectDTO, @MappingTarget Subject subject) {
-        Subject subjectRetrieved = delegate.safeUpdateSubjectFromDTO(subjectDTO, subject);
-        extractAttributeData(subjectDTO, subjectRetrieved);
-        setSubjectStatus(subjectDTO, subjectRetrieved);
+    public Subject safeUpdateSubjectFromDTO(SubjectDTO subjectDto, @MappingTarget Subject subject) {
+        Subject subjectRetrieved = delegate.safeUpdateSubjectFromDTO(subjectDto, subject);
+        extractAttributeData(subjectDto, subjectRetrieved);
+        setSubjectStatus(subjectDto, subjectRetrieved);
         return subjectRetrieved;
     }
 
 
-    private void extractAttributeData(SubjectDTO subjectDTO, Subject subject) {
-        subject.setAttributes(subjectDTO.getAttributes());
+    private void extractAttributeData(SubjectDTO subjectDto, Subject subject) {
+        subject.setAttributes(subjectDto.getAttributes());
     }
 
     private SubjectStatus getSubjectStatus(Subject subject) {
@@ -110,8 +110,8 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
         return SubjectStatus.INVALID;
     }
 
-    private Subject setSubjectStatus(SubjectDTO subjectDTO, Subject subject) {
-        switch (subjectDTO.getStatus()) {
+    private Subject setSubjectStatus(SubjectDTO subjectDto, Subject subject) {
+        switch (subjectDto.getStatus()) {
             case DEACTIVATED:
                 subject.getUser().setActivated(false);
                 subject.setRemoved(false);

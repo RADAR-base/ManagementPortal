@@ -30,7 +30,11 @@ public class ExceptionTranslator {
 
     private static final Logger logger = LoggerFactory.getLogger(ExceptionTranslator.class);
 
-
+    /**
+     * Translate a {@link ConcurrencyFailureException}.
+     * @param ex the exception
+     * @return the view-model for the translated exception
+     */
     @ExceptionHandler(ConcurrencyFailureException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
@@ -38,6 +42,11 @@ public class ExceptionTranslator {
         return new ErrorVM(ErrorConstants.ERR_CONCURRENCY_FAILURE);
     }
 
+    /**
+     * Translate a {@link TransactionSystemException}.
+     * @param ex the exception
+     * @return the view-model for the translated exception
+     */
     @ExceptionHandler(TransactionSystemException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
@@ -49,6 +58,11 @@ public class ExceptionTranslator {
         return dto;
     }
 
+    /**
+     * Translate a {@link MethodArgumentNotValidException}.
+     * @param ex the exception
+     * @return the view-model for the translated exception
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
@@ -85,6 +99,11 @@ public class ExceptionTranslator {
         return ex.getErrorVM();
     }
 
+    /**
+     * Translate a {@link CustomConflictException}.
+     * @param ex the exception
+     * @return the view-model for the translated exception
+     */
     @ExceptionHandler(CustomConflictException.class)
     public ResponseEntity<ParameterizedErrorVM> processParameterizedConflict(
             CustomConflictException ex) {
@@ -115,22 +134,27 @@ public class ExceptionTranslator {
         return new ErrorVM(ErrorConstants.ERR_METHOD_NOT_SUPPORTED, ex.getMessage());
     }
 
+    /**
+     * Generic exception translator.
+     * @param ex the exception
+     * @return the view-model for the translated exception
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorVM> processRuntimeException(Exception ex) {
         BodyBuilder builder;
-        ErrorVM errorVM;
+        ErrorVM errorVm;
         logger.error("Failed to process message", ex);
         ResponseStatus responseStatus = AnnotationUtils.findAnnotation(ex.getClass(),
                 ResponseStatus.class);
         if (responseStatus != null) {
             builder = ResponseEntity.status(responseStatus.value());
-            errorVM = new ErrorVM("error." + responseStatus.value().value(),
+            errorVm = new ErrorVM("error." + responseStatus.value().value(),
                     responseStatus.reason());
         } else {
             builder = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
-            errorVM = new ErrorVM(ErrorConstants.ERR_INTERNAL_SERVER_ERROR,
+            errorVm = new ErrorVM(ErrorConstants.ERR_INTERNAL_SERVER_ERROR,
                     "Internal server error");
         }
-        return builder.body(errorVM);
+        return builder.body(errorVm);
     }
 }

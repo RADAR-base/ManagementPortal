@@ -17,6 +17,10 @@ public interface CatalogSourceTypeMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "projects", ignore = true)
     @Mapping(target = "canRegisterDynamically", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
     SourceType catalogSourceTypeToSourceType(CatalogSourceType catalogSourceType);
 
     List<SourceType> catalogSourceTypesToSourceTypes(List<CatalogSourceType> catalogSourceType);

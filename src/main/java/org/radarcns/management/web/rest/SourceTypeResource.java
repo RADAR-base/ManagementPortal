@@ -71,39 +71,39 @@ public class SourceTypeResource {
     /**
      * POST  /source-types : Create a new sourceType.
      *
-     * @param sourceTypeDTO the sourceTypeDTO to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new sourceTypeDTO, or
-     * with status 400 (Bad Request) if the sourceType has already an ID
+     * @param sourceTypeDto the sourceTypeDto to create
+     * @return the ResponseEntity with status 201 (Created) and with body the new sourceTypeDto, or
+     *     with status 400 (Bad Request) if the sourceType has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/source-types")
     @Timed
     public ResponseEntity<SourceTypeDTO> createSourceType(@Valid @RequestBody
-            SourceTypeDTO sourceTypeDTO) throws URISyntaxException, NotAuthorizedException {
-        log.debug("REST request to save SourceType : {}", sourceTypeDTO);
+            SourceTypeDTO sourceTypeDto) throws URISyntaxException, NotAuthorizedException {
+        log.debug("REST request to save SourceType : {}", sourceTypeDto);
         checkPermission(getJWT(servletRequest), SOURCETYPE_CREATE);
-        if (sourceTypeDTO.getId() != null) {
+        if (sourceTypeDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
                     "idexists", "A new sourceType cannot already have an ID")).build();
         }
         Optional<SourceType> existing = sourceTypeRepository
                 .findOneWithEagerRelationshipsByProducerAndModelAndVersion(
-                        sourceTypeDTO.getProducer(), sourceTypeDTO.getModel(),
-                        sourceTypeDTO.getCatalogVersion());
+                        sourceTypeDto.getProducer(), sourceTypeDto.getModel(),
+                        sourceTypeDto.getCatalogVersion());
 
         if (existing.isPresent()) {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "A SourceType with the specified producer, model and "
                     + "version already exists. This combination needs to be unique.");
-            errorParams.put("producer", sourceTypeDTO.getProducer());
-            errorParams.put("model", sourceTypeDTO.getModel());
-            errorParams.put("catalogVersion", sourceTypeDTO.getCatalogVersion());
+            errorParams.put("producer", sourceTypeDto.getProducer());
+            errorParams.put("model", sourceTypeDto.getModel());
+            errorParams.put("catalogVersion", sourceTypeDto.getCatalogVersion());
             throw new CustomConflictException(ErrorConstants.ERR_SOURCE_TYPE_EXISTS, errorParams,
                     new URI(HeaderUtil.buildPath("api", "source-types",
-                            sourceTypeDTO.getProducer(), sourceTypeDTO.getModel(),
-                            sourceTypeDTO.getCatalogVersion())));
+                            sourceTypeDto.getProducer(), sourceTypeDto.getModel(),
+                            sourceTypeDto.getCatalogVersion())));
         }
-        SourceTypeDTO result = sourceTypeService.save(sourceTypeDTO);
+        SourceTypeDTO result = sourceTypeService.save(sourceTypeDto);
         return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "source-types",
                 result.getProducer(), result.getModel(), result.getCatalogVersion())))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, displayName(result)))
@@ -113,25 +113,25 @@ public class SourceTypeResource {
     /**
      * PUT  /source-types : Updates an existing sourceType.
      *
-     * @param sourceTypeDTO the sourceTypeDTO to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated sourceTypeDTO, or
-     * with status 400 (Bad Request) if the sourceTypeDTO is not valid, or with status 500 (Internal
-     * Server Error) if the sourceTypeDTO couldnt be updated
+     * @param sourceTypeDto the sourceTypeDto to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated sourceTypeDto, or
+     *     with status 400 (Bad Request) if the sourceTypeDto is not valid, or with status 500
+     *     (Internal Server Error) if the sourceTypeDto couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/source-types")
     @Timed
     public ResponseEntity<SourceTypeDTO> updateSourceType(@Valid @RequestBody
-            SourceTypeDTO sourceTypeDTO) throws URISyntaxException, NotAuthorizedException {
-        log.debug("REST request to update SourceType : {}", sourceTypeDTO);
-        if (sourceTypeDTO.getId() == null) {
-            return createSourceType(sourceTypeDTO);
+            SourceTypeDTO sourceTypeDto) throws URISyntaxException, NotAuthorizedException {
+        log.debug("REST request to update SourceType : {}", sourceTypeDto);
+        if (sourceTypeDto.getId() == null) {
+            return createSourceType(sourceTypeDto);
         }
         checkPermission(getJWT(servletRequest), SOURCETYPE_UPDATE);
-        SourceTypeDTO result = sourceTypeService.save(sourceTypeDTO);
+        SourceTypeDTO result = sourceTypeService.save(sourceTypeDto);
         return ResponseEntity.ok()
                 .headers(
-                        HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, displayName(sourceTypeDTO)))
+                        HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, displayName(sourceTypeDto)))
                 .body(result);
     }
 
@@ -153,7 +153,7 @@ public class SourceTypeResource {
     }
 
     /**
-     * Find the list of SourceTypes made by the given producer
+     * Find the list of SourceTypes made by the given producer.
      *
      * @param producer The producer
      * @return A list of objects matching the producer
@@ -184,7 +184,7 @@ public class SourceTypeResource {
     }
 
     /**
-     * Find the SourceType of the given producer, model and version
+     * Find the SourceType of the given producer, model and version.
      *
      * @param producer The producer
      * @param model The model
@@ -204,7 +204,7 @@ public class SourceTypeResource {
 
     /**
      * DELETE  /source-types/:producer/:model/:version : delete the sourceType with the specified
-     * producer, model and version
+     * producer, model and version.
      *
      * @param producer The producer
      * @param model The model
@@ -218,9 +218,9 @@ public class SourceTypeResource {
             @PathVariable String model, @PathVariable String version)
             throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), SOURCETYPE_DELETE);
-        SourceTypeDTO sourceTypeDTO = sourceTypeService
+        SourceTypeDTO sourceTypeDto = sourceTypeService
                 .findByProducerAndModelAndVersion(producer, model, version);
-        if (Objects.isNull(sourceTypeDTO)) {
+        if (Objects.isNull(sourceTypeDto)) {
             return ResponseEntity.notFound().build();
         }
         List<ProjectDTO> projects = sourceTypeService.findProjectsBySourceType(producer, model,
@@ -232,9 +232,9 @@ public class SourceTypeResource {
                             .reduce((s1, s2) -> String.join(", ", s1, s2))
                             .get()); // we know the list is not empty so calling get() is safe here
         }
-        sourceTypeService.delete(sourceTypeDTO.getId());
+        sourceTypeService.delete(sourceTypeDto.getId());
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME,
-                displayName(sourceTypeDTO))).build();
+                displayName(sourceTypeDto))).build();
     }
 
     private String displayName(SourceTypeDTO sourceType) {

@@ -39,12 +39,12 @@ public class ProjectService {
     /**
      * Save a project.
      *
-     * @param projectDTO the entity to save
+     * @param projectDto the entity to save
      * @return the persisted entity
      */
-    public ProjectDTO save(ProjectDTO projectDTO) {
-        log.debug("Request to save Project : {}", projectDTO);
-        Project project = projectMapper.projectDTOToProject(projectDTO);
+    public ProjectDTO save(ProjectDTO projectDto) {
+        log.debug("Request to save Project : {}", projectDto);
+        Project project = projectMapper.projectDTOToProject(projectDto);
         project = projectRepository.save(project);
         ProjectDTO result = projectMapper.projectToProjectDTO(project);
         return result;
@@ -75,8 +75,8 @@ public class ProjectService {
     public ProjectDTO findOne(Long id) {
         log.debug("Request to get Project : {}", id);
         Project project = projectRepository.findOneWithEagerRelationships(id);
-        ProjectDTO projectDTO = projectMapper.projectToProjectDTO(project);
-        return projectDTO;
+        ProjectDTO projectDto = projectMapper.projectToProjectDTO(project);
+        return projectDto;
     }
 
     /**
@@ -89,8 +89,8 @@ public class ProjectService {
     public ProjectDTO findOneByName(String name) {
         log.debug("Request to get Project by name: {}", name);
         Project project = projectRepository.findOneWithEagerRelationshipsByName(name);
-        ProjectDTO projectDTO = projectMapper.projectToProjectDTO(project);
-        return projectDTO;
+        ProjectDTO projectDto = projectMapper.projectToProjectDTO(project);
+        return projectDto;
     }
 
     /**

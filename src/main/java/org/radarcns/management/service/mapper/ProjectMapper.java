@@ -22,23 +22,42 @@ public interface ProjectMapper {
     List<ProjectDTO> projectsToProjectDTOs(List<Project> projects);
 
     @Mapping(target = "attributes", ignore = true)
-    Project projectDTOToProject(ProjectDTO projectDTO);
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(target = "roles", ignore = true)
+    Project projectDTOToProject(ProjectDTO projectDto);
 
-    List<Project> projectDTOsToProjects(List<ProjectDTO> projectDTOs);
+    List<Project> projectDTOsToProjects(List<ProjectDTO> projectDtos);
 
     MinimalProjectDetailsDTO projectToMinimalProjectDetailsDTO(Project project);
 
     List<MinimalProjectDetailsDTO> projectsToMinimalProjectDetailsDTOs(List<Project> projects);
 
-    Project descriptiveDTOToProject(MinimalProjectDetailsDTO minimalProjectDetailsDTO);
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(target = "description", ignore = true)
+    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "organization", ignore = true)
+    @Mapping(target = "location", ignore = true)
+    @Mapping(target = "startDate", ignore = true)
+    @Mapping(target = "endDate", ignore = true)
+    @Mapping(target = "projectStatus", ignore = true)
+    @Mapping(target = "projectAdmin", ignore = true)
+    @Mapping(target = "sourceTypes", ignore = true)
+    @Mapping(target = "attributes", ignore = true)
+    Project descriptiveDTOToProject(MinimalProjectDetailsDTO minimalProjectDetailsDto);
 
     List<Project> descriptiveDTOsToProjects(
-            List<MinimalProjectDetailsDTO> minimalProjectDetailsDTOS);
+            List<MinimalProjectDetailsDTO> minimalProjectDetailsDtos);
 
     /**
      * generating the fromId for all mappers if the databaseType is sql, as the class has
      * relationship to it might need it, instead of creating a new attribute to know if the entity
-     * has any relationship from some other entity
+     * has any relationship from some other entity.
      *
      * @param id id of the entity
      * @return the entity instance

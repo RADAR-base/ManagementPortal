@@ -105,9 +105,9 @@ public class OAuthClientsResource {
     private static final String PROTECTED_KEY = "protected";
 
     /**
-     * GET /api/oauth-clients
+     * GET /api/oauth-clients.
      *
-     * Retrieve a list of currently registered OAuth clients.
+     * <p>Retrieve a list of currently registered OAuth clients.</p>
      *
      * @return the list of registered clients as a list of {@link ClientDetailsDTO}
      */
@@ -120,9 +120,9 @@ public class OAuthClientsResource {
     }
 
     /**
-     * GET /api/oauth-clients/:id
+     * GET /api/oauth-clients/:id.
      *
-     * Get details on a specific client.
+     * <p>Get details on a specific client.</p>
      *
      * @param id the client id for which to fetch the details
      * @return the client as a {@link ClientDetailsDTO}
@@ -138,41 +138,41 @@ public class OAuthClientsResource {
     }
 
     /**
-     * PUT /api/oauth-clients
+     * PUT /api/oauth-clients.
      *
-     * Update an existing OAuth client.
+     * <p>Update an existing OAuth client.</p>
      *
-     * @param clientDetailsDTO The client details to update
+     * @param clientDetailsDto The client details to update
      * @return The updated OAuth client.
      */
     @PutMapping("/oauth-clients")
     @Timed
     public ResponseEntity<ClientDetailsDTO> updateOAuthClient(@Valid @RequestBody ClientDetailsDTO
-            clientDetailsDTO) throws NotAuthorizedException {
+            clientDetailsDto) throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_UPDATE);
         // getOAuthClient checks if the id exists
-        checkProtected(getOAuthClient(clientDetailsDTO.getClientId()));
+        checkProtected(getOAuthClient(clientDetailsDto.getClientId()));
         ClientDetails details = clientDetailsMapper
-                .clientDetailsDTOToClientDetails(clientDetailsDTO);
+                .clientDetailsDTOToClientDetails(clientDetailsDto);
         clientDetailsService.updateClientDetails(details);
-        ClientDetails updated = getOAuthClient(clientDetailsDTO.getClientId());
+        ClientDetails updated = getOAuthClient(clientDetailsDto.getClientId());
         // updateClientDetails does not update secret, so check for it separately
-        if (Objects.nonNull(clientDetailsDTO.getClientSecret()) && !clientDetailsDTO
+        if (Objects.nonNull(clientDetailsDto.getClientSecret()) && !clientDetailsDto
                 .getClientSecret().equals(updated.getClientSecret())) {
-            clientDetailsService.updateClientSecret(clientDetailsDTO.getClientId(),
-                    clientDetailsDTO.getClientSecret());
+            clientDetailsService.updateClientSecret(clientDetailsDto.getClientId(),
+                    clientDetailsDto.getClientSecret());
         }
-        updated = getOAuthClient(clientDetailsDTO.getClientId());
+        updated = getOAuthClient(clientDetailsDto.getClientId());
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME,
-                        clientDetailsDTO.getClientId()))
+                        clientDetailsDto.getClientId()))
                 .body(clientDetailsMapper.clientDetailsToClientDetailsDTO(updated));
     }
 
     /**
-     * DELETE /api/oauth-clients/:id
+     * DELETE /api/oauth-clients/:id.
      *
-     * Delete the OAuth client with the specified client id.
+     * <p>Delete the OAuth client with the specified client id.</p>
      *
      * @param id The id of the client to delete
      * @return a ResponseEntity indicating success or failure
@@ -190,33 +190,33 @@ public class OAuthClientsResource {
     }
 
     /**
-     * POST /api/oauth-clients
+     * POST /api/oauth-clients.
      *
-     * Register a new oauth client
+     * <p>Register a new oauth client.</p>
      *
-     * @param clientDetailsDTO The oauth client to be registered
+     * @param clientDetailsDto The OAuth client to be registered
      * @return a response indicating success or failure
      * @throws URISyntaxException if there was a problem formatting the URI to the new entity
      */
     @PostMapping("/oauth-clients")
     @Timed
     public ResponseEntity<ClientDetailsDTO> createOAuthClient(@Valid @RequestBody ClientDetailsDTO
-            clientDetailsDTO) throws URISyntaxException, NotAuthorizedException {
+            clientDetailsDto) throws URISyntaxException, NotAuthorizedException {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_CREATE);
         // check if the client id exists
         try {
-            clientDetailsService.loadClientByClientId(clientDetailsDTO.getClientId());
+            clientDetailsService.loadClientByClientId(clientDetailsDto.getClientId());
             throw new CustomConflictException(ErrorConstants.ERR_CLIENT_ID_EXISTS,
-                    Collections.singletonMap("client_id", clientDetailsDTO.getClientId()),
+                    Collections.singletonMap("client_id", clientDetailsDto.getClientId()),
                     new URI(HeaderUtil.buildPath("api", "oauth-clients",
-                            clientDetailsDTO.getClientId())));
+                            clientDetailsDto.getClientId())));
         } catch (NoSuchClientException ex) {
             // Client does not exist yet, we can go ahead and create it
         }
         ClientDetails details = clientDetailsMapper
-                .clientDetailsDTOToClientDetails(clientDetailsDTO);
+                .clientDetailsDTOToClientDetails(clientDetailsDto);
         clientDetailsService.addClientDetails(details);
-        ClientDetails created = getOAuthClient(clientDetailsDTO.getClientId());
+        ClientDetails created = getOAuthClient(clientDetailsDto.getClientId());
         return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "oauth-clients",
                 created.getClientId())))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, created.getClientId()))
@@ -224,11 +224,11 @@ public class OAuthClientsResource {
     }
 
     /**
-     * GET /oauth-clients/pair
+     * GET /oauth-clients/pair.
      *
-     * Generates OAuth2 refresh tokens for the given user, to be used to bootstrap the
+     * <p>Generates OAuth2 refresh tokens for the given user, to be used to bootstrap the
      * authentication of client apps. This will generate a refresh token which can be used at the
-     * /oauth/token endpoint to get a new access token and refresh token.
+     * /oauth/token endpoint to get a new access token and refresh token.</p>
      *
      * @param login the login of the subject for whom to generate pairing information
      * @param clientId the OAuth client id
@@ -246,11 +246,11 @@ public class OAuthClientsResource {
 
         // lookup the subject
         Subject subject = getSubject(login);
-        SubjectDTO subjectDTO = subjectMapper.subjectToSubjectDTO(subject);
+        SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject);
 
         // Users who can update a subject can also generate a refresh token for that subject
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
-                subjectDTO.getProject().getProjectName(), subjectDTO.getLogin());
+                subjectDto.getProject().getProjectName(), subjectDto.getLogin());
 
         // lookup the OAuth client
         // getOAuthClient checks if the id exists

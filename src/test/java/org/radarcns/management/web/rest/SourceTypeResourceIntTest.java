@@ -45,6 +45,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+
 /**
  * Test class for the SourceTypeResource REST controller.
  *
@@ -106,7 +107,8 @@ public class SourceTypeResourceIntTest {
         MockitoAnnotations.initMocks(this);
         SourceTypeResource sourceTypeResource = new SourceTypeResource();
         ReflectionTestUtils.setField(sourceTypeResource, "sourceTypeService" , sourceTypeService);
-        ReflectionTestUtils.setField(sourceTypeResource, "sourceTypeRepository" , sourceTypeRepository);
+        ReflectionTestUtils.setField(sourceTypeResource, "sourceTypeRepository" , 
+                sourceTypeRepository);
         ReflectionTestUtils.setField(sourceTypeResource, "servletRequest", servletRequest);
 
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
@@ -123,15 +125,15 @@ public class SourceTypeResourceIntTest {
     /**
      * Create an entity for this test.
      *
-     * This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.
+     * <p>This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.</p>
      */
     public static SourceType createEntity(EntityManager em) {
         SourceType sourceType = new SourceType()
-            .producer(DEFAULT_PRODUCER)
-            .model(DEFAULT_MODEL)
-            .catalogVersion(DEFAULT_DEVICE_VERSION)
-            .sourceTypeScope(DEFAULT_SOURCE_TYPE_SCOPE);
+                .producer(DEFAULT_PRODUCER)
+                .model(DEFAULT_MODEL)
+                .catalogVersion(DEFAULT_DEVICE_VERSION)
+                .sourceTypeScope(DEFAULT_SOURCE_TYPE_SCOPE);
         return sourceType;
     }
 
@@ -146,14 +148,14 @@ public class SourceTypeResourceIntTest {
         int databaseSizeBeforeCreate = sourceTypeRepository.findAll().size();
 
         // Create the SourceType
-        SourceTypeDTO sourceTypeDTO = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
-        SourceDataDTO sourceDataDTO = sourceDataMapper.sourceDataToSourceDataDTO
-                (SourceDataResourceIntTest.createEntity(em));
-        sourceTypeDTO.getSourceData().add(sourceDataDTO);
+        SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
+        SourceDataDTO sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(
+                SourceDataResourceIntTest.createEntity(em));
+        sourceTypeDto.getSourceData().add(sourceDataDto);
         restSourceTypeMockMvc.perform(post("/api/source-types")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceTypeDTO)))
-            .andExpect(status().isCreated());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
+                .andExpect(status().isCreated());
 
         // Validate the SourceType in the database
         List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
@@ -165,11 +167,12 @@ public class SourceTypeResourceIntTest {
         assertThat(testSourceType.getCatalogVersion()).isEqualTo(DEFAULT_DEVICE_VERSION);
         assertThat(testSourceType.getSourceData()).hasSize(1);
         SourceData testSourceData = testSourceType.getSourceData().iterator().next();
-        assertThat(testSourceData.getSourceDataType()).isEqualTo(sourceDataDTO.getSourceDataType());
-        assertThat(testSourceData.getSourceDataName()).isEqualTo(sourceDataDTO.getSourceDataName());
-        assertThat(testSourceData.getProcessingState()).isEqualTo(sourceDataDTO.getProcessingState());
-        assertThat(testSourceData.getKeySchema()).isEqualTo(sourceDataDTO.getKeySchema());
-        assertThat(testSourceData.getFrequency()).isEqualTo(sourceDataDTO.getFrequency());
+        assertThat(testSourceData.getSourceDataType()).isEqualTo(sourceDataDto.getSourceDataType());
+        assertThat(testSourceData.getSourceDataName()).isEqualTo(sourceDataDto.getSourceDataName());
+        assertThat(testSourceData.getProcessingState()).isEqualTo(
+                sourceDataDto.getProcessingState());
+        assertThat(testSourceData.getKeySchema()).isEqualTo(sourceDataDto.getKeySchema());
+        assertThat(testSourceData.getFrequency()).isEqualTo(sourceDataDto.getFrequency());
     }
 
     @Test
@@ -179,13 +182,13 @@ public class SourceTypeResourceIntTest {
 
         // Create the SourceType with an existing ID
         sourceType.setId(1L);
-        SourceTypeDTO sourceTypeDTO = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
+        SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restSourceTypeMockMvc.perform(post("/api/source-types")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceTypeDTO)))
-            .andExpect(status().isBadRequest());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
+                .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
         List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
@@ -200,12 +203,12 @@ public class SourceTypeResourceIntTest {
         sourceType.setModel(null);
 
         // Create the SourceType, which fails.
-        SourceTypeDTO sourceTypeDTO = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
+        SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
 
         restSourceTypeMockMvc.perform(post("/api/source-types")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceTypeDTO)))
-            .andExpect(status().isBadRequest());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
+                .andExpect(status().isBadRequest());
 
         List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
         assertThat(sourceTypeList).hasSize(databaseSizeBeforeTest);
@@ -219,12 +222,12 @@ public class SourceTypeResourceIntTest {
         sourceType.setSourceTypeScope(null);
 
         // Create the SourceType, which fails.
-        SourceTypeDTO sourceTypeDTO = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
+        SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
 
         restSourceTypeMockMvc.perform(post("/api/source-types")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceTypeDTO)))
-            .andExpect(status().isBadRequest());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
+                .andExpect(status().isBadRequest());
 
         List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
         assertThat(sourceTypeList).hasSize(databaseSizeBeforeTest);
@@ -238,12 +241,12 @@ public class SourceTypeResourceIntTest {
         sourceType.catalogVersion(null);
 
         // Create the SourceType, which fails.
-        SourceTypeDTO sourceTypeDTO = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
+        SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
 
         restSourceTypeMockMvc.perform(post("/api/source-types")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceTypeDTO)))
-            .andExpect(status().isBadRequest());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
+                .andExpect(status().isBadRequest());
 
         List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
         assertThat(sourceTypeList).hasSize(databaseSizeBeforeTest);
@@ -257,14 +260,14 @@ public class SourceTypeResourceIntTest {
 
         // Get all the sourceTypeList
         restSourceTypeMockMvc.perform(get("/api/source-types"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(sourceType.getId().intValue())))
-            .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER)))
-            .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL)))
-            .andExpect(
-                jsonPath("$.[*].catalogVersion").value(hasItem(DEFAULT_DEVICE_VERSION)))
-            .andExpect(jsonPath("$.[*].sourceTypeScope").value(hasItem(DEFAULT_SOURCE_TYPE_SCOPE.toString())));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(sourceType.getId().intValue())))
+                .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER)))
+                .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL)))
+                .andExpect(jsonPath("$.[*].catalogVersion").value(hasItem(DEFAULT_DEVICE_VERSION)))
+                .andExpect(jsonPath("$.[*].sourceTypeScope").value(
+                        hasItem(DEFAULT_SOURCE_TYPE_SCOPE.toString())));
     }
 
 
@@ -276,14 +279,14 @@ public class SourceTypeResourceIntTest {
 
         // Get all the sourceTypeList
         restSourceTypeMockMvc.perform(get("/api/source-types?page=0&size=5&sort=id,desc"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(sourceType.getId().intValue())))
-            .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER)))
-            .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL)))
-            .andExpect(jsonPath("$.[*].catalogVersion")
-                .value(hasItem(DEFAULT_DEVICE_VERSION)))
-            .andExpect(jsonPath("$.[*].sourceTypeScope").value(hasItem(DEFAULT_SOURCE_TYPE_SCOPE.toString())));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(sourceType.getId().intValue())))
+                .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER)))
+                .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL)))
+                .andExpect(jsonPath("$.[*].catalogVersion").value(hasItem(DEFAULT_DEVICE_VERSION)))
+                .andExpect(jsonPath("$.[*].sourceTypeScope").value(
+                        hasItem(DEFAULT_SOURCE_TYPE_SCOPE.toString())));
     }
 
 
@@ -295,13 +298,14 @@ public class SourceTypeResourceIntTest {
 
         // Get the sourceType
         restSourceTypeMockMvc.perform(get("/api/source-types/{prodcuer}/{model}/{version}",
-            sourceType.getProducer(), sourceType.getModel(), sourceType.getCatalogVersion()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.id").value(sourceType.getId().intValue()))
-            .andExpect(jsonPath("$.producer").value(DEFAULT_PRODUCER))
-            .andExpect(jsonPath("$.model").value(DEFAULT_MODEL))
-            .andExpect(jsonPath("$.sourceTypeScope").value(DEFAULT_SOURCE_TYPE_SCOPE.toString()));
+                sourceType.getProducer(), sourceType.getModel(), sourceType.getCatalogVersion()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.id").value(sourceType.getId().intValue()))
+                .andExpect(jsonPath("$.producer").value(DEFAULT_PRODUCER))
+                .andExpect(jsonPath("$.model").value(DEFAULT_MODEL))
+                .andExpect(jsonPath("$.sourceTypeScope").value(
+                        DEFAULT_SOURCE_TYPE_SCOPE.toString()));
     }
 
     @Test
@@ -309,8 +313,8 @@ public class SourceTypeResourceIntTest {
     public void getNonExistingSourceType() throws Exception {
         // Get the sourceType
         restSourceTypeMockMvc.perform(get("/api/source-types/{prodcuer}/{model}/{version}",
-            "does", "not", "exist"))
-            .andExpect(status().isNotFound());
+                "does", "not", "exist"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -323,16 +327,16 @@ public class SourceTypeResourceIntTest {
         // Update the sourceType
         SourceType updatedSourceType = sourceTypeRepository.findOne(sourceType.getId());
         updatedSourceType
-            .producer(UPDATED_PRODUCER)
-            .model(UPDATED_MODEL)
-            .catalogVersion(UPDATED_DEVICE_VERSION)
-            .sourceTypeScope(UPDATED_SOURCE_TYPE_SCOPE);
-        SourceTypeDTO sourceTypeDTO = sourceTypeMapper.sourceTypeToSourceTypeDTO(updatedSourceType);
+                .producer(UPDATED_PRODUCER)
+                .model(UPDATED_MODEL)
+                .catalogVersion(UPDATED_DEVICE_VERSION)
+                .sourceTypeScope(UPDATED_SOURCE_TYPE_SCOPE);
+        SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(updatedSourceType);
 
         restSourceTypeMockMvc.perform(put("/api/source-types")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceTypeDTO)))
-            .andExpect(status().isOk());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
+                .andExpect(status().isOk());
 
         // Validate the SourceType in the database
         List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
@@ -350,13 +354,13 @@ public class SourceTypeResourceIntTest {
         int databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size();
 
         // Create the SourceType
-        SourceTypeDTO sourceTypeDTO = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
+        SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restSourceTypeMockMvc.perform(put("/api/source-types")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceTypeDTO)))
-            .andExpect(status().isCreated());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
+                .andExpect(status().isCreated());
 
         // Validate the SourceType in the database
         List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
@@ -372,9 +376,9 @@ public class SourceTypeResourceIntTest {
 
         // Get the sourceType
         restSourceTypeMockMvc.perform(delete("/api/source-types/{prodcuer}/{model}/{version}",
-            sourceType.getProducer(), sourceType.getModel(), sourceType.getCatalogVersion())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
-            .andExpect(status().isOk());
+                sourceType.getProducer(), sourceType.getModel(), sourceType.getCatalogVersion())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
 
         // Validate the database is empty
         List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
@@ -390,18 +394,18 @@ public class SourceTypeResourceIntTest {
     @Test
     @Transactional
     public void idempotentPutWithoutId() throws Exception {
-        int databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size();
-        int sensorsSizeBeforeUpdate = sourceDataRepository.findAll().size();
+        final int databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size();
+        final int sensorsSizeBeforeUpdate = sourceDataRepository.findAll().size();
 
         sourceType.setSourceData(Collections.singleton(SourceDataResourceIntTest.createEntity(em)));
         // Create the SourceType
-        SourceTypeDTO sourceTypeDTO = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
+        SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restSourceTypeMockMvc.perform(put("/api/source-types")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceTypeDTO)))
-            .andExpect(status().isCreated());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
+                .andExpect(status().isCreated());
 
         // Validate the SourceType in the database
         List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
@@ -413,18 +417,18 @@ public class SourceTypeResourceIntTest {
 
         // Test doing a put with only producer and model, no id, does not create a new source-type
         // assert that the id is still unset
-        assertThat(sourceTypeDTO.getId()).isNull();
+        assertThat(sourceTypeDto.getId()).isNull();
         restSourceTypeMockMvc.perform(put("/api/source-types")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceTypeDTO)))
-            .andExpect(status().is(HttpStatus.CONFLICT.value()));
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
+                .andExpect(status().is(HttpStatus.CONFLICT.value()));
 
         // Validate no change in database size
         sourceTypeList = sourceTypeRepository.findAll();
         assertThat(sourceTypeList).hasSize(databaseSizeBeforeUpdate + 1);
 
-//        // Validate no change in sourceData database size
-//        sourceDataList = sourceDataRepository.findAll();
-//        assertThat(sourceDataList).hasSize(sensorsSizeBeforeUpdate + 1);
+        // Validate no change in sourceData database size
+        sourceDataList = sourceDataRepository.findAll();
+        assertThat(sourceDataList).hasSize(sensorsSizeBeforeUpdate + 1);
     }
 }

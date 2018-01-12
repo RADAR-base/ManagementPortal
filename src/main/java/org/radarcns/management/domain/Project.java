@@ -224,12 +224,24 @@ public class Project extends AbstractAuditingEntity implements Serializable {
         return this;
     }
 
+    /**
+     * Add a source type to this project.
+     *
+     * @param sourceType the source type to add
+     * @return this project
+     */
     public Project addSourceType(SourceType sourceType) {
         this.sourceTypes.add(sourceType);
         sourceType.getProjects().add(this);
         return this;
     }
 
+    /**
+     * Remove a source type from this project.
+     *
+     * @param sourceType the source type to remove
+     * @return this project
+     */
     public Project removeSourceType(SourceType sourceType) {
         this.sourceTypes.remove(sourceType);
         sourceType.getProjects().remove(this);
@@ -270,16 +282,16 @@ public class Project extends AbstractAuditingEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "Project{" +
-                "id=" + id +
-                ", projectName='" + projectName + "'" +
-                ", description='" + description + "'" +
-                ", organization='" + organization + "'" +
-                ", location='" + location + "'" +
-                ", startDate='" + startDate + "'" +
-                ", projectStatus='" + projectStatus + "'" +
-                ", endDate='" + endDate + "'" +
-                ", projectAdmin='" + projectAdmin + "'" +
-                '}';
+        return "Project{"
+                + "id=" + id
+                + ", projectName='" + projectName + "'"
+                + ", description='" + description + "'"
+                + ", organization='" + organization + "'"
+                + ", location='" + location + "'"
+                + ", startDate='" + startDate + "'"
+                + ", projectStatus='" + projectStatus + "'"
+                + ", endDate='" + endDate + "'"
+                + ", projectAdmin='" + projectAdmin + "'"
+                + "}";
     }
 }

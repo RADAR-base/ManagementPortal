@@ -32,9 +32,14 @@ public class OAuth2LoginUiWebConfig {
     @Autowired
     private ClientDetailsService clientDetailsService;
 
+    /**
+     * Login form for OAuth2 auhorization flows.
+     * @param request the servlet request
+     * @param response the servlet response
+     * @return a ModelAndView to render the form
+     */
     @RequestMapping("/login")
-    public ModelAndView getLogin(HttpServletRequest request, HttpServletResponse response) throws
-            Exception {
+    public ModelAndView getLogin(HttpServletRequest request, HttpServletResponse response) {
         TreeMap<String, Object> model = new TreeMap<>();
         if (request.getParameterMap().containsKey("error")) {
             model.put("loginError", Boolean.TRUE);
@@ -42,11 +47,15 @@ public class OAuth2LoginUiWebConfig {
         return new ModelAndView("login", model);
     }
 
-
+    /**
+     * Form for a client to confirm authorizing an OAuth client access to the requested resources.
+     * @param request the servlet request
+     * @param response the servlet response
+     * @return a ModelAndView to render the form
+     */
     @RequestMapping("/oauth/confirm_access")
     public ModelAndView getAccessConfirmation(HttpServletRequest request,
-            HttpServletResponse response)
-            throws Exception {
+            HttpServletResponse response) {
 
         Map<String, String[]> params = request.getParameterMap();
 
@@ -56,14 +65,19 @@ public class OAuth2LoginUiWebConfig {
                 .filter(params::containsKey)
                 .collect(Collectors.toMap(Function.identity(), p -> params.get(p)[0]));
 
-        AuthorizationRequest authorizationRequest = new DefaultOAuth2RequestFactory
-                (clientDetailsService).createAuthorizationRequest(authorizationParameters);
+        AuthorizationRequest authorizationRequest = new DefaultOAuth2RequestFactory(
+                clientDetailsService).createAuthorizationRequest(authorizationParameters);
 
         TreeMap<String, Object> model = new TreeMap<>();
         model.put("authorizationRequest", authorizationRequest);
         return new ModelAndView("authorize", model);
     }
 
+    /**
+     * A page to render errors that arised during an OAuth flow.
+     * @param req the servlet request
+     * @return a ModelAndView to render the page
+     */
     @RequestMapping("/oauth/error")
     public ModelAndView handleOAuthClientError(HttpServletRequest req) {
         TreeMap<String, Object> model = new TreeMap<>();
@@ -71,8 +85,7 @@ public class OAuth2LoginUiWebConfig {
         // The error summary may contain malicious user input,
         // it needs to be escaped to prevent XSS
         Map<String, String> errorParams = new HashMap<>();
-        errorParams.put("date",
-                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        errorParams.put("date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         if (error instanceof OAuth2Exception) {
             OAuth2Exception oauthError = (OAuth2Exception) error;
             errorParams.put("status", String.format("%d", oauthError.getHttpErrorCode()));

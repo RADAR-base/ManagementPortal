@@ -86,22 +86,22 @@ public class ProjectResource {
     /**
      * POST  /projects : Create a new project.
      *
-     * @param projectDTO the projectDTO to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new projectDTO, or
-     * with status 400 (Bad Request) if the project has already an ID
+     * @param projectDto the projectDto to create
+     * @return the ResponseEntity with status 201 (Created) and with body the new projectDto, or
+     *     with status 400 (Bad Request) if the project has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/projects")
     @Timed
-    public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO)
+    public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDto)
             throws URISyntaxException, NotAuthorizedException {
-        log.debug("REST request to save Project : {}", projectDTO);
+        log.debug("REST request to save Project : {}", projectDto);
         checkPermission(getJWT(servletRequest), PROJECT_CREATE);
-        if (projectDTO.getId() != null) {
+        if (projectDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
                     ENTITY_NAME, "idexists", "A new project cannot already have an ID")).body(null);
         }
-        ProjectDTO result = projectService.save(projectDTO);
+        ProjectDTO result = projectService.save(projectDto);
         return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "projects",
                 result.getProjectName())))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getProjectName()))
@@ -111,26 +111,26 @@ public class ProjectResource {
     /**
      * PUT  /projects : Updates an existing project.
      *
-     * @param projectDTO the projectDTO to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated projectDTO, or with
-     * status 400 (Bad Request) if the projectDTO is not valid, or with status 500 (Internal Server
-     * Error) if the projectDTO couldnt be updated
+     * @param projectDto the projectDto to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated projectDto, or with
+     *     status 400 (Bad Request) if the projectDto is not valid, or with status 500 (Internal
+     *     Server Error) if the projectDto couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/projects")
     @Timed
-    public ResponseEntity<ProjectDTO> updateProject(@Valid @RequestBody ProjectDTO projectDTO)
+    public ResponseEntity<ProjectDTO> updateProject(@Valid @RequestBody ProjectDTO projectDto)
             throws URISyntaxException, NotAuthorizedException {
-        log.debug("REST request to update Project : {}", projectDTO);
-        if (projectDTO.getId() == null) {
-            return createProject(projectDTO);
+        log.debug("REST request to update Project : {}", projectDto);
+        if (projectDto.getId() == null) {
+            return createProject(projectDto);
         }
         checkPermissionOnProject(getJWT(servletRequest), PROJECT_UPDATE,
-                projectDTO.getProjectName());
-        ProjectDTO result = projectService.save(projectDTO);
+                projectDto.getProjectName());
+        ProjectDTO result = projectService.save(projectDto);
         return ResponseEntity.ok()
                 .headers(HeaderUtil
-                        .createEntityUpdateAlert(ENTITY_NAME, projectDTO.getProjectName()))
+                        .createEntityUpdateAlert(ENTITY_NAME, projectDto.getProjectName()))
                 .body(result);
     }
 
@@ -148,28 +148,28 @@ public class ProjectResource {
         checkPermission(getJWT(servletRequest), PROJECT_READ);
         Page page = projectService.findAll(minimized, pageable);
         HttpHeaders headers = PaginationUtil
-                .generatePaginationHttpHeaders(page, "/api/projects/");
+                .generatePaginationHttpHeaders(page, "/api/projects");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     /**
-     * GET  /projects/:projectName : get the project with this name
+     * GET  /projects/:projectName : get the project with this name.
      *
      * @param projectName the projectName of the projectDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the projectDTO, or with status
-     * 404 (Not Found)
+     *     404 (Not Found)
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<ProjectDTO> getProject(@PathVariable String projectName)
             throws NotAuthorizedException {
         log.debug("REST request to get Project : {}", projectName);
-        ProjectDTO projectDTO = projectService.findOneByName(projectName);
-        if (projectDTO != null) {
+        ProjectDTO projectDto = projectService.findOneByName(projectName);
+        if (projectDto != null) {
             checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ,
-                    projectDTO.getProjectName());
+                    projectDto.getProjectName());
         }
-        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(projectDTO));
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(projectDto));
     }
 
     /**
@@ -177,19 +177,19 @@ public class ProjectResource {
      *
      * @param projectName the projectName of the projectDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the projectDTO, or with status
-     * 404 (Not Found)
+     *     404 (Not Found)
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/source-types")
     @Timed
     public List<SourceTypeDTO> getSourceTypesOfProject(@PathVariable String projectName)
             throws NotAuthorizedException {
         log.debug("REST request to get Project : {}", projectName);
-        ProjectDTO projectDTO = projectService.findOneByName(projectName);
-        if (projectDTO != null) {
+        ProjectDTO projectDto = projectService.findOneByName(projectName);
+        if (projectDto != null) {
             checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ,
-                    projectDTO.getProjectName());
+                    projectDto.getProjectName());
         }
-        return projectService.findSourceTypesById(projectDTO.getId());
+        return projectService.findSourceTypesById(projectDto.getId());
     }
 
 
@@ -204,14 +204,14 @@ public class ProjectResource {
     public ResponseEntity<Void> deleteProject(@PathVariable String projectName)
             throws NotAuthorizedException {
         log.debug("REST request to delete Project : {}", projectName);
-        ProjectDTO projectDTO = projectService.findOneByName(projectName);
-        if (projectDTO != null) {
+        ProjectDTO projectDto = projectService.findOneByName(projectName);
+        if (projectDto != null) {
             checkPermissionOnProject(getJWT(servletRequest), PROJECT_DELETE,
-                    projectDTO.getProjectName());
+                    projectDto.getProjectName());
         } else {
             return ResponseEntity.notFound().build();
         }
-        projectService.delete(projectDTO.getId());
+        projectService.delete(projectDto.getId());
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(
                 ENTITY_NAME, projectName)).build();
     }
@@ -226,10 +226,10 @@ public class ProjectResource {
     public ResponseEntity<List<RoleDTO>> getRolesByProject(@PathVariable String projectName)
             throws NotAuthorizedException {
         log.debug("REST request to get all Roles for project {}", projectName);
-        ProjectDTO projectDTO = projectService.findOneByName(projectName);
-        if (projectDTO != null) {
+        ProjectDTO projectDto = projectService.findOneByName(projectName);
+        if (projectDto != null) {
             checkPermissionOnProject(getJWT(servletRequest), ROLE_READ,
-                    projectDTO.getProjectName());
+                    projectDto.getProjectName());
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -237,7 +237,7 @@ public class ProjectResource {
     }
 
     /**
-     * GET  /projects/{projectName}/sources : get all the sources by project
+     * GET  /projects/{projectName}/sources : get all the sources by project.
      *
      * @return the ResponseEntity with status 200 (OK) and the list of sources in body
      */
@@ -249,10 +249,10 @@ public class ProjectResource {
             @RequestParam(name = "minimized", required = false, defaultValue = "false")
                     Boolean minimized) throws NotAuthorizedException {
         log.debug("REST request to get all Sources");
-        ProjectDTO projectDTO = projectService.findOneByName(projectName);
-        if (projectDTO != null) {
+        ProjectDTO projectDto = projectService.findOneByName(projectName);
+        if (projectDto != null) {
             checkPermissionOnProject(getJWT(servletRequest), SOURCE_READ,
-                    projectDTO.getProjectName());
+                    projectDto.getProjectName());
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -261,33 +261,32 @@ public class ProjectResource {
             if (minimized) {
                 return ResponseEntity.ok(sourceService
                         .findAllMinimalSourceDetailsByProjectAndAssigned(
-                                projectDTO.getId(), assigned));
+                                projectDto.getId(), assigned));
             } else {
                 return ResponseEntity.ok(sourceService
-                        .findAllByProjectAndAssigned(projectDTO.getId(), assigned));
+                        .findAllByProjectAndAssigned(projectDto.getId(), assigned));
             }
         } else {
             if (minimized) {
                 Page<MinimalSourceDetailsDTO> page = sourceService
-                        .findAllMinimalSourceDetailsByProject
-                                (projectDTO.getId(), pageable);
+                        .findAllMinimalSourceDetailsByProject(projectDto.getId(), pageable);
                 HttpHeaders headers = PaginationUtil
-                        .generatePaginationHttpHeaders(page,
-                                "/api/projects/" + projectName + "/sources");
+                        .generatePaginationHttpHeaders(page, HeaderUtil.buildPath("api",
+                                "projects", projectName, "sources"));
                 return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
             } else {
                 Page<SourceDTO> page = sourceService
-                        .findAllByProjectId(projectDTO.getId(), pageable);
+                        .findAllByProjectId(projectDto.getId(), pageable);
                 HttpHeaders headers = PaginationUtil
-                        .generatePaginationHttpHeaders(page,
-                                "/api/projects/" + projectName + "/sources");
+                        .generatePaginationHttpHeaders(page, HeaderUtil.buildPath("api",
+                                "projects", projectName, "sources"));
                 return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
             }
         }
     }
 
     /**
-     * Get /projects/{projectName}/subjects : get all subjects for a given project
+     * Get /projects/{projectName}/subjects : get all subjects for a given project.
      *
      * @param projectName The name of the project
      * @return The subjects in the project or 404 if there is no such project
@@ -296,8 +295,8 @@ public class ProjectResource {
     @Timed
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(@ApiParam Pageable pageable,
             @PathVariable String projectName) throws NotAuthorizedException {
-        ProjectDTO projectDTO = projectService.findOneByName(projectName);
-        if (projectDTO != null) {
+        ProjectDTO projectDto = projectService.findOneByName(projectName);
+        if (projectDto != null) {
             checkPermissionOnProject(getJWT(servletRequest), SUBJECT_READ, projectName);
         } else {
             return ResponseEntity.notFound().build();
@@ -306,8 +305,8 @@ public class ProjectResource {
         Page<SubjectDTO> page = subjectRepository.findAllByProjectName(pageable, projectName)
                 .map(subjectMapper::subjectToSubjectDTO);
         HttpHeaders headers = PaginationUtil
-                .generatePaginationHttpHeaders(page, "/api/projects/" + projectName
-                        + "/subjects");
+                .generatePaginationHttpHeaders(page, HeaderUtil.buildPath("api",
+                        "projects", projectName, "subjects"));
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 }

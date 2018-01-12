@@ -29,31 +29,31 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
             return null;
         }
         ProjectDTO dto = delegate.projectToProjectDTO(project);
-        Set<AttributeMapDTO> attributeMapDTOList = new HashSet<>();
+        Set<AttributeMapDTO> attributeMapDtoList = new HashSet<>();
         if (project.getAttributes() != null) {
             for (Entry<String, String> entry : project.getAttributes().entrySet()) {
-                AttributeMapDTO attributeMapDTO = new AttributeMapDTO();
-                attributeMapDTO.setKey(entry.getKey());
-                attributeMapDTO.setValue(entry.getValue());
-                attributeMapDTOList.add(attributeMapDTO);
+                AttributeMapDTO attributeMapDto = new AttributeMapDTO();
+                attributeMapDto.setKey(entry.getKey());
+                attributeMapDto.setValue(entry.getValue());
+                attributeMapDtoList.add(attributeMapDto);
             }
-            dto.setAttributes(attributeMapDTOList);
+            dto.setAttributes(attributeMapDtoList);
         }
         return dto;
     }
 
     @Override
-    public Project projectDTOToProject(ProjectDTO projectDTO) {
+    public Project projectDTOToProject(ProjectDTO projectDto) {
 
-        if (projectDTO == null) {
+        if (projectDto == null) {
             return null;
         }
 
-        Project project = delegate.projectDTOToProject(projectDTO);
-        if (projectDTO.getAttributes() != null && !projectDTO.getAttributes().isEmpty()) {
+        Project project = delegate.projectDTOToProject(projectDto);
+        if (projectDto.getAttributes() != null && !projectDto.getAttributes().isEmpty()) {
             Map<String, String> attributeMap = new HashMap<>();
-            for (AttributeMapDTO attributeMapDTO : projectDTO.getAttributes()) {
-                attributeMap.put(attributeMapDTO.getKey(), attributeMapDTO.getValue());
+            for (AttributeMapDTO attributeMapDto : projectDto.getAttributes()) {
+                attributeMap.put(attributeMapDto.getKey(), attributeMapDto.getValue());
             }
             project.setAttributes(attributeMap);
         }
@@ -75,15 +75,15 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
     }
 
     @Override
-    public List<Project> projectDTOsToProjects(List<ProjectDTO> projectDTOs) {
+    public List<Project> projectDTOsToProjects(List<ProjectDTO> projectDtos) {
 
-        if (projectDTOs == null) {
+        if (projectDtos == null) {
             return null;
         }
 
         List<Project> list = new ArrayList<Project>();
-        for (ProjectDTO projectDTO : projectDTOs) {
-            list.add(this.projectDTOToProject(projectDTO));
+        for (ProjectDTO projectDto : projectDtos) {
+            list.add(this.projectDTOToProject(projectDto));
         }
 
         return list;

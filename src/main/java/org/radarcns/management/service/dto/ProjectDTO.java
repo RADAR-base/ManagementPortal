@@ -143,12 +143,12 @@ public class ProjectDTO implements Serializable {
             return false;
         }
 
-        ProjectDTO projectDTO = (ProjectDTO) o;
-        if (id == null || projectDTO.id == null) {
+        ProjectDTO projectDto = (ProjectDTO) o;
+        if (id == null || projectDto.id == null) {
             return false;
         }
 
-        return Objects.equals(id, projectDTO.id);
+        return Objects.equals(id, projectDto.id);
     }
 
     @Override
@@ -158,16 +158,16 @@ public class ProjectDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "ProjectDTO{" +
-                "id=" + id +
-                ", projectName='" + projectName + "'" +
-                ", description='" + description + "'" +
-                ", organization='" + organization + "'" +
-                ", location='" + location + "'" +
-                ", startDate='" + startDate + "'" +
-                ", projectStatus='" + projectStatus + "'" +
-                ", endDate='" + endDate + "'" +
-                ", projectAdmin='" + projectAdmin + "'" +
-                '}';
+        return "ProjectDTO{"
+                + "id=" + id
+                + ", projectName='" + projectName + "'"
+                + ", description='" + description + "'"
+                + ", organization='" + organization + "'"
+                + ", location='" + location + "'"
+                + ", startDate='" + startDate + "'"
+                + ", projectStatus='" + projectStatus + "'"
+                + ", endDate='" + endDate + "'"
+                + ", projectAdmin='" + projectAdmin + "'"
+                + '}';
     }
 }

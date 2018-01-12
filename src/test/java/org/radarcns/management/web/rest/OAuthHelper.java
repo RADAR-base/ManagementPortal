@@ -38,7 +38,11 @@ public class OAuthHelper {
         }
     }
 
-    // For use with MockMvc
+    /**
+     * Create a request post processor that adds a valid bearer token to requests for use with
+     * MockMVC.
+     * @return the request post processor
+     */
     public static RequestPostProcessor bearerToken() {
         return mockRequest -> {
             mockRequest.addHeader("Authorization", "Bearer " + VALID_TOKEN);
@@ -95,6 +99,7 @@ public class OAuthHelper {
     private static String[] allScopes() {
         return Permission.allPermissions().stream()
                 .map(Permission::scopeName)
-                .collect(Collectors.toList()).toArray(new String[Permission.allPermissions().size()]);
+                .collect(Collectors.toList()).toArray(
+                        new String[Permission.allPermissions().size()]);
     }
 }
