@@ -226,6 +226,7 @@ public class TokenTestUtils {
     private static String[] allScopes() {
         return Permission.allPermissions().stream()
                 .map(Permission::scopeName)
-                .collect(Collectors.toList()).toArray(new String[Permission.allPermissions().size()]);
+                .collect(Collectors.toList())
+                .toArray(new String[Permission.allPermissions().size()]);
     }
 }

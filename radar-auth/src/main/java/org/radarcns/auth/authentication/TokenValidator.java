@@ -20,10 +20,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.bouncycastle.util.io.pem.PemReader;
-import org.radarcns.auth.authorization.RadarAuthorization;
 import org.radarcns.auth.config.ServerConfig;
 import org.radarcns.auth.config.YamlServerConfig;
 import org.radarcns.auth.exception.TokenValidationException;
+import org.radarcns.auth.token.JwtRadarToken;
+import org.radarcns.auth.token.RadarToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ public class TokenValidator {
     protected static final Logger log = LoggerFactory.getLogger(TokenValidator.class);
     // additional required claims apart from the required JWT claims
     protected static final List<String> REQUIRED_CLAIMS = Arrays.asList(
-            RadarAuthorization.GRANT_TYPE_CLAIM, RadarAuthorization.SCOPE_CLAIM);
+            JwtRadarToken.GRANT_TYPE_CLAIM, JwtRadarToken.SCOPE_CLAIM);
 
     private final ServerConfig config;
     private JWTVerifier verifier;
@@ -100,7 +101,7 @@ public class TokenValidator {
      * @return The decoded access token
      * @throws TokenValidationException If the token can not be validated.
      */
-    public DecodedJWT validateAccessToken(String token) throws TokenValidationException {
+    public RadarToken validateAccessToken(String token) throws TokenValidationException {
         try {
             DecodedJWT jwt = getVerifier().verify(token);
             Set<String> claims = jwt.getClaims().keySet();
@@ -111,7 +112,7 @@ public class TokenValidator {
                 throw new TokenValidationException("The following required claims were missing "
                         + "from the token: " + String.join(", ", missing));
             }
-            return jwt;
+            return new JwtRadarToken(jwt);
         } catch (SignatureVerificationException sve) {
             log.warn("Client presented a token with an incorrect signature, fetching public key"
                     + " again. Token: {}", token);

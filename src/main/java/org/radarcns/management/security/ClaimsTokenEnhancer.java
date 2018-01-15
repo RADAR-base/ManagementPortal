@@ -7,7 +7,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.radarcns.auth.authorization.RadarAuthorization;
+
+import org.radarcns.auth.token.JwtRadarToken;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
@@ -41,7 +42,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
     @Value("${spring.application.name}")
     private String appName;
 
-    private final static String GRANT_TOKEN_EVENT = "GRANT_ACCESS_TOKEN";
+    private static final String GRANT_TOKEN_EVENT = "GRANT_ACCESS_TOKEN";
 
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken,
@@ -62,7 +63,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
                         .map(role -> role.getProject().getProjectName() + ":"
                                 + role.getAuthority().getName())
                         .collect(Collectors.toList());
-                additionalInfo.put(RadarAuthorization.ROLES_CLAIM, roles);
+                additionalInfo.put(JwtRadarToken.ROLES_CLAIM, roles);
 
             }
 
@@ -71,12 +72,12 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
             List<String> sourceIds = assignedSources.stream()
                     .map(s -> s.getSourceId().toString())
                     .collect(Collectors.toList());
-            additionalInfo.put(RadarAuthorization.SOURCES_CLAIM, sourceIds);
+            additionalInfo.put(JwtRadarToken.SOURCES_CLAIM, sourceIds);
         }
         // add iat and iss optional JWT claims
         additionalInfo.put("iat", Instant.now().getEpochSecond());
         additionalInfo.put("iss", appName);
-        additionalInfo.put(RadarAuthorization.GRANT_TYPE_CLAIM,
+        additionalInfo.put(JwtRadarToken.GRANT_TYPE_CLAIM,
                 authentication.getOAuth2Request().getGrantType());
         ((DefaultOAuth2AccessToken) accessToken)
                 .setAdditionalInformation(additionalInfo);
