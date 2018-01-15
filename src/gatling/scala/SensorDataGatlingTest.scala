@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 /**
  * Performance test for the SourceData entity.
  */
-class SourceDataGatlingTest extends Simulation {
+class SensorDataGatlingTest extends Simulation {
 
     val context: LoggerContext = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
     // Log all HTTP requests
