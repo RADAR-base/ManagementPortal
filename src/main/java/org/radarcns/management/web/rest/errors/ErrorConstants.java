@@ -16,6 +16,7 @@ public final class ErrorConstants {
     public static final String ERR_SOURCE_NAME_EXISTS = "error.sourceNameExists";
     public static final String ERR_SOURCE_NOT_FOUND = "error.sourceNotFound";
     public static final String ERR_SOURCE_TYPE_IN_USE = "error.sourceTypeInUse";
+    public static final String ERR_INVALID_AUTHORITY = "error.invalidAuthority";
 
     private ErrorConstants() {
     }

@@ -23,6 +23,8 @@ import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
+import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,8 +162,10 @@ public class UserService {
                     roleDto.getAuthorityName());
             if (role == null || role.getId() == null) {
                 Role currentRole = new Role();
-                currentRole.setAuthority(
-                        authorityRepository.findByAuthorityName(roleDto.getAuthorityName()));
+                currentRole.setAuthority(authorityRepository
+                        .findByAuthorityName(roleDto.getAuthorityName())
+                        .orElseThrow(() -> new CustomParameterizedException(
+                                ErrorConstants.ERR_INVALID_AUTHORITY, roleDto.getAuthorityName())));
                 if (roleDto.getProjectId() != null) {
                     currentRole.setProject(projectRepository.getOne(roleDto.getProjectId()));
                 }

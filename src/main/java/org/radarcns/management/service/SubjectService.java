@@ -112,6 +112,7 @@ public class SubjectService {
      *
      * @param projectDto project subject is assigned to
      * @return relevant Participant role
+     * @throws java.util.NoSuchElementException if the authority name is not in the database
      */
     private Role getProjectParticipantRole(ProjectDTO projectDto) {
 
@@ -121,8 +122,10 @@ public class SubjectService {
             return role;
         } else {
             Role subjectRole = new Role();
-            subjectRole.setAuthority(
-                    authorityRepository.findByAuthorityName(AuthoritiesConstants.PARTICIPANT));
+            // If we do not have the participant authority something is very wrong, and the .get()
+            // will trigger a NoSuchElementException, which will be translated into a 500 response.
+            subjectRole.setAuthority(authorityRepository
+                    .findByAuthorityName(AuthoritiesConstants.PARTICIPANT).get());
             subjectRole.setProject(projectMapper.projectDTOToProject(projectDto));
             roleRepository.save(subjectRole);
             return subjectRole;
