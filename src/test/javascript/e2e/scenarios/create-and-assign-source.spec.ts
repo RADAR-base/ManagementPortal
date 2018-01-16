@@ -56,7 +56,7 @@ describe('Create, assign, unassign and delete source', () => {
             element.all(by.cssContainingText('subjects tbody tr button', 'Pair Sources')).first().click().then(() => {
                 // first table lists assigned sources, this should be empty
                 element.all(by.css('source-assigner tbody')).get(0).all(by.css('tr')).then(function(rows) {
-                    expect(rows.length).toEqual(1);
+                    expect(rows.length).toEqual(0);
                 });
                 // second table lists available sources, should have one element
                 element.all(by.css('source-assigner tbody')).get(1).all(by.css('tr')).then(function(rows) {
@@ -66,7 +66,7 @@ describe('Create, assign, unassign and delete source', () => {
                     browser.waitForAngular();
                     // available source should be moved to first table
                     element.all(by.css('source-assigner tbody')).get(0).all(by.css('tr')).then(function(rows) {
-                        expect(rows.length).toEqual(2);
+                        expect(rows.length).toEqual(1);
                     });
                     element.all(by.css('source-assigner tbody')).get(1).all(by.css('tr')).then(function(rows) {
                         expect(rows.length).toEqual(0);
@@ -117,7 +117,7 @@ describe('Create, assign, unassign and delete source', () => {
                     browser.waitForAngular();
                     // source should be moved back to available sources table
                     element.all(by.css('source-assigner tbody')).get(0).all(by.css('tr')).then(function(rows) {
-                        expect(rows.length).toEqual(1);
+                        expect(rows.length).toEqual(0);
                     });
                     element.all(by.css('source-assigner tbody')).get(1).all(by.css('tr')).then(function(rows) {
                         expect(rows.length).toEqual(1);
