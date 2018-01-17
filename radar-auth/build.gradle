@@ -3,9 +3,7 @@ plugins {
     id 'java-library'
     id 'pmd'
     id 'checkstyle'
-    id 'maven'
     id 'maven-publish'
-    id 'com.jfrog.artifactory'
 }
 
 sourceCompatibility = 1.8
