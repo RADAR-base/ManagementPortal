@@ -69,17 +69,12 @@ deploy:
     on:
       tags: true
   - provider: script
-    script: ./gradlew oauth-client-util:bintrayUpload
+    script: ./gradlew artifactoryPublish
     skip_cleanup: true
     on:
-      tags: true
+      branch: dev
   - provider: script
-    script: ./gradlew radar-auth:bintrayUpload
-    skip_cleanup: true
-    on:
-      tags: true
-  - provider: script
-    script: ./gradlew managementportal-client:bintrayUpload
+    script: ./gradlew bintrayUpload
     skip_cleanup: true
     on:
       tags: true
