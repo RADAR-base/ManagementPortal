@@ -8,18 +8,13 @@ import java.util.Map;
 /**
  * Custom, parameterized exception, which can be translated on the client side.
  *
- * <p>For example:
+ * <p>For example: </p>
  *
- * <pre>
- * throw new CustomParameterizedException(&quot;myCustomError&quot;, &quot;hello&quot;,
- * &quot;world&quot;);
- * </pre>
+ * <p>{@code throw new CustomParameterizedException("error.myCustomError", "hello", "world")}</p>
  *
- * Can be translated with:
+ * <p>can be translated with:</p>
  *
- * <pre>
- * "error.myCustomError" :  "The server says {{param0}} to {{param1}}"
- * </pre></p>
+ * <p>{@code "error.myCustomError" : "The server says {{param0}} to {{param1}}"}</p>
  */
 public class CustomParameterizedException extends RuntimeException {
 
