@@ -45,7 +45,7 @@ public class TokenValidator {
     // If a client presents a token with an invalid signature, it might be the keypair was changed.
     // In that case we need to fetch it again, but we don't want a malicious client to be able to
     // make us DOS our own identity server. Fetching it at maximum once per minute mitigates this.
-    private ThreadLocal<Instant> lastFetch = ThreadLocal.withInitial(() -> Instant.EPOCH);
+    private final ThreadLocal<Instant> lastFetch = ThreadLocal.withInitial(() -> Instant.EPOCH);
     private static final long FETCH_TIMEOUT_DEFAULT = 60L;
     private final long fetchTimeout;
 
