@@ -1,4 +1,4 @@
-package org.radarcns.auth.unit.authentication;
+package org.radarcns.auth.authentication;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.Before;
@@ -6,10 +6,9 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
-import org.radarcns.auth.authentication.TokenValidator;
 import org.radarcns.auth.config.YamlServerConfig;
 import org.radarcns.auth.exception.TokenValidationException;
-import org.radarcns.auth.unit.util.TokenTestUtils;
+import org.radarcns.auth.util.TokenTestUtils;
 
 import java.io.File;
 

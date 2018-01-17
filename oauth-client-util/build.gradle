@@ -51,13 +51,6 @@ dependencies {
     testCompile 'com.github.stefanbirkner:system-rules:1.16.0'
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '3.4.1'
-    distributionUrl distributionUrl.replace("bin", "all")
-}
-
-sourceCompatibility = 1.8
-
 sourceSets {
     integrationTest {
         java {

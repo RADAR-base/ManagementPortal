@@ -1,21 +1,22 @@
-package org.radarcns.auth.unit.authorization;
+package org.radarcns.auth.authorization;
 
+import java.security.GeneralSecurityException;
+import java.util.Collection;
 import java.util.Map.Entry;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.radarcns.auth.authorization.AuthoritiesConstants;
-import org.radarcns.auth.authorization.Permission;
-import org.radarcns.auth.authorization.Permissions;
-import org.radarcns.auth.authorization.RadarAuthorization;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.auth.token.JwtRadarToken;
 import org.radarcns.auth.token.RadarToken;
-import org.radarcns.auth.unit.util.TokenTestUtils;
+import org.radarcns.auth.util.TokenTestUtils;
 
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 /**
@@ -46,15 +47,9 @@ public class RadarAuthorizationTest {
                 .map(Entry::getKey)
                 .collect(Collectors.toSet());
 
-        notPermitted.forEach(p -> {
-            try {
-                RadarAuthorization.checkPermissionOnProject(token, p, project);
-            } catch (NotAuthorizedException ex) {
-                return;
-            }
-            fail(String.format("Token should not have permission %s on project %s",
-                    p.toString(), project));
-        });
+        notPermitted.forEach(p -> assertNotAuthorized(
+            () -> RadarAuthorization.checkPermissionOnProject(token, p, project),
+            String.format("Token should not have permission %s on project %s", p, project)));
     }
 
     @Test
@@ -84,15 +79,10 @@ public class RadarAuthorizationTest {
         // this token is participant in PROJECT2
         RadarToken token = new JwtRadarToken(TokenTestUtils.PROJECT_ADMIN_TOKEN);
         String other = "other-subject";
-        Permission.allPermissions().stream()
-                .forEach(p -> {
-                    try {
-                        RadarAuthorization.checkPermissionOnSubject(token, p, project, other);
-                    } catch (NotAuthorizedException ex) {
-                        return;
-                    }
-                    fail("Permission " + p.toString() + " is allowed");
-                });
+        Permission.allPermissions()
+                .forEach(p -> assertNotAuthorized(
+                    () -> RadarAuthorization.checkPermissionOnSubject(token, p, project, other),
+                    "Token should not have permission " + p + " on another subject"));
     }
 
     @Test
@@ -127,8 +117,10 @@ public class RadarAuthorizationTest {
     public void testScopeOnlyToken() throws NotAuthorizedException {
         RadarToken token = new JwtRadarToken(TokenTestUtils.SCOPE_TOKEN);
         // test that we can do the things we have a scope for
-        for (Permission p : Arrays.asList(Permission.SUBJECT_READ, Permission.SUBJECT_CREATE,
-                Permission.PROJECT_READ)) {
+        Collection<Permission> scope = Arrays.asList(
+            Permission.SUBJECT_READ, Permission.SUBJECT_CREATE, Permission.PROJECT_READ);
+
+        for (Permission p : scope) {
             RadarAuthorization.checkPermission(token, p);
             RadarAuthorization.checkPermissionOnProject(token, p, "");
             RadarAuthorization.checkPermissionOnSubject(token, p, "", "");
@@ -136,43 +128,35 @@ public class RadarAuthorizationTest {
 
         // test we can do nothing else, for each of the checkPermission methods
         Permission.allPermissions().stream()
-                .filter(p -> !(p.equals(Permission.SUBJECT_READ)
-                        || p.equals(Permission.SUBJECT_CREATE)
-                        || p.equals(Permission.PROJECT_READ)))
-                .forEach(p -> {
-                    try {
-                        RadarAuthorization.checkPermission(token, p);
-                    } catch (NotAuthorizedException ex) {
-                        return;
-                    }
-                    fail();
-                });
+                .filter(p -> !scope.contains(p))
+                .forEach(p -> assertNotAuthorized(
+                    () -> RadarAuthorization.checkPermission(token, p),
+                    "Permission " + p + " is granted but not in scope."));
 
         Permission.allPermissions().stream()
-                .filter(p -> !(p.equals(Permission.SUBJECT_READ)
-                        || p.equals(Permission.SUBJECT_CREATE)
-                        || p.equals(Permission.PROJECT_READ)))
-                .forEach(p -> {
-                    try {
-                        RadarAuthorization.checkPermissionOnProject(token, p, "");
-                    } catch (NotAuthorizedException ex) {
-                        return;
-                    }
-                    fail();
-                });
+                .filter(p -> !scope.contains(p))
+                .forEach(p -> assertNotAuthorized(
+                    () -> RadarAuthorization.checkPermissionOnProject(token, p, ""),
+                    "Permission " + p + " is granted but not in scope."));
 
         Permission.allPermissions().stream()
-                .filter(p -> !(p.equals(Permission.SUBJECT_READ)
-                        || p.equals(Permission.SUBJECT_CREATE)
-                        || p.equals(Permission.PROJECT_READ)))
-                .forEach(p -> {
-                    try {
-                        RadarAuthorization.checkPermissionOnSubject(token, p, "", "");
-                    } catch (NotAuthorizedException ex) {
-                        return;
-                    }
-                    fail();
-                });
+                .filter(p -> !scope.contains(p))
+                .forEach(p -> assertNotAuthorized(
+                    () -> RadarAuthorization.checkPermissionOnSubject(token, p, "", ""),
+                    "Permission " + p + " is granted but not in scope."));
     }
 
+    private static void assertNotAuthorized(AuthorizationCheck supplier, String message) {
+        try {
+            supplier.check();
+            fail(message);
+        } catch (GeneralSecurityException e) {
+            assertThat(e, instanceOf(NotAuthorizedException.class));
+        }
+    }
+
+    @FunctionalInterface
+    interface AuthorizationCheck {
+        void check() throws GeneralSecurityException;
+    }
 }

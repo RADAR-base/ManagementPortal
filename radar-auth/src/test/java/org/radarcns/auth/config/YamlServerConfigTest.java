@@ -1,12 +1,10 @@
-package org.radarcns.auth.unit.config;
+package org.radarcns.auth.config;
 
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
-import org.radarcns.auth.config.ServerConfig;
-import org.radarcns.auth.config.YamlServerConfig;
-import org.radarcns.auth.unit.util.TokenTestUtils;
+import org.radarcns.auth.util.TokenTestUtils;
 
 import java.io.File;
 import java.io.IOException;
