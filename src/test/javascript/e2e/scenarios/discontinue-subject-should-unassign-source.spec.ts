@@ -44,7 +44,7 @@ describe('Discontinued subject should unassign sources', () => {
                 element(by.css('.modal-footer button.btn-primary')).click().then(() => {
                     browser.waitForAngular();
                     element.all(by.css('sources tbody tr')).count().then(function(count) {
-                        expect(count).toEqual(1);
+                        expect(count).toEqual(2);
                     });
                 });
             });
@@ -128,7 +128,7 @@ describe('Discontinued subject should unassign sources', () => {
                 element(by.css('.modal-footer button.btn-danger')).click().then(() => {
                     browser.waitForAngular();
                     element.all(by.css('sources tbody tr')).count().then(function (count) {
-                        expect(count).toBe(0);
+                        expect(count).toBe(1);
                     });
                 });
             });
