@@ -31,7 +31,7 @@ public class OAuth2Client {
     private URL tokenEndpoint;
     private String clientId = "";
     private String clientSecret = "";
-    private Set<String> scope = new HashSet<>();
+    private final Set<String> scope = new HashSet<>();
     private OAuth2AccessTokenDetails currentToken = new OAuth2AccessTokenDetails();
 
     private OkHttpClient httpClient;
