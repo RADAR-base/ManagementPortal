@@ -57,21 +57,6 @@ task wrapper(type: Wrapper) {
 
 sourceCompatibility = 1.8
 
-checkstyle {
-    toolVersion '6.16'
-    ignoreFailures false
-}
-
-pmd {
-    toolVersion = '5.5.2'
-    ignoreFailures = false
-
-    consoleOutput = true
-
-    ruleSets = []
-    ruleSetFiles = files("config/pmd/ruleset.xml")
-}
-
 sourceSets {
     integrationTest {
         java {
