@@ -40,6 +40,10 @@ public class Permissions {
     }
 
     /**
+     * Get the permission matrix.
+     *
+     * <p>The permission matrix maps each {@link Permission} to a set of authorities that have that
+     * permission.</p>
      * @return An unmodifiable view of the permission matrix.
      */
     public static Map<Permission, Set<String>> getPermissionMatrix() {
