@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
+import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
@@ -112,7 +113,7 @@ public class OAuthClientsResource {
      */
     @GetMapping("/oauth-clients")
     @Timed
-    public ResponseEntity<List<ClientDetailsDTO>> getOAuthClients() {
+    public ResponseEntity<List<ClientDetailsDTO>> getOAuthClients() throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_READ);
         return ResponseEntity.ok().body(clientDetailsMapper
                 .clientDetailsToClientDetailsDTO(clientDetailsService.listClientDetails()));
@@ -128,7 +129,8 @@ public class OAuthClientsResource {
      */
     @GetMapping("/oauth-clients/{id:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
-    public ResponseEntity<ClientDetailsDTO> getOAuthClientById(@PathVariable("id") String id) {
+    public ResponseEntity<ClientDetailsDTO> getOAuthClientById(@PathVariable("id") String id)
+            throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_READ);
         // getOAuthClient checks if the id exists
         return ResponseEntity.ok().body(clientDetailsMapper
@@ -146,7 +148,7 @@ public class OAuthClientsResource {
     @PutMapping("/oauth-clients")
     @Timed
     public ResponseEntity<ClientDetailsDTO> updateOAuthClient(@Valid @RequestBody ClientDetailsDTO
-            clientDetailsDTO) {
+            clientDetailsDTO) throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_UPDATE);
         // getOAuthClient checks if the id exists
         checkProtected(getOAuthClient(clientDetailsDTO.getClientId()));
@@ -177,7 +179,8 @@ public class OAuthClientsResource {
      */
     @DeleteMapping("/oauth-clients/{id:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
-    public ResponseEntity<Void> deleteOAuthClient(@PathVariable String id) {
+    public ResponseEntity<Void> deleteOAuthClient(@PathVariable String id)
+            throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_DELETE);
         // getOAuthClient checks if the id exists
         checkProtected(getOAuthClient(id));
@@ -198,7 +201,7 @@ public class OAuthClientsResource {
     @PostMapping("/oauth-clients")
     @Timed
     public ResponseEntity<ClientDetailsDTO> createOAuthClient(@Valid @RequestBody ClientDetailsDTO
-            clientDetailsDTO) throws URISyntaxException {
+            clientDetailsDTO) throws URISyntaxException, NotAuthorizedException {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_CREATE);
         // check if the client id exists
         try {
@@ -234,7 +237,7 @@ public class OAuthClientsResource {
     @GetMapping("/oauth-clients/pair")
     @Timed
     public ResponseEntity<ClientPairInfoDTO> getRefreshToken(@RequestParam String login,
-            @RequestParam(value = "clientId") String clientId) {
+            @RequestParam(value = "clientId") String clientId) throws NotAuthorizedException {
         User currentUser = userService.getUserWithAuthorities();
         if (currentUser == null) {
             // We only allow this for actual logged in users for now, not for client_credentials

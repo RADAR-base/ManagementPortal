@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
+import org.radarcns.auth.exception.NotAuthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class AuthorityResource {
      */
     @GetMapping("/authorities")
     @Timed
-    public List<String> getAllAuthorities() {
+    public List<String> getAllAuthorities() throws NotAuthorizedException {
         log.debug("REST request to get all Authorities");
         checkPermission(getJWT(servletRequest), AUTHORITY_READ);
         return Arrays.asList(AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.PROJECT_OWNER,

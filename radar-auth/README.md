@@ -47,9 +47,8 @@ Usage
 Once you have configured your project and have your configuration file in place, you can use the 
 `TokenValidator` class to validate and decode incoming tokens. It is recommended to have only one
 instance of this class in your application. Use the `validateAccessToken()` method to validate and
-decode a client access token. This library builds on Auth0's [Java-JWT] library, and the
-`validateAccessToken()` method returns a [`DecodedJWT`] object that contains all the information of
-the original JWT.
+decode a client access token. This library builds on Auth0's [Java-JWT] library for token 
+validation.
 
 To check for permissions, you can use the `RadarAuthorization` class. You can check permissions in
 three ways, depending on your use case. You pass the `DecodedJWT` object obtained from the 
@@ -77,5 +76,4 @@ first validate and decode the token, and then add it to the servlet context. Sub
 use the decoded token for further decision making.
 
 [Java-JWT]: https://github.com/auth0/java-jwt
-[`DecodedJWT`]: https://www.javadoc.io/doc/com.auth0/java-jwt/3.2.0/DecodedJWT.html
 [literal style]: http://www.yaml.org/spec/1.2/spec.html#id2795688

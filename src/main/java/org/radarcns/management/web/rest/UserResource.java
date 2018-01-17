@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.radarcns.auth.config.Constants;
+import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
@@ -104,7 +105,7 @@ public class UserResource {
     @PostMapping("/users")
     @Timed
     public ResponseEntity createUser(@RequestBody ManagedUserVM managedUserVM)
-            throws URISyntaxException {
+            throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save User : {}", managedUserVM);
         checkPermission(getJWT(servletRequest), USER_CREATE);
         if (managedUserVM.getId() != null) {
@@ -151,7 +152,8 @@ public class UserResource {
      */
     @PutMapping("/users")
     @Timed
-    public ResponseEntity<UserDTO> updateUser(@RequestBody ManagedUserVM managedUserVM) {
+    public ResponseEntity<UserDTO> updateUser(@RequestBody ManagedUserVM managedUserVM)
+            throws NotAuthorizedException {
         log.debug("REST request to update User : {}", managedUserVM);
         checkPermission(getJWT(servletRequest), USER_UPDATE);
         Optional<User> existingUser = userRepository.findOneByEmail(managedUserVM.getEmail());
@@ -200,7 +202,8 @@ public class UserResource {
     @Timed
     public ResponseEntity<List<UserDTO>> getAllUsers(@ApiParam Pageable pageable,
             @RequestParam(value = "projectName", required = false) String projectName,
-            @RequestParam(value = "authority", required = false) String authority) {
+            @RequestParam(value = "authority", required = false) String authority)
+            throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), USER_READ);
         Page<UserDTO> page;
         if (projectName != null && authority != null) {
@@ -225,7 +228,8 @@ public class UserResource {
      */
     @GetMapping("/users/{login:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
-    public ResponseEntity<UserDTO> getUser(@PathVariable String login) {
+    public ResponseEntity<UserDTO> getUser(@PathVariable String login)
+            throws NotAuthorizedException {
         log.debug("REST request to get User : {}", login);
         checkPermission(getJWT(servletRequest), USER_READ);
         return ResponseUtil.wrapOrNotFound(
@@ -238,7 +242,8 @@ public class UserResource {
      */
     @GetMapping("/users/{login:" + Constants.ENTITY_ID_REGEX + "}/projects")
     @Timed
-    public List<ProjectDTO> getUserProjects(@PathVariable String login) {
+    public List<ProjectDTO> getUserProjects(@PathVariable String login)
+            throws NotAuthorizedException {
         log.debug("REST request to get User's project : {}", login);
         checkPermission(getJWT(servletRequest), PROJECT_READ);
         return userService.getProjectsAssignedToUser(login);
@@ -252,7 +257,8 @@ public class UserResource {
      */
     @DeleteMapping("/users/{login:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
-    public ResponseEntity<Void> deleteUser(@PathVariable String login) {
+    public ResponseEntity<Void> deleteUser(@PathVariable String login)
+            throws NotAuthorizedException {
         log.debug("REST request to delete User: {}", login);
         checkPermission(getJWT(servletRequest), USER_DELETE);
         userService.deleteUser(login);

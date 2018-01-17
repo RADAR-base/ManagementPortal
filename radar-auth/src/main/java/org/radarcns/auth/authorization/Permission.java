@@ -118,6 +118,15 @@ public class Permission {
     }
 
     /**
+     * Check if a given authority has this permission associated with it.
+     * @param authority the authority name
+     * @return true if the given authority has this permission associated with it, false otherwise
+     */
+    public boolean isAuthorityAllowed(String authority) {
+        return Permissions.allowedAuthorities(this).contains(authority);
+    }
+
+    /**
      * Get all currently defined permissions.
      * @return A list containing all currently defined permissions
      */
@@ -167,7 +176,7 @@ public class Permission {
     }
 
     /**
-     * Turn this permission into an OAuth scope name and return it
+     * Turn this permission into an OAuth scope name and return it.
      *
      * @return the OAuth scope representation of this permission
      */
