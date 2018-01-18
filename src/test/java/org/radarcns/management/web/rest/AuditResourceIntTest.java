@@ -46,7 +46,8 @@ public class AuditResourceIntTest {
 
     private static final String SAMPLE_PRINCIPAL = "SAMPLE_PRINCIPAL";
     private static final String SAMPLE_TYPE = "SAMPLE_TYPE";
-    private static final LocalDateTime SAMPLE_TIMESTAMP = LocalDateTime.parse("2015-08-04T10:11:30");
+    private static final LocalDateTime SAMPLE_TIMESTAMP =
+            LocalDateTime.parse("2015-08-04T10:11:30");
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Autowired
@@ -74,8 +75,10 @@ public class AuditResourceIntTest {
     @Before
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
-        AuditEventService auditEventService =
-            new AuditEventService(auditEventRepository, auditEventConverter);
+        AuditEventService auditEventService = new AuditEventService();
+        ReflectionTestUtils.setField(auditEventService, "persistenceAuditEventRepository",
+                auditEventRepository);
+        ReflectionTestUtils.setField(auditEventService, "auditEventConverter", auditEventConverter);
         AuditResource auditResource = new AuditResource();
         ReflectionTestUtils.setField(auditResource, "auditEventService", auditEventService);
         ReflectionTestUtils.setField(auditResource, "servletRequest", servletRequest);
@@ -84,11 +87,11 @@ public class AuditResourceIntTest {
         filter.init(new MockFilterConfig());
 
         this.restAuditMockMvc = MockMvcBuilders.standaloneSetup(auditResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setConversionService(formattingConversionService)
-            .setMessageConverters(jacksonMessageConverter)
-            .addFilter(filter)
-            .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
+                .setCustomArgumentResolvers(pageableArgumentResolver)
+                .setConversionService(formattingConversionService)
+                .setMessageConverters(jacksonMessageConverter)
+                .addFilter(filter)
+                .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
     }
 
     @Before
@@ -107,9 +110,9 @@ public class AuditResourceIntTest {
 
         // Get all the audits
         restAuditMockMvc.perform(get("/management/audits"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].principal").value(hasItem(SAMPLE_PRINCIPAL)));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].principal").value(hasItem(SAMPLE_PRINCIPAL)));
     }
 
     @Test
@@ -119,9 +122,9 @@ public class AuditResourceIntTest {
 
         // Get the audit
         restAuditMockMvc.perform(get("/management/audits/{id}", auditEvent.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.principal").value(SAMPLE_PRINCIPAL));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.principal").value(SAMPLE_PRINCIPAL));
     }
 
     @Test
@@ -129,15 +132,16 @@ public class AuditResourceIntTest {
         // Initialize the database
         auditEventRepository.save(auditEvent);
 
-        // Generate dates for selecting audits by date, making sure the period will contain the audit
+        // Generate dates for selecting audits by date, making sure the period contains the audit
         String fromDate  = SAMPLE_TIMESTAMP.minusDays(1).format(FORMATTER);
         String toDate = SAMPLE_TIMESTAMP.plusDays(1).format(FORMATTER);
 
         // Get the audit
-        restAuditMockMvc.perform(get("/management/audits?fromDate="+fromDate+"&toDate="+toDate))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].principal").value(hasItem(SAMPLE_PRINCIPAL)));
+        restAuditMockMvc.perform(get("/management/audits?fromDate=" + fromDate + "&toDate="
+                + toDate))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].principal").value(hasItem(SAMPLE_PRINCIPAL)));
     }
 
     @Test
@@ -145,21 +149,23 @@ public class AuditResourceIntTest {
         // Initialize the database
         auditEventRepository.save(auditEvent);
 
-        // Generate dates for selecting audits by date, making sure the period will not contain the sample audit
+        // Generate dates for selecting audits by date, making sure the period will not contain the
+        // sample audit
         String fromDate  = SAMPLE_TIMESTAMP.minusDays(2).format(FORMATTER);
         String toDate = SAMPLE_TIMESTAMP.minusDays(1).format(FORMATTER);
 
         // Query audits but expect no results
-        restAuditMockMvc.perform(get("/management/audits?fromDate=" + fromDate + "&toDate=" + toDate))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(header().string("X-Total-Count", "0"));
+        restAuditMockMvc.perform(get("/management/audits?fromDate=" + fromDate + "&toDate="
+                + toDate))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(header().string("X-Total-Count", "0"));
     }
 
     @Test
     public void getNonExistingAudit() throws Exception {
         // Get the audit
         restAuditMockMvc.perform(get("/management/audits/{id}", Long.MAX_VALUE))
-            .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound());
     }
 }

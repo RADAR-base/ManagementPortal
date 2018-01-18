@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.domain.Authority;
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.RoleRepository;
@@ -38,19 +39,22 @@ public class RoleService {
     /**
      * Save a role.
      *
-     * @param roleDTO the entity to save
+     * @param roleDto the entity to save
      * @return the persisted entity
      */
-    public RoleDTO save(RoleDTO roleDTO) {
-        log.debug("Request to save Role : {}", roleDTO);
-        Role role = roleMapper.roleDTOToRole(roleDTO);
+    public RoleDTO save(RoleDTO roleDto) {
+        log.debug("Request to save Role : {}", roleDto);
+        Role role = roleMapper.roleDTOToRole(roleDto);
         role = roleRepository.save(role);
         RoleDTO result = roleMapper.roleToRoleDTO(role);
         return result;
     }
 
     /**
-     * Get all the roles.
+     * Get the roles the currently authenticated user has access to.
+     *
+     * <p>A system administrator has access to all the roles. A project administrator has access
+     * to the roles in their own project.</p>
      *
      * @return the list of entities
      */
@@ -64,8 +68,7 @@ public class RoleService {
             return result;
         }
         List<String> currentUserAuthorities = currentUser.getAuthorities().stream()
-                .map(Authority::getName).collect(
-                        Collectors.toList());
+                .map(Authority::getName).collect(Collectors.toList());
         if (currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN)) {
             log.debug("Request to get all Roles");
             result = roleRepository.findAll().stream()
@@ -73,9 +76,15 @@ public class RoleService {
                     .collect(Collectors.toCollection(LinkedList::new));
         } else if (currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
             log.debug("Request to get project admin's project Projects");
-//            result =  roleRepository.findAllRolesByProjectId(currentUser.getProject().getId()).stream()
-//                .map(roleMapper::roleToRoleDTO)
-//                .collect(Collectors.toCollection(LinkedList::new));
+            result = currentUser.getRoles().stream()
+                    .filter(role -> AuthoritiesConstants.PROJECT_ADMIN
+                            .equals(role.getAuthority().getName()))
+                    .map(Role::getProject)
+                    .map(Project::getProjectName)
+                    .distinct()
+                    .flatMap(name -> roleRepository.findAllRolesByProjectName(name).stream())
+                    .map(roleMapper::roleToRoleDTO)
+                    .collect(Collectors.toList());
         }
         return result;
     }
@@ -106,8 +115,8 @@ public class RoleService {
     public RoleDTO findOne(Long id) {
         log.debug("Request to get Role : {}", id);
         Role role = roleRepository.findOne(id);
-        RoleDTO roleDTO = roleMapper.roleToRoleDTO(role);
-        return roleDTO;
+        RoleDTO roleDto = roleMapper.roleToRoleDTO(role);
+        return roleDto;
     }
 
     /**
@@ -120,8 +129,13 @@ public class RoleService {
         roleRepository.delete(id);
     }
 
+    /**
+     * Get all roles related to a project.
+     * @param projectName the project name
+     * @return the roles
+     */
     public List<RoleDTO> getRolesByProject(String projectName) {
-        log.debug("Request to get all Roles for projectId " + projectName);
+        log.debug("Request to get all Roles for projectName " + projectName);
         List<RoleDTO> result = roleRepository.findAllRolesByProjectName(projectName).stream()
                 .map(roleMapper::roleToRoleDTO)
                 .collect(Collectors.toCollection(LinkedList::new));
@@ -129,6 +143,12 @@ public class RoleService {
         return result;
     }
 
+    /**
+     * Get the role related to the given project with the given authority name.
+     * @param projectName the project name
+     * @param authorityName the authority name
+     * @return an {@link Optional} containing the role if it exists, and empty otherwise
+     */
     public Optional<RoleDTO> findOneByProjectNameAndAuthorityName(String projectName,
             String authorityName) {
         log.debug("Request to get role of project {} and authority {}", projectName, authorityName);

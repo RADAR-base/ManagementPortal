@@ -25,12 +25,13 @@ buildscript {
 }
 
 plugins {
-    id 'com.jfrog.bintray' version '1.7.3'
+    id 'com.jfrog.bintray' version '1.8.0'
+    id 'com.jfrog.artifactory' version '4.5.4'
 }
 
 allprojects {
     group 'org.radarcns'
-    version '0.3.2'
+    version '0.3.3'
 
     apply plugin: 'java'
     apply plugin: 'java-library'
@@ -40,6 +41,88 @@ allprojects {
     apply plugin: 'com.jfrog.bintray'
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
+    apply plugin: 'com.jfrog.artifactory'
+    ext.githubRepoName = 'RADAR-CNS/ManagementPortal'
+
+
+    ext.githubUrl = 'https://github.com/' + githubRepoName + '.git'
+    ext.issueUrl = 'https://github.com/' + githubRepoName + '/issues'
+    ext.website = 'http://radar-cns.org'
+
+    ext.pomConfig = {
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+        }
+        developers {
+            developer {
+                id 'dennyverbeeck'
+                name 'Denny Verbeeck'
+                email 'dverbeec@its.jnj.com'
+                organization 'Janssen R&D'
+            }
+            developer {
+                id 'nivemaham'
+                name 'Nivethika Mahasivam'
+                email 'nivethika@thehyve.nl'
+                organization 'The Hyve'
+            }
+            developer {
+                id 'blootsvoets'
+                name 'Joris Borgdorff'
+                email 'joris@thehyve.nl'
+                organization 'The Hyve'
+            }
+        }
+        issueManagement {
+            system 'GitHub'
+            url githubUrl + '/issues'
+        }
+        organization {
+            name 'RADAR-CNS'
+            url website
+        }
+        scm {
+            connection 'scm:git:' + githubUrl
+            url githubUrl
+        }
+    }
+
+    idea {
+        module {
+            downloadSources = true
+        }
+    }
+
+    //---------------------------------------------------------------------------//
+    // Style checking                                                            //
+    //---------------------------------------------------------------------------//
+
+    checkstyle {
+        toolVersion = '8.7'
+        ignoreFailures = false
+        maxWarnings = 0
+
+        configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+    }
+
+    pmd {
+        toolVersion = '5.8.1'
+        ignoreFailures = false
+
+        consoleOutput = true
+
+        ruleSets = []
+        ruleSetFiles = rootProject.files("config/pmd/ruleset.xml")
+    }
+
+    pmdTest {
+        ruleSetFiles = rootProject.files("config/pmd/test_ruleset.xml")
+    }
+
 }
 
 sourceCompatibility = '1.8'
@@ -88,22 +171,7 @@ if (OperatingSystem.current().isWindows()) {
     }
 }
 
-checkstyle {
-    toolVersion '8.5'
-    ignoreFailures true
 
-    configFile = rootProject.file('config/checkstyle/checkstyle.xml')
-}
-
-pmd {
-    toolVersion = '5.8.1'
-    ignoreFailures = false
-
-    consoleOutput = true
-
-    ruleSets = []
-    ruleSetFiles = files("config/pmd/ruleset.xml")
-}
 
 test {
     include '**/*UnitTest*'
@@ -122,10 +190,6 @@ task cucumberTest(type: Test) {
     // see https://github.com/jhipster/generator-jhipster/pull/2771 and https://github.com/jhipster/generator-jhipster/pull/4484
     // ignoreFailures true
     reports.html.enabled = true
-}
-
-pmdTest {
-    ruleSetFiles = files("config/pmd/test_ruleset.xml")
 }
 
 test.finalizedBy(cucumberTest)
@@ -154,10 +218,6 @@ if (project.hasProperty('prod')) {
 if (project.hasProperty('graphite')) {
     apply from: 'gradle/graphite.gradle'
 }
-
-//if (project.hasProperty('prometheus')) {
-//    apply from: 'gradle/prometheus.gradle'
-//}
 
 ext.codacyVersion = '2.0.1'
 
@@ -210,7 +270,7 @@ dependencies {
     compile "org.apache.commons:commons-lang3:${commons_lang_version}"
     compile "commons-io:commons-io:${commons_io_version}"
     compile "javax.transaction:javax.transaction-api"
-    compile "org.hibernate:hibernate-envers"
+    compile "org.hibernate:hibernate-envers:${hibernate_version}"
     compile "org.hibernate:hibernate-validator"
     compile("org.liquibase:liquibase-core")
     compile "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
@@ -220,7 +280,9 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-mail"
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-starter-aop"
-    compile "org.springframework.boot:spring-boot-starter-data-jpa"
+    compile ("org.springframework.boot:spring-boot-starter-data-jpa") {
+        exclude group: 'org.hibernate', module: 'hibernate-entitymanager'
+    }
     compile "org.springframework.boot:spring-boot-starter-security"
     compile "org.springframework.cloud:spring-cloud-starter-zuul:${zuul_proxy_version}"
     compile("org.springframework.boot:spring-boot-starter-web") {
@@ -259,7 +321,6 @@ dependencies {
     testCompile "org.mockito:mockito-core"
     testCompile "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     testCompile "org.hamcrest:hamcrest-library"
-    testCompile "io.gatling.highcharts:gatling-charts-highcharts:${gatling_version}"
     optional "org.springframework.boot:spring-boot-configuration-processor:${spring_boot_version}"
     //jhipster-needle-gradle-dependency - JHipster will add additional dependencies here
 }
@@ -273,7 +334,8 @@ task cleanResources(type: Delete) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.5'
+    gradleVersion '4.4'
+    distributionType 'all'
 }
 
 task stage(dependsOn: 'bootRepackage') {
@@ -367,4 +429,94 @@ task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
     main = 'com.codacy.CodacyCoverageReporter'
     classpath = configurations.codacy
     args = ['-l', 'Java', '-r', "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"]
+}
+
+ext.sharedManifest = manifest {
+    attributes("Implementation-Title": project.name,
+            "Implementation-Version": version)
+}
+
+jar {
+    manifest.from sharedManifest
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    manifest.from sharedManifest
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+    manifest.from sharedManifest
+}
+
+// add javadoc/source jar tasks as artifacts
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+
+publishing {
+    publications {
+        ManagementPortalPublication(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            groupId project.group
+            artifactId project.name
+            version project.version
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', description)
+                root.appendNode('name', project.name)
+                root.appendNode('url', githubUrl)
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    override = false
+    publications = ['ManagementPortalPublication']
+    pkg {
+        repo = project.group
+        name = project.name
+        userOrg = 'radar-cns'
+        desc = description
+        licenses = ['Apache-2.0']
+        websiteUrl = website
+        issueTrackerUrl = issueUrl
+        vcsUrl = githubUrl
+        githubRepo = githubRepoName
+        githubReleaseNotesFile = 'README.md'
+        version {
+            name = project.version
+            desc = description
+            vcsTag = System.getenv('TRAVIS_TAG')
+            released = new Date()
+        }
+    }
+}
+
+
+artifactory {
+    contextUrl = 'https://oss.jfrog.org/artifactory'
+    publish {
+        repository {
+            repoKey = 'oss-snapshot-local'
+            username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+            password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+            maven = true
+        }
+    }
+}
+
+artifactoryPublish {
+    publications('ManagementPortalPublication')
 }

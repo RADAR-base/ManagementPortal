@@ -99,6 +99,12 @@ public class Source extends AbstractAuditingEntity implements Serializable {
         this.sourceId = sourceId;
     }
 
+    /**
+     * Add default values for sourceId and sourceName if they are not provided before persisting
+     * this object. The default for sourceId is to generate a new UUID. The default for
+     * sourceName is to take to model name, and append a dash followed by the first 8 characters
+     * of the string representation of the UUID.
+     */
     @PrePersist
     public void generateUuid() {
         if (this.sourceId == null) {
@@ -158,18 +164,6 @@ public class Source extends AbstractAuditingEntity implements Serializable {
         return this;
     }
 
-    public Source addSubject(Subject subject) {
-        this.subjects.add(subject);
-        subject.getSources().add(this);
-        return this;
-    }
-
-    public Source removeSubject(Subject subject) {
-        this.subjects.remove(subject);
-        subject.getSources().remove(this);
-        return this;
-    }
-
     public String getSourceName() {
         return sourceName;
     }
@@ -225,13 +219,13 @@ public class Source extends AbstractAuditingEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "Source{" +
-                "id=" + id +
-                ", sourceId='" + sourceId + '\'' +
-                ", sourceName='" + sourceName + '\'' +
-                ", assigned=" + assigned +
-                ", sourceType=" + sourceType +
-                ", project=" + project +
-                '}';
+        return "Source{"
+                + "id=" + id
+                + ", sourceId='" + sourceId + '\''
+                + ", sourceName='" + sourceName + '\''
+                + ", assigned=" + assigned
+                + ", sourceType=" + sourceType
+                + ", project=" + project
+                + '}';
     }
 }

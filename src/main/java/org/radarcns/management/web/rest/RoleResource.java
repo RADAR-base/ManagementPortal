@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.config.Constants;
+import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.service.RoleService;
 import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -51,22 +52,22 @@ public class RoleResource {
     /**
      * POST  /Roles : Create a new role.
      *
-     * @param roleDTO the roleDTO to create
+     * @param roleDto the roleDto to create
      * @return the ResponseEntity with status 201 (Created) and with body the new RoleDTO, or with
-     * status 400 (Bad Request) if the Role has already an ID
+     *     status 400 (Bad Request) if the Role has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/roles")
     @Timed
-    public ResponseEntity<RoleDTO> createRole(@Valid @RequestBody RoleDTO roleDTO)
-            throws URISyntaxException {
-        log.debug("REST request to save Role : {}", roleDTO);
-        checkPermissionOnProject(getJWT(servletRequest), ROLE_CREATE, roleDTO.getProjectName());
-        if (roleDTO.getId() != null) {
+    public ResponseEntity<RoleDTO> createRole(@Valid @RequestBody RoleDTO roleDto)
+            throws URISyntaxException, NotAuthorizedException {
+        log.debug("REST request to save Role : {}", roleDto);
+        checkPermissionOnProject(getJWT(servletRequest), ROLE_CREATE, roleDto.getProjectName());
+        if (roleDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
                     "idexists", "A new role cannot already have an ID")).body(null);
         }
-        RoleDTO result = roleService.save(roleDTO);
+        RoleDTO result = roleService.save(roleDto);
         return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "roles",
                 result.getProjectName(), result.getAuthorityName())))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, displayName(result)))
@@ -76,24 +77,24 @@ public class RoleResource {
     /**
      * PUT  /roles : Updates an existing role.
      *
-     * @param roleDTO the roleDTO to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated roleDTO, or with
-     * status 400 (Bad Request) if the roleDTO is not valid, or with status 500 (Internal Server
-     * Error) if the roleDTO couldnt be updated
+     * @param roleDto the roleDto to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated roleDto, or with
+     *     status 400 (Bad Request) if the roleDto is not valid, or with status 500 (Internal Server
+     *     Error) if the roleDto couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/roles")
     @Timed
-    public ResponseEntity<RoleDTO> updateRole(@Valid @RequestBody RoleDTO roleDTO)
-            throws URISyntaxException {
-        log.debug("REST request to update Role : {}", roleDTO);
-        if (roleDTO.getId() == null) {
-            return createRole(roleDTO);
+    public ResponseEntity<RoleDTO> updateRole(@Valid @RequestBody RoleDTO roleDto)
+            throws URISyntaxException, NotAuthorizedException {
+        log.debug("REST request to update Role : {}", roleDto);
+        if (roleDto.getId() == null) {
+            return createRole(roleDto);
         }
-        checkPermissionOnProject(getJWT(servletRequest), ROLE_UPDATE, roleDTO.getProjectName());
-        RoleDTO result = roleService.save(roleDTO);
+        checkPermissionOnProject(getJWT(servletRequest), ROLE_UPDATE, roleDto.getProjectName());
+        RoleDTO result = roleService.save(roleDto);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, displayName(roleDTO)))
+                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, displayName(roleDto)))
                 .body(result);
     }
 
@@ -124,18 +125,18 @@ public class RoleResource {
 
     /**
      * GET  /roles/:projectName/:authorityName : get the role of the specified project and
-     * authority
+     * authority.
      *
      * @param projectName The project name
      * @param authorityName The authority name
      * @return the ResponseEntity with status 200 (OK) and with body the roleDTO, or with status 404
-     * (Not Found)
+     *     (Not Found)
      */
     @GetMapping("/roles/{projectName:" + Constants.ENTITY_ID_REGEX + "}/{authorityName:"
             + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     public ResponseEntity<RoleDTO> getRole(@PathVariable String projectName,
-            @PathVariable String authorityName) {
+            @PathVariable String authorityName) throws NotAuthorizedException {
         checkPermissionOnProject(getJWT(servletRequest), ROLE_READ, projectName);
         return ResponseUtil.wrapOrNotFound(roleService
                 .findOneByProjectNameAndAuthorityName(projectName, authorityName));

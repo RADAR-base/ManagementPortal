@@ -1,12 +1,13 @@
 package org.radarcns.management.security;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
-import javax.servlet.ServletRequest;
+import org.radarcns.auth.token.RadarToken;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import javax.servlet.ServletRequest;
 
 /**
  * Utility class for Spring Security.
@@ -53,21 +54,21 @@ public final class SecurityUtils {
      * @param request servlet request
      * @return decoded JWT
      * @throws AccessDeniedException if the {@code "jwt"} attribute is missing or does not contain a
-     * decoded JWT
+     *     decoded JWT
      */
-    public static DecodedJWT getJWT(ServletRequest request) {
-        Object jwt = request.getAttribute(JwtAuthenticationFilter.TOKEN_ATTRIBUTE);
-        if (jwt == null) {
+    public static RadarToken getJWT(ServletRequest request) {
+        Object token = request.getAttribute(JwtAuthenticationFilter.TOKEN_ATTRIBUTE);
+        if (token == null) {
             // should not happen, the JwtAuthenticationFilter would throw an exception first if it
             // can not decode the authorization header into a valid JWT
             throw new AccessDeniedException("No token was found in the request context.");
         }
-        if (!(jwt instanceof DecodedJWT)) {
+        if (!(token instanceof RadarToken)) {
             // should not happen, the JwtAuthenticationFilter will only set a DecodedJWT object
-            throw new AccessDeniedException("Expected token to be of type DecodedJWT but was "
-                    + jwt.getClass().getName());
+            throw new AccessDeniedException("Expected token to be of type org.radarcns"
+                    + ".auth.token.RadarToken but was " + token.getClass().getName());
         }
-        return (DecodedJWT) jwt;
+        return (RadarToken) token;
     }
 
 

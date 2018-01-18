@@ -42,8 +42,6 @@ public class SourceTypeDTO implements Serializable {
 
     private Set<SourceDataDTO> sourceData = new HashSet<>();
 
-    private SourceTypeId sourceTypeId;
-
     public Long getId() {
         return id;
     }
@@ -132,16 +130,6 @@ public class SourceTypeDTO implements Serializable {
         this.appProvider = appProvider;
     }
 
-    public void initId() {
-        this.sourceTypeId = new SourceTypeId().producer(producer)
-                .model(model)
-                .version(catalogVersion);
-    }
-
-    public SourceTypeId getSourceTypeId() {
-        return sourceTypeId;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -151,13 +139,13 @@ public class SourceTypeDTO implements Serializable {
             return false;
         }
 
-        SourceTypeDTO sourceTypeDTO = (SourceTypeDTO) o;
+        SourceTypeDTO sourceTypeDto = (SourceTypeDTO) o;
 
-        if (id == null || sourceTypeDTO.id == null) {
+        if (id == null || sourceTypeDto.id == null) {
             return false;
         }
 
-        return Objects.equals(id, sourceTypeDTO.id);
+        return Objects.equals(id, sourceTypeDto.id);
     }
 
     @Override
@@ -167,51 +155,17 @@ public class SourceTypeDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "SourceTypeDTO{" +
-                "id=" + id +
-                ", producer='" + producer + "'" +
-                ", model='" + model + "'" +
-                ", catalogVersion='" + catalogVersion + "'" +
-                ", sourceTypeScope='" + sourceTypeScope + "'" +
-                ", canRegisterDynamically='" + canRegisterDynamically + "'" +
-                ", name='" + name + '\'' +
-                ", description=" + description +
-                ", appProvider=" + appProvider +
-                ", assessmentType=" + assessmentType +
-                '}';
-    }
-
-    private class SourceTypeId {
-
-        private String producer;
-        private String model;
-        private String version;
-
-        public SourceTypeId producer(String producer) {
-            this.producer = producer;
-            return this;
-        }
-
-        public SourceTypeId model(String model) {
-            this.model = model;
-            return this;
-        }
-
-        public SourceTypeId version(String version) {
-            this.version = version;
-            return this;
-        }
-
-        public String getProducer() {
-            return producer;
-        }
-
-        public String getModel() {
-            return model;
-        }
-
-        public String getVersion() {
-            return version;
-        }
+        return "SourceTypeDTO{"
+                + "id=" + id
+                + ", producer='" + producer + "'"
+                + ", model='" + model + "'"
+                + ", catalogVersion='" + catalogVersion + "'"
+                + ", sourceTypeScope='" + sourceTypeScope + "'"
+                + ", canRegisterDynamically='" + canRegisterDynamically + "'"
+                + ", name='" + name + '\''
+                + ", description=" + description
+                + ", appProvider=" + appProvider
+                + ", assessmentType=" + assessmentType
+                + '}';
     }
 }

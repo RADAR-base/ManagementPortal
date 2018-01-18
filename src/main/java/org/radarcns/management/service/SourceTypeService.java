@@ -44,12 +44,12 @@ public class SourceTypeService {
     /**
      * Save a sourceType.
      *
-     * @param sourceTypeDTO the entity to save
+     * @param sourceTypeDto the entity to save
      * @return the persisted entity
      */
-    public SourceTypeDTO save(SourceTypeDTO sourceTypeDTO) {
-        log.debug("Request to save SourceType : {}", sourceTypeDTO);
-        SourceType sourceType = sourceTypeMapper.sourceTypeDTOToSourceType(sourceTypeDTO);
+    public SourceTypeDTO save(SourceTypeDTO sourceTypeDto) {
+        log.debug("Request to save SourceType : {}", sourceTypeDto);
+        SourceType sourceType = sourceTypeMapper.sourceTypeDTOToSourceType(sourceTypeDto);
         // populate the SourceType of our SourceData's
         for (SourceData data : sourceType.getSourceData()) {
             data.setSourceType(sourceType);
@@ -74,7 +74,7 @@ public class SourceTypeService {
     }
 
     /**
-     * Get all sourceTypes with pagination
+     * Get all sourceTypes with pagination.
      *
      * @param pageable params
      * @return the list of entities
@@ -109,7 +109,7 @@ public class SourceTypeService {
     }
 
     /**
-     * Fetch SourceType by producer and model
+     * Fetch SourceType by producer and model.
      */
     public SourceTypeDTO findByProducerAndModelAndVersion(String producer, String model,
             String version) {
@@ -122,31 +122,31 @@ public class SourceTypeService {
     }
 
     /**
-     * Fetch SourceType by producer
+     * Fetch SourceType by producer.
      */
     public List<SourceTypeDTO> findByProducer(String producer) {
         log.debug("Request to get SourceType by producer: {}", producer);
         List<SourceType> sourceTypes = sourceTypeRepository
                 .findWithEagerRelationshipsByProducer(producer);
-        List<SourceTypeDTO> sourceTypeDTOs = sourceTypeMapper.sourceTypesToSourceTypeDTOs(
+        List<SourceTypeDTO> sourceTypeDtos = sourceTypeMapper.sourceTypesToSourceTypeDTOs(
                 sourceTypes);
-        return sourceTypeDTOs;
+        return sourceTypeDtos;
     }
 
     /**
-     * Fetch SourceType by producer and model
+     * Fetch SourceType by producer and model.
      */
     public List<SourceTypeDTO> findByProducerAndModel(String producer, String model) {
         log.debug("Request to get SourceType by producer and model: {}, {}", producer, model);
         List<SourceType> sourceTypes = sourceTypeRepository
                 .findWithEagerRelationshipsByProducerAndModel(producer, model);
-        List<SourceTypeDTO> sourceTypeDTOs = sourceTypeMapper.sourceTypesToSourceTypeDTOs(
+        List<SourceTypeDTO> sourceTypeDtos = sourceTypeMapper.sourceTypesToSourceTypeDTOs(
                 sourceTypes);
-        return sourceTypeDTOs;
+        return sourceTypeDtos;
     }
 
     /**
-     * Find projects associated to a particular SourceType
+     * Find projects associated to a particular SourceType.
      *
      * @param producer the SourceType producer
      * @param model the SourceType model

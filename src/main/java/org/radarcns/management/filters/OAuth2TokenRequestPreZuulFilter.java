@@ -40,17 +40,17 @@ public class OAuth2TokenRequestPreZuulFilter extends ZuulFilter {
         return null;
     }
 
-//    private String extractRefreshToken(HttpServletRequest req) {
-//        final Cookie[] cookies = req.getCookies();
-//        if (cookies != null) {
-//            for (int i = 0; i < cookies.length; i++) {
-//                if (cookies[i].getName().equalsIgnoreCase(REFRESH_TOKEN_COOKIE)) {
-//                    return cookies[i].getValue();
-//                }
-//            }
-//        }
-//        return null;
-//    }
+    //    private String extractRefreshToken(HttpServletRequest req) {
+    //        final Cookie[] cookies = req.getCookies();
+    //        if (cookies != null) {
+    //            for (int i = 0; i < cookies.length; i++) {
+    //                if (cookies[i].getName().equalsIgnoreCase(REFRESH_TOKEN_COOKIE)) {
+    //                    return cookies[i].getValue();
+    //                }
+    //            }
+    //        }
+    //        return null;
+    //    }
 
     @Override
     public boolean shouldFilter() {

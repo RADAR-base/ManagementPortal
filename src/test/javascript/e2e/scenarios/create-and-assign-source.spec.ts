@@ -44,7 +44,7 @@ describe('Create, assign, unassign and delete source', () => {
                 element(by.cssContainingText('button.btn-primary', 'Save')).click().then(() => {
                     browser.waitForAngular();
                     element.all(by.css('sources tbody tr')).count().then(function(count) {
-                        expect(count).toEqual(1);
+                        expect(count).toEqual(2);
                     });
                 });
             });
@@ -144,7 +144,7 @@ describe('Create, assign, unassign and delete source', () => {
                     element(by.cssContainingText('.modal-footer button', 'Delete')).click().then(() => {
                         browser.waitForAngular();
                         element.all(by.css('sources tbody tr')).count().then(function (count) {
-                            expect(count).toBe(0);
+                            expect(count).toBe(1);
                         });
                     });
                 });

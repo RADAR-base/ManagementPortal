@@ -123,6 +123,11 @@ public class SubjectDTO implements Serializable {
         this.externalId = externalId;
     }
 
+    /**
+     * Gets the login. If no login is present, a new UUID is generated and stored as the login
+     * before returning it.
+     * @return the login
+     */
     public String getLogin() {
         if (this.login == null) {
             this.login = UUID.randomUUID().toString();
@@ -159,13 +164,13 @@ public class SubjectDTO implements Serializable {
             return false;
         }
 
-        SubjectDTO subjectDTO = (SubjectDTO) o;
+        SubjectDTO subjectDto = (SubjectDTO) o;
 
-        if (id == null || subjectDTO.id == null) {
+        if (id == null || subjectDto.id == null) {
             return false;
         }
 
-        return !Objects.equals(id, subjectDTO.id);
+        return !Objects.equals(id, subjectDto.id);
     }
 
     @Override
@@ -175,11 +180,13 @@ public class SubjectDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "SubjectDTO{" +
-                "id=" + id +
-                ", externalLink='" + externalLink + "'" +
-                ", externalId='" + externalId + "'" +
-                ", status='" + status + "'" +
-                '}';
+        return "SubjectDTO{"
+                + "id=" + id
+                + ", login='" + login + '\''
+                + ", externalLink='" + externalLink + '\''
+                + ", externalId='" + externalId + '\''
+                + ", status=" + status
+                + ", project=" + (project == null ? "null" : project.getProjectName())
+                + ", attributes=" + attributes + '}';
     }
 }

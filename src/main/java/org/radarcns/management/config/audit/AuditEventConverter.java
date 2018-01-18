@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 public class AuditEventConverter {
 
     /**
-     * Convert a list of PersistentAuditEvent to a list of AuditEvent
+     * Convert a list of PersistentAuditEvent to a list of AuditEvent.
      *
      * @param persistentAuditEvents the list to convert
      * @return the converted list.
@@ -35,7 +35,7 @@ public class AuditEventConverter {
     }
 
     /**
-     * Convert a PersistentAuditEvent to an AuditEvent
+     * Convert a PersistentAuditEvent to an AuditEvent.
      *
      * @param persistentAuditEvent the event to convert
      * @return the converted list.
@@ -78,14 +78,14 @@ public class AuditEventConverter {
 
         if (data != null) {
             for (Map.Entry<String, Object> entry : data.entrySet()) {
-                Object object = entry.getValue();
+                Object val = entry.getValue();
 
                 // Extract the data that will be saved.
-                if (object instanceof WebAuthenticationDetails) {
-                    WebAuthenticationDetails authenticationDetails = (WebAuthenticationDetails) object;
+                if (val instanceof WebAuthenticationDetails) {
+                    WebAuthenticationDetails authenticationDetails = (WebAuthenticationDetails) val;
                     results.put("sessionId", authenticationDetails.getSessionId());
-                } else if (object != null) {
-                    results.put(entry.getKey(), object.toString());
+                } else if (val != null) {
+                    results.put(entry.getKey(), val.toString());
                 } else {
                     results.put(entry.getKey(), "null");
                 }

@@ -1,75 +1,66 @@
 apply plugin: 'scala'
 
+ext.gatlingSrc = "${project.rootDir.absolutePath}/src/gatling"
+ext.gatlingSimulations = "${gatlingSrc}/scala"
+
 sourceSets {
-    test {
+    gatling {
         scala {
-            srcDirs = ['src/test/gatling/simulations']
-            output.classesDir = 'build/test-classes'
+            srcDirs = [gatlingSimulations]
         }
     }
 }
 
-task manifestJar(dependsOn:'compileTestScala',type: Jar) {
-    dependsOn configurations.testCompile
+dependencies {
+    gatlingCompile "io.gatling.highcharts:gatling-charts-highcharts:${gatling_version}"
+}
+
+//noinspection GroovyAssignabilityCheck
+tasks.withType(ScalaCompile) {
+    scalaClasspath = scalaRuntime.inferScalaClasspath(configurations.gatlingCompile)
+}
+
+task manifestJar(type: Jar) {
+    from configurations.gatlingCompile
     archiveName 'gatlingBooter.jar'
     doFirst {
         manifest {
             // uri is just needed for Windows-compatibility
-            attributes 'Class-Path': configurations.testCompile.files.collect{ project.uri(it) }.join(' ')
+            attributes 'Class-Path': configurations.gatlingCompile.files.collect{ project.uri(it) }.join(' ')
         }
     }
 }
 
-task gatlingRun(dependsOn:'manifestJar') {
-    group = 'gatling'
-    description = 'Run a single Gatling simulation. You must write the name of your Gatling simulation.'
-
-    doLast {
-        def String gatlingSimulationClass = "WriteTheNameOfYourGatlingSimulation"
-        if (project.hasProperty('gatlingSimulationClass')) {
-            gatlingSimulationClass = project.property('gatlingSimulationClass')
-        }
-
-        createGatlingRunTask(gatlingSimulationClass).dependsOn('manifestJar').execute()
-    }
-}
-
-task gatlingRunAll(dependsOn: 'manifestJar') {
+task gatlingRunAll(dependsOn: manifestJar) {
     group = 'gatling'
     description = 'Run all available Gatling simulations.'
 
-    doLast {
-        FileTree tree = fileTree(dir: './src/test/gatling/simulations')
-        tree.include '**/*.scala'
-        tree.each {File file ->
-            def simulationClassName = file.name.replaceFirst(".scala", "")
-            createGatlingRunTask(simulationClassName).dependsOn('manifestJar').execute();
-        }
+    fileTree(dir: gatlingSimulations, include: '**/*.scala').each {
+        def gatlingClass = it.name.replaceFirst(".scala", "")
+        gatlingRunAll.dependsOn "gatlingRun${gatlingClass}"
     }
 }
 
-def createGatlingRunTask(def gatlingSimulationClassName) {
-    return tasks.create("gatlingRun${gatlingSimulationClassName}", JavaExec) {
+tasks.addRule("Pattern: gatlingRun<ID>") { String taskName ->
+    if (taskName.startsWith("gatlingRun") && taskName != "gatlingRunAll") {
+        task(taskName, type: JavaExec, dependsOn: manifestJar) {
+            standardInput = System.in
 
-        standardInput = System.in
+            final def sourceSet = sourceSets.gatling
 
-        final def sourceSet = sourceSets.test
+            classpath sourceSet.output + files(manifestJar.archivePath) + files("${gatlingSrc}/resources")
+            main = "io.gatling.app.Gatling"
 
-        def String gatlingDataFolder = "$project.rootDir.absolutePath/src/test/gatling/data"
-        def String gatlingReportsFolder = "$project.buildDir.absolutePath/reports/gatling"
-        def String gatlingBodiesFolder = "$project.rootDir.absolutePath/src/test/gatling/bodies"
-        def String gatlingSimulationsFolder = "$project.rootDir.absolutePath/src/test/gatling/simulations"
+            environment GATLING_HOME:''
 
-        classpath sourceSet.output + files(manifestJar.archivePath) + files("src/test/gatling/conf")
-        main = "io.gatling.app.Gatling"
+            def className = taskName - 'gatlingRun'
 
-        environment GATLING_HOME:''
-
-        args '-df', gatlingDataFolder
-        args '-rf', gatlingReportsFolder
-        args '-bdf', gatlingBodiesFolder
-        args '-sf', gatlingSimulationsFolder
-        args '-m'
-        args '-s', gatlingSimulationClassName
+            args '-df', "${gatlingSrc}/data"
+            args '-rf', "${project.buildDir.absolutePath}/reports/gatling"
+            args '-bdf', "${gatlingSrc}/bodies"
+            args '-sf', gatlingSimulations
+            args '-m'
+            args '-s', className
+        }
     }
 }

@@ -9,6 +9,8 @@ import io.swagger.annotations.ApiParam;
 import java.time.LocalDate;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+
+import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.service.AuditEventService;
 import org.radarcns.management.web.rest.util.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +46,8 @@ public class AuditResource {
      * @return the ResponseEntity with status 200 (OK) and the list of AuditEvents in body
      */
     @GetMapping
-    public ResponseEntity<List<AuditEvent>> getAll(@ApiParam Pageable pageable) {
+    public ResponseEntity<List<AuditEvent>> getAll(@ApiParam Pageable pageable)
+            throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), AUDIT_READ);
         Page<AuditEvent> page = auditEventService.findAll(pageable);
         HttpHeaders headers = PaginationUtil
@@ -65,7 +68,7 @@ public class AuditResource {
     public ResponseEntity<List<AuditEvent>> getByDates(
             @RequestParam(value = "fromDate") LocalDate fromDate,
             @RequestParam(value = "toDate") LocalDate toDate,
-            @ApiParam Pageable pageable) {
+            @ApiParam Pageable pageable) throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), AUDIT_READ);
         Page<AuditEvent> page = auditEventService
                 .findByDates(fromDate.atTime(0, 0), toDate.atTime(23, 59), pageable);
@@ -79,10 +82,10 @@ public class AuditResource {
      *
      * @param id the id of the entity to get
      * @return the ResponseEntity with status 200 (OK) and the AuditEvent in body, or status
-     * 404 (Not Found)
+     *     404 (Not Found)
      */
     @GetMapping("/{id:.+}")
-    public ResponseEntity<AuditEvent> get(@PathVariable Long id) {
+    public ResponseEntity<AuditEvent> get(@PathVariable Long id) throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), AUDIT_READ);
         return ResponseUtil.wrapOrNotFound(auditEventService.find(id));
     }

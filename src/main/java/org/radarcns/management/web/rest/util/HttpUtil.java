@@ -11,7 +11,7 @@ public class HttpUtil {
     private static Logger log = LoggerFactory.getLogger(HttpUtil.class);
 
     /**
-     * Checks whether given {@link URL} can be reachable
+     * Checks whether given {@link URL} can be reachable.
      *
      * @return {@code true} if reachable, {@code false} otherwise
      */

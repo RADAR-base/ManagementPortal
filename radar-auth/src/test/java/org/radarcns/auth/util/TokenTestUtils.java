@@ -1,4 +1,4 @@
-package org.radarcns.auth.unit.util;
+package org.radarcns.auth.util;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -226,6 +226,7 @@ public class TokenTestUtils {
     private static String[] allScopes() {
         return Permission.allPermissions().stream()
                 .map(Permission::scopeName)
-                .collect(Collectors.toList()).toArray(new String[Permission.allPermissions().size()]);
+                .collect(Collectors.toList())
+                .toArray(new String[Permission.allPermissions().size()]);
     }
 }

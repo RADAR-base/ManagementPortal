@@ -1,9 +1,12 @@
 package org.radarcns.exception;
 
+import java.security.GeneralSecurityException;
+
 /**
  * Created by dverbeec on 31/08/2017.
  */
-public class TokenException extends RuntimeException {
+public class TokenException extends GeneralSecurityException {
+
     public TokenException() {
         super();
     }

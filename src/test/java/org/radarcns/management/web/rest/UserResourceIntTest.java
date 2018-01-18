@@ -129,8 +129,8 @@ public class UserResourceIntTest {
     /**
      * Create a User.
      *
-     * This is a static method, as tests for other entities might also need it,
-     * if they test an entity which has a required relationship to the User entity.
+     * <p>This is a static method, as tests for other entities might also need it,
+     * if they test an entity which has a required relationship to the User entity.</p>
      */
     public static User createEntity(EntityManager em) {
         User user = new User();
@@ -152,7 +152,7 @@ public class UserResourceIntTest {
     @Test
     @Transactional
     public void createUser() throws Exception {
-        int databaseSizeBeforeCreate = userRepository.findAll().size();
+        final int databaseSizeBeforeCreate = userRepository.findAll().size();
 
         // Create the User
         Set<RoleDTO> roles = new HashSet<>();
@@ -160,11 +160,11 @@ public class UserResourceIntTest {
         role.setAuthorityName(AuthoritiesConstants.SYS_ADMIN);
         roles.add(role);
 
-        ManagedUserVM managedUserVM = createDefaultUser(roles);
+        ManagedUserVM managedUserVm = createDefaultUser(roles);
 
         restUserMockMvc.perform(post("/api/users")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
+                .content(TestUtil.convertObjectToJsonBytes(managedUserVm)))
                 .andExpect(status().isCreated());
 
         // Validate the User in the database
@@ -181,20 +181,20 @@ public class UserResourceIntTest {
     @Test
     @Transactional
     public void createUserWithExistingId() throws Exception {
-        int databaseSizeBeforeCreate = userRepository.findAll().size();
+        final int databaseSizeBeforeCreate = userRepository.findAll().size();
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
         role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
         roles.add(role);
 
-        ManagedUserVM managedUserVM = createDefaultUser(roles);
-        managedUserVM.setId(1L);
+        ManagedUserVM managedUserVm = createDefaultUser(roles);
+        managedUserVm.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restUserMockMvc.perform(post("/api/users")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
+                .content(TestUtil.convertObjectToJsonBytes(managedUserVm)))
                 .andExpect(status().isBadRequest());
 
         // Validate the User in the database
@@ -207,19 +207,19 @@ public class UserResourceIntTest {
     public void createUserWithExistingLogin() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
-        int databaseSizeBeforeCreate = userRepository.findAll().size();
+        final int databaseSizeBeforeCreate = userRepository.findAll().size();
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
         role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
         roles.add(role);
-        ManagedUserVM managedUserVM = createDefaultUser(roles);
-        managedUserVM.setEmail("anothermail@localhost");
+        ManagedUserVM managedUserVm = createDefaultUser(roles);
+        managedUserVm.setEmail("anothermail@localhost");
 
         // Create the User
         restUserMockMvc.perform(post("/api/users")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
+                .content(TestUtil.convertObjectToJsonBytes(managedUserVm)))
                 .andExpect(status().isBadRequest());
 
         // Validate the User in the database
@@ -232,19 +232,19 @@ public class UserResourceIntTest {
     public void createUserWithExistingEmail() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
-        int databaseSizeBeforeCreate = userRepository.findAll().size();
+        final int databaseSizeBeforeCreate = userRepository.findAll().size();
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
         role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
         roles.add(role);
-        ManagedUserVM managedUserVM = createDefaultUser(roles);
-        managedUserVM.setLogin("anotherlogin");
+        ManagedUserVM managedUserVm = createDefaultUser(roles);
+        managedUserVm.setLogin("anotherlogin");
 
         // Create the User
         restUserMockMvc.perform(post("/api/users")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
+                .content(TestUtil.convertObjectToJsonBytes(managedUserVm)))
                 .andExpect(status().isBadRequest());
 
         // Validate the User in the database
@@ -299,7 +299,7 @@ public class UserResourceIntTest {
     public void updateUser() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
-        int databaseSizeBeforeUpdate = userRepository.findAll().size();
+        final int databaseSizeBeforeUpdate = userRepository.findAll().size();
 
         // Update the user
         User updatedUser = userRepository.findOne(user.getId());
@@ -309,24 +309,24 @@ public class UserResourceIntTest {
         role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
         roles.add(role);
 
-        ManagedUserVM managedUserVM = new ManagedUserVM();
-        managedUserVM.setId(updatedUser.getId());
-        managedUserVM.setLogin(updatedUser.getLogin());
-        managedUserVM.setPassword(UPDATED_PASSWORD);
-        managedUserVM.setFirstName(UPDATED_FIRSTNAME);
-        managedUserVM.setLastName(UPDATED_LASTNAME);
-        managedUserVM.setEmail(UPDATED_EMAIL);
-        managedUserVM.setActivated(updatedUser.getActivated());
-        managedUserVM.setLangKey(UPDATED_LANGKEY);
-        managedUserVM.setCreatedBy(updatedUser.getCreatedBy());
-        managedUserVM.setCreatedDate(updatedUser.getCreatedDate());
-        managedUserVM.setLastModifiedBy(updatedUser.getLastModifiedBy());
-        managedUserVM.setLastModifiedDate(updatedUser.getLastModifiedDate());
-        managedUserVM.setRoles(roles);
+        ManagedUserVM managedUserVm = new ManagedUserVM();
+        managedUserVm.setId(updatedUser.getId());
+        managedUserVm.setLogin(updatedUser.getLogin());
+        managedUserVm.setPassword(UPDATED_PASSWORD);
+        managedUserVm.setFirstName(UPDATED_FIRSTNAME);
+        managedUserVm.setLastName(UPDATED_LASTNAME);
+        managedUserVm.setEmail(UPDATED_EMAIL);
+        managedUserVm.setActivated(updatedUser.getActivated());
+        managedUserVm.setLangKey(UPDATED_LANGKEY);
+        managedUserVm.setCreatedBy(updatedUser.getCreatedBy());
+        managedUserVm.setCreatedDate(updatedUser.getCreatedDate());
+        managedUserVm.setLastModifiedBy(updatedUser.getLastModifiedBy());
+        managedUserVm.setLastModifiedDate(updatedUser.getLastModifiedDate());
+        managedUserVm.setRoles(roles);
 
         restUserMockMvc.perform(put("/api/users")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
+                .content(TestUtil.convertObjectToJsonBytes(managedUserVm)))
                 .andExpect(status().isOk());
 
         // Validate the User in the database
@@ -344,7 +344,7 @@ public class UserResourceIntTest {
     public void updateUserLogin() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
-        int databaseSizeBeforeUpdate = userRepository.findAll().size();
+        final int databaseSizeBeforeUpdate = userRepository.findAll().size();
 
         // Update the user
         User updatedUser = userRepository.findOne(user.getId());
@@ -354,24 +354,24 @@ public class UserResourceIntTest {
         role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
         roles.add(role);
 
-        ManagedUserVM managedUserVM = new ManagedUserVM();
-        managedUserVM.setId(updatedUser.getId());
-        managedUserVM.setLogin(UPDATED_LOGIN);
-        managedUserVM.setPassword(UPDATED_PASSWORD);
-        managedUserVM.setFirstName(UPDATED_FIRSTNAME);
-        managedUserVM.setLastName(UPDATED_LASTNAME);
-        managedUserVM.setEmail(UPDATED_EMAIL);
-        managedUserVM.setActivated(updatedUser.getActivated());
-        managedUserVM.setLangKey(UPDATED_LANGKEY);
-        managedUserVM.setCreatedBy(updatedUser.getCreatedBy());
-        managedUserVM.setCreatedDate(updatedUser.getCreatedDate());
-        managedUserVM.setLastModifiedBy(updatedUser.getLastModifiedBy());
-        managedUserVM.setLastModifiedDate(updatedUser.getLastModifiedDate());
-        managedUserVM.setRoles(roles);
+        ManagedUserVM managedUserVm = new ManagedUserVM();
+        managedUserVm.setId(updatedUser.getId());
+        managedUserVm.setLogin(UPDATED_LOGIN);
+        managedUserVm.setPassword(UPDATED_PASSWORD);
+        managedUserVm.setFirstName(UPDATED_FIRSTNAME);
+        managedUserVm.setLastName(UPDATED_LASTNAME);
+        managedUserVm.setEmail(UPDATED_EMAIL);
+        managedUserVm.setActivated(updatedUser.getActivated());
+        managedUserVm.setLangKey(UPDATED_LANGKEY);
+        managedUserVm.setCreatedBy(updatedUser.getCreatedBy());
+        managedUserVm.setCreatedDate(updatedUser.getCreatedDate());
+        managedUserVm.setLastModifiedBy(updatedUser.getLastModifiedBy());
+        managedUserVm.setLastModifiedDate(updatedUser.getLastModifiedDate());
+        managedUserVm.setRoles(roles);
 
         restUserMockMvc.perform(put("/api/users")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
+                .content(TestUtil.convertObjectToJsonBytes(managedUserVm)))
                 .andExpect(status().isOk());
 
         // Validate the User in the database
@@ -408,24 +408,24 @@ public class UserResourceIntTest {
         role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
         roles.add(role);
 
-        ManagedUserVM managedUserVM = new ManagedUserVM();
-        managedUserVM.setId(updatedUser.getId());
-        managedUserVM.setLogin(updatedUser.getLogin());
-        managedUserVM.setPassword(updatedUser.getPassword());
-        managedUserVM.setFirstName(updatedUser.getFirstName());
-        managedUserVM.setLastName(updatedUser.getLastName());
-        managedUserVM.setEmail("jhipster@localhost");
-        managedUserVM.setActivated(updatedUser.getActivated());
-        managedUserVM.setLangKey(updatedUser.getLangKey());
-        managedUserVM.setCreatedBy(updatedUser.getCreatedBy());
-        managedUserVM.setCreatedDate(updatedUser.getCreatedDate());
-        managedUserVM.setLastModifiedBy(updatedUser.getLastModifiedBy());
-        managedUserVM.setLastModifiedDate(updatedUser.getLastModifiedDate());
-        managedUserVM.setRoles(roles);
+        ManagedUserVM managedUserVm = new ManagedUserVM();
+        managedUserVm.setId(updatedUser.getId());
+        managedUserVm.setLogin(updatedUser.getLogin());
+        managedUserVm.setPassword(updatedUser.getPassword());
+        managedUserVm.setFirstName(updatedUser.getFirstName());
+        managedUserVm.setLastName(updatedUser.getLastName());
+        managedUserVm.setEmail("jhipster@localhost");
+        managedUserVm.setActivated(updatedUser.getActivated());
+        managedUserVm.setLangKey(updatedUser.getLangKey());
+        managedUserVm.setCreatedBy(updatedUser.getCreatedBy());
+        managedUserVm.setCreatedDate(updatedUser.getCreatedDate());
+        managedUserVm.setLastModifiedBy(updatedUser.getLastModifiedBy());
+        managedUserVm.setLastModifiedDate(updatedUser.getLastModifiedDate());
+        managedUserVm.setRoles(roles);
 
         restUserMockMvc.perform(put("/api/users")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
+                .content(TestUtil.convertObjectToJsonBytes(managedUserVm)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -453,24 +453,24 @@ public class UserResourceIntTest {
         role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
         roles.add(role);
 
-        ManagedUserVM managedUserVM = new ManagedUserVM();
-        managedUserVM.setId(updatedUser.getId());
-        managedUserVM.setLogin("jhipster");
-        managedUserVM.setPassword(updatedUser.getPassword());
-        managedUserVM.setFirstName(updatedUser.getFirstName());
-        managedUserVM.setLastName(updatedUser.getLastName());
-        managedUserVM.setEmail(updatedUser.getEmail());
-        managedUserVM.setActivated(updatedUser.getActivated());
-        managedUserVM.setLangKey(updatedUser.getLangKey());
-        managedUserVM.setCreatedBy(updatedUser.getCreatedBy());
-        managedUserVM.setCreatedDate(updatedUser.getCreatedDate());
-        managedUserVM.setLastModifiedBy(updatedUser.getLastModifiedBy());
-        managedUserVM.setLastModifiedDate(updatedUser.getLastModifiedDate());
-        managedUserVM.setRoles(roles);
+        ManagedUserVM managedUserVm = new ManagedUserVM();
+        managedUserVm.setId(updatedUser.getId());
+        managedUserVm.setLogin("jhipster");
+        managedUserVm.setPassword(updatedUser.getPassword());
+        managedUserVm.setFirstName(updatedUser.getFirstName());
+        managedUserVm.setLastName(updatedUser.getLastName());
+        managedUserVm.setEmail(updatedUser.getEmail());
+        managedUserVm.setActivated(updatedUser.getActivated());
+        managedUserVm.setLangKey(updatedUser.getLangKey());
+        managedUserVm.setCreatedBy(updatedUser.getCreatedBy());
+        managedUserVm.setCreatedDate(updatedUser.getCreatedDate());
+        managedUserVm.setLastModifiedBy(updatedUser.getLastModifiedBy());
+        managedUserVm.setLastModifiedDate(updatedUser.getLastModifiedDate());
+        managedUserVm.setRoles(roles);
 
         restUserMockMvc.perform(put("/api/users")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
+                .content(TestUtil.convertObjectToJsonBytes(managedUserVm)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -479,7 +479,7 @@ public class UserResourceIntTest {
     public void deleteUser() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
-        int databaseSizeBeforeDelete = userRepository.findAll().size();
+        final int databaseSizeBeforeDelete = userRepository.findAll().size();
 
         // Delete the user
         restUserMockMvc.perform(delete("/api/users/{login}", user.getLogin())

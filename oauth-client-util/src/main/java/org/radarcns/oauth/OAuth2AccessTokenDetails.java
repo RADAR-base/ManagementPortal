@@ -70,20 +70,6 @@ public class OAuth2AccessTokenDetails {
     @JsonProperty("message")
     private String message;
 
-    public OAuth2AccessTokenDetails() {
-        this.accessToken = null;
-        this.tokenType = null;
-        this.expiresIn = 0;
-        this.scope = null;
-        this.subject = null;
-        this.issuer = null;
-        this.issueDate = 0;
-        this.jsonWebTokenId = null;
-        this.error = null;
-        this.errorDescription = null;
-        this.message = null;
-    }
-
     public String getAccessToken() {
         return accessToken;
     }
@@ -120,15 +106,23 @@ public class OAuth2AccessTokenDetails {
         return error;
     }
 
+    /**
+     * Get the error description.
+     *
+     * <p>Some errors cause an error description to be populated in the {@code
+     * error_description} field, other cause the {@code message} field to be populated. This
+     * method first checks for the {@code error_description} field, and returns it if not null.
+     * Otherwise it checks the {@code message} field and returns that if not null. If both
+     * fields are null this method returns an empty string.</p>
+     * @return the error description
+     */
     public String getErrorDescription() {
         // some errors give error_description field, some give message field
         if (errorDescription != null) {
             return errorDescription;
-        }
-        else if (message != null) {
+        } else if (message != null) {
             return  message;
-        }
-        else {
+        } else {
             return "";
         }
     }
@@ -137,6 +131,11 @@ public class OAuth2AccessTokenDetails {
         return Instant.now().isAfter(Instant.ofEpochSecond(issueDate + expiresIn));
     }
 
+    /**
+     * Check the validity of this token.
+     * @return {@code true} if the {@code accessToken} field is not {@code null} and the {@code
+     *     error} field is null
+     */
     public boolean isValid() {
         return accessToken != null && error == null;
     }
@@ -185,33 +184,38 @@ public class OAuth2AccessTokenDetails {
         this.message = message;
     }
 
+    /**
+     * Parse an access token response into an {@link OAuth2AccessTokenDetails} object.
+     * @param response the OkHttp response
+     * @return an instance of this class
+     * @throws TokenException if the response can not be parsed to an instance of this class
+     */
     public static OAuth2AccessTokenDetails getObject(Response response) throws TokenException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         String responseBody;
         try {
             responseBody = response.body().string();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new TokenException(e);
         }
 
         try {
-            OAuth2AccessTokenDetails result = mapper.readValue(responseBody, OAuth2AccessTokenDetails.class);
+            OAuth2AccessTokenDetails result = mapper.readValue(responseBody,
+                    OAuth2AccessTokenDetails.class);
             if (result.getError() != null) {
                 throw new TokenException(result.getError() + ": " + result.getErrorDescription());
             }
             if (result.getAccessToken() == null) {
                 // we didn't catch an error but also didn't get a token (this could happen e.g. when
-                // we receive an empty JSON entity as a response, or a JSON entity which does not have
-                // the right fields
+                // we receive an empty JSON entity as a response, or a JSON entity which does
+                // not have the right fields
                 throw new TokenException("An unexpected error occured. " + "HTTP status was "
                     + response.code() + ": " + response.message()
                     + ". Response body was: " + responseBody);
             }
             return result;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new TokenException(e);
         }
     }

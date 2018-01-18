@@ -76,7 +76,7 @@ public class CheckTranslationsUnitTest {
      * @param toCheck If there are missing elements in the values of corresponding keys, they
      *                will be added to the output map
      * @return The elements that are missing from <code>toCheck</code> in values of corresponding
-     * keys.
+     *     keys.
      */
     private Map<String, List<String>> findDifferences(Map<String, List<String>> base,
             Map<String, List<String>> toCheck) {
@@ -107,7 +107,7 @@ public class CheckTranslationsUnitTest {
      *
      * @param path The path to scan in for JSON files
      * @return a Map whose keys are absolute paths to the JSON files, and whose elements are
-     * lists of JSON paths.
+     *     lists of JSON paths.
      */
     private static Map<String, List<String>> loadJsonKeysFromDirectory(File path) {
         Assert.assertTrue(path.isDirectory());

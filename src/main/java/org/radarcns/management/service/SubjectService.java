@@ -76,12 +76,17 @@ public class SubjectService {
     private PasswordEncoder passwordEncoder;
 
 
+    /**
+     * Create a new subject.
+     * @param subjectDto the subject information
+     * @return the newly created subject
+     */
     @Transactional
-    public SubjectDTO createSubject(SubjectDTO subjectDTO) {
-        Subject subject = subjectMapper.subjectDTOToSubject(subjectDTO);
+    public SubjectDTO createSubject(SubjectDTO subjectDto) {
+        Subject subject = subjectMapper.subjectDTOToSubject(subjectDto);
         //assign roles
         User user = subject.getUser();
-        user.getRoles().add(getProjectParticipantRole(subjectDTO.getProject()));
+        user.getRoles().add(getProjectParticipantRole(subjectDto.getProject()));
 
         // set password and reset keys
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
@@ -103,14 +108,14 @@ public class SubjectService {
     }
 
     /**
-     * fetch Participant role of the project if available, otherwise create a new Role and assign
+     * Fetch Participant role of the project if available, otherwise create a new Role and assign.
      *
-     * @param projectDTO project subject is assigned to
+     * @param projectDto project subject is assigned to
      * @return relevant Participant role
      */
-    private Role getProjectParticipantRole(ProjectDTO projectDTO) {
+    private Role getProjectParticipantRole(ProjectDTO projectDto) {
 
-        Role role = roleRepository.findOneByProjectIdAndAuthorityName(projectDTO.getId(),
+        Role role = roleRepository.findOneByProjectIdAndAuthorityName(projectDto.getId(),
                 AuthoritiesConstants.PARTICIPANT);
         if (role != null) {
             return role;
@@ -118,27 +123,31 @@ public class SubjectService {
             Role subjectRole = new Role();
             subjectRole.setAuthority(
                     authorityRepository.findByAuthorityName(AuthoritiesConstants.PARTICIPANT));
-            subjectRole.setProject(projectMapper.projectDTOToProject(projectDTO));
+            subjectRole.setProject(projectMapper.projectDTOToProject(projectDto));
             roleRepository.save(subjectRole);
             return subjectRole;
         }
     }
 
 
+    /**
+     * Update a subject's information.
+     * @param subjectDto the new subject information
+     * @return the updated subject
+     */
     @Transactional
-    public SubjectDTO updateSubject(SubjectDTO subjectDTO) throws IllegalAccessException {
-        if (subjectDTO.getId() == null) {
-            return createSubject(subjectDTO);
+    public SubjectDTO updateSubject(SubjectDTO subjectDto) {
+        if (subjectDto.getId() == null) {
+            return createSubject(subjectDto);
         }
-        //  TODO : add security and owner check for the resource
-        Subject subject = subjectRepository.findOne(subjectDTO.getId());
+        Subject subject = subjectRepository.findOne(subjectDto.getId());
         //reset all the sources assigned to a subject to unassigned
         for (Source source : subject.getSources()) {
             source.setAssigned(false);
             sourceRepository.save(source);
         }
         //set only the devices assigned to a subject as assigned
-        subjectMapper.safeUpdateSubjectFromDTO(subjectDTO, subject);
+        subjectMapper.safeUpdateSubjectFromDTO(subjectDto, subject);
         for (Source source : subject.getSources()) {
             source.setAssigned(true);
         }
@@ -146,21 +155,33 @@ public class SubjectService {
         Set<Role> managedRoles = subject.getUser().getRoles().stream()
                 .filter(r -> !AuthoritiesConstants.PARTICIPANT.equals(r.getAuthority().getName()))
                 .collect(Collectors.toSet());
-        managedRoles.add(getProjectParticipantRole(subjectDTO.getProject()));
+        managedRoles.add(getProjectParticipantRole(subjectDto.getProject()));
         subject.getUser().setRoles(managedRoles);
         subject = subjectRepository.save(subject);
 
         return subjectMapper.subjectToSubjectDTO(subject);
     }
 
-
+    /**
+     * Get a page of subjects.
+     * @param pageable the page information
+     * @return the requested page of subjects
+     */
     public Page<SubjectDTO> findAll(Pageable pageable) {
         return subjectRepository.findAllWithEagerRelationships(pageable)
                 .map(subjectMapper::subjectToSubjectDTO);
     }
 
-    public SubjectDTO discontinueSubject(SubjectDTO subjectDTO) {
-        Subject subject = subjectRepository.findOne(subjectDTO.getId());
+    /**
+     * Discontinue the given subject.
+     *
+     * <p>A discontinued subject is not deleted from the database, but will be prevented from
+     * logging into the system, sending data, or otherwise interacting with the system.</p>
+     * @param subjectDto the subject to discontinue
+     * @return the discontinued subject
+     */
+    public SubjectDTO discontinueSubject(SubjectDTO subjectDto) {
+        Subject subject = subjectRepository.findOne(subjectDto.getId());
         // reset all the sources assigned to a subject to unassigned
         unassignAllSources(subject);
 
@@ -189,11 +210,11 @@ public class SubjectService {
      * Creates or updates a source for a subject.It creates and assigns a source of a for a
      * dynamicallyRegister-able sourceType. Currently, it is allowed to create only once source of a
      * dynamicallyRegistrable sourceType per subject. Otherwise finds the matching source and
-     * updates meta-data
+     * updates meta-data.
      */
     @Transactional
     public MinimalSourceDetailsDTO assignOrUpdateSource(Subject subject, SourceType sourceType,
-            Project project, MinimalSourceDetailsDTO sourceRegistrationDTO)
+            Project project, MinimalSourceDetailsDTO sourceRegistrationDto)
             throws URISyntaxException {
         Source assignedSource = null;
 
@@ -203,16 +224,16 @@ public class SubjectService {
                         sourceType.getCatalogVersion());
 
         // update meta-data for existing sources
-        if (sourceRegistrationDTO.getSourceId() != null) {
+        if (sourceRegistrationDto.getSourceId() != null) {
             // for manually registered devices only add meta-data
             Optional<Source> sourceToUpdate = subjectRepository.findSubjectSourcesBySourceId(
-                    subject.getUser().getLogin(), sourceRegistrationDTO.getSourceId());
+                    subject.getUser().getLogin(), sourceRegistrationDto.getSourceId());
             if (sourceToUpdate.isPresent()) {
                 Source source = sourceToUpdate.get();
-                if (sourceRegistrationDTO.getSourceName() != null) {
-                    source.setSourceName(sourceRegistrationDTO.getSourceName());
+                if (sourceRegistrationDto.getSourceName() != null) {
+                    source.setSourceName(sourceRegistrationDto.getSourceName());
                 }
-                source.getAttributes().putAll(sourceRegistrationDTO.getAttributes());
+                source.getAttributes().putAll(sourceRegistrationDto.getAttributes());
                 sourceRepository.save(source);
                 assignedSource = source;
             } else {
@@ -220,7 +241,7 @@ public class SubjectService {
                 Map<String, String> errorParams = new HashMap<>();
                 errorParams.put("message",
                         "Cannot find a Source of sourceId already registered for subject login");
-                errorParams.put("sourceId", sourceRegistrationDTO.getSourceId().toString());
+                errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
                 throw new CustomNotFoundException(ErrorConstants.ERR_SOURCE_NOT_FOUND, errorParams);
             }
         } else if (sourceType.getCanRegisterDynamically()) {
@@ -231,11 +252,11 @@ public class SubjectService {
                         .project(project)
                         .assigned(true)
                         .sourceType(sourceType);
-                source1.getAttributes().putAll(sourceRegistrationDTO.getAttributes());
+                source1.getAttributes().putAll(sourceRegistrationDto.getAttributes());
                 // if source name is provided update source name
-                if (Objects.nonNull(sourceRegistrationDTO.getSourceName())) {
+                if (Objects.nonNull(sourceRegistrationDto.getSourceName())) {
                     // append the auto generated source-name to given source-name to avoid conflicts
-                    source1.setSourceName(sourceRegistrationDTO.getSourceName() + "_"
+                    source1.setSourceName(sourceRegistrationDto.getSourceName() + "_"
                             + source1.getSourceName());
                 }
 
@@ -284,7 +305,7 @@ public class SubjectService {
             errorParams.put("producer", sourceType.getProducer());
             errorParams.put("model", sourceType.getModel());
             errorParams.put("subject-id", subject.getUser().getLogin());
-            errorParams.put("sourceId", sourceRegistrationDTO.getSourceId().toString());
+            errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
             throw new CustomParameterizedException("InvalidRequest", errorParams);
         }
         subjectRepository.save(subject);
@@ -292,7 +313,7 @@ public class SubjectService {
     }
 
     /**
-     * Gets all sources assigned to the subject identified by :login
+     * Gets all sources assigned to the subject identified by :login.
      *
      * @return list of sources
      */
@@ -303,6 +324,10 @@ public class SubjectService {
         return sourceMapper.sourcesToMinimalSourceDetailsDTOs(sources);
     }
 
+    /**
+     * Delete the subject with the given login from the database.
+     * @param login the login
+     */
     public void deleteSubject(String login) {
         subjectRepository.findOneWithEagerBySubjectLogin(login).ifPresent(subject -> {
             unassignAllSources(subject);

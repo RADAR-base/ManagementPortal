@@ -47,7 +47,7 @@ public class OAuthClientLoader {
     private static final Character SEPARATOR = ';';
 
     /**
-     * Build the ClientDetails for the ManagementPortal frontend and load it to the database
+     * Build the ClientDetails for the ManagementPortal frontend and load it to the database.
      */
     @EventListener(ContextRefreshedEvent.class)
     public void loadFrontendOauthClient() {
@@ -71,6 +71,10 @@ public class OAuthClientLoader {
         loadOAuthClient(details);
     }
 
+    /**
+     * Event listener method that loads OAuth clients from file as soon as the application
+     * context is refreshed. This happens at least once, on application startup.
+     */
     @EventListener(ContextRefreshedEvent.class)
     public void loadOAuthClientsFromFile() {
         String path = managementPortalProperties.getOauth().getClientsFile();
@@ -159,8 +163,8 @@ public class OAuthClientLoader {
                         new TypeReference<Map<String, Object>>() {
                         });
             } catch (Exception ex) {
-                logger.error("Unable to parse additional_information field for client " +
-                        getClientId() + ": " + ex.getMessage(), ex);
+                logger.error("Unable to parse additional_information field for client "
+                        + getClientId() + ": " + ex.getMessage(), ex);
             }
         }
     }

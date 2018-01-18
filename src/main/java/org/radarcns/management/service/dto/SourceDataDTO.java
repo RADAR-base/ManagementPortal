@@ -158,11 +158,11 @@ public class SourceDataDTO implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        SourceDataDTO sourceDataDTO = (SourceDataDTO) o;
-        if (sourceDataDTO.id == null || id == null) {
+        SourceDataDTO sourceDataDto = (SourceDataDTO) o;
+        if (sourceDataDto.id == null || id == null) {
             return false;
         }
-        return Objects.equals(id, sourceDataDTO.id);
+        return Objects.equals(id, sourceDataDto.id);
     }
 
     @Override

@@ -31,7 +31,7 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class SourceTypeLoader implements CommandLineRunner {
 
-    private Logger log = LoggerFactory.getLogger(SourceTypeLoader.class);
+    private final Logger log = LoggerFactory.getLogger(SourceTypeLoader.class);
 
     @Autowired
     private SourceTypeRepository sourceTypeRepository;
@@ -48,6 +48,7 @@ public class SourceTypeLoader implements CommandLineRunner {
     @Autowired
     private CatalogSourceDataMapper catalogSourceDataMapper;
 
+    @Override
     public void run(String... args) {
 
         String catalogServerUrl = managementPortalProperties.getCatalogueServer().getServerUrl();
@@ -63,16 +64,16 @@ public class SourceTypeLoader implements CommandLineRunner {
                             .getForEntity(
                                     managementPortalProperties.getCatalogueServer().getServerUrl(),
                                     SourceTypeResponse.class);
-                    SourceTypeResponse catalogueDTO = catalogues.getBody();
+                    SourceTypeResponse catalogueDto = catalogues.getBody();
                     List<CatalogSourceType> catalogSourceTypes = new ArrayList<>();
-                    if (Objects.nonNull(catalogueDTO.getPassiveSources())) {
-                        catalogSourceTypes.addAll(catalogueDTO.getPassiveSources());
+                    if (Objects.nonNull(catalogueDto.getPassiveSources())) {
+                        catalogSourceTypes.addAll(catalogueDto.getPassiveSources());
                     }
-                    if (Objects.nonNull(catalogueDTO.getActiveSources())) {
-                        catalogSourceTypes.addAll(catalogueDTO.getActiveSources());
+                    if (Objects.nonNull(catalogueDto.getActiveSources())) {
+                        catalogSourceTypes.addAll(catalogueDto.getActiveSources());
                     }
-                    if (Objects.nonNull(catalogueDTO.getMonitorSources())) {
-                        catalogSourceTypes.addAll(catalogueDTO.getMonitorSources());
+                    if (Objects.nonNull(catalogueDto.getMonitorSources())) {
+                        catalogSourceTypes.addAll(catalogueDto.getMonitorSources());
                     }
 
                     for (CatalogSourceType catalogSourceType : catalogSourceTypes) {

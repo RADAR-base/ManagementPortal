@@ -113,29 +113,29 @@ public class SourceDataResourceIntTest {
         filter.init(new MockFilterConfig());
 
         this.restSourceDataMockMvc = MockMvcBuilders.standaloneSetup(sourceDataResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setMessageConverters(jacksonMessageConverter)
-            .addFilter(filter)
-            .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
+                .setCustomArgumentResolvers(pageableArgumentResolver)
+                .setControllerAdvice(exceptionTranslator)
+                .setMessageConverters(jacksonMessageConverter)
+                .addFilter(filter)
+                .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
     }
 
     /**
      * Create an entity for this test.
      *
-     * This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.
+     * <p>This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.</p>
      */
     public static SourceData createEntity(EntityManager em) {
         SourceData sourceData = new SourceData()
-            .sourceDataType(DEFAULT_SOURCE_DATA_TYPE)
-            .sourceDataName(DEFAULT_SOURCE_DATA_NAME)
-            .processingState(DEFAULT_PROCESSING_STATE)
-            .keySchema(DEFAULT_KEY_SCHEMA)
-            .valueSchema(DEFAULT_VALUE_SCHEMA)
-            .topic(DEFAULT_TOPIC)
-            .unit(DEFAULT_UNTI)
-            .frequency(DEFAULT_FREQUENCY);
+                .sourceDataType(DEFAULT_SOURCE_DATA_TYPE)
+                .sourceDataName(DEFAULT_SOURCE_DATA_NAME)
+                .processingState(DEFAULT_PROCESSING_STATE)
+                .keySchema(DEFAULT_KEY_SCHEMA)
+                .valueSchema(DEFAULT_VALUE_SCHEMA)
+                .topic(DEFAULT_TOPIC)
+                .unit(DEFAULT_UNTI)
+                .frequency(DEFAULT_FREQUENCY);
 
         return sourceData;
     }
@@ -151,11 +151,11 @@ public class SourceDataResourceIntTest {
         int databaseSizeBeforeCreate = sourceDataRepository.findAll().size();
 
         // Create the SourceData
-        SourceDataDTO sourceDataDTO = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
+        SourceDataDTO sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
         restSourceDataMockMvc.perform(post("/api/source-data")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceDataDTO)))
-            .andExpect(status().isCreated());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceDataDto)))
+                .andExpect(status().isCreated());
 
         // Validate the SourceData in the database
         List<SourceData> sourceDataList = sourceDataRepository.findAll();
@@ -178,13 +178,13 @@ public class SourceDataResourceIntTest {
 
         // Create the SourceData with an existing ID
         sourceData.setId(1L);
-        SourceDataDTO sourceDataDTO = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
+        SourceDataDTO sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restSourceDataMockMvc.perform(post("/api/source-data")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceDataDTO)))
-            .andExpect(status().isBadRequest());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceDataDto)))
+                .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
         List<SourceData> sourceDataList = sourceDataRepository.findAll();
@@ -199,12 +199,12 @@ public class SourceDataResourceIntTest {
         sourceData.setSourceDataType(null);
 
         // Create the SourceData, which fails.
-        SourceDataDTO sourceDataDTO = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
+        SourceDataDTO sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
 
         restSourceDataMockMvc.perform(post("/api/source-data")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceDataDTO)))
-            .andExpect(status().isBadRequest());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceDataDto)))
+                .andExpect(status().isBadRequest());
 
         List<SourceData> sourceDataList = sourceDataRepository.findAll();
         assertThat(sourceDataList).hasSize(databaseSizeBeforeTest);
@@ -218,17 +218,20 @@ public class SourceDataResourceIntTest {
 
         // Get all the sourceDataList
         restSourceDataMockMvc.perform(get("/api/source-data?sort=id,desc"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(sourceData.getId().intValue())))
-            .andExpect(jsonPath("$.[*].sourceDataType").value(hasItem(DEFAULT_SOURCE_DATA_TYPE)))
-            .andExpect(jsonPath("$.[*].sourceDataName").value(hasItem(DEFAULT_SOURCE_DATA_NAME)))
-            .andExpect(jsonPath("$.[*].processingState").value(hasItem(DEFAULT_PROCESSING_STATE.toString())))
-            .andExpect(jsonPath("$.[*].keySchema").value(hasItem(DEFAULT_KEY_SCHEMA)))
-            .andExpect(jsonPath("$.[*].valueSchema").value(hasItem(DEFAULT_VALUE_SCHEMA)))
-            .andExpect(jsonPath("$.[*].unit").value(hasItem(DEFAULT_UNTI)))
-            .andExpect(jsonPath("$.[*].topic").value(hasItem(DEFAULT_TOPIC)))
-            .andExpect(jsonPath("$.[*].frequency").value(hasItem(DEFAULT_FREQUENCY)));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(sourceData.getId().intValue())))
+                .andExpect(jsonPath("$.[*].sourceDataType").value(
+                        hasItem(DEFAULT_SOURCE_DATA_TYPE)))
+                .andExpect(jsonPath("$.[*].sourceDataName").value(
+                        hasItem(DEFAULT_SOURCE_DATA_NAME)))
+                .andExpect(jsonPath("$.[*].processingState").value(
+                        hasItem(DEFAULT_PROCESSING_STATE.toString())))
+                .andExpect(jsonPath("$.[*].keySchema").value(hasItem(DEFAULT_KEY_SCHEMA)))
+                .andExpect(jsonPath("$.[*].valueSchema").value(hasItem(DEFAULT_VALUE_SCHEMA)))
+                .andExpect(jsonPath("$.[*].unit").value(hasItem(DEFAULT_UNTI)))
+                .andExpect(jsonPath("$.[*].topic").value(hasItem(DEFAULT_TOPIC)))
+                .andExpect(jsonPath("$.[*].frequency").value(hasItem(DEFAULT_FREQUENCY)));
     }
 
     @Test
@@ -239,17 +242,20 @@ public class SourceDataResourceIntTest {
 
         // Get all the sourceDataList
         restSourceDataMockMvc.perform(get("/api/source-data?page=0&size=5&sort=id,desc"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(sourceData.getId().intValue())))
-            .andExpect(jsonPath("$.[*].sourceDataType").value(hasItem(DEFAULT_SOURCE_DATA_TYPE)))
-            .andExpect(jsonPath("$.[*].sourceDataName").value(hasItem(DEFAULT_SOURCE_DATA_NAME)))
-            .andExpect(jsonPath("$.[*].processingState").value(hasItem(DEFAULT_PROCESSING_STATE.toString())))
-            .andExpect(jsonPath("$.[*].keySchema").value(hasItem(DEFAULT_KEY_SCHEMA)))
-            .andExpect(jsonPath("$.[*].valueSchema").value(hasItem(DEFAULT_VALUE_SCHEMA)))
-            .andExpect(jsonPath("$.[*].unit").value(hasItem(DEFAULT_UNTI)))
-            .andExpect(jsonPath("$.[*].topic").value(hasItem(DEFAULT_TOPIC)))
-            .andExpect(jsonPath("$.[*].frequency").value(hasItem(DEFAULT_FREQUENCY)));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(sourceData.getId().intValue())))
+                .andExpect(jsonPath("$.[*].sourceDataType").value(
+                        hasItem(DEFAULT_SOURCE_DATA_TYPE)))
+                .andExpect(jsonPath("$.[*].sourceDataName").value(
+                        hasItem(DEFAULT_SOURCE_DATA_NAME)))
+                .andExpect(jsonPath("$.[*].processingState").value(
+                        hasItem(DEFAULT_PROCESSING_STATE.toString())))
+                .andExpect(jsonPath("$.[*].keySchema").value(hasItem(DEFAULT_KEY_SCHEMA)))
+                .andExpect(jsonPath("$.[*].valueSchema").value(hasItem(DEFAULT_VALUE_SCHEMA)))
+                .andExpect(jsonPath("$.[*].unit").value(hasItem(DEFAULT_UNTI)))
+                .andExpect(jsonPath("$.[*].topic").value(hasItem(DEFAULT_TOPIC)))
+                .andExpect(jsonPath("$.[*].frequency").value(hasItem(DEFAULT_FREQUENCY)));
     }
 
     @Test
@@ -259,27 +265,28 @@ public class SourceDataResourceIntTest {
         sourceDataRepository.saveAndFlush(sourceData);
 
         // Get the sourceData
-        restSourceDataMockMvc.perform(get("/api/source-data/{sourceDataName}", sourceData.getSourceDataName()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.id").value(sourceData.getId().intValue()))
-            .andExpect(jsonPath("$.sourceDataType").value(DEFAULT_SOURCE_DATA_TYPE))
-            .andExpect(jsonPath("$.sourceDataName").value(DEFAULT_SOURCE_DATA_NAME))
-            .andExpect(jsonPath("$.processingState").value(DEFAULT_PROCESSING_STATE.toString()))
-            .andExpect(jsonPath("$.keySchema").value(DEFAULT_KEY_SCHEMA))
-            .andExpect(jsonPath("$.valueSchema").value(DEFAULT_VALUE_SCHEMA))
-            .andExpect(jsonPath("$.unit").value(DEFAULT_UNTI))
-            .andExpect(jsonPath("$.topic").value(DEFAULT_TOPIC))
-            .andExpect(jsonPath("$.frequency").value(DEFAULT_FREQUENCY));
+        restSourceDataMockMvc.perform(get("/api/source-data/{sourceDataName}",
+                sourceData.getSourceDataName()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.id").value(sourceData.getId().intValue()))
+                .andExpect(jsonPath("$.sourceDataType").value(DEFAULT_SOURCE_DATA_TYPE))
+                .andExpect(jsonPath("$.sourceDataName").value(DEFAULT_SOURCE_DATA_NAME))
+                .andExpect(jsonPath("$.processingState").value(DEFAULT_PROCESSING_STATE.toString()))
+                .andExpect(jsonPath("$.keySchema").value(DEFAULT_KEY_SCHEMA))
+                .andExpect(jsonPath("$.valueSchema").value(DEFAULT_VALUE_SCHEMA))
+                .andExpect(jsonPath("$.unit").value(DEFAULT_UNTI))
+                .andExpect(jsonPath("$.topic").value(DEFAULT_TOPIC))
+                .andExpect(jsonPath("$.frequency").value(DEFAULT_FREQUENCY));
     }
 
     @Test
     @Transactional
     public void getNonExistingSourceData() throws Exception {
         // Get the sourceData
-        restSourceDataMockMvc.perform(get("/api/source-data/{sourceDataName}", DEFAULT_SOURCE_DATA_NAME +
-            DEFAULT_SOURCE_DATA_NAME))
-            .andExpect(status().isNotFound());
+        restSourceDataMockMvc.perform(get("/api/source-data/{sourceDataName}",
+                DEFAULT_SOURCE_DATA_NAME + DEFAULT_SOURCE_DATA_NAME))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -292,20 +299,20 @@ public class SourceDataResourceIntTest {
         // Update the sourceData
         SourceData updatedSourceData = sourceDataRepository.findOne(sourceData.getId());
         updatedSourceData
-            .sourceDataType(UPDATED_SOURCE_DATA_TYPE)
-            .sourceDataName(UPDATED_SOURCE_DATA_NAME)
-            .processingState(UPDATED_PROCESSING_STATE)
-            .keySchema(UPDATED_KEY_SCHEMA)
-            .valueSchema(UPDATED_VALUE_SCHEMA)
-            .topic(UPDATED_TOPIC)
-            .unit(UPDATED_UNIT)
-            .frequency(UPDATED_FREQUENCY);
-        SourceDataDTO sourceDataDTO = sourceDataMapper.sourceDataToSourceDataDTO(updatedSourceData);
+                .sourceDataType(UPDATED_SOURCE_DATA_TYPE)
+                .sourceDataName(UPDATED_SOURCE_DATA_NAME)
+                .processingState(UPDATED_PROCESSING_STATE)
+                .keySchema(UPDATED_KEY_SCHEMA)
+                .valueSchema(UPDATED_VALUE_SCHEMA)
+                .topic(UPDATED_TOPIC)
+                .unit(UPDATED_UNIT)
+                .frequency(UPDATED_FREQUENCY);
+        SourceDataDTO sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(updatedSourceData);
 
         restSourceDataMockMvc.perform(put("/api/source-data")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceDataDTO)))
-            .andExpect(status().isOk());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceDataDto)))
+                .andExpect(status().isOk());
 
         // Validate the SourceData in the database
         List<SourceData> sourceDataList = sourceDataRepository.findAll();
@@ -327,13 +334,13 @@ public class SourceDataResourceIntTest {
         int databaseSizeBeforeUpdate = sourceDataRepository.findAll().size();
 
         // Create the SourceData
-        SourceDataDTO sourceDataDTO = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
+        SourceDataDTO sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restSourceDataMockMvc.perform(put("/api/source-data")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceDataDTO)))
-            .andExpect(status().isCreated());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceDataDto)))
+                .andExpect(status().isCreated());
 
         // Validate the SourceData in the database
         List<SourceData> sourceDataList = sourceDataRepository.findAll();
@@ -348,9 +355,10 @@ public class SourceDataResourceIntTest {
         int databaseSizeBeforeDelete = sourceDataRepository.findAll().size();
 
         // Get the sourceData
-        restSourceDataMockMvc.perform(delete("/api/source-data/{sourceDataName}", sourceData.getSourceDataName())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
-            .andExpect(status().isOk());
+        restSourceDataMockMvc.perform(delete("/api/source-data/{sourceDataName}",
+                sourceData.getSourceDataName())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
 
         // Validate the database is empty
         List<SourceData> sourceDataList = sourceDataRepository.findAll();

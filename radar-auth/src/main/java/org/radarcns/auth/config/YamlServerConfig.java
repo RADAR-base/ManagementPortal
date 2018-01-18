@@ -29,7 +29,7 @@ public class YamlServerConfig implements ServerConfig {
     private RSAPublicKey publicKey;
 
     private static YamlServerConfig config;
-    private Logger log = LoggerFactory.getLogger(YamlServerConfig.class);
+    private final Logger log = LoggerFactory.getLogger(YamlServerConfig.class);
 
     public YamlServerConfig() {
         log.info("YamlServerConfig initializing...");

@@ -17,6 +17,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
+import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.dto.SourceDTO;
@@ -62,32 +63,32 @@ public class SourceResource {
     /**
      * POST  /sources : Create a new source.
      *
-     * @param sourceDTO the sourceDTO to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new sourceDTO, or with
-     * status 400 (Bad Request) if the source has already an ID
+     * @param sourceDto the sourceDto to create
+     * @return the ResponseEntity with status 201 (Created) and with body the new sourceDto, or with
+     *     status 400 (Bad Request) if the source has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/sources")
     @Timed
-    public ResponseEntity<SourceDTO> createSource(@Valid @RequestBody SourceDTO sourceDTO)
-            throws URISyntaxException {
-        log.debug("REST request to save Source : {}", sourceDTO);
+    public ResponseEntity<SourceDTO> createSource(@Valid @RequestBody SourceDTO sourceDto)
+            throws URISyntaxException, NotAuthorizedException {
+        log.debug("REST request to save Source : {}", sourceDto);
         checkPermission(getJWT(servletRequest), SOURCE_CREATE);
-        if (sourceDTO.getId() != null) {
+        if (sourceDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
                     "idexists", "A new source cannot already have an ID")).build();
-        } else if (sourceDTO.getSourceId() != null) {
+        } else if (sourceDto.getSourceId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
                     "sourceIdExists", "A new source cannot already have a Source ID")).build();
-        } else if (sourceRepository.findOneBySourceName(sourceDTO.getSourceName()).isPresent()) {
+        } else if (sourceRepository.findOneBySourceName(sourceDto.getSourceName()).isPresent()) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
                     "sourceNameExists", "Source name already in use")).build();
-        } else if (sourceDTO.getAssigned() == null) {
+        } else if (sourceDto.getAssigned() == null) {
             return ResponseEntity.badRequest()
                     .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceAssignedRequired",
                             "A new source must have the 'assigned' field specified")).body(null);
         } else {
-            SourceDTO result = sourceService.save(sourceDTO);
+            SourceDTO result = sourceService.save(sourceDto);
             String name = result.getSourceName();
             return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "sources", name)))
                     .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, name))
@@ -98,24 +99,24 @@ public class SourceResource {
     /**
      * PUT  /sources : Updates an existing source.
      *
-     * @param sourceDTO the sourceDTO to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated sourceDTO, or with
-     * status 400 (Bad Request) if the sourceDTO is not valid, or with status 500 (Internal Server
-     * Error) if the sourceDTO couldnt be updated
+     * @param sourceDto the sourceDto to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated sourceDto, or with
+     *     status 400 (Bad Request) if the sourceDto is not valid, or with status 500 (Internal
+     *     Server Error) if the sourceDto couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/sources")
     @Timed
-    public ResponseEntity<SourceDTO> updateSource(@Valid @RequestBody SourceDTO sourceDTO)
-            throws URISyntaxException {
-        log.debug("REST request to update Source : {}", sourceDTO);
-        if (sourceDTO.getId() == null) {
-            return createSource(sourceDTO);
+    public ResponseEntity<SourceDTO> updateSource(@Valid @RequestBody SourceDTO sourceDto)
+            throws URISyntaxException, NotAuthorizedException {
+        log.debug("REST request to update Source : {}", sourceDto);
+        if (sourceDto.getId() == null) {
+            return createSource(sourceDto);
         }
         checkPermission(getJWT(servletRequest), SOURCE_UPDATE);
-        SourceDTO result = sourceService.save(sourceDTO);
+        SourceDTO result = sourceService.save(sourceDto);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceDTO.getSourceName()))
+                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceDto.getSourceName()))
                 .body(result);
     }
 
@@ -135,15 +136,16 @@ public class SourceResource {
     }
 
     /**
-     * GET  /sources/:sourceName : get the source with this sourceName
+     * GET  /sources/:sourceName : get the source with this sourceName.
      *
      * @param sourceName the name of the sourceDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the sourceDTO, or with status
-     * 404 (Not Found)
+     *     404 (Not Found)
      */
     @GetMapping("/sources/{sourceName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
-    public ResponseEntity<SourceDTO> getSource(@PathVariable String sourceName) {
+    public ResponseEntity<SourceDTO> getSource(@PathVariable String sourceName)
+            throws NotAuthorizedException {
         log.debug("REST request to get Source : {}", sourceName);
         checkPermission(getJWT(servletRequest), SOURCE_READ);
         return ResponseUtil.wrapOrNotFound(sourceService.findOneByName(sourceName));
@@ -157,18 +159,19 @@ public class SourceResource {
      */
     @DeleteMapping("/sources/{sourceName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
-    public ResponseEntity<Void> deleteSource(@PathVariable String sourceName) {
+    public ResponseEntity<Void> deleteSource(@PathVariable String sourceName)
+            throws NotAuthorizedException {
         log.debug("REST request to delete Source : {}", sourceName);
         checkPermission(getJWT(servletRequest), SOURCE_DELETE);
-        Optional<SourceDTO> sourceDTO = sourceService.findOneByName(sourceName);
-        if (!sourceDTO.isPresent()) {
+        Optional<SourceDTO> sourceDto = sourceService.findOneByName(sourceName);
+        if (!sourceDto.isPresent()) {
             return ResponseEntity.notFound().build();
         }
-        if (sourceDTO.get().getAssigned()) {
+        if (sourceDto.get().getAssigned()) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
                     "sourceIsAssigned", "Cannot delete an assigned source")).build();
         }
-        sourceService.delete(sourceDTO.get().getId());
+        sourceService.delete(sourceDto.get().getId());
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME,
                 sourceName)).build();
     }

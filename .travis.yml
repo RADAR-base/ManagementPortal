@@ -41,16 +41,16 @@ before_script:
   - ./gradlew bootRun 1> /dev/null &
   - sleep 60 # give spring boot some time to start
 script:
-  - ./gradlew test
+  - ./gradlew check
   - yarn test
   - yarn e2e
   - ./gradlew bootRepackage -Pprod buildDocker -x test
   - ./gradlew generateOpenApiSpec
   - ./gradlew generateJavaClient
-  - echo "include 'managementportal-client'" >> settings.gradle # make this a sub-project so we can build artifacts and javadoc easily
   - killall java # stop running MP instance
   - ./src/test/bash/run-prod-e2e.sh
   - ./src/test/bash/test-docker-build-on-release-branch.sh
+  - echo "include 'managementportal-client'" >> settings.gradle # make this a sub-project so we can build artifacts and javadoc easily
 after_script:
   - ./gradlew sendCoverageToCodacy
 deploy:
@@ -69,17 +69,12 @@ deploy:
     on:
       tags: true
   - provider: script
-    script: ./gradlew oauth-client-util:bintrayUpload
+    script: ./gradlew artifactoryPublish
     skip_cleanup: true
     on:
-      tags: true
+      branch: dev
   - provider: script
-    script: ./gradlew radar-auth:bintrayUpload
-    skip_cleanup: true
-    on:
-      tags: true
-  - provider: script
-    script: ./gradlew managementportal-client:bintrayUpload
+    script: ./gradlew bintrayUpload
     skip_cleanup: true
     on:
       tags: true

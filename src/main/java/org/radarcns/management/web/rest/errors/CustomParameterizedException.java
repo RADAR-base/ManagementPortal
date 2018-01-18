@@ -6,18 +6,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Custom, parameterized exception, which can be translated on the client side. For example:
+ * Custom, parameterized exception, which can be translated on the client side.
  *
- * <pre>
- * throw new CustomParameterizedException(&quot;myCustomError&quot;, &quot;hello&quot;,
- * &quot;world&quot;);
- * </pre>
+ * <p>For example: </p>
  *
- * Can be translated with:
+ * <p>{@code throw new CustomParameterizedException("error.myCustomError", "hello", "world")}</p>
  *
- * <pre>
- * "error.myCustomError" :  "The server says {{param0}} to {{param1}}"
- * </pre>
+ * <p>can be translated with:</p>
+ *
+ * <p>{@code "error.myCustomError" : "The server says {{param0}} to {{param1}}"}</p>
  */
 public class CustomParameterizedException extends RuntimeException {
 
@@ -29,6 +26,12 @@ public class CustomParameterizedException extends RuntimeException {
 
     private final Map<String, String> paramMap = new HashMap<>();
 
+    /**
+     * Create an error with the given message and parameters. The parameters passed in will go
+     * into the parameter with as values, with keys being {@code param0, param1, ...}.
+     * @param message the error message
+     * @param params the error parameters
+     */
     public CustomParameterizedException(String message, String... params) {
         super(message);
         this.message = message;
@@ -42,6 +45,11 @@ public class CustomParameterizedException extends RuntimeException {
         }
     }
 
+    /**
+     * Create an error with the given message and parameter map.
+     * @param message the error message
+     * @param paramMap the parameter map
+     */
     public CustomParameterizedException(String message, Map<String, String> paramMap) {
         super(message);
         this.message = message;

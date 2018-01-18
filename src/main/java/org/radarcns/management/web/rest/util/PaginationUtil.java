@@ -18,6 +18,12 @@ public final class PaginationUtil {
     private PaginationUtil() {
     }
 
+    /**
+     * Generate headers for pagination.
+     * @param page the page
+     * @param baseUrl the base URL
+     * @return the {@link HttpHeaders}
+     */
     public static HttpHeaders generatePaginationHttpHeaders(Page page, String baseUrl) {
 
         HttpHeaders headers = new HttpHeaders();

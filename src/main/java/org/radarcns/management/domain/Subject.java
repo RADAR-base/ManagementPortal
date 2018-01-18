@@ -141,12 +141,24 @@ public class Subject extends AbstractAuditingEntity implements Serializable {
         return this;
     }
 
+    /**
+     * Add a source to this subject.
+     *
+     * @param source the source to add
+     * @return this subject
+     */
     public Subject addSources(Source source) {
         this.sources.add(source);
         source.getSubjects().add(this);
         return this;
     }
 
+    /**
+     * Remove a source from this subject.
+     *
+     * @param source the source to remove
+     * @return this subject
+     */
     public Subject removeSources(Source source) {
         this.sources.remove(source);
         source.getSubjects().remove(this);
@@ -187,11 +199,14 @@ public class Subject extends AbstractAuditingEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "Subject{" +
-                "id=" + id +
-                ", externalLink='" + externalLink + "'" +
-                ", enternalId='" + externalId + "'" +
-                ", removed='" + removed + "'" +
-                '}';
+        return "Subject{"
+                + "id=" + id
+                + ", externalLink='" + externalLink + '\''
+                + ", externalId='" + externalId + '\''
+                + ", removed=" + removed
+                + ", user=" + user
+                + ", sources=" + sources
+                + ", attributes=" + attributes
+                + "}";
     }
 }

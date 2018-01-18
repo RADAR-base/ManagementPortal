@@ -37,12 +37,12 @@ public class SourceDataService {
     /**
      * Save a sourceData.
      *
-     * @param sourceDataDTO the entity to save
+     * @param sourceDataDto the entity to save
      * @return the persisted entity
      */
-    public SourceDataDTO save(SourceDataDTO sourceDataDTO) {
-        log.debug("Request to save SourceData : {}", sourceDataDTO);
-        SourceData sourceData = sourceDataMapper.sourceDataDTOToSourceData(sourceDataDTO);
+    public SourceDataDTO save(SourceDataDTO sourceDataDto) {
+        log.debug("Request to save SourceData : {}", sourceDataDto);
+        SourceData sourceData = sourceDataMapper.sourceDataDTOToSourceData(sourceDataDto);
         sourceData = sourceDataRepository.save(sourceData);
         SourceDataDTO result = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
         return result;
@@ -85,8 +85,8 @@ public class SourceDataService {
     public SourceDataDTO findOne(Long id) {
         log.debug("Request to get SourceData : {}", id);
         SourceData sourceData = sourceDataRepository.findOne(id);
-        SourceDataDTO sourceDataDTO = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
-        return sourceDataDTO;
+        SourceDataDTO sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
+        return sourceDataDto;
     }
 
     /**

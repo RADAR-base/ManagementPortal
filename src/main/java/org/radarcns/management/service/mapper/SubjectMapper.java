@@ -38,19 +38,19 @@ public interface SubjectMapper {
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "user.activated", ignore = true)
     @Mapping(target = "removed", ignore = true)
-    Subject subjectDTOToSubject(SubjectDTO subjectDTO);
+    Subject subjectDTOToSubject(SubjectDTO subjectDto);
 
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "removed", ignore = true)
-    Subject safeUpdateSubjectFromDTO(SubjectDTO subjectDTO, @MappingTarget Subject subject);
+    Subject safeUpdateSubjectFromDTO(SubjectDTO subjectDto, @MappingTarget Subject subject);
 
-    List<Subject> subjectDTOsToSubjects(List<SubjectDTO> subjectDTOS);
+    List<Subject> subjectDTOsToSubjects(List<SubjectDTO> subjectDtos);
 
     /**
-     * generating the fromId for all mappers if the databaseType is sql, as the class has
+     * Generating the fromId for all mappers if the databaseType is sql, as the class has
      * relationship to it might need it, instead of creating a new attribute to know if the entity
-     * has any relationship from some other entity
+     * has any relationship from some other entity.
      *
      * @param id id of the entity
      * @return the entity instance

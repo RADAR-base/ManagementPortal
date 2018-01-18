@@ -7,6 +7,7 @@ import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -27,24 +28,26 @@ public class MailService {
 
     private static final String BASE_URL = "baseUrl";
 
-    private final ManagementPortalProperties managementPortalProperties;
+    @Autowired
+    private ManagementPortalProperties managementPortalProperties;
 
-    private final JavaMailSender javaMailSender;
+    @Autowired
+    private JavaMailSender javaMailSender;
 
-    private final MessageSource messageSource;
+    @Autowired
+    private MessageSource messageSource;
 
-    private final SpringTemplateEngine templateEngine;
+    @Autowired
+    private SpringTemplateEngine templateEngine;
 
-    public MailService(ManagementPortalProperties managementPortalProperties,
-            JavaMailSender javaMailSender,
-            MessageSource messageSource, SpringTemplateEngine templateEngine) {
-
-        this.managementPortalProperties = managementPortalProperties;
-        this.javaMailSender = javaMailSender;
-        this.messageSource = messageSource;
-        this.templateEngine = templateEngine;
-    }
-
+    /**
+     * Send an email.
+     * @param to email address to send to
+     * @param subject subject line
+     * @param content email contents
+     * @param isMultipart send as multipart
+     * @param isHtml send as html
+     */
     @Async
     public void sendEmail(String to, String subject, String content, boolean isMultipart,
             boolean isHtml) {
@@ -68,6 +71,10 @@ public class MailService {
         }
     }
 
+    /**
+     * Send an account activation email to a given user.
+     * @param user the user to send to
+     */
     @Async
     public void sendActivationEmail(User user) {
         log.debug("Sending activation email to '{}'", user.getEmail());
@@ -80,6 +87,10 @@ public class MailService {
         sendEmail(user.getEmail(), subject, content, false, true);
     }
 
+    /**
+     * Send account creation email to a given user.
+     * @param user the user
+     */
     @Async
     public void sendCreationEmail(User user) {
         log.debug("Sending creation email to '{}'", user.getEmail());
@@ -92,6 +103,11 @@ public class MailService {
         sendEmail(user.getEmail(), subject, content, false, true);
     }
 
+    /**
+     * Send account creation email for a user to an address different than the users' address.
+     * @param user the created user
+     * @param email the address to send to
+     */
     @Async
     public void sendCreationEmailForGivenEmail(User user, String email) {
         log.debug("Sending creation email to '{}'", email);
@@ -104,6 +120,10 @@ public class MailService {
         sendEmail(email, subject, content, false, true);
     }
 
+    /**
+     * Send a password reset email to a given user.
+     * @param user the user
+     */
     @Async
     public void sendPasswordResetMail(User user) {
         log.debug("Sending password reset email to '{}'", user.getEmail());

@@ -20,6 +20,12 @@ public final class HeaderUtil {
     private HeaderUtil() {
     }
 
+    /**
+     * Create the headers for displaying an alert in the frontend.
+     * @param message the message
+     * @param param the message parameters
+     * @return the {@link HttpHeaders}
+     */
     public static HttpHeaders createAlert(String message, String param) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-managementPortalApp-alert", message);
@@ -39,6 +45,13 @@ public final class HeaderUtil {
         return createAlert(APPLICATION_NAME + "." + entityName + ".deleted", param);
     }
 
+    /**
+     * Create headers to display a failure alert in the frontend.
+     * @param entityName the entity on which the failure occured
+     * @param errorKey the error key in the translation dictionary
+     * @param defaultMessage the default message
+     * @return the {@link HttpHeaders}
+     */
     public static HttpHeaders createFailureAlert(String entityName, String errorKey,
             String defaultMessage) {
         log.error("Entity creation failed, {}", defaultMessage);
@@ -51,8 +64,8 @@ public final class HeaderUtil {
     /**
      * URLEncode each component, prefix and join them by forward slashes.
      *
-     * E.g. <code>buildPath("api", "projects", "radar/1")</code> results in the string
-     * <code>/api/projects/radar%2F1</code>.
+     * <p>E.g. <code>buildPath("api", "projects", "radar/1")</code> results in the string
+     * <code>/api/projects/radar%2F1</code>.</p>
      *
      * @param components The components of the path.
      * @return A String where the components are URLEncoded and joined by forward slashes.

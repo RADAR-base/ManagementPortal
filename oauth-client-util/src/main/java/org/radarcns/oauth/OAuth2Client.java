@@ -14,34 +14,27 @@ import org.radarcns.exception.TokenException;
 
 /**
  * Class for handling OAuth2 client credentials grant with the RADAR platform's ManagementPortal.
- * Altough it is designed with the ManagementPortal in mind, any identity server based on the Spring
- * OAuth library and using JWT as a token should be compatible. The {@link #getAccessToken()}
+ *
+ * <p>Altough it is designed with the ManagementPortal in mind, any identity server based on the
+ * Spring OAuth library and using JWT as a token should be compatible. The {@link #getAccessToken()}
  * method provides access to the {@link OAuth2AccessTokenDetails} instance, and will request a new
  * access token if the current one is expired. It will throw a {@link TokenException} if anything
  * went wrong. So to get the actual token you will call
- * <code>client.getAccessToken().getAccessToken()</code>. This token is in JWT format and can be
+ * {@code client.getAccessToken().getAccessToken()}. This token is in JWT format and can be
  * parsed by a JWT library of your preference. Note: by default, the public key endpoint on
- * ManagementPortal is located at <code>/oauth/token_key</code>.
+ * ManagementPortal is located at {@code /oauth/token_key}.</p>
  *
- * See the test cases for this class for examples on usage. Also see
- * {@link OAuth2AccessTokenDetails} for more info on how to use it.
+ * <p>See the test cases for this class for examples on usage. Also see
+ * {@link OAuth2AccessTokenDetails} for more info on how to use it.</p>
  */
 public class OAuth2Client {
     private URL tokenEndpoint;
-    private String clientId;
-    private String clientSecret;
-    private Set<String> scope;
-    private OAuth2AccessTokenDetails currentToken;
+    private String clientId = "";
+    private String clientSecret = "";
+    private final Set<String> scope = new HashSet<>();
+    private OAuth2AccessTokenDetails currentToken = new OAuth2AccessTokenDetails();
 
     private OkHttpClient httpClient;
-
-    public OAuth2Client() {
-        this.tokenEndpoint = null;
-        this.clientId = "";
-        this.clientSecret = "";
-        this.scope = new HashSet<>();
-        this.currentToken = new OAuth2AccessTokenDetails();
-    }
 
     public URL getTokenEndpoint() {
         return tokenEndpoint;
@@ -79,6 +72,12 @@ public class OAuth2Client {
         return this;
     }
 
+    /**
+     * Get the access token. This method will automatically request a new access token if the
+     * current one is expired.
+     * @return the access token
+     * @throws TokenException if a new access token could not be fetched
+     */
     public OAuth2AccessTokenDetails getAccessToken() throws TokenException {
         if (currentToken.isExpired()) {
             getNewToken();
@@ -86,9 +85,13 @@ public class OAuth2Client {
         return currentToken;
     }
 
+    /**
+     * Gets the stored {@link OkHttpClient} or creates one if none is stored.
+     * @return the {@link OkHttpClient} instance
+     */
     public OkHttpClient getHttpClient() {
         if (httpClient == null) {
-            // create a client which will supply OAuth client id and secret as HTTP basic authentication
+            // create a client with some default settings
             httpClient = new OkHttpClient.Builder()
                     .connectTimeout(10, TimeUnit.SECONDS)
                     .writeTimeout(10, TimeUnit.SECONDS)
@@ -106,23 +109,29 @@ public class OAuth2Client {
     private void getNewToken() throws TokenException {
         // build the form to post to the token endpoint
         FormBody body = new FormBody.Builder().add("grant_type", "client_credentials")
-            .add("scope", String.join(" ", scope)).build();
+                .add("scope", String.join(" ", scope)).build();
 
         String credential = Credentials.basic(getClientId(), getClientSecret());
 
         // build the POST request to the token endpoint with the form data
         Request request = new Request.Builder()
-            .addHeader("Accept", "application/json")
-            .addHeader("Authorization", credential)
-            .url(getTokenEndpoint())
-            .post(body)
-            .build();
+                .addHeader("Accept", "application/json")
+                .addHeader("Authorization", credential)
+                .url(getTokenEndpoint())
+                .post(body)
+                .build();
 
         // make the client execute the POST request
         try (Response response = getHttpClient().newCall(request).execute()) {
-            currentToken = OAuth2AccessTokenDetails.getObject(response);
-        }
-        catch (IOException e) {
+            if (response.isSuccessful()) {
+                currentToken = OAuth2AccessTokenDetails.getObject(response);
+            } else {
+                throw new TokenException("Cannot get a valid token : Response-code :"
+                        + response.code() + " received when requesting token from server with "
+                        + "message " + response.message());
+            }
+
+        } catch (IOException e) {
             throw new TokenException(e);
         }
     }
