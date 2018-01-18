@@ -31,7 +31,7 @@ plugins {
 
 allprojects {
     group 'org.radarcns'
-    version '0.3.3-SNAPSHOT'
+    version '0.3.3'
 
     apply plugin: 'java'
     apply plugin: 'java-library'
