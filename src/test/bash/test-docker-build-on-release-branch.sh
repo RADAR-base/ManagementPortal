@@ -8,5 +8,6 @@ set -ev
 
 if [[ $TRAVIS_BRANCH == release-* ]]
 then
+  git checkout settings.gradle
   docker build -t managementportal .
 fi
