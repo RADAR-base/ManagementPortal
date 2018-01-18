@@ -15,6 +15,11 @@ dependencies {
     gatlingCompile "io.gatling.highcharts:gatling-charts-highcharts:${gatling_version}"
 }
 
+//noinspection GroovyAssignabilityCheck
+tasks.withType(ScalaCompile) {
+    scalaClasspath = scalaRuntime.inferScalaClasspath(configurations.gatlingCompile)
+}
+
 task manifestJar(type: Jar) {
     from configurations.gatlingCompile
     archiveName 'gatlingBooter.jar'
