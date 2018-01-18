@@ -10,6 +10,12 @@ public class CustomHttpServletRequest extends HttpServletRequestWrapper {
     private final Map<String, String[]> additionalParams;
     private final HttpServletRequest request;
 
+    /**
+     * Create a new instance with the given request and additional parameters.
+     *
+     * @param request the request
+     * @param additionalParams the additional parameters
+     */
     public CustomHttpServletRequest(final HttpServletRequest request,
             final Map<String, String[]> additionalParams) {
         super(request);
@@ -20,7 +26,7 @@ public class CustomHttpServletRequest extends HttpServletRequestWrapper {
     @Override
     public Map<String, String[]> getParameterMap() {
         final Map<String, String[]> map = request.getParameterMap();
-        final Map<String, String[]> param = new HashMap<String, String[]>();
+        final Map<String, String[]> param = new HashMap<>();
         param.putAll(map);
         param.putAll(additionalParams);
         return param;

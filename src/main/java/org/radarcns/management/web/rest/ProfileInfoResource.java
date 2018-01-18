@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.radarcns.management.config.DefaultProfileUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,14 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class ProfileInfoResource {
 
-    private final Environment env;
+    @Autowired
+    private Environment env;
 
-    private final JHipsterProperties jHipsterProperties;
-
-    public ProfileInfoResource(Environment env, JHipsterProperties jHipsterProperties) {
-        this.env = env;
-        this.jHipsterProperties = jHipsterProperties;
-    }
+    @Autowired
+    private JHipsterProperties jHipsterProperties;
 
     @GetMapping("/profile-info")
     public ProfileInfoVM getActiveProfiles() {
@@ -49,9 +47,9 @@ public class ProfileInfoResource {
 
     class ProfileInfoVM {
 
-        private String[] activeProfiles;
+        private final String[] activeProfiles;
 
-        private String ribbonEnv;
+        private final String ribbonEnv;
 
         ProfileInfoVM(String[] activeProfiles, String ribbonEnv) {
             this.activeProfiles = activeProfiles;

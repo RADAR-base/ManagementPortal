@@ -106,10 +106,10 @@ public class SourceDTO implements Serializable {
             return false;
         }
 
-        SourceDTO sourceDTO = (SourceDTO) o;
+        SourceDTO sourceDto = (SourceDTO) o;
 
-        return Objects.equals(sourceId, sourceDTO.sourceId)
-                && Objects.equals(sourceName, sourceDTO.sourceName);
+        return Objects.equals(sourceId, sourceDto.sourceId)
+                && Objects.equals(sourceName, sourceDto.sourceName);
     }
 
     @Override
@@ -119,13 +119,13 @@ public class SourceDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "SourceDTO{" +
-                "id=" + id +
-                ", sourceId='" + sourceId + '\'' +
-                ", sourceName='" + sourceName + '\'' +
-                ", assigned=" + assigned +
-                ", sourceType=" + sourceType +
-                ", project=" + project +
-                '}';
+        return "SourceDTO{"
+                + "id=" + id
+                + ", sourceId='" + sourceId + '\''
+                + ", sourceName='" + sourceName + '\''
+                + ", assigned=" + assigned
+                + ", sourceType=" + sourceType
+                + ", project=" + project
+                + '}';
     }
 }

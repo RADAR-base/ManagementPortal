@@ -23,12 +23,12 @@ public abstract class ClientDetailsMapperDecorator implements ClientDetailsMappe
 
     @Override
     public ClientDetailsDTO clientDetailsToClientDetailsDTO(ClientDetails details) {
-        ClientDetailsDTO clientDetailsDTO = delegate.clientDetailsToClientDetailsDTO(details);
+        ClientDetailsDTO clientDetailsDto = delegate.clientDetailsToClientDetailsDTO(details);
         // collect the scopes that are auto-approve and set them in our DTO
-        clientDetailsDTO.setAutoApproveScopes(details.getScope().stream()
+        clientDetailsDto.setAutoApproveScopes(details.getScope().stream()
                 .filter(details::isAutoApprove)
                 .collect(Collectors.toSet()));
-        return clientDetailsDTO;
+        return clientDetailsDto;
     }
 
     @Override

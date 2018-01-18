@@ -54,7 +54,7 @@ public class AccountResource {
      *
      * @param key the activation key
      * @return the ResponseEntity with status 200 (OK) and the activated user in body, or status 500
-     * (Internal Server Error) if the user couldn't be activated
+     *     (Internal Server Error) if the user couldn't be activated
      */
     @GetMapping("/activate")
     @Timed
@@ -81,7 +81,7 @@ public class AccountResource {
      * GET  /account : get the current user.
      *
      * @return the ResponseEntity with status 200 (OK) and the current user in body, or status 500
-     * (Internal Server Error) if the user couldn't be returned
+     *     (Internal Server Error) if the user couldn't be returned
      */
     @GetMapping("/account")
     @Timed
@@ -94,16 +94,16 @@ public class AccountResource {
     /**
      * POST  /account : update the current user information.
      *
-     * @param userDTO the current user information
+     * @param userDto the current user information
      * @return the ResponseEntity with status 200 (OK), or status 400 (Bad Request) or 500 (Internal
-     * Server Error) if the user couldn't be updated
+     *     Server Error) if the user couldn't be updated
      */
     @PostMapping("/account")
     @Timed
-    public ResponseEntity saveAccount(@Valid @RequestBody UserDTO userDTO) {
-        Optional<User> existingUser = userRepository.findOneByEmail(userDTO.getEmail());
+    public ResponseEntity saveAccount(@Valid @RequestBody UserDTO userDto) {
+        Optional<User> existingUser = userRepository.findOneByEmail(userDto.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getLogin()
-                .equalsIgnoreCase(userDTO.getLogin()))) {
+                .equalsIgnoreCase(userDto.getLogin()))) {
             return ResponseEntity.badRequest().headers(HeaderUtil
                     .createFailureAlert("user-management", "emailexists", "Email already in use"))
                     .body(null);
@@ -111,20 +111,20 @@ public class AccountResource {
         return userRepository
                 .findOneByLogin(SecurityUtils.getCurrentUserLogin())
                 .map(u -> {
-                    userService.updateUser(userDTO.getFirstName(), userDTO.getLastName(),
-                            userDTO.getEmail(),
-                            userDTO.getLangKey());
+                    userService.updateUser(userDto.getFirstName(), userDto.getLastName(),
+                            userDto.getEmail(),
+                            userDto.getLangKey());
                     return new ResponseEntity(HttpStatus.OK);
                 })
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     /**
-     * POST  /account/change_password : changes the current user's password
+     * POST  /account/change_password : changes the current user's password.
      *
      * @param password the new password
      * @return the ResponseEntity with status 200 (OK), or status 400 (Bad Request) if the new
-     * password is not strong enough
+     *     password is not strong enough
      */
     @PostMapping(path = "/account/change_password",
             produces = MediaType.TEXT_PLAIN_VALUE)
@@ -138,11 +138,11 @@ public class AccountResource {
     }
 
     /**
-     * POST   /account/reset_password/init : Send an email to reset the password of the user
+     * POST   /account/reset_password/init : Send an email to reset the password of the user.
      *
      * @param mail the mail of the user
      * @return the ResponseEntity with status 200 (OK) if the email was sent, or status 400 (Bad
-     * Request) if the email address is not registered
+     *     Request) if the email address is not registered
      */
     @PostMapping(path = "/account/reset_password/init",
             produces = MediaType.TEXT_PLAIN_VALUE)
@@ -157,11 +157,11 @@ public class AccountResource {
     }
 
     /**
-     * POST   /account/reset_password/finish : Finish to reset the password of the user
+     * POST   /account/reset_password/finish : Finish to reset the password of the user.
      *
      * @param keyAndPassword the generated key and the new password
      * @return the ResponseEntity with status 200 (OK) if the password has been reset, or status 400
-     * (Bad Request) or 500 (Internal Server Error) if the password could not be reset
+     *     (Bad Request) or 500 (Internal Server Error) if the password could not be reset
      */
     @PostMapping(path = "/account/reset_password/finish",
             produces = MediaType.TEXT_PLAIN_VALUE)

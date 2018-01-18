@@ -151,17 +151,17 @@ public class UserDTO {
 
     @Override
     public String toString() {
-        return "UserDTO{" +
-                "login='" + login + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", activated=" + activated +
-                ", langKey='" + langKey + '\'' +
-                ", createdBy=" + createdBy +
-                ", createdDate=" + createdDate +
-                ", lastModifiedBy='" + lastModifiedBy + '\'' +
-                ", lastModifiedDate=" + lastModifiedDate +
-                "}";
+        return "UserDTO{"
+                + "login='" + login + '\''
+                + ", firstName='" + firstName + '\''
+                + ", lastName='" + lastName + '\''
+                + ", email='" + email + '\''
+                + ", activated=" + activated
+                + ", langKey='" + langKey + '\''
+                + ", createdBy=" + createdBy
+                + ", createdDate=" + createdDate
+                + ", lastModifiedBy='" + lastModifiedBy + '\''
+                + ", lastModifiedDate=" + lastModifiedDate
+                + "}";
     }
 }

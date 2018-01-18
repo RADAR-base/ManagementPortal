@@ -109,33 +109,33 @@ public class SourceResourceIntTest {
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
         filter.init(new MockFilterConfig());
         this.restDeviceMockMvc = MockMvcBuilders.standaloneSetup(sourceResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setMessageConverters(jacksonMessageConverter)
-            .addFilter(filter)
-            .defaultRequest(get("/").with(OAuthHelper.bearerToken()))
-            .alwaysDo(MockMvcResultHandlers.print()).build();
+                .setCustomArgumentResolvers(pageableArgumentResolver)
+                .setControllerAdvice(exceptionTranslator)
+                .setMessageConverters(jacksonMessageConverter)
+                .addFilter(filter)
+                .defaultRequest(get("/").with(OAuthHelper.bearerToken()))
+                .alwaysDo(MockMvcResultHandlers.print()).build();
     }
 
     /**
      * Create an entity for this test.
      *
-     * This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.
+     * <p>This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.</p>
      */
     public static Source createEntity(EntityManager em) {
         Source source = new Source()
-            .assigned(DEFAULT_ASSIGNED)
-            .sourceName(DEFAULT_SOURCE_NAME);
+                .assigned(DEFAULT_ASSIGNED)
+                .sourceName(DEFAULT_SOURCE_NAME);
         return source;
     }
 
     @Before
     public void initTest() {
         source = createEntity(em);
-        List<SourceTypeDTO> sourceTypeDTOS = sourceTypeService.findAll();
-        assertThat(sourceTypeDTOS.size()).isGreaterThan(0);
-        source.setSourceType(sourceTypeMapper.sourceTypeDTOToSourceType(sourceTypeDTOS.get(0)));
+        List<SourceTypeDTO> sourceTypeDtos = sourceTypeService.findAll();
+        assertThat(sourceTypeDtos.size()).isGreaterThan(0);
+        source.setSourceType(sourceTypeMapper.sourceTypeDTOToSourceType(sourceTypeDtos.get(0)));
     }
 
     @Test
@@ -144,11 +144,11 @@ public class SourceResourceIntTest {
         int databaseSizeBeforeCreate = sourceRepository.findAll().size();
 
         // Create the Source
-        SourceDTO sourceDTO = sourceMapper.sourceToSourceDTO(source);
+        SourceDTO sourceDto = sourceMapper.sourceToSourceDTO(source);
         restDeviceMockMvc.perform(post("/api/sources")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceDTO)))
-            .andExpect(status().isCreated());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceDto)))
+                .andExpect(status().isCreated());
 
         // Validate the Source in the database
         List<Source> sourceList = sourceRepository.findAll();
@@ -165,13 +165,13 @@ public class SourceResourceIntTest {
 
         // Create the Source with an existing ID
         source.setId(1L);
-        SourceDTO sourceDTO = sourceMapper.sourceToSourceDTO(source);
+        SourceDTO sourceDto = sourceMapper.sourceToSourceDTO(source);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restDeviceMockMvc.perform(post("/api/sources")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceDTO)))
-            .andExpect(status().isBadRequest());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceDto)))
+                .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
         List<Source> sourceList = sourceRepository.findAll();
@@ -186,21 +186,21 @@ public class SourceResourceIntTest {
         source.setSourceId(null);
 
         // Create the Source
-        SourceDTO sourceDTO = sourceMapper.sourceToSourceDTO(source);
+        SourceDTO sourceDto = sourceMapper.sourceToSourceDTO(source);
 
         restDeviceMockMvc.perform(post("/api/sources")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceDTO)))
-            .andExpect(status().isCreated());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceDto)))
+                .andExpect(status().isCreated());
 
         List<Source> sourceList = sourceRepository.findAll();
         assertThat(sourceList).hasSize(databaseSizeBeforeTest + 1);
 
         // find our created source
         Source createdSource = sourceList.stream()
-            .filter(s -> s.getSourceName().equals(DEFAULT_SOURCE_NAME))
-            .findFirst()
-            .orElse(null);
+                .filter(s -> s.getSourceName().equals(DEFAULT_SOURCE_NAME))
+                .findFirst()
+                .orElse(null);
         assertThat(createdSource).isNotNull();
 
         // check source id
@@ -215,12 +215,12 @@ public class SourceResourceIntTest {
         source.setAssigned(null);
 
         // Create the Source, which fails.
-        SourceDTO sourceDTO = sourceMapper.sourceToSourceDTO(source);
+        SourceDTO sourceDto = sourceMapper.sourceToSourceDTO(source);
 
         restDeviceMockMvc.perform(post("/api/sources")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceDTO)))
-            .andExpect(status().isBadRequest());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceDto)))
+                .andExpect(status().isBadRequest());
 
         List<Source> sourceList = sourceRepository.findAll();
         assertThat(sourceList).hasSize(databaseSizeBeforeTest);
@@ -234,11 +234,12 @@ public class SourceResourceIntTest {
 
         // Get all the deviceList
         restDeviceMockMvc.perform(get("/api/sources?sort=id,desc"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(source.getId().intValue())))
-            .andExpect(jsonPath("$.[*].sourceId").value(everyItem(notNullValue())))
-            .andExpect(jsonPath("$.[*].assigned").value(hasItem(DEFAULT_ASSIGNED.booleanValue())));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(source.getId().intValue())))
+                .andExpect(jsonPath("$.[*].sourceId").value(everyItem(notNullValue())))
+                .andExpect(jsonPath("$.[*].assigned").value(
+                        hasItem(DEFAULT_ASSIGNED.booleanValue())));
     }
 
     @Test
@@ -249,11 +250,11 @@ public class SourceResourceIntTest {
 
         // Get the source
         restDeviceMockMvc.perform(get("/api/sources/{sourceName}", source.getSourceName()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.id").value(source.getId().intValue()))
-            .andExpect(jsonPath("$.sourceId").value(notNullValue()))
-            .andExpect(jsonPath("$.assigned").value(DEFAULT_ASSIGNED.booleanValue()));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.id").value(source.getId().intValue()))
+                .andExpect(jsonPath("$.sourceId").value(notNullValue()))
+                .andExpect(jsonPath("$.assigned").value(DEFAULT_ASSIGNED.booleanValue()));
     }
 
     @Test
@@ -261,7 +262,7 @@ public class SourceResourceIntTest {
     public void getNonExistingSource() throws Exception {
         // Get the source
         restDeviceMockMvc.perform(get("/api/sources/{id}", Long.MAX_VALUE))
-            .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -274,14 +275,14 @@ public class SourceResourceIntTest {
         // Update the source
         Source updatedSource = sourceRepository.findOne(source.getId());
         updatedSource
-            .sourceId(UPDATED_SOURCE_PHYSICAL_ID)
-            .assigned(UPDATED_ASSIGNED);
-        SourceDTO sourceDTO = sourceMapper.sourceToSourceDTO(updatedSource);
+                .sourceId(UPDATED_SOURCE_PHYSICAL_ID)
+                .assigned(UPDATED_ASSIGNED);
+        SourceDTO sourceDto = sourceMapper.sourceToSourceDTO(updatedSource);
 
         restDeviceMockMvc.perform(put("/api/sources")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceDTO)))
-            .andExpect(status().isOk());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceDto)))
+                .andExpect(status().isOk());
 
         // Validate the Source in the database
         List<Source> sourceList = sourceRepository.findAll();
@@ -297,13 +298,13 @@ public class SourceResourceIntTest {
         int databaseSizeBeforeUpdate = sourceRepository.findAll().size();
 
         // Create the Source
-        SourceDTO sourceDTO = sourceMapper.sourceToSourceDTO(source);
+        SourceDTO sourceDto = sourceMapper.sourceToSourceDTO(source);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restDeviceMockMvc.perform(put("/api/sources")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(sourceDTO)))
-            .andExpect(status().isCreated());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceDto)))
+                .andExpect(status().isCreated());
 
         // Validate the Source in the database
         List<Source> sourceList = sourceRepository.findAll();
@@ -319,8 +320,8 @@ public class SourceResourceIntTest {
 
         // Get the source
         restDeviceMockMvc.perform(delete("/api/sources/{sourceName}", source.getSourceName())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
-            .andExpect(status().isOk());
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
 
         // Validate the database is empty
         List<Source> sourceList = sourceRepository.findAll();

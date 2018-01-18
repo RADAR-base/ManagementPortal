@@ -61,28 +61,28 @@ public class SourceDataResource {
     /**
      * POST  /source-data : Create a new sourceData.
      *
-     * @param sourceDataDTO the sourceDataDTO to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new sourceDataDTO, or
-     * with status 400 (Bad Request) if the sourceData has already an ID
+     * @param sourceDataDto the sourceDataDto to create
+     * @return the ResponseEntity with status 201 (Created) and with body the new sourceDataDto, or
+     *     with status 400 (Bad Request) if the sourceData has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/source-data")
     @Timed
     public ResponseEntity<SourceDataDTO> createSourceData(@Valid @RequestBody SourceDataDTO
-            sourceDataDTO) throws URISyntaxException, NotAuthorizedException {
-        log.debug("REST request to save SourceData : {}", sourceDataDTO);
+            sourceDataDto) throws URISyntaxException, NotAuthorizedException {
+        log.debug("REST request to save SourceData : {}", sourceDataDto);
         checkPermission(getJWT(servletRequest), SOURCEDATA_CREATE);
-        if (sourceDataDTO.getId() != null) {
+        if (sourceDataDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
                     "idexists", "A new sourceData cannot already have an ID")).build();
         }
-        String name = sourceDataDTO.getSourceDataName();
+        String name = sourceDataDto.getSourceDataName();
         if (sourceDataService.findOneBySourceDataName(name).isPresent()) {
             throw new CustomConflictException("error.sourceDataNameAvailable",
                     Collections.singletonMap("sourceDataName", name),
                     new URI(HeaderUtil.buildPath("api", "source-data", name)));
         }
-        SourceDataDTO result = sourceDataService.save(sourceDataDTO);
+        SourceDataDTO result = sourceDataService.save(sourceDataDto);
         return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "source-data", name)))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, name))
                 .body(result);
@@ -91,24 +91,24 @@ public class SourceDataResource {
     /**
      * PUT  /source-data : Updates an existing sourceData.
      *
-     * @param sourceDataDTO the sourceDataDTO to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated sourceDataDTO, or
-     * with status 400 (Bad Request) if the sourceDataDTO is not valid, or with status 500 (Internal
-     * Server Error) if the sourceDataDTO couldnt be updated
+     * @param sourceDataDto the sourceDataDto to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated sourceDataDto, or
+     *     with status 400 (Bad Request) if the sourceDataDto is not valid, or with status 500
+     *     (Internal Server Error) if the sourceDataDto couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/source-data")
     @Timed
     public ResponseEntity<SourceDataDTO> updateSourceData(@Valid @RequestBody SourceDataDTO
-            sourceDataDTO) throws URISyntaxException, NotAuthorizedException {
-        log.debug("REST request to update SourceData : {}", sourceDataDTO);
-        if (sourceDataDTO.getId() == null) {
-            return createSourceData(sourceDataDTO);
+            sourceDataDto) throws URISyntaxException, NotAuthorizedException {
+        log.debug("REST request to update SourceData : {}", sourceDataDto);
+        if (sourceDataDto.getId() == null) {
+            return createSourceData(sourceDataDto);
         }
         checkPermission(getJWT(servletRequest), SOURCEDATA_UPDATE);
-        SourceDataDTO result = sourceDataService.save(sourceDataDTO);
+        SourceDataDTO result = sourceDataService.save(sourceDataDto);
         return ResponseEntity.ok().headers(HeaderUtil
-                .createEntityUpdateAlert(ENTITY_NAME, sourceDataDTO.getSourceDataName()))
+                .createEntityUpdateAlert(ENTITY_NAME, sourceDataDto.getSourceDataName()))
                 .body(result);
     }
 
@@ -135,7 +135,7 @@ public class SourceDataResource {
      *
      * @param sourceDataName the sourceDataName of the sourceDataDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the sourceDataDTO, or with
-     * status 404 (Not Found)
+     *     status 404 (Not Found)
      */
     @GetMapping("/source-data/{sourceDataName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
@@ -157,12 +157,12 @@ public class SourceDataResource {
     public ResponseEntity<Void> deleteSourceData(@PathVariable String sourceDataName)
             throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), SOURCEDATA_DELETE);
-        Optional<SourceDataDTO> sourceDataDTO = sourceDataService
+        Optional<SourceDataDTO> sourceDataDto = sourceDataService
                 .findOneBySourceDataName(sourceDataName);
-        if (!sourceDataDTO.isPresent()) {
+        if (!sourceDataDto.isPresent()) {
             return ResponseEntity.notFound().build();
         }
-        sourceDataService.delete(sourceDataDTO.get().getId());
+        sourceDataService.delete(sourceDataDto.get().getId());
         return ResponseEntity.ok().headers(HeaderUtil
                 .createEntityDeletionAlert(ENTITY_NAME, sourceDataName)).build();
     }

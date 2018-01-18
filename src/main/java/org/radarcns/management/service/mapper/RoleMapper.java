@@ -27,13 +27,17 @@ public abstract class RoleMapper {
     @Mapping(source = "authorityName", target = "authority")
     @Mapping(source = "projectId", target = "project.id")
     @Mapping(target = "users", ignore = true)
-    public abstract Role roleDTOToRole(RoleDTO roleDTO);
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
+    public abstract Role roleDTOToRole(RoleDTO roleDtp);
 
     public Authority authorityFromAuthorityName(String authorityName) {
         return authorityRepository.findByAuthorityName(authorityName);
     }
 
-    public abstract Set<Role> roleDTOsToRoles(Set<RoleDTO> roleDTOs);
+    public abstract Set<Role> roleDTOsToRoles(Set<RoleDTO> roleDtos);
 
     public abstract Set<RoleDTO> rolesToRoleDTOs(Set<Role> roles);
 

@@ -102,8 +102,9 @@ allprojects {
     //---------------------------------------------------------------------------//
 
     checkstyle {
-        toolVersion '8.5'
-        ignoreFailures true
+        toolVersion = '8.7'
+        ignoreFailures = false
+        maxWarnings = 0
 
         configFile = rootProject.file('config/checkstyle/checkstyle.xml')
     }
@@ -115,11 +116,11 @@ allprojects {
         consoleOutput = true
 
         ruleSets = []
-        ruleSetFiles = files("config/pmd/ruleset.xml")
+        ruleSetFiles = rootProject.files("config/pmd/ruleset.xml")
     }
 
     pmdTest {
-        ruleSetFiles = files("config/pmd/test_ruleset.xml")
+        ruleSetFiles = rootProject.files("config/pmd/test_ruleset.xml")
     }
 
 }

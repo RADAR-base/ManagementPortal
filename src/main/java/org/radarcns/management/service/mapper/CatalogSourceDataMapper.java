@@ -15,8 +15,12 @@ public interface CatalogSourceDataMapper {
     @Mapping(source = "sampleRate.frequency", target = "frequency")
     @Mapping(target = "dataClass", ignore = true)
     @Mapping(source = "appProvider", target = "provider")
-    @Mapping(target = "enabled", defaultValue = "true")
+    @Mapping(target = "enabled", expression = "java(true)")
     @Mapping(target = "sourceType", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
     SourceData catalogSourceDataToSourceData(CatalogSourceData catalogSourceData);
 
     List<SourceData> catalogSourceDataListToSourceDataList(

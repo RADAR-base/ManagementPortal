@@ -45,10 +45,10 @@ public class AttributeMapDTO {
             return false;
         }
 
-        AttributeMapDTO attributeMapDTO = (AttributeMapDTO) o;
+        AttributeMapDTO attributeMapDto = (AttributeMapDTO) o;
 
-        return Objects.equals(key, attributeMapDTO.key)
-                && Objects.equals(value, attributeMapDTO.value);
+        return Objects.equals(key, attributeMapDto.key)
+                && Objects.equals(value, attributeMapDto.value);
     }
 
     @Override
@@ -58,9 +58,9 @@ public class AttributeMapDTO {
 
     @Override
     public String toString() {
-        return "AttributeMapDTO{" +
-                " key='" + key + "'" +
-                ", value='" + value + "'" +
-                '}';
+        return "AttributeMapDTO{"
+                + " key='" + key + "'"
+                + ", value='" + value + "'"
+                + '}';
     }
 }

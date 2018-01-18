@@ -19,18 +19,33 @@ public class LogPublisherEntityListener {
     private final Logger logger = LoggerFactory.getLogger(LogPublisherEntityListener.class);
     private static final String TEMPLATE = "[{}] by {}: entityClass={}, entity={}";
 
+    /**
+     * Event listener to log a persist event.
+     *
+     * @param entity the entity that is persisted
+     */
     @PostPersist
     public void publishPersistEvent(AbstractAuditingEntity entity) {
         logger.info(TEMPLATE, EventPublisherEntityListener.ENTITY_CREATED,
                 entity.getCreatedBy(), entity.getClass().getName(), entity.toString());
     }
 
+    /**
+     * Event listener to log an update event.
+     *
+     * @param entity the entity that is updated
+     */
     @PostUpdate
     public void publishUpdateEvent(AbstractAuditingEntity entity) {
         logger.info(TEMPLATE, EventPublisherEntityListener.ENTITY_UPDATED,
                 entity.getLastModifiedBy(), entity.getClass().getName(), entity.toString());
     }
 
+    /**
+     * Event listener to log a remove event.
+     *
+     * @param entity the entity that is removed
+     */
     @PostRemove
     public void publishRemoveEvent(AbstractAuditingEntity entity) {
         logger.info(TEMPLATE, EventPublisherEntityListener.ENTITY_REMOVED,

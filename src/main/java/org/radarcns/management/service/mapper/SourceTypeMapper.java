@@ -18,23 +18,39 @@ public interface SourceTypeMapper {
     List<SourceTypeDTO> sourceTypesToSourceTypeDTOs(List<SourceType> sourceTypes);
 
     @Mapping(target = "projects", ignore = true)
-    SourceType sourceTypeDTOToSourceType(SourceTypeDTO sourceTypeDTO);
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
+    SourceType sourceTypeDTOToSourceType(SourceTypeDTO sourceTypeDto);
 
-    List<SourceType> sourceTypeDTOsToSourceTypes(List<SourceTypeDTO> sourceTypeDTOs);
+    List<SourceType> sourceTypeDTOsToSourceTypes(List<SourceTypeDTO> sourceTypeDtos);
 
     MinimalSourceTypeDTO sourceTypeToMinimalSourceTypeDetailsDTO(SourceType sourceType);
 
     List<MinimalSourceTypeDTO> sourceTypesToMinimalSourceTypeDetailsDTOs(
             List<SourceType> sourceTypes);
 
-    SourceType minimalDTOToSourceType(MinimalSourceTypeDTO minimalSourceTypeDetailsDTO);
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(target = "sourceTypeScope", ignore = true)
+    @Mapping(target = "sourceData", ignore = true)
+    @Mapping(target = "canRegisterDynamically", ignore = true)
+    @Mapping(target = "name", ignore = true)
+    @Mapping(target = "description", ignore = true)
+    @Mapping(target = "assessmentType", ignore = true)
+    @Mapping(target = "projects", ignore = true)
+    @Mapping(target = "appProvider", ignore = true)
+    SourceType minimalDTOToSourceType(MinimalSourceTypeDTO minimalSourceTypeDetailsDto);
 
-    List<SourceType> minimalDTOsToSourceTypes(List<MinimalSourceTypeDTO> minimalProjectDetailsDTOS);
+    List<SourceType> minimalDTOsToSourceTypes(List<MinimalSourceTypeDTO> minimalProjectDetailsDtos);
 
     /**
-     * generating the fromId for all mappers if the databaseType is sql, as the class has
+     * Generating the fromId for all mappers if the databaseType is sql, as the class has
      * relationship to it might need it, instead of creating a new attribute to know if the entity
-     * has any relationship from some other entity
+     * has any relationship from some other entity.
      *
      * @param id id of the entity
      * @return the entity instance

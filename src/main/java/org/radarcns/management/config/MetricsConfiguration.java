@@ -33,9 +33,9 @@ public class MetricsConfiguration extends MetricsConfigurerAdapter {
     private static final String PROP_METRIC_REG_JVM_BUFFERS = "jvm.buffers";
     private final Logger log = LoggerFactory.getLogger(MetricsConfiguration.class);
 
-    private MetricRegistry metricRegistry = new MetricRegistry();
+    private final MetricRegistry metricRegistry = new MetricRegistry();
 
-    private HealthCheckRegistry healthCheckRegistry = new HealthCheckRegistry();
+    private final HealthCheckRegistry healthCheckRegistry = new HealthCheckRegistry();
 
     @Autowired
     private JHipsterProperties jHipsterProperties;
@@ -55,6 +55,9 @@ public class MetricsConfiguration extends MetricsConfigurerAdapter {
         return healthCheckRegistry;
     }
 
+    /**
+     * Initialize the metric registry.
+     */
     @PostConstruct
     public void init() {
         log.debug("Registering JVM gauges");

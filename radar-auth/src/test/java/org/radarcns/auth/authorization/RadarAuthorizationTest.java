@@ -47,9 +47,9 @@ public class RadarAuthorizationTest {
                 .map(Entry::getKey)
                 .collect(Collectors.toSet());
 
-        notPermitted.forEach(p -> assertNotAuthorized(
-            () -> RadarAuthorization.checkPermissionOnProject(token, p, project),
-            String.format("Token should not have permission %s on project %s", p, project)));
+        notPermitted.forEach(p -> assertNotAuthorized(() ->
+                RadarAuthorization.checkPermissionOnProject(token, p, project),
+                String.format("Token should not have permission %s on project %s", p, project)));
     }
 
     @Test
@@ -118,7 +118,7 @@ public class RadarAuthorizationTest {
         RadarToken token = new JwtRadarToken(TokenTestUtils.SCOPE_TOKEN);
         // test that we can do the things we have a scope for
         Collection<Permission> scope = Arrays.asList(
-            Permission.SUBJECT_READ, Permission.SUBJECT_CREATE, Permission.PROJECT_READ);
+                Permission.SUBJECT_READ, Permission.SUBJECT_CREATE, Permission.PROJECT_READ);
 
         for (Permission p : scope) {
             RadarAuthorization.checkPermission(token, p);

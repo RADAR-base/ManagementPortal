@@ -46,11 +46,11 @@ public class UserServiceIntTest {
     @Autowired
     private EntityManager em;
 
-    private UserDTO userDTO;
+    private UserDTO userDto;
 
     @Before
     public void setUpUser() {
-        userDTO = userMapper.userToUserDTO(UserResourceIntTest.createEntity(em));
+        userDto = userMapper.userToUserDTO(UserResourceIntTest.createEntity(em));
     }
 
     @Test
@@ -68,15 +68,15 @@ public class UserServiceIntTest {
 
     @Test
     public void assertThatOnlyActivatedUserCanRequestPasswordReset() {
-        User user = userService.createUser(userDTO);
-        Optional<User> maybeUser = userService.requestPasswordReset(userDTO.getEmail());
+        User user = userService.createUser(userDto);
+        Optional<User> maybeUser = userService.requestPasswordReset(userDto.getEmail());
         assertThat(maybeUser.isPresent()).isFalse();
         userRepository.delete(user);
     }
 
     @Test
     public void assertThatResetKeyMustNotBeOlderThan24Hours() {
-        User user = userService.createUser(userDTO);
+        User user = userService.createUser(userDto);
 
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(25);
         String resetKey = RandomUtil.generateResetKey();
@@ -86,7 +86,8 @@ public class UserServiceIntTest {
 
         userRepository.save(user);
 
-        Optional<User> maybeUser = userService.completePasswordReset("johndoe2", user.getResetKey());
+        Optional<User> maybeUser = userService.completePasswordReset("johndoe2",
+                user.getResetKey());
 
         assertThat(maybeUser.isPresent()).isFalse();
 
@@ -95,29 +96,31 @@ public class UserServiceIntTest {
 
     @Test
     public void assertThatResetKeyMustBeValid() {
-        User user = userService.createUser(userDTO);
+        User user = userService.createUser(userDto);
 
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(25);
         user.setActivated(true);
         user.setResetDate(daysAgo);
         user.setResetKey("1234");
         userRepository.save(user);
-        Optional<User> maybeUser = userService.completePasswordReset("johndoe2", user.getResetKey());
+        Optional<User> maybeUser = userService.completePasswordReset("johndoe2",
+                user.getResetKey());
         assertThat(maybeUser.isPresent()).isFalse();
         userRepository.delete(user);
     }
 
     @Test
     public void assertThatUserCanResetPassword() {
-        User user = userService.createUser(userDTO);
-        String oldPassword = user.getPassword();
+        User user = userService.createUser(userDto);
+        final String oldPassword = user.getPassword();
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(2);
         String resetKey = RandomUtil.generateResetKey();
         user.setActivated(true);
         user.setResetDate(daysAgo);
         user.setResetKey(resetKey);
         userRepository.save(user);
-        Optional<User> maybeUser = userService.completePasswordReset("johndoe2", user.getResetKey());
+        Optional<User> maybeUser = userService.completePasswordReset("johndoe2",
+                user.getResetKey());
         assertThat(maybeUser.isPresent()).isTrue();
         assertThat(maybeUser.get().getResetDate()).isNull();
         assertThat(maybeUser.get().getResetKey()).isNull();
@@ -130,7 +133,8 @@ public class UserServiceIntTest {
     public void testFindNotActivatedUsersByCreationDateBefore() {
         userService.removeNotActivatedUsers();
         ZonedDateTime now = ZonedDateTime.now();
-        List<User> users = userRepository.findAllByActivatedIsFalseAndCreatedDateBefore(now.minusDays(3));
+        List<User> users = userRepository.findAllByActivatedIsFalseAndCreatedDateBefore(
+                now.minusDays(3));
         assertThat(users).isEmpty();
     }
 
@@ -139,7 +143,7 @@ public class UserServiceIntTest {
         final PageRequest pageable = new PageRequest(0, (int) userRepository.count());
         final Page<UserDTO> allManagedUsers = userService.getAllManagedUsers(pageable);
         assertThat(allManagedUsers.getContent().stream()
-            .noneMatch(user -> Constants.ANONYMOUS_USER.equals(user.getLogin())))
-            .isTrue();
+                .noneMatch(user -> Constants.ANONYMOUS_USER.equals(user.getLogin())))
+                .isTrue();
     }
 }

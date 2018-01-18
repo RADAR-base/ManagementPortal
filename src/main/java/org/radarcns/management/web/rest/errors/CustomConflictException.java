@@ -18,6 +18,13 @@ public class CustomConflictException extends RuntimeException {
     private final URI conflictingResource;
     private final Map<String, String> paramMap = new HashMap<>();
 
+    /**
+     * Create a custom conflict exception with the given message, parameter map, and url to the
+     * conflicting resource.
+     * @param message the message
+     * @param paramMap the parameter map
+     * @param conflictingResource the conflicting resource
+     */
     public CustomConflictException(String message, Map<String, String> paramMap,
             URI conflictingResource) {
         super(message);

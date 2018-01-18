@@ -20,7 +20,7 @@ public class LoggingConfiguration {
 
     private final Logger log = LoggerFactory.getLogger(LoggingConfiguration.class);
 
-    private LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+    private final LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
 
     @Value("${spring.application.name}")
     private String appName;
@@ -43,7 +43,7 @@ public class LoggingConfiguration {
         }
     }
 
-    public void addLogstashAppender(LoggerContext context) {
+    private void addLogstashAppender(LoggerContext context) {
         log.info("Initializing Logstash logging");
 
         LogstashSocketAppender logstashAppender = new LogstashSocketAppender();
@@ -57,7 +57,8 @@ public class LoggingConfiguration {
         logstashAppender.setPort(jHipsterProperties.getLogging().getLogstash().getPort());
         logstashAppender.setCustomFields(customFields);
 
-        // Limit the maximum length of the forwarded stacktrace so that it won't exceed the 8KB UDP limit of logstash
+        // Limit the maximum length of the forwarded stacktrace so that it won't exceed the 8KB
+        // UDP limit of logstash
         ShortenedThrowableConverter throwableConverter = new ShortenedThrowableConverter();
         throwableConverter.setMaxLength(7500);
         throwableConverter.setRootCauseFirst(true);

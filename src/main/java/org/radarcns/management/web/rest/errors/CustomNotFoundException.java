@@ -16,6 +16,11 @@ public class CustomNotFoundException extends RuntimeException {
 
     private final Map<String, String> paramMap = new HashMap<>();
 
+    /**
+     * Create a not found exception with the given message and parameter map.
+     * @param message the message
+     * @param paramMap the parameter map
+     */
     public CustomNotFoundException(String message, Map<String, String> paramMap) {
         super(message);
         this.message = message;

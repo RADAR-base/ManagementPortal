@@ -51,23 +51,27 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * REST controller for managing users.
  *
- * <p>
- *     This class accesses the User entity, and needs to fetch its collection of authorities.
- * </p>
- * <p>
- * For a normal use-case, it would be better to have an eager relationship between User and
+ * <p>This class accesses the User entity, and needs to fetch its collection of authorities.</p>
+ *
+ * <p>For a normal use-case, it would be better to have an eager relationship between User and
  * Authority, and send everything to the client side: there would be no View Model and DTO, a lot
- * less code, and an outer-join which would be good for performance. </p> <p> We use a View Model
- * and a DTO for 3 reasons: <ul> <li>We want to keep a lazy association between the user and the
- * authorities, because people will quite often do relationships with the user, and we don't want
- * them to get the authorities all the time for nothing (for performance reasons). This is the #1
- * goal: we should not impact our users' application because of this use-case.</li> <li> Not having
- * an outer join causes n+1 requests to the database. This is not a real issue as we have by default
- * a second-level cache. This means on the first HTTP call we do the n+1 requests, but then all
- * authorities come from the cache, so in fact it's much better than doing an outer join (which will
- * get lots of data from the database, for each HTTP call).</li> <li> As this manages users, for
- * security reasons, we'd rather have a DTO layer.</li> </ul> <p>Another option would be to have a
- * specific JPA entity graph to handle this case.</p>
+ * less code, and an outer-join which would be good for performance. </p>
+ *
+ * <p>We use a View Model and a DTO for 3 reasons:
+ * <ul>
+ *     <li>We want to keep a lazy association between the user and the authorities, because
+ *     people will quite often do relationships with the user, and we don't want them to get the
+ *     authorities all the time for nothing (for performance reasons). This is the #1 goal: we
+ *     should not impact our users' application because of this use-case.</li>
+ *     <li> Not having an outer join causes n+1 requests to the database. This is not a real
+ *     issue as we have by default a second-level cache. This means on the first HTTP call we do
+ *     the n+1 requests, but then all authorities come from the cache, so in fact it's much
+ *     better than doing an outer join (which will get lots of data from the database, for each
+ *     HTTP call).</li>
+ *     <li> As this manages users, for security reasons, we'd rather have a DTO layer.</li>
+ * </ul>
+ *
+ * <p>Another option would be to have a specific JPA entity graph to handle this case.</p>
  */
 @RestController
 @RequestMapping("/api")
@@ -97,43 +101,43 @@ public class UserResource {
      * already used, and sends an mail with an activation link. The user needs to be activated on
      * creation. </p>
      *
-     * @param managedUserVM the user to create
+     * @param managedUserVm the user to create
      * @return the ResponseEntity with status 201 (Created) and with body the new user, or with
-     * status 400 (Bad Request) if the login or email is already in use
+     *     status 400 (Bad Request) if the login or email is already in use
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/users")
     @Timed
-    public ResponseEntity createUser(@RequestBody ManagedUserVM managedUserVM)
+    public ResponseEntity createUser(@RequestBody ManagedUserVM managedUserVm)
             throws URISyntaxException, NotAuthorizedException {
-        log.debug("REST request to save User : {}", managedUserVM);
+        log.debug("REST request to save User : {}", managedUserVm);
         checkPermission(getJWT(servletRequest), USER_CREATE);
-        if (managedUserVM.getId() != null) {
+        if (managedUserVm.getId() != null) {
             return ResponseEntity.badRequest()
                     .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists",
                             "A new user cannot already have an ID"))
                     .body(null);
             // Lowercase the user login before comparing with database
-        } else if (userRepository.findOneByLogin(managedUserVM.getLogin().toLowerCase())
+        } else if (userRepository.findOneByLogin(managedUserVm.getLogin().toLowerCase())
                 .isPresent()) {
             return ResponseEntity.badRequest()
                     .headers(HeaderUtil
                             .createFailureAlert(ENTITY_NAME, "userexists",
                                     "Login already in use"))
                     .body(null);
-        } else if (userRepository.findOneByEmail(managedUserVM.getEmail()).isPresent()) {
+        } else if (userRepository.findOneByEmail(managedUserVm.getEmail()).isPresent()) {
             return ResponseEntity.badRequest()
                     .headers(HeaderUtil
                             .createFailureAlert(ENTITY_NAME, "emailexists",
                                     "Email already in use"))
                     .body(null);
-        } else if (managedUserVM.getRoles() == null || managedUserVM.getRoles().isEmpty()) {
+        } else if (managedUserVm.getRoles() == null || managedUserVm.getRoles().isEmpty()) {
             return ResponseEntity.badRequest()
                     .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "rolesRequired",
                             "One or more roles are required"))
                     .body(null);
         } else {
-            User newUser = userService.createUser(managedUserVM);
+            User newUser = userService.createUser(managedUserVm);
             mailService.sendCreationEmail(newUser);
             return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "users",
                     newUser.getLogin())))
@@ -145,49 +149,49 @@ public class UserResource {
     /**
      * PUT  /users : Updates an existing User.
      *
-     * @param managedUserVM the user to update
+     * @param managedUserVm the user to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated user, or with
-     * status 400 (Bad Request) if the login or email is already in use, or with status 500
-     * (Internal Server Error) if the user couldn't be updated
+     *     status 400 (Bad Request) if the login or email is already in use, or with status 500
+     *     (Internal Server Error) if the user couldn't be updated
      */
     @PutMapping("/users")
     @Timed
-    public ResponseEntity<UserDTO> updateUser(@RequestBody ManagedUserVM managedUserVM)
+    public ResponseEntity<UserDTO> updateUser(@RequestBody ManagedUserVM managedUserVm)
             throws NotAuthorizedException {
-        log.debug("REST request to update User : {}", managedUserVM);
+        log.debug("REST request to update User : {}", managedUserVm);
         checkPermission(getJWT(servletRequest), USER_UPDATE);
-        Optional<User> existingUser = userRepository.findOneByEmail(managedUserVM.getEmail());
+        Optional<User> existingUser = userRepository.findOneByEmail(managedUserVm.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getId()
-                .equals(managedUserVM.getId()))) {
+                .equals(managedUserVm.getId()))) {
             return ResponseEntity.badRequest().headers(HeaderUtil
                     .createFailureAlert(ENTITY_NAME, "emailexists", "Email already in use"))
                     .body(null);
         }
-        existingUser = userRepository.findOneByLogin(managedUserVM.getLogin().toLowerCase());
+        existingUser = userRepository.findOneByLogin(managedUserVm.getLogin().toLowerCase());
         if (existingUser.isPresent() && (!existingUser.get().getId()
-                .equals(managedUserVM.getId()))) {
+                .equals(managedUserVm.getId()))) {
             return ResponseEntity.badRequest().headers(HeaderUtil
                     .createFailureAlert(ENTITY_NAME, "userexists", "Login already in use"))
                     .body(null);
         }
-        if (managedUserVM.getRoles() == null || managedUserVM.getRoles().isEmpty()) {
+        if (managedUserVm.getRoles() == null || managedUserVm.getRoles().isEmpty()) {
             return ResponseEntity.badRequest()
                     .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, "rolesRequired"))
                     .body(null);
         }
 
         Optional<Subject> subject = subjectRepository
-                .findOneWithEagerBySubjectLogin(managedUserVM.getLogin());
-        if (subject.isPresent() && managedUserVM.isActivated() && subject.get().isRemoved()) {
+                .findOneWithEagerBySubjectLogin(managedUserVm.getLogin());
+        if (subject.isPresent() && managedUserVm.isActivated() && subject.get().isRemoved()) {
             // if the subject is also a user, check if the removed/activated states are valid
             throw new CustomParameterizedException("error.invalidsubjectstate");
 
         }
 
-        Optional<UserDTO> updatedUser = userService.updateUser(managedUserVM);
+        Optional<UserDTO> updatedUser = userService.updateUser(managedUserVm);
 
         return ResponseUtil.wrapOrNotFound(updatedUser,
-                HeaderUtil.createAlert("userManagement.updated", managedUserVM.getLogin()));
+                HeaderUtil.createAlert("userManagement.updated", managedUserVm.getLogin()));
     }
 
     /**
@@ -224,7 +228,7 @@ public class UserResource {
      *
      * @param login the login of the user to find
      * @return the ResponseEntity with status 200 (OK) and with body the "login" user, or with
-     * status 404 (Not Found)
+     *     status 404 (Not Found)
      */
     @GetMapping("/users/{login:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed

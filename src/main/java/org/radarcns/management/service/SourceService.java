@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class SourceService {
 
-    private Logger log = LoggerFactory.getLogger(SourceService.class);
+    private final Logger log = LoggerFactory.getLogger(SourceService.class);
 
     @Autowired
     private SourceRepository sourceRepository;
@@ -35,12 +35,12 @@ public class SourceService {
     /**
      * Save a Source.
      *
-     * @param sourceDTO the entity to save
+     * @param sourceDto the entity to save
      * @return the persisted entity
      */
-    public SourceDTO save(SourceDTO sourceDTO) {
-        log.debug("Request to save Source : {}", sourceDTO);
-        Source source = sourceMapper.sourceDTOToSource(sourceDTO);
+    public SourceDTO save(SourceDTO sourceDto) {
+        log.debug("Request to save Source : {}", sourceDto);
+        Source source = sourceMapper.sourceDTOToSource(sourceDto);
         source = sourceRepository.save(source);
         return sourceMapper.sourceToSourceDTO(source);
     }
@@ -71,7 +71,7 @@ public class SourceService {
     }
 
     /**
-     * Get one source by name
+     * Get one source by name.
      *
      * @param sourceName the name of the source
      * @return the entity
@@ -94,7 +94,7 @@ public class SourceService {
     }
 
     /**
-     * Returns all sources by project in {@link SourceDTO} format
+     * Returns all sources by project in {@link SourceDTO} format.
      *
      * @return list of sources
      */
@@ -104,7 +104,7 @@ public class SourceService {
     }
 
     /**
-     * Returns all sources by project in {@link MinimalSourceDetailsDTO} format
+     * Returns all sources by project in {@link MinimalSourceDetailsDTO} format.
      *
      * @return list of sources
      */
@@ -115,7 +115,7 @@ public class SourceService {
     }
 
     /**
-     * Returns list of not-assigned sources by project id
+     * Returns list of not-assigned sources by project id.
      */
     public List<SourceDTO> findAllByProjectAndAssigned(Long projectId, boolean assigned) {
         return sourceMapper.sourcesToSourceDTOs(
@@ -123,7 +123,7 @@ public class SourceService {
     }
 
     /**
-     * Returns list of not-assigned sources by project id
+     * Returns list of not-assigned sources by project id.
      */
     public List<MinimalSourceDetailsDTO> findAllMinimalSourceDetailsByProjectAndAssigned(
             Long projectId, boolean assigned) {

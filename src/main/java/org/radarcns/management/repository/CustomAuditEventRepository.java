@@ -8,6 +8,7 @@ import java.util.List;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.config.audit.AuditEventConverter;
 import org.radarcns.management.domain.PersistentAuditEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.springframework.stereotype.Repository;
@@ -22,17 +23,11 @@ public class CustomAuditEventRepository implements AuditEventRepository {
 
     private static final String AUTHORIZATION_FAILURE = "AUTHORIZATION_FAILURE";
 
-    private final PersistenceAuditEventRepository persistenceAuditEventRepository;
+    @Autowired
+    private PersistenceAuditEventRepository persistenceAuditEventRepository;
 
-    private final AuditEventConverter auditEventConverter;
-
-    public CustomAuditEventRepository(
-            PersistenceAuditEventRepository persistenceAuditEventRepository,
-            AuditEventConverter auditEventConverter) {
-
-        this.persistenceAuditEventRepository = persistenceAuditEventRepository;
-        this.auditEventConverter = auditEventConverter;
-    }
+    @Autowired
+    private AuditEventConverter auditEventConverter;
 
     @Override
     public List<AuditEvent> find(Date after) {
@@ -69,8 +64,8 @@ public class CustomAuditEventRepository implements AuditEventRepository {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void add(AuditEvent event) {
-        if (!AUTHORIZATION_FAILURE.equals(event.getType()) &&
-                !Constants.ANONYMOUS_USER.equals(event.getPrincipal())) {
+        if (!AUTHORIZATION_FAILURE.equals(event.getType())
+                && !Constants.ANONYMOUS_USER.equals(event.getPrincipal())) {
 
             PersistentAuditEvent persistentAuditEvent = new PersistentAuditEvent();
             persistentAuditEvent.setPrincipal(event.getPrincipal());

@@ -41,7 +41,7 @@ before_script:
   - ./gradlew bootRun 1> /dev/null &
   - sleep 60 # give spring boot some time to start
 script:
-  - ./gradlew test
+  - ./gradlew check
   - yarn test
   - yarn e2e
   - ./gradlew bootRepackage -Pprod buildDocker -x test

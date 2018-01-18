@@ -177,6 +177,38 @@ public class OAuth2ServerConfiguration {
             return new JdbcApprovalStore(dataSource);
         }
 
+        @Bean
+        public TokenEnhancer tokenEnhancer() {
+            return new ClaimsTokenEnhancer();
+        }
+
+        @Bean
+        public TokenStore tokenStore() {
+            return new JwtTokenStore(accessTokenConverter());
+        }
+
+        @Bean
+        public JwtAccessTokenConverter accessTokenConverter() {
+            JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+
+            KeyPair keyPair = new KeyStoreKeyFactory(
+                    new ClassPathResource("/config/keystore.jks"), "radarbase".toCharArray())
+                    .getKeyPair("selfsigned");
+            converter.setKeyPair(keyPair);
+
+            return converter;
+        }
+
+        @Bean
+        @Primary
+        public DefaultTokenServices tokenServices() {
+            DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
+            defaultTokenServices.setTokenStore(tokenStore());
+            defaultTokenServices.setSupportRefreshToken(true);
+            defaultTokenServices.setReuseRefreshToken(false);
+            return defaultTokenServices;
+        }
+
         @Override
         public void configure(AuthorizationServerEndpointsConfigurer endpoints)
                 throws Exception {
@@ -192,16 +224,6 @@ public class OAuth2ServerConfiguration {
                     .authenticationManager(authenticationManager);
         }
 
-        @Bean
-        public TokenEnhancer tokenEnhancer() {
-            return new ClaimsTokenEnhancer();
-        }
-
-        @Bean
-        public TokenStore tokenStore() {
-            return new JwtTokenStore(accessTokenConverter());
-        }
-
         @Override
         public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
             oauthServer.allowFormAuthenticationForClients()
@@ -210,31 +232,9 @@ public class OAuth2ServerConfiguration {
                     .passwordEncoder(new BCryptPasswordEncoder());
         }
 
-        @Bean
-        public JwtAccessTokenConverter accessTokenConverter() {
-            JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-
-            KeyPair keyPair = new KeyStoreKeyFactory(
-                    new ClassPathResource("/config/keystore.jks"), "radarbase".toCharArray())
-                    .getKeyPair("selfsigned");
-            converter.setKeyPair(keyPair);
-
-            return converter;
-        }
-
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
             clients.withClientDetails(jdbcClientDetailsService);
-        }
-
-        @Bean
-        @Primary
-        public DefaultTokenServices tokenServices() {
-            DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
-            defaultTokenServices.setTokenStore(tokenStore());
-            defaultTokenServices.setSupportRefreshToken(true);
-            defaultTokenServices.setReuseRefreshToken(false);
-            return defaultTokenServices;
         }
     }
 }

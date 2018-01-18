@@ -12,6 +12,12 @@ public class FieldErrorVM implements Serializable {
 
     private final String message;
 
+    /**
+     * Create a new field error view-model.
+     * @param dto the object name
+     * @param field the field name
+     * @param message the message
+     */
     public FieldErrorVM(String dto, String field, String message) {
         this.objectName = dto;
         this.field = field;

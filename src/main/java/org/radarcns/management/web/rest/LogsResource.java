@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class LogsResource {
 
     /**
-     * Returns all the logger configurations from current logger context
-     * @return
+     * Returns all the logger configurations from current logger context.
+     * @return the logger configurations
      */
     @GetMapping("/logs")
     @Timed
@@ -40,7 +40,7 @@ public class LogsResource {
     }
 
     /**
-     * Changes logger level
+     * Changes logger level.
      * @param jsonLogger param
      */
     @PutMapping("/logs")
