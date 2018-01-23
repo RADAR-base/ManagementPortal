@@ -6,7 +6,12 @@
 
 set -ev
 
-if [[ $TRAVIS_BRANCH == release-* ]]
+# only run on the release branch's push and pull_request events
+if [[ $TRAVIS_BRANCH == release-* ]] || [[ $TRAVIS_PULL_REQUEST_BRANCH == release-* ]]
 then
+  echo "Testing docker image build"
   docker build -t managementportal .
+  ./gradlew bootRepackage -Pprod buildDocker -x test
+else
+  echo "Skipping building docker image"
 fi
