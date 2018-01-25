@@ -41,10 +41,10 @@ before_script:
   # Startup the application in the background and continue with the tests
   - ./gradlew bootRun 1> /dev/null &
 script:
+  # Make sure we wait for the application to be up, this also ensures the build is finished etc
+  - ./util/wait-for-app.sh
   - ./gradlew check
   - yarn test
-  # Make sure we wait for the application to be up
-  - ./util/wait-for-app.sh
   - ./src/test/bash/run-e2e.sh
   - ./gradlew generateOpenApiSpec
   - ./gradlew generateJavaClient
