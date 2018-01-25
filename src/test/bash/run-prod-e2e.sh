@@ -20,7 +20,7 @@ then
   ./gradlew bootRepackage -Pprod buildDocker -x test
   docker-compose -f src/main/docker/app.yml up -d # spin up production mode application
   # wait for app to be up
-  ./../../../util/wait-for-app.sh
+  $TRAVIS_BUILD_DIR/util/wait-for-app.sh http://localhost:8080/managementportal/
   docker-compose -f src/main/docker/app.yml logs # show output of app startup
   yarn e2e # run e2e tests against production mode
   docker-compose -f src/main/docker/app.yml down -v # clean up containers and volumes
