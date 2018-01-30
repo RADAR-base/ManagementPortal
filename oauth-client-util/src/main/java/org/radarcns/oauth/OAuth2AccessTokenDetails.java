@@ -138,52 +138,8 @@ public class OAuth2AccessTokenDetails {
         return accessToken != null && error == null;
     }
 
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    public void setTokenType(String tokenType) {
-        this.tokenType = tokenType;
-    }
-
-    public void setExpiresIn(long expiresIn) {
-        this.expiresIn = expiresIn;
-    }
-
     public Instant getExpiryDate() {
         return Instant.ofEpochSecond(issueDate + expiresIn);
-    }
-
-    public void setScope(String scope) {
-        this.scope = scope;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    public void setIssuer(String issuer) {
-        this.issuer = issuer;
-    }
-
-    public void setIssueDate(long issueDate) {
-        this.issueDate = issueDate;
-    }
-
-    public void setJsonWebTokenId(String jsonWebTokenId) {
-        this.jsonWebTokenId = jsonWebTokenId;
-    }
-
-    public void setError(String error) {
-        this.error = error;
-    }
-
-    public void setErrorDescription(String errorDescription) {
-        this.errorDescription = errorDescription;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     /**

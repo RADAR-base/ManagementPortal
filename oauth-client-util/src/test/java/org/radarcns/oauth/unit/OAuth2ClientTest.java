@@ -107,7 +107,7 @@ public class OAuth2ClientTest {
                 .scopes("read")
                 .httpClient(httpClient)
                 .build();
-        OAuth2AccessTokenDetails token = client.getAccessToken();
+        OAuth2AccessTokenDetails token = client.getValidToken();
         assertTrue(token.isValid());
         assertFalse(token.isExpired());
         assertEquals(accessToken, token.getAccessToken());
@@ -132,7 +132,7 @@ public class OAuth2ClientTest {
         OAuth2Client client = clientBuilder
                 .scopes("write")
                 .build();
-        client.getAccessToken();
+        client.getValidToken();
     }
 
     @Test(expected = TokenException.class)
@@ -145,7 +145,7 @@ public class OAuth2ClientTest {
         OAuth2Client client = clientBuilder
                 .scopes("read")
                 .build();
-        client.getAccessToken();
+        client.getValidToken();
     }
 
     @Test(expected = TokenException.class)
@@ -158,7 +158,7 @@ public class OAuth2ClientTest {
         OAuth2Client client = clientBuilder
                 .scopes("read")
                 .build();
-        client.getAccessToken();
+        client.getValidToken(Duration.ofSeconds(30));
     }
 
     @Test(expected = TokenException.class)
@@ -171,7 +171,7 @@ public class OAuth2ClientTest {
         OAuth2Client client = clientBuilder
                 .scopes("read")
                 .build();
-        client.getAccessToken();
+        client.getValidToken(Duration.ofSeconds(30));
     }
 
     @Test(expected = TokenException.class)
@@ -182,7 +182,7 @@ public class OAuth2ClientTest {
                 .endpoint(new URL("http://localhost:9000"))
                 .scopes("read")
                 .build();
-        client.getAccessToken();
+        client.getValidToken();
     }
 
     @Test(expected = TokenException.class)
@@ -195,7 +195,7 @@ public class OAuth2ClientTest {
         OAuth2Client client = clientBuilder
                 .scopes("read")
                 .build();
-        client.getAccessToken();
+        client.getValidToken();
     }
 
     @Test(expected = TokenException.class)
@@ -208,7 +208,7 @@ public class OAuth2ClientTest {
         OAuth2Client client = clientBuilder
                 .scopes("read")
                 .build();
-        client.getAccessToken();
+        client.getValidToken();
     }
 
     private String successfulResponse() {
