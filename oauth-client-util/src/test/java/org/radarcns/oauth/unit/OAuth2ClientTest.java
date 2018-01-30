@@ -23,13 +23,54 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
  * Created by dverbeec on 31/08/2017.
  */
 public class OAuth2ClientTest {
+    private static final String accessToken =
+        "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyYWRhcl9yZXN0YXBp"
+            + "Iiwi19NYW5hZ2VtZW50UG9ydGFsIl0sInNvdXJjZXMiOltdLCJzY29wZSI6WyJyZWFkIl0sImlzcyI6Ik1hb"
+            + "mFnZW1lbnleHAiOjE1MDQwODU3MzEsImlhdCI6MTUwNDA4MzkzMSwiYXV0aG9yaXRpZXMiOlsiUk9MRV9VU0"
+            + "VSIl0sImp0aSI6TJmMTItNDQxMi1iZGVjLTc5YzMxNWY3NGM3OSIsImNsaWVudF9pZCI6InJhZGFyX3Jlc3R"
+            + "hcGkifQ.J0TEFQAUnH9RFaplURHrbeLelgbAr3CS7os_Y5S6836TFZyDe4mz4LqhxJLquXxTNP3DYddOKDD_"
+            + "RQ1t0nIDfx0hFJawPB3AjVqobRLOtFQWWdtYYmPbDXVQkdK41iVDhl_15BBxxOlT0pFQfkq4wk22ubq5cg8V"
+            + "Z57xDkrfgaIbdowntnK9GqLy6mDtaPdQV23VDr3whkjEq2YJ9AQBj4KiOWEVAYuNwhZFwHwInsYPZTs2RNK5"
+            + "WkdW2pe4sXGc7BDgUykpUWEMtL7BoyTZEGO5VqDkwcbio1zJDGB5dPm8VHWtlg4tH098BhsFrVE3zOJ9D0Ai"
+            + "62JWZkzr24lH9QjBwruxifyu4AvcLp_AxmO7m_r1bLcDuh6Yt4Ntm1bhGoB_PrygiOFPMn2-VnUH9zTxpZaK"
+            + "UH9CHHKOVdcK9N3gLKo30ETVDib-bZS-rDESHDvnYppgTH6i31wfjl80NCQhSpB3GyXAR2YHfoTj4VbEzGKs"
+            + "LEfS7g-4hSH2kY4-srOAH5TeI2snKbh76mFL8SOTuZrHf-F5KwWPqB82OzAr899eFk6uiNd5Uz7dICyEKyS7"
+            + "v-HQ";
+    private static final String accessTokenId = "5b9fc645-2f12-4412-bdec-79c315f74c79";
+    private long tokenIssueDate;
+
+    private static final String invalidScopeResponse = "{\n"
+        + "  \"error\" : \"invalid_scope\",\n"
+        + "  \"error_description\" : \"Invalid scope: write\",\n"
+        + "  \"scope\" : \"read\"\n"
+        + "}\n";
+
+    private static final String invalidCredentialsResponse = "{\n"
+        + "  \"timestamp\" : \"2017-08-31T09:50:19.779+0000\",\n"
+        + "  \"status\" : 401,\n"
+        + "  \"error\" : \"Unauthorized\",\n"
+        + "  \"message\" : \"Bad credentials\",\n"
+        + "  \"path\" : \"/oauth/token\""
+        + "}";
+
+    private static final String invalidGrantTypeResponse = "{\n"
+        + "  \"error\" : \"invalid_client\",\n"
+        + "  \"error_description\" : \"Unauthorized grant type: client_credentials\"\n"
+        + "}";
+
+    private static final String notFoundResponse = "{\n"
+        + "  \"timestamp\" : \"2017-08-31T12:00:56.274+0000\",\n"
+        + "  \"status\" : 404,\n"
+        + "  \"error\" : \"Not Found\",\n"
+        + "  \"message\" : \"Not Found\",\n"
+        + "  \"path\" : \"/oauth/token\"\n"
+        + "}\n";
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(8089);
@@ -210,47 +251,4 @@ public class OAuth2ClientTest {
                 + "  \"jti\" : \"" + accessTokenId + "\"\n"
                 + "}";
     }
-
-    private static final String accessToken =
-            "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyYWRhcl9yZXN0YXBp"
-            + "Iiwi19NYW5hZ2VtZW50UG9ydGFsIl0sInNvdXJjZXMiOltdLCJzY29wZSI6WyJyZWFkIl0sImlzcyI6Ik1hb"
-            + "mFnZW1lbnleHAiOjE1MDQwODU3MzEsImlhdCI6MTUwNDA4MzkzMSwiYXV0aG9yaXRpZXMiOlsiUk9MRV9VU0"
-            + "VSIl0sImp0aSI6TJmMTItNDQxMi1iZGVjLTc5YzMxNWY3NGM3OSIsImNsaWVudF9pZCI6InJhZGFyX3Jlc3R"
-            + "hcGkifQ.J0TEFQAUnH9RFaplURHrbeLelgbAr3CS7os_Y5S6836TFZyDe4mz4LqhxJLquXxTNP3DYddOKDD_"
-            + "RQ1t0nIDfx0hFJawPB3AjVqobRLOtFQWWdtYYmPbDXVQkdK41iVDhl_15BBxxOlT0pFQfkq4wk22ubq5cg8V"
-            + "Z57xDkrfgaIbdowntnK9GqLy6mDtaPdQV23VDr3whkjEq2YJ9AQBj4KiOWEVAYuNwhZFwHwInsYPZTs2RNK5"
-            + "WkdW2pe4sXGc7BDgUykpUWEMtL7BoyTZEGO5VqDkwcbio1zJDGB5dPm8VHWtlg4tH098BhsFrVE3zOJ9D0Ai"
-            + "62JWZkzr24lH9QjBwruxifyu4AvcLp_AxmO7m_r1bLcDuh6Yt4Ntm1bhGoB_PrygiOFPMn2-VnUH9zTxpZaK"
-            + "UH9CHHKOVdcK9N3gLKo30ETVDib-bZS-rDESHDvnYppgTH6i31wfjl80NCQhSpB3GyXAR2YHfoTj4VbEzGKs"
-            + "LEfS7g-4hSH2kY4-srOAH5TeI2snKbh76mFL8SOTuZrHf-F5KwWPqB82OzAr899eFk6uiNd5Uz7dICyEKyS7"
-            + "v-HQ";
-    private static final String accessTokenId = "5b9fc645-2f12-4412-bdec-79c315f74c79";
-    private long tokenIssueDate;
-
-    private static final String invalidScopeResponse = "{\n"
-            + "  \"error\" : \"invalid_scope\",\n"
-            + "  \"error_description\" : \"Invalid scope: write\",\n"
-            + "  \"scope\" : \"read\"\n"
-            + "}\n";
-
-    private static final String invalidCredentialsResponse = "{\n"
-            + "  \"timestamp\" : \"2017-08-31T09:50:19.779+0000\",\n"
-            + "  \"status\" : 401,\n"
-            + "  \"error\" : \"Unauthorized\",\n"
-            + "  \"message\" : \"Bad credentials\",\n"
-            + "  \"path\" : \"/oauth/token\""
-            + "}";
-
-    private static final String invalidGrantTypeResponse = "{\n"
-            + "  \"error\" : \"invalid_client\",\n"
-            + "  \"error_description\" : \"Unauthorized grant type: client_credentials\"\n"
-            + "}";
-
-    private static final String notFoundResponse = "{\n"
-            + "  \"timestamp\" : \"2017-08-31T12:00:56.274+0000\",\n"
-            + "  \"status\" : 404,\n"
-            + "  \"error\" : \"Not Found\",\n"
-            + "  \"message\" : \"Not Found\",\n"
-            + "  \"path\" : \"/oauth/token\"\n"
-            + "}\n";
 }
