@@ -1,12 +1,5 @@
 package org.radarcns.management.service;
 
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Project;
@@ -34,6 +27,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Service class for managing users.
@@ -158,9 +159,9 @@ public class UserService {
     private Set<Role> getUserRoles(UserDTO userDto) {
         Set<Role> roles = new HashSet<>();
         for (RoleDTO roleDto : userDto.getRoles()) {
-            Role role = roleRepository.findOneByProjectIdAndAuthorityName(roleDto.getProjectId(),
-                    roleDto.getAuthorityName());
-            if (role == null || role.getId() == null) {
+            Optional<Role> role = roleRepository.findOneByProjectIdAndAuthorityName(
+                    roleDto.getProjectId(), roleDto.getAuthorityName());
+            if (!role.isPresent() || role.get().getId() == null) {
                 Role currentRole = new Role();
                 currentRole.setAuthority(authorityRepository
                         .findByAuthorityName(roleDto.getAuthorityName())
@@ -174,7 +175,7 @@ public class UserService {
                     roles.add(roleRepository.save(currentRole));
                 }
             } else {
-                roles.add(role);
+                roles.add(role.get());
             }
         }
         return roles;

@@ -20,11 +20,7 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     @Query("select distinct role from Role role left join fetch role.authority")
     List<Role> findAllWithEagerRelationships();
 
-    @Query("select role from Role role left join fetch role.authority "
-            + "where role.id =:id")
-    Role findOneWithEagerRelationships(@Param("id") Long id);
-
-    Role findOneByProjectIdAndAuthorityName(@Param("projectId") Long projectId,
+    Optional<Role> findOneByProjectIdAndAuthorityName(@Param("projectId") Long projectId,
             @Param("authorityName") String authorityName);
 
     @Query("select role from Role role join role.authority join role.project "
