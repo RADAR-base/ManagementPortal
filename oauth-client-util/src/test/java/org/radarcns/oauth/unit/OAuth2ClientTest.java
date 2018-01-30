@@ -30,7 +30,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class OAuth2ClientTest {
     private static final String accessToken =
-        "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyYWRhcl9yZXN0YXBp"
+            "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyYWRhcl9yZXN0YXBp"
             + "Iiwi19NYW5hZ2VtZW50UG9ydGFsIl0sInNvdXJjZXMiOltdLCJzY29wZSI6WyJyZWFkIl0sImlzcyI6Ik1hb"
             + "mFnZW1lbnleHAiOjE1MDQwODU3MzEsImlhdCI6MTUwNDA4MzkzMSwiYXV0aG9yaXRpZXMiOlsiUk9MRV9VU0"
             + "VSIl0sImp0aSI6TJmMTItNDQxMi1iZGVjLTc5YzMxNWY3NGM3OSIsImNsaWVudF9pZCI6InJhZGFyX3Jlc3R"
@@ -46,37 +46,37 @@ public class OAuth2ClientTest {
     private long tokenIssueDate;
 
     private static final String invalidScopeResponse = "{\n"
-        + "  \"error\" : \"invalid_scope\",\n"
-        + "  \"error_description\" : \"Invalid scope: write\",\n"
-        + "  \"scope\" : \"read\"\n"
-        + "}\n";
+            + "  \"error\" : \"invalid_scope\",\n"
+            + "  \"error_description\" : \"Invalid scope: write\",\n"
+            + "  \"scope\" : \"read\"\n"
+            + "}\n";
 
     private static final String invalidCredentialsResponse = "{\n"
-        + "  \"timestamp\" : \"2017-08-31T09:50:19.779+0000\",\n"
-        + "  \"status\" : 401,\n"
-        + "  \"error\" : \"Unauthorized\",\n"
-        + "  \"message\" : \"Bad credentials\",\n"
-        + "  \"path\" : \"/oauth/token\""
-        + "}";
+            + "  \"timestamp\" : \"2017-08-31T09:50:19.779+0000\",\n"
+            + "  \"status\" : 401,\n"
+            + "  \"error\" : \"Unauthorized\",\n"
+            + "  \"message\" : \"Bad credentials\",\n"
+            + "  \"path\" : \"/oauth/token\""
+            + "}";
 
     private static final String invalidGrantTypeResponse = "{\n"
-        + "  \"error\" : \"invalid_client\",\n"
-        + "  \"error_description\" : \"Unauthorized grant type: client_credentials\"\n"
-        + "}";
+            + "  \"error\" : \"invalid_client\",\n"
+            + "  \"error_description\" : \"Unauthorized grant type: client_credentials\"\n"
+            + "}";
 
     private static final String notFoundResponse = "{\n"
-        + "  \"timestamp\" : \"2017-08-31T12:00:56.274+0000\",\n"
-        + "  \"status\" : 404,\n"
-        + "  \"error\" : \"Not Found\",\n"
-        + "  \"message\" : \"Not Found\",\n"
-        + "  \"path\" : \"/oauth/token\"\n"
-        + "}\n";
+            + "  \"timestamp\" : \"2017-08-31T12:00:56.274+0000\",\n"
+            + "  \"status\" : 404,\n"
+            + "  \"error\" : \"Not Found\",\n"
+            + "  \"message\" : \"Not Found\",\n"
+            + "  \"path\" : \"/oauth/token\"\n"
+            + "}\n";
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(8089);
 
-    private URL tokenEndpoint;
     private static OkHttpClient httpClient;
+    private OAuth2Client.Builder clientBuilder;
 
     /** Set up custom HTTP client. */
     @BeforeClass
@@ -91,7 +91,9 @@ public class OAuth2ClientTest {
     @Before
     public void init() throws MalformedURLException {
         tokenIssueDate = Instant.now().getEpochSecond();
-        tokenEndpoint = new URL("http://localhost:8089/oauth/token");
+        clientBuilder = new OAuth2Client.Builder()
+            .credentials("client", "secret")
+            .endpoint(new URL("http://localhost:8089/oauth/token"));
     }
 
     @Test
@@ -101,9 +103,7 @@ public class OAuth2ClientTest {
                         .withStatus(200)
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
                         .withBody(successfulResponse())));
-        OAuth2Client client = new OAuth2Client.Builder()
-                .credentials("client", "secret")
-                .endpoint(tokenEndpoint)
+        OAuth2Client client = clientBuilder
                 .scopes("read")
                 .httpClient(httpClient)
                 .build();
@@ -129,9 +129,7 @@ public class OAuth2ClientTest {
                         .withStatus(400)
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
                         .withBody(invalidScopeResponse)));
-        OAuth2Client client = new OAuth2Client.Builder()
-                .credentials("client", "secret")
-                .endpoint(tokenEndpoint)
+        OAuth2Client client = clientBuilder
                 .scopes("write")
                 .build();
         client.getAccessToken();
@@ -144,9 +142,7 @@ public class OAuth2ClientTest {
                         .withStatus(401)
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
                         .withBody(invalidCredentialsResponse)));
-        OAuth2Client client = new OAuth2Client.Builder()
-                .credentials("client", "secret")
-                .endpoint(tokenEndpoint)
+        OAuth2Client client = clientBuilder
                 .scopes("read")
                 .build();
         client.getAccessToken();
@@ -159,9 +155,7 @@ public class OAuth2ClientTest {
                         .withStatus(401)
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
                         .withBody(invalidGrantTypeResponse)));
-        OAuth2Client client = new OAuth2Client.Builder()
-                .credentials("client",  "secret")
-                .endpoint(tokenEndpoint)
+        OAuth2Client client = clientBuilder
                 .scopes("read")
                 .build();
         client.getAccessToken();
@@ -174,9 +168,7 @@ public class OAuth2ClientTest {
                         .withStatus(401)
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
                         .withBody(invalidTypesResponse())));
-        OAuth2Client client = new OAuth2Client.Builder()
-                .credentials("client", "secret")
-                .endpoint(tokenEndpoint)
+        OAuth2Client client = clientBuilder
                 .scopes("read")
                 .build();
         client.getAccessToken();
@@ -185,8 +177,7 @@ public class OAuth2ClientTest {
     @Test(expected = TokenException.class)
     public void testUnreachableServer() throws MalformedURLException, TokenException {
         // no http stub here so the location will be unreachable
-        OAuth2Client client = new OAuth2Client.Builder()
-                .credentials("client", "secret")
+        OAuth2Client client = clientBuilder
                 // different port in case wiremock is not cleaned up yet
                 .endpoint(new URL("http://localhost:9000"))
                 .scopes("read")
@@ -201,9 +192,7 @@ public class OAuth2ClientTest {
                         .withStatus(200)
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/html")
                         .withBody("<html>Oops, no JSON here</html>")));
-        OAuth2Client client = new OAuth2Client.Builder()
-                .credentials("client", "secret")
-                .endpoint(tokenEndpoint)
+        OAuth2Client client = clientBuilder
                 .scopes("read")
                 .build();
         client.getAccessToken();
@@ -216,9 +205,7 @@ public class OAuth2ClientTest {
                         .withStatus(404)
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
                         .withBody(notFoundResponse)));
-        OAuth2Client client = new OAuth2Client.Builder()
-                .credentials("client", "secret")
-                .endpoint(tokenEndpoint)
+        OAuth2Client client = clientBuilder
                 .scopes("read")
                 .build();
         client.getAccessToken();
