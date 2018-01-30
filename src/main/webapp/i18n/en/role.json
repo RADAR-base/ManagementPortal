@@ -27,6 +27,9 @@
             },
             "authorityName": "Authority Name",
             "project": "Project"
+        },
+        "error": {
+            "error.invalidAuthority": "Invalid authority: {{ param0 }}"
         }
     }
 }

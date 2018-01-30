@@ -30,13 +30,6 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
     Page<Subject> findAllByProjectName(Pageable pageable, @Param("projectName") String projectName);
 
     @Query("select subject from Subject subject left join fetch subject.sources "
-            + "where subject.id =:id")
-    Subject findOneWithEagerRelationships(@Param("id") Long id);
-
-    @Query("select subject from Subject subject WHERE subject.user.login = :login")
-    Subject findBySubjectLogin(@Param("login") String login);
-
-    @Query("select subject from Subject subject left join fetch subject.sources "
             + "WHERE subject.user.login = :login")
     Optional<Subject> findOneWithEagerBySubjectLogin(@Param("login") String login);
 
