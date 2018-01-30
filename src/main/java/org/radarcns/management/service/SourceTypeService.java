@@ -1,9 +1,5 @@
 package org.radarcns.management.service;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.radarcns.management.domain.SourceData;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.repository.SourceDataRepository;
@@ -19,6 +15,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing SourceType.
@@ -83,19 +84,6 @@ public class SourceTypeService {
         log.debug("Request to get SourceTypes");
         return sourceTypeRepository.findAll(pageable)
                 .map(sourceTypeMapper::sourceTypeToSourceTypeDTO);
-    }
-
-    /**
-     * Get one sourceType by id.
-     *
-     * @param id the id of the entity
-     * @return the entity
-     */
-    @Transactional(readOnly = true)
-    public SourceTypeDTO findOne(Long id) {
-        log.debug("Request to get SourceType : {}", id);
-        SourceType sourceType = sourceTypeRepository.findOneWithEagerRelationships(id);
-        return sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
     }
 
     /**
