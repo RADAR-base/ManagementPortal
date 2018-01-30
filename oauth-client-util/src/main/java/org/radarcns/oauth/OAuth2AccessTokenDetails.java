@@ -1,5 +1,3 @@
-package org.radarcns.oauth;
-
 /*
  * Copyright 2017 King's College London
  *
@@ -16,13 +14,13 @@ package org.radarcns.oauth;
  * limitations under the License.
  */
 
+package org.radarcns.oauth;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import okhttp3.Response;
 import org.radarcns.exception.TokenException;
 
-import java.io.IOException;
 import java.time.Instant;
 
 /**
@@ -128,7 +126,7 @@ public class OAuth2AccessTokenDetails {
     }
 
     public boolean isExpired() {
-        return Instant.now().isAfter(Instant.ofEpochSecond(issueDate + expiresIn));
+        return Instant.now().isAfter(getExpiryDate());
     }
 
     /**
@@ -150,6 +148,10 @@ public class OAuth2AccessTokenDetails {
 
     public void setExpiresIn(long expiresIn) {
         this.expiresIn = expiresIn;
+    }
+
+    public Instant getExpiryDate() {
+        return Instant.ofEpochSecond(issueDate + expiresIn);
     }
 
     public void setScope(String scope) {
@@ -186,19 +188,13 @@ public class OAuth2AccessTokenDetails {
 
     /**
      * Parse an access token response into an {@link OAuth2AccessTokenDetails} object.
-     * @param response the OkHttp response
+     * @param responseBody the response body
      * @return an instance of this class
      * @throws TokenException if the response can not be parsed to an instance of this class
      */
-    public static OAuth2AccessTokenDetails getObject(Response response) throws TokenException {
+    public static OAuth2AccessTokenDetails getObject(String responseBody) throws TokenException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        String responseBody;
-        try {
-            responseBody = response.body().string();
-        } catch (IOException e) {
-            throw new TokenException(e);
-        }
 
         try {
             OAuth2AccessTokenDetails result = mapper.readValue(responseBody,
@@ -210,9 +206,8 @@ public class OAuth2AccessTokenDetails {
                 // we didn't catch an error but also didn't get a token (this could happen e.g. when
                 // we receive an empty JSON entity as a response, or a JSON entity which does
                 // not have the right fields
-                throw new TokenException("An unexpected error occured. " + "HTTP status was "
-                    + response.code() + ": " + response.message()
-                    + ". Response body was: " + responseBody);
+                throw new TokenException("An unexpected error occured."
+                    + " Response body was: " + responseBody);
             }
             return result;
         } catch (Exception e) {
