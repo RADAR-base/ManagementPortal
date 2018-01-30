@@ -26,6 +26,10 @@
             "sourceType": "Source Type",
             "attributeDataKey" : "Tag",
             "attributeDataValue" : "Waarde"
+        },
+        "error" : {
+            "projectIdNotFound" : "Er werd geen project gevonden met id {{ param0 }}",
+            "projectNameNotFound" : "Er werd geen project gevonden met de naam {{ param0 }}"
         }
     }
 }

@@ -26,6 +26,10 @@
             "sourceType": "Source Type",
             "attributeDataKey" : "Tag",
             "attributeDataValue" : "Value"
+        },
+        "error" : {
+            "projectIdNotFound" : "There was no project found with id {{ param0 }}",
+            "projectNameNotFound" : "There was no project found with the name {{ param0 }}"
         }
     }
 }

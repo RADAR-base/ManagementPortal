@@ -17,6 +17,8 @@ public final class ErrorConstants {
     public static final String ERR_SOURCE_NOT_FOUND = "error.sourceNotFound";
     public static final String ERR_SOURCE_TYPE_IN_USE = "error.sourceTypeInUse";
     public static final String ERR_INVALID_AUTHORITY = "error.invalidAuthority";
+    public static final String ERR_PROJECT_ID_NOT_FOUND = "error.projectIdNotFound";
+    public static final String ERR_PROJECT_NAME_NOT_FOUND = "error.projectNameNotFound";
 
     private ErrorConstants() {
     }
