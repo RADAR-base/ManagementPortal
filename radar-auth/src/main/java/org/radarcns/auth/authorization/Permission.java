@@ -102,6 +102,12 @@ public class Permission {
     private final Entity entity;
     private final Operation operation;
 
+    /**
+     * Permission constructor. In general, the constants in this class should be preferred
+     * for referencing permissions.
+     * @param entity the entity that the permission refers to.
+     * @param operation the operation on given entity that requires a permission.
+     */
     public Permission(Entity entity, Operation operation) {
         if (entity == null || operation == null) {
             throw new IllegalArgumentException("Entity and operation can not be null");
