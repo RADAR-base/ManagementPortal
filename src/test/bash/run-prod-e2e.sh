@@ -8,25 +8,23 @@
 # Then we start up a docker stack with a postgres server since production mode is configured for a
 # postgres database instead of in-memory database.
 
-set -ev
-
-sed -i "s|new plugin.BaseHrefWebpackPlugin({ baseHref: '/' })|new plugin.BaseHrefWebpackPlugin({ baseHref: '/managementportal/' })|" webpack/webpack.dev.js
-sed -i "s|baseUrl: 'http://localhost:8080/',|baseUrl: 'http://localhost:8080/managementportal/',|" src/test/javascript/protractor.conf.js
-sed -i "s|contexts: prod|contexts: dev|" src/main/resources/config/application-prod.yml # set liquibase context to dev so it loads demo data
-./gradlew bootRepackage -Pprod buildDocker -x test
-docker-compose -f src/main/docker/app.yml up -d # spin up production mode application
-# wait for app to start up
-echo "Waiting for application startup"
-until curl -s http://localhost:8080/managementportal/ > /dev/null
-do
-  echo -n "." # waiting
-  sleep 2
-done
-echo ""
-echo "Application is up"
-docker-compose -f src/main/docker/app.yml logs # show output of app startup
-yarn e2e # run e2e tests against production mode
-docker-compose -f src/main/docker/app.yml down -v # clean up containers and volumes
-git checkout src/test/javascript/protractor.conf.js
-git checkout webpack/webpack.prod.js
-git checkout src/main/resources/config/application-prod.yml
+# only run on the release branch and master branch if it's not a tag build
+if [[ $TRAVIS_BRANCH == release-* ]] || ( [[ $TRAVIS_BRANCH == master ]] && [ -z $TRAVIS_TAG ] )
+then
+  echo "Running production e2e tests"
+  sed -i "s|new plugin.BaseHrefWebpackPlugin({ baseHref: '/' })|new plugin.BaseHrefWebpackPlugin({ baseHref: '/managementportal/' })|" webpack/webpack.dev.js
+  sed -i "s|baseUrl: 'http://localhost:8080/',|baseUrl: 'http://localhost:8080/managementportal/',|" src/test/javascript/protractor.conf.js
+  sed -i "s|contexts: prod|contexts: dev|" src/main/resources/config/application-prod.yml # set liquibase context to dev so it loads demo data
+  ./gradlew bootRepackage -Pprod buildDocker -x test
+  docker-compose -f src/main/docker/app.yml up -d # spin up production mode application
+  # wait for app to be up
+  $TRAVIS_BUILD_DIR/util/wait-for-app.sh http://localhost:8080/managementportal/
+  docker-compose -f src/main/docker/app.yml logs # show output of app startup
+  yarn e2e # run e2e tests against production mode
+  docker-compose -f src/main/docker/app.yml down -v # clean up containers and volumes
+  git checkout src/test/javascript/protractor.conf.js
+  git checkout webpack/webpack.prod.js
+  git checkout src/main/resources/config/application-prod.yml
+else
+  echo "Skipping production e2e tests"
+fi

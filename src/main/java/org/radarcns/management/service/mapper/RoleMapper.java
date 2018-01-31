@@ -8,6 +8,8 @@ import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.service.dto.RoleDTO;
+import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -33,8 +35,16 @@ public abstract class RoleMapper {
     @Mapping(target = "lastModifiedDate", ignore = true)
     public abstract Role roleDTOToRole(RoleDTO roleDtp);
 
+    /**
+     * Get an {@link Authority} from its name.
+     * @param authorityName the authority name
+     * @return the {@link Authority}
+     * @throws CustomParameterizedException if the authority name is not in the database
+     */
     public Authority authorityFromAuthorityName(String authorityName) {
-        return authorityRepository.findByAuthorityName(authorityName);
+        return authorityRepository.findByAuthorityName(authorityName)
+                .orElseThrow(() -> new CustomParameterizedException(
+                        ErrorConstants.ERR_INVALID_AUTHORITY, authorityName));
     }
 
     public abstract Set<Role> roleDTOsToRoles(Set<RoleDTO> roleDtos);

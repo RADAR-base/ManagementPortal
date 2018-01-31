@@ -19,10 +19,6 @@ public interface SourceTypeRepository extends JpaRepository<SourceType, Long> {
     List<SourceType> findAllWithEagerRelationships();
 
     @Query("select sourceType from SourceType sourceType left join fetch sourceType.sourceData "
-            + "where sourceType.id =:id")
-    SourceType findOneWithEagerRelationships(@Param("id") Long id);
-
-    @Query("select sourceType from SourceType sourceType left join fetch sourceType.sourceData "
             + "where sourceType.producer =:producer "
             + "and sourceType.model =:model "
             + "and sourceType.catalogVersion = :version")
