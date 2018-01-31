@@ -53,7 +53,10 @@ describe('Create, assign, unassign and delete source', () => {
 
     it('should be able to assign a source', function () {
         element(by.cssContainingText('li', 'Subjects')).click().then(() => {
-            element.all(by.cssContainingText('subjects tbody tr button', 'Pair Sources')).first().click().then(() => {
+            element.all(by.cssContainingText('subjects tbody tr td', 'sub-2'))
+                    .all(by.xpath('ancestor::tr'))
+                    .all(by.cssContainingText('subjects tbody tr button', 'Pair Sources'))
+                    .first().click().then(() => {
                 // first table lists assigned sources, this should be empty
                 element.all(by.css('source-assigner tbody')).get(0).all(by.css('tr')).then(function(rows) {
                     expect(rows.length).toEqual(0);
@@ -97,7 +100,7 @@ describe('Create, assign, unassign and delete source', () => {
     it('should not be able to delete an assigned source', function () {
         element.all(by.linkText(sourceName))
             .all(by.xpath('ancestor::tr'))
-            .all(by.cssContainingText('button', 'Delete'))
+            .all(by.cssContainingText('button', 'Delete')).first()
             .click().then(() => {
                 browser.waitForAngular();
                 element(by.cssContainingText('.modal-footer button', 'Delete')).click().then(() => {
