@@ -38,13 +38,14 @@ before_script:
   - cp src/test/resources/config/keystore.jks src/main/resources/config/keystore.jks # we need the keystore to run our app, and we need our app to run e2e tests
   - chmod +x src/test/bash/*.sh
   - chmod +x util/*.sh
+  # Startup the application in the background and continue with the tests
   - ./gradlew bootRun 1> /dev/null &
-  - sleep 60 # give spring boot some time to start
 script:
+  # Make sure we wait for the application to be up, this also ensures the build is finished etc
+  - ./util/wait-for-app.sh
   - ./gradlew check
   - yarn test
-  - yarn e2e
-  - ./gradlew bootRepackage -Pprod buildDocker -x test
+  - ./src/test/bash/run-e2e.sh
   - ./gradlew generateOpenApiSpec
   - ./gradlew generateJavaClient
   - echo "include 'managementportal-client'" >> settings.gradle # make this a sub-project so we can build artifacts and javadoc easily
