@@ -1,6 +1,7 @@
 package org.radarcns.oauth.unit;
 
 import org.junit.Test;
+import org.radarcns.exception.TokenException;
 import org.radarcns.oauth.OAuth2AccessTokenDetails;
 
 import java.time.Instant;
@@ -26,10 +27,12 @@ public class OAuth2AccessTokenDetailsTest {
     }
 
     @Test
-    public void testTokenNotExpired() {
-        OAuth2AccessTokenDetails token = new OAuth2AccessTokenDetails();
-        token.setIssueDate(Instant.now().getEpochSecond());
-        token.setExpiresIn(30);
+    public void testTokenNotExpired() throws TokenException {
+        String body =
+                "{\"expires_in\":30"
+                + ",\"iat\":" + Instant.now().getEpochSecond()
+                + ",\"access_token\":\"abcdef\"}";
+        OAuth2AccessTokenDetails token = OAuth2AccessTokenDetails.getObject(body);
         assertFalse(token.isExpired());
     }
 }
