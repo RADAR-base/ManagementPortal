@@ -121,7 +121,7 @@ jhipster:
         contact-url:
         contact-email:
         license: Apache 2.0
-        license-url: https://github.com/RADAR-CNS/ManagementPortal/blob/master/LICENSE.md
+        license-url: https://github.com/RADAR-base/ManagementPortal/blob/master/LICENSE.md
     ribbon:
         display-on-active-profiles: dev
 
