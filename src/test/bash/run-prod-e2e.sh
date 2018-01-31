@@ -8,10 +8,8 @@
 # Then we start up a docker stack with a postgres server since production mode is configured for a
 # postgres database instead of in-memory database.
 
-set -ev
-
-# only run on the release branch's push and pull_request events
-if [[ $TRAVIS_BRANCH == release-* ]] || [[ $TRAVIS_BRANCH == master ]]
+# only run on the release branch and master branch if it's not a tag build
+if [[ $TRAVIS_BRANCH == release-* ]] || ( [[ $TRAVIS_BRANCH == master ]] && [ -z $TRAVIS_TAG ] )
 then
   echo "Running production e2e tests"
   sed -i "s|new plugin.BaseHrefWebpackPlugin({ baseHref: '/' })|new plugin.BaseHrefWebpackPlugin({ baseHref: '/managementportal/' })|" webpack/webpack.dev.js

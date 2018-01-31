@@ -4,10 +4,8 @@
 # we need to put this in it's own file, since Travis will only see the exit status of the if
 # statement.
 
-set -ev
-
-# only run on the release branch's push and pull_request events
-if [[ $TRAVIS_BRANCH == release-* ]] || [[ $TRAVIS_PULL_REQUEST_BRANCH == release-* ]]
+# only run on the release branch and master branch if it's not a tag build
+if [[ $TRAVIS_BRANCH == release-* ]] || ( [[ $TRAVIS_BRANCH == master ]] && [ -z $TRAVIS_TAG ] )
 then
   echo "Testing docker image build"
   docker build -t managementportal .
