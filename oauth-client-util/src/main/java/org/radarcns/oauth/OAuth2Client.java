@@ -20,8 +20,8 @@ import org.radarcns.exception.TokenException;
 /**
  * Class for handling OAuth2 client credentials grant with the RADAR platform's ManagementPortal.
  *
- * <p>Altough it is designed with the ManagementPortal in mind, any identity server based on the
- * Spring OAuth library and using JWT as a token should be compatible. The {@link #getAccessToken()}
+ * <p>Although it is designed with the ManagementPortal in mind, any identity server based on the
+ * Spring OAuth library and using JWT as a token should be compatible. The {@link #getValidToken()}
  * method provides access to the {@link OAuth2AccessTokenDetails} instance, and will request a new
  * access token if the current one is expired. It will throw a {@link TokenException} if anything
  * went wrong. So to get the actual token you will call
@@ -32,7 +32,7 @@ import org.radarcns.exception.TokenException;
  * <p>See the test cases for this class for examples on usage. Also see
  * {@link OAuth2AccessTokenDetails} for more info on how to use it.</p>
  *
- * @implSpec this class is thread-safe.
+ * <p>This class is thread-safe.
  */
 // using builder pattern.
 @SuppressWarnings("PMD.MissingStaticMethodInNonInstantiatableClass")
@@ -62,7 +62,8 @@ public class OAuth2Client {
     }
 
     /**
-     * Get the current token.
+     * Get the current token, valid or not.
+     * @return the current token
      */
     public synchronized OAuth2AccessTokenDetails getToken() {
         return token;
@@ -188,7 +189,12 @@ public class OAuth2Client {
             return this;
         }
 
-        /** Build an OAuth2Client based on the settings given. */
+        /**
+         * Build an OAuth2Client based on the settings given. This will construct a new
+         * HTTP client if none was provided.
+         * @return a new OAuth2Client
+         * @throws IllegalStateException if the client credentials or the endpoint are not set.
+         */
         public OAuth2Client build() {
             if (clientCredentials == null) {
                 throw new IllegalStateException("Client credentials missing");
