@@ -11,7 +11,7 @@
 set -ev
 
 # only run on the release branch's push and pull_request events
-if [[ $TRAVIS_BRANCH == release-* ]] || [[ $TRAVIS_PULL_REQUEST_BRANCH == release-* ]]
+if [[ $TRAVIS_BRANCH == release-* ]] || [[ $TRAVIS_BRANCH == master ]]
 then
   echo "Running production e2e tests"
   sed -i "s|new plugin.BaseHrefWebpackPlugin({ baseHref: '/' })|new plugin.BaseHrefWebpackPlugin({ baseHref: '/managementportal/' })|" webpack/webpack.dev.js
