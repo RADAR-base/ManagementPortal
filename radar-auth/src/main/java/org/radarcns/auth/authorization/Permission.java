@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -101,7 +102,7 @@ public class Permission {
     private final Entity entity;
     private final Operation operation;
 
-    private Permission(Entity entity, Operation operation) {
+    public Permission(Entity entity, Operation operation) {
         if (entity == null || operation == null) {
             throw new IllegalArgumentException("Entity and operation can not be null");
         }
@@ -132,8 +133,8 @@ public class Permission {
      */
     public static List<Permission> allPermissions() {
         return Arrays.stream(Permission.class.getDeclaredFields())  // get declared fields
-            .filter(f -> Modifier.isStatic(f.getModifiers()))       // that are static
-            .filter(f -> f.getType() == Permission.class)           // and of type Permission
+            .filter(f -> Modifier.isStatic(f.getModifiers()) // that are static
+                    && f.getType() == Permission.class) // and of type Permission
             .map(f -> {
                 try {
                     return (Permission) f.get(null);
@@ -143,6 +144,7 @@ public class Permission {
                     return null;
                 }
             })
+            .filter(Objects::nonNull)
             .collect(Collectors.toList());
     }
 
@@ -151,23 +153,18 @@ public class Permission {
         if (this == other) {
             return true;
         }
-        if (!(other instanceof Permission)) {
+        if (other == null || getClass() != other.getClass()) {
             return false;
         }
 
         Permission that = (Permission) other;
 
-        if (entity != that.entity) {
-            return false;
-        }
-        return operation == that.operation;
+        return entity == that.entity && operation == that.operation;
     }
 
     @Override
     public int hashCode() {
-        int result = entity.hashCode();
-        result = 31 * result + operation.hashCode();
-        return result;
+        return Objects.hash(entity, operation);
     }
 
     @Override
@@ -181,6 +178,6 @@ public class Permission {
      * @return the OAuth scope representation of this permission
      */
     public String scopeName() {
-        return entity.name() + "." + operation.name();
+        return entity + "." + operation;
     }
 }
