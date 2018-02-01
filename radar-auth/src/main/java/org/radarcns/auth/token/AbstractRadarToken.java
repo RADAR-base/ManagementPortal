@@ -1,11 +1,10 @@
 package org.radarcns.auth.token;
 
-import java.util.Collection;
-import java.util.Objects;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.authorization.Permission;
 
 import java.util.Collections;
+import java.util.Objects;
 
 /**
  * Partial implementation of {@link RadarToken}, providing a default implementation for the three
@@ -17,23 +16,22 @@ public abstract class AbstractRadarToken implements RadarToken {
 
     @Override
     public boolean hasPermission(Permission permission) {
-        return hasScope(permission.scopeName())
-                && (isClientCredentials() || hasAuthorityForPermission(permission));
-
+        return hasScope(permission.scopeName());
     }
 
     @Override
     public boolean hasPermissionOnProject(Permission permission, String projectName) {
         return hasScope(permission.scopeName())
-                && (isClientCredentials() || hasAuthorityForPermission(permission, projectName));
+                && ((isClientCredentials() && getRoles().isEmpty())
+                || hasAuthorityForPermission(permission, projectName));
     }
 
     @Override
     public boolean hasPermissionOnSubject(Permission permission, String projectName,
             String subjectName) {
         return hasScope(permission.scopeName())
-                && (isClientCredentials() || hasAuthorityForPermission(permission, projectName,
-                        subjectName));
+                && ((isClientCredentials() && getRoles().isEmpty())
+                || hasAuthorityForPermission(permission, projectName, subjectName));
     }
 
     protected boolean hasScope(String scope) {
@@ -42,19 +40,6 @@ public abstract class AbstractRadarToken implements RadarToken {
 
     protected boolean isClientCredentials() {
         return CLIENT_CREDENTIALS.equals(getGrantType());
-    }
-
-    /**
-     * Check all authorities in this token, project and non-project specific, for the given
-     * permission.
-     * @param permission the permission
-     * @return {@code true} if any authority contains the permission, {@code false} otherwise
-     */
-    protected boolean hasAuthorityForPermission(Permission permission) {
-        return getRoles().values().stream()
-                .flatMap(Collection::stream)
-                .anyMatch(permission::isAuthorityAllowed)
-                || hasNonProjectRelatedAuthorityForPermission(permission);
     }
 
     /**
