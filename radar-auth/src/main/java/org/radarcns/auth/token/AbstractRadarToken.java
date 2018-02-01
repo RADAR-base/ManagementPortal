@@ -17,7 +17,6 @@ public abstract class AbstractRadarToken implements RadarToken {
     @Override
     public boolean hasPermission(Permission permission) {
         return hasScope(permission.scopeName());
-
     }
 
     @Override
