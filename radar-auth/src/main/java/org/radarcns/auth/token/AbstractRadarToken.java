@@ -12,36 +12,28 @@ import java.util.Collections;
  * permission checks.
  */
 public abstract class AbstractRadarToken implements RadarToken {
-
-    protected static final String CLIENT_CREDENTIALS = "client_credentials";
-
     @Override
     public boolean hasPermission(Permission permission) {
         return hasScope(permission.scopeName())
-                && (isClientCredentials() || hasAuthorityForPermission(permission));
+                && hasAuthorityForPermission(permission);
 
     }
 
     @Override
     public boolean hasPermissionOnProject(Permission permission, String projectName) {
         return hasScope(permission.scopeName())
-                && (isClientCredentials() || hasAuthorityForPermission(permission, projectName));
+                && hasAuthorityForPermission(permission, projectName);
     }
 
     @Override
     public boolean hasPermissionOnSubject(Permission permission, String projectName,
             String subjectName) {
         return hasScope(permission.scopeName())
-                && (isClientCredentials() || hasAuthorityForPermission(permission, projectName,
-                        subjectName));
+                && hasAuthorityForPermission(permission, projectName, subjectName);
     }
 
     protected boolean hasScope(String scope) {
         return getScopes().contains(scope);
-    }
-
-    protected boolean isClientCredentials() {
-        return CLIENT_CREDENTIALS.equals(getGrantType());
     }
 
     /**
