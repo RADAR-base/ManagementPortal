@@ -1,6 +1,6 @@
 # ManagementPortal
 
-[![Build Status](https://travis-ci.org/RADAR-CNS/ManagementPortal.svg?branch=master)](https://travis-ci.org/RADAR-CNS/ManagementPortal)
+[![Build Status](https://travis-ci.org/RADAR-base/ManagementPortal.svg?branch=master)](https://travis-ci.org/RADAR-base/ManagementPortal)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/87bb961266d3443988b52ee7aa32f100)](https://www.codacy.com/app/RADAR-CNS/ManagementPortal?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RADAR-CNS/ManagementPortal&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/87bb961266d3443988b52ee7aa32f100)](https://www.codacy.com/app/RADAR-CNS/ManagementPortal?utm_source=github.com&utm_medium=referral&utm_content=RADAR-CNS/ManagementPortal&utm_campaign=Badge_Coverage)
 
@@ -243,14 +243,14 @@ Then run:
 For more information refer to [Using Docker and Docker-Compose][], this page also contains information on the docker-compose sub-generator (`yo jhipster:docker-compose`), which is able to generate docker configurations for one or several JHipster applications.
 ## Documentation
 
-Visit our [Github pages](https://radar-cns.github.io/ManagementPortal) site to find links to the
+Visit our [Github pages](https://radar-base.github.io/ManagementPortal) site to find links to the
 Javadoc and API docs.
 
 The pages site is published from the `gh-pages` branch, which has its own history. If you want to
 contribute to the documentation, it is probably more convenient to clone a separate copy of this
 repository for working on the `gh-pages` branch:
 ```bash
-git clone --branch gh-pages https://github.com/RADAR-CNS/ManagementPortal.git ManagementPortal-docs
+git clone --branch gh-pages https://github.com/RADAR-base/ManagementPortal.git ManagementPortal-docs
 ```
 ## Client libraries
 

@@ -45,7 +45,7 @@ allprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
     apply plugin: 'com.jfrog.artifactory'
-    ext.githubRepoName = 'RADAR-CNS/ManagementPortal'
+    ext.githubRepoName = 'RADAR-base/ManagementPortal'
 
 
     ext.githubUrl = 'https://github.com/' + githubRepoName + '.git'

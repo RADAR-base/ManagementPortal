@@ -15,7 +15,7 @@ cp -R managementportal-client/build/docs/javadoc $HOME/mpc-javadoc
 cd $HOME
 git config --global user.email "travis@travis-ci.org"
 git config --global user.name "travis-ci"
-git clone --quiet --branch=gh-pages https://${GH_TOKEN}@github.com/RADAR-CNS/ManagementPortal gh-pages > /dev/null
+git clone --quiet --branch=gh-pages https://${GH_TOKEN}@github.com/RADAR-base/ManagementPortal gh-pages > /dev/null
 
 cd gh-pages
 git rm -rf ./*-javadoc
