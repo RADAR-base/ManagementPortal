@@ -31,7 +31,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Validates JWT token signed by the Management Portal. It is synchronized and may be used from
- * multiple threads.
+ * multiple threads. If the status of the public key should be checked immediately, call
+ * {@link #refresh()} directly after creating this validator.
  */
 public class TokenValidator {
 
@@ -85,7 +86,9 @@ public class TokenValidator {
      *
      * @param config The identity server configuration
      * @param fetchTimeout timeout for retrying the public RSA key in seconds
+     * @deprecated Prefer {@link #TokenValidator(ServerConfig, Duration)} instead.
      */
+    @Deprecated
     public TokenValidator(ServerConfig config, long fetchTimeout) {
         this(config, Duration.ofSeconds(fetchTimeout));
     }
@@ -119,7 +122,7 @@ public class TokenValidator {
         } catch (SignatureVerificationException sve) {
             log.warn("Client presented a token with an incorrect signature, fetching public key"
                     + " again. Token: {}", token);
-            updateVerifier();
+            refresh();
             return validateAccessToken(token);
         } catch (JWTVerificationException ex) {
             throw new TokenValidationException(ex);
@@ -141,7 +144,11 @@ public class TokenValidator {
         }
     }
 
-    private void updateVerifier() {
+    /**
+     * Refreshes the token verifier public key.
+     * @throws TokenValidationException if the public key could not be refreshed.
+     */
+    public void refresh() throws TokenValidationException {
         JWTVerifier localVerifier = loadVerifier();
         synchronized (this) {
             this.verifier = localVerifier;
