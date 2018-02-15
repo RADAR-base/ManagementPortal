@@ -32,7 +32,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Validates JWT token signed by the Management Portal. It is synchronized and may be used from
  * multiple threads. If the status of the public key should be checked immediately, call
- * {@link #refresh()} directly after creating this validator.
+ * {@link #refresh()} directly after creating this validator. It currently does not check this, so
+ * that the validator can be used even if a remote ManagementPortal is not reachable during
+ * construction.
  */
 public class TokenValidator {
 
