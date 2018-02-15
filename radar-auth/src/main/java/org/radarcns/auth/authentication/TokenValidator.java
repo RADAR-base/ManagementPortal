@@ -14,6 +14,7 @@ import java.net.URLConnection;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -45,15 +46,15 @@ public class TokenValidator {
     // If a client presents a token with an invalid signature, it might be the keypair was changed.
     // In that case we need to fetch it again, but we don't want a malicious client to be able to
     // make us DOS our own identity server. Fetching it at maximum once per minute mitigates this.
-    private final ThreadLocal<Instant> lastFetch = ThreadLocal.withInitial(() -> Instant.EPOCH);
-    private static final long FETCH_TIMEOUT_DEFAULT = 60L;
-    private final long fetchTimeout;
+    private static final Duration FETCH_TIMEOUT_DEFAULT = Duration.ofMinutes(1);
+    private final Duration fetchTimeout;
+    private Instant lastFetch = Instant.MIN;
 
     /**
      * Default constructor. Will load the identity server configuration from a file called
      * radar-is.yml that should be on the classpath, or its location defined in the
      * RADAR_IS_CONFIG_LOCATION environment variable. Will also fetch the public key from the
-     * identity server for checkign token signatures.
+     * identity server for checking token signatures.
      */
     public TokenValidator() {
         this(YamlServerConfig.readFromFileOrClasspath(), FETCH_TIMEOUT_DEFAULT);
@@ -74,17 +75,19 @@ public class TokenValidator {
      * @param config The identity server configuration
      * @param fetchTimeout timeout for retrying the public RSA key
      */
-    public TokenValidator(ServerConfig config, long fetchTimeout) {
+    public TokenValidator(ServerConfig config, Duration fetchTimeout) {
         this.fetchTimeout = fetchTimeout;
         this.config = config;
-        try {
-            // Catch this exception here, as the identity server might not be online when this class
-            // is instantiated. We want this class to always be able to be instantiated, except for
-            // config file errors.
-            updateVerifier();
-        } catch (TokenValidationException ex) {
-            log.error("Could not get server's public key.", ex);
-        }
+    }
+
+    /**
+     * Constructor where ServerConfig can be passed instead of it being loaded from file.
+     *
+     * @param config The identity server configuration
+     * @param fetchTimeout timeout for retrying the public RSA key in seconds
+     */
+    public TokenValidator(ServerConfig config, long fetchTimeout) {
+        this(config, Duration.ofSeconds(fetchTimeout));
     }
 
     /**
@@ -146,14 +149,16 @@ public class TokenValidator {
     }
 
     private JWTVerifier loadVerifier() throws TokenValidationException {
-        if (Instant.now().isBefore(lastFetch.get().plusSeconds(fetchTimeout))) {
-            // it hasn't been long enough ago to fetch the key again, we deny access
-            log.warn("Fetched public key less than {} seconds ago, denied access.", fetchTimeout);
-            throw new TokenValidationException("Not fetching public key more than once every "
-                + Long.toString(fetchTimeout) + " seconds.");
+        synchronized (this) {
+            // whether successful or not, do not request the key more than once per minute
+            if (Instant.now().isBefore(lastFetch.plus(fetchTimeout))) {
+                // it hasn't been long enough ago to fetch the key again, we deny access
+                log.warn("Fetched public key less than {} ago, denied access.", fetchTimeout);
+                throw new TokenValidationException("Not fetching public key more than once every "
+                    + fetchTimeout);
+            }
+            lastFetch = Instant.now();
         }
-        // whether successful or not, do not request the key more than once per minute
-        lastFetch.set(Instant.now());
 
         RSAPublicKey publicKey;
         if (config.getPublicKey() == null) {
