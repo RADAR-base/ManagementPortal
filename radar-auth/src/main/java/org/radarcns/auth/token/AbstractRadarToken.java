@@ -111,4 +111,39 @@ public abstract class AbstractRadarToken implements RadarToken {
         return Objects.equals(getRoles().get(projectName),
             Collections.singletonList(AuthoritiesConstants.PARTICIPANT));
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if (other == null || other.getClass() != getClass()) {
+            return false;
+        }
+
+        return Objects.equals(getToken(), ((AbstractRadarToken)other).getToken());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getToken());
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "{"
+            + "scopes=" + getScopes()
+            + ", subject='" + getSubject() + '\''
+            + ", roles=" + getRoles()
+            + ", sources=" + getSources()
+            + ", authorities=" + getAuthorities()
+            + ", grantType='" + getGrantType() + '\''
+            + ", audience=" + getAudience()
+            + ", issuer='" + getIssuer() + '\''
+            + ", issuedAt=" + getIssuedAt()
+            + ", expiresAt=" + getExpiresAt()
+            + ", type='" + getType() + '\''
+            + ", token='" + getToken() + '\''
+            + '}';
+    }
 }
