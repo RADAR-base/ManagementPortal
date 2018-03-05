@@ -1,5 +1,6 @@
 import {SourceType} from "../../entities/source-type/source-type.model";
 import {MinimalProject} from "../../entities/project/project.model";
+import {Dictionary} from "../dictionary-mapper/dictionary-mapper.model";
 export class Source {
     constructor(
         public id?: number,
@@ -9,6 +10,7 @@ export class Source {
         public assigned?: boolean,
         public sourceType?: SourceType,
         public project?: MinimalProject,
+        public attributes?: Dictionary
     ) {
         this.assigned = false;
     }
