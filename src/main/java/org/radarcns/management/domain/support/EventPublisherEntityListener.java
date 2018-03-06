@@ -30,6 +30,7 @@ public class EventPublisherEntityListener {
     public static final String ENTITY_CREATED = "ENTITY_CREATED";
     public static final String ENTITY_UPDATED = "ENTITY_UPDATED";
     public static final String ENTITY_REMOVED = "ENTITY_REMOVED";
+
     @Autowired
     private AuditEventRepository auditEventRepository;
 
@@ -72,6 +73,7 @@ public class EventPublisherEntityListener {
     @PostRemove
     public void publishRemoveEvent(AbstractAuditingEntity entity) {
         AutowireHelper.autowire(this, auditEventRepository);
+        AutowireHelper.autowire(this.springSecurityAuditorAware);
         AuditEvent event = new AuditEvent(springSecurityAuditorAware.getCurrentAuditor(), ENTITY_REMOVED,
                 createData(entity));
         auditEventRepository.add(event);
