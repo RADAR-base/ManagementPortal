@@ -34,6 +34,7 @@
             <th jhiSortBy="assigned" ><span jhiTranslate="managementPortalApp.source.assigned">Assigned</span><span class="fa fa-sort"></span></th>
             <th jhiSortBy="sourceType" ><span jhiTranslate="managementPortalApp.source.sourceType">Source Type</span><span class="fa fa-sort"></span></th>
             <th jhiSortBy="project" *ngIf="!isProjectSpecific"><span jhiTranslate="managementPortalApp.source.project">Project</span><span class="fa fa-sort"></span></th>
+            <th><span jhiTranslate="managementPortalApp.source.attributeData">Attributes</span></th>
             <th></th>
             </tr>
             </thead>
@@ -58,6 +59,11 @@
                     <div *ngIf="source.project">
                         <a [routerLink]="['/project', source.project.projectName ]" >{{source.project.projectName}}</a>
                     </div>
+                </td>
+                <td>
+                  <div *ngFor="let entry of source.attributes | keys; trackBy: trackKey">
+                    <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
+                  </div>
                 </td>
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">

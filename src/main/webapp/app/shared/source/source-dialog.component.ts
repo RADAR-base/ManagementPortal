@@ -21,6 +21,8 @@ export class SourceDialogComponent implements OnInit {
     authorities: any[];
     isSaving: boolean;
     sourceTypes: SourceType[];
+    attributeComponentEventPrefix: 'sourceAttributes';
+    options: string[];
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -41,9 +43,16 @@ export class SourceDialogComponent implements OnInit {
                 this.sourceTypes = res.json();
             });
         }
+        this.options = ['External-identifier'];
+        this.registerChangesInSubject();
     }
 
-    clear() {
+    private registerChangesInSubject() {
+      this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
+        this.source.attributes = response.content;
+      });
+    }
+      clear() {
         this.activeModal.dismiss('cancel');
     }
 

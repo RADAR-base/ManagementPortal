@@ -8,7 +8,7 @@ import javax.persistence.PostPersist;
 import javax.persistence.PostRemove;
 import javax.persistence.PostUpdate;
 import org.radarcns.management.domain.AbstractAuditingEntity;
-import org.radarcns.management.security.SecurityUtils;
+import org.radarcns.management.security.SpringSecurityAuditorAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.boot.actuate.audit.AuditEventRepository;
@@ -30,10 +30,14 @@ public class EventPublisherEntityListener {
     public static final String ENTITY_CREATED = "ENTITY_CREATED";
     public static final String ENTITY_UPDATED = "ENTITY_UPDATED";
     public static final String ENTITY_REMOVED = "ENTITY_REMOVED";
+
     @Autowired
     private AuditEventRepository auditEventRepository;
 
     private final DateTimeProvider dateTimeProvider = CurrentDateTimeProvider.INSTANCE;
+
+    @Autowired
+    private SpringSecurityAuditorAware springSecurityAuditorAware;
 
     /**
      * Event listener to publish a persist event to the audit event repository.
@@ -69,8 +73,9 @@ public class EventPublisherEntityListener {
     @PostRemove
     public void publishRemoveEvent(AbstractAuditingEntity entity) {
         AutowireHelper.autowire(this, auditEventRepository);
-        AuditEvent event = new AuditEvent(SecurityUtils.getCurrentUserLogin(), ENTITY_REMOVED,
-                createData(entity));
+        AutowireHelper.autowire(this.springSecurityAuditorAware);
+        AuditEvent event = new AuditEvent(springSecurityAuditorAware.getCurrentAuditor(),
+                ENTITY_REMOVED, createData(entity));
         auditEventRepository.add(event);
     }
 

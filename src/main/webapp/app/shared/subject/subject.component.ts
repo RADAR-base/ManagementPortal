@@ -55,15 +55,15 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
             } else {
                 this.page = 1;
                 this.previousPage = 1;
-                this.predicate = 'id';
-                // this.reverse = true;
+                this.predicate = 'user.login';
+                this.reverse = true;
             }
         });
         this.jhiLanguageService.setLocations(['subject' , 'project' , 'projectStatus']);
     }
 
     loadSubjects() {
-        if(this.project) {
+        if(this.isProjectSpecific) {
             this.loadAllFromProject();
         }
         else {
@@ -95,8 +95,8 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
         this.routeData.unsubscribe();
     }
 
-    trackId(index: number, item: Subject) {
-        return item.id;
+    trackLogin(index: number, item: Subject) {
+        return item.login;
     }
 
     trackKey(index: number, item: any) {
@@ -135,9 +135,6 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
 
     sort() {
         const result = [this.predicate + ',' + (this.reverse ? 'asc' : 'desc')];
-        if (this.predicate !== 'id') {
-            result.push('id');
-        }
         return result;
     }
 
@@ -165,7 +162,7 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
                     }
             });
         }
-        this.loadAll();
+        this.loadSubjects();
     }
 
 }

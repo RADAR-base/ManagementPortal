@@ -22,7 +22,8 @@
             "sourceType": "Source Type",
             "project": "Project",
             "expectedSourceName" : "Fysiek ID",
-            "sourceAlreadyAdded" : "Deze source is al in uw lijst toegevoegd"
+            "sourceAlreadyAdded" : "Deze source is al in uw lijst toegevoegd",
+            "attributeData" : "Attributen"
         }
     },
     "error": {
