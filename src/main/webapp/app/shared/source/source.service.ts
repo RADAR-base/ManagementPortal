@@ -59,6 +59,12 @@ export class SourceService {
 
     findAllByProject(req?: any) :  Observable<Response> {
         const params: URLSearchParams = new URLSearchParams();
+        params.set('page', req.page);
+        params.set('size', req.size);
+        if (req.sort) {
+          params.paramsMap.set('sort', req.sort);
+        }
+        params.set('query', req.query);
         const options = {
             search: params
         };

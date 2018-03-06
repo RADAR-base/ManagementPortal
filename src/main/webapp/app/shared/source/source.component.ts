@@ -55,7 +55,7 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
                 this.page = 1;
                 this.previousPage = 1;
                 this.predicate = 'id';
-                // this.reverse = true;
+                this.reverse = true;
             }
         });
         this.jhiLanguageService.setLocations(['source', 'project', 'projectStatus']);
@@ -163,7 +163,7 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
                     }
             });
         }
-        this.loadAll();
+        this.loadSources();
     }
 
 }
