@@ -74,8 +74,8 @@ public class EventPublisherEntityListener {
     public void publishRemoveEvent(AbstractAuditingEntity entity) {
         AutowireHelper.autowire(this, auditEventRepository);
         AutowireHelper.autowire(this.springSecurityAuditorAware);
-        AuditEvent event = new AuditEvent(springSecurityAuditorAware.getCurrentAuditor(), ENTITY_REMOVED,
-                createData(entity));
+        AuditEvent event = new AuditEvent(springSecurityAuditorAware.getCurrentAuditor(),
+                ENTITY_REMOVED, createData(entity));
         auditEventRepository.add(event);
     }
 
