@@ -22,7 +22,6 @@ public interface SubjectMapper {
     @Mapping(source = "user.createdDate", target = "createdDate")
     @Mapping(source = "user.lastModifiedBy", target = "lastModifiedBy")
     @Mapping(source = "user.lastModifiedDate", target = "lastModifiedDate")
-    @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "project", ignore = true)
     SubjectDTO subjectToSubjectDTO(Subject subject);
@@ -35,13 +34,11 @@ public interface SubjectMapper {
     @Mapping(source = "lastModifiedBy", target = "user.lastModifiedBy")
     @Mapping(source = "lastModifiedDate", target = "user.lastModifiedDate")
     @Mapping(target = "user.email", ignore = true)
-    @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "user.activated", ignore = true)
     @Mapping(target = "removed", ignore = true)
     Subject subjectDTOToSubject(SubjectDTO subjectDto);
 
     @Mapping(target = "user", ignore = true)
-    @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "removed", ignore = true)
     Subject safeUpdateSubjectFromDTO(SubjectDTO subjectDto, @MappingTarget Subject subject);
 
