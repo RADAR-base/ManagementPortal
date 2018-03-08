@@ -23,6 +23,5 @@
     <include file="classpath:config/liquibase/changelog/00000000000014_added_demo_data.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20171220155600_drop_table_radar_user_authority.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20180110164600_add_source_demo_data.xml" relativeToChangelogFile="false"/>
-    <include file="classpath:config/liquibase/changelog/20180306165800_add_active_column_to_role.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>

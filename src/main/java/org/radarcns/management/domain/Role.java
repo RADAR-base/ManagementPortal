@@ -13,7 +13,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -54,9 +53,6 @@ public class Role extends AbstractAuditingEntity implements Serializable {
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JoinColumn(name = "authority_name", referencedColumnName = "name")
     private Authority authority;
-
-    @Column(name = "active_role")
-    private Boolean active = true;
 
     public Role() {
 
@@ -118,14 +114,6 @@ public class Role extends AbstractAuditingEntity implements Serializable {
         this.authority = authority;
     }
 
-    public Boolean getActive() {
-        return active;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -152,7 +140,6 @@ public class Role extends AbstractAuditingEntity implements Serializable {
                + "id=" + id + ", "
                + "project='" + (project == null ? "null" : project.getProjectName()) + "', "
                + "authority='" + getAuthority().getName() + "', "
-               + "isActive='" + getActive() + "', "
                + "}";
     }
 

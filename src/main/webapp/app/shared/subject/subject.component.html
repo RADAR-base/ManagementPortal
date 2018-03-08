@@ -49,9 +49,15 @@
                     <span class="badge badge-danger" *ngIf="subject.status == 'INVALID'">INVALID</span>
                 </td>
                 <td  *ngIf="!isProjectSpecific">
-                    <div *ngIf="subject.project">
-                        <a [routerLink]="['/project', subject.project?.projectName ]" >{{subject.project?.projectName}}</a>
-                    </div>
+                    <span *ngFor="let role of subject.roles; let last = last">
+
+                        <a  *ngIf="role.authorityName == 'ROLE_PARTICIPANT'"
+                            class="badge badge-success"
+                           [routerLink]="['/project', role.projectName ]">{{role.projectName}}</a>
+                        <a  *ngIf="role.authorityName == 'ROLE_INACTIVE_PARTICIPANT'"
+                           class="badge badge-warning"
+                           [routerLink]="['/project', role.projectName ]">{{role.projectName}}</a>
+                    </span>
                 </td>
                 <td>
                     <span *ngFor="let sources of subject.sources; let last = last">

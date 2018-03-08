@@ -86,7 +86,8 @@ public class SubjectService {
         Subject subject = subjectMapper.subjectDTOToSubject(subjectDto);
         //assign roles
         User user = subject.getUser();
-        user.getRoles().add(getProjectParticipantRole(subjectDto.getProject()));
+        user.getRoles().add(getProjectParticipantRole(subjectDto.getProject() ,
+                AuthoritiesConstants.PARTICIPANT));
 
         // set password and reset keys
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
@@ -114,15 +115,15 @@ public class SubjectService {
      * @return relevant Participant role
      * @throws java.util.NoSuchElementException if the authority name is not in the database
      */
-    private Role getProjectParticipantRole(ProjectDTO projectDto) {
+    private Role getProjectParticipantRole(ProjectDTO projectDto , String authority) {
         return roleRepository.findOneByProjectIdAndAuthorityName(projectDto.getId(),
-                AuthoritiesConstants.PARTICIPANT).orElseGet(() -> {
+                authority).orElseGet(() -> {
                     Role subjectRole = new Role();
                     // If we do not have the participant authority something is very wrong, and the
                     // .get() will trigger a NoSuchElementException, which will be translated
                     // into a 500 response.
                     subjectRole.setAuthority(authorityRepository.findByAuthorityName(
-                            AuthoritiesConstants.PARTICIPANT).get());
+                            authority).get());
                     subjectRole.setProject(projectMapper.projectDTOToProject(projectDto));
                     roleRepository.save(subjectRole);
                     return subjectRole;
@@ -155,11 +156,29 @@ public class SubjectService {
         Set<Role> managedRoles = subject.getUser().getRoles().stream()
                 .filter(r -> !AuthoritiesConstants.PARTICIPANT.equals(r.getAuthority().getName()))
                 .collect(Collectors.toSet());
-        managedRoles.add(getProjectParticipantRole(subjectDto.getProject()));
+        Set<Role> existingParticipantRole = subject.getUser().getRoles().stream().filter(r ->
+                AuthoritiesConstants.PARTICIPANT.equals(r.getAuthority().getName())).collect(
+                Collectors.toSet());
+        existingParticipantRole
+                .forEach(role -> managedRoles.add(getInactiveRole(role.getProject())));
+        managedRoles.add(getProjectParticipantRole(subjectDto.getProject(),
+                AuthoritiesConstants.PARTICIPANT));
         subject.getUser().setRoles(managedRoles);
         subject = subjectRepository.save(subject);
 
         return subjectMapper.subjectToSubjectDTO(subject);
+    }
+
+    private Role getInactiveRole(Project project) {
+        return roleRepository.findOneByProjectIdAndAuthorityName(project.getId(),
+                AuthoritiesConstants.INACTIVE_PARTICIPANT).orElseGet(() -> {
+            Role subjectRole = new Role();
+            subjectRole.setAuthority(authorityRepository.findByAuthorityName(
+                    AuthoritiesConstants.INACTIVE_PARTICIPANT).get());
+            subjectRole.setProject(project);
+            roleRepository.save(subjectRole);
+            return subjectRole;
+        });
     }
 
     /**

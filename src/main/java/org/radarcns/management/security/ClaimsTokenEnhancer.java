@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.token.JwtRadarToken;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.User;
@@ -59,7 +60,9 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
             Optional<User> optUser = userRepository.findOneByLogin(userName);
             if (optUser.isPresent()) {
                 List<String> roles = optUser.get().getRoles().stream()
-                        .filter(role -> Objects.nonNull(role.getProject()))
+                        .filter(role -> Objects.nonNull(role.getProject()) &&
+                                !AuthoritiesConstants.INACTIVE_PARTICIPANT.equals(role
+                                        .getAuthority().getName()))
                         .map(role -> role.getProject().getProjectName() + ":"
                                 + role.getAuthority().getName())
                         .collect(Collectors.toList());

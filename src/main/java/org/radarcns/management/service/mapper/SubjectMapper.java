@@ -13,7 +13,7 @@ import org.radarcns.management.service.mapper.decorator.SubjectMapperDecorator;
  * Mapper for the entity Subject and its DTO SubjectDTO.
  */
 @Mapper(componentModel = "spring", uses = {UserMapper.class, ProjectMapper.class,
-        SourceMapper.class})
+        SourceMapper.class, RoleMapper.class})
 @DecoratedWith(SubjectMapperDecorator.class)
 public interface SubjectMapper {
 
@@ -24,6 +24,7 @@ public interface SubjectMapper {
     @Mapping(source = "user.lastModifiedDate", target = "lastModifiedDate")
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "project", ignore = true)
+    @Mapping(source = "user.roles", target = "roles")
     SubjectDTO subjectToSubjectDTO(Subject subject);
 
     List<SubjectDTO> subjectsToSubjectDTOs(List<Subject> subjects);
@@ -36,6 +37,7 @@ public interface SubjectMapper {
     @Mapping(target = "user.email", ignore = true)
     @Mapping(target = "user.activated", ignore = true)
     @Mapping(target = "removed", ignore = true)
+    @Mapping(source = "roles" , target = "user.roles")
     Subject subjectDTOToSubject(SubjectDTO subjectDto);
 
     @Mapping(target = "user", ignore = true)

@@ -19,4 +19,6 @@ public class AuthoritiesConstants {
     public static final String PROJECT_ANALYST = "ROLE_PROJECT_ANALYST";
 
     public static final String PARTICIPANT = "ROLE_PARTICIPANT";
+
+    public static final String INACTIVE_PARTICIPANT = "ROLE_INACTIVE_PARTICIPANT";
 }
