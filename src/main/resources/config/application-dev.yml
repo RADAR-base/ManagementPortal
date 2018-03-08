@@ -40,6 +40,7 @@ spring:
         database: H2
 #        database: POSTGRESQL
         show-sql: true
+        factory-class: org.springframework.data.envers.repository.support.EnversRevisionRepositoryFactoryBean
         properties:
             hibernate.id.new_generator_mappings: true
             hibernate.cache.use_second_level_cache: true
@@ -49,6 +50,7 @@ spring:
             hibernate.cache.hazelcast.instance_name: ManagementPortal
             hibernate.cache.use_minimal_puts: true
             hibernate.cache.hazelcast.use_lite_member: true
+            hibernate.hbm2ddl : update
     mail:
         host:  # for hotmail
         port:

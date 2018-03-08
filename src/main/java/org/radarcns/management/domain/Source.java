@@ -27,6 +27,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.radarcns.auth.config.Constants;
 
 /**
@@ -40,7 +42,7 @@ public class Source extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
     private Long id;
 
@@ -63,6 +65,7 @@ public class Source extends AbstractAuditingEntity implements Serializable {
     @ManyToMany(mappedBy = "sources")
     @JsonIgnore
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Set<Subject> subjects = new HashSet<>();
 
     @ManyToOne

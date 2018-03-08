@@ -309,6 +309,7 @@ dependencies {
     compile "com.h2database:h2"
     compile "org.mapstruct:mapstruct-jdk8:${mapstruct_version}"
     compile project(":radar-auth")
+    compile "org.springframework.data:spring-data-envers:${spring_data_envers_version}"
 
     codacy group: 'com.codacy', name: 'codacy-coverage-reporter', version: codacyVersion
 
