@@ -23,8 +23,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
-@EnableJpaRepositories(basePackages = "org.radarcns.management.repository" ,
-        repositoryFactoryBeanClass=EnversRevisionRepositoryFactoryBean.class)
+@EnableJpaRepositories(basePackages = "org.radarcns.management.repository",
+        repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean.class)
 @EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")
 @EnableTransactionManagement
 public class DatabaseConfiguration {

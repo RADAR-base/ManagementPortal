@@ -8,17 +8,16 @@ import org.radarcns.management.config.audit.CustomRevisionListener;
 
 @Entity
 @RevisionEntity(CustomRevisionListener.class)
-@Table(name="_revisions_info")
+@Table(name = "_revisions_info")
 public class CustomRevisionEntity extends DefaultRevisionEntity {
 
-	private String auditor;
+    private String auditor;
 
-	public String getAuditor() {
+    public String getAuditor() {
         return auditor;
-	}
+    }
 
-	public void setAuditor(String auditor) {
-		this.auditor = auditor;
-	}
-	
+    public void setAuditor(String auditor) {
+        this.auditor = auditor;
+    }
 }
