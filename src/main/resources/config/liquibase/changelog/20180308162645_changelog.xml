@@ -368,7 +368,7 @@
         <createSequence sequenceName="radar_user_seq" startValue="1000" incrementBy="50"/>
         <createSequence sequenceName="persistent_audit_event_seq" startValue="1000" incrementBy="50"/>
     </changeSet>
-    <changeSet id="1520522822850-49" author="dverbeec@its.jnj.com">
+    <changeSet id="1520522822850-49" author="dverbeec@its.jnj.com" context="prod">
         <alterSequence sequenceName="hibernate_sequence" incrementBy="1"/>
     </changeSet>
 </databaseChangeLog>
