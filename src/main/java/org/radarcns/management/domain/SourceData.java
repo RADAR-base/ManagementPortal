@@ -19,6 +19,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.envers.Audited;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.enumeration.ProcessingState;
 
@@ -26,6 +27,7 @@ import org.radarcns.management.domain.enumeration.ProcessingState;
  * A SourceData.
  */
 @Entity
+@Audited
 @Table(name = "source_data")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class SourceData extends AbstractAuditingEntity implements Serializable {
@@ -33,8 +35,9 @@ public class SourceData extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "source_data_seq")
+    @SequenceGenerator(name = "source_data_seq", initialValue = 1000,
+            sequenceName = "source_data_seq")
     private Long id;
 
     //SourceData type e.g. ACCELEROMETER, TEMPERATURE.

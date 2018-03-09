@@ -26,11 +26,13 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.envers.Audited;
 
 /**
  * A Subject.
  */
 @Entity
+@Audited
 @Table(name = "subject")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Subject extends AbstractAuditingEntity implements Serializable {
@@ -38,8 +40,9 @@ public class Subject extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "subject_seq")
+    @SequenceGenerator(name = "subject_seq", initialValue = 1000,
+            sequenceName = "subject_seq")
     private Long id;
 
     @Column(name = "external_link")

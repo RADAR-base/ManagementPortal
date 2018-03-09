@@ -23,6 +23,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.envers.Audited;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.enumeration.SourceTypeScope;
 
@@ -30,6 +31,7 @@ import org.radarcns.management.domain.enumeration.SourceTypeScope;
  * A SourceType.
  */
 @Entity
+@Audited
 @Table(name = "source_type")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class SourceType extends AbstractAuditingEntity implements Serializable {
@@ -37,8 +39,9 @@ public class SourceType extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "source_type_seq")
+    @SequenceGenerator(name = "source_type_seq", initialValue = 1000,
+            sequenceName = "source_type_seq")
     private Long id;
 
     @NotNull

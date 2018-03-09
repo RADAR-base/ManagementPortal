@@ -24,11 +24,13 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.envers.Audited;
 
 /**
  * A Role.
  */
 @Entity
+@Audited
 @Table(name = "radar_role")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Role extends AbstractAuditingEntity implements Serializable {
@@ -36,8 +38,9 @@ public class Role extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "radar_role_seq")
+    @SequenceGenerator(name = "radar_role_seq", initialValue = 1000,
+            sequenceName = "radar_role_seq")
     private Long id;
 
     @ManyToMany(mappedBy = "roles")

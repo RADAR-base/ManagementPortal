@@ -30,6 +30,7 @@ import javax.validation.constraints.Pattern;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
+import org.hibernate.envers.Audited;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.enumeration.ProjectStatus;
 
@@ -37,6 +38,7 @@ import org.radarcns.management.domain.enumeration.ProjectStatus;
  * A Project.
  */
 @Entity
+@Audited
 @Table(name = "project")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Project extends AbstractAuditingEntity implements Serializable {
@@ -44,8 +46,9 @@ public class Project extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "project_seq")
+    @SequenceGenerator(name = "project_seq", initialValue = 1000,
+            sequenceName = "project_seq")
     private Long id;
 
     @NotNull

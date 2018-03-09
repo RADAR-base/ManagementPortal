@@ -26,6 +26,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.Email;
 import org.radarcns.auth.config.Constants;
 
@@ -33,6 +34,7 @@ import org.radarcns.auth.config.Constants;
  * A user.
  */
 @Entity
+@Audited
 @Table(name = "radar_user")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class User extends AbstractAuditingEntity implements Serializable {
@@ -40,8 +42,9 @@ public class User extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "radar_user_seq")
+    @SequenceGenerator(name = "radar_user_seq", initialValue = 1000,
+            sequenceName = "radar_user_seq")
     private Long id;
 
     @NotNull
