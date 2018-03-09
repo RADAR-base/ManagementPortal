@@ -60,8 +60,8 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
             Optional<User> optUser = userRepository.findOneByLogin(userName);
             if (optUser.isPresent()) {
                 List<String> roles = optUser.get().getRoles().stream()
-                        .filter(role -> Objects.nonNull(role.getProject()) &&
-                                !AuthoritiesConstants.INACTIVE_PARTICIPANT.equals(role
+                        .filter(role -> Objects.nonNull(role.getProject())
+                                && !AuthoritiesConstants.INACTIVE_PARTICIPANT.equals(role
                                         .getAuthority().getName()))
                         .map(role -> role.getProject().getProjectName() + ":"
                                 + role.getAuthority().getName())

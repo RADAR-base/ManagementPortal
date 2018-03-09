@@ -1,5 +1,7 @@
 package org.radarcns.management.web.rest;
 
+import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
+import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarcns.auth.authorization.Permission.SUBJECT_CREATE;
 import static org.radarcns.auth.authorization.Permission.SUBJECT_DELETE;
 import static org.radarcns.auth.authorization.Permission.SUBJECT_READ;
@@ -16,6 +18,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -98,7 +101,7 @@ public class SubjectResource {
      *
      * @param subjectDto the subjectDto to create
      * @return the ResponseEntity with status 201 (Created) and with body the new subjectDto, or
-     *     with status 400 (Bad Request) if the subject has already an ID
+     * with status 400 (Bad Request) if the subject has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/subjects")
@@ -127,7 +130,7 @@ public class SubjectResource {
         }
         if (subjectDto.getExternalId() != null && !subjectDto.getExternalId().isEmpty()
                 && subjectRepository.findOneByProjectNameAndExternalId(subjectDto.getProject()
-                        .getProjectName(), subjectDto.getExternalId()).isPresent()) {
+                .getProjectName(), subjectDto.getExternalId()).isPresent()) {
             return ResponseEntity.badRequest().headers(HeaderUtil
                     .createFailureAlert(ENTITY_NAME, "subjectExists",
                             "A subject with given project-id and external-id already exists"))
@@ -146,8 +149,8 @@ public class SubjectResource {
      *
      * @param subjectDto the subjectDto to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated subjectDto, or with
-     *     status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal
-     *     Server Error) if the subjectDto couldnt be updated
+     * status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal Server
+     * Error) if the subjectDto couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/subjects")
@@ -177,8 +180,8 @@ public class SubjectResource {
      *
      * @param subjectDto the subjectDto to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated subjectDto, or with
-     *     status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal
-     *     Server Error) if the subjectDto couldnt be updated
+     * status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal Server
+     * Error) if the subjectDto couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/subjects/discontinue")
@@ -220,26 +223,52 @@ public class SubjectResource {
     @Timed
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(@ApiParam Pageable pageable,
             @RequestParam(value = "projectName", required = false) String projectName,
-            @RequestParam(value = "externalId", required = false) String externalId)
+            @RequestParam(value = "externalId", required = false) String externalId,
+            @RequestParam(value = "withInactiveParticipants", required = false)
+                    Boolean withInactiveParticipants)
             throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), SUBJECT_READ);
         log.debug("ProjectName {} and external {}", projectName, externalId);
+        // if not specified do not include inactive patients
+        boolean withInactive = withInactiveParticipants != null ? withInactiveParticipants : false;
         if (projectName != null && externalId != null) {
-            Optional<Subject> subject = subjectRepository
-                    .findOneByProjectNameAndExternalId(projectName, externalId);
+            Optional<Subject> subject = Optional.empty();
+            if (!withInactive) {
+                subject = subjectRepository
+                        .findOneByProjectNameAndExternalIdAndAuthoritiesIn(projectName, externalId,
+                                Collections.singletonList(PARTICIPANT));
+            } else {
+                // gets both participants and inactive participants
+                subject = subjectRepository
+                        .findOneByProjectNameAndExternalIdAndAuthoritiesIn(projectName, externalId,
+                                Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT));
+            }
             if (!subject.isPresent()) {
                 return ResponseEntity.notFound().build();
             }
             SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject.get());
             return ResponseEntity.ok(Collections.singletonList(subjectDto));
         } else if (projectName == null && externalId != null) {
-            List<Subject> subjects = subjectRepository.findAllByExternalId(externalId);
+            List<Subject> subjects = Collections.emptyList();
+            if (!withInactive) {
+                subjects = subjectRepository.findAllByExternalIdAndAuthority(externalId,
+                        PARTICIPANT);
+            } else {
+                subjects = subjectRepository.findAllByExternalId(externalId);
+            }
+
             return ResponseUtil
                     .wrapOrNotFound(Optional.of(subjectMapper.subjectsToSubjectDTOs(subjects)));
         } else if (projectName != null) {
-
-            Page<SubjectDTO> page = subjectRepository.findAllByProjectName(pageable, projectName)
-                    .map(subjectMapper::subjectToSubjectDTO);
+            Page<SubjectDTO> page;
+            if (!withInactive) {
+                page = subjectRepository.findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
+                        Collections.singletonList(PARTICIPANT))
+                        .map(subjectMapper::subjectToSubjectDTO);
+            } else {
+                page = subjectRepository.findAllByProjectName(pageable, projectName)
+                        .map(subjectMapper::subjectToSubjectDTO);
+            }
             HttpHeaders headers = PaginationUtil
                     .generatePaginationHttpHeaders(page, "/api/subjects");
             return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
@@ -256,7 +285,7 @@ public class SubjectResource {
      *
      * @param login the login of the subjectDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the subjectDTO, or with status
-     *     404 (Not Found)
+     * 404 (Not Found)
      */
     @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
@@ -411,6 +440,7 @@ public class SubjectResource {
 
     /**
      * Get sources assigned to a subject.
+     *
      * @param login the subject login
      * @return the sources
      */

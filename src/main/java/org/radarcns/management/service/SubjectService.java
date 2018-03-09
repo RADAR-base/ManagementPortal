@@ -79,6 +79,7 @@ public class SubjectService {
 
     /**
      * Create a new subject.
+     *
      * @param subjectDto the subject information
      * @return the newly created subject
      */
@@ -87,8 +88,8 @@ public class SubjectService {
         Subject subject = subjectMapper.subjectDTOToSubject(subjectDto);
         //assign roles
         User user = subject.getUser();
-        user.getRoles().add(getProjectParticipantRole(projectMapper.projectDTOToProject
-                        (subjectDto.getProject()) , PARTICIPANT));
+        user.getRoles().add(getProjectParticipantRole(
+                projectMapper.projectDTOToProject(subjectDto.getProject()), PARTICIPANT));
 
         // set password and reset keys
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
@@ -116,9 +117,9 @@ public class SubjectService {
      * @return relevant Participant role
      * @throws java.util.NoSuchElementException if the authority name is not in the database
      */
-    private Role getProjectParticipantRole(Project project , String authority) {
-        return roleRepository.findOneByProjectIdAndAuthorityName(project.getId(),
-                authority).orElseGet(() -> {
+    private Role getProjectParticipantRole(Project project, String authority) {
+        return roleRepository.findOneByProjectIdAndAuthorityName(project.getId(), authority)
+                .orElseGet(() -> {
                     Role subjectRole = new Role();
                     // If we do not have the participant authority something is very wrong, and the
                     // .get() will trigger a NoSuchElementException, which will be translated
@@ -134,6 +135,7 @@ public class SubjectService {
 
     /**
      * Update a subject's information.
+     *
      * @param subjectDto the new subject information
      * @return the updated subject
      */
@@ -154,7 +156,7 @@ public class SubjectService {
             source.setAssigned(true);
         }
         // update participant role
-        Set<Role> managedRoles = updateParticipantRoles(subject , subjectDto);
+        Set<Role> managedRoles = updateParticipantRoles(subject, subjectDto);
         subject.getUser().setRoles(managedRoles);
         subject = subjectRepository.save(subject);
 
@@ -181,6 +183,7 @@ public class SubjectService {
 
     /**
      * Get a page of subjects.
+     *
      * @param pageable the page information
      * @return the requested page of subjects
      */
@@ -194,6 +197,7 @@ public class SubjectService {
      *
      * <p>A discontinued subject is not deleted from the database, but will be prevented from
      * logging into the system, sending data, or otherwise interacting with the system.</p>
+     *
      * @param subjectDto the subject to discontinue
      * @return the discontinued subject
      */
@@ -343,6 +347,7 @@ public class SubjectService {
 
     /**
      * Delete the subject with the given login from the database.
+     *
      * @param login the login
      */
     public void deleteSubject(String login) {
