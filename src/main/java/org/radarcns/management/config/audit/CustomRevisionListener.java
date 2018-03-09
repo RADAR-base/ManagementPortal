@@ -13,7 +13,7 @@ public class CustomRevisionListener implements RevisionListener {
 
     @Override
     public void newRevision(Object revisionEntity) {
-        AutowireHelper.autowire(SpringSecurityAuditorAware.class, springSecurityAuditorAware);
+        AutowireHelper.autowire(this, springSecurityAuditorAware);
         CustomRevisionEntity entity = (CustomRevisionEntity) revisionEntity;
         entity.setAuditor(springSecurityAuditorAware.getCurrentAuditor());
     }
