@@ -26,7 +26,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
-import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.Role;
@@ -149,8 +148,8 @@ public class SubjectResource {
      *
      * @param subjectDto the subjectDto to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated subjectDto, or with
-     *      status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal Server
-     *      Error) if the subjectDto couldnt be updated
+     *      status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal
+     *      Server Error) if the subjectDto couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/subjects")
@@ -180,8 +179,8 @@ public class SubjectResource {
      *
      * @param subjectDto the subjectDto to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated subjectDto, or with
-     *      status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal Server
-     *      Error) if the subjectDto couldnt be updated
+     *      status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal
+     *      Server Error) if the subjectDto couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/subjects/discontinue")
@@ -251,10 +250,11 @@ public class SubjectResource {
         } else if (projectName == null && externalId != null) {
             List<Subject> subjects = Collections.emptyList();
             if (!withInactive) {
-                subjects = subjectRepository.findAllByExternalIdAndAuthority(externalId,
-                        PARTICIPANT);
+                subjects = subjectRepository.findAllByExternalIdAndAuthoritiesIn(externalId,
+                        Collections.singletonList(PARTICIPANT));
             } else {
-                subjects = subjectRepository.findAllByExternalId(externalId);
+                subjects = subjectRepository.findAllByExternalIdAndAuthoritiesIn(externalId,
+                        Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT));
             }
 
             return ResponseUtil
@@ -266,7 +266,8 @@ public class SubjectResource {
                         Collections.singletonList(PARTICIPANT))
                         .map(subjectMapper::subjectToSubjectDTO);
             } else {
-                page = subjectRepository.findAllByProjectName(pageable, projectName)
+                page = subjectRepository.findAllByProjectNameAndAuthoritiesIn(pageable,
+                        projectName, Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT))
                         .map(subjectMapper::subjectToSubjectDTO);
             }
             HttpHeaders headers = PaginationUtil
@@ -362,7 +363,7 @@ public class SubjectResource {
         Subject sub = subject.get();
         // find the PARTICIPANT role for this subject
         Optional<Role> roleOptional = sub.getUser().getRoles().stream()
-                .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PARTICIPANT))
+                .filter(r -> r.getAuthority().getName().equals(PARTICIPANT))
                 .findFirst();
         if (!roleOptional.isPresent()) {
             // no participant role found

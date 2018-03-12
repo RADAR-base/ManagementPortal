@@ -66,8 +66,12 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
             projectName, @Param("externalId") String externalId,
             @Param("authorities") List<String> authorities);
 
-    @Query("select subject.sources from Subject subject WHERE subject.externalId = :externalId")
-    List<Subject> findAllByExternalId(@Param("externalId") String externalId);
+    @Query("select distinct subject from Subject subject left join fetch subject.sources "
+            + "left join fetch subject.user user "
+            + "join user.roles roles where roles.authority.name in :authorities "
+            + "and subject.externalId = :externalId")
+    List<Subject> findAllByExternalIdAndAuthoritiesIn(@Param("externalId") String externalId, @Param
+            ("authorities") List<String> authorities);
 
     @Query("select subject.sources from Subject subject left join subject.sources sources "
             + "join sources.sourceType sourceType "
@@ -85,10 +89,5 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
     Optional<Source> findSubjectSourcesBySourceId(@Param("login") String login,
             @Param("sourceId") UUID sourceId);
 
-    @Query("select distinct subject from Subject subject left join fetch subject.sources "
-            + "left join fetch subject.user user "
-            + "join user.roles roles where roles.authority.name = :authority "
-            + "and subject.externalId = :externalId")
-    List<Subject> findAllByExternalIdAndAuthority(@Param("externalId") String externalId, @Param
-            ("authority") String authority);
+
 }

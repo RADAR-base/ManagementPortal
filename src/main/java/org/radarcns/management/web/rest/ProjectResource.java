@@ -1,8 +1,30 @@
 package org.radarcns.management.web.rest;
 
+import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
+import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarcns.auth.authorization.Permission.PROJECT_CREATE;
+import static org.radarcns.auth.authorization.Permission.PROJECT_DELETE;
+import static org.radarcns.auth.authorization.Permission.PROJECT_READ;
+import static org.radarcns.auth.authorization.Permission.PROJECT_UPDATE;
+import static org.radarcns.auth.authorization.Permission.ROLE_READ;
+import static org.radarcns.auth.authorization.Permission.SOURCE_READ;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_READ;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
+
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.repository.SubjectRepository;
@@ -35,25 +57,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import static org.radarcns.auth.authorization.Permission.PROJECT_CREATE;
-import static org.radarcns.auth.authorization.Permission.PROJECT_DELETE;
-import static org.radarcns.auth.authorization.Permission.PROJECT_READ;
-import static org.radarcns.auth.authorization.Permission.PROJECT_UPDATE;
-import static org.radarcns.auth.authorization.Permission.ROLE_READ;
-import static org.radarcns.auth.authorization.Permission.SOURCE_READ;
-import static org.radarcns.auth.authorization.Permission.SUBJECT_READ;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing Project.
@@ -89,7 +92,7 @@ public class ProjectResource {
      *
      * @param projectDto the projectDto to create
      * @return the ResponseEntity with status 201 (Created) and with body the new projectDto, or
-     *     with status 400 (Bad Request) if the project has already an ID
+     *      with status 400 (Bad Request) if the project has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/projects")
@@ -114,8 +117,8 @@ public class ProjectResource {
      *
      * @param projectDto the projectDto to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated projectDto, or with
-     *     status 400 (Bad Request) if the projectDto is not valid, or with status 500 (Internal
-     *     Server Error) if the projectDto couldnt be updated
+     *      status 400 (Bad Request) if the projectDto is not valid, or with status 500 (Internal
+     *      Server Error) if the projectDto couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/projects")
@@ -158,7 +161,7 @@ public class ProjectResource {
      *
      * @param projectName the projectName of the projectDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the projectDTO, or with status
-     *     404 (Not Found)
+     *      404 (Not Found)
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
@@ -175,7 +178,7 @@ public class ProjectResource {
      *
      * @param projectName the projectName of the projectDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the projectDTO, or with status
-     *     404 (Not Found)
+     *      404 (Not Found)
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/source-types")
     @Timed
@@ -275,13 +278,26 @@ public class ProjectResource {
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/subjects")
     @Timed
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(@ApiParam Pageable pageable,
-            @PathVariable String projectName) throws NotAuthorizedException {
+            @PathVariable String projectName,
+            @RequestParam(value = "withInactiveParticipants", required = false)
+                    Boolean inactiveParticipantsParam) throws NotAuthorizedException {
         // this checks if the project exists
         projectService.findOneByName(projectName);
         checkPermissionOnProject(getJWT(servletRequest), SUBJECT_READ, projectName);
         log.debug("REST request to get all subjects for project {}", projectName);
-        Page<SubjectDTO> page = subjectRepository.findAllByProjectName(pageable, projectName)
-                .map(subjectMapper::subjectToSubjectDTO);
+        Page<SubjectDTO> page;
+        boolean includeInactiveParticipants =
+                inactiveParticipantsParam != null ? inactiveParticipantsParam : false;
+        if (includeInactiveParticipants) {
+            page = subjectRepository.findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
+                    Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT))
+                    .map(subjectMapper::subjectToSubjectDTO);
+        } else {
+            page = subjectRepository.findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
+                    Collections.singletonList(PARTICIPANT))
+                    .map(subjectMapper::subjectToSubjectDTO);
+        }
+
         HttpHeaders headers = PaginationUtil
                 .generatePaginationHttpHeaders(page, HeaderUtil.buildPath("api",
                         "projects", projectName, "subjects"));
