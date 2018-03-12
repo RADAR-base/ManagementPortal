@@ -358,16 +358,6 @@
     <changeSet author="dverbeec (generated)" id="1520522822850-47">
         <addForeignKeyConstraint baseColumnNames="rev" baseTableName="subject_sources_aud" constraintName="FKry5e56jahf0mc9vypldqdpjby" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="_revisions_info"/>
     </changeSet>
-    <changeSet id="1520522822850-48" author="dverbeec@its.jnj.com">
-        <createSequence sequenceName="radar_role_seq" startValue="1000" incrementBy="50"/>
-        <createSequence sequenceName="radar_source_seq" startValue="1000" incrementBy="50"/>
-        <createSequence sequenceName="source_data_seq" startValue="1000" incrementBy="50"/>
-        <createSequence sequenceName="source_type_seq" startValue="1000" incrementBy="50"/>
-        <createSequence sequenceName="subject_seq" startValue="1000" incrementBy="50"/>
-        <createSequence sequenceName="project_seq" startValue="1000" incrementBy="50"/>
-        <createSequence sequenceName="radar_user_seq" startValue="1000" incrementBy="50"/>
-        <createSequence sequenceName="persistent_audit_event_seq" startValue="1000" incrementBy="50"/>
-    </changeSet>
     <!-- In production we should alter the sequence, not recreate it -->
     <changeSet id="1520522822850-49" author="dverbeec@its.jnj.com" context="prod">
         <alterSequence sequenceName="hibernate_sequence" incrementBy="1"/>

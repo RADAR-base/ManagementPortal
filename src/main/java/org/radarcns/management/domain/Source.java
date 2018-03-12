@@ -44,9 +44,8 @@ public class Source extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "radar_source_seq")
-    @SequenceGenerator(name = "radar_source_seq", initialValue = 1000,
-            sequenceName = "radar_source_seq")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
     private Long id;
 
     @NotNull
