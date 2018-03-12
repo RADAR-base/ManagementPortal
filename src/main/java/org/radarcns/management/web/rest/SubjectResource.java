@@ -100,8 +100,8 @@ public class SubjectResource {
      * POST  /subjects : Create a new subject.
      *
      * @param subjectDto the subjectDto to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new subjectDto, or
-     * with status 400 (Bad Request) if the subject has already an ID
+     * @return the ResponseEntity with status 201 (Created) and with body the new subjectDto,
+     *      or with status 400 (Bad Request) if the subject has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/subjects")
@@ -149,8 +149,8 @@ public class SubjectResource {
      *
      * @param subjectDto the subjectDto to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated subjectDto, or with
-     * status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal Server
-     * Error) if the subjectDto couldnt be updated
+     *      status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal Server
+     *      Error) if the subjectDto couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/subjects")
@@ -180,8 +180,8 @@ public class SubjectResource {
      *
      * @param subjectDto the subjectDto to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated subjectDto, or with
-     * status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal Server
-     * Error) if the subjectDto couldnt be updated
+     *      status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal Server
+     *      Error) if the subjectDto couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/subjects/discontinue")
@@ -285,7 +285,7 @@ public class SubjectResource {
      *
      * @param login the login of the subjectDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the subjectDTO, or with status
-     * 404 (Not Found)
+     *      404 (Not Found)
      */
     @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
