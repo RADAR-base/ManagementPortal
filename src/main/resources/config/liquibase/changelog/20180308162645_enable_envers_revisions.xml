@@ -362,7 +362,7 @@
     <changeSet id="1520522822850-49" author="dverbeec@its.jnj.com" context="prod">
         <alterSequence sequenceName="hibernate_sequence" incrementBy="1"/>
     </changeSet>
-    <!-- In dev and test it is safe to drop and recreate it instead (H2 does not support alterSequence) -->
+    <!-- In dev and test it is safe to drop and recreate the sequence instead (H2 does not support alterSequence) -->
     <changeSet id="1520522822850-50" author="dverbeec@its.jnj.com" context="dev,test">
         <dropSequence sequenceName="hibernate_sequence" />
         <createSequence sequenceName="hibernate_sequence" startValue="1000" incrementBy="1"/>
