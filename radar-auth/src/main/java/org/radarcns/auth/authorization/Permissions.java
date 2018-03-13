@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PROJECT_ADMIN;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PROJECT_AFFILIATE;
@@ -115,5 +116,10 @@ public class Permissions {
         Arrays.asList(Permission.SUBJECT_READ, Permission.SUBJECT_UPDATE,
                 Permission.MEASUREMENT_CREATE, Permission.MEASUREMENT_READ).stream()
                         .forEach(p -> PERMISSION_MATRIX.get(p).add(PARTICIPANT));
+
+        /* Inactive participant */
+        // Can update and read own data and can read and write own measurements
+        Collections.singletonList(Permission.SUBJECT_READ).stream()
+                .forEach(p -> PERMISSION_MATRIX.get(p).add(INACTIVE_PARTICIPANT));
     }
 }
