@@ -99,8 +99,8 @@ public class SubjectResource {
      * POST  /subjects : Create a new subject.
      *
      * @param subjectDto the subjectDto to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new subjectDto,
-     *      or with status 400 (Bad Request) if the subject has already an ID
+     * @return the ResponseEntity with status 201 (Created) and with body the new subjectDto, or
+     *      with status 400 (Bad Request) if the subject has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/subjects")
@@ -224,52 +224,38 @@ public class SubjectResource {
             @RequestParam(value = "projectName", required = false) String projectName,
             @RequestParam(value = "externalId", required = false) String externalId,
             @RequestParam(value = "withInactiveParticipants", required = false)
-                    Boolean withInactiveParticipants)
+                    Boolean withInactiveParticipantsParam)
             throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), SUBJECT_READ);
         log.debug("ProjectName {} and external {}", projectName, externalId);
         // if not specified do not include inactive patients
-        boolean withInactive = withInactiveParticipants != null ? withInactiveParticipants : false;
+        boolean withInactive =
+                withInactiveParticipantsParam != null ? withInactiveParticipantsParam : false;
+
+        List<String> authoritiesToInclude = withInactive ? Arrays.asList(PARTICIPANT,
+                INACTIVE_PARTICIPANT) : Collections.singletonList(PARTICIPANT);
+
         if (projectName != null && externalId != null) {
             Optional<Subject> subject = Optional.empty();
-            if (!withInactive) {
-                subject = subjectRepository
-                        .findOneByProjectNameAndExternalIdAndAuthoritiesIn(projectName, externalId,
-                                Collections.singletonList(PARTICIPANT));
-            } else {
-                // gets both participants and inactive participants
-                subject = subjectRepository
-                        .findOneByProjectNameAndExternalIdAndAuthoritiesIn(projectName, externalId,
-                                Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT));
-            }
+            subjectRepository
+                    .findOneByProjectNameAndExternalIdAndAuthoritiesIn(projectName, externalId,
+                            authoritiesToInclude);
+
             if (!subject.isPresent()) {
                 return ResponseEntity.notFound().build();
             }
             SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject.get());
             return ResponseEntity.ok(Collections.singletonList(subjectDto));
         } else if (projectName == null && externalId != null) {
-            List<Subject> subjects = Collections.emptyList();
-            if (!withInactive) {
-                subjects = subjectRepository.findAllByExternalIdAndAuthoritiesIn(externalId,
-                        Collections.singletonList(PARTICIPANT));
-            } else {
-                subjects = subjectRepository.findAllByExternalIdAndAuthoritiesIn(externalId,
-                        Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT));
-            }
-
+            List<Subject> subjects = subjectRepository
+                    .findAllByExternalIdAndAuthoritiesIn(externalId, authoritiesToInclude);
             return ResponseUtil
                     .wrapOrNotFound(Optional.of(subjectMapper.subjectsToSubjectDTOs(subjects)));
         } else if (projectName != null) {
-            Page<SubjectDTO> page;
-            if (!withInactive) {
-                page = subjectRepository.findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
-                        Collections.singletonList(PARTICIPANT))
-                        .map(subjectMapper::subjectToSubjectDTO);
-            } else {
-                page = subjectRepository.findAllByProjectNameAndAuthoritiesIn(pageable,
-                        projectName, Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT))
-                        .map(subjectMapper::subjectToSubjectDTO);
-            }
+            Page<SubjectDTO> page = subjectRepository
+                    .findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
+                            authoritiesToInclude).map(subjectMapper::subjectToSubjectDTO);
+
             HttpHeaders headers = PaginationUtil
                     .generatePaginationHttpHeaders(page, "/api/subjects");
             return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);

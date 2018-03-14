@@ -118,7 +118,7 @@ public class Permissions {
                         .forEach(p -> PERMISSION_MATRIX.get(p).add(PARTICIPANT));
 
         /* Inactive participant */
-        // Can update and read own data and can read and write own measurements
+        // Can read own data
         Collections.singletonList(Permission.SUBJECT_READ).stream()
                 .forEach(p -> PERMISSION_MATRIX.get(p).add(INACTIVE_PARTICIPANT));
     }

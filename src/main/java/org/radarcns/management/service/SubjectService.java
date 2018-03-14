@@ -136,31 +136,31 @@ public class SubjectService {
     /**
      * Update a subject's information.
      *
-     * @param subjectDto the new subject information
+     * @param newSubjectDto the new subject information
      * @return the updated subject
      */
     @Transactional
-    public SubjectDTO updateSubject(SubjectDTO subjectDto) {
-        if (subjectDto.getId() == null) {
-            return createSubject(subjectDto);
+    public SubjectDTO updateSubject(SubjectDTO newSubjectDto) {
+        if (newSubjectDto.getId() == null) {
+            return createSubject(newSubjectDto);
         }
-        Subject subject = subjectRepository.findOne(subjectDto.getId());
+        Subject subjectFromDb = subjectRepository.findOne(newSubjectDto.getId());
         //reset all the sources assigned to a subject to unassigned
-        for (Source source : subject.getSources()) {
+        for (Source source : subjectFromDb.getSources()) {
             source.setAssigned(false);
             sourceRepository.save(source);
         }
         //set only the devices assigned to a subject as assigned
-        subjectMapper.safeUpdateSubjectFromDTO(subjectDto, subject);
-        for (Source source : subject.getSources()) {
+        subjectMapper.safeUpdateSubjectFromDTO(newSubjectDto, subjectFromDb);
+        for (Source source : subjectFromDb.getSources()) {
             source.setAssigned(true);
         }
         // update participant role
-        Set<Role> managedRoles = updateParticipantRoles(subject, subjectDto);
-        subject.getUser().setRoles(managedRoles);
-        subject = subjectRepository.save(subject);
+        Set<Role> managedRoles = updateParticipantRoles(subjectFromDb, newSubjectDto);
+        subjectFromDb.getUser().setRoles(managedRoles);
+        subjectFromDb = subjectRepository.save(subjectFromDb);
 
-        return subjectMapper.subjectToSubjectDTO(subject);
+        return subjectMapper.subjectToSubjectDTO(subjectFromDb);
     }
 
     private Set<Role> updateParticipantRoles(Subject subject, SubjectDTO subjectDto) {
