@@ -1,0 +1,9 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="dverbeec@its.jnj.com" id="20180313103735-01">
+        <addForeignKeyConstraint baseColumnNames="project_id" baseTableName="radar_source" constraintName="fk2gl2pp2tn73t7aeau6dmo0aqo" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="project"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="20180313103735-02">
+        <addForeignKeyConstraint baseColumnNames="source_type_id" baseTableName="source_data" constraintName="fkq1v2xtfh3plvk3msry4g4my7a" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="source_type"/>
+    </changeSet>
+</databaseChangeLog>

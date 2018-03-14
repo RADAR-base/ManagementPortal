@@ -31,7 +31,7 @@ public class PersistentAuditEvent implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1, allocationSize = 1)
+    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
     @Column(name = "event_id")
     private Long id;
 

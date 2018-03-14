@@ -29,7 +29,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
@@ -93,9 +92,6 @@ public class UserResourceIntTest {
     private ExceptionTranslator exceptionTranslator;
 
     @Autowired
-    private EntityManager em;
-
-    @Autowired
     private SubjectRepository subjectRepository;
 
     @Autowired
@@ -132,7 +128,7 @@ public class UserResourceIntTest {
      * <p>This is a static method, as tests for other entities might also need it,
      * if they test an entity which has a required relationship to the User entity.</p>
      */
-    public static User createEntity(EntityManager em) {
+    public static User createEntity() {
         User user = new User();
         user.setLogin(DEFAULT_LOGIN);
         user.setPassword(RandomStringUtils.random(60));
@@ -146,7 +142,7 @@ public class UserResourceIntTest {
 
     @Before
     public void initTest() {
-        user = createEntity(em);
+        user = createEntity();
     }
 
     @Test

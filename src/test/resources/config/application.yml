@@ -17,6 +17,11 @@
 spring:
     application:
         name: ManagementPortal
+    profiles:
+        # The commented value for `active` can be replaced with valid Spring profiles to load.
+        # Otherwise, it will be filled in by gradle when building the WAR file
+        # Either way, it can be overridden by `--spring.profiles.active` value passed in the commandline or `-Dspring.profiles.active` set in `JAVA_OPTS`
+        active: #spring.profiles.active#
     jackson:
         serialization.write_dates_as_timestamps: false
     cache:
@@ -43,6 +48,11 @@ spring:
             hibernate.cache.use_query_cache: false
             hibernate.generate_statistics: true
             hibernate.hbm2ddl.auto: validate
+            org.hibernate.envers:
+                store_data_at_delete: true
+                audit_strategy: org.hibernate.envers.strategy.ValidityAuditStrategy
+                audit_strategy_validity_store_revend_timestamp: true
+                global_with_modified_flag: true
     mail:
         host: localhost
     messages:

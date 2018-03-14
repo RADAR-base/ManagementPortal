@@ -36,13 +36,13 @@ import java.util.Set;
 @Audited
 @Table(name = "subject")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Subject extends AbstractAuditingEntity implements Serializable {
+public class Subject extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1, allocationSize = 1)
+    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
     private Long id;
 
     @Column(name = "external_link")

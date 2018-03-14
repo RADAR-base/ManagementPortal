@@ -310,13 +310,19 @@ public class UserService {
      */
     @Scheduled(cron = "0 0 1 * * ?")
     public void removeNotActivatedUsers() {
-        ZonedDateTime now = ZonedDateTime.now();
-        List<User> users = userRepository
-                .findAllByActivatedIsFalseAndCreatedDateBefore(now.minusDays(3));
-        for (User user : users) {
-            log.debug("Deleting not activated user {}", user.getLogin());
-            userRepository.delete(user);
-        }
+        log.info("Scheduled scan for expired user accounts starting now");
+        ZonedDateTime cutoff = ZonedDateTime.now().minusDays(3);
+        // get all non-activated users
+        userRepository.findAllByActivated(false).stream()
+                .forEach(user -> {
+                    log.info("User {} created at {}", user.getLogin(), user.getCreatedDate());
+                });
+        userRepository.findAllByActivated(false).stream()
+                .filter(user -> user.getCreatedDate().isBefore(cutoff))
+                .forEach(user -> {
+                    log.info("Deleting not activated user after 3 days: {}", user.getLogin());
+                    userRepository.delete(user);
+                });
     }
 
     public Page<UserDTO> findAllByProjectNameAndAuthority(Pageable pageable, String projectName,

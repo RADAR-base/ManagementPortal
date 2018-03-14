@@ -31,13 +31,13 @@ import java.util.Objects;
 @Audited
 @Table(name = "source_data")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class SourceData extends AbstractAuditingEntity implements Serializable {
+public class SourceData extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1, allocationSize = 1)
+    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
     private Long id;
 
     //SourceData type e.g. ACCELEROMETER, TEMPERATURE.
