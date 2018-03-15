@@ -31,7 +31,7 @@ plugins {
 
 allprojects {
     group 'org.radarcns'
-    version '0.3.4' // project version
+    version '0.3.5' // project version
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
     // script, do not remove it.
@@ -45,7 +45,7 @@ allprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
     apply plugin: 'com.jfrog.artifactory'
-    ext.githubRepoName = 'RADAR-CNS/ManagementPortal'
+    ext.githubRepoName = 'RADAR-base/ManagementPortal'
 
 
     ext.githubUrl = 'https://github.com/' + githubRepoName + '.git'

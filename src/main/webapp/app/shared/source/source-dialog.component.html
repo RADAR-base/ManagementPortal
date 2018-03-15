@@ -43,6 +43,10 @@
             </select>
         </div>
 
+        <dictionary-mapper [attributes]='source.attributes' [options]="options"
+                          [eventPrefix]='attributeComponentEventPrefix'></dictionary-mapper>
+
+
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">

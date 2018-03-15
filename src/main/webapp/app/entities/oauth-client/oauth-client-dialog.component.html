@@ -42,7 +42,7 @@
         <div class="form-group">
             <label class="form-control-label" for="scope" jhiTranslate="managementPortalApp.oauthClient.scope">Scope</label>
             <input type="text" class="form-control" id="scope" name="scope" [(ngModel)]="scopeList" [disabled]="protectedClient" required />
-            <small id="scopeHelp" class="form-text text-muted">Comma seperated list of scopes. Scopes should have the following structure: ENTITY.OPERATION. See the <a href="https://github.com/RADAR-CNS/ManagementPortal/tree/master/radar-auth">radar-auth library documentation</a> for more information.</small>
+            <small id="scopeHelp" class="form-text text-muted">Comma seperated list of scopes. Scopes should have the following structure: ENTITY.OPERATION. See the <a href="https://github.com/RADAR-base/ManagementPortal/tree/master/radar-auth">radar-auth library documentation</a> for more information.</small>
             <div [hidden]="!(editForm.controls.scope?.dirty && editForm.controls.scope?.invalid)">
                 <small class="form-text text-danger"
                        [hidden]="!editForm.controls.scope?.errors?.required" jhiTranslate="entity.validation.required">

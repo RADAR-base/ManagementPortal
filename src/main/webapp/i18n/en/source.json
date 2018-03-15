@@ -22,7 +22,8 @@
             "sourceType": "Source Type",
             "project": "Project",
             "expectedSourceName" : "Physical ID",
-            "sourceAlreadyAdded" : "This source has been already added in your list"
+            "sourceAlreadyAdded" : "This source has been already added in your list",
+            "attributeData" : "Attributes"
         }
     },
     "error": {
