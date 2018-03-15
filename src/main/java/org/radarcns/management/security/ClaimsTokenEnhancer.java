@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.token.JwtRadarToken;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.User;
