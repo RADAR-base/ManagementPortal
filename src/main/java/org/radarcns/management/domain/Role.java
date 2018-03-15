@@ -13,8 +13,10 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
+import org.radarcns.management.domain.support.AbstractEntityListener;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,6 +37,7 @@ import java.util.Set;
 @Audited
 @Table(name = "radar_role")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@EntityListeners({AbstractEntityListener.class})
 public class Role extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -8,9 +8,11 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.envers.Audited;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.enumeration.SourceTypeScope;
+import org.radarcns.management.domain.support.AbstractEntityListener;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
@@ -35,6 +37,7 @@ import java.util.Set;
 @Audited
 @Table(name = "source_type")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@EntityListeners({AbstractEntityListener.class})
 public class SourceType extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;

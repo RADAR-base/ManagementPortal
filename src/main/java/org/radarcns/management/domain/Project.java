@@ -7,11 +7,13 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.envers.Audited;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.enumeration.ProjectStatus;
+import org.radarcns.management.domain.support.AbstractEntityListener;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
@@ -42,6 +44,7 @@ import java.util.Set;
 @Audited
 @Table(name = "project")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@EntityListeners({AbstractEntityListener.class})
 public class Project extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -7,9 +7,11 @@ import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.envers.Audited;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.enumeration.ProcessingState;
+import org.radarcns.management.domain.support.AbstractEntityListener;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
@@ -31,6 +33,7 @@ import java.util.Objects;
 @Audited
 @Table(name = "source_data")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@EntityListeners({AbstractEntityListener.class})
 public class SourceData extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;

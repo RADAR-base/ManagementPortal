@@ -6,11 +6,13 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import org.radarcns.auth.config.Constants;
+import org.radarcns.management.domain.support.AbstractEntityListener;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -39,6 +41,7 @@ import java.util.UUID;
 @Audited
 @Table(name = "radar_source")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@EntityListeners({AbstractEntityListener.class})
 public class Source extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
