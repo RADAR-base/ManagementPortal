@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PROJECT_ADMIN;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PROJECT_AFFILIATE;
@@ -119,7 +118,6 @@ public class Permissions {
 
         /* Inactive participant */
         // Doesn't have any permissions
-        Collections.emptyList()
-                .forEach(p -> PERMISSION_MATRIX.get(p).add(INACTIVE_PARTICIPANT));
+
     }
 }
