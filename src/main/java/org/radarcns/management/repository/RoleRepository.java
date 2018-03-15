@@ -5,13 +5,17 @@ import java.util.Optional;
 import org.radarcns.management.domain.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.RepositoryDefinition;
+import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.query.Param;
 
 /**
  * Created by nivethika on 18-5-17.
  */
 @SuppressWarnings("unused")
-public interface RoleRepository extends JpaRepository<Role, Long> {
+@RepositoryDefinition(domainClass = Role.class, idClass = Long.class)
+public interface RoleRepository extends JpaRepository<Role, Long>,
+        RevisionRepository<Role, Long, Integer> {
 
     @Query("select role from Role role inner join role.authority authority"
             + " where authority.name = :authorityName")

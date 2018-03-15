@@ -1,8 +1,6 @@
 package org.radarcns.management.service;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.hibernate.envers.AuditReader;
-import org.hibernate.envers.AuditReaderFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,7 +8,6 @@ import org.radarcns.auth.config.Constants;
 import org.radarcns.management.ManagementPortalTestApp;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.domain.audit.CustomRevisionEntity;
-import org.radarcns.management.domain.support.AbstractEntityListener;
 import org.radarcns.management.repository.CustomRevisionEntityRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.service.dto.UserDTO;
@@ -23,16 +20,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.transaction.TestTransaction;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.time.Instant;
 import java.time.Period;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -60,12 +53,6 @@ public class UserServiceIntTest {
 
     @Autowired
     private CustomRevisionEntityRepository revisionEntityRepository;
-
-    @Autowired
-    private EntityManager em;
-
-    @Autowired
-    private AbstractEntityListener abstractEntityListener;
 
     private UserDTO userDto;
 
@@ -152,15 +139,11 @@ public class UserServiceIntTest {
     @Test
     public void testFindNotActivatedUsersByCreationDateBefore() {
         User expiredUser = addExpiredUser();
-        AuditReader auditReader = commitTransactionAndStartNew();
+        commitTransactionAndStartNew();
 
         // Get the first revision of our new user (there should only be one anyway)
-        List<Number> revisions = auditReader.getRevisions(expiredUser.getClass(),
-                expiredUser.getId());
-        Number first = Collections.min(revisions, Comparator.comparingLong(Number::longValue));
-
-        CustomRevisionEntity firstRevision = auditReader.findRevision(CustomRevisionEntity.class,
-                first);
+        CustomRevisionEntity firstRevision = userRepository.findRevisions(expiredUser.getId())
+                .getContent().get(0).getMetadata().getDelegate();
 
         // Update the timestamp of the revision so it appears to have been created 5 days ago
         Instant expInstant = Instant.now().minus(Period.ofDays(5));
@@ -204,15 +187,11 @@ public class UserServiceIntTest {
         return userRepository.save(user);
     }
 
-    private AuditReader commitTransactionAndStartNew() {
+    private void commitTransactionAndStartNew() {
         // flag this transaction for commit and end it
         TestTransaction.flagForCommit();
         TestTransaction.end();
         TestTransaction.start();
         TestTransaction.flagForCommit();
-        em = em.getEntityManagerFactory().createEntityManager();
-        AuditReader auditReader = AuditReaderFactory.get(em);
-        ReflectionTestUtils.setField(abstractEntityListener, "em", em);
-        return auditReader;
     }
 }

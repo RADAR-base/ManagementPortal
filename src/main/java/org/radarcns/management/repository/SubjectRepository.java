@@ -9,13 +9,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.RepositoryDefinition;
+import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.query.Param;
 
 /**
  * Spring Data JPA repository for the Subject entity.
  */
 @SuppressWarnings("unused")
-public interface SubjectRepository extends JpaRepository<Subject, Long> {
+@RepositoryDefinition(domainClass = Subject.class, idClass = Long.class)
+public interface SubjectRepository extends JpaRepository<Subject, Long>,
+        RevisionRepository<Subject, Long, Integer> {
 
     @Query(value = "select distinct subject from Subject subject left join fetch subject.sources",
             countQuery = "select distinct count(subject) from Subject subject")
