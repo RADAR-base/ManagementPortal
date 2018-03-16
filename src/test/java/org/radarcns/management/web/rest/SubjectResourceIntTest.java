@@ -258,6 +258,44 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
+    public void updateSubjectWithNewProject() throws Exception {
+        // Initialize the database
+        SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO(em));
+        final int databaseSizeBeforeUpdate = subjectRepository.findAll().size();
+
+        // Update the subject
+        Subject updatedSubject = subjectRepository.findOne(subjectDto.getId());
+
+
+        updatedSubject
+                .externalLink(UPDATED_EXTERNAL_LINK)
+                .externalId(UPDATED_ENTERNAL_ID)
+                .removed(UPDATED_REMOVED);
+
+        subjectDto = subjectMapper.subjectToSubjectDTO(updatedSubject);
+        ProjectDTO newProject = new ProjectDTO();
+        newProject.setId(2L);
+        newProject.setProjectName("RadarNew");
+        newProject.setLocation("new location");
+        subjectDto.setProject(newProject);
+
+        restSubjectMockMvc.perform(put("/api/subjects")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
+                .andExpect(status().isOk());
+
+        // Validate the Subject in the database
+        List<Subject> subjectList = subjectRepository.findAll();
+        assertThat(subjectList).hasSize(databaseSizeBeforeUpdate);
+        Subject testSubject = subjectList.get(subjectList.size() - 1);
+        assertThat(testSubject.getExternalLink()).isEqualTo(UPDATED_EXTERNAL_LINK);
+        assertThat(testSubject.getExternalId()).isEqualTo(UPDATED_ENTERNAL_ID);
+        assertThat(testSubject.isRemoved()).isEqualTo(UPDATED_REMOVED);
+        assertThat(testSubject.getUser().getRoles().size()).isEqualTo(2);
+    }
+
+    @Test
+    @Transactional
     public void updateNonExistingSubject() throws Exception {
         final int databaseSizeBeforeUpdate = subjectRepository.findAll().size();
 
