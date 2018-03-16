@@ -145,7 +145,8 @@
         "userexists": "Login name already used!",
         "emailexists": "Email is already in use!",
         "idexists": "A new {{ entityName }} cannot already have an ID",
-        "invalidsubjectstate": "A discontinued subject can not be activated"
+        "invalidsubjectstate": "A discontinued subject can not be activated",
+        "nameexists": "A {{ entityName }} with the given name already exists"
     },
     "footer": "For more details, read the user guide <a target=\"_blank\" href=\"https://github.com/RADAR-base/ManagementPortal/wiki/User-Guide\">here.</a>",
     "common" : {

@@ -5,6 +5,7 @@ import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
+import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.service.ProjectService;
 import org.radarcns.management.service.RoleService;
@@ -67,6 +68,9 @@ public class ProjectResource {
     private static final String ENTITY_NAME = "project";
 
     @Autowired
+    private ProjectRepository projectRepository;
+
+    @Autowired
     private ProjectService projectService;
 
     @Autowired
@@ -101,6 +105,12 @@ public class ProjectResource {
         if (projectDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
                     ENTITY_NAME, "idexists", "A new project cannot already have an ID")).body(null);
+        }
+        if (projectRepository.findOneWithEagerRelationshipsByName(projectDto.getProjectName())
+                .isPresent()) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
+                    ENTITY_NAME, "nameexists", "A project with this name already exists"))
+                    .body(null);
         }
         ProjectDTO result = projectService.save(projectDto);
         return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "projects",
