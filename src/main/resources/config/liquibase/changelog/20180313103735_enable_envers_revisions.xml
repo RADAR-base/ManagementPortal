@@ -3,7 +3,7 @@
     <property name="now" value="now()" dbms="h2"/>
     <property name="now" value="current_timestamp" dbms="postgresql"/>
     <property name="revtype" value="tinyint" dbms="h2"/>
-    <property name="revtype" value="smallint" dbms="postgres"/>
+    <property name="revtype" value="smallint" dbms="postgresql"/>
 
     <!-- First we add the necessary tables, then we initialize a base revision which sets all
          currently existing entities in the database as being created by the system at the point
