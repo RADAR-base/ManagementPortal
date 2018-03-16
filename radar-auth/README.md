@@ -10,7 +10,7 @@ Add the dependency to your project.
 
 Gradle:
 ```groovy
-compile group: 'org.radarcns', name: 'radar-auth', version: '0.3.4'
+compile group: 'org.radarcns', name: 'radar-auth', version: '0.3.5'
 ```
 
 The library expects the identity server configuration in a file called `radar-is.yml`. Either set 
