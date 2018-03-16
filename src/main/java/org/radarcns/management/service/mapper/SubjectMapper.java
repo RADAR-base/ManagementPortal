@@ -18,10 +18,6 @@ import org.radarcns.management.service.mapper.decorator.SubjectMapperDecorator;
 public interface SubjectMapper {
 
     @Mapping(source = "user.login", target = "login")
-    @Mapping(source = "user.createdBy", target = "createdBy")
-    @Mapping(source = "user.createdDate", target = "createdDate")
-    @Mapping(source = "user.lastModifiedBy", target = "lastModifiedBy")
-    @Mapping(source = "user.lastModifiedDate", target = "lastModifiedDate")
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "project", ignore = true)
@@ -30,10 +26,6 @@ public interface SubjectMapper {
     List<SubjectDTO> subjectsToSubjectDTOs(List<Subject> subjects);
 
     @Mapping(source = "login", target = "user.login")
-    @Mapping(source = "createdBy", target = "user.createdBy")
-    @Mapping(source = "createdDate", target = "user.createdDate")
-    @Mapping(source = "lastModifiedBy", target = "user.lastModifiedBy")
-    @Mapping(source = "lastModifiedDate", target = "user.lastModifiedDate")
     @Mapping(target = "user.email", ignore = true)
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "user.activated", ignore = true)
@@ -64,6 +56,4 @@ public interface SubjectMapper {
         subject.setId(id);
         return subject;
     }
-
-
 }

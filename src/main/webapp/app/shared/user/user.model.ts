@@ -10,10 +10,6 @@ export class User {
     public langKey?: string;
     public authorities: string[];
     public roles?: Role[];
-    public createdBy?: string;
-    public createdDate?: Date;
-    public lastModifiedBy?: string;
-    public lastModifiedDate?: Date;
     public password?: string;
     public project?: Project = new Project();
 
@@ -27,10 +23,6 @@ export class User {
         langKey?: string,
         authorities?: string[],
         roles?: Role[],
-        createdBy?: string,
-        createdDate?: Date,
-        lastModifiedBy?: string,
-        lastModifiedDate?: Date,
         password?: string,
         project?: Project
     ) {
@@ -43,10 +35,6 @@ export class User {
         this.langKey = langKey ? langKey : null;
         this.roles = roles ? roles : null;
         this.authorities = authorities? authorities : null;
-        this.createdBy = createdBy ? createdBy : null;
-        this.createdDate = createdDate ? createdDate : null;
-        this.lastModifiedBy = lastModifiedBy ? lastModifiedBy : null;
-        this.lastModifiedDate = lastModifiedDate ? lastModifiedDate : null;
         this.password = password ? password : null;
         this.project = project ? project: new Project();
     }

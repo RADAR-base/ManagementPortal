@@ -28,6 +28,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -65,6 +67,9 @@ public class UserService {
 
     @Autowired
     private AuthorityRepository authorityRepository;
+
+    @Autowired
+    private RevisionService revisionService;
 
     /**
      * Activate a user with the given activation key.
@@ -311,14 +316,12 @@ public class UserService {
     @Scheduled(cron = "0 0 1 * * ?")
     public void removeNotActivatedUsers() {
         log.info("Scheduled scan for expired user accounts starting now");
-        ZonedDateTime cutoff = ZonedDateTime.now().minusDays(3);
-        // get all non-activated users
+        Instant cutoff = Instant.now().minus(Period.ofDays(3));
         userRepository.findAllByActivated(false).stream()
-                .forEach(user -> {
-                    log.info("User {} created at {}", user.getLogin(), user.getCreatedDate());
-                });
-        userRepository.findAllByActivated(false).stream()
-                .filter(user -> user.getCreatedDate().isBefore(cutoff))
+                .filter(user -> {
+                    Optional<Instant> created = revisionService.getCreatedAt(user);
+                    return created.isPresent() && created.get().isBefore(cutoff);
+                })
                 .forEach(user -> {
                     log.info("Deleting not activated user after 3 days: {}", user.getLogin());
                     userRepository.delete(user);

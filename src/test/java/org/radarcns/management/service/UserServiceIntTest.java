@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.Period;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
@@ -53,6 +52,9 @@ public class UserServiceIntTest {
 
     @Autowired
     private CustomRevisionEntityRepository revisionEntityRepository;
+
+    @Autowired
+    private RevisionService revisionService;
 
     private UserDTO userDto;
 
@@ -152,8 +154,7 @@ public class UserServiceIntTest {
 
         // make sure when we reload the expired user we have the new created date
         expiredUser = userRepository.findOne(expiredUser.getId());
-        ZonedDateTime expZdt = ZonedDateTime.ofInstant(expInstant, ZoneOffset.UTC);
-        assertThat(expiredUser.getCreatedDate().getDayOfMonth()).isEqualTo(expZdt.getDayOfMonth());
+        assertThat(revisionService.getCreatedAt(expiredUser).get()).isEqualTo(expInstant);
 
         // Now we know we have an 'old' user in the database, we can test our deletion method
         int numUsers = userRepository.findAll().size();
@@ -162,9 +163,9 @@ public class UserServiceIntTest {
         // make sure have actually deleted some users, otherwise this test is pointless
         assertThat(numUsers - users.size()).isEqualTo(1);
         // remaining users should be either activated or have a created date less then 3 days ago
-        ZonedDateTime cutoff = ZonedDateTime.now().minusDays(3);
-        users.forEach(u ->
-                assertThat(u.getActivated() || u.getCreatedDate().isAfter(cutoff)).isTrue());
+        Instant cutoff = Instant.now().minus(Period.ofDays(3));
+        users.forEach(u -> assertThat(u.getActivated() || revisionService.getCreatedAt(u).get()
+                .isAfter(cutoff)).isTrue());
     }
 
     @Test
