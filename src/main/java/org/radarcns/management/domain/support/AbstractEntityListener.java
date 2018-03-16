@@ -94,6 +94,9 @@ public class AbstractEntityListener {
      */
     @PostLoad
     public void populateAuditMetaData(AbstractEntity entity) {
+        if (entity == null) {
+            return;
+        }
         log.debug("Populating audit metadata for class {}", entity.getClass().getName());
         Optional<RevisionRepository> repo = getRepository(entity);
         if (!repo.isPresent()) {
