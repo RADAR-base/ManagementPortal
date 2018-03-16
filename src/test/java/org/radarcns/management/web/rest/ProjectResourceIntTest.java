@@ -115,6 +115,7 @@ public class ProjectResourceIntTest {
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         ProjectResource projectResource = new ProjectResource();
+        ReflectionTestUtils.setField(projectResource, "projectRepository", projectRepository);
         ReflectionTestUtils.setField(projectResource, "projectService", projectService);
         ReflectionTestUtils.setField(projectResource, "servletRequest", servletRequest);
 
