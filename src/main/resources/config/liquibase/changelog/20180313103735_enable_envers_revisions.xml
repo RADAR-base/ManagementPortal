@@ -542,4 +542,17 @@
         <dropColumn tableName="subject" columnName="last_modified_by"/>
         <dropColumn tableName="subject" columnName="last_modified_date"/>
     </changeSet>
+
+    <changeSet id="1520933868142-71" author="dverbeec@its.jnj.com">
+        <createTable tableName="revchanges">
+            <column name="rev" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entityname" type="varchar(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-72">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="revchanges" constraintName="FK6ccsoae5dclnhlrltuq7d2grq" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
 </databaseChangeLog>
