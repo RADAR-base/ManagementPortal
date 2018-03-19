@@ -18,10 +18,6 @@ public interface SourceTypeMapper {
     List<SourceTypeDTO> sourceTypesToSourceTypeDTOs(List<SourceType> sourceTypes);
 
     @Mapping(target = "projects", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "createdDate", ignore = true)
-    @Mapping(target = "lastModifiedBy", ignore = true)
-    @Mapping(target = "lastModifiedDate", ignore = true)
     SourceType sourceTypeDTOToSourceType(SourceTypeDTO sourceTypeDto);
 
     List<SourceType> sourceTypeDTOsToSourceTypes(List<SourceTypeDTO> sourceTypeDtos);
@@ -31,10 +27,6 @@ public interface SourceTypeMapper {
     List<MinimalSourceTypeDTO> sourceTypesToMinimalSourceTypeDetailsDTOs(
             List<SourceType> sourceTypes);
 
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "createdDate", ignore = true)
-    @Mapping(target = "lastModifiedBy", ignore = true)
-    @Mapping(target = "lastModifiedDate", ignore = true)
     @Mapping(target = "sourceTypeScope", ignore = true)
     @Mapping(target = "sourceData", ignore = true)
     @Mapping(target = "canRegisterDynamically", ignore = true)

@@ -1,11 +1,11 @@
 package org.radarcns.management.service.dto;
 
-import java.time.ZonedDateTime;
-import java.util.Set;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.Email;
 import org.radarcns.auth.config.Constants;
+
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+import java.util.Set;
 
 /**
  * A DTO representing a user, with his authorities.
@@ -32,14 +32,6 @@ public class UserDTO {
 
     @Size(min = 2, max = 5)
     private String langKey;
-
-    private String createdBy;
-
-    private ZonedDateTime createdDate;
-
-    private String lastModifiedBy;
-
-    private ZonedDateTime lastModifiedDate;
 
     private Set<RoleDTO> roles;
 
@@ -101,38 +93,6 @@ public class UserDTO {
         this.langKey = langKey;
     }
 
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public ZonedDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(ZonedDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public String getLastModifiedBy() {
-        return lastModifiedBy;
-    }
-
-    public void setLastModifiedBy(String lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy;
-    }
-
-    public ZonedDateTime getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(ZonedDateTime lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
-
     public Set<String> getAuthorities() {
         return authorities;
     }
@@ -157,11 +117,7 @@ public class UserDTO {
                 + ", lastName='" + lastName + '\''
                 + ", email='" + email + '\''
                 + ", activated=" + activated
-                + ", langKey='" + langKey + '\''
-                + ", createdBy=" + createdBy
-                + ", createdDate=" + createdDate
-                + ", lastModifiedBy='" + lastModifiedBy + '\''
-                + ", lastModifiedDate=" + lastModifiedDate
+                + ", langKey='" + langKey
                 + "}";
     }
 }

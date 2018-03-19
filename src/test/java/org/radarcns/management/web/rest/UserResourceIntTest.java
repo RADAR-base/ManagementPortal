@@ -314,10 +314,6 @@ public class UserResourceIntTest {
         managedUserVm.setEmail(UPDATED_EMAIL);
         managedUserVm.setActivated(updatedUser.getActivated());
         managedUserVm.setLangKey(UPDATED_LANGKEY);
-        managedUserVm.setCreatedBy(updatedUser.getCreatedBy());
-        managedUserVm.setCreatedDate(updatedUser.getCreatedDate());
-        managedUserVm.setLastModifiedBy(updatedUser.getLastModifiedBy());
-        managedUserVm.setLastModifiedDate(updatedUser.getLastModifiedDate());
         managedUserVm.setRoles(roles);
 
         restUserMockMvc.perform(put("/api/users")
@@ -359,10 +355,6 @@ public class UserResourceIntTest {
         managedUserVm.setEmail(UPDATED_EMAIL);
         managedUserVm.setActivated(updatedUser.getActivated());
         managedUserVm.setLangKey(UPDATED_LANGKEY);
-        managedUserVm.setCreatedBy(updatedUser.getCreatedBy());
-        managedUserVm.setCreatedDate(updatedUser.getCreatedDate());
-        managedUserVm.setLastModifiedBy(updatedUser.getLastModifiedBy());
-        managedUserVm.setLastModifiedDate(updatedUser.getLastModifiedDate());
         managedUserVm.setRoles(roles);
 
         restUserMockMvc.perform(put("/api/users")
@@ -413,10 +405,6 @@ public class UserResourceIntTest {
         managedUserVm.setEmail("jhipster@localhost");
         managedUserVm.setActivated(updatedUser.getActivated());
         managedUserVm.setLangKey(updatedUser.getLangKey());
-        managedUserVm.setCreatedBy(updatedUser.getCreatedBy());
-        managedUserVm.setCreatedDate(updatedUser.getCreatedDate());
-        managedUserVm.setLastModifiedBy(updatedUser.getLastModifiedBy());
-        managedUserVm.setLastModifiedDate(updatedUser.getLastModifiedDate());
         managedUserVm.setRoles(roles);
 
         restUserMockMvc.perform(put("/api/users")
@@ -458,10 +446,6 @@ public class UserResourceIntTest {
         managedUserVm.setEmail(updatedUser.getEmail());
         managedUserVm.setActivated(updatedUser.getActivated());
         managedUserVm.setLangKey(updatedUser.getLangKey());
-        managedUserVm.setCreatedBy(updatedUser.getCreatedBy());
-        managedUserVm.setCreatedDate(updatedUser.getCreatedDate());
-        managedUserVm.setLastModifiedBy(updatedUser.getLastModifiedBy());
-        managedUserVm.setLastModifiedDate(updatedUser.getLastModifiedDate());
         managedUserVm.setRoles(roles);
 
         restUserMockMvc.perform(put("/api/users")

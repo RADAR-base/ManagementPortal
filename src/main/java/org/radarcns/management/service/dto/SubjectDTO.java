@@ -2,7 +2,6 @@ package org.radarcns.management.service.dto;
 
 
 import java.io.Serializable;
-import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -36,14 +35,6 @@ public class SubjectDTO implements Serializable {
 
     private SubjectStatus status = SubjectStatus.DEACTIVATED;
 
-    private String createdBy;
-
-    private ZonedDateTime createdDate;
-
-    private String lastModifiedBy;
-
-    private ZonedDateTime lastModifiedDate;
-
     private ProjectDTO project;
 
     private Set<MinimalSourceDetailsDTO> sources = new HashSet<>();
@@ -56,15 +47,6 @@ public class SubjectDTO implements Serializable {
 
     public void setStatus(SubjectStatus status) {
         this.status = status;
-    }
-
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
     }
 
     public ProjectDTO getProject() {
@@ -81,30 +63,6 @@ public class SubjectDTO implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public ZonedDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(ZonedDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public String getLastModifiedBy() {
-        return lastModifiedBy;
-    }
-
-    public void setLastModifiedBy(String lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy;
-    }
-
-    public ZonedDateTime getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(ZonedDateTime lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
     }
 
     public String getExternalLink() {

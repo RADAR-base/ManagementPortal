@@ -29,18 +29,10 @@ public interface SourceMapper {
     @Mapping(target = "sourceType", ignore = true)
     @Mapping(target = "project", ignore = true)
     @Mapping(target = "subjects", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "createdDate", ignore = true)
-    @Mapping(target = "lastModifiedBy", ignore = true)
-    @Mapping(target = "lastModifiedDate", ignore = true)
     Source descriptiveDTOToSource(MinimalSourceDetailsDTO minimalSourceDetailsDto);
 
     List<SourceDTO> sourcesToSourceDTOs(List<Source> sources);
 
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "createdDate", ignore = true)
-    @Mapping(target = "lastModifiedBy", ignore = true)
-    @Mapping(target = "lastModifiedDate", ignore = true)
     @Mapping(target = "subjects", ignore = true)
     Source sourceDTOToSource(SourceDTO sourceDto);
 

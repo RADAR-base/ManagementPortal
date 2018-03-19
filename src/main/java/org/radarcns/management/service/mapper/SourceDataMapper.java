@@ -1,10 +1,10 @@
 package org.radarcns.management.service.mapper;
 
-import java.util.List;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.radarcns.management.domain.SourceData;
 import org.radarcns.management.service.dto.SourceDataDTO;
+
+import java.util.List;
 
 /**
  * Mapper for the entity SourceData and its DTO SourceDataDTO.
@@ -16,10 +16,6 @@ public interface SourceDataMapper {
 
     List<SourceDataDTO> sourceDataToSourceDataDTOs(List<SourceData> sourceData);
 
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "createdDate", ignore = true)
-    @Mapping(target = "lastModifiedBy", ignore = true)
-    @Mapping(target = "lastModifiedDate", ignore = true)
     SourceData sourceDataDTOToSourceData(SourceDataDTO sourceDataDto);
 
     List<SourceData> sourceDataDTOsToSourceData(List<SourceDataDTO> sourceDataDtos);
