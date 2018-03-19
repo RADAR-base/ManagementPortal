@@ -117,6 +117,13 @@ public class RevisionService implements ApplicationContextAware {
         return revisionEntityRepository.findAll(pageable).map(rev -> getRevision(rev.getId()));
     }
 
+    /**
+     * Get a single revision.
+     *
+     * @param revision the revision number
+     * @return the revision
+     * @throws CustomNotFoundException if the revision number does not exist
+     */
     public RevisionInfoDTO getRevision(Long revision) throws CustomNotFoundException {
         AuditReader reader = AuditReaderFactory.get(entityManagerFactory.createEntityManager());
         CrossTypeRevisionChangesReader changesReader = reader.getCrossTypeRevisionChangesReader();
@@ -156,7 +163,7 @@ public class RevisionService implements ApplicationContextAware {
         // look only in the mapper package
         Set<BeanDefinition> beans = scanner.findCandidateComponents("org.radarcns.management"
                 + ".service.mapper");
-        for(BeanDefinition bd : beans) {
+        for (BeanDefinition bd : beans) {
             String className = bd.getBeanClassName();
             // get the bean for the given class
             final Object mapper;

@@ -16,6 +16,8 @@ import java.util.Objects;
  */
 public class RevisionInfoDTO implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private long id;
 
     private Date timestamp;
@@ -57,6 +59,17 @@ public class RevisionInfoDTO implements Serializable {
         this.changes = changes;
     }
 
+    /**
+     * Create a RevisionInfoDTO from a {@link CustomRevisionEntity} and a set of changes grouped
+     * by revision type.
+     *
+     * <p>This method is convenient when using a CustomRevisionEntity in combination with
+     * {@link org.hibernate.envers.CrossTypeRevisionChangesReader}. The Map will be transformed
+     * so changes are additionally grouped by class name.</p>
+     * @param revisionEntity the revision entity
+     * @param changes the changes
+     * @return the RevisionInfoDTO object
+     */
     public static RevisionInfoDTO from(CustomRevisionEntity revisionEntity, Map<RevisionType,
             List<Object>> changes) {
         RevisionInfoDTO result = new RevisionInfoDTO();

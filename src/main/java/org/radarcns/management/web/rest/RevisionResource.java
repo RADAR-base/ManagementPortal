@@ -26,23 +26,34 @@ public class RevisionResource {
 
     private final Logger log = LoggerFactory.getLogger(RevisionResource.class);
 
-    private static final String ENTITY_NAME = "REVISION";
-
     @Autowired
     private RevisionService revisionService;
 
+    /**
+     * Pageable API to get revisions.
+     *
+     * @param pageable the page information
+     * @return the requested page of revisions
+     */
     @GetMapping("/revisions")
     @Timed
     public ResponseEntity<List<RevisionInfoDTO>> getRevisions(@ApiParam Pageable pageable) {
+        log.debug("REST request to get page of revisions");
         Page<RevisionInfoDTO> page = revisionService.getRevisions(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/revisions");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
-
+    /**
+     * Get a single revision.
+     *
+     * @param id the revision number
+     * @return the requested revision
+     */
     @GetMapping("/revisions/{id}")
     @Timed
     public ResponseEntity<RevisionInfoDTO> getRevision(@PathVariable("id") Long id) {
+        log.debug("REST request to get single revision: {}", id.toString());
         return ResponseEntity.ok(revisionService.getRevision(id));
     }
 }
