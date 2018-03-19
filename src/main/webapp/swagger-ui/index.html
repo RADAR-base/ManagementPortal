@@ -83,16 +83,16 @@
                 });
 
                 function addApiKeyAuthorization() {
-
-                    var authToken = getToken();
+                    var authToken = JSON.parse(getToken()).access_token;
                     var apiKeyAuth = new SwaggerClient.ApiKeyAuthorization("Authorization",
                             "Bearer " + authToken, "header");
                     window.swaggerUi.api.clientAuthorizations.add("key", apiKeyAuth);
                 }
 
                 function getToken() {
-                  var name = "oAtkn";
-                  var ca = document.cookie.split(';');
+                  var name = "oAtkn=";
+                  var decoded = decodeURIComponent(document.cookie);
+                  var ca = decoded.split(';');
                   for(var i=0; i<ca.length; i++) {
                     var c = ca[i];
                     while (c.charAt(0)==' ') c = c.substring(1);
