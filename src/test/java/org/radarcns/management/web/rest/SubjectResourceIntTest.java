@@ -373,7 +373,8 @@ public class SubjectResourceIntTest {
                 .andExpect(status().is4xxClientError());
 
         // Get all the subjectList
-        restSubjectMockMvc.perform(get("/api/subjects/{login}/sources?sort=id,desc", subjectDto.getLogin()))
+        restSubjectMockMvc
+                .perform(get("/api/subjects/{login}/sources?sort=id,desc", subjectDto.getLogin()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.[*].id").isNotEmpty());
