@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public class RevisionInfoDTO implements Serializable {
 
-    private long revisionNumber;
+    private long id;
 
     private Date timestamp;
 
@@ -25,12 +25,12 @@ public class RevisionInfoDTO implements Serializable {
     // Groups the changes by revision type and class name
     private Map<RevisionType, Map<String, List<Object>>> changes;
 
-    public long getRevisionNumber() {
-        return revisionNumber;
+    public long getId() {
+        return id;
     }
 
-    public void setRevisionNumber(long revisionNumber) {
-        this.revisionNumber = revisionNumber;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public Date getTimestamp() {
@@ -62,7 +62,7 @@ public class RevisionInfoDTO implements Serializable {
         RevisionInfoDTO result = new RevisionInfoDTO();
         result.setAuthor(revisionEntity.getAuditor());
         result.setTimestamp(revisionEntity.getTimestamp());
-        result.setRevisionNumber(revisionEntity.getId());
+        result.setId(revisionEntity.getId());
         result.setChanges(new HashMap<>());
         changes.forEach((type, objects) -> {
             result.changes.putIfAbsent(type, new HashMap<>());
