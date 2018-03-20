@@ -17,7 +17,7 @@ public class MinimalSourceDetailsDTO {
     private String expectedSourceName;
     private UUID sourceId;
     private String sourceName;
-    private boolean assigned;
+    private Boolean assigned;
 
     public Long getId() {
         return id;
@@ -53,11 +53,11 @@ public class MinimalSourceDetailsDTO {
         this.sourceId = sourceId;
     }
 
-    public boolean isAssigned() {
+    public Boolean isAssigned() {
         return assigned;
     }
 
-    public void setAssigned(boolean assigned) {
+    public void setAssigned(Boolean assigned) {
         this.assigned = assigned;
     }
 

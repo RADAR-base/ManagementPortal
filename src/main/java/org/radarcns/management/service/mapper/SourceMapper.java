@@ -22,6 +22,7 @@ public interface SourceMapper {
     @Mapping(source = "sourceType.producer", target = "sourceTypeProducer")
     @Mapping(source = "sourceType.model", target = "sourceTypeModel")
     @Mapping(source = "sourceType.catalogVersion", target = "sourceTypeCatalogVersion")
+    @Mapping(source = "assigned" , target = "assigned")
     MinimalSourceDetailsDTO sourceToMinimalSourceDetailsDTO(Source source);
 
     List<MinimalSourceDetailsDTO> sourcesToMinimalSourceDetailsDTOs(List<Source> sources);

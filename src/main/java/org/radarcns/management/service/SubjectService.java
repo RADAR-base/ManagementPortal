@@ -4,11 +4,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.domain.Project;
@@ -78,6 +81,7 @@ public class SubjectService {
 
     /**
      * Create a new subject.
+     *
      * @param subjectDto the subject information
      * @return the newly created subject
      */
@@ -132,6 +136,7 @@ public class SubjectService {
 
     /**
      * Update a subject's information.
+     *
      * @param subjectDto the new subject information
      * @return the updated subject
      */
@@ -164,6 +169,7 @@ public class SubjectService {
 
     /**
      * Get a page of subjects.
+     *
      * @param pageable the page information
      * @return the requested page of subjects
      */
@@ -177,6 +183,7 @@ public class SubjectService {
      *
      * <p>A discontinued subject is not deleted from the database, but will be prevented from
      * logging into the system, sending data, or otherwise interacting with the system.</p>
+     *
      * @param subjectDto the subject to discontinue
      * @return the discontinued subject
      */
@@ -326,6 +333,7 @@ public class SubjectService {
 
     /**
      * Delete the subject with the given login from the database.
+     *
      * @param login the login
      */
     public void deleteSubject(String login) {
@@ -334,5 +342,27 @@ public class SubjectService {
             subjectRepository.delete(subject);
             log.debug("Deleted Subject: {}", subject);
         });
+    }
+
+    /**
+     * Finds all sources of subject including inactive sources.
+     *
+     * @param subject of whom the sources should be retrieved.
+     * @return list of {@link MinimalSourceDetailsDTO} of sources.
+     */
+    public List<MinimalSourceDetailsDTO> findSubjectSourcesFromRevisions(Subject subject) {
+
+        // collect distinct sources in a set
+        Set<Source> sources = subjectRepository.findRevisions(subject.getId())
+                .getContent().stream().flatMap(p -> p.getEntity().getSources().stream())
+                .filter(distinctByKey(Source::getSourceId))
+                .collect(Collectors.toSet());
+        return sources.stream().map(p -> sourceMapper.sourceToMinimalSourceDetailsDTO(p))
+                .collect(Collectors.toList());
+    }
+
+    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        final Set<Object> seen = new HashSet<>();
+        return t -> seen.add(keyExtractor.apply(t));
     }
 }

@@ -217,12 +217,13 @@ public class Source extends AbstractEntity implements Serializable {
         if (source.id == null || id == null) {
             return false;
         }
-        return Objects.equals(id, source.id);
+        return Objects.equals(id, source.id)
+                && Objects.equals(sourceId, source.sourceId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hash(id , sourceId);
     }
 
     @Override

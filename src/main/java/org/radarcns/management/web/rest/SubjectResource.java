@@ -98,7 +98,7 @@ public class SubjectResource {
      *
      * @param subjectDto the subjectDto to create
      * @return the ResponseEntity with status 201 (Created) and with body the new subjectDto, or
-     *     with status 400 (Bad Request) if the subject has already an ID
+     *         with status 400 (Bad Request) if the subject has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/subjects")
@@ -127,7 +127,7 @@ public class SubjectResource {
         }
         if (subjectDto.getExternalId() != null && !subjectDto.getExternalId().isEmpty()
                 && subjectRepository.findOneByProjectNameAndExternalId(subjectDto.getProject()
-                        .getProjectName(), subjectDto.getExternalId()).isPresent()) {
+                .getProjectName(), subjectDto.getExternalId()).isPresent()) {
             return ResponseEntity.badRequest().headers(HeaderUtil
                     .createFailureAlert(ENTITY_NAME, "subjectExists",
                             "A subject with given project-id and external-id already exists"))
@@ -146,8 +146,8 @@ public class SubjectResource {
      *
      * @param subjectDto the subjectDto to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated subjectDto, or with
-     *     status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal
-     *     Server Error) if the subjectDto couldnt be updated
+     *         status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal
+     *         Server Error) if the subjectDto couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/subjects")
@@ -177,8 +177,8 @@ public class SubjectResource {
      *
      * @param subjectDto the subjectDto to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated subjectDto, or with
-     *     status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal
-     *     Server Error) if the subjectDto couldnt be updated
+     *         status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal
+     *         Server Error) if the subjectDto couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/subjects/discontinue")
@@ -256,7 +256,7 @@ public class SubjectResource {
      *
      * @param login the login of the subjectDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the subjectDTO, or with status
-     *     404 (Not Found)
+     *         404 (Not Found)
      */
     @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
@@ -411,13 +411,19 @@ public class SubjectResource {
 
     /**
      * Get sources assigned to a subject.
+     *
      * @param login the subject login
      * @return the sources
      */
     @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/sources")
     @Timed
     public ResponseEntity<List<MinimalSourceDetailsDTO>> getSubjectSources(
-            @PathVariable String login) throws NotAuthorizedException {
+            @PathVariable String login,
+            @RequestParam(value = "withInactiveSources", required = false)
+                    Boolean withInactiveSourcesParam) throws NotAuthorizedException {
+
+        boolean withInactiveSources = withInactiveSourcesParam == null ? false :
+                withInactiveSourcesParam;
         // check the subject id
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         if (!subject.isPresent()) {
@@ -427,6 +433,13 @@ public class SubjectResource {
         SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject.get());
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, subjectDto.getProject()
                 .getProjectName(), subjectDto.getLogin());
+
+        if (withInactiveSources) {
+            return ResponseEntity.ok()
+                    .body(subjectService.findSubjectSourcesFromRevisions(subject.get()));
+        }
+
+        log.debug("REST request to get sources of Subject : {}", login);
 
         return ResponseEntity.ok().body(subjectService.getSources(subject.get()));
     }
