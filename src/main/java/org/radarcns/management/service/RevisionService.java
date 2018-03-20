@@ -1,18 +1,5 @@
 package org.radarcns.management.service;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import javax.persistence.EntityManagerFactory;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.CrossTypeRevisionChangesReader;
@@ -39,6 +26,20 @@ import org.springframework.data.repository.RepositoryDefinition;
 import org.springframework.data.repository.core.support.DefaultRepositoryMetadata;
 import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.stereotype.Service;
+
+import javax.persistence.EntityManagerFactory;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class RevisionService implements ApplicationContextAware {
@@ -117,10 +118,11 @@ public class RevisionService implements ApplicationContextAware {
     }
 
     /**
-     * Gets a revision by revision id.
-     * @param revision identifier
-     * @return RevisionInfo that includes the meta-data of the revision and changes.
-     * @throws CustomNotFoundException if requested revision is not found.
+     * Get a single revision.
+     *
+     * @param revision the revision number
+     * @return the revision
+     * @throws CustomNotFoundException if the revision number does not exist
      */
     public RevisionInfoDTO getRevision(Long revision) throws CustomNotFoundException {
         AuditReader reader = AuditReaderFactory.get(entityManagerFactory.createEntityManager());
@@ -137,8 +139,8 @@ public class RevisionService implements ApplicationContextAware {
     }
 
     /**
-     * Dynamically find the Mapstruct mapper that can map the entity to it's DTO counterpart, then
-     * do the mapping and return the DTO.
+     * Dynamically find the Mapstruct mapper that can map the entity to it's DTO counterpart,
+     * then do the mapping and return the DTO.
      *
      * @param entity the entity to map to it's DTO form
      * @return the DTO form of the given entity

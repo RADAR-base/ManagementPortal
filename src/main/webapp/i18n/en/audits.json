@@ -23,5 +23,15 @@
                 "remoteAddress": "Remote Address:"
             }
         }
+    },
+    "revisions": {
+        "title": "Revisions",
+        "number": "Revision Number",
+        "author": "Author",
+        "type": {
+            "add": "Added",
+            "mod": "Modified",
+            "del": "Deleted"
+        }
     }
 }

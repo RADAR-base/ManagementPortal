@@ -16,7 +16,9 @@ import java.util.Objects;
  */
 public class RevisionInfoDTO implements Serializable {
 
-    private long revisionNumber;
+    private static final long serialVersionUID = 1L;
+
+    private long id;
 
     private Date timestamp;
 
@@ -25,12 +27,12 @@ public class RevisionInfoDTO implements Serializable {
     // Groups the changes by revision type and class name
     private Map<RevisionType, Map<String, List<Object>>> changes;
 
-    public long getRevisionNumber() {
-        return revisionNumber;
+    public long getId() {
+        return id;
     }
 
-    public void setRevisionNumber(long revisionNumber) {
-        this.revisionNumber = revisionNumber;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public Date getTimestamp() {
@@ -58,17 +60,22 @@ public class RevisionInfoDTO implements Serializable {
     }
 
     /**
-     * Creates a {@link RevisionInfoDTO} from revision meta-data and changes.
-     * @param revisionEntity meta-data of revision
-     * @param changes related to revision
-     * @return instance of {@link RevisionInfoDTO}.
+     * Create a RevisionInfoDTO from a {@link CustomRevisionEntity} and a set of changes grouped
+     * by revision type.
+     *
+     * <p>This method is convenient when using a CustomRevisionEntity in combination with
+     * {@link org.hibernate.envers.CrossTypeRevisionChangesReader}. The Map will be transformed
+     * so changes are additionally grouped by class name.</p>
+     * @param revisionEntity the revision entity
+     * @param changes the changes
+     * @return the RevisionInfoDTO object
      */
     public static RevisionInfoDTO from(CustomRevisionEntity revisionEntity, Map<RevisionType,
             List<Object>> changes) {
         RevisionInfoDTO result = new RevisionInfoDTO();
         result.setAuthor(revisionEntity.getAuditor());
         result.setTimestamp(revisionEntity.getTimestamp());
-        result.setRevisionNumber(revisionEntity.getId());
+        result.setId(revisionEntity.getId());
         result.setChanges(new HashMap<>());
         changes.forEach((type, objects) -> {
             result.changes.putIfAbsent(type, new HashMap<>());

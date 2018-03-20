@@ -23,5 +23,15 @@
                 "remoteAddress": "Remote Adres:"
             }
         }
+    },
+    "revisions": {
+        "title": "Revisies",
+        "number": "Reviese Nummer",
+        "author": "Auteur",
+        "type": {
+            "add": "Toegevoegd",
+            "mod": "Gewijzigd",
+            "del": "Verwijderd"
+        }
     }
 }
