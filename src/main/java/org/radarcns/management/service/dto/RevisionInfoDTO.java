@@ -57,6 +57,12 @@ public class RevisionInfoDTO implements Serializable {
         this.changes = changes;
     }
 
+    /**
+     * Creates a {@link RevisionInfoDTO} from revision meta-data and changes.
+     * @param revisionEntity meta-data of revision
+     * @param changes related to revision
+     * @return instance of {@link RevisionInfoDTO}.
+     */
     public static RevisionInfoDTO from(CustomRevisionEntity revisionEntity, Map<RevisionType,
             List<Object>> changes) {
         RevisionInfoDTO result = new RevisionInfoDTO();
