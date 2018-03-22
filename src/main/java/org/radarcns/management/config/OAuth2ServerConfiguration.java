@@ -221,6 +221,7 @@ public class OAuth2ServerConfiguration {
                     .approvalStore(approvalStore())
                     .tokenStore(tokenStore())
                     .tokenEnhancer(tokenEnhancerChain)
+                    .reuseRefreshTokens(false)
                     .authenticationManager(authenticationManager);
         }
 
