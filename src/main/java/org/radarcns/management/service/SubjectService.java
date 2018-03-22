@@ -1,5 +1,8 @@
 package org.radarcns.management.service;
 
+import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
+import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
@@ -10,7 +13,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Source;
@@ -22,7 +24,6 @@ import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
-import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.SourceMapper;
@@ -78,6 +79,7 @@ public class SubjectService {
 
     /**
      * Create a new subject.
+     *
      * @param subjectDto the subject information
      * @return the newly created subject
      */
@@ -86,7 +88,8 @@ public class SubjectService {
         Subject subject = subjectMapper.subjectDTOToSubject(subjectDto);
         //assign roles
         User user = subject.getUser();
-        user.getRoles().add(getProjectParticipantRole(subjectDto.getProject()));
+        user.getRoles().add(getProjectParticipantRole(
+                projectMapper.projectDTOToProject(subjectDto.getProject()), PARTICIPANT));
 
         // set password and reset keys
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
@@ -110,20 +113,20 @@ public class SubjectService {
     /**
      * Fetch Participant role of the project if available, otherwise create a new Role and assign.
      *
-     * @param projectDto project subject is assigned to
+     * @param project project subject is assigned to
      * @return relevant Participant role
      * @throws java.util.NoSuchElementException if the authority name is not in the database
      */
-    private Role getProjectParticipantRole(ProjectDTO projectDto) {
-        return roleRepository.findOneByProjectIdAndAuthorityName(projectDto.getId(),
-                AuthoritiesConstants.PARTICIPANT).orElseGet(() -> {
+    private Role getProjectParticipantRole(Project project, String authority) {
+        return roleRepository.findOneByProjectIdAndAuthorityName(project.getId(), authority)
+                .orElseGet(() -> {
                     Role subjectRole = new Role();
                     // If we do not have the participant authority something is very wrong, and the
                     // .get() will trigger a NoSuchElementException, which will be translated
                     // into a 500 response.
                     subjectRole.setAuthority(authorityRepository.findByAuthorityName(
-                            AuthoritiesConstants.PARTICIPANT).get());
-                    subjectRole.setProject(projectMapper.projectDTOToProject(projectDto));
+                            authority).get());
+                    subjectRole.setProject(project);
                     roleRepository.save(subjectRole);
                     return subjectRole;
                 });
@@ -132,38 +135,55 @@ public class SubjectService {
 
     /**
      * Update a subject's information.
-     * @param subjectDto the new subject information
+     *
+     * @param newSubjectDto the new subject information
      * @return the updated subject
      */
     @Transactional
-    public SubjectDTO updateSubject(SubjectDTO subjectDto) {
-        if (subjectDto.getId() == null) {
-            return createSubject(subjectDto);
+    public SubjectDTO updateSubject(SubjectDTO newSubjectDto) {
+        if (newSubjectDto.getId() == null) {
+            return createSubject(newSubjectDto);
         }
-        Subject subject = subjectRepository.findOne(subjectDto.getId());
+        Subject subjectFromDb = subjectRepository.findOne(newSubjectDto.getId());
         //reset all the sources assigned to a subject to unassigned
-        for (Source source : subject.getSources()) {
+        for (Source source : subjectFromDb.getSources()) {
             source.setAssigned(false);
             sourceRepository.save(source);
         }
         //set only the devices assigned to a subject as assigned
-        subjectMapper.safeUpdateSubjectFromDTO(subjectDto, subject);
-        for (Source source : subject.getSources()) {
+        subjectMapper.safeUpdateSubjectFromDTO(newSubjectDto, subjectFromDb);
+        for (Source source : subjectFromDb.getSources()) {
             source.setAssigned(true);
         }
         // update participant role
-        Set<Role> managedRoles = subject.getUser().getRoles().stream()
-                .filter(r -> !AuthoritiesConstants.PARTICIPANT.equals(r.getAuthority().getName()))
-                .collect(Collectors.toSet());
-        managedRoles.add(getProjectParticipantRole(subjectDto.getProject()));
-        subject.getUser().setRoles(managedRoles);
-        subject = subjectRepository.save(subject);
+        Set<Role> managedRoles = updateParticipantRoles(subjectFromDb, newSubjectDto);
+        subjectFromDb.getUser().setRoles(managedRoles);
+        subjectFromDb = subjectRepository.save(subjectFromDb);
 
-        return subjectMapper.subjectToSubjectDTO(subject);
+        return subjectMapper.subjectToSubjectDTO(subjectFromDb);
     }
+
+    private Set<Role> updateParticipantRoles(Subject subject, SubjectDTO subjectDto) {
+        Set<Role> managedRoles = subject.getUser().getRoles().stream().map(role -> {
+            // inactivate existing patient roles
+            if (PARTICIPANT.equals(role.getAuthority().getName())) {
+                return getProjectParticipantRole(role.getProject(), INACTIVE_PARTICIPANT);
+            } else {
+                return role;
+            }
+            // and remove role for current project
+        }).filter(r -> !r.getProject().getProjectName().equals(subjectDto.getProject()
+                .getProjectName())).collect(Collectors.toSet());
+        // add participant role for current project
+        managedRoles.add(getProjectParticipantRole(projectMapper.projectDTOToProject(subjectDto
+                .getProject()), PARTICIPANT));
+        return managedRoles;
+    }
+
 
     /**
      * Get a page of subjects.
+     *
      * @param pageable the page information
      * @return the requested page of subjects
      */
@@ -177,6 +197,7 @@ public class SubjectService {
      *
      * <p>A discontinued subject is not deleted from the database, but will be prevented from
      * logging into the system, sending data, or otherwise interacting with the system.</p>
+     *
      * @param subjectDto the subject to discontinue
      * @return the discontinued subject
      */
@@ -326,6 +347,7 @@ public class SubjectService {
 
     /**
      * Delete the subject with the given login from the database.
+     *
      * @param login the login
      */
     public void deleteSubject(String login) {

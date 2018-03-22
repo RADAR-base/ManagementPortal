@@ -1,6 +1,7 @@
 import {Project} from "../../entities/project/project.model";
 import {MinimalSource} from "../source/source.model";
 import {Dictionary} from "../dictionary-mapper/dictionary-mapper.model";
+import {Role} from "../../admin/user-management/role.model";
 export class Subject {
     public id?: any;
     public login?: string;
@@ -15,6 +16,7 @@ export class Subject {
     public sources?: MinimalSource[];
     public attributes: Dictionary;
     public status: SubjectStatus;
+    public roles?: Role[];
 
     constructor(
          id?: number,
@@ -28,7 +30,8 @@ export class Subject {
          lastModifiedDate?: Date,
          password?: string,
          project?: Project,
-         sources?: MinimalSource[]
+         sources?: MinimalSource[],
+         roles?: Role[]
 
     ) {
         this.id = id ? id : null;
@@ -43,6 +46,7 @@ export class Subject {
         this.project = project ? project: null;
         this.sources = sources ? sources: [];
         this.status = status ? status: SubjectStatus.DEACTIVATED;
+        this.roles = roles;
     }
 }
 export const enum SubjectStatus {

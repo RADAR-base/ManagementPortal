@@ -32,7 +32,6 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
             return null;
         }
         SubjectDTO dto = delegate.subjectToSubjectDTO(subject);
-        dto.setAttributes(subject.getAttributes());
         dto.setStatus(getSubjectStatus(subject));
         Optional<Role> role = subject.getUser().getRoles().stream()
                 .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PARTICIPANT))
@@ -52,7 +51,6 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
         }
 
         Subject subject = delegate.subjectDTOToSubject(subjectDto);
-        extractAttributeData(subjectDto, subject);
         setSubjectStatus(subjectDto, subject);
         return subject;
     }
@@ -89,14 +87,8 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
     @Override
     public Subject safeUpdateSubjectFromDTO(SubjectDTO subjectDto, @MappingTarget Subject subject) {
         Subject subjectRetrieved = delegate.safeUpdateSubjectFromDTO(subjectDto, subject);
-        extractAttributeData(subjectDto, subjectRetrieved);
         setSubjectStatus(subjectDto, subjectRetrieved);
         return subjectRetrieved;
-    }
-
-
-    private void extractAttributeData(SubjectDTO subjectDto, Subject subject) {
-        subject.setAttributes(subjectDto.getAttributes());
     }
 
     private SubjectStatus getSubjectStatus(Subject subject) {

@@ -113,7 +113,11 @@ public class Permissions {
         /* Participant */
         // Can update and read own data and can read and write own measurements
         Arrays.asList(Permission.SUBJECT_READ, Permission.SUBJECT_UPDATE,
-                Permission.MEASUREMENT_CREATE, Permission.MEASUREMENT_READ).stream()
+                Permission.MEASUREMENT_CREATE, Permission.MEASUREMENT_READ)
                         .forEach(p -> PERMISSION_MATRIX.get(p).add(PARTICIPANT));
+
+        /* Inactive participant */
+        // Doesn't have any permissions
+
     }
 }
