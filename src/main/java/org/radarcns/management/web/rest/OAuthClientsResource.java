@@ -1,33 +1,12 @@
 package org.radarcns.management.web.rest;
 
-import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_CREATE;
-import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_DELETE;
-import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_READ;
-import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_UPDATE;
-import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
-
 import com.codahale.metrics.annotation.Timed;
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
+import org.radarcns.management.service.ResourceLocationService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ClientDetailsDTO;
 import org.radarcns.management.service.dto.ClientPairInfoDTO;
@@ -67,6 +46,28 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.io.Serializable;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_CREATE;
+import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_DELETE;
+import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_READ;
+import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_UPDATE;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * Created by dverbeec on 5/09/2017.
@@ -208,8 +209,7 @@ public class OAuthClientsResource {
             clientDetailsService.loadClientByClientId(clientDetailsDto.getClientId());
             throw new CustomConflictException(ErrorConstants.ERR_CLIENT_ID_EXISTS,
                     Collections.singletonMap("client_id", clientDetailsDto.getClientId()),
-                    new URI(HeaderUtil.buildPath("api", "oauth-clients",
-                            clientDetailsDto.getClientId())));
+                    ResourceLocationService.getLocation(clientDetailsDto));
         } catch (NoSuchClientException ex) {
             // Client does not exist yet, we can go ahead and create it
         }
@@ -217,8 +217,7 @@ public class OAuthClientsResource {
                 .clientDetailsDTOToClientDetails(clientDetailsDto);
         clientDetailsService.addClientDetails(details);
         ClientDetails created = getOAuthClient(clientDetailsDto.getClientId());
-        return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "oauth-clients",
-                created.getClientId())))
+        return ResponseEntity.created(ResourceLocationService.getLocation(clientDetailsDto))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, created.getClientId()))
                 .body(clientDetailsMapper.clientDetailsToClientDetailsDTO(created));
     }

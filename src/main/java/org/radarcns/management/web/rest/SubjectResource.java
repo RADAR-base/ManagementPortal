@@ -1,28 +1,10 @@
 package org.radarcns.management.web.rest;
 
-import static org.radarcns.auth.authorization.Permission.SUBJECT_CREATE;
-import static org.radarcns.auth.authorization.Permission.SUBJECT_DELETE;
-import static org.radarcns.auth.authorization.Permission.SUBJECT_READ;
-import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
-
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Stream;
-import javax.servlet.http.HttpServletRequest;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
@@ -32,6 +14,7 @@ import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.SecurityUtils;
+import org.radarcns.management.service.ResourceLocationService;
 import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.SubjectService;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
@@ -60,6 +43,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import static org.radarcns.auth.authorization.Permission.SUBJECT_CREATE;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_DELETE;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_READ;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing Subject.
@@ -135,8 +136,7 @@ public class SubjectResource {
         }
 
         SubjectDTO result = subjectService.createSubject(subjectDto);
-        return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "subjects",
-                result.getLogin())))
+        return ResponseEntity.created(ResourceLocationService.getLocation(subjectDto))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getLogin()))
                 .body(result);
     }
@@ -399,8 +399,7 @@ public class SubjectResource {
         // an existing source was provided. If an existing source was given but not found, the
         // assignOrUpdateSource would throw an error and we would not reach this point.
         if (!existing) {
-            return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "sources",
-                    sourceRegistered.getSourceName())))
+            return ResponseEntity.created(ResourceLocationService.getLocation(sourceRegistered))
                     .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, login))
                     .body(sourceRegistered);
         } else {

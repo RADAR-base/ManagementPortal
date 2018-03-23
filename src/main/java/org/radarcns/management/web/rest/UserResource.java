@@ -1,21 +1,8 @@
 package org.radarcns.management.web.rest;
 
-import static org.radarcns.auth.authorization.Permission.PROJECT_READ;
-import static org.radarcns.auth.authorization.Permission.USER_CREATE;
-import static org.radarcns.auth.authorization.Permission.USER_DELETE;
-import static org.radarcns.auth.authorization.Permission.USER_READ;
-import static org.radarcns.auth.authorization.Permission.USER_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
-
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.Subject;
@@ -23,6 +10,7 @@ import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.service.MailService;
+import org.radarcns.management.service.ResourceLocationService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
@@ -47,6 +35,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+
+import static org.radarcns.auth.authorization.Permission.PROJECT_READ;
+import static org.radarcns.auth.authorization.Permission.USER_CREATE;
+import static org.radarcns.auth.authorization.Permission.USER_DELETE;
+import static org.radarcns.auth.authorization.Permission.USER_READ;
+import static org.radarcns.auth.authorization.Permission.USER_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing users.
@@ -139,8 +140,7 @@ public class UserResource {
         } else {
             User newUser = userService.createUser(managedUserVm);
             mailService.sendCreationEmail(newUser);
-            return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "users",
-                    newUser.getLogin())))
+            return ResponseEntity.created(ResourceLocationService.getLocation(newUser))
                     .headers(HeaderUtil.createAlert("userManagement.created", newUser.getLogin()))
                     .body(newUser);
         }

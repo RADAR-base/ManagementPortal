@@ -8,6 +8,7 @@ import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.service.ProjectService;
+import org.radarcns.management.service.ResourceLocationService;
 import org.radarcns.management.service.RoleService;
 import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
@@ -39,7 +40,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
@@ -113,8 +113,7 @@ public class ProjectResource {
                     .body(null);
         }
         ProjectDTO result = projectService.save(projectDto);
-        return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "projects",
-                result.getProjectName())))
+        return ResponseEntity.created(ResourceLocationService.getLocation(result))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getProjectName()))
                 .body(result);
     }
