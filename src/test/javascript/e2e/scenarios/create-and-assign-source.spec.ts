@@ -137,7 +137,7 @@ describe('Create, assign, unassign and delete source', () => {
         });
     });
 
-    it('should be able to delete a source', function () {
+    it('should not be able to delete a source used by subject', function () {
         element(by.cssContainingText('li', 'Sources')).click().then(() => {
             element.all(by.linkText(sourceName))
                 .all(by.xpath('ancestor::tr'))
@@ -147,7 +147,7 @@ describe('Create, assign, unassign and delete source', () => {
                     element(by.cssContainingText('.modal-footer button', 'Delete')).click().then(() => {
                         browser.waitForAngular();
                         element.all(by.css('sources tbody tr')).count().then(function (count) {
-                            expect(count).toBe(1);
+                            expect(count).toBe(2);
                         });
                     });
                 });
