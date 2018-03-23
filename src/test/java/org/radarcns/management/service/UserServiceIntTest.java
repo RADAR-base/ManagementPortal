@@ -1,5 +1,14 @@
 package org.radarcns.management.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.radarcns.management.web.rest.TestUtil.commitTransactionAndStartNew;
+
+import java.time.Instant;
+import java.time.Period;
+import java.time.ZonedDateTime;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,17 +28,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.time.Period;
-import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test class for the UserResource REST controller.
@@ -188,11 +187,4 @@ public class UserServiceIntTest {
         return userRepository.save(user);
     }
 
-    private void commitTransactionAndStartNew() {
-        // flag this transaction for commit and end it
-        TestTransaction.flagForCommit();
-        TestTransaction.end();
-        TestTransaction.start();
-        TestTransaction.flagForCommit();
-    }
 }

@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.history.Revisions;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -352,8 +353,9 @@ public class SubjectService {
      */
     public List<MinimalSourceDetailsDTO> findSubjectSourcesFromRevisions(Subject subject) {
 
+        Revisions<Integer, Subject> revisions = subjectRepository.findRevisions(subject.getId());
         // collect distinct sources in a set
-        Set<Source> sources = subjectRepository.findRevisions(subject.getId())
+        Set<Source> sources = revisions
                 .getContent().stream().flatMap(p -> p.getEntity().getSources().stream())
                 .filter(distinctByKey(Source::getSourceId))
                 .collect(Collectors.toSet());

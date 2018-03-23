@@ -2,7 +2,7 @@ package org.radarcns.management.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
@@ -12,6 +12,7 @@ import java.time.format.DateTimeParseException;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.transaction.TestTransaction;
 
 /**
  * Utility class for testing REST controllers.
@@ -23,21 +24,30 @@ public class TestUtil {
             MediaType.APPLICATION_JSON.getType(),
             MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
 
+    private static final ObjectMapper mapper = new ObjectMapper()
+            .setSerializationInclusion(Include.NON_NULL)
+            .registerModule(new JavaTimeModule());
+
     /**
      * Convert an object to JSON byte array.
      *
-     * @param object
-     *            the object to convert
+     * @param object the object to convert
      * @return the JSON byte array
      */
     public static byte[] convertObjectToJsonBytes(Object object) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
-        JavaTimeModule module = new JavaTimeModule();
-        mapper.registerModule(module);
-
         return mapper.writeValueAsBytes(object);
+    }
+
+    /**
+     * Convert an object to JSON byte array.
+     *
+     * @param json string to convert
+     * @param objectClass Class to create an instance the object to convert
+     * @return the JSON byte array
+     */
+    public static <T> Object convertJsonStringToObject(String json, Class<T> objectClass) throws
+            IOException {
+        return mapper.readValue(json, objectClass);
     }
 
     /**
@@ -56,8 +66,8 @@ public class TestUtil {
     }
 
     /**
-     * A matcher that tests that the examined string represents the same instant as the
-     * reference datetime.
+     * A matcher that tests that the examined string represents the same instant as the reference
+     * datetime.
      */
     public static class ZonedDateTimeMatcher extends TypeSafeDiagnosingMatcher<String> {
 
@@ -77,7 +87,7 @@ public class TestUtil {
                 return true;
             } catch (DateTimeParseException e) {
                 mismatchDescription.appendText("was ").appendValue(item)
-                    .appendText(", which could not be parsed as a ZonedDateTime");
+                        .appendText(", which could not be parsed as a ZonedDateTime");
                 return false;
             }
 
@@ -90,8 +100,9 @@ public class TestUtil {
     }
 
     /**
-     * Creates a matcher that matches when the examined string reprensents the same instant as
-     * the reference datetime.
+     * Creates a matcher that matches when the examined string reprensents the same instant as the
+     * reference datetime.
+     *
      * @param date the reference datetime against which the examined string is checked
      */
     public static ZonedDateTimeMatcher sameInstant(ZonedDateTime date) {
@@ -115,5 +126,17 @@ public class TestUtil {
         assertThat(domainObject1).isNotEqualTo(domainObject2);
         // HashCodes are equals because the objects are not persisted yet
         assertThat(domainObject1.hashCode()).isEqualTo(domainObject2.hashCode());
+    }
+
+
+    /**
+     * This allows to commit current transaction and start a new transaction.
+     */
+    public static void commitTransactionAndStartNew() {
+        // flag this transaction for commit and end it
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        TestTransaction.start();
+        TestTransaction.flagForCommit();
     }
 }
