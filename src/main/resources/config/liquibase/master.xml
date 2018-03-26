@@ -23,6 +23,7 @@
     <include file="classpath:config/liquibase/changelog/00000000000014_added_demo_data.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20171220155600_drop_table_radar_user_authority.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20180110164600_add_source_demo_data.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20180323164200_add_role_inactive_participant.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20180313103735_add_missing_fks.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20180313103735_enable_envers_revisions.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->

@@ -4,6 +4,7 @@ package org.radarcns.management.service.dto;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -36,6 +37,8 @@ public class SubjectDTO implements Serializable {
     private SubjectStatus status = SubjectStatus.DEACTIVATED;
 
     private ProjectDTO project;
+
+    private List<RoleDTO> roles;
 
     private Set<MinimalSourceDetailsDTO> sources = new HashSet<>();
 
@@ -79,6 +82,14 @@ public class SubjectDTO implements Serializable {
 
     public void setExternalId(String externalId) {
         this.externalId = externalId;
+    }
+
+    public List<RoleDTO> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<RoleDTO> roles) {
+        this.roles = roles;
     }
 
     /**
