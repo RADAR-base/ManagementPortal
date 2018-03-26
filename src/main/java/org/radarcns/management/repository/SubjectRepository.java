@@ -35,7 +35,8 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
             + ".authority.name in :authorities",
             countQuery = "select distinct count(subject) from Subject subject "
                     + "left join subject.user user left join user.roles roles "
-                    + "where roles.project.projectName = :projectName")
+                    + "where roles.project.projectName = :projectName and roles"
+                    + ".authority.name in :authorities")
     Page<Subject> findAllByProjectNameAndAuthoritiesIn(Pageable pageable,
             @Param("projectName") String projectName,
             @Param("authorities") List<String> authorities);
