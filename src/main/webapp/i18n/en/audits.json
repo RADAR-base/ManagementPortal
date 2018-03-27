@@ -28,10 +28,15 @@
         "title": "Revisions",
         "number": "Revision Number",
         "author": "Author",
+        "modifications": "Modifications",
         "type": {
             "add": "Added",
             "mod": "Modified",
             "del": "Deleted"
+        },
+        "entity": {
+            "user": "User",
+            "subject": "Subject"
         }
     }
 }

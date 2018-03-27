@@ -1,17 +1,15 @@
 <div>
     <jhi-alert></jhi-alert>
     <h1><span jhiTranslate="revisions.title">Revisions</span></h1>
+    <p class="text-right"><span class="badge badge-success" jhiTranslate="revisions.type.add">Addition</span>&nbsp;<span class="badge badge-warning" jhiTranslate="revisions.type.mod">Modification</span>&nbsp;<span class="badge badge-danger"  jhiTranslate="revisions.type.del">Deletion</span></p>
     <div class="table-responsive">
-
         <table class="table table-striped">
             <thead>
             <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
                 <th jhiSortBy="id" ><span jhiTranslate="revisions.number">Revision Number</span><span class="fa fa-sort"></span></th>
                 <th jhiSortBy="timestamp" ><span jhiTranslate="audits.table.header.date">Date</span><span class="fa fa-sort"></span></th>
                 <th jhiSortBy="auditor" ><span jhiTranslate="revisions.author">Author</span><span class="fa fa-sort"></span></th>
-                <th><span jhiTranslate="revisions.type.add">Added</span></th>
-                <th><span jhiTranslate="revisions.type.mod">Modified</span></th>
-                <th><span jhiTranslate="revisions.type.del">Deleted</span></th>
+                <th><span jhiTranslate="revisions.modifications">Modifications</span></th>
             </tr>
             </thead>
             <tbody>
@@ -19,7 +17,14 @@
                 <td>{{revision.id}}</td>
                 <td>{{revision.timestamp}}</td>
                 <td>{{revision.author}}</td>
-                <td></td>
+                <td>
+                    <a [routerLink]="['/user-management', user.login]" *ngFor="let user of revision.changes['ADD']['UserDTO']">
+                        <span class="badge badge-success"><span jhiTranslate="revisions.entity.user">User</span> {{user.login}}</span>
+                    </a>
+                    <a [routerLink]="['/subject', subject.login]" *ngFor="let subject of revision.changes['ADD']['SubjectDTO']">
+                        <span class="badge badge-success"><span jhiTranslate="revisions.entity.subject">Subject</span> {{subject.login}}</span>
+                    </a>
+                </td>
                 <td></td>
                 <td></td>
             </tr>

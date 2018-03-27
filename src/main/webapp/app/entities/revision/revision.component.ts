@@ -8,7 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EventManager, PaginationUtil, ParseLinks, AlertService, JhiLanguageService } from 'ng-jhipster';
 import { Revision } from './revision.model';
 import { RevisionService } from './revision.service';
-import { ITEMS_PER_PAGE } from '../../shared';
+import { ITEMS_PER_PAGE, User } from '../../shared';
 import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
 
 @Component({

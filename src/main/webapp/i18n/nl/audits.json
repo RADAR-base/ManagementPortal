@@ -28,10 +28,15 @@
         "title": "Revisies",
         "number": "Reviese Nummer",
         "author": "Auteur",
+        "modifications": "Wijzigingen",
         "type": {
             "add": "Toegevoegd",
             "mod": "Gewijzigd",
             "del": "Verwijderd"
+        },
+        "entity": {
+            "user": "Gebruiker",
+            "subject": "Subject"
         }
     }
 }
