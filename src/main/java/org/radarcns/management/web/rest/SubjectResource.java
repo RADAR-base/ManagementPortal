@@ -30,6 +30,7 @@ import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.history.Revision;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -287,6 +288,32 @@ public class SubjectResource {
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, subjectDto.getProject()
                 .getProjectName(), subjectDto.getLogin());
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(subjectDto));
+    }
+
+    /**
+     * GET  /subjects/:login/revisions/:revisionNb : get the "login" subject at revisionNb 'revisionNb'.
+     *
+     * @param login the login of the subjectDTO to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the subjectDTO, or with status
+     *         404 (Not Found)
+     */
+    @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}"
+            + "/revisions/{revisionNb:^[0-9]*$}")
+    @Timed
+    public ResponseEntity<SubjectDTO> getSubject(@PathVariable String login,
+            @PathVariable Integer revisionNb) throws NotAuthorizedException {
+        log.debug("REST request to get Subject : {}, for revisionNb: {}", login, revisionNb);
+        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
+        if (!subject.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        Revision<Integer, Subject> rev = subjectRepository.findRevision(subject.get().getId(),
+                revisionNb);
+        Subject subAtRevision = rev.getEntity();
+        SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subAtRevision);
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, subjectDto.getProject()
+                .getProjectName(), subjectDto.getLogin());
+        return ResponseEntity.ok(subjectDto);
     }
 
     /**
