@@ -8,7 +8,7 @@ describe('Discontinued subject should unassign sources', () => {
     const accountMenu = element(by.id('account-menu'));
     const login = element(by.id('login'));
     const logout = element(by.id('logout'));
-    const sourceName = 'test-source-1';
+    const sourceName = 'test-source-2';
 
     beforeAll(() => {
         browser.get('#');
@@ -44,7 +44,7 @@ describe('Discontinued subject should unassign sources', () => {
                 element(by.css('.modal-footer button.btn-primary')).click().then(() => {
                     browser.waitForAngular();
                     element.all(by.css('sources tbody tr')).count().then(function(count) {
-                        expect(count).toEqual(2);
+                        expect(count).toEqual(3);
                     });
                 });
             });
@@ -61,9 +61,9 @@ describe('Discontinued subject should unassign sources', () => {
                 element.all(by.css('source-assigner tbody')).get(0).all(by.css('tr')).then(function(rows) {
                     expect(rows.length).toEqual(0);
                 });
-                // second table lists available sources, should have one element
+                // second table lists available sources, should have two elements
                 element.all(by.css('source-assigner tbody')).get(1).all(by.css('tr')).then(function(rows) {
-                    expect(rows.length).toEqual(1);
+                    expect(rows.length).toEqual(2);
                 });
                 element(by.cssContainingText('button', 'Add')).click().then(() => {
                     browser.waitForAngular();
@@ -72,7 +72,7 @@ describe('Discontinued subject should unassign sources', () => {
                         expect(rows.length).toEqual(1);
                     });
                     element.all(by.css('source-assigner tbody')).get(1).all(by.css('tr')).then(function(rows) {
-                        expect(rows.length).toEqual(0);
+                        expect(rows.length).toEqual(1);
                     });
                     element(by.cssContainingText('button', 'Save')).click().then(() => {
                         browser.waitForAngular();
