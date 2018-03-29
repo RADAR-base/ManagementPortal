@@ -65,7 +65,11 @@ describe('Discontinued subject should unassign sources', () => {
                 element.all(by.css('source-assigner tbody')).get(1).all(by.css('tr')).then(function(rows) {
                     expect(rows.length).toEqual(2);
                 });
-                element(by.cssContainingText('button', 'Add')).click().then(() => {
+
+                // element(by.xpath("//table/tr[td = 'Eve']")).click();
+              const source = element.all(by.xpath('//tr/td[2]')).filter(el => el.getText().then((text) => text.match(sourceName) != null)).first()
+              .element(by.xpath('ancestor::tr'));
+              source.element(by.cssContainingText('button', 'Add')).click().then(() => {
                     browser.waitForAngular();
                     // available source should be moved to first table
                     element.all(by.css('source-assigner tbody')).get(0).all(by.css('tr')).then(function(rows) {
