@@ -31,6 +31,7 @@
         "sourceNameExists": "Huidige source naam is al geregistreerd",
         "sourceIsAssigned": "Kan een momenteel toegewezen source niet bewerken / verwijderen.",
         "sourceAssignedRequired": "Het 'assigned' veld is verplicht voor een nieuwe Source.",
-        "validation": "Validatie fout, controleer de ingevoerde waarden."
+        "validation": "Validatie fout, controleer de ingevoerde waarden.",
+        "usedSourceDeletion": "Kan een bron die door een onderwerp wordt gebruikt niet verwijderen"
     }
 }

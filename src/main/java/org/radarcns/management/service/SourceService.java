@@ -102,8 +102,8 @@ public class SourceService {
         } else {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Cannot delete source with sourceId ");
-            errorParams.put("sourceId", sources.get(0).getSourceId().toString());
-            throw new CustomParameterizedException("InvalidRequest", errorParams);
+            errorParams.put("id", Long.toString(id));
+            throw new CustomParameterizedException("error.usedSourceDeletion", errorParams);
         }
     }
 

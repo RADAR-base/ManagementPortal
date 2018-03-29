@@ -146,13 +146,12 @@ describe('Create, assign, unassign and delete source', () => {
                     browser.waitForAngular();
                     element(by.cssContainingText('.modal-footer button', 'Delete')).click().then(() => {
                         browser.waitForAngular();
-                        element.all(by.css('sources tbody tr')).count().then(function (count) {
-                            expect(count).toBe(2);
-                        });
+
+                        element(by.buttonText('Cancel')).click();
                     });
                 });
         });
-    })
+    });
 
     afterAll(function () {
         accountMenu.click();

@@ -120,19 +120,6 @@ describe('Discontinued subject should unassign sources', () => {
         });
     });
 
-    it('should be able to delete a source', function () {
-        element.all(by.linkText(sourceName))
-            .all(by.xpath('ancestor::tr'))
-            .all(by.cssContainingText('button', 'Delete'))
-            .click().then(() => {
-                element(by.css('.modal-footer button.btn-danger')).click().then(() => {
-                    browser.waitForAngular();
-                    element.all(by.css('sources tbody tr')).count().then(function (count) {
-                        expect(count).toBe(1);
-                    });
-                });
-            });
-    });
 
     it('should be able to delete a subject', function () {
         element(by.cssContainingText('li', 'Subjects')).click().then(() => {

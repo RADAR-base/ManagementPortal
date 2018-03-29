@@ -291,7 +291,8 @@ public class SubjectResource {
     }
 
     /**
-     * GET  /subjects/:login/revisions/:revisionNb : get the "login" subject at revisionNb 'revisionNb'.
+     * GET  /subjects/:login/revisions/:revisionNb : get the "login" subject at revisionNb
+     * 'revisionNb'.
      *
      * @param login the login of the subjectDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the subjectDTO, or with status
