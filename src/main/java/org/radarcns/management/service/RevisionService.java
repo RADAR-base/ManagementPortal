@@ -124,7 +124,7 @@ public class RevisionService implements ApplicationContextAware {
      * @return the revision
      * @throws CustomNotFoundException if the revision number does not exist
      */
-    public RevisionInfoDTO getRevision(Long revision) throws CustomNotFoundException {
+    public RevisionInfoDTO getRevision(Integer revision) throws CustomNotFoundException {
         AuditReader reader = AuditReaderFactory.get(entityManagerFactory.createEntityManager());
         CrossTypeRevisionChangesReader changesReader = reader.getCrossTypeRevisionChangesReader();
         CustomRevisionEntity revisionEntity = revisionEntityRepository.findOne(revision);

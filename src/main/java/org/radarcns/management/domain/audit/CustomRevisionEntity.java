@@ -37,7 +37,7 @@ public class CustomRevisionEntity implements Serializable {
     @SequenceGenerator(name = "revisionGenerator", initialValue = 2, allocationSize = 50,
             sequenceName = "sequence_revision")
     @RevisionNumber
-    private long id;
+    private int id;
 
     @RevisionTimestamp
     private Date timestamp;
@@ -51,11 +51,11 @@ public class CustomRevisionEntity implements Serializable {
     @ModifiedEntityNames
     private Set<String> modifiedEntityNames;
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 

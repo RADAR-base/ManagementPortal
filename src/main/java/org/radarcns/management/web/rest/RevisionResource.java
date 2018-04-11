@@ -55,7 +55,7 @@ public class RevisionResource {
     @GetMapping("/revisions/{id}")
     @Timed
     @Secured({AuthoritiesConstants.SYS_ADMIN})
-    public ResponseEntity<RevisionInfoDTO> getRevision(@PathVariable("id") Long id) {
+    public ResponseEntity<RevisionInfoDTO> getRevision(@PathVariable("id") Integer id) {
         log.debug("REST request to get single revision: {}", id.toString());
         return ResponseEntity.ok(revisionService.getRevision(id));
     }
