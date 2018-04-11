@@ -18,11 +18,28 @@
                 <td>{{revision.timestamp}}</td>
                 <td>{{revision.author}}</td>
                 <td>
-                    <a [routerLink]="['/user-management', user.login]" *ngFor="let user of revision.changes['ADD']['UserDTO']">
+                    <!-- Additions -->
+                    <a [routerLink]="['/user-management', user.login, 'revision', revision.id]" *ngFor="let user of revision.changes['ADD']['UserDTO']">
                         <span class="badge badge-success"><span jhiTranslate="revisions.entity.user">User</span> {{user.login}}</span>
                     </a>
-                    <a [routerLink]="['/subject', subject.login]" *ngFor="let subject of revision.changes['ADD']['SubjectDTO']">
+                    <a [routerLink]="['/subject', subject.login, 'revision', revision.id]" *ngFor="let subject of revision.changes['ADD']['SubjectDTO']">
                         <span class="badge badge-success"><span jhiTranslate="revisions.entity.subject">Subject</span> {{subject.login}}</span>
+                    </a>
+                    
+                    <!-- Modifications -->
+                    <a [routerLink]="['/user-management', user.login, 'revision', revision.id]" *ngFor="let user of revision.changes['MOD']['UserDTO']">
+                        <span class="badge badge-warning"><span jhiTranslate="revisions.entity.user">User</span> {{user.login}}</span>
+                    </a>
+                    <a [routerLink]="['/subject', subject.login, 'revision', revision.id]" *ngFor="let subject of revision.changes['MOD']['SubjectDTO']">
+                        <span class="badge badge-warning"><span jhiTranslate="revisions.entity.subject">Subject</span> {{subject.login}}</span>
+                    </a>
+
+                    <!-- Deletions -->
+                    <a [routerLink]="['/user-management', user.login, 'revision', revision.id]" *ngFor="let user of revision.changes['DEL']['UserDTO']">
+                        <span class="badge badge-danger"><span jhiTranslate="revisions.entity.user">User</span> {{user.login}}</span>
+                    </a>
+                    <a [routerLink]="['/subject', subject.login, 'revision', revision.id]" *ngFor="let subject of revision.changes['DEL']['SubjectDTO']">
+                        <span class="badge badge-danger"><span jhiTranslate="revisions.entity.subject">Subject</span> {{subject.login}}</span>
                     </a>
                 </td>
                 <td></td>

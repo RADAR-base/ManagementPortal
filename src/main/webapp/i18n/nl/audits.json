@@ -26,6 +26,7 @@
     },
     "revisions": {
         "title": "Revisies",
+        "revision": "Revisie",
         "number": "Reviese Nummer",
         "author": "Auteur",
         "modifications": "Wijzigingen",

@@ -25,4 +25,10 @@ constructor(private http: Http) { }
 
         return this.http.get(this.resourceUrl, options);
     }
+
+    find(id: number): Observable<Revision> {
+        return this.http.get(`${this.resourceUrl}/${id}`).map((res: Response) => {
+            return res.json();
+          });
+    }
 }
