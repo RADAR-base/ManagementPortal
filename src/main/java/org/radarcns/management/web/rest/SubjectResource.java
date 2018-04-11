@@ -304,14 +304,7 @@ public class SubjectResource {
     public ResponseEntity<SubjectDTO> getSubject(@PathVariable String login,
             @PathVariable Integer revisionNb) throws NotAuthorizedException {
         log.debug("REST request to get Subject : {}, for revisionNb: {}", login, revisionNb);
-        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
-        if (!subject.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        Revision<Integer, Subject> rev = subjectRepository.findRevision(subject.get().getId(),
-                revisionNb);
-        Subject subAtRevision = rev.getEntity();
-        SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subAtRevision);
+        SubjectDTO subjectDto = subjectService.findRevision(login, revisionNb);
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, subjectDto.getProject()
                 .getProjectName(), subjectDto.getLogin());
         return ResponseEntity.ok(subjectDto);
@@ -423,8 +416,7 @@ public class SubjectResource {
             // return bad request
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(HeaderUtil
                     .createAlert("sourceTypeNotAvailable",
-                            "The source type is not registered in the"
-                                    + " given project")).build();
+                            "The source type is not registered in the given project")).build();
         }
 
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, role.getProject()

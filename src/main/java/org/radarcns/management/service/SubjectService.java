@@ -27,12 +27,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.Revisions;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -377,6 +379,17 @@ public class SubjectService {
                 .collect(Collectors.toSet());
         return sources.stream().map(p -> sourceMapper.sourceToMinimalSourceDetailsDTO(p))
                 .collect(Collectors.toList());
+    }
+
+    public SubjectDTO findRevision(String login, Integer revision) {
+        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
+        if (!subject.isPresent()) {
+            throw new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                    Collections.singletonMap("subjectLogin", login));
+        }
+
+        Subject rev = subjectRepository.findRevision(subject.get().getId(), revision).getEntity();
+        return subjectMapper.subjectToSubjectDTO(rev);
     }
 
     private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
