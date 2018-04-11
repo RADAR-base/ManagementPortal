@@ -61,7 +61,6 @@ spring:
                 physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
                 implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
         properties:
-            hibernate.hbm2ddl.auto: update
             org.hibernate.envers:
                 store_data_at_delete: true
                 audit_strategy: org.hibernate.envers.strategy.ValidityAuditStrategy
