@@ -40,6 +40,12 @@ export class SubjectService {
     });
   }
 
+  findForRevision(login: string, revisionNb: number): Observable<Subject> {
+    return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/revisions/${revisionNb}`).map((res: Response) => {
+      return res.json();
+    });
+  }
+
   query(req?: any): Observable<Response> {
     const options = this.createRequestOption(req);
     return this.http.get(this.resourceUrl, options)

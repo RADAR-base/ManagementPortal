@@ -8,6 +8,7 @@ import {
     SubjectPopupService,
     SubjectComponent,
     SubjectDetailComponent,
+    SubjectRevisionComponent,
     SubjectDialogComponent,
     SubjectPopupComponent,
     SubjectDeletePopupComponent,
@@ -36,6 +37,7 @@ const ENTITY_STATES = [
     declarations: [
         SubjectComponent,
         SubjectDetailComponent,
+        SubjectRevisionComponent,
         SubjectDialogComponent,
         SubjectDeleteDialogComponent,
         SubjectPairDialogComponent,
