@@ -27,6 +27,9 @@ import org.springframework.data.repository.core.support.DefaultRepositoryMetadat
 import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -60,6 +63,27 @@ public class RevisionService implements ApplicationContextAware {
     private final Logger log = LoggerFactory.getLogger(RevisionService.class);
 
     private static ApplicationContext applicationContext;
+
+    private EntityManager entityManager;
+
+    private AuditReader auditReader;
+
+    /**
+     * Create an AuditReader, keep a reference to the EntityManager so we can close it later.
+     */
+    @PostConstruct
+    private void createAuditReader() {
+        entityManager = entityManagerFactory.createEntityManager();
+        auditReader = AuditReaderFactory.get(entityManager);
+    }
+
+    /**
+     * Close the EntityManager
+     */
+    @PreDestroy
+    private void closeEntityManager() {
+        entityManager.close();
+    }
 
     /**
      * Search the audit log for when the given entity was created.
@@ -125,8 +149,8 @@ public class RevisionService implements ApplicationContextAware {
      * @throws CustomNotFoundException if the revision number does not exist
      */
     public RevisionInfoDTO getRevision(Integer revision) throws CustomNotFoundException {
-        AuditReader reader = AuditReaderFactory.get(entityManagerFactory.createEntityManager());
-        CrossTypeRevisionChangesReader changesReader = reader.getCrossTypeRevisionChangesReader();
+        CrossTypeRevisionChangesReader changesReader = auditReader
+                .getCrossTypeRevisionChangesReader();
         CustomRevisionEntity revisionEntity = revisionEntityRepository.findOne(revision);
         if (revisionEntity == null) {
             throw new CustomNotFoundException("Requested revision not found", Collections
