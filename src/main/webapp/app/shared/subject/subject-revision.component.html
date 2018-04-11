@@ -1,7 +1,7 @@
 
 <div *ngIf="subject">
     <h2><span jhiTranslate="managementPortalApp.subject.detail.title">Subject</span> {{subject.login}}</h2>
-    <h3><span jhiTranslate="revisions.revision">Revision</span>&nbsp; {{revision.id}} - {{revision.timestamp  | date:'medium'}}</h3>
+    <h3 *ngIf="revision"><span jhiTranslate="revisions.revision">Revision</span>&nbsp; {{revision.id}} - {{revision.timestamp  | date:'medium'}}</h3>
     <hr>
     <jhi-alert-error></jhi-alert-error>
     <dl class="row-md jh-entity-details">

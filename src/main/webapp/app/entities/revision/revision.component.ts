@@ -48,7 +48,7 @@ export class RevisionComponent implements OnInit, OnDestroy {
             this.reverse = data['pagingParams'].ascending;
             this.predicate = data['pagingParams'].predicate;
         });
-        this.jhiLanguageService.addLocation('audits');
+        this.jhiLanguageService.setLocations(['audits']);
     }
 
     ngOnInit() {

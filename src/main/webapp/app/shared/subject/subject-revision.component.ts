@@ -17,10 +17,8 @@ export class SubjectRevisionComponent implements OnInit, OnDestroy {
     subject: Subject;
     revision: Revision;
     private subscription: any;
-    private eventSubscriber: Subscription;
 
     constructor(
-        private eventManager: EventManager,
         private jhiLanguageService: JhiLanguageService,
         private subjectService: SubjectService,
         private revisionService: RevisionService,
@@ -49,6 +47,5 @@ export class SubjectRevisionComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
-        this.eventManager.destroy(this.eventSubscriber);
     }
 }
