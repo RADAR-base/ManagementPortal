@@ -21,6 +21,7 @@ import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
@@ -30,7 +31,6 @@ import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.history.Revision;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -385,12 +385,13 @@ public class SubjectResource {
         Long sourceTypeId = sourceDto.getSourceTypeId();
         if (sourceTypeId == null) {
             // check if combination (producer, model, version) is present
-            final String msg = "error.sourceNotFound";
             try {
-                String producer = Objects.requireNonNull(sourceDto.getSourceTypeProducer(), msg);
-                String model = Objects.requireNonNull(sourceDto.getSourceTypeModel(), msg);
+                String producer = Objects.requireNonNull(sourceDto.getSourceTypeProducer(),
+                        ErrorConstants.ERR_SOURCE_NOT_FOUND);
+                String model = Objects.requireNonNull(sourceDto.getSourceTypeModel(),
+                        ErrorConstants.ERR_SOURCE_NOT_FOUND);
                 String version = Objects.requireNonNull(sourceDto.getSourceTypeCatalogVersion(),
-                        msg);
+                        ErrorConstants.ERR_SOURCE_NOT_FOUND);
                 SourceTypeDTO sourceTypeDto = sourceTypeService
                         .findByProducerAndModelAndVersion(producer, model, version);
                 if (Objects.isNull(sourceTypeDto)) {
