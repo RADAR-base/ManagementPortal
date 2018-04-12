@@ -37,7 +37,11 @@
         },
         "entity": {
             "user": "Gebruiker",
-            "subject": "Subject"
+            "subject": "Subject",
+            "source": "Source",
+            "project": "Project",
+            "sourceType": "Source Type",
+            "sourceData": "Source Data"
         }
     }
 }
