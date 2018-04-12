@@ -18,7 +18,7 @@ public class RevisionInfoDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private long id;
+    private int id;
 
     private Date timestamp;
 
@@ -27,11 +27,11 @@ public class RevisionInfoDTO implements Serializable {
     // Groups the changes by revision type and class name
     private Map<RevisionType, Map<String, List<Object>>> changes;
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -80,9 +80,10 @@ public class RevisionInfoDTO implements Serializable {
         changes.forEach((type, objects) -> {
             result.changes.putIfAbsent(type, new HashMap<>());
             objects.stream().filter(Objects::nonNull).forEach(object -> {
-                result.changes.get(type).putIfAbsent(object.getClass().getSimpleName(),
-                        new LinkedList<>());
-                result.changes.get(type).get(object.getClass().getSimpleName()).add(object);
+                // strip the DTO suffix and make the name lowercase (e.g. ProjectDTO -> project)
+                String key = object.getClass().getSimpleName().replaceAll("DTO$","").toLowerCase();
+                result.changes.get(type).putIfAbsent(key, new LinkedList<>());
+                result.changes.get(type).get(key).add(object);
             });
         });
         return result;
