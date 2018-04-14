@@ -1,0 +1,73 @@
+<div>
+    <h4 *ngIf="subjectLogin">
+        <span jhiTranslate="revisions.revisionList">Revisions for</span>&nbsp;<span jhiTranslate="revisions.entity.subject">Subject</span>&nbsp;{{ subjectLogin }}
+    </h4>
+    <div class="row">
+    </div>
+    <br/>
+    <jhi-alert></jhi-alert>
+    <div class="table-responsive" *ngIf="revisions">
+        <table class="table table-striped">
+            <thead>
+            <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
+            <th jhiSortBy="id"><span jhiTranslate="revisions.number">Revision number</span><span class="fa fa-sort"></span></th>
+            <th><span jhiTranslate="revisions.revisionType">Revision type</span></th>
+            <th><span jhiTranslate="revisions.author">author</span></th>
+            <th><span jhiTranslate="revisions.timestamp">Timestamp</span></th>
+            <th><span jhiTranslate="managementPortalApp.subject.login">Login</span></th>
+            <th><span jhiTranslate="managementPortalApp.subject.externalId">Enternal Id</span></th>
+            <th><span jhiTranslate="managementPortalApp.subject.externalLink">External Link</span></th>
+            <th><span jhiTranslate="managementPortalApp.subject.status.title">Status</span></th>
+            <th><span jhiTranslate="managementPortalApp.subject.project">Project</span></th>
+            <th><span jhiTranslate="managementPortalApp.subject.sources">Sources</span></th>
+            <th><span jhiTranslate="managementPortalApp.subject.attributeData">Attributes</span></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let revision of revisions; trackBy: trackRevision">
+                <td>{{revision.id}}</td>
+                <td><span jhiTranslate="revisions.type.{{revision.revisionType | lowercase}}"></span></td>
+                <td>{{revision.author}}</td>
+                <td>{{revision.timestamp  | date:'MMMM d, y, h:mm:ss a Z'}}</td>
+                <td><a [routerLink]="['/subject', revision.entity.login, 'revisions', revision.id ]"></a>{{revision.entity.login}}</a></td>
+                <td>{{revision.entity.externalId}}</td>
+                <td><a target="_blank" [href]=revision.entity.externalLink>{{revision.entity.externalLink}}</a></td>
+                <td>
+                    <span class="badge badge-danger" *ngIf="revision.entity.status == 'DEACTIVATED'">DEACTIVATED</span>
+                    <span class="badge badge-success" *ngIf="revision.entity.status == 'ACTIVATED'">ACTIVATED</span>
+                    <span class="badge badge-warning" *ngIf="revision.entity.status == 'DISCONTINUED'">DISCONTINUED</span>
+                    <span class="badge badge-danger" *ngIf="revision.entity.status == 'INVALID'">INVALID</span>
+                </td>
+                <td>
+                    <span *ngFor="let role of revision.entity.roles; let last = last">
+                        <a  *ngIf="role.authorityName == 'ROLE_PARTICIPANT'"
+                            class="badge badge-success"
+                           [routerLink]="['/project', role.projectName ]">{{role.projectName}}</a>
+                        <a  *ngIf="role.authorityName == 'ROLE_INACTIVE_PARTICIPANT'"
+                           class="badge badge-warning"
+                           [routerLink]="['/project', role.projectName ]">{{role.projectName}}</a>
+                    </span>
+                </td>
+                <td>
+                    <span *ngFor="let sources of revision.entity.sources; let last = last">
+                        <a class="form-control-static" [routerLink]="['/source', sources.sourceName ]">{{sources.sourceTypeModel}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
+                    </span>
+                </td>
+                <td>
+                    <div *ngFor="let entry of revision.entity.attributes | keys; trackBy: trackKey">
+                        <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div *ngIf="revisions">
+        <div class="row justify-content-center">
+            <jhi-item-count [page]="page" [total]="queryCount" [itemsPerPage]="itemsPerPage"></jhi-item-count>
+        </div>
+        <div class="row justify-content-center">
+            <ngb-pagination [collectionSize]="totalItems" [(pageSize)]="itemsPerPage" boundaryLinks = true [(page)]="page" (pageChange)="loadPage(page)"></ngb-pagination>
+        </div>
+    </div>
+</div>

@@ -25,9 +25,12 @@
         }
     },
     "revisions": {
-        "title": "Revisions",
+        "title": "History",
         "revision": "Revision",
+        "revisionList": "History for",
+        "revisionType": "Revision Type",
         "number": "Revision Number",
+        "timestamp": "Timestamp",
         "author": "Author",
         "modifications": "Modifications",
         "type": {

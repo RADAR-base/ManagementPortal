@@ -9,6 +9,8 @@ import { SubjectRevisionComponent } from './subject-revision.component';
 
 import {PROJECT_ADMIN, SYSTEM_ADMIN} from "../constants/common.constants";
 import {SubjectSourceAssignerPopupComponent} from "./source-assigner/source-assigner.component";
+import { SubjectRevisionListComponent } from './subject-revision-list.component';
+import { ResolvePagingParams } from '../commons';
 
 export const subjectRoute: Routes = [
   {
@@ -21,7 +23,19 @@ export const subjectRoute: Routes = [
     canActivate: [UserRouteAccessService]
   },
   {
-    path: 'subject/:login/revision/:revisionNb',
+    path: 'subject/:login/revisions',
+    component: SubjectRevisionListComponent,
+    resolve: {
+      'pagingParams': ResolvePagingParams
+    },
+    data: {
+        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
+        pageTitle: 'managementPortalApp.subject.home.title'
+    },
+    canActivate: [UserRouteAccessService]
+  },
+  {
+    path: 'subject/:login/revisions/:revisionNb',
     component: SubjectRevisionComponent,
     data: {
         authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],

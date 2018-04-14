@@ -25,11 +25,14 @@
         }
     },
     "revisions": {
-        "title": "Revisies",
+        "title": "Geschiedenis",
         "revision": "Revisie",
-        "number": "Reviese Nummer",
+        "revisionList": "Geschiedenis voor",
+        "revisionType": "Revisie Type",
+        "number": "Revisienummer",
         "author": "Auteur",
         "modifications": "Wijzigingen",
+        "timestamp": "Tijdstip",
         "type": {
             "add": "Toegevoegd",
             "mod": "Gewijzigd",

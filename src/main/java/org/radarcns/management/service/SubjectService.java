@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.history.Revision;
 import org.springframework.data.history.Revisions;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -390,6 +390,17 @@ public class SubjectService {
 
         Subject rev = subjectRepository.findRevision(subject.get().getId(), revision).getEntity();
         return subjectMapper.subjectToSubjectDTO(rev);
+    }
+
+    public Page<Revision<Integer, SubjectDTO>> findRevisions(Pageable pageable, String login) {
+        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
+        if (!subject.isPresent()) {
+            throw new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                    Collections.singletonMap("subjectLogin", login));
+        }
+        return subjectRepository.findRevisions(subject.get().getId(), pageable)
+                .map(r -> new Revision(r.getMetadata(),
+                        subjectMapper.subjectToSubjectDTO(r.getEntity())));
     }
 
     private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {

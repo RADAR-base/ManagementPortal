@@ -1,3 +1,6 @@
+/**
+ * Information regarding a specific revision
+ */
 export class Revision {
     constructor(
         public id: number,

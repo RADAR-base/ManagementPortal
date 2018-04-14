@@ -17,6 +17,7 @@ import {
     SubjectPairDialogComponent,
     subjectRoute,
     subjectPopupRoute,
+    SubjectRevisionListComponent,
 } from './';
 import {
     SubjectSourceAssignerDialogComponent,
@@ -38,6 +39,7 @@ const ENTITY_STATES = [
         SubjectComponent,
         SubjectDetailComponent,
         SubjectRevisionComponent,
+        SubjectRevisionListComponent,
         SubjectDialogComponent,
         SubjectDeleteDialogComponent,
         SubjectPairDialogComponent,
