@@ -170,17 +170,16 @@ public class SubjectService {
     }
 
     private Set<Role> updateParticipantRoles(Subject subject, SubjectDTO subjectDto) {
-        Set<Role> managedRoles = subject.getUser().getRoles().stream().map(role -> {
-            // inactivate existing patient roles
-            if (PARTICIPANT.equals(role.getAuthority().getName())) {
-                return getProjectParticipantRole(role.getProject(), INACTIVE_PARTICIPANT);
-            } else {
-                return role;
-            }
-            // and remove role for current project
-        }).filter(r -> !r.getProject().getProjectName().equals(subjectDto.getProject()
-                .getProjectName())).collect(Collectors.toSet());
-        // add participant role for current project
+        Set<Role> managedRoles = subject.getUser().getRoles().stream()
+                // make participant inactive in projects that do not match the new project
+                .map(role -> PARTICIPANT.equals(role.getAuthority().getName())
+                            && !role.getProject().getProjectName().equals(
+                                    subjectDto.getProject().getProjectName())
+                            ? getProjectParticipantRole(role.getProject(), INACTIVE_PARTICIPANT)
+                            : role)
+                .collect(Collectors.toSet());
+        // add participant role for current project, if the project did not change, then the set
+        // will not change since the role being added here already exists in the set
         managedRoles.add(getProjectParticipantRole(projectMapper.projectDTOToProject(subjectDto
                 .getProject()), PARTICIPANT));
         return managedRoles;
