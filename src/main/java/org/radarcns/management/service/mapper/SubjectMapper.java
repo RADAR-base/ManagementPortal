@@ -18,7 +18,6 @@ import org.radarcns.management.service.mapper.decorator.SubjectMapperDecorator;
 public interface SubjectMapper {
 
     @Mapping(source = "user.login", target = "login")
-    @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "project", ignore = true)
     @Mapping(source = "user.roles", target = "roles")
