@@ -5,14 +5,12 @@ import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.hibernate.envers.query.AuditEntity;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.auth.token.RadarToken;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Subject;
-import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.SecurityUtils;
@@ -24,9 +22,7 @@ import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.RevisionDTO;
 import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
-import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
-import org.radarcns.management.web.rest.errors.CustomNotFoundException;
 import org.radarcns.management.web.rest.errors.CustomParameterizedException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -312,25 +308,17 @@ public class SubjectResource {
     public ResponseEntity<List<RevisionDTO>> getSubjectRevisions(
             @ApiParam Pageable pageable, @PathVariable String login) throws NotAuthorizedException {
         log.debug("REST request to get revisions for Subject : {}", login);
-        // we need to query the revision log for the subject login, since a deleted subject would
-        // not be found anymore using the normal repositories. We also need to find the user
-        // first, since we can not directly query for 'user.login'
-        UserDTO user = (UserDTO) revisionService.getLatestRevisionForEntity(User.class,
-                Arrays.asList(AuditEntity.property("login").eq(login)))
-                .orElseThrow(() -> new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND,
-                Collections.singletonMap("subjectLogin", login)));
-        SubjectDTO subject = (SubjectDTO) revisionService.getLatestRevisionForEntity(Subject.class,
-                Arrays.asList(AuditEntity.property("user").eq(user)))
-                .orElseThrow(() -> new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND,
-                        Collections.singletonMap("subjectLogin", login)));
+        SubjectDTO subject = subjectService.getLatestRevision(login);
         Page<RevisionDTO> page = revisionService.getRevisionsForEntity(pageable,
                 subjectMapper.subjectDTOToSubject(subject));
         SubjectDTO blank = new SubjectDTO();
         RadarToken token = getJWT(servletRequest);
+        // iterate the revisions, if we don't have read permission for the subject in a given
+        // revision, change the subject with a 'blank' subject so no information gets leaked
         page = page.map(rev -> token.hasPermissionOnSubject(SUBJECT_READ,
                 ((SubjectDTO) rev.getEntity()).getProject().getProjectName(),
-                ((SubjectDTO) rev.getEntity()).getLogin()) ?
-                rev : rev.setEntity(blank));
+                ((SubjectDTO) rev.getEntity()).getLogin())
+                ? rev : rev.setEntity(blank));
         return ResponseEntity.ok().headers(PaginationUtil.generatePaginationHttpHeaders(page,
                 HeaderUtil.buildPath("subjects", login, "revisions"))).body(page.getContent());
     }

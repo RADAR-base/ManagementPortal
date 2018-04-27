@@ -17,9 +17,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -63,11 +62,8 @@ public class Subject extends AbstractEntity implements Serializable {
     @Cascade(CascadeType.ALL)
     private User user;
 
-    @ManyToMany
+    @OneToMany(mappedBy = "subject")
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    @JoinTable(name = "subject_sources",
-            joinColumns = @JoinColumn(name = "subjects_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "sources_id", referencedColumnName = "id"))
     @Cascade(CascadeType.SAVE_UPDATE)
     private Set<Source> sources = new HashSet<>();
 
@@ -144,30 +140,6 @@ public class Subject extends AbstractEntity implements Serializable {
 
     public Subject sources(Set<Source> sources) {
         this.sources = sources;
-        return this;
-    }
-
-    /**
-     * Add a source to this subject.
-     *
-     * @param source the source to add
-     * @return this subject
-     */
-    public Subject addSources(Source source) {
-        this.sources.add(source);
-        source.getSubjects().add(this);
-        return this;
-    }
-
-    /**
-     * Remove a source from this subject.
-     *
-     * @param source the source to remove
-     * @return this subject
-     */
-    public Subject removeSources(Source source) {
-        this.sources.remove(source);
-        source.getSubjects().remove(this);
         return this;
     }
 

@@ -1,6 +1,5 @@
 package org.radarcns.management.service;
 
-import com.codahale.metrics.annotation.Timed;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.RevisionType;
@@ -10,12 +9,11 @@ import org.hibernate.envers.query.criteria.AuditCriterion;
 import org.mapstruct.Mapper;
 import org.radarcns.management.domain.AbstractEntity;
 import org.radarcns.management.domain.audit.CustomRevisionEntity;
+import org.radarcns.management.domain.audit.CustomRevisionMetadata;
 import org.radarcns.management.repository.CustomRevisionEntityRepository;
 import org.radarcns.management.service.dto.RevisionDTO;
 import org.radarcns.management.service.dto.RevisionInfoDTO;
-import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
-import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -26,6 +24,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.Revision;
 import org.springframework.data.repository.Repository;
@@ -77,15 +76,21 @@ public class RevisionService implements ApplicationContextAware {
 
     private static ApplicationContext applicationContext;
 
+    /**
+     * Initialize the auditReader and entitymanager.
+     */
     @PostConstruct
-    private void initAuditReader() {
+    public void initAuditReader() {
         Map<String, Object> props = entityManagerFactory.getProperties();
         entityManager = entityManagerFactory.createEntityManager(props);
         auditReader = AuditReaderFactory.get(entityManager);
     }
 
+    /**
+     * Close the entity manager.
+     */
     @PreDestroy
-    private void closeEntityManager() {
+    public void closeEntityManager() {
         entityManager.close();
     }
 
@@ -108,6 +113,23 @@ public class RevisionService implements ApplicationContextAware {
             log.error(ex.getMessage(), ex);
             return Optional.empty();
         }
+    }
+
+    /**
+     * Find a specific revision of a specific entity. The repository methods seem not to be able
+     * to find back a deleted entity with their findRevision method.
+     *
+     * @param revisionNb the revision number
+     * @param id the entity id
+     * @param clazz the entity class
+     * @param <T> the entity class
+     * @return the entity at the specified revision
+     */
+    public <T> T findRevision(Integer revisionNb, Long id, Class<T> clazz) {
+        return (T) auditReader.createQuery().forRevisionsOfEntity(clazz, true, true)
+                .add(AuditEntity.id().eq(id))
+                .add(AuditEntity.revisionNumber().eq(revisionNb))
+                .getSingleResult();
     }
 
     /**
@@ -146,12 +168,45 @@ public class RevisionService implements ApplicationContextAware {
                 RevisionInfoDTO.from(rev, getChangesForRevision(rev.getId())));
     }
 
+    /**
+     * Get a page of revisions for a given entity.
+     *
+     * @param pageable the page information
+     * @param entity the entity for which to get the revisions
+     * @return the requested page of revisions for the given entity
+     */
     public Page<RevisionDTO> getRevisionsForEntity(Pageable pageable, AbstractEntity entity) {
-        RevisionRepository repository = getRepository(entity).orElseThrow(() ->
-                new RuntimeException("Could not find repository for entity class "
-                        + entity.getClass().getName()));
-        Page<Revision> revisionPage = repository.findRevisions(entity.getId(), pageable);
-        return revisionPage.map(rev -> createRevisionDto(rev, entity));
+        Number count = (Number) auditReader.createQuery()
+                .forRevisionsOfEntity(entity.getClass(), false, true)
+                .add(AuditEntity.id().eq(entity.getId()))
+                .addProjection(AuditEntity.revisionNumber().count()).getSingleResult();
+
+        // find all revisions of the entity class that have the correct id
+        AuditQuery query = auditReader.createQuery()
+                .forRevisionsOfEntity(entity.getClass(), false, true)
+                .add(AuditEntity.id().eq(entity.getId()));
+
+
+        // add the page sorting information to the query
+        if (pageable.getSort() != null) {
+            pageable.getSort().forEach(order -> query.addOrder(order.getDirection().isAscending()
+                    ? AuditEntity.property(order.getProperty()).asc()
+                    : AuditEntity.property(order.getProperty()).desc()));
+        }
+
+        // add the page constraints (offset and amount of results)
+        query.setFirstResult(pageable.getOffset())
+                .setMaxResults(pageable.getPageSize());
+
+        List<Object[]> resultList = query.getResultList();
+        List<RevisionDTO> revisionDtos = resultList.stream().map(objArray -> new RevisionDTO(
+                new Revision(
+                        new CustomRevisionMetadata((CustomRevisionEntity) objArray[1]),
+                        objArray[0]),
+                (RevisionType) objArray[2],
+                toDto(objArray[0])))
+                .collect(Collectors.toList());
+        return new PageImpl<>(revisionDtos, pageable, count.longValue());
     }
 
     /**
@@ -170,6 +225,13 @@ public class RevisionService implements ApplicationContextAware {
         return RevisionInfoDTO.from(revisionEntity, getChangesForRevision(revision));
     }
 
+    /**
+     * Get changes for a specific revision number, ordered by revision type.
+     *
+     * @param revision the revision number
+     * @return A map with as keys the revision types, and as values the list of changed objects
+     *         of that type
+     */
     public Map<RevisionType, List<Object>> getChangesForRevision(Integer revision) {
         // if we don't clear the entitymanager before using the crosstyperevisionchangesreader we
         // get incorrect results, not sure why, need to investigate later, since clearing for
@@ -264,29 +326,5 @@ public class RevisionService implements ApplicationContextAware {
         }
         // if we did not find a mapper for the class, just add a function that returns null
         return obj -> null;
-    }
-
-    private RevisionDTO createRevisionDto(Revision revision, AbstractEntity entity) {
-        List<Object[]> resultList = auditReader.createQuery()
-                .forRevisionsOfEntity(entity.getClass(), false, true)
-                .add(AuditEntity.revisionNumber().eq(revision.getRevisionNumber()))
-                .add(AuditEntity.id().eq(entity.getId()))
-                .getResultList();
-        // do some sanity checks, since we start with a revision object these should all pass
-        if (resultList.size() != 1) {
-            throw new RuntimeException("Expected one result for entity " + entity.toString()
-                    + " at revision " + revision.getRevisionNumber() + ". Instead got " +
-                    resultList.toString());
-        }
-        if (resultList.get(0).length != 3) {
-            throw new RuntimeException("Expected audit query to return a triplet, instead got " +
-                    resultList.get(0).toString());
-        }
-        if (!(resultList.get(0)[2] instanceof RevisionType)) {
-            throw new RuntimeException("Expected third entry of audit query triplet to be a "
-                    + "RevisionType, instead got " + resultList.get(0)[2].getClass().getName());
-        }
-        return new RevisionDTO(revision, (RevisionType) resultList.get(0)[2],
-                toDto(resultList.get(0)[0]));
     }
 }

@@ -16,6 +16,12 @@ public class RevisionDTO {
     public RevisionDTO() {
     }
 
+    /**
+     * Create a DTO from a revision, type and entity.
+     * @param revision the revision
+     * @param revisionType the type
+     * @param entity the entity
+     */
     public RevisionDTO(Revision revision, RevisionType revisionType, Object entity) {
         id = revision.getRevisionNumber().intValue();
         timestamp = Instant.ofEpochMilli(revision.getRevisionDate().getMillis());

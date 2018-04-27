@@ -15,7 +15,7 @@
     </changeSet>
     <changeSet author="dverbeec@its.jnj.com" id="1520933868142-2">
         <createTable tableName="_revisions_info">
-            <column name="id" type="BIGINT">
+            <column name="id" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="auditor" type="VARCHAR(255)"/>
@@ -27,11 +27,11 @@
             <column name="id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="rev" type="BIGINT">
+            <column name="rev" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="revtype" type="${revtype}"/>
-            <column name="revend" type="BIGINT"/>
+            <column name="revend" type="INTEGER"/>
             <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
             <column name="description" type="VARCHAR(255)"/>
             <column name="description_mod" type="BOOLEAN"/>
@@ -59,7 +59,7 @@
             <column name="id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="rev" type="BIGINT">
+            <column name="rev" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="attribute_value" type="VARCHAR(255)">
@@ -69,13 +69,13 @@
                 <constraints nullable="false"/>
             </column>
             <column name="revtype" type="${revtype}"/>
-            <column name="revend" type="BIGINT"/>
+            <column name="revend" type="INTEGER"/>
             <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
         </createTable>
     </changeSet>
     <changeSet author="dverbeec@its.jnj.com" id="1520933868142-5">
         <createTable tableName="project_source_type_aud">
-            <column name="rev" type="BIGINT">
+            <column name="rev" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="projects_id" type="BIGINT">
@@ -85,7 +85,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="revtype" type="${revtype}"/>
-            <column name="revend" type="BIGINT"/>
+            <column name="revend" type="INTEGER"/>
             <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
         </createTable>
     </changeSet>
@@ -94,11 +94,11 @@
             <column name="name" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="rev" type="BIGINT">
+            <column name="rev" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="revtype" type="${revtype}"/>
-            <column name="revend" type="BIGINT"/>
+            <column name="revend" type="INTEGER"/>
             <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
         </createTable>
     </changeSet>
@@ -107,11 +107,11 @@
             <column name="id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="rev" type="BIGINT">
+            <column name="rev" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="revtype" type="${revtype}"/>
-            <column name="revend" type="BIGINT"/>
+            <column name="revend" type="INTEGER"/>
             <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
             <column name="authority_name" type="VARCHAR(50)"/>
             <column name="authority_mod" type="BOOLEAN"/>
@@ -125,11 +125,11 @@
             <column name="id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="rev" type="BIGINT">
+            <column name="rev" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="revtype" type="${revtype}"/>
-            <column name="revend" type="BIGINT"/>
+            <column name="revend" type="INTEGER"/>
             <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
             <column name="assigned" type="BOOLEAN"/>
             <column name="assigned_mod" type="BOOLEAN"/>
@@ -144,7 +144,8 @@
             <column name="project_mod" type="BOOLEAN"/>
             <column name="source_type_id" type="BIGINT"/>
             <column name="source_type_mod" type="BOOLEAN"/>
-            <column name="subjects_mod" type="BOOLEAN"/>
+            <column name="subject_id" type="BIGINT"/>
+            <column name="subject_mod" type="BOOLEAN"/>
         </createTable>
     </changeSet>
     <changeSet author="dverbeec@its.jnj.com" id="1520933868142-9">
@@ -152,11 +153,11 @@
             <column name="id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="rev" type="BIGINT">
+            <column name="rev" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="revtype" type="${revtype}"/>
-            <column name="revend" type="BIGINT"/>
+            <column name="revend" type="INTEGER"/>
             <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
             <column name="activated" type="BOOLEAN"/>
             <column name="activated_mod" type="BOOLEAN"/>
@@ -183,7 +184,7 @@
     </changeSet>
     <changeSet author="dverbeec@its.jnj.com" id="1520933868142-10">
         <createTable tableName="role_users_aud">
-            <column name="rev" type="BIGINT">
+            <column name="rev" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="users_id" type="BIGINT">
@@ -193,7 +194,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="revtype" type="${revtype}"/>
-            <column name="revend" type="BIGINT"/>
+            <column name="revend" type="INTEGER"/>
             <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
         </createTable>
     </changeSet>
@@ -202,11 +203,11 @@
             <column name="id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="rev" type="BIGINT">
+            <column name="rev" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="revtype" type="${revtype}"/>
-            <column name="revend" type="BIGINT"/>
+            <column name="revend" type="INTEGER"/>
             <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
             <column name="data_class" type="VARCHAR(255)"/>
             <column name="data_class_mod" type="BOOLEAN"/>
@@ -236,7 +237,7 @@
     </changeSet>
     <changeSet author="dverbeec@its.jnj.com" id="1520933868142-12">
         <createTable tableName="source_metadata_aud">
-            <column name="rev" type="BIGINT">
+            <column name="rev" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="id" type="BIGINT">
@@ -249,7 +250,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="revtype" type="${revtype}"/>
-            <column name="revend" type="BIGINT"/>
+            <column name="revend" type="INTEGER"/>
             <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
         </createTable>
     </changeSet>
@@ -258,11 +259,11 @@
             <column name="id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="rev" type="BIGINT">
+            <column name="rev" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="revtype" type="${revtype}"/>
-            <column name="revend" type="BIGINT"/>
+            <column name="revend" type="INTEGER"/>
             <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
             <column name="app_provider" type="VARCHAR(255)"/>
             <column name="app_provider_mod" type="BOOLEAN"/>
@@ -291,11 +292,11 @@
             <column name="id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="rev" type="BIGINT">
+            <column name="rev" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="revtype" type="${revtype}"/>
-            <column name="revend" type="BIGINT"/>
+            <column name="revend" type="INTEGER"/>
             <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
             <column name="external_id" type="VARCHAR(255)"/>
             <column name="external_id_mod" type="BOOLEAN"/>
@@ -311,7 +312,7 @@
     </changeSet>
     <changeSet author="dverbeec@its.jnj.com" id="1520933868142-15">
         <createTable tableName="subject_metadata_aud">
-            <column name="rev" type="BIGINT">
+            <column name="rev" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="id" type="BIGINT">
@@ -324,23 +325,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="revtype" type="${revtype}"/>
-            <column name="revend" type="BIGINT"/>
-            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
-        </createTable>
-    </changeSet>
-    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-16">
-        <createTable tableName="subject_sources_aud">
-            <column name="rev" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="subjects_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="sources_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="revtype" type="${revtype}"/>
-            <column name="revend" type="BIGINT"/>
+            <column name="revend" type="INTEGER"/>
             <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
         </createTable>
     </changeSet>
@@ -385,9 +370,6 @@
     </changeSet>
     <changeSet author="dverbeec@its.jnj.com" id="1520933868142-30">
         <addPrimaryKey columnNames="rev, id, attribute_value, attribute_key" constraintName="subject_metadata_aud_pkey" tableName="subject_metadata_aud"/>
-    </changeSet>
-    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-31">
-        <addPrimaryKey columnNames="rev, subjects_id, sources_id" constraintName="subject_sources_aud_pkey" tableName="subject_sources_aud"/>
     </changeSet>
     <changeSet author="dverbeec@its.jnj.com" id="1520933868142-32">
         <addForeignKeyConstraint baseColumnNames="rev" baseTableName="radar_role_aud" constraintName="fk21qld3mn1fvkk84kksnga6ymf" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
@@ -455,9 +437,6 @@
     <changeSet author="dverbeec@its.jnj.com" id="1520933868142-54">
         <addForeignKeyConstraint baseColumnNames="revend" baseTableName="role_users_aud" constraintName="fkoj2rv6evijwkso6omix67uh96" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
     </changeSet>
-    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-55">
-        <addForeignKeyConstraint baseColumnNames="revend" baseTableName="subject_sources_aud" constraintName="fkotxfqfh2ilv0g8mwrtivir0k8" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
-    </changeSet>
     <changeSet author="dverbeec@its.jnj.com" id="1520933868142-56">
         <addForeignKeyConstraint baseColumnNames="revend" baseTableName="radar_source_aud" constraintName="fkp0qc312nhledbji45l4y1utlj" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
     </changeSet>
@@ -470,9 +449,6 @@
     <changeSet author="dverbeec@its.jnj.com" id="1520933868142-60">
         <addForeignKeyConstraint baseColumnNames="revend" baseTableName="subject_metadata_aud" constraintName="fkr2u84umxwls8aqwyaoborj4vi" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
     </changeSet>
-    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-61">
-        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="subject_sources_aud" constraintName="fkry5e56jahf0mc9vypldqdpjby" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
-    </changeSet>
 
     <!-- Initialize base revision -->
     <changeSet id="1520933868142-62" author="dverbeec@its.jnj.com">
@@ -482,7 +458,7 @@
         <sql>insert into project_source_type_aud(rev, revtype, projects_id, source_types_id) select 1, 0, projects_id, source_types_id from project_source_type</sql>
         <sql>insert into radar_authority_aud(rev, revtype, name) select 1, 0, name from radar_authority</sql>
         <sql>insert into radar_role_aud(id, rev, revtype, authority_name, authority_mod, project_id, project_mod, users_mod) select id, 1, 0, authority_name, true, project_id, true, true from radar_role</sql>
-        <sql>insert into radar_source_aud(id, rev, revtype, assigned, assigned_mod, expected_source_name, expected_source_name_mod, source_id, source_id_mod, source_name, source_name_mod, attributes_mod, project_id, project_mod, source_type_id, source_type_mod, subjects_mod) select id, 1, 0, assigned, true, expected_source_name, true, source_id, true, source_name, true, true, project_id, true, source_type_id, true, true from radar_source</sql>
+        <sql>insert into radar_source_aud(id, rev, revtype, assigned, assigned_mod, expected_source_name, expected_source_name_mod, source_id, source_id_mod, source_name, source_name_mod, attributes_mod, project_id, project_mod, source_type_id, source_type_mod, subject_id, subject_mod) select id, 1, 0, assigned, true, expected_source_name, true, source_id, true, source_name, true, true, project_id, true, source_type_id, true, subject_id, true from radar_source</sql>
         <sql>insert into radar_user_aud(id, rev, revtype, activated, activated_mod, activation_key, activation_key_mod, email, email_mod, first_name, first_name_mod, lang_key, lang_key_mod, last_name, last_name_mod, login, login_mod, password_hash, password_mod, reset_date, reset_date_mod, reset_key, reset_key_mod, roles_mod) select id, 1, 0, activated, true, activation_key, true, email, true, first_name, true, lang_key, true, last_name, true, login, true, password_hash, true, reset_date, true, reset_key, true, true from radar_user</sql>
         <sql>insert into role_users_aud(rev, revtype, users_id, roles_id) select 1, 0, users_id, roles_id from role_users</sql>
         <sql>insert into source_data_aud(id, rev, revtype, data_class, data_class_mod, enabled, enabled_mod, frequency, frequency_mod, key_schema, key_schema_mod, processing_state, processing_state_mod, provider, provider_mod, source_data_name, source_data_name_mod, source_data_type, source_data_type_mod, topic, topic_mod, unit, unit_mod, value_schema, value_schema_mod, source_type_id, source_type_mod) select id, 1, 0, data_class, true, enabled, true, frequency, true, key_schema, true, processing_state, true, provider, true, source_data_name, true, source_data_type, true, topic, true, unit, true, value_schema, true, source_type_id, true from source_data</sql>
@@ -490,7 +466,6 @@
         <sql>insert into source_type_aud(id, rev, revtype, app_provider, app_provider_mod, assessment_type, assessment_type_mod, dynamic_registration, can_register_dynamically_mod, catalog_version, catalog_version_mod, description, description_mod, model, model_mod, name, name_mod, producer, producer_mod, source_type_scope, source_type_scope_mod, projects_mod, source_data_mod) select id, 1, 0, app_provider, true, assessment_type, true, dynamic_registration, true, catalog_version, true, description, true, model, true, name, true, producer, true, source_type_scope, true, true, true from source_type</sql>
         <sql>insert into subject_aud(id, rev, revtype, external_id, external_id_mod, external_link, external_link_mod, removed, removed_mod, attributes_mod, sources_mod, user_id, user_mod) select id, 1, 0, external_id, true, external_link, true, removed, true, true, true, user_id, true from subject</sql>
         <sql>insert into subject_metadata_aud(id, rev, revtype, attribute_key, attribute_value) select id, 1, 0, attribute_key, attribute_value from subject_metadata</sql>
-        <sql>insert into subject_sources_aud(rev, revtype, subjects_id, sources_id) select 1, 0, subjects_id, sources_id from subject_sources</sql>
     </changeSet>
 
     <!-- Drop old audit columns -->
@@ -545,7 +520,7 @@
 
     <changeSet id="1520933868142-71" author="dverbeec@its.jnj.com">
         <createTable tableName="revchanges">
-            <column name="rev" type="BIGINT">
+            <column name="rev" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="entityname" type="varchar(255)"/>

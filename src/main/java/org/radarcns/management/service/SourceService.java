@@ -1,11 +1,5 @@
 package org.radarcns.management.service;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
@@ -20,6 +14,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.Revisions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing Source.
@@ -92,8 +93,9 @@ public class SourceService {
      *
      * @param id the id of the entity
      */
+    @Transactional
     public void delete(Long id) {
-        log.debug("Request to delete Source : {}", id);
+        log.info("Request to delete Source : {}", id);
         Revisions<Integer, Source> sourceHistory = sourceRepository.findRevisions(id);
         List<Source> sources = sourceHistory.getContent().stream().map(p -> (Source) p.getEntity())
                 .filter(Source::isAssigned).collect(Collectors.toList());

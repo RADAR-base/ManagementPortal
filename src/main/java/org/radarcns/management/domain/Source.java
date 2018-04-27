@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.RelationTargetAuditMode;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.support.AbstractEntityListener;
 
@@ -18,7 +17,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.PrePersist;
@@ -28,10 +26,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -67,11 +63,11 @@ public class Source extends AbstractEntity implements Serializable {
     @Column(name = "assigned", nullable = false)
     private Boolean assigned;
 
-    @ManyToMany(mappedBy = "sources")
+    @ManyToOne
+    @JoinColumn(name = "subject_id")
     @JsonIgnore
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-    private Set<Subject> subjects = new HashSet<>();
+    private Subject subject;
 
     @ManyToOne
     private SourceType sourceType;
@@ -163,12 +159,12 @@ public class Source extends AbstractEntity implements Serializable {
         return this;
     }
 
-    public Set<Subject> getSubjects() {
-        return subjects;
+    public Subject getSubject() {
+        return subject;
     }
 
-    public Source subjects(Set<Subject> subjects) {
-        this.subjects = subjects;
+    public Source subject(Subject subject) {
+        this.subject = subject;
         return this;
     }
 
@@ -201,8 +197,8 @@ public class Source extends AbstractEntity implements Serializable {
         this.attributes = attributes;
     }
 
-    public void setSubjects(Set<Subject> subjects) {
-        this.subjects = subjects;
+    public void setSubject(Subject subject) {
+        this.subject = subject;
     }
 
     @Override

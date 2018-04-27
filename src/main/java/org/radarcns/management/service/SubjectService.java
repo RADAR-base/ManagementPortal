@@ -1,6 +1,7 @@
 package org.radarcns.management.service;
 
 
+import org.hibernate.envers.query.AuditEntity;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Source;
@@ -13,6 +14,7 @@ import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
+import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
@@ -26,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.history.Revision;
 import org.springframework.data.history.Revisions;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -82,6 +84,9 @@ public class SubjectService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private RevisionService revisionService;
+
 
     /**
      * Create a new subject.
@@ -108,12 +113,10 @@ public class SubjectService {
         user.setActivated(true);
         //set if any devices are set as assigned
         if (subject.getSources() != null && !subject.getSources().isEmpty()) {
-            for (Source source : subject.getSources()) {
-                source.setAssigned(true);
-            }
+            subject.getSources().forEach(s -> s.assigned(true).subject(subject));
         }
-        subject = subjectRepository.save(subject);
-        return subjectMapper.subjectToSubjectDTO(subject);
+        sourceRepository.save(subject.getSources());
+        return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subject));
     }
 
     /**
@@ -152,21 +155,22 @@ public class SubjectService {
         }
         Subject subjectFromDb = subjectRepository.findOne(newSubjectDto.getId());
         //reset all the sources assigned to a subject to unassigned
-        for (Source source : subjectFromDb.getSources()) {
-            source.setAssigned(false);
-            sourceRepository.save(source);
-        }
+        Set<Source> sourcesToUpdate = subjectFromDb.getSources();
+        sourcesToUpdate.forEach(s -> s.subject(null).assigned(false));
         //set only the devices assigned to a subject as assigned
         subjectMapper.safeUpdateSubjectFromDTO(newSubjectDto, subjectFromDb);
-        for (Source source : subjectFromDb.getSources()) {
-            source.setAssigned(true);
-        }
+        sourcesToUpdate.addAll(subjectFromDb.getSources());
+        subjectFromDb.getSources().forEach(s -> s.subject(subjectFromDb).assigned(true));
+        sourceRepository.save(sourcesToUpdate);
         // update participant role
         Set<Role> managedRoles = updateParticipantRoles(subjectFromDb, newSubjectDto);
-        subjectFromDb.getUser().setRoles(managedRoles);
-        subjectFromDb = subjectRepository.save(subjectFromDb);
-
-        return subjectMapper.subjectToSubjectDTO(subjectFromDb);
+        // seems silly to do this check, but if we don't we'll always get a user update in the
+        // revision log, even if the roles did not change, and even if the new set equals the old
+        // set, not sure why envers does it this way
+        if (!managedRoles.equals(subjectFromDb.getUser().getRoles())) {
+            subjectFromDb.getUser().setRoles(managedRoles);
+        }
+        return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subjectFromDb));
     }
 
     private Set<Role> updateParticipantRoles(Subject subject, SubjectDTO subjectDto) {
@@ -227,6 +231,7 @@ public class SubjectService {
     private void unassignAllSources(Subject subject) {
         subject.getSources().forEach(source -> {
             source.setAssigned(false);
+            source.setSubject(null);
             sourceRepository.save(source);
         });
         subject.getSources().clear();
@@ -260,6 +265,8 @@ public class SubjectService {
                     source.setSourceName(sourceRegistrationDto.getSourceName());
                 }
                 source.getAttributes().putAll(sourceRegistrationDto.getAttributes());
+                source.setAssigned(true);
+                source.setSubject(subject);
                 sourceRepository.save(source);
                 assignedSource = source;
             } else {
@@ -277,7 +284,8 @@ public class SubjectService {
                 Source source1 = new Source()
                         .project(project)
                         .assigned(true)
-                        .sourceType(sourceType);
+                        .sourceType(sourceType)
+                        .subject(subject);
                 source1.getAttributes().putAll(sourceRegistrationDto.getAttributes());
                 // if source name is provided update source name
                 if (Objects.nonNull(sourceRegistrationDto.getSourceName())) {
@@ -380,26 +388,42 @@ public class SubjectService {
                 .collect(Collectors.toList());
     }
 
-    public SubjectDTO findRevision(String login, Integer revision) {
-        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
-        if (!subject.isPresent()) {
+    /**
+     * Get a specific revision for a given subject.
+     *
+     * @param login the login of the subject
+     * @param revision the revision number
+     * @return the subject at the given revision
+     * @throws CustomNotFoundException if there was no subject with the given login at the given
+     *         revision number
+     */
+    public SubjectDTO findRevision(String login, Integer revision) throws CustomNotFoundException {
+        // first get latest known version of the subject, since it might be deleted
+        SubjectDTO latest = getLatestRevision(login);
+        Subject sub = revisionService.findRevision(revision, latest.getId(), Subject.class);
+        if (sub == null) {
             throw new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND,
                     Collections.singletonMap("subjectLogin", login));
         }
-
-        Subject rev = subjectRepository.findRevision(subject.get().getId(), revision).getEntity();
-        return subjectMapper.subjectToSubjectDTO(rev);
+        return subjectMapper.subjectToSubjectDTO(sub);
     }
 
-    public Page<Revision<Integer, SubjectDTO>> findRevisions(Pageable pageable, String login) {
-        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
-        if (!subject.isPresent()) {
-            throw new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND,
-                    Collections.singletonMap("subjectLogin", login));
-        }
-        return subjectRepository.findRevisions(subject.get().getId(), pageable)
-                .map(r -> new Revision(r.getMetadata(),
-                        subjectMapper.subjectToSubjectDTO(r.getEntity())));
+    /**
+     * Get latest known revision of a subject with the given login.
+     *
+     * @param login the login of the subject
+     * @return the latest revision for that subject
+     * @throws CustomNotFoundException if no subject was found with the given login
+     */
+    public SubjectDTO getLatestRevision(String login) throws CustomNotFoundException {
+        UserDTO user = (UserDTO) revisionService.getLatestRevisionForEntity(User.class,
+                Arrays.asList(AuditEntity.property("login").eq(login)))
+                .orElseThrow(() -> new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                        Collections.singletonMap("subjectLogin", login)));
+        return (SubjectDTO) revisionService.getLatestRevisionForEntity(Subject.class,
+                Arrays.asList(AuditEntity.property("user").eq(user)))
+                .orElseThrow(() -> new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                        Collections.singletonMap("subjectLogin", login)));
     }
 
     private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
