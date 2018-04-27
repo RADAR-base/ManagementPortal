@@ -276,7 +276,7 @@ public class RevisionService implements ApplicationContextAware {
         query.addOrder(AuditEntity.id().desc());
         criteria.forEach(criterion -> query.add(criterion));
         List<Object> resultList = query.getResultList();
-        if (resultList.size() == 0) {
+        if (resultList.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(toDto(resultList.get(0)));

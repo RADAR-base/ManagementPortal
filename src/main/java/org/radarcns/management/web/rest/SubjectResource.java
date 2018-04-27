@@ -491,8 +491,8 @@ public class SubjectResource {
             @RequestParam(value = "withInactiveSources", required = false)
                     Boolean withInactiveSourcesParam) throws NotAuthorizedException {
 
-        boolean withInactiveSources = withInactiveSourcesParam == null ? false :
-                withInactiveSourcesParam;
+        boolean withInactiveSources = withInactiveSourcesParam == null ? false
+                : withInactiveSourcesParam;
         // check the subject id
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         if (!subject.isPresent()) {

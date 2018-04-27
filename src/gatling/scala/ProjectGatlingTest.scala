@@ -49,7 +49,7 @@ class ProjectGatlingTest extends Simulation {
         "Authorization" -> "Bearer ${access_token}"
     )
 
-    var randomString = Iterator.continually(Map("randstring" -> ( Random.alphanumeric.take(12).mkString )))// length of the random string is 12 chars here
+    val randomString = Iterator.continually(Map("randstring" -> ( Random.alphanumeric.take(12).mkString )))// length of the random string is 12 chars here
 
     val scn = scenario("Test the Project entity")
       .exec(http("First unauthenticated request")
