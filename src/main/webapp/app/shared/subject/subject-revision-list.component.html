@@ -29,7 +29,7 @@
                 <td><span jhiTranslate="revisions.type.{{revision.revisionType | lowercase}}"></span></td>
                 <td>{{revision.author}}</td>
                 <td>{{revision.timestamp  | date:'MMMM d, y, h:mm:ss a Z'}}</td>
-                <td><a [routerLink]="['/subject', revision.entity.login, 'revisions', revision.id ]"></a>{{revision.entity.login}}</a></td>
+                <td><a [routerLink]="['/subject', revision.entity.login, 'revisions', revision.id ]">{{revision.entity.login}}</a></td>
                 <td>{{revision.entity.externalId}}</td>
                 <td><a target="_blank" [href]=revision.entity.externalLink>{{revision.entity.externalLink}}</a></td>
                 <td>
