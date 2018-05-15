@@ -22,7 +22,7 @@
             Do you authorize <b th:text="${authorizationRequest.getClientId()}"></b> at
             <b th:text="${authorizationRequest.getRedirectUri()}"></b> to access your
             protected resources? Check the resources for which you want to grant access:
-            <form action="authorize" method="post">
+            <form th:action="@{/oauth/authorize}" method="post">
                 <div class="checkbox" th:each="scope : ${authorizationRequest.getScope()}">
                     <label>
                         <input type="checkbox" th:text="${scope}" th:name="'scope.' + ${scope}"
@@ -34,7 +34,7 @@
                 <button class="btn btn-primary" type="submit">Approve</button>
                 <button class="btn btn-danger" onclick="denyAuth()" type="button">Deny</button>
             </form>
-            <form action="authorize" method="post" id="denyAuth">
+            <form th:action="@{/oauth/authorize}" method="post" id="denyAuth">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <input type="hidden" name="user_oauth_approval" value="false"/>
             </form>
