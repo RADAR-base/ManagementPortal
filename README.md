@@ -138,7 +138,7 @@ The code grant flow for OAuth2 clients can be the following:
      ```
      GET /oauth/confirm_access?client_id=MyId&client_secret=MySecret&grant_type=code&redirect_uri=https://my.example.com/oauth_redirect
      ```
-     This will redirect to `https://my.example.com/oauth_redirect?code=abcdef`. In Android, with [https://appauth.io](AppAuth library), the URL could be `com.example.my://oauth_redirect` for the `com.example.my` app.
+     This needs to be done from a interactive web view, either a browser or a web window. If the user approves, this will redirect to `https://my.example.com/oauth_redirect?code=abcdef`. In Android, with [https://appauth.io](AppAuth library), the URL could be `com.example.my://oauth_redirect` for the `com.example.my` app.
 2. Request a token for you app:
     ```
     POST MyId:MySecret /oauth/token
@@ -154,7 +154,6 @@ The code grant flow for OAuth2 clients can be the following:
     }
     ```
     Now the app can use the refresh token flow as shown above.
-
 
 ## Development
 
