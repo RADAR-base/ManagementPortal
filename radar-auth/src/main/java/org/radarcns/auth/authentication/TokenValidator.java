@@ -8,18 +8,6 @@ import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.net.URLConnection;
-import java.security.KeyFactory;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.X509EncodedKeySpec;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.radarcns.auth.config.ServerConfig;
 import org.radarcns.auth.config.YamlServerConfig;
@@ -28,6 +16,23 @@ import org.radarcns.auth.token.JwtRadarToken;
 import org.radarcns.auth.token.RadarToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.io.StringReader;
+import java.net.URI;
+import java.net.URLConnection;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.X509EncodedKeySpec;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Validates JWT token signed by the Management Portal. It is synchronized and may be used from
@@ -44,7 +49,7 @@ public class TokenValidator {
             JwtRadarToken.GRANT_TYPE_CLAIM, JwtRadarToken.SCOPE_CLAIM);
 
     private final ServerConfig config;
-    private JWTVerifier verifier;
+    private List<JWTVerifier> verifiers = new LinkedList<>();
 
     // If a client presents a token with an invalid signature, it might be the keypair was changed.
     // In that case we need to fetch it again, but we don't want a malicious client to be able to
@@ -110,39 +115,41 @@ public class TokenValidator {
      * @throws TokenValidationException If the token can not be validated.
      */
     public RadarToken validateAccessToken(String token) throws TokenValidationException {
-        try {
-            DecodedJWT jwt = getVerifier().verify(token);
-            Set<String> claims = jwt.getClaims().keySet();
-            Set<String> missing = REQUIRED_CLAIMS.stream()
-                    .filter(c -> !claims.contains(c))
-                    .collect(Collectors.toSet());
-            if (!missing.isEmpty()) {
-                throw new TokenValidationException("The following required claims were missing "
-                        + "from the token: " + String.join(", ", missing));
+        for (JWTVerifier verifier : getVerifiers()) {
+            try {
+                DecodedJWT jwt = verifier.verify(token);
+                Set<String> claims = jwt.getClaims().keySet();
+                Set<String> missing = REQUIRED_CLAIMS.stream()
+                        .filter(c -> !claims.contains(c)).collect(Collectors.toSet());
+                if (!missing.isEmpty()) {
+                    throw new TokenValidationException("The following required claims were "
+                            + "missing from the token: " + String.join(", ", missing));
+                }
+                return new JwtRadarToken(jwt);
+            } catch (SignatureVerificationException sve) {
+                log.warn("Client presented a token with an incorrect signature, fetching public key"
+                        + " again. Token: {}", token);
+                refresh();
+                return validateAccessToken(token);
+            } catch (JWTVerificationException ex) {
+                throw new TokenValidationException(ex);
             }
-            return new JwtRadarToken(jwt);
-        } catch (SignatureVerificationException sve) {
-            log.warn("Client presented a token with an incorrect signature, fetching public key"
-                    + " again. Token: {}", token);
-            refresh();
-            return validateAccessToken(token);
-        } catch (JWTVerificationException ex) {
-            throw new TokenValidationException(ex);
         }
+        throw new TokenValidationException("No registered validator could authenticate this token");
     }
 
-    private JWTVerifier getVerifier() {
+    private List<JWTVerifier> getVerifiers() {
         synchronized (this) {
-            if (verifier != null) {
-                return verifier;
+            if (!verifiers.isEmpty()) {
+                return verifiers;
             }
         }
 
-        JWTVerifier localVerifier = loadVerifier();
+        List<JWTVerifier> localVerifiers = loadVerifiers();
 
         synchronized (this) {
-            verifier = localVerifier;
-            return verifier;
+            verifiers = localVerifiers;
+            return verifiers;
         }
     }
 
@@ -151,13 +158,13 @@ public class TokenValidator {
      * @throws TokenValidationException if the public key could not be refreshed.
      */
     public void refresh() throws TokenValidationException {
-        JWTVerifier localVerifier = loadVerifier();
+        List<JWTVerifier> localVerifiers = loadVerifiers();
         synchronized (this) {
-            this.verifier = localVerifier;
+            this.verifiers = localVerifiers;
         }
     }
 
-    private JWTVerifier loadVerifier() throws TokenValidationException {
+    private List<JWTVerifier> loadVerifiers() throws TokenValidationException {
         synchronized (this) {
             // whether successful or not, do not request the key more than once per minute
             if (Instant.now().isBefore(lastFetch.plus(fetchTimeout))) {
@@ -169,47 +176,49 @@ public class TokenValidator {
             lastFetch = Instant.now();
         }
 
-        RSAPublicKey publicKey;
-        if (config.getPublicKey() == null) {
-            publicKey = publicKeyFromServer();
-        } else {
-            publicKey = config.getPublicKey();
+        List<PublicKey> publicKeys = new LinkedList<>();
+        if (config.getPublicKeyEndpoints() != null) {
+            publicKeys.addAll(config.getPublicKeyEndpoints().stream()
+                    .map(this::publicKeyFromServer).collect(Collectors.toList()));
         }
-        Algorithm alg = Algorithm.RSA256(publicKey, null);
-        // we successfully fetched the public key, reset the timer
-        return JWT.require(alg)
+        if (config.getPublicKeys() != null) {
+            publicKeys.addAll(config.getPublicKeys());
+        }
+
+        // Create a verifier for each public key we have in our config
+        return publicKeys.stream().map(key -> JWT.require(publicKeyToAlgorithm(key))
                 .withAudience(config.getResourceName())
-                .build();
+                .build())
+                .collect(Collectors.toList());
     }
 
-    private RSAPublicKey publicKeyFromServer() throws TokenValidationException {
-        log.info("Getting the JWT public key at " + config.getPublicKeyEndpoint());
-
+    private PublicKey publicKeyFromServer(URI serverUri) throws TokenValidationException {
+        log.info("Getting the JWT public key at " + serverUri);
         try {
-            URLConnection connection =  config.getPublicKeyEndpoint().toURL().openConnection();
+            URLConnection connection =  serverUri.toURL().openConnection();
             connection.setRequestProperty("Accept", "application/json");
             try (InputStream inputStream = connection.getInputStream()) {
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode publicKeyInfo = mapper.readTree(inputStream);
-
-                // We expect RSA algorithm, and deny to trust the public key otherwise, see also
+                // We expect RSA or ECDSA algorithm, and deny to trust the public key otherwise
                 // https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
-                if (!publicKeyInfo.get("alg").asText().equals("SHA256withRSA")) {
-                    throw new TokenValidationException("The identity server reported the following "
-                        + "signing algorithm: " + publicKeyInfo.get("alg")
-                        + ". Expected SHA256withRSA.");
+                if (publicKeyInfo.get("alg").asText().equals("SHA256withRSA")) {
+                    return rsaPublicKeyFromString(publicKeyInfo.get("value").asText());
                 }
-
-                String keyString = publicKeyInfo.get("value").asText();
-                return publicKeyFromString(keyString);
+                if (publicKeyInfo.get("alg").asText().equals("SHA256withECDSA")) {
+                    return ecPublicKeyFromString(publicKeyInfo.get("value").asText());
+                }
+                throw new TokenValidationException("The identity server reported the following "
+                        + "signing algorithm: " + publicKeyInfo.get("alg")
+                        + ". Expected SHA256withRSA or SHA256withECDSA.");
             }
         } catch (Exception ex) {
             throw new TokenValidationException(ex);
         }
     }
 
-    private RSAPublicKey publicKeyFromString(String keyString) throws TokenValidationException {
-        log.debug("Parsing public key: " + keyString);
+    private RSAPublicKey rsaPublicKeyFromString(String keyString) throws TokenValidationException {
+        log.debug("Parsing RSA public key: " + keyString);
         try (PemReader pemReader = new PemReader(new StringReader(keyString))) {
             byte[] keyBytes = pemReader.readPemObject().getContent();
             pemReader.close();
@@ -218,6 +227,31 @@ public class TokenValidator {
             return (RSAPublicKey) kf.generatePublic(spec);
         } catch (Exception ex) {
             throw new TokenValidationException(ex);
+        }
+    }
+
+    private ECPublicKey ecPublicKeyFromString(String keyString) throws TokenValidationException {
+        log.debug("Parsing EC public key: " + keyString);
+        try (PemReader pemReader = new PemReader(new StringReader(keyString))) {
+            byte[] keyBytes = pemReader.readPemObject().getContent();
+            pemReader.close();
+            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+            KeyFactory kf = KeyFactory.getInstance("ECDSA");
+            return (ECPublicKey) kf.generatePublic(spec);
+        } catch (Exception ex) {
+            throw new TokenValidationException(ex);
+        }
+    }
+
+    private Algorithm publicKeyToAlgorithm(PublicKey key) throws IllegalArgumentException {
+        switch (key.getAlgorithm()) {
+            case "EC":
+                return Algorithm.ECDSA256((ECPublicKey) key, null);
+            case "RSA":
+                return Algorithm.RSA256((RSAPublicKey) key, null);
+            default:
+                throw new IllegalArgumentException("Unsupported public key algorithm: {}. "
+                        + "Expected either EC or RSA.");
         }
     }
 }
