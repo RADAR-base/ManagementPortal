@@ -42,6 +42,10 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             chain.doFilter(request, response);
         } catch (TokenValidationException ex) {
             log.error(ex.getMessage());
+            HttpServletResponse res = (HttpServletResponse) response;
+            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            res.setHeader(HttpHeaders.WWW_AUTHENTICATE, OAuth2AccessToken.BEARER_TYPE);
+            res.getOutputStream().println("{\"error\": \"" + ex.getMessage() + "\"}");
         }
     }
 
