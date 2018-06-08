@@ -17,6 +17,30 @@
                 <a class="alert-link" (click)="login()" jhiTranslate="global.messages.info.authenticated.link">Sign in</a>
             </div>
 
+            <div *ngSwitchCase="true">
+                <div class="card-columns ">
+                    <div class="card mb-3 border-success" *ngFor="let project of projects;">
+
+                        <div class="card-body">
+                            <h5 class="card-title text-center">{{project.projectName}} </h5>
+                            <h6 class="card-subtitle text-center mb-2 text-muted">{{project.organization}} : {{project.location}} </h6>
+                            <p class="card-text"> {{project.description}}
+
+                        </div>
+
+                        <footer class="card-footer  text-center">
+                            <button type="button"
+                                    [routerLink]="['../project', project.projectName ]"
+                                    class="btn btn-info btn-sm">
+                                <span class="fa fa-eye"></span>
+                                <span class="hidden-md-down">View</span>
+                            </button>
+                        </footer>
+
+                    </div>
+                </div>
+            </div>
+
             <!--<div class="alert alert-warning" *ngSwitchCase="false">-->
                 <!--<span jhiTranslate="global.messages.info.register.noaccount">You don't have an account yet?</span>-->
                 <!--<a class="alert-link" routerLink="register" jhiTranslate="global.messages.info.register.link">Register a new account</a>-->
