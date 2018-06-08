@@ -19,10 +19,10 @@
 
             <div *ngSwitchCase="true">
                 <div class="card-columns ">
-                    <div class="card mb-3 border-success" *ngFor="let project of projects;">
+                    <div class="card mb-3 border-success" *ngFor="let project of projects;" [routerLink]="['../project', project.projectName ]">
 
-                        <div class="card-body">
-                            <h5 class="card-title text-center">{{project.projectName}} </h5>
+                        <div class="card-body text-center">
+                            <h5 class="card-title" style="text-transform: uppercase"> {{project.projectName}}</h5>
                             <h6 class="card-subtitle text-center mb-2 text-muted">{{project.organization}} : {{project.location}} </h6>
                             <p class="card-text"> {{project.description}}
 
