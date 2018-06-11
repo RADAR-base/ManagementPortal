@@ -36,7 +36,8 @@
                 "alreadyExist" : "This role has been already added"
             }
         },
-        "project" : "Project"
+        "project" : "Project",
+        "filter" : "Filter by"
     },
     "error": {
         "rolesRequired": "One or more roles are required",

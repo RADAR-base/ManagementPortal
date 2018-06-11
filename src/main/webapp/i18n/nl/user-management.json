@@ -36,7 +36,8 @@
                 "alreadyExist" : "Deze rol werd al toegevoegd"
             }
         },
-        "project": "Project"
+        "project": "Project",
+        "filter" : "Filteren op"
     },
     "error": {
         "rolesRequired": "Er moet minstens &‌eacute;&‌eacute;n rol toegekend worden",
