@@ -1,5 +1,7 @@
 package org.radarcns.management.security.jwt;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.jwt.crypto.sign.SignatureVerifier;
 
 import java.util.LinkedList;
@@ -11,6 +13,7 @@ import java.util.List;
  */
 public class MultiVerifier implements SignatureVerifier {
 
+    private static final Logger log = LoggerFactory.getLogger(MultiVerifier.class);
     private final List<SignatureVerifier> verifiers = new LinkedList<>();
 
     /**
@@ -28,7 +31,8 @@ public class MultiVerifier implements SignatureVerifier {
                 verifier.verify(content, signature);
                 return;
             } catch (RuntimeException ex) {
-                // try the next verifier
+                log.debug("Verifier {} with implementation {} could not verify the signature",
+                        verifier.toString(), verifier.getClass().toString());
             }
         }
         throw new SignatureException("Signature could not be verified by any of the registered "

@@ -25,13 +25,13 @@ import java.util.stream.Collectors;
  * Created by dverbeec on 29/06/2017.
  */
 public class OAuthHelper {
-    public static String VALID_EC_TOKEN;
-    public static DecodedJWT SUPER_USER_TOKEN;
-    public static String VALID_RSA_TOKEN;
-    public static String TEST_KEYSTORE_PASSWORD = "radarbase";
-    public static String TEST_SIGNKEY_ALIAS = "radarbase-managementportal-ec";
-    public static String TEST_CHECKKEY_ALIAS = "radarbase-managementportal-rsa";
+    public static String validEcToken;
+    public static DecodedJWT superUserToken;
+    public static String validRsaToken;
 
+    public static final String TEST_KEYSTORE_PASSWORD = "radarbase";
+    public static final String TEST_SIGNKEY_ALIAS = "radarbase-managementportal-ec";
+    public static final String TEST_CHECKKEY_ALIAS = "radarbase-managementportal-rsa";
     public static final String[] SCOPES = allScopes();
     public static final String[] AUTHORITIES = {"ROLE_SYS_ADMIN"};
     public static final String[] ROLES = {};
@@ -56,7 +56,7 @@ public class OAuthHelper {
      */
     public static RequestPostProcessor bearerToken() {
         return mockRequest -> {
-            mockRequest.addHeader("Authorization", "Bearer " + VALID_EC_TOKEN);
+            mockRequest.addHeader("Authorization", "Bearer " + validEcToken);
             return mockRequest;
         };
     }
@@ -68,7 +68,7 @@ public class OAuthHelper {
      */
     public static RequestPostProcessor rsaBearerToken() {
         return mockRequest -> {
-            mockRequest.addHeader("Authorization", "Bearer " + VALID_RSA_TOKEN);
+            mockRequest.addHeader("Authorization", "Bearer " + validRsaToken);
             return mockRequest;
         };
     }
@@ -89,15 +89,15 @@ public class OAuthHelper {
         Certificate cert = ks.getCertificate(TEST_SIGNKEY_ALIAS);
         ECPublicKey publicKey = (ECPublicKey) cert.getPublicKey();
 
-        VALID_EC_TOKEN = createValidToken(Algorithm.ECDSA256(publicKey, privateKey));
-        SUPER_USER_TOKEN = JWT.decode(VALID_EC_TOKEN);
+        validEcToken = createValidToken(Algorithm.ECDSA256(publicKey, privateKey));
+        superUserToken = JWT.decode(validEcToken);
 
         // also get an RSA keypair to test accepting multiple keys
         RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) ks.getKey(TEST_CHECKKEY_ALIAS,
                 TEST_KEYSTORE_PASSWORD.toCharArray());
         RSAPublicKey rsaPublicKey = (RSAPublicKey) ks.getCertificate(TEST_CHECKKEY_ALIAS)
                 .getPublicKey();
-        VALID_RSA_TOKEN = createValidToken(Algorithm.RSA256(rsaPublicKey, rsaPrivateKey));
+        validRsaToken = createValidToken(Algorithm.RSA256(rsaPublicKey, rsaPrivateKey));
         keyStream.close();
     }
 
