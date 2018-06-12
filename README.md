@@ -1,8 +1,8 @@
 # ManagementPortal
 
 [![Build Status](https://travis-ci.org/RADAR-base/ManagementPortal.svg?branch=master)](https://travis-ci.org/RADAR-base/ManagementPortal)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/87bb961266d3443988b52ee7aa32f100)](https://www.codacy.com/app/RADAR-CNS/ManagementPortal?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RADAR-CNS/ManagementPortal&amp;utm_campaign=Badge_Grade)
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/87bb961266d3443988b52ee7aa32f100)](https://www.codacy.com/app/RADAR-CNS/ManagementPortal?utm_source=github.com&utm_medium=referral&utm_content=RADAR-CNS/ManagementPortal&utm_campaign=Badge_Coverage)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d6945ebd1eba4a3fbb55882cda33655e)](https://www.codacy.com/app/RADAR-CNS/ManagementPortal?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RADAR-CNS/ManagementPortal&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/d6945ebd1eba4a3fbb55882cda33655e)](https://www.codacy.com/app/RADAR-CNS/ManagementPortal?utm_source=github.com&utm_medium=referral&utm_content=RADAR-CNS/ManagementPortal&utm_campaign=Badge_Coverage)
 
 ManagementPortal is an application which is used to manage pilot studies for [RADAR-CNS](http://www.radar-cns.org/).
 
@@ -35,7 +35,7 @@ docker-compose files.
 1. Make sure [Docker][] and [Docker-Compose][] are installed on your system.
 2. Generate a key pair for signing JWT tokens as follows:
    ```shell
-   keytool -genkey -alias selfsigned -keyalg RSA -keystore src/main/docker/etc/config/keystore.jks -keysize 4048 -storepass radarbase
+   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -keysize 256 -sigalg SHA256withECDSA -storetype JKS -keystore src/main/docker/etc/config/keystore.jks -storepass radarbase
    ```
 3. Now, we can start the stack with `docker-compose -f src/main/docker/management-portal.yml up -d`.
 
@@ -50,7 +50,7 @@ you must install and configure the following dependencies on your machine to run
    Depending on your system, you can install Yarn either from source or as a pre-packaged bundle.
 3. Generate a key pair for signing JWT tokens as follows:
    ```shell
-   keytool -genkey -alias selfsigned -keyalg RSA -keystore src/main/resources/config/keystore.jks -keysize 4048 -storepass radarbase
+   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -keysize 256 -sigalg SHA256withECDSA -storetype JKS -keystore keystore.jks -storepass radarbase
    ```
    **Make sure the key password and store password are the same!** This is a requirement for Spring Security.
 
@@ -98,6 +98,9 @@ for other options on overriding the default configuration.
 | `MANAGEMENTPORTAL_FRONTEND_ACCESS_TOKEN_VALIDITY_SECONDS`  | `14400`                                             | Frontend access token validity period in seconds                                                       |
 | `MANAGEMENTPORTAL_FRONTEND_REFRESH_TOKEN_VALIDITY_SECONDS` | `259200`                                            | Frontend refresh token validity period in seconds                                                      |
 | `MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE`                      | `/mp-includes/config/oauth_client_details.csv`      | Location of the OAuth clients file                                                                     |
+| `MANAGEMENTPORTAL_OAUTH_KEY_STORE_PASSWORD`                | `radarbase`                                         | Password for the JKS keystore                                                                          |
+| `MANAGEMENTPORTAL_OAUTH_SIGNING_KEY_ALIAS`                 | `radarbase-managementportal-ec`                     | Alias in the keystore of the keypair to use for signing                                                |
+| `MANAGEMENTPORTAL_OAUTH_CHECKING_KEY_ALIASES_0`            | None                                                | Alias in the keystore of the public key to use for checking. Define multiple aliases by increasing number suffix (i.e. setting `MANAGEMENTPORTAL_OAUTH_CHECKING_KEY_ALIASES_1`, `MANAGEMENTPORTAL_OAUTH_CHECKING_KEY_ALIASES_2` etc.). If you do not set a list of checking key aliases, the public key of the signing keypair will be used for checking signatures. |
 | `MANAGEMENTPORTAL_CATALOGUE_SERVER_ENABLE_AUTO_IMPORT`     | `false`                                             | Wether to enable or disable auto import of sources from the catalogue server                           |
 | `MANAGEMENTPORTAL_CATALOGUE_SERVER_SERVER_URL`             | None                                                | URL to the catalogue server                                                                            |
 | `JHIPSTER_SLEEP`                                           | `10`                                                | Time in seconds that the application should wait at bootup. Used to allow the database to become ready |
