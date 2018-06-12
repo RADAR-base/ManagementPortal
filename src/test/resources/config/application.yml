@@ -99,7 +99,4 @@ application:
 managementportal:
     oauth:
         keyStorePassword: radarbase
-        signingKeyAlias: ec
-        checkingKeyAliases:
-          - ec
-          - selfsigned
+        signingKeyAlias: radarbase-managementportal-ec

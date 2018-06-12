@@ -29,8 +29,8 @@ public class OAuthHelper {
     public static DecodedJWT SUPER_USER_TOKEN;
     public static String VALID_RSA_TOKEN;
     public static String TEST_KEYSTORE_PASSWORD = "radarbase";
-    public static String TEST_SIGNKEY_ALIAS = "ec";
-    public static String TEST_CHECKKEY_ALIAS = "selfsigned";
+    public static String TEST_SIGNKEY_ALIAS = "radarbase-managementportal-ec";
+    public static String TEST_CHECKKEY_ALIAS = "radarbase-managementportal-rsa";
 
     public static final String[] SCOPES = allScopes();
     public static final String[] AUTHORITIES = {"ROLE_SYS_ADMIN"};
@@ -89,18 +89,23 @@ public class OAuthHelper {
         Certificate cert = ks.getCertificate(TEST_SIGNKEY_ALIAS);
         ECPublicKey publicKey = (ECPublicKey) cert.getPublicKey();
 
+        VALID_EC_TOKEN = createValidToken(Algorithm.ECDSA256(publicKey, privateKey));
+        SUPER_USER_TOKEN = JWT.decode(VALID_EC_TOKEN);
+
         // also get an RSA keypair to test accepting multiple keys
         RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) ks.getKey(TEST_CHECKKEY_ALIAS,
                 TEST_KEYSTORE_PASSWORD.toCharArray());
         RSAPublicKey rsaPublicKey = (RSAPublicKey) ks.getCertificate(TEST_CHECKKEY_ALIAS)
                 .getPublicKey();
-
-        keyStream.close();
-        VALID_EC_TOKEN = createValidToken(Algorithm.ECDSA256(publicKey, privateKey));
-        SUPER_USER_TOKEN = JWT.decode(VALID_EC_TOKEN);
         VALID_RSA_TOKEN = createValidToken(Algorithm.RSA256(rsaPublicKey, rsaPrivateKey));
+        keyStream.close();
     }
 
+    /**
+     * Helper method to initialize an authentication filter for use in test classes.
+     *
+     * @return an initialized JwtAuthenticationFilter
+     */
     public static JwtAuthenticationFilter createAuthenticationFilter() {
         return new JwtAuthenticationFilter(new TokenValidator(
                 new LocalKeystoreConfig(TEST_KEYSTORE_PASSWORD, Arrays.asList(TEST_SIGNKEY_ALIAS,

@@ -25,8 +25,8 @@ import java.util.Map;
 /**
  * Customized implementation of {@link JwtAccessTokenConverter} for the RADAR-base platform.
  *
- * This class can accept an EC keypair as well as an RSA keypair for signing. EC signatures
- * are significantly smaller than RSA signatures.
+ * <p>This class can accept an EC keypair as well as an RSA keypair for signing. EC signatures
+ * are significantly smaller than RSA signatures.</p>
  */
 public class RadarJwtAccessTokenConverter extends JwtAccessTokenConverter {
 
@@ -92,6 +92,8 @@ public class RadarJwtAccessTokenConverter extends JwtAccessTokenConverter {
 
     @Override
     public boolean isPublic() {
-        return true;
+        // the signer is private in our superclass, but we can check the algorithm with getKey()
+        return getKey().getOrDefault("alg", "").equals("SHA256withECDSA")
+                || getKey().getOrDefault("alg", "").equals("SHA256withRSA");
     }
 }

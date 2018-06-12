@@ -217,17 +217,18 @@ public class OAuth2ServerConfiguration {
                     && !managementPortalProperties.getOauth().getCheckingKeyAliases().isEmpty()) {
                 // get all public keys for verifying and set the converter's verifier
                 // to a MultiVerifier
-                List<SignatureVerifier> verifiers =
-                        managementPortalProperties.getOauth().getCheckingKeyAliases().stream()
-                                .map(alias -> kf.getKeyPair(alias).getPublic())
-                                .filter(publicKey -> publicKey instanceof RSAPublicKey
-                                        || publicKey instanceof ECPublicKey).map(publicKey -> {
-                            if (publicKey instanceof RSAPublicKey) {
-                                return new RsaVerifier((RSAPublicKey) publicKey);
-                            } else {
-                                return new EcdsaVerifier((ECPublicKey) publicKey);
-                            }
-                        }).collect(Collectors.toList());
+                List<SignatureVerifier> verifiers = managementPortalProperties.getOauth()
+                        .getCheckingKeyAliases().stream()
+                        .map(alias -> kf.getKeyPair(alias).getPublic())
+                        .filter(publicKey -> publicKey instanceof RSAPublicKey
+                                || publicKey instanceof ECPublicKey).map(publicKey -> {
+                                    if (publicKey instanceof RSAPublicKey) {
+                                        return new RsaVerifier((RSAPublicKey) publicKey);
+                                    } else {
+                                        return new EcdsaVerifier((ECPublicKey) publicKey);
+                                    }
+                                })
+                        .collect(Collectors.toList());
                 converter.setVerifier(new MultiVerifier(verifiers));
             }
 

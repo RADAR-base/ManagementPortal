@@ -139,10 +139,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return registration;
     }
 
+    /**
+     * Create a {@link JwtAuthenticationFilter}.
+     *
+     * @return the JwtAuthenticationFilter
+     */
     public Filter jwtAuthenticationFilter() {
         List<String> publicKeyAliases;
-        if (managementPortalProperties.getOauth().getCheckingKeyAliases() != null &&
-                !managementPortalProperties.getOauth().getCheckingKeyAliases().isEmpty()) {
+        if (managementPortalProperties.getOauth().getCheckingKeyAliases() != null
+                && !managementPortalProperties.getOauth().getCheckingKeyAliases().isEmpty()) {
             publicKeyAliases = managementPortalProperties.getOauth().getCheckingKeyAliases();
         } else {
             publicKeyAliases = Collections.singletonList(managementPortalProperties.getOauth()
