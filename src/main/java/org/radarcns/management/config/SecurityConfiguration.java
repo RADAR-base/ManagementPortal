@@ -28,6 +28,8 @@ import org.springframework.security.data.repository.query.SecurityEvaluationCont
 
 import javax.annotation.PostConstruct;
 import javax.servlet.Filter;
+import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -138,8 +140,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     public Filter jwtAuthenticationFilter() {
+        List<String> publicKeyAliases;
+        if (managementPortalProperties.getOauth().getCheckingKeyAliases() != null &&
+                !managementPortalProperties.getOauth().getCheckingKeyAliases().isEmpty()) {
+            publicKeyAliases = managementPortalProperties.getOauth().getCheckingKeyAliases();
+        } else {
+            publicKeyAliases = Collections.singletonList(managementPortalProperties.getOauth()
+                    .getSigningKeyAlias());
+        }
         return new JwtAuthenticationFilter(new TokenValidator(
                 new LocalKeystoreConfig(managementPortalProperties.getOauth().getKeyStorePassword(),
-                        managementPortalProperties.getOauth().getCheckingKeyAliases())));
+                        publicKeyAliases)));
     }
 }

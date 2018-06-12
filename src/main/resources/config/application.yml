@@ -94,9 +94,6 @@ managementportal:
     oauth:
         keyStorePassword: radarbase
         signingKeyAlias: radarbase-managementportal-ec
-        checkingKeyAliases:
-            - radarbase-managementportal-ec
-            - radarbase-managementportal-rsa
 
 # ===================================================================
 # JHipster specific properties

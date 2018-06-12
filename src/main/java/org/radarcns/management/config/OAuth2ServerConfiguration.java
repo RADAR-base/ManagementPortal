@@ -212,21 +212,24 @@ public class OAuth2ServerConfiguration {
             KeyPair keyPair = kf.getKeyPair(signKey);
             converter.setKeyPair(keyPair);
 
-            // get all public keys for verifying and set the converter's verifier to a MultiVerifier
-            List<SignatureVerifier> verifiers = managementPortalProperties.getOauth()
-                    .getCheckingKeyAliases().stream()
-                    .map(alias -> kf.getKeyPair(alias).getPublic())
-                    .filter(publicKey -> publicKey instanceof RSAPublicKey
-                            || publicKey instanceof ECPublicKey)
-                    .map(publicKey -> {
-                        if (publicKey instanceof RSAPublicKey) {
-                            return new RsaVerifier((RSAPublicKey) publicKey);
-                        } else {
-                            return new EcdsaVerifier((ECPublicKey) publicKey);
-                        }
-                    })
-                    .collect(Collectors.toList());
-            converter.setVerifier(new MultiVerifier(verifiers));
+            // if a list of checking keys is defined, use that for checking
+            if (managementPortalProperties.getOauth().getCheckingKeyAliases() != null
+                    && !managementPortalProperties.getOauth().getCheckingKeyAliases().isEmpty()) {
+                // get all public keys for verifying and set the converter's verifier
+                // to a MultiVerifier
+                List<SignatureVerifier> verifiers =
+                        managementPortalProperties.getOauth().getCheckingKeyAliases().stream()
+                                .map(alias -> kf.getKeyPair(alias).getPublic())
+                                .filter(publicKey -> publicKey instanceof RSAPublicKey
+                                        || publicKey instanceof ECPublicKey).map(publicKey -> {
+                            if (publicKey instanceof RSAPublicKey) {
+                                return new RsaVerifier((RSAPublicKey) publicKey);
+                            } else {
+                                return new EcdsaVerifier((ECPublicKey) publicKey);
+                            }
+                        }).collect(Collectors.toList());
+                converter.setVerifier(new MultiVerifier(verifiers));
+            }
 
             return converter;
         }
