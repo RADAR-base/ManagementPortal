@@ -91,6 +91,12 @@ info:
 managementportal:
     mail: # specific JHipster mail property, for standard properties see MailProperties
         from: ManagementPortal@localhost
+    oauth:
+        keyStorePassword: radarbase
+        signingKeyAlias: radarbase-managementportal-ec
+        checkingKeyAliases:
+            - radarbase-managementportal-ec
+            - radarbase-managementportal-rsa
 
 # ===================================================================
 # JHipster specific properties

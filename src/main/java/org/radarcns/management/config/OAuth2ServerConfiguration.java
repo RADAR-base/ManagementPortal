@@ -2,11 +2,12 @@ package org.radarcns.management.config;
 
 import io.github.jhipster.security.AjaxLogoutSuccessHandler;
 import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
-import java.security.KeyPair;
-import java.util.Arrays;
-import javax.sql.DataSource;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.security.ClaimsTokenEnhancer;
+import org.radarcns.management.security.jwt.EcdsaVerifier;
+import org.radarcns.management.security.jwt.MultiVerifier;
+import org.radarcns.management.security.jwt.RadarJwtAccessTokenConverter;
+import org.radarcns.management.security.jwt.RadarKeyStoreKeyFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +24,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.jwt.crypto.sign.RsaVerifier;
+import org.springframework.security.jwt.crypto.sign.SignatureVerifier;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -42,9 +45,16 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
-import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
+
+import javax.sql.DataSource;
+import java.security.KeyPair;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 public class OAuth2ServerConfiguration {
@@ -167,6 +177,9 @@ public class OAuth2ServerConfiguration {
         @Autowired
         private JdbcClientDetailsService jdbcClientDetailsService;
 
+        @Autowired
+        private ManagementPortalProperties managementPortalProperties;
+
         @Bean
         protected AuthorizationCodeServices authorizationCodeServices() {
             return new JdbcAuthorizationCodeServices(dataSource);
@@ -189,12 +202,31 @@ public class OAuth2ServerConfiguration {
 
         @Bean
         public JwtAccessTokenConverter accessTokenConverter() {
-            JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+            RadarJwtAccessTokenConverter converter = new RadarJwtAccessTokenConverter();
 
-            KeyPair keyPair = new KeyStoreKeyFactory(
-                    new ClassPathResource("/config/keystore.jks"), "radarbase".toCharArray())
-                    .getKeyPair("selfsigned");
+            // set the keypair for signing
+            RadarKeyStoreKeyFactory kf = new RadarKeyStoreKeyFactory(
+                    new ClassPathResource("/config/keystore.jks"),
+                    managementPortalProperties.getOauth().getKeyStorePassword().toCharArray());
+            String signKey = managementPortalProperties.getOauth().getSigningKeyAlias();
+            KeyPair keyPair = kf.getKeyPair(signKey);
             converter.setKeyPair(keyPair);
+
+            // get all public keys for verifying and set the converter's verifier to a MultiVerifier
+            List<SignatureVerifier> verifiers = managementPortalProperties.getOauth()
+                    .getCheckingKeyAliases().stream()
+                    .map(alias -> kf.getKeyPair(alias).getPublic())
+                    .filter(publicKey -> publicKey instanceof RSAPublicKey
+                            || publicKey instanceof ECPublicKey)
+                    .map(publicKey -> {
+                        if (publicKey instanceof RSAPublicKey) {
+                            return new RsaVerifier((RSAPublicKey) publicKey);
+                        } else {
+                            return new EcdsaVerifier((ECPublicKey) publicKey);
+                        }
+                    })
+                    .collect(Collectors.toList());
+            converter.setVerifier(new MultiVerifier(verifiers));
 
             return converter;
         }

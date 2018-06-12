@@ -2,6 +2,8 @@ package org.radarcns.management.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.List;
+
 /**
  * Created by nivethika on 3-10-17.
  */
@@ -112,12 +114,42 @@ public class ManagementPortalProperties {
 
         private String clientsFile;
 
+        private String signingKeyAlias;
+
+        private List<String> checkingKeyAliases;
+
+        private String keyStorePassword;
+
         public String getClientsFile() {
             return clientsFile;
         }
 
         public void setClientsFile(String clientsFile) {
             this.clientsFile = clientsFile;
+        }
+
+        public String getSigningKeyAlias() {
+            return signingKeyAlias;
+        }
+
+        public void setSigningKeyAlias(String signingKeyAlias) {
+            this.signingKeyAlias = signingKeyAlias;
+        }
+
+        public List<String> getCheckingKeyAliases() {
+            return checkingKeyAliases;
+        }
+
+        public void setCheckingKeyAliases(List<String> checkingKeyAliases) {
+            this.checkingKeyAliases = checkingKeyAliases;
+        }
+
+        public String getKeyStorePassword() {
+            return keyStorePassword;
+        }
+
+        public void setKeyStorePassword(String keyStorePassword) {
+            this.keyStorePassword = keyStorePassword;
         }
     }
 
@@ -143,5 +175,4 @@ public class ManagementPortalProperties {
             this.enableAutoImport = enableAutoImport;
         }
     }
-
 }

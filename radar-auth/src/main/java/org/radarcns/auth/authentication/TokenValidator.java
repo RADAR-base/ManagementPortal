@@ -127,12 +127,12 @@ public class TokenValidator {
                 }
                 return new JwtRadarToken(jwt);
             } catch (SignatureVerificationException sve) {
-                log.warn("Client presented a token with an incorrect signature, fetching public key"
-                        + " again. Token: {}", token);
+                log.warn("Client presented a token with an incorrect signature, fetching public "
+                        + "keys again. Token: {}", token);
                 refresh();
                 return validateAccessToken(token);
             } catch (JWTVerificationException ex) {
-                throw new TokenValidationException(ex);
+                // this verifier does not accept the token, move on to the next one
             }
         }
         throw new TokenValidationException("No registered validator could authenticate this token");
