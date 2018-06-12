@@ -22,6 +22,7 @@ import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
+import org.radarcns.management.repository.filters.UserFilter;
 import org.radarcns.management.service.MailService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ProjectDTO;
@@ -198,27 +199,18 @@ public class UserResource {
      * GET  /users : get all users.
      *
      * @param pageable the pagination information
-     * @param projectName Optional, if specified return only users associated with this project
-     * @param authority Optional, if specified return only users that have this authority
+//     * @param projectName Optional, if specified return only users associated with this project
+//     * @param authority Optional, if specified return only users that have this authority
      * @return the ResponseEntity with status 200 (OK) and with body all users
      */
     @GetMapping("/users")
     @Timed
     public ResponseEntity<List<UserDTO>> getAllUsers(@ApiParam Pageable pageable,
-            @RequestParam(value = "projectName", required = false) String projectName,
-            @RequestParam(value = "authority", required = false) String authority)
+            UserFilter filter)
             throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), USER_READ);
-        Page<UserDTO> page;
-        if (projectName != null && authority != null) {
-            page = userService.findAllByProjectNameAndAuthority(pageable, projectName, authority);
-        } else if (projectName != null && authority == null) {
-            page = userService.findAllByProjectName(pageable, projectName);
-        } else if (projectName == null && authority != null) {
-            page = userService.findAllByAuthority(pageable, authority);
-        } else {
-            page = userService.getAllManagedUsers(pageable);
-        }
+
+        Page<UserDTO> page = userService.findUsers(filter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/users");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
