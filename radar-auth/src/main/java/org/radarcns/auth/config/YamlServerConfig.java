@@ -2,7 +2,6 @@ package org.radarcns.auth.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.bouncycastle.util.io.pem.PemReader;
 import org.radarcns.auth.exception.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,19 +9,12 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.security.KeyFactory;
-import java.security.PublicKey;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Created by dverbeec on 14/06/2017.
@@ -32,23 +24,12 @@ public class YamlServerConfig implements ServerConfig {
     public static final String CONFIG_FILE_NAME = "radar-is.yml";
     private List<URI> publicKeyEndpoints = new LinkedList<>();
     private String resourceName;
-    private List<PublicKey> publicKeys = new LinkedList<>();
+    private List<String> publicKeys = new LinkedList<>();
 
     private static YamlServerConfig config;
     private final Logger log = LoggerFactory.getLogger(YamlServerConfig.class);
 
-    // a map with as key the string to search for in a PEM encoded public key, and as value the
-    // KeyFactory type to request
-    private final Map<String, String> keyFactoryTypes = new HashMap<>();
 
-    /**
-     * Default constructor. Initializes the keyFactoryTypes map.
-     */
-    public YamlServerConfig() {
-        keyFactoryTypes.put("-----BEGIN PUBLIC KEY-----", "RSA");
-        keyFactoryTypes.put("-----BEGIN EC PUBLIC KEY-----", "EC");
-        log.info("YamlServerConfig initializing...");
-    }
 
     /**
      * Read the configuration from file. This method will first check if the environment variable
@@ -115,7 +96,7 @@ public class YamlServerConfig implements ServerConfig {
     }
 
     @Override
-    public List<PublicKey> getPublicKeys() {
+    public List<String> getPublicKeys() {
         return publicKeys;
     }
 
@@ -129,7 +110,7 @@ public class YamlServerConfig implements ServerConfig {
      * @param publicKeys The public keys to parse
      */
     public void setPublicKeys(List<String> publicKeys) {
-        this.publicKeys = publicKeys.stream().map(this::parseKey).collect(Collectors.toList());
+        this.publicKeys = publicKeys;
     }
 
     @Override
@@ -149,27 +130,5 @@ public class YamlServerConfig implements ServerConfig {
     @Override
     public int hashCode() {
         return Objects.hash(publicKeyEndpoints, resourceName, publicKeys);
-    }
-
-    private PublicKey parseKey(String publicKey) {
-        String factoryType = keyFactoryTypes.keySet().stream()
-                // find the string that is contained in publicKey
-                .filter(publicKey::contains)
-                .findFirst()
-                // get the actual factory type
-                .map(keyFactoryTypes::get)
-                // if not found throw a ConfigurationException
-                .orElseThrow(() -> new ConfigurationException("Unsupported public key: "
-                        + publicKey));
-        log.debug("Parsing {} public key: {}", factoryType, publicKey);
-        try (PemReader pemReader = new PemReader(new StringReader(publicKey))) {
-            byte[] keyBytes = pemReader.readPemObject().getContent();
-            pemReader.close();
-            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-            KeyFactory kf = KeyFactory.getInstance(factoryType);
-            return kf.generatePublic(spec);
-        } catch (Exception ex) {
-            throw new ConfigurationException(ex);
-        }
     }
 }

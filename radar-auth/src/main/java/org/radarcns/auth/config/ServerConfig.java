@@ -1,7 +1,6 @@
 package org.radarcns.auth.config;
 
 import java.net.URI;
-import java.security.PublicKey;
 import java.util.List;
 
 public interface ServerConfig {
@@ -20,9 +19,9 @@ public interface ServerConfig {
     String getResourceName();
 
     /**
-     * Get the public keys set in the config file.
+     * Get the public keys set in the config file. They should be in PEM format.
      * @return The public keys, or <code>null</code> if not defined
      */
-    List<PublicKey> getPublicKeys();
+    List<String> getPublicKeys();
 
 }
