@@ -93,6 +93,7 @@ public class Source extends AbstractAuditingEntity implements Serializable {
         this.sourceType = sourceType;
         this.generateUuid();
     }
+
     public Long getId() {
         return id;
     }
