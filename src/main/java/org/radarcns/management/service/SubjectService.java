@@ -274,12 +274,6 @@ public class SubjectService {
                         .assigned(true)
                         .sourceType(sourceType);
                 source1.getAttributes().putAll(sourceRegistrationDto.getAttributes());
-                // if source name is provided update source name
-                if (Objects.nonNull(sourceRegistrationDto.getSourceName())) {
-                    // append the auto generated source-name to given source-name to avoid conflicts
-                    source1.setSourceName(sourceRegistrationDto.getSourceName() + "_"
-                            + source1.getSourceName());
-                }
 
                 Optional<Source> sourceToUpdate = sourceRepository.findOneBySourceName(
                         source1.getSourceName());
@@ -292,6 +286,14 @@ public class SubjectService {
                     errorParams.put("source-name", source1.getSourceName());
                     throw new CustomNotFoundException(ErrorConstants.ERR_SOURCE_NAME_EXISTS,
                             errorParams);
+                }
+                source1 = sourceRepository.save(source1);
+
+                // if source name is provided update source name
+                if (Objects.nonNull(sourceRegistrationDto.getSourceName())) {
+                    // append the auto generated source-name to given source-name to avoid conflicts
+                    source1.setSourceName(sourceRegistrationDto.getSourceName() + "_"
+                        + source1.getSourceName());
                 }
                 source1 = sourceRepository.save(source1);
 
