@@ -77,6 +77,22 @@ public class Source extends AbstractAuditingEntity implements Serializable {
     @CollectionTable(name = "source_metadata", joinColumns = @JoinColumn(name = "id"))
     private Map<String, String> attributes = new HashMap<String, String>();
 
+    /**
+     * Default constructor. Needed for other JPA operations.
+     */
+    public Source() {
+        // default constructor
+    }
+
+    /**
+     * Constructor with SourceType. This will assign sourceType and assign default values for
+     * sourceId and sourceName.
+     * @param sourceType sourceType of the source.
+     */
+    public Source(SourceType sourceType) {
+        this.sourceType = sourceType;
+        this.generateUuid();
+    }
     public Long getId() {
         return id;
     }

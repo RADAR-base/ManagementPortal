@@ -269,12 +269,16 @@ public class SubjectService {
             // create a source and register meta data
             // we allow only one source of a source-type per subject
             if (sources.isEmpty()) {
-                Source source1 = new Source()
+                Source source1 = new Source(sourceType)
                         .project(project)
-                        .assigned(true)
-                        .sourceType(sourceType);
+                        .assigned(true);
                 source1.getAttributes().putAll(sourceRegistrationDto.getAttributes());
-
+                // if source name is provided update source name
+                if (Objects.nonNull(sourceRegistrationDto.getSourceName())) {
+                    // append the auto generated source-name to given source-name to avoid conflicts
+                    source1.setSourceName(sourceRegistrationDto.getSourceName() + "_"
+                        + source1.getSourceName());
+                }
                 Optional<Source> sourceToUpdate = sourceRepository.findOneBySourceName(
                         source1.getSourceName());
                 if (sourceToUpdate.isPresent()) {
@@ -286,14 +290,6 @@ public class SubjectService {
                     errorParams.put("source-name", source1.getSourceName());
                     throw new CustomNotFoundException(ErrorConstants.ERR_SOURCE_NAME_EXISTS,
                             errorParams);
-                }
-                source1 = sourceRepository.save(source1);
-
-                // if source name is provided update source name
-                if (Objects.nonNull(sourceRegistrationDto.getSourceName())) {
-                    // append the auto generated source-name to given source-name to avoid conflicts
-                    source1.setSourceName(sourceRegistrationDto.getSourceName() + "_"
-                        + source1.getSourceName());
                 }
                 source1 = sourceRepository.save(source1);
 
