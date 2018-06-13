@@ -278,7 +278,7 @@ public class SubjectService {
                 if (Objects.nonNull(sourceRegistrationDto.getSourceName())) {
                     // append the auto generated source-name to given source-name to avoid conflicts
                     source1.setSourceName(
-                        sourceRegistrationDto.getSourceName() + "_" + source1.getSourceName());
+                            sourceRegistrationDto.getSourceName() + "_" + source1.getSourceName());
                 }
                 Optional<Source> sourceToUpdate = sourceRepository.findOneBySourceName(
                         source1.getSourceName());
