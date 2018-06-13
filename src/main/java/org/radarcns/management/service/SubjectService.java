@@ -1,18 +1,5 @@
 package org.radarcns.management.service;
 
-import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
-import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Source;
@@ -42,6 +29,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
+import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 
 /**
  * Created by nivethika on 26-5-17.
@@ -269,18 +270,16 @@ public class SubjectService {
             // create a source and register meta data
             // we allow only one source of a source-type per subject
             if (sources.isEmpty()) {
-                Source source1 = new Source()
+                Source source1 = new Source(sourceType)
                         .project(project)
-                        .assigned(true)
-                        .sourceType(sourceType);
+                        .assigned(true);
                 source1.getAttributes().putAll(sourceRegistrationDto.getAttributes());
                 // if source name is provided update source name
                 if (Objects.nonNull(sourceRegistrationDto.getSourceName())) {
                     // append the auto generated source-name to given source-name to avoid conflicts
-                    source1.setSourceName(sourceRegistrationDto.getSourceName() + "_"
-                            + source1.getSourceName());
+                    source1.setSourceName(
+                            sourceRegistrationDto.getSourceName() + "_" + source1.getSourceName());
                 }
-
                 Optional<Source> sourceToUpdate = sourceRepository.findOneBySourceName(
                         source1.getSourceName());
                 if (sourceToUpdate.isPresent()) {
