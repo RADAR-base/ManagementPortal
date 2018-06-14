@@ -71,7 +71,7 @@ memory database and ManagementPortal.
 
 
 
-The docker image can be pulled by running `docker pull radarcns/management-portal:0.3.6
+The docker image can be pulled by running `docker pull radarcns/management-portal:0.3.7
 
 ## Configuration
 
