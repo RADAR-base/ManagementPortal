@@ -6,6 +6,10 @@
             "createAdminLabel": "Create an admin user",
             "createOrEditLabel": "Create or edit a user"
         },
+        "search": {
+            "title": "Filter by",
+            "searchLabel": "Search"
+        },
         "created": "A new user is created with identifier {{ param }}",
         "updated": "An user is updated with identifier {{ param }}",
         "deleted": "An user is deleted with identifier {{ param }}",
