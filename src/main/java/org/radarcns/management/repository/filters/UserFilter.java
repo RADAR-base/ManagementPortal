@@ -27,24 +27,28 @@ public class UserFilter implements Specification<User> {
         List<Predicate> predicates = new ArrayList<>();
 
         if (StringUtils.isNotBlank(login)) {
-            predicates.add(cb.like(root.get("login"), "%" + login.trim() + "%"));
+            predicates
+                .add(cb.like(cb.lower(root.get("login")), "%" + login.trim().toLowerCase() + "%"));
         }
         if (StringUtils.isNotBlank(email)) {
-            predicates.add(cb.like(root.get("email"), "%" + email.trim() + "%"));
+            predicates
+                .add(cb.like(cb.lower(root.get("email")), "%" + email.trim().toLowerCase() + "%"));
         }
 
         if (StringUtils.isNotBlank(projectName)) {
             Join<User, Role> roleJoin = root.join("roles");
             Join<Role, Project> projectJoin = roleJoin.join("project");
-            predicates.add(cb.like(projectJoin.get("projectName"), "%" + projectName.trim() + "%"));
+            predicates.add(cb.like(cb.lower(projectJoin.get("projectName")),
+                    "%" + projectName.trim().toLowerCase() + "%"));
         }
         if (StringUtils.isNotBlank(authority)) {
             Join<User, Role> roleJoin = root.join("roles");
             Join<Role, Authority> authorityJoin = roleJoin.join("authority");
-            predicates.add(cb.like(authorityJoin.get("name"), "%" + authority.trim() + "%"));
+            predicates.add(cb.like(cb.lower(authorityJoin.get("name")),
+                    "%" + authority.trim().toLowerCase() + "%"));
         }
         return predicates.isEmpty() ? null
-            : cb.and(predicates.toArray(new Predicate[predicates.size()]));
+                : cb.and(predicates.toArray(new Predicate[predicates.size()]));
     }
 
     public String getLogin() {
