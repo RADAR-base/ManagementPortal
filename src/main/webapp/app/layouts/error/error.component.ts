@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import { JhiLanguageService } from 'ng-jhipster';
 import {ActivatedRoute} from "@angular/router";
-import {LoginModalService} from "../../shared/index";
+import {LoginModalService} from "../../shared";
 import {NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
