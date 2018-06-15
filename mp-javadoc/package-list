@@ -7,6 +7,7 @@ org.radarcns.management.domain.enumeration
 org.radarcns.management.domain.support
 org.radarcns.management.filters
 org.radarcns.management.repository
+org.radarcns.management.repository.filters
 org.radarcns.management.security
 org.radarcns.management.service
 org.radarcns.management.service.catalog
