@@ -1,6 +1,5 @@
 package org.radarcns.management.service;
 
-
 import org.hibernate.envers.query.AuditEntity;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
@@ -281,7 +280,7 @@ public class SubjectService {
             // create a source and register meta data
             // we allow only one source of a source-type per subject
             if (sources.isEmpty()) {
-                Source source1 = new Source()
+                Source source1 = new Source(sourceType)
                         .project(project)
                         .assigned(true)
                         .sourceType(sourceType)
@@ -290,10 +289,9 @@ public class SubjectService {
                 // if source name is provided update source name
                 if (Objects.nonNull(sourceRegistrationDto.getSourceName())) {
                     // append the auto generated source-name to given source-name to avoid conflicts
-                    source1.setSourceName(sourceRegistrationDto.getSourceName() + "_"
-                            + source1.getSourceName());
+                    source1.setSourceName(
+                            sourceRegistrationDto.getSourceName() + "_" + source1.getSourceName());
                 }
-
                 Optional<Source> sourceToUpdate = sourceRepository.findOneBySourceName(
                         source1.getSourceName());
                 if (sourceToUpdate.isPresent()) {

@@ -19,6 +19,7 @@ import org.radarcns.management.domain.User;
 import org.radarcns.management.domain.audit.CustomRevisionEntity;
 import org.radarcns.management.repository.CustomRevisionEntityRepository;
 import org.radarcns.management.repository.UserRepository;
+import org.radarcns.management.repository.filters.UserFilter;
 import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
@@ -170,7 +171,7 @@ public class UserServiceIntTest {
     @Test
     public void assertThatAnonymousUserIsNotGet() {
         final PageRequest pageable = new PageRequest(0, (int) userRepository.count());
-        final Page<UserDTO> allManagedUsers = userService.getAllManagedUsers(pageable);
+        final Page<UserDTO> allManagedUsers = userService.findUsers(new UserFilter(), pageable);
         assertThat(allManagedUsers.getContent().stream()
                 .noneMatch(user -> Constants.ANONYMOUS_USER.equals(user.getLogin())))
                 .isTrue();

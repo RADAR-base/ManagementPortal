@@ -9,6 +9,7 @@ import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.UserRepository;
+import org.radarcns.management.repository.filters.UserFilter;
 import org.radarcns.management.security.SecurityUtils;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.RoleDTO;
@@ -328,19 +329,7 @@ public class UserService {
                 });
     }
 
-    public Page<UserDTO> findAllByProjectNameAndAuthority(Pageable pageable, String projectName,
-            String authority) {
-        return userRepository.findAllByProjectNameAndAuthority(pageable, projectName, authority)
-                .map(userMapper::userToUserDTO);
-    }
-
-    public Page<UserDTO> findAllByAuthority(Pageable pageable, String authority) {
-        return userRepository.findAllByAuthority(pageable, authority)
-                .map(userMapper::userToUserDTO);
-    }
-
-    public Page<UserDTO> findAllByProjectName(Pageable pageable, String projectName) {
-        return userRepository.findAllByProjectName(pageable, projectName)
-                .map(userMapper::userToUserDTO);
+    public Page<UserDTO> findUsers(UserFilter userFilter, Pageable pageable) {
+        return userRepository.findAll(userFilter, pageable).map(userMapper::userToUserDTO);
     }
 }

@@ -49,16 +49,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_CREATE;
 import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_DELETE;
@@ -257,9 +256,9 @@ public class OAuthClientsResource {
 
         // add the user's authorities
         User user = subject.getUser();
-        Set<GrantedAuthority> authorities = new HashSet<>();
-        user.getAuthorities().stream()
-                .forEach(a -> authorities.add(new SimpleGrantedAuthority(a.getName())));
+        Set<GrantedAuthority> authorities = user.getAuthorities().stream()
+                .map(a -> new SimpleGrantedAuthority(a.getName()))
+                .collect(Collectors.toSet());
 
         OAuth2AccessToken token = createToken(clientId, user.getLogin(), authorities,
                 details.getScope(), details.getResourceIds());
@@ -278,22 +277,17 @@ public class OAuthClientsResource {
             Set<GrantedAuthority> authorities, Set<String> scope, Set<String> resourceIds) {
         Map<String, String> requestParameters = new HashMap<>();
 
-        boolean approved = true;
-
-        Set<String> responseTypes = new HashSet<>();
-        responseTypes.add("code");
-        Map<String, Serializable> extensionProperties = new HashMap<>();
+        Set<String> responseTypes = Collections.singleton("code");
 
         OAuth2Request oAuth2Request = new OAuth2Request(requestParameters, clientId, authorities,
-                approved, scope, resourceIds, null, responseTypes, extensionProperties);
+                true, scope, resourceIds, null, responseTypes, Collections.emptyMap());
 
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(login, null, authorities);
         OAuth2Authentication auth = new OAuth2Authentication(oAuth2Request, authenticationToken);
 
-        AuthorizationServerTokenServices tokenServices =
-                authorizationServerEndpointsConfiguration.getEndpointsConfigurer()
-                        .getTokenServices();
+        AuthorizationServerTokenServices tokenServices = authorizationServerEndpointsConfiguration
+                .getEndpointsConfigurer().getTokenServices();
 
         return tokenServices.createAccessToken(auth);
     }

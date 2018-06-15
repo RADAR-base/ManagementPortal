@@ -1,10 +1,16 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Response } from '@angular/http';
-import { ActivatedRoute, Router } from '@angular/router';
-import { EventManager, PaginationUtil, ParseLinks, AlertService, JhiLanguageService } from 'ng-jhipster';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Response} from '@angular/http';
+import {ActivatedRoute, Router} from '@angular/router';
+import {
+    AlertService,
+    EventManager,
+    JhiLanguageService,
+    PaginationUtil,
+    ParseLinks
+} from 'ng-jhipster';
 
-import { ITEMS_PER_PAGE, Principal, User, UserService } from '../../shared';
-import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
+import {ITEMS_PER_PAGE, Principal, User, UserService} from '../../shared';
+import {PaginationConfig} from '../../blocks/config/uib-pagination.config';
 
 @Component({
     selector: 'jhi-user-mgmt',
@@ -25,6 +31,10 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
     predicate: any;
     previousPage: any;
     reverse: any;
+    byProject: string;
+    byAuthority: string;
+    byLogin: string;
+    byEmail: string;
 
     constructor(
         private jhiLanguageService: JhiLanguageService,
@@ -62,6 +72,22 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
 
     registerChangeInUsers() {
         this.eventManager.subscribe('userListModification', (response) => this.loadAll());
+    }
+
+    onChange() {
+        console.log('log', this.byLogin, 'byEmail', this.byEmail, 'byAut', this.byAuthority, 'byProj', this.byProject)
+        this.userService.query({
+            page: this.page - 1,
+            size: this.itemsPerPage,
+            authority: this.byAuthority,
+            email: this.byEmail,
+            login: this.byLogin,
+            projectName: this.byProject,
+            sort: this.sort()}).subscribe(
+            (res: Response) => this.onSuccess(res.json(), res.headers),
+            (res: Response) => this.onError(res.json())
+        );
+
     }
 
     setActive(user, isActivated) {

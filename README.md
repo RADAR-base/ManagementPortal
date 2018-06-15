@@ -71,7 +71,7 @@ memory database and ManagementPortal.
 
 
 
-The docker image can be pulled by running `docker pull radarcns/management-portal:0.3.6
+The docker image can be pulled by running `docker pull radarcns/management-portal:0.3.7
 
 ## Configuration
 
@@ -110,6 +110,50 @@ referenced by the `MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE` configuration option.
 - If your client is supposed to work with the `Pair app` feature, you need to set a key called `dynamic_registration` to `true` like this `{"dynamic_registration": true}` in its `additional_information` map. See the aRMT and pRMT
 clients for an example. 
 - If you want to prevent an OAuth client from being altered through the UI, you can add a key `{"protected": true}` in the `additional_information` map. 
+
+If the app is paired via the Pair App dialog, the QR code that will be scanned contains a refresh token.
+```
+{
+   "refreshToken": "..."
+}
+```
+The app can use that refresh token to get new access and refresh tokens:
+```
+POST MyId:MySecret /oauth/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=refresh_token&refresh_token=...
+```
+This will respond with the access token and refresh token:
+```json
+{
+   "access_token": "...",
+   "refresh_token": "...",
+}
+```
+For the next request, you need to use the `refresh_token` that was returned rather than the one in the QR code, since refresh tokens are valid only once.
+
+The code grant flow for OAuth2 clients can be the following:
+1. Ask user confirmation for your app:
+     ```
+     GET /oauth/confirm_access?client_id=MyId&client_secret=MySecret&grant_type=code&redirect_uri=https://my.example.com/oauth_redirect
+     ```
+     This needs to be done from a interactive web view, either a browser or a web window. If the user approves, this will redirect to `https://my.example.com/oauth_redirect?code=abcdef`. In Android, with [https://appauth.io](AppAuth library), the URL could be `com.example.my://oauth_redirect` for the `com.example.my` app.
+2. Request a token for you app:
+    ```
+    POST MyId:MySecret /oauth/token
+    Content-Type: application/x-www-form-urlencoded
+
+    grant_type=authorization_code&code=abcdef&redirect_uri=https://my.example.com/oauth_redirect
+    ```
+    This will respond with the access token and refresh token:
+    ```json
+    {
+       "access_token": "...",
+       "refresh_token": "...",
+    }
+    ```
+    Now the app can use the refresh token flow as shown above.
 
 ## Development
 
