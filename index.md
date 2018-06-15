@@ -23,7 +23,7 @@ For more details on configuring Management Portal we refer to the readme on our 
 RADAR authentication and authorization library. This project provides classes for authentication and
 authorization of clients connecting to components of the RADAR platform.
 
-- [Github](https://github.com/RADAR-CNS/ManagementPortal/tree/master/radar-auth/)
+- [Github](https://github.com/RADAR-base/ManagementPortal/tree/master/radar-auth/)
 - [Bintray](https://bintray.com/radar-cns/org.radarcns/radar-auth)
 - [Javadoc](ra-javadoc/)
 
@@ -32,7 +32,7 @@ authorization of clients connecting to components of the RADAR platform.
 This library can be used by client applications that want to use the `client_credentials` OAuth2 
 flow. It will manage getting the token and renewing it when necessary.
 
-- [Github](https://github.com/RADAR-CNS/ManagementPortal/tree/master/oauth-client-util/)
+- [Github](https://github.com/RADAR-base/ManagementPortal/tree/master/oauth-client-util/)
 - [Bintray](https://bintray.com/radar-cns/org.radarcns/oauth-client-util)
 - [Javadoc](ocu-javadoc/)
 
@@ -49,4 +49,4 @@ Client library for accessing Management Portal from a Java application. This lib
 [OpenAPI]: https://www.openapis.org/
 [Swagger editor]: http://editor.swagger.io/
 [Swagger codegen]: https://swagger.io/swagger-codegen/
-[Github repository]: https://github.com/RADAR-CNS/ManagementPortal/
+[Github repository]: https://github.com/RADAR-base/ManagementPortal/
