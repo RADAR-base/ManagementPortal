@@ -9,6 +9,25 @@
         </button>
     </h2>
     <jhi-alert></jhi-alert>
+    <div>
+        <h4 jhiTranslate="userManagement.search.title">Filter by</h4>
+        <p class="d-flex">
+            <span jhiTranslate="userManagement.login" class="input-group-addon">Login</span>
+            <input type="text" class="form-control" name="byLogin" [(ngModel)]="byLogin" (ngModelChange)="onChange($event)"/>
+
+            <span jhiTranslate="userManagement.email" class="input-group-addon">Email</span>
+            <input type="text" class="form-control" name="byEmail" [(ngModel)]="byEmail" (ngModelChange)="onChange($event)"/>
+
+            <span jhiTranslate="userManagement.role.project"
+                  class="input-group-addon">Project</span>
+            <input type="text" class="form-control" name="byProject" [(ngModel)]="byProject" (ngModelChange)="onChange($event)"/>
+
+            <span jhiTranslate="userManagement.role.authorityName"
+                  class="input-group-addon">Role</span>
+            <input type="text" class="form-control" name="byAuthority" [(ngModel)]="byAuthority" (ngModelChange)="onChange($event)"/>
+        </p>
+    </div>
+
     <div class="table-responsive" *ngIf="users">
         <table class="table table-striped">
             <thead>

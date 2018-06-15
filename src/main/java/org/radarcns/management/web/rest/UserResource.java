@@ -1,27 +1,15 @@
 package org.radarcns.management.web.rest;
 
-import static org.radarcns.auth.authorization.Permission.PROJECT_READ;
-import static org.radarcns.auth.authorization.Permission.USER_CREATE;
-import static org.radarcns.auth.authorization.Permission.USER_DELETE;
-import static org.radarcns.auth.authorization.Permission.USER_READ;
-import static org.radarcns.auth.authorization.Permission.USER_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
-
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
+import org.radarcns.management.repository.filters.UserFilter;
 import org.radarcns.management.service.MailService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ProjectDTO;
@@ -35,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -45,8 +32,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+
+import static org.radarcns.auth.authorization.Permission.PROJECT_READ;
+import static org.radarcns.auth.authorization.Permission.USER_CREATE;
+import static org.radarcns.auth.authorization.Permission.USER_DELETE;
+import static org.radarcns.auth.authorization.Permission.USER_READ;
+import static org.radarcns.auth.authorization.Permission.USER_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing users.
@@ -197,30 +197,25 @@ public class UserResource {
     /**
      * GET  /users : get all users.
      *
-     * @param pageable the pagination information
-     * @param projectName Optional, if specified return only users associated with this project
-     * @param authority Optional, if specified return only users that have this authority
+     * @param pageable   the pagination information
+     * @param userFilter filter parameters as follows.
+     *      projectName Optional, if specified return only users associated this project
+     *      authority Optional, if specified return only users that have this authority
+     *      login Optional, if specified return only users that have this login
+     *      email Optional, if specified return only users that have this email
      * @return the ResponseEntity with status 200 (OK) and with body all users
      */
     @GetMapping("/users")
     @Timed
-    public ResponseEntity<List<UserDTO>> getAllUsers(@ApiParam Pageable pageable,
-            @RequestParam(value = "projectName", required = false) String projectName,
-            @RequestParam(value = "authority", required = false) String authority)
+    public ResponseEntity<List<UserDTO>> getUsers(@ApiParam Pageable pageable,
+            UserFilter userFilter)
             throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), USER_READ);
-        Page<UserDTO> page;
-        if (projectName != null && authority != null) {
-            page = userService.findAllByProjectNameAndAuthority(pageable, projectName, authority);
-        } else if (projectName != null && authority == null) {
-            page = userService.findAllByProjectName(pageable, projectName);
-        } else if (projectName == null && authority != null) {
-            page = userService.findAllByAuthority(pageable, authority);
-        } else {
-            page = userService.getAllManagedUsers(pageable);
-        }
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/users");
-        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+
+        Page<UserDTO> page = userService.findUsers(userFilter, pageable);
+
+        return new ResponseEntity<>(page.getContent(),
+            PaginationUtil.generatePaginationHttpHeaders(page, "/api/users"), HttpStatus.OK);
     }
 
     /**

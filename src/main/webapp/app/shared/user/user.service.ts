@@ -34,6 +34,18 @@ export class UserService {
             if (req.sort) {
                 params.paramsMap.set('sort', req.sort);
             }
+            if (req.authority) {
+                params.set('authority', req.authority);
+            }
+            if (req.projectName) {
+                params.set('projectName', req.projectName);
+            }
+            if (req.login) {
+                params.set('login', req.login);
+            }
+            if (req.email) {
+                params.set('email', req.email);
+            }
         }
 
         const options = {

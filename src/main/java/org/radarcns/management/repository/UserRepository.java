@@ -8,13 +8,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /**
  * Spring Data JPA repository for the User entity.
  */
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long> , JpaSpecificationExecutor<User> {
 
     Optional<User> findOneByActivationKey(String activationKey);
 
@@ -31,17 +30,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Page<User> findAllByLoginNot(Pageable pageable, String login);
 
-    @Query("select user from User user join user.roles roles "
-            + " where roles.project.projectName = :projectName "
-            + " and roles.authority.name = :authority")
-    Page<User> findAllByProjectNameAndAuthority(Pageable pageable,
-            @Param("projectName") String projectName, @Param("authority") String authority);
-
-    @Query("select user from User user join user.roles roles "
-            + "where roles.authority.name = :authority")
-    Page<User> findAllByAuthority(Pageable pageable, @Param("authority") String authority);
-
-    @Query("select user from User user join user.roles roles "
-            + " where roles.project.projectName = :projectName ")
-    Page<User> findAllByProjectName(Pageable pageable, String projectName);
 }
