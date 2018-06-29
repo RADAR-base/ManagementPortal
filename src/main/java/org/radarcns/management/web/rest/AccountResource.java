@@ -147,7 +147,7 @@ public class AccountResource {
      *     Request) if the email address is not registered or user is not deactivated
      */
     @PostMapping(path = "/account/reset-activation/init",
-        produces = MediaType.TEXT_PLAIN_VALUE)
+            produces = MediaType.TEXT_PLAIN_VALUE)
     @Timed
     public ResponseEntity requestActivationReset(@RequestBody String login) {
         return userService.requestActivationReset(login)
