@@ -127,6 +127,7 @@ public class UserService {
                 return user;
             });
     }
+
     /**
      * Set a user's reset key to a new random value and set their reset date to now.
      * @param mail the email address of the user
