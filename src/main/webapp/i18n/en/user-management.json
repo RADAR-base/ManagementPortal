@@ -44,7 +44,7 @@
         "sendActivation" : {
             "title": "Send activation link",
             "confirmTitle" : "Confirm sending activation link",
-            "question" : "Are you sure you want to (re)send activation link to user {{ login }}?",
+            "question" : "Are you sure you want to resend activation link for user {{ login }} to {{ email }}?",
             "send" : "Send"
         }
     },
