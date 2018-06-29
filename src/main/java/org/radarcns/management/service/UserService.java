@@ -110,6 +110,24 @@ public class UserService {
     }
 
     /**
+     * Find the deactivated user and set the user's reset key to a new random value and set their
+     * reset date to now.
+     * Note: We do not use activation key for activating an account. It happens by resetting
+     * generated password. Resetting activation is by resetting reset-key and reset-date to now.
+     * @param login the login of the user
+     * @return an {@link Optional} which holds the user if an deactivated user was found with the
+     *     given login, and is empty otherwise
+     */
+    public Optional<User> requestActivationReset(String login) {
+        return userRepository.findOneByLogin(login)
+            .filter((p) -> !p.getActivated())
+            .map(user -> {
+                user.setResetKey(RandomUtil.generateResetKey());
+                user.setResetDate(ZonedDateTime.now());
+                return user;
+            });
+    }
+    /**
      * Set a user's reset key to a new random value and set their reset date to now.
      * @param mail the email address of the user
      * @return an {@link Optional} which holds the user if an activated user was found with the

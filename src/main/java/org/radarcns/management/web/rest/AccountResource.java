@@ -137,6 +137,29 @@ public class AccountResource {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+
+    /**
+     * POST   /account/reset-activation/init : Send an email to resend the password activation
+     * for the the user.
+     *
+     * @param login the login of the user
+     * @return the ResponseEntity with status 200 (OK) if the email was sent, or status 400 (Bad
+     *     Request) if the email address is not registered or user is not deactivated
+     */
+    @PostMapping(path = "/account/reset-activation/init",
+        produces = MediaType.TEXT_PLAIN_VALUE)
+    @Timed
+    public ResponseEntity requestActivationReset(@RequestBody String login) {
+        return userService.requestActivationReset(login)
+            .map(user -> {
+                // this will be the similar email with newly set reset-key
+                mailService.sendCreationEmail(user);
+                return new ResponseEntity<>("Activation email was sent", HttpStatus.OK);
+            }).orElse(new ResponseEntity<>("Cannot find a deactivated user with login " + login,
+                HttpStatus.BAD_REQUEST));
+    }
+
+
     /**
      * POST   /account/reset_password/init : Send an email to reset the password of the user.
      *
