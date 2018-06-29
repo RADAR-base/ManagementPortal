@@ -40,7 +40,13 @@
                 "alreadyExist" : "This role has been already added"
             }
         },
-        "project" : "Project"
+        "project" : "Project",
+        "sendActivation" : {
+            "title": "Send activation link",
+            "confirmTitle" : "Confirm sending activation link",
+            "question" : "Are you sure you want to (re)send activation link to user {{ login }}?",
+            "send" : "Send"
+        }
     },
     "error": {
         "rolesRequired": "One or more roles are required",
