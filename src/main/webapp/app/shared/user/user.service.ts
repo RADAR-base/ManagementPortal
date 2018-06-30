@@ -59,6 +59,12 @@ export class UserService {
         return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(login)}`);
     }
 
+
+    sendActivation(login: string): Observable<Response> {
+        return this.http.post('api/account/reset-activation/init', login);
+    }
+
+
     findByProjectAndAuthority(req: any) : Observable<Response> {
         const params: URLSearchParams = new URLSearchParams();
         if (req.authority) {

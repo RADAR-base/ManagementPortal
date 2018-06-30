@@ -40,7 +40,13 @@
                 "alreadyExist" : "Deze rol werd al toegevoegd"
             }
         },
-        "project": "Project"
+        "project": "Project",
+        "sendActivation" : {
+            "title": "Stuur activeringslink",
+            "confirmTitle" : "Bevestig de verzendactiveringslink",
+            "question" : "Weet je zeker dat je activeringslink opnieuw wilt verzenden voor gebruiker {{ login }} naar {{email}} ?",
+            "send" : "Sturen"
+        }
     },
     "error": {
         "rolesRequired": "Er moet minstens &‌eacute;&‌eacute;n rol toegekend worden",
