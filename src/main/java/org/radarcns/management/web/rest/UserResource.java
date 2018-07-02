@@ -11,7 +11,7 @@ import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.repository.filters.UserFilter;
 import org.radarcns.management.service.MailService;
-import org.radarcns.management.service.ResourceLocationService;
+import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
@@ -139,7 +139,7 @@ public class UserResource {
         } else {
             User newUser = userService.createUser(managedUserVm);
             mailService.sendCreationEmail(newUser);
-            return ResponseEntity.created(ResourceLocationService.getLocation(newUser))
+            return ResponseEntity.created(ResourceUriService.getUri(newUser))
                     .headers(HeaderUtil.createAlert("userManagement.created", newUser.getLogin()))
                     .body(newUser);
         }

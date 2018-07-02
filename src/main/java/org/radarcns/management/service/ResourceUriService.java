@@ -18,7 +18,7 @@ import java.net.URISyntaxException;
 /**
  * Consolidates the generation of location URI's for all of the resources.
  */
-public class ResourceLocationService {
+public class ResourceUriService {
 
     /**
      * Get the API location for the given resource.
@@ -26,7 +26,7 @@ public class ResourceLocationService {
      * @return the API location
      * @throws URISyntaxException See {@link URI#URI(String)}
      */
-    public static URI getLocation(SubjectDTO resource) throws URISyntaxException {
+    public static URI getUri(SubjectDTO resource) throws URISyntaxException {
         return new URI(HeaderUtil.buildPath("api", "subjects", resource.getLogin()));
     }
 
@@ -36,7 +36,7 @@ public class ResourceLocationService {
      * @return the API location
      * @throws URISyntaxException See {@link URI#URI(String)}
      */
-    public static URI getLocation(ClientDetailsDTO resource) throws URISyntaxException {
+    public static URI getUri(ClientDetailsDTO resource) throws URISyntaxException {
         return new URI(HeaderUtil.buildPath("api", "oauth-clients", resource.getClientId()));
     }
 
@@ -46,7 +46,7 @@ public class ResourceLocationService {
      * @return the API location
      * @throws URISyntaxException See {@link URI#URI(String)}
      */
-    public static URI getLocation(MinimalSourceDetailsDTO resource) throws URISyntaxException {
+    public static URI getUri(MinimalSourceDetailsDTO resource) throws URISyntaxException {
         return new URI(HeaderUtil.buildPath("api", "sources", resource.getSourceName()));
     }
 
@@ -56,7 +56,7 @@ public class ResourceLocationService {
      * @return the API location
      * @throws URISyntaxException See {@link URI#URI(String)}
      */
-    public static URI getLocation(RoleDTO resource) throws URISyntaxException {
+    public static URI getUri(RoleDTO resource) throws URISyntaxException {
         return new URI(HeaderUtil.buildPath("api", "roles", resource.getProjectName(),
                 resource.getAuthorityName()));
     }
@@ -67,7 +67,7 @@ public class ResourceLocationService {
      * @return the API location
      * @throws URISyntaxException See {@link URI#URI(String)}
      */
-    public static URI getLocation(SourceTypeDTO resource) throws URISyntaxException {
+    public static URI getUri(SourceTypeDTO resource) throws URISyntaxException {
         return new URI(HeaderUtil.buildPath("api", "source-types", resource.getProducer(),
                 resource.getModel(), resource.getCatalogVersion()));
     }
@@ -78,7 +78,7 @@ public class ResourceLocationService {
      * @return the API location
      * @throws URISyntaxException See {@link URI#URI(String)}
      */
-    public static URI getLocation(SourceDTO resource) throws URISyntaxException {
+    public static URI getUri(SourceDTO resource) throws URISyntaxException {
         return new URI(HeaderUtil.buildPath("api", "sources", resource.getSourceName()));
     }
 
@@ -88,7 +88,7 @@ public class ResourceLocationService {
      * @return the API location
      * @throws URISyntaxException See {@link URI#URI(String)}
      */
-    public static URI getLocation(Source resource) throws URISyntaxException {
+    public static URI getUri(Source resource) throws URISyntaxException {
         return new URI(HeaderUtil.buildPath("api", "sources", resource.getSourceName()));
     }
 
@@ -98,7 +98,7 @@ public class ResourceLocationService {
      * @return the API location
      * @throws URISyntaxException See {@link URI#URI(String)}
      */
-    public static URI getLocation(User resource) throws URISyntaxException {
+    public static URI getUri(User resource) throws URISyntaxException {
         return new URI(HeaderUtil.buildPath("api", "users", resource.getLogin()));
     }
 
@@ -108,7 +108,7 @@ public class ResourceLocationService {
      * @return the API location
      * @throws URISyntaxException See {@link URI#URI(String)}
      */
-    public static URI getLocation(SourceDataDTO resource) throws URISyntaxException {
+    public static URI getUri(SourceDataDTO resource) throws URISyntaxException {
         return new URI(HeaderUtil.buildPath("api", "source-data", resource.getSourceDataName()));
     }
 
@@ -118,7 +118,7 @@ public class ResourceLocationService {
      * @return the API location
      * @throws URISyntaxException See {@link URI#URI(String)}
      */
-    public static URI getLocation(ProjectDTO resource) throws URISyntaxException {
+    public static URI getUri(ProjectDTO resource) throws URISyntaxException {
         return new URI(HeaderUtil.buildPath("api", "projects", resource.getProjectName()));
     }
 }

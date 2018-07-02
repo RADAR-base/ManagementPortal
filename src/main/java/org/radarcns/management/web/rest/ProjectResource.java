@@ -8,7 +8,7 @@ import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.service.ProjectService;
-import org.radarcns.management.service.ResourceLocationService;
+import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.RoleService;
 import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
@@ -117,7 +117,7 @@ public class ProjectResource {
                     .body(null);
         }
         ProjectDTO result = projectService.save(projectDto);
-        return ResponseEntity.created(ResourceLocationService.getLocation(result))
+        return ResponseEntity.created(ResourceUriService.getUri(result))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getProjectName()))
                 .body(result);
     }

@@ -5,7 +5,7 @@ import io.github.jhipster.web.util.ResponseUtil;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
-import org.radarcns.management.service.ResourceLocationService;
+import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.RoleService;
 import org.radarcns.management.service.dto.RoleDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -69,7 +69,7 @@ public class RoleResource {
                     "idexists", "A new role cannot already have an ID")).body(null);
         }
         RoleDTO result = roleService.save(roleDto);
-        return ResponseEntity.created(ResourceLocationService.getLocation(result))
+        return ResponseEntity.created(ResourceUriService.getUri(result))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, displayName(result)))
                 .body(result);
     }

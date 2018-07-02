@@ -6,7 +6,7 @@ import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
-import org.radarcns.management.service.ResourceLocationService;
+import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ClientDetailsDTO;
 import org.radarcns.management.service.dto.ClientPairInfoDTO;
@@ -208,7 +208,7 @@ public class OAuthClientsResource {
             clientDetailsService.loadClientByClientId(clientDetailsDto.getClientId());
             throw new CustomConflictException(ErrorConstants.ERR_CLIENT_ID_EXISTS,
                     Collections.singletonMap("client_id", clientDetailsDto.getClientId()),
-                    ResourceLocationService.getLocation(clientDetailsDto));
+                    ResourceUriService.getUri(clientDetailsDto));
         } catch (NoSuchClientException ex) {
             // Client does not exist yet, we can go ahead and create it
         }
@@ -216,7 +216,7 @@ public class OAuthClientsResource {
                 .clientDetailsDTOToClientDetails(clientDetailsDto);
         clientDetailsService.addClientDetails(details);
         ClientDetails created = getOAuthClient(clientDetailsDto.getClientId());
-        return ResponseEntity.created(ResourceLocationService.getLocation(clientDetailsDto))
+        return ResponseEntity.created(ResourceUriService.getUri(clientDetailsDto))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, created.getClientId()))
                 .body(clientDetailsMapper.clientDetailsToClientDetailsDTO(created));
     }

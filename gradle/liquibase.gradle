@@ -45,10 +45,11 @@ task liquibaseDiffChangelog(dependsOn: compileJava, type: JavaExec) {
     //args "--referenceUrl=jdbc:postgresql://localhost:5433/managementportal"
     //args "--referenceUsername=postgres"
     //args "--referencePassword="
-    args "--username=postgres"
-    args "--password="
-    args "--url=jdbc:postgresql://localhost:5432/managementportal"
-    args "--driver=org.postgresql.Driver"
+    // uncomment lines below and populate the arguments with the details of the database where the database with the 'old' schema is running
+    //args "--username=postgres"
+    //args "--password="
+    //args "--url=jdbc:postgresql://localhost:5432/managementportal"
+    //args "--driver=org.postgresql.Driver"
     args "diffChangeLog"
     args "--excludeObjects=oauth_access_token, oauth_approvals, oauth_client_details, oauth_client_token, oauth_code, oauth_refresh_token"
 }

@@ -7,7 +7,7 @@ import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.repository.SourceTypeRepository;
-import org.radarcns.management.service.ResourceLocationService;
+import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SourceTypeDTO;
@@ -100,10 +100,10 @@ public class SourceTypeResource {
             errorParams.put("model", sourceTypeDto.getModel());
             errorParams.put("catalogVersion", sourceTypeDto.getCatalogVersion());
             throw new CustomConflictException(ErrorConstants.ERR_SOURCE_TYPE_EXISTS, errorParams,
-                    ResourceLocationService.getLocation(sourceTypeDto));
+                    ResourceUriService.getUri(sourceTypeDto));
         }
         SourceTypeDTO result = sourceTypeService.save(sourceTypeDto);
-        return ResponseEntity.created(ResourceLocationService.getLocation(result))
+        return ResponseEntity.created(ResourceUriService.getUri(result))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, displayName(result)))
                 .body(result);
     }

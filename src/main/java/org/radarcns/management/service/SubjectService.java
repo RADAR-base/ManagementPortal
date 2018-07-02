@@ -162,13 +162,7 @@ public class SubjectService {
         subjectFromDb.getSources().forEach(s -> s.subject(subjectFromDb).assigned(true));
         sourceRepository.save(sourcesToUpdate);
         // update participant role
-        Set<Role> managedRoles = updateParticipantRoles(subjectFromDb, newSubjectDto);
-        // seems silly to do this check, but if we don't we'll always get a user update in the
-        // revision log, even if the roles did not change, and even if the new set equals the old
-        // set, not sure why envers does it this way
-        if (!managedRoles.equals(subjectFromDb.getUser().getRoles())) {
-            subjectFromDb.getUser().setRoles(managedRoles);
-        }
+        subjectFromDb.getUser().setRoles(updateParticipantRoles(subjectFromDb, newSubjectDto));
         return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subjectFromDb));
     }
 
@@ -319,7 +313,7 @@ public class SubjectService {
                 errorParams.put("catalogVersion", sourceType.getCatalogVersion());
                 errorParams.put("subject-id", subject.getUser().getLogin());
                 throw new CustomConflictException(ErrorConstants.ERR_SOURCE_TYPE_EXISTS,
-                        errorParams, ResourceLocationService.getLocation(sources.get(0)));
+                        errorParams, ResourceUriService.getUri(sources.get(0)));
             }
         }
 

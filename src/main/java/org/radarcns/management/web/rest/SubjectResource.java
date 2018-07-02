@@ -14,7 +14,7 @@ import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.SecurityUtils;
-import org.radarcns.management.service.ResourceLocationService;
+import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.RevisionService;
 import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.SubjectService;
@@ -145,7 +145,7 @@ public class SubjectResource {
         }
 
         SubjectDTO result = subjectService.createSubject(subjectDto);
-        return ResponseEntity.created(ResourceLocationService.getLocation(subjectDto))
+        return ResponseEntity.created(ResourceUriService.getUri(subjectDto))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getLogin()))
                 .body(result);
     }
@@ -469,7 +469,7 @@ public class SubjectResource {
         // an existing source was provided. If an existing source was given but not found, the
         // assignOrUpdateSource would throw an error and we would not reach this point.
         if (!existing) {
-            return ResponseEntity.created(ResourceLocationService.getLocation(sourceRegistered))
+            return ResponseEntity.created(ResourceUriService.getUri(sourceRegistered))
                     .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, login))
                     .body(sourceRegistered);
         } else {

@@ -5,7 +5,7 @@ import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
-import org.radarcns.management.service.ResourceLocationService;
+import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.SourceDataService;
 import org.radarcns.management.service.dto.SourceDataDTO;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
@@ -81,10 +81,10 @@ public class SourceDataResource {
         if (sourceDataService.findOneBySourceDataName(name).isPresent()) {
             throw new CustomConflictException("error.sourceDataNameAvailable",
                     Collections.singletonMap("sourceDataName", name),
-                    ResourceLocationService.getLocation(sourceDataDto));
+                    ResourceUriService.getUri(sourceDataDto));
         }
         SourceDataDTO result = sourceDataService.save(sourceDataDto);
-        return ResponseEntity.created(ResourceLocationService.getLocation(sourceDataDto))
+        return ResponseEntity.created(ResourceUriService.getUri(sourceDataDto))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, name))
                 .body(result);
     }

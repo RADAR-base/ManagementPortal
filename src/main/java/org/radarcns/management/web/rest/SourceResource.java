@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiParam;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.repository.SourceRepository;
-import org.radarcns.management.service.ResourceLocationService;
+import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -90,7 +90,7 @@ public class SourceResource {
                             "A new source must have the 'assigned' field specified")).body(null);
         } else {
             SourceDTO result = sourceService.save(sourceDto);
-            return ResponseEntity.created(ResourceLocationService.getLocation(result))
+            return ResponseEntity.created(ResourceUriService.getUri(result))
                     .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME,
                             result.getSourceName()))
                     .body(result);
