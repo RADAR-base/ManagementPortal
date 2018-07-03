@@ -40,9 +40,10 @@ import org.springframework.util.Assert;
 
 /**
  * @author Dave Syer
+ * Modified by Nivethika
  *
  */
-public class RadarApprovalStore implements ApprovalStore {
+public class PostgresApprovalStore implements ApprovalStore {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -88,7 +89,7 @@ public class RadarApprovalStore implements ApprovalStore {
 
     private boolean handleRevocationsAsExpiry = false;
 
-    public RadarApprovalStore(DataSource dataSource) {
+    public PostgresApprovalStore(DataSource dataSource) {
         Assert.notNull(dataSource);
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
