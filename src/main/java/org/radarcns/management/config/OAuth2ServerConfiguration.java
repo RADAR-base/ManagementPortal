@@ -181,7 +181,7 @@ public class OAuth2ServerConfiguration {
 
         @Bean
         public ApprovalStore approvalStore() {
-            if(jpaProperties.getDatabase().equals(POSTGRESQL)) {
+            if (jpaProperties.getDatabase().equals(POSTGRESQL)) {
                 return new PostgresApprovalStore(dataSource);
             } else {
                 return new JdbcApprovalStore(dataSource);
