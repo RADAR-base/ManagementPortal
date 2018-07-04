@@ -18,7 +18,6 @@ package org.radarcns.management.security;
 
 import static org.springframework.security.oauth2.provider.approval.Approval.ApprovalStatus.APPROVED;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -31,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.oauth2.provider.approval.Approval;
 import org.springframework.security.oauth2.provider.approval.Approval.ApprovalStatus;
@@ -63,6 +61,8 @@ public class PostgresApprovalStore implements ApprovalStore {
 
     private static final String WHERE_KEY_AND_SCOPE = WHERE_KEY + " and \"scope\"=?";
 
+    private static final String AND_LESS_THAN_EXPIRE_AT =  " and \"expiresAt\" <= ?";
+
     private static final String DEFAULT_ADD_APPROVAL_STATEMENT =
             String.format("insert into %s ( %s ) values (?,?,?,?,?,?)", TABLE_NAME, FIELDS);
 
@@ -74,7 +74,8 @@ public class PostgresApprovalStore implements ApprovalStore {
             String.format("select %s from %s " + WHERE_KEY, FIELDS, TABLE_NAME);
 
     private static final String DEFAULT_DELETE_APPROVAL_SQL =
-            String.format("delete from %s " + WHERE_KEY_AND_SCOPE, TABLE_NAME);
+            String.format("delete from %s " + WHERE_KEY_AND_SCOPE + AND_LESS_THAN_EXPIRE_AT,
+                TABLE_NAME);
 
     private static final String DEFAULT_EXPIRE_APPROVAL_STATEMENT =
             String.format("update %s set " + "\"expiresAt\" = ? "
@@ -141,27 +142,21 @@ public class PostgresApprovalStore implements ApprovalStore {
         for (final Approval approval : approvals) {
             if (handleRevocationsAsExpiry) {
                 int refreshed = jdbcTemplate
-                        .update(expireApprovalStatement, new PreparedStatementSetter() {
-                            @Override
-                            public void setValues(PreparedStatement ps) throws SQLException {
-                                ps.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
-                                ps.setString(2, approval.getUserId());
-                                ps.setString(3, approval.getClientId());
-                                ps.setString(4, approval.getScope());
-                            }
+                        .update(expireApprovalStatement, (ps) -> {
+                            ps.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+                            ps.setString(2, approval.getUserId());
+                            ps.setString(3, approval.getClientId());
+                            ps.setString(4, approval.getScope());
                         });
                 if (refreshed != 1) {
                     success = false;
                 }
             } else {
                 int refreshed = jdbcTemplate
-                        .update(deleteApprovalStatment, new PreparedStatementSetter() {
-                            @Override
-                            public void setValues(PreparedStatement ps) throws SQLException {
-                                ps.setString(1, approval.getUserId());
-                                ps.setString(2, approval.getClientId());
-                                ps.setString(3, approval.getScope());
-                            }
+                        .update(deleteApprovalStatment, (ps) -> {
+                            ps.setString(1, approval.getUserId());
+                            ps.setString(2, approval.getClientId());
+                            ps.setString(3, approval.getScope());
                         });
                 if (refreshed != 1) {
                     success = false;
@@ -178,13 +173,9 @@ public class PostgresApprovalStore implements ApprovalStore {
     public boolean purgeExpiredApprovals() {
         logger.debug("Purging expired approvals from database");
         try {
-            int deleted = jdbcTemplate.update(deleteApprovalStatment + " where expiresAt <= ?",
-                    new PreparedStatementSetter() {
-                        @Override
-                        public void setValues(PreparedStatement ps) throws SQLException {
-                            ps.setTimestamp(1, new Timestamp(new Date().getTime()));
-                        }
-                    });
+            int deleted = jdbcTemplate.update(deleteApprovalStatment, (ps) -> {
+                ps.setTimestamp(1, new Timestamp(new Date().getTime()));
+            });
             logger.debug(deleted + " expired approvals deleted");
         } catch (DataAccessException ex) {
             logger.error("Error purging expired approvals", ex);
@@ -195,25 +186,22 @@ public class PostgresApprovalStore implements ApprovalStore {
 
     @Override
     public List<Approval> getApprovals(String userName, String clientId) {
+        logger.debug("Finding approvals for userName {} and cliendId {}", userName, clientId);
         return jdbcTemplate.query(findApprovalStatement, rowMapper, userName, clientId);
     }
 
     private boolean updateApproval(final String sql, final Approval approval) {
         logger.debug(String.format("refreshing approval: [%s]", approval));
-        int refreshed = jdbcTemplate.update(sql, new PreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement ps) throws SQLException {
-                ps.setTimestamp(1, new Timestamp(approval.getExpiresAt().getTime()));
-                ps.setString(2,
-                        (approval.getStatus() == null ? APPROVED :
-                            approval.getStatus()).toString());
-                ps.setTimestamp(3, new Timestamp(approval.getLastUpdatedAt().getTime()));
-                ps.setString(4, approval.getUserId());
-                ps.setString(5, approval.getClientId());
-                ps.setString(6, approval.getScope());
-            }
+        int refreshed = jdbcTemplate.update(sql, (ps) -> {
+            ps.setTimestamp(1, new Timestamp(approval.getExpiresAt().getTime()));
+            ps.setString(2, (approval.getStatus() == null ? APPROVED
+                    : approval.getStatus()).toString());
+            ps.setTimestamp(3, new Timestamp(approval.getLastUpdatedAt().getTime()));
+            ps.setString(4, approval.getUserId());
+            ps.setString(5, approval.getClientId());
+            ps.setString(6, approval.getScope());
         });
-        return refreshed != 1;
+        return refreshed == 1;
     }
 
     private static class AuthorizationRowMapper implements RowMapper<Approval> {

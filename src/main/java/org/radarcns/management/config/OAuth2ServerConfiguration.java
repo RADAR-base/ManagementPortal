@@ -184,6 +184,7 @@ public class OAuth2ServerConfiguration {
             if (jpaProperties.getDatabase().equals(POSTGRESQL)) {
                 return new PostgresApprovalStore(dataSource);
             } else {
+                // to have compatibility for other databases including H2
                 return new JdbcApprovalStore(dataSource);
             }
         }
