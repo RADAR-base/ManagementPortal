@@ -58,7 +58,7 @@ spring:
         hibernate:
             ddl-auto: none
             naming:
-                physical-strategy: org.radarcns.management.hibernate.RadarPhysicalNamingStrategy
+                physical-strategy: org.radarcns.management.hibernate.CaseSensitivePhysicalNamingStrategy
                 implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
     messages:
         basename: i18n/messages
