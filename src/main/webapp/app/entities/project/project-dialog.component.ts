@@ -19,9 +19,10 @@ export class ProjectDialogComponent implements OnInit  {
     project: Project;
     authorities: any[];
     isSaving: boolean;
+    projectIdAsPrettyValue: true;
 
     sourceTypes: SourceType[];
-    keys : string[];
+    options : string[];
     attributeComponentEventPrefix : 'projectAttributes';
     constructor(
         public activeModal: NgbActiveModal,
@@ -39,8 +40,9 @@ export class ProjectDialogComponent implements OnInit  {
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN' , 'ROLE_PROJECT_ADMIN'];
         this.sourceTypeService.query().subscribe(
             (res: Response) => { this.sourceTypes = res.json(); }, (res: Response) => this.onError(res.json()));
-        this.keys = ['Work-package', 'Phase' , 'External-project-url' , 'External-project-id'];
+        this.options = ['Work-package', 'Phase' , 'External-project-url' , 'External-project-id'];
         this.registerChangesInProject();
+        this.projectIdAsPrettyValue = true;
     }
     clear() {
         this.activeModal.dismiss('cancel');

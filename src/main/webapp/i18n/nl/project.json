@@ -15,7 +15,7 @@
             "detail": {
                 "title": "Project"
             },
-            "projectName": "Project Name",
+            "projectName": "Project Id",
             "description": "Description",
             "organization": "Organization",
             "location": "Location",
@@ -25,7 +25,8 @@
             "projectAdmin": "Project Admin",
             "sourceType": "Source Type",
             "attributeDataKey" : "Tag",
-            "attributeDataValue" : "Waarde"
+            "attributeDataValue" : "Waarde",
+            "prettyProjectName" : "Leesbare projectnaam"
         },
         "error" : {
             "projectIdNotFound" : "Er werd geen project gevonden met id {{ param0 }}",
