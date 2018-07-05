@@ -36,6 +36,14 @@
                 <a [routerLink]="['/source', sources?.sourceName ]">{{sources.sourceTypeModel}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
             </span>
         </dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.createdBy">Created By</span></dt>
+        <dd>{{subject.createdBy}}</dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.createdDate">Created Date</span></dt>
+        <dd>{{subject.createdDate | date:'dd/MM/yy HH:mm' }}</dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.lastModifiedBy">Last Modified By</span></dt>
+        <dd>{{subject.lastModifiedBy}}</dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.lastModifiedDate">Last Modified Date</span></dt>
+        <dd>{{subject.lastModifiedDate | date:'dd/MM/yy HH:mm'}}</dd>
 
     </dl>
 

@@ -7,6 +7,10 @@ export class Subject {
     public login?: string;
     public externalLink?: string;
     public externalId?: string;
+    public createdBy?: string;
+    public createdDate?: Date;
+    public lastModifiedBy?: string;
+    public lastModifiedDate?: Date;
     public password?: string;
     public project?: Project;
     public sources?: MinimalSource[];
@@ -20,6 +24,10 @@ export class Subject {
          externalLink?: string,
          externalId?: string,
          status?: SubjectStatus,
+         createdBy?: string,
+         createdDate?: Date,
+         lastModifiedBy?: string,
+         lastModifiedDate?: Date,
          password?: string,
          project?: Project,
          sources?: MinimalSource[],
@@ -30,6 +38,10 @@ export class Subject {
         this.login = login ? login : null;
         this.externalLink = externalLink ? externalLink : null;
         this.externalId = externalId ? externalId : null;
+        this.createdBy = createdBy ? createdBy : null;
+        this.createdDate = createdDate ? createdDate : null;
+        this.lastModifiedBy = lastModifiedBy ? lastModifiedBy : null;
+        this.lastModifiedDate = lastModifiedDate ? lastModifiedDate : null;
         this.password = password ? password : null;
         this.project = project ? project: null;
         this.sources = sources ? sources: [];

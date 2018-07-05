@@ -20,6 +20,8 @@ public final class ErrorConstants {
     public static final String ERR_PROJECT_ID_NOT_FOUND = "error.projectIdNotFound";
     public static final String ERR_PROJECT_NAME_NOT_FOUND = "error.projectNameNotFound";
     public static final String ERR_REVISIONS_NOT_FOUND = "error.revisionsNotFound";
+    public static final String ERR_INTERNAL = "error.internalParameterized";
+    public static final String ERR_ENTITY_NOT_FOUND = "error.entityNotFound";
 
     private ErrorConstants() {
     }

@@ -390,7 +390,8 @@ public class SubjectService {
      *         revision number
      */
     public SubjectDTO findRevision(String login, Integer revision) throws CustomNotFoundException {
-        // first get latest known version of the subject, since it might be deleted
+        // first get latest known version of the subject, if it's deleted we can't load the entity
+        // directly by e.g. findOneByLogin
         SubjectDTO latest = getLatestRevision(login);
         Subject sub = revisionService.findRevision(revision, latest.getId(), Subject.class);
         if (sub == null) {

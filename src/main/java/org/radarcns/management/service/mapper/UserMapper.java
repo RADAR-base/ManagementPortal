@@ -3,19 +3,27 @@ package org.radarcns.management.service.mapper;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.service.dto.UserDTO;
+import org.radarcns.management.service.mapper.decorator.UserMapperDecorator;
 
 /**
  * Mapper for the entity User and its DTO UserDTO.
  */
 @Mapper(componentModel = "spring", uses = {ProjectMapper.class, RoleMapper.class})
+@DecoratedWith(UserMapperDecorator.class)
 public interface UserMapper {
 
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
     UserDTO userToUserDTO(User user);
 
     List<UserDTO> usersToUserDTOs(List<User> users);
