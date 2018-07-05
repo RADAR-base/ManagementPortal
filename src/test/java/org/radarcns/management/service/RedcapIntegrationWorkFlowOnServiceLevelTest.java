@@ -47,10 +47,8 @@ public class RedcapIntegrationWorkFlowOnServiceLevelTest {
         projectDto.setProjectStatus(ProjectStatus.PLANNING);
 
         Map<String, String> attributes = new HashMap<>();
-        attributes.put(ProjectDTO.EXTERNAL_PROJECT_URL_KEY,
-            externalProjectUrl);
-        attributes.put(ProjectDTO.EXTERNAL_PROJECT_ID_KEY,
-            externalProjectId);
+        attributes.put(ProjectDTO.EXTERNAL_PROJECT_URL_KEY, externalProjectUrl);
+        attributes.put(ProjectDTO.EXTERNAL_PROJECT_ID_KEY, externalProjectId);
         attributes.put(ProjectDTO.PHASE_KEY, phase);
         attributes.put(ProjectDTO.WORK_PACKAGE_KEY, workPackage);
         projectDto.setAttributes(attributes);

@@ -29,10 +29,10 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
         }
         ProjectDTO dto = delegate.projectToProjectDTO(project);
         List<String> humanReadablename = project.getAttributes().entrySet().stream()
-            .filter( (s)-> HUMAN_READABLE_PROJECT_NAME.equals(s.getKey()))
-            .map(Entry::getValue)
-            .collect(Collectors.toList());
-        if(!humanReadablename.isEmpty()) {
+                .filter((s) -> HUMAN_READABLE_PROJECT_NAME.equals(s.getKey()))
+                .map(Entry::getValue)
+                .collect(Collectors.toList());
+        if (!humanReadablename.isEmpty()) {
             dto.setHumanReadableProjectName(humanReadablename.get(0));
         }
         return dto;
@@ -47,9 +47,9 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
 
         Project project = delegate.projectDTOToProject(projectDto);
         if (projectDto.getHumanReadableProjectName() != null && !projectDto
-            .getHumanReadableProjectName().isEmpty()) {
+                .getHumanReadableProjectName().isEmpty()) {
             project.getAttributes().put(HUMAN_READABLE_PROJECT_NAME, projectDto
-                .getHumanReadableProjectName());
+                    .getHumanReadableProjectName());
         }
         return project;
     }
