@@ -4,14 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.radarcns.management.ManagementPortalTestApp;
 import org.radarcns.management.domain.enumeration.ProjectStatus;
-import org.radarcns.management.service.dto.AttributeMapDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,14 +45,15 @@ public class RedcapIntegrationWorkFlowOnServiceLevelTest {
         projectDto.setLocation(projectLocation);
         projectDto.setProjectName("test radar");
         projectDto.setProjectStatus(ProjectStatus.PLANNING);
-        Set<AttributeMapDTO> projectMetaData = new HashSet<>();
-        projectMetaData.add(new AttributeMapDTO(ProjectDTO.EXTERNAL_PROJECT_URL_KEY,
-                externalProjectUrl));
-        projectMetaData.add(new AttributeMapDTO(ProjectDTO.EXTERNAL_PROJECT_ID_KEY,
-                externalProjectId));
-        projectMetaData.add(new AttributeMapDTO(ProjectDTO.PHASE_KEY, phase));
-        projectMetaData.add(new AttributeMapDTO(ProjectDTO.WORK_PACKAGE_KEY, workPackage));
-        projectDto.setAttributes(projectMetaData);
+
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put(ProjectDTO.EXTERNAL_PROJECT_URL_KEY,
+            externalProjectUrl);
+        attributes.put(ProjectDTO.EXTERNAL_PROJECT_ID_KEY,
+            externalProjectId);
+        attributes.put(ProjectDTO.PHASE_KEY, phase);
+        attributes.put(ProjectDTO.WORK_PACKAGE_KEY, workPackage);
+        projectDto.setAttributes(attributes);
 
         // manually save
         ProjectDTO saved = projectService.save(projectDto);
@@ -76,10 +75,10 @@ public class RedcapIntegrationWorkFlowOnServiceLevelTest {
 
         // redcap-id from trigger
         final String redcapRecordId = "1";
-        for (AttributeMapDTO attributeMapDto : retrievedById.getAttributes()) {
+        for (Map.Entry<String, String> attributeMapDto : retrievedById.getAttributes().entrySet()) {
             switch (attributeMapDto.getKey()) {
                 case ProjectDTO.WORK_PACKAGE_KEY :
-                    workPackageRetrieved = attributeMapDto.getValue();
+                    workPackageRetrieved =  attributeMapDto.getValue();
                     break;
                 case ProjectDTO.PHASE_KEY :
                     phaseRetrieved = attributeMapDto.getValue();
