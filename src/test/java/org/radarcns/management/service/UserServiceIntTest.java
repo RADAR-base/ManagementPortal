@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,8 +52,8 @@ public class UserServiceIntTest {
     @Autowired
     private CustomRevisionEntityRepository revisionEntityRepository;
 
-    @Autowired
-    private RevisionService revisionService;
+    //@Autowired
+    //private RevisionService revisionService;
 
     private UserDTO userDto;
 
