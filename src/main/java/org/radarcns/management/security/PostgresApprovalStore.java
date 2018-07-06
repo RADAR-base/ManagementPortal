@@ -41,7 +41,7 @@ import org.springframework.util.Assert;
  * JdbcApprovalStore with escaped case sensitive fields to query.
  *
  * @author Dave Syer
- * @modifiedBy Nivethika
+ * @author Modified by Nivethika
  */
 public class PostgresApprovalStore implements ApprovalStore {
 
