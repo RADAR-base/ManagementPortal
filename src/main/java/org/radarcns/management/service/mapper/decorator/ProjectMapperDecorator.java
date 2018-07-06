@@ -1,14 +1,11 @@
 package org.radarcns.management.service.mapper.decorator;
 
+import static org.radarcns.management.service.dto.ProjectDTO.HUMAN_READABLE_PROJECT_NAME;
+
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+
 import org.radarcns.management.domain.Project;
-import org.radarcns.management.service.dto.AttributeMapDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +26,7 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
             return null;
         }
         ProjectDTO dto = delegate.projectToProjectDTO(project);
-        Set<AttributeMapDTO> attributeMapDtoList = new HashSet<>();
-        if (project.getAttributes() != null) {
-            for (Entry<String, String> entry : project.getAttributes().entrySet()) {
-                AttributeMapDTO attributeMapDto = new AttributeMapDTO();
-                attributeMapDto.setKey(entry.getKey());
-                attributeMapDto.setValue(entry.getValue());
-                attributeMapDtoList.add(attributeMapDto);
-            }
-            dto.setAttributes(attributeMapDtoList);
-        }
+        dto.setHumanReadableProjectName(project.getAttributes().get(HUMAN_READABLE_PROJECT_NAME));
         return dto;
     }
 
@@ -50,12 +38,10 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
         }
 
         Project project = delegate.projectDTOToProject(projectDto);
-        if (projectDto.getAttributes() != null && !projectDto.getAttributes().isEmpty()) {
-            Map<String, String> attributeMap = new HashMap<>();
-            for (AttributeMapDTO attributeMapDto : projectDto.getAttributes()) {
-                attributeMap.put(attributeMapDto.getKey(), attributeMapDto.getValue());
-            }
-            project.setAttributes(attributeMap);
+        if (projectDto.getHumanReadableProjectName() != null && !projectDto
+                .getHumanReadableProjectName().isEmpty()) {
+            project.getAttributes().put(HUMAN_READABLE_PROJECT_NAME, projectDto
+                    .getHumanReadableProjectName());
         }
         return project;
     }

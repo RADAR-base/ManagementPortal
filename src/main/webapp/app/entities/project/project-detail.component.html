@@ -2,7 +2,7 @@
     <div id="sidebar-wrapper">
         <div class="sidebar-nav" *ngIf="project">
             <p class="status-header">
-                {{project.projectName}}
+                {{project.humanReadableProjectName ? project.humanReadableProjectName : project.projectName}}
             </p>
             <ul class="status-list">
                 <ng-container>
@@ -18,13 +18,6 @@
                             Sources
                         </span>
                     </li>
-
-                    <!--<li [ngClass]="{'status-group-selected': showSourceTypes , 'status-group': !showSourceTypes}"-->
-                        <!--(click)="viewSourceTypes()">-->
-                        <!--<span>-->
-                            <!--Source Types-->
-                        <!--</span>-->
-                    <!--</li>-->
                     <li [ngClass]="{'status-group-selected': showProjectAdmins , 'status-group': !showProjectAdmins}"
                         (click)="viewProjectAdmins()">
                         <span>
@@ -93,13 +86,13 @@
                     </td>
                     <td>{{project.endDate | date:'medium'}}</td>
                     <td>
-                        <div *ngFor="let attribute of project.attributes; ">
-                            <span class="form-control-static">{{attribute.key}}</span>
+                        <div *ngFor="let entry of project.attributes | keys; trackBy: trackKey">
+                            <span class="form-control-static">{{entry.key}}</span>
                         </div>
                     </td>
                     <td>
-                        <div *ngFor="let attribute of project.attributes; ">
-                            <span class="form-control-static">{{attribute.value}}</span>
+                        <div *ngFor="let entry of project.attributes | keys; trackBy: trackKey">
+                            <span class="form-control-static">{{entry.value}}</span>
                         </div>
                     </td>
                 </tr>

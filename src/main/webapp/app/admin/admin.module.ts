@@ -27,6 +27,8 @@ import {
     UserResolvePagingParams,
     UserResolve,
     UserModalService,
+    UserSendActivationLinkComponent,
+    UserSendActivationLinkDialogComponent
 } from './';
 import {RoleComponent} from "./user-management/role.component";
 
@@ -51,10 +53,13 @@ import {RoleComponent} from "./user-management/role.component";
         JhiMetricsMonitoringComponent,
         JhiMetricsMonitoringModalComponent,
         RoleComponent,
+        UserSendActivationLinkComponent,
+        UserSendActivationLinkDialogComponent
     ],
     entryComponents: [
         UserMgmtDialogComponent,
         UserMgmtDeleteDialogComponent,
+        UserSendActivationLinkDialogComponent,
         JhiHealthModalComponent,
         JhiMetricsMonitoringModalComponent,
     ],

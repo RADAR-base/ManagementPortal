@@ -16,12 +16,11 @@ import org.radarcns.management.service.mapper.decorator.ProjectMapperDecorator;
 @DecoratedWith(ProjectMapperDecorator.class)
 public interface ProjectMapper {
 
-    @Mapping(target = "attributes", ignore = true)
+    @Mapping(target = "humanReadableProjectName", ignore = true)
     ProjectDTO projectToProjectDTO(Project project);
 
     List<ProjectDTO> projectsToProjectDTOs(List<Project> projects);
 
-    @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "lastModifiedBy", ignore = true)
@@ -48,7 +47,6 @@ public interface ProjectMapper {
     @Mapping(target = "projectStatus", ignore = true)
     @Mapping(target = "projectAdmin", ignore = true)
     @Mapping(target = "sourceTypes", ignore = true)
-    @Mapping(target = "attributes", ignore = true)
     Project descriptiveDTOToProject(MinimalProjectDetailsDTO minimalProjectDetailsDto);
 
     List<Project> descriptiveDTOsToProjects(
