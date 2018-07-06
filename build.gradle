@@ -32,8 +32,8 @@ plugins {
 allprojects {
     group 'org.radarcns'
 
-    version '0.3.8' // project version
-    
+    version '0.3.9-SNAPSHOT' // project version
+
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
     // script, do not remove it.
