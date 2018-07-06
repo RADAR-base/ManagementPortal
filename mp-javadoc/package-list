@@ -6,6 +6,7 @@ org.radarcns.management.domain
 org.radarcns.management.domain.enumeration
 org.radarcns.management.domain.support
 org.radarcns.management.filters
+org.radarcns.management.hibernate
 org.radarcns.management.repository
 org.radarcns.management.repository.filters
 org.radarcns.management.security
