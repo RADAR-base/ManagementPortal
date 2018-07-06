@@ -19,7 +19,7 @@ export class ProjectDialogComponent implements OnInit  {
     project: Project;
     authorities: any[];
     isSaving: boolean;
-    projectIdAsPrettyValue: true;
+    projectIdAsPrettyValue: boolean;
 
     sourceTypes: SourceType[];
     options : string[];

@@ -16,6 +16,7 @@ import org.radarcns.management.service.mapper.decorator.ProjectMapperDecorator;
 @DecoratedWith(ProjectMapperDecorator.class)
 public interface ProjectMapper {
 
+    @Mapping(target = "humanReadableProjectName", ignore = true)
     ProjectDTO projectToProjectDTO(Project project);
 
     List<ProjectDTO> projectsToProjectDTOs(List<Project> projects);

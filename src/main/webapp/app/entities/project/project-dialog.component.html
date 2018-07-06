@@ -38,6 +38,12 @@
             <input type="checkbox" class="form-control-check" name="grantTypes" [checked]="projectIdAsPrettyValue" (change)="projectIdAsPrettyValue = !projectIdAsPrettyValue" />
             Do you want to use the project-id as the human readable name?
             </small>
+            <div [hidden]="!(editForm.controls.humanReadableProjectName?.dirty && editForm.controls.humanReadableProjectName?.invalid)">
+                <small class="form-text text-danger"
+                       [hidden]="!editForm.controls.humanReadableProjectName?.errors?.required" jhiTranslate="entity.validation.required">
+                    This field is required.
+                </small>
+            </div>
         </div>
 
         <div class="form-group">

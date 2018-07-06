@@ -4,8 +4,6 @@ import static org.radarcns.management.service.dto.ProjectDTO.HUMAN_READABLE_PROJ
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.service.dto.ProjectDTO;
@@ -28,13 +26,7 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
             return null;
         }
         ProjectDTO dto = delegate.projectToProjectDTO(project);
-        List<String> humanReadablename = project.getAttributes().entrySet().stream()
-                .filter((s) -> HUMAN_READABLE_PROJECT_NAME.equals(s.getKey()))
-                .map(Entry::getValue)
-                .collect(Collectors.toList());
-        if (!humanReadablename.isEmpty()) {
-            dto.setHumanReadableProjectName(humanReadablename.get(0));
-        }
+        dto.setHumanReadableProjectName(project.getAttributes().get(HUMAN_READABLE_PROJECT_NAME));
         return dto;
     }
 
