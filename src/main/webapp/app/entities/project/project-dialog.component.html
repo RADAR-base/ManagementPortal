@@ -16,6 +16,7 @@
             <label class="form-control-label" jhiTranslate="managementPortalApp.project.projectName" for="field_projectName">Project Name</label>
             <input type="text" class="form-control" name="projectName" id="field_projectName"
                 [(ngModel)]="project.projectName" required pattern="[_'.@A-Za-z0-9- ]*" />
+            <small id="projectIdHelp" class="form-text text-muted">Unique identifier of project</small>
             <div [hidden]="!(editForm.controls.projectName?.dirty && editForm.controls.projectName?.invalid)">
                 <small class="form-text text-danger"
                    [hidden]="!editForm.controls.projectName?.errors?.required" jhiTranslate="entity.validation.required">
@@ -27,6 +28,24 @@
                 </small>
             </div>
         </div>
+
+        <div class="form-group">
+            <label class="form-control-label" jhiTranslate="managementPortalApp.project.prettyProjectName" for="field_humanReadableProjectName">Human readable Name</label>
+            <input type="text" class="form-control" name="prettyProjectName" id="field_humanReadableProjectName"
+                   [(ngModel)]="project.humanReadableProjectName" value="{{projectIdAsPrettyValue? project.projectName : ''}}" required/>
+            <small id="prettyProjectNameHelp" class="form-text text-muted">Human readable project name that doesn't have to follow url pattern.</small>
+            <small>
+            <input type="checkbox" class="form-control-check" name="grantTypes" [checked]="projectIdAsPrettyValue" (change)="projectIdAsPrettyValue = !projectIdAsPrettyValue" />
+            Do you want to use the project-id as the human readable name?
+            </small>
+            <div [hidden]="!(editForm.controls.humanReadableProjectName?.dirty && editForm.controls.humanReadableProjectName?.invalid)">
+                <small class="form-text text-danger"
+                       [hidden]="!editForm.controls.humanReadableProjectName?.errors?.required" jhiTranslate="entity.validation.required">
+                    This field is required.
+                </small>
+            </div>
+        </div>
+
         <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.project.description" for="field_description">Description</label>
             <input type="text" class="form-control" name="description" id="field_description"
@@ -86,7 +105,8 @@
                 <option [ngValue]="getSelected(project.sourceTypes, sourceTypeOption)" *ngFor="let sourceTypeOption of sourceTypes; trackBy: trackSourceTypeById">{{sourceTypeOption.producer+"_"+sourceTypeOption.model+"_"+sourceTypeOption.catalogVersion}}</option>
             </select>
         </div>
-        <attribute-mapper [attributes]='project.attributes' [keys]='keys' [eventPrefix]='attributeComponentEventPrefix'></attribute-mapper>
+        <dictionary-mapper [attributes]='project.attributes' [options]="options"
+                           [eventPrefix]='attributeComponentEventPrefix'></dictionary-mapper>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">

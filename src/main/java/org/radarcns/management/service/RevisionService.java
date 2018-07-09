@@ -114,7 +114,7 @@ public class RevisionService implements ApplicationContextAware {
                 .add(AuditEntity.id().eq(entity.getId()))
                 .addOrder(AuditEntity.revisionNumber().asc())
                 .getResultList();
-        if (revisions.size() == 0) {
+        if (revisions.isEmpty()) {
             // we did not find any auditing info, so we just return an empty object
             return new EntityAuditInfo();
         }

@@ -17,15 +17,14 @@
             <thead>
             <tr>
             <th><span jhiTranslate="global.field.id">ID</span></th>
-            <th><span jhiTranslate="managementPortalApp.project.projectName">Project Name</span></th>
+            <th><span jhiTranslate="managementPortalApp.project.projectName">Project Id</span></th>
             <th><span jhiTranslate="managementPortalApp.project.description">Description</span></th>
             <th><span jhiTranslate="managementPortalApp.project.location">Location</span></th>
             <th><span jhiTranslate="managementPortalApp.project.startDate">Start Date</span></th>
             <th><span jhiTranslate="managementPortalApp.project.projectStatus">Project Status</span></th>
             <th><span jhiTranslate="managementPortalApp.project.endDate">End Date</span></th>
             <th><span jhiTranslate="managementPortalApp.project.sourceType">Source Type</span></th>
-            <th><span jhiTranslate="managementPortalApp.project.attributeDataKey">MetaData Key</span></th>
-            <th><span jhiTranslate="managementPortalApp.project.attributeDataValue">MetaData value</span></th>
+            <th><span jhiTranslate="managementPortalApp.project.attributeDataKey">MetaData </span></th>
             <th></th>
             </tr>
             </thead>
@@ -43,14 +42,14 @@
                             <a class="form-control-static" [routerLink]="['../source-type', sourceType?.producer , sourceType?.model , sourceType?.catalogVersion]">{{sourceType.producer+"_"+sourceType.model+"_"+sourceType.catalogVersion}}</a>{{last ? '' : ', '}}
                         </span>
                 </td>
+                <!--<td>-->
+                    <!--<div *ngFor="let attribute of project.attributes; ">-->
+                            <!--<span class="form-control-static">{{attribute.key}}</span>-->
+                    <!--</div>-->
+                <!--</td>-->
                 <td>
-                    <div *ngFor="let attribute of project.attributes; ">
-                            <span class="form-control-static">{{attribute.key}}</span>
-                    </div>
-                </td>
-                <td>
-                    <div *ngFor="let attribute of project.attributes; ">
-                            <span class="form-control-static">{{attribute.value}}</span>
+                    <div *ngFor="let entry of project.attributes | keys; trackBy: trackKey">
+                        <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
                     </div>
                 </td>
 
