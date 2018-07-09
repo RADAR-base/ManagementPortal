@@ -2,6 +2,7 @@ package org.radarcns.management.web.rest;
 
 import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarcns.auth.authorization.Permission.SOURCE_UPDATE;
 import static org.radarcns.auth.authorization.Permission.SUBJECT_CREATE;
 import static org.radarcns.auth.authorization.Permission.SUBJECT_DELETE;
 import static org.radarcns.auth.authorization.Permission.SUBJECT_READ;
@@ -11,36 +12,44 @@ import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
 import static org.radarcns.management.security.SecurityUtils.getJWT;
 
-import com.codahale.metrics.annotation.Timed;
-import io.github.jhipster.web.util.ResponseUtil;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
+
+import com.codahale.metrics.annotation.Timed;
+import io.github.jhipster.web.util.ResponseUtil;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.Role;
+import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.SecurityUtils;
+import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.SubjectService;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
+import org.radarcns.management.web.rest.errors.CustomConflictException;
+import org.radarcns.management.web.rest.errors.CustomNotFoundException;
 import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
@@ -94,6 +103,11 @@ public class SubjectResource {
 
     @Autowired
     private AuditEventRepository eventRepository;
+
+    @Autowired
+    private SourceService sourceService;
+
+
 
     /**
      * POST  /subjects : Create a new subject.
@@ -446,5 +460,65 @@ public class SubjectResource {
                 .getProjectName(), subjectDto.getLogin());
 
         return ResponseEntity.ok().body(subjectService.getSources(subject.get()));
+    }
+
+
+    /**
+     * POST  /subjects/:login/sources/:sourceName Update source attributes and source-name.
+     *
+     * <p>The request body is a {@link MinimalSourceDetailsDTO}. The body should contain the data
+     * retrieved from management-portal and the data that need to be updated. This request allows
+     * update of attributes and source-name if necessary. The source-name will be updated only
+     * if the existing source-name doesn't match with the value requested and if no source
+     * available with the requested source-name. Attributes will be merged and if a new value is
+     * provided for an existing key, the new value will be updated.
+     * </p>
+     *
+     * @param sourceDto The {@link MinimalSourceDetailsDTO} specification
+     * @return The {@link MinimalSourceDetailsDTO} completed with all identifying fields.
+     * @throws CustomConflictException if a source already available with the existing name.
+     * @throws CustomNotFoundException if the subject or the source not found using given ids.
+     */
+    @PostMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/sources/{sourceName:"
+            + Constants.ENTITY_ID_REGEX + "}")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "An existing source was updated"),
+            @ApiResponse(code = 400, message = "You must supply existing sourceId)"),
+            @ApiResponse(code = 404, message = "Either the subject or the source was not found.")
+    })
+    @Timed
+    public ResponseEntity<MinimalSourceDetailsDTO> updateSubjectSource(@PathVariable String login,
+            @PathVariable String sourceName, @RequestBody MinimalSourceDetailsDTO sourceDto)
+            throws CustomNotFoundException, CustomConflictException, NotAuthorizedException,
+            URISyntaxException {
+        // check the subject id
+        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
+        if (!subject.isPresent()) {
+            Map<String, String> errorParams = new HashMap<>();
+            errorParams.put("message", "Subject ID not found");
+            errorParams.put("subjectLogin", login);
+            throw new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND, errorParams);
+        }
+        // check the permission to update source
+        SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject.get());
+        checkPermissionOnSubject(getJWT(servletRequest), SOURCE_UPDATE,
+                subjectDto.getProject().getProjectName(), subjectDto.getLogin());
+
+        // find source under subject
+        List<Source> sources = subject.get().getSources().stream()
+                .filter(s -> s.getSourceName().equals(sourceName))
+                .collect(Collectors.toList());
+
+        // exception if source is not found under subject
+        if (sources.isEmpty()) {
+            Map<String, String> errorParams = new HashMap<>();
+            errorParams.put("message", "Source not found under assigned sources of subject");
+            errorParams.put("subjectLogin", login);
+            errorParams.put("sourceName", sourceName);
+            throw new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND, errorParams);
+        }
+
+        // there should be only one source under a source-name.
+        return ResponseEntity.ok().body(sourceService.safeUpdate(sources.get(0), sourceDto));
     }
 }
