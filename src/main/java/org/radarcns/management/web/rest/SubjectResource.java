@@ -46,7 +46,6 @@ import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
-import org.radarcns.management.web.rest.errors.CustomConflictException;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
 import org.radarcns.management.web.rest.errors.CustomParameterizedException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
@@ -474,7 +473,6 @@ public class SubjectResource {
      *
      * @param attributes The {@link Map} specification
      * @return The {@link MinimalSourceDetailsDTO} completed with all identifying fields.
-     * @throws CustomConflictException if a source already available with the existing name.
      * @throws CustomNotFoundException if the subject or the source not found using given ids.
      */
     @PostMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/sources/{sourceName:"
@@ -487,7 +485,7 @@ public class SubjectResource {
     @Timed
     public ResponseEntity<MinimalSourceDetailsDTO> updateSubjectSource(@PathVariable String login,
             @PathVariable String sourceName, @RequestBody Map<String, String> attributes)
-            throws CustomNotFoundException, CustomConflictException, NotAuthorizedException,
+            throws CustomNotFoundException, NotAuthorizedException,
             URISyntaxException {
         // check the subject id
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
