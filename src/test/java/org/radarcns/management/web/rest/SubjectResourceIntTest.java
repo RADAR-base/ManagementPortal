@@ -382,43 +382,6 @@ public class SubjectResourceIntTest {
             .andExpect(status().is4xxClientError());
     }
 
-    @Test
-    @Transactional
-    public void dynamicSourceRegistrationWithoutId() throws Exception {
-        final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
-
-        // Create the Subject
-        SubjectDTO subjectDto = createEntityDTO(em);
-        restSubjectMockMvc.perform(post("/api/subjects")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
-                .andExpect(status().isCreated());
-
-        // Validate the Subject in the database
-        List<Subject> subjectList = subjectRepository.findAll();
-        assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1);
-        Subject testSubject = subjectList.get(subjectList.size() - 1);
-
-        String subjectLogin = testSubject.getUser().getLogin();
-        assertNotNull(subjectLogin);
-
-        // Create a source description
-        MinimalSourceDetailsDTO sourceRegistrationDto = createSourceWithoutDeviceId();
-
-        restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sourceId").isNotEmpty());
-
-        // A source can not be assigned twice to a subject, so this call must fail
-        assertThat(sourceRegistrationDto.getSourceId()).isNull();
-        restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto)))
-                .andExpect(status().is4xxClientError());
-    }
-
     private MinimalSourceDetailsDTO createSourceWithDeviceId() {
         // Create a source description
         MinimalSourceDetailsDTO sourceRegistrationDto = new MinimalSourceDetailsDTO();
@@ -459,7 +422,7 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
-    public void updateSourceAttributes() throws Exception {
+    public void testDynamicRegistrationAndUpdateSourceAttributes() throws Exception {
         final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
         // Create the Subject
