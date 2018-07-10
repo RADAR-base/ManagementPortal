@@ -15,8 +15,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
@@ -50,6 +52,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -123,8 +126,9 @@ public class SubjectResourceIntTest {
         ReflectionTestUtils.setField(subjectResource, "projectRepository", projectRepository);
         ReflectionTestUtils.setField(subjectResource, "sourceTypeService", sourceTypeService);
         ReflectionTestUtils.setField(subjectResource, "servletRequest", servletRequest);
+        ReflectionTestUtils.setField(subjectResource, "sourceService", sourceService);
 
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
 
         this.restSubjectMockMvc = MockMvcBuilders.standaloneSetup(subjectResource)
@@ -564,5 +568,55 @@ public class SubjectResourceIntTest {
                 .attributes(Collections.singletonMap("something", "value"));
         assertThat(sourceRegistrationDto.getSourceId()).isNull();
         return sourceRegistrationDto;
+    }
+
+    @Test
+    @Transactional
+    public void testDynamicRegistrationAndUpdateSourceAttributes() throws Exception {
+        final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
+
+        // Create the Subject
+        SubjectDTO subjectDto = createEntityDTO(em);
+        restSubjectMockMvc.perform(post("/api/subjects")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
+                .andExpect(status().isCreated());
+
+        // Validate the Subject in the database
+        List<Subject> subjectList = subjectRepository.findAll();
+        assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1);
+        Subject testSubject = subjectList.get(subjectList.size() - 1);
+
+        String subjectLogin = testSubject.getUser().getLogin();
+        assertNotNull(subjectLogin);
+
+        // Create a source description
+        MinimalSourceDetailsDTO sourceRegistrationDto = createSourceWithoutSourceTypeId();
+
+        MvcResult result = restSubjectMockMvc.perform(post("/api/subjects/{login}/sources",
+                subjectLogin)
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        MinimalSourceDetailsDTO value = (MinimalSourceDetailsDTO)
+                TestUtil.convertJsonStringToObject(result
+                .getResponse().getContentAsString() , MinimalSourceDetailsDTO.class);
+
+        assertNotNull(value.getSourceName());
+
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put("TEST_KEY" , "Value");
+        attributes.put("ANDROID_VERSION" , "something");
+        attributes.put("Other" , "test");
+
+        restSubjectMockMvc.perform(post(
+                "/api/subjects/{login}/sources/{sourceName}", subjectLogin, value.getSourceName())
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(attributes)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.attributes").isNotEmpty());
+
     }
 }

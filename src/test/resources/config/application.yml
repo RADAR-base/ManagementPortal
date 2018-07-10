@@ -106,3 +106,8 @@ jhipster:
 # ===================================================================
 
 application:
+
+managementportal:
+    oauth:
+        keyStorePassword: radarbase
+        signingKeyAlias: radarbase-managementportal-ec

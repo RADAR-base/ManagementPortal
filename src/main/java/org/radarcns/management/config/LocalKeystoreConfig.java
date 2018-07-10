@@ -1,11 +1,15 @@
 package org.radarcns.management.config;
 
+import org.radarcns.auth.config.ServerConfig;
+import org.radarcns.management.security.jwt.RadarJwtAccessTokenConverter;
+import org.radarcns.management.security.jwt.RadarKeyStoreKeyFactory;
+import org.springframework.core.io.ClassPathResource;
+
 import java.net.URI;
 import java.security.KeyPair;
-import java.security.interfaces.RSAPublicKey;
-import org.radarcns.auth.config.ServerConfig;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Radar-auth server configuration for using a local keystore. This will load the MP public key
@@ -14,22 +18,31 @@ import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFacto
 public class LocalKeystoreConfig implements ServerConfig {
 
     public static final String RES_MANAGEMENT_PORTAL = "res_ManagementPortal";
-    private final RSAPublicKey publicKey;
+    private final List<String> publicKeys;
 
     /**
      * Constructor will look for the keystore in the classpath at /config/keystore.jks and load
      * the public key from it.
      */
-    public LocalKeystoreConfig() {
-        KeyPair keyPair = new KeyStoreKeyFactory(
-                new ClassPathResource("/config/keystore.jks"), "radarbase".toCharArray())
-                .getKeyPair("selfsigned");
-        publicKey = (RSAPublicKey) keyPair.getPublic();
+    public LocalKeystoreConfig(String keyStorePassword, List<String> checkingKeyAliases) {
+        RadarKeyStoreKeyFactory keyFactory = new RadarKeyStoreKeyFactory(
+                new ClassPathResource("/config/keystore.jks"), keyStorePassword.toCharArray());
+        // Load the key and convert to PEM format, internally spring uses the
+        // JwtAccessTokenConverter to do that for the token_key endpoint. We can use it here as
+        // well.
+        RadarJwtAccessTokenConverter converter = new RadarJwtAccessTokenConverter();
+        publicKeys = checkingKeyAliases.stream()
+                .map(alias -> {
+                    KeyPair keyPair = keyFactory.getKeyPair(alias);
+                    converter.setKeyPair(keyPair);
+                    return converter.getKey().get("value");
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
-    public URI getPublicKeyEndpoint() {
-        return null;
+    public List<URI> getPublicKeyEndpoints() {
+        return Collections.emptyList();
     }
 
     @Override
@@ -38,7 +51,7 @@ public class LocalKeystoreConfig implements ServerConfig {
     }
 
     @Override
-    public RSAPublicKey getPublicKey() {
-        return publicKey;
+    public List<String> getPublicKeys() {
+        return publicKeys;
     }
 }

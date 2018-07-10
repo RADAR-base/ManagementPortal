@@ -119,7 +119,7 @@ public class ProjectResourceIntTest {
         ReflectionTestUtils.setField(projectResource, "projectService", projectService);
         ReflectionTestUtils.setField(projectResource, "servletRequest", servletRequest);
 
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
 
         this.restProjectMockMvc = MockMvcBuilders.standaloneSetup(projectResource)

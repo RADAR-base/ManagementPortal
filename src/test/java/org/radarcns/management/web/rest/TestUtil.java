@@ -1,18 +1,19 @@
 package org.radarcns.management.web.rest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.transaction.TestTransaction;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Utility class for testing REST controllers.
@@ -24,9 +25,26 @@ public class TestUtil {
             MediaType.APPLICATION_JSON.getType(),
             MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
 
-    private static final ObjectMapper mapper = new ObjectMapper()
-            .setSerializationInclusion(Include.NON_NULL)
-            .registerModule(new JavaTimeModule());
+
+    private  static final  JavaTimeModule module = new JavaTimeModule();
+
+    private static  final ObjectMapper mapper = new ObjectMapper()
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            .registerModule(module);
+
+
+    /**
+     * Convert a JSON String to an object.
+     *
+     * @param json JSON String to convert.
+     * @param  objectClass Object class to form.
+     *
+     * @return the converted object instance.
+     */
+    public static <T>  Object convertJsonStringToObject(String json, Class<T> objectClass)
+            throws IOException {
+        return mapper.readValue(json, objectClass);
+    }
 
     /**
      * Convert an object to JSON byte array.
@@ -36,18 +54,6 @@ public class TestUtil {
      */
     public static byte[] convertObjectToJsonBytes(Object object) throws IOException {
         return mapper.writeValueAsBytes(object);
-    }
-
-    /**
-     * Convert an object to JSON byte array.
-     *
-     * @param json string to convert
-     * @param objectClass Class to create an instance the object to convert
-     * @return the JSON byte array
-     */
-    public static <T> Object convertJsonStringToObject(String json, Class<T> objectClass) throws
-            IOException {
-        return mapper.readValue(json, objectClass);
     }
 
     /**

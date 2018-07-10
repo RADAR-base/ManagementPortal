@@ -3,8 +3,7 @@ package org.radarcns.management.config;
 
 import io.github.jhipster.security.AjaxLogoutSuccessHandler;
 import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
-import javax.annotation.PostConstruct;
-import javax.servlet.Filter;
+import org.radarcns.auth.authentication.TokenValidator;
 import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +26,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
 
+import javax.annotation.PostConstruct;
+import javax.servlet.Filter;
+import java.util.Collections;
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
@@ -40,6 +44,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
+
+    @Autowired
+    private ManagementPortalProperties managementPortalProperties;
 
     @PostConstruct
     public void init() {
@@ -132,7 +139,22 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return registration;
     }
 
+    /**
+     * Create a {@link JwtAuthenticationFilter}.
+     *
+     * @return the JwtAuthenticationFilter
+     */
     public Filter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter();
+        List<String> publicKeyAliases;
+        if (managementPortalProperties.getOauth().getCheckingKeyAliases() != null
+                && !managementPortalProperties.getOauth().getCheckingKeyAliases().isEmpty()) {
+            publicKeyAliases = managementPortalProperties.getOauth().getCheckingKeyAliases();
+        } else {
+            publicKeyAliases = Collections.singletonList(managementPortalProperties.getOauth()
+                    .getSigningKeyAlias());
+        }
+        return new JwtAuthenticationFilter(new TokenValidator(
+                new LocalKeystoreConfig(managementPortalProperties.getOauth().getKeyStorePassword(),
+                        publicKeyAliases)));
     }
 }
