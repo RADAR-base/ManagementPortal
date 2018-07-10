@@ -1,9 +1,6 @@
 package org.radarcns.management.service;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +13,6 @@ import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.service.mapper.SourceMapper;
-import org.radarcns.management.web.rest.errors.CustomConflictException;
-import org.radarcns.management.web.rest.errors.ErrorConstants;
-import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -143,33 +137,17 @@ public class SourceService {
     }
 
     /**
-     * This method does a safe update of source assigned to a subject.
+     * This method does a safe update of source assigned to a subject. It will allow updates of
+     * attributes only.
      * @param sourceToUpdate source fetched from database
-     * @param sourceDto value to update
+     * @param attributes value to update
      * @return Updated {@link MinimalSourceDetailsDTO} of source
-     * @throws CustomConflictException when source is requested to replace with an existing
-     *      source-name.
      */
     public MinimalSourceDetailsDTO safeUpdate(Source sourceToUpdate,
-            MinimalSourceDetailsDTO sourceDto) throws URISyntaxException {
-        // if a source-name update is expected, check whether any source available under the
-        // newly requested source-name
-        if (sourceDto.getSourceName() != null
-                && !sourceToUpdate.getSourceName().equals(sourceDto.getSourceName())
-                && sourceRepository.findOneBySourceName(sourceDto.getSourceName()).isPresent()) {
-            Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("message", "Source already exists with provided sourceName ");
-            errorParams.put("sourceName", sourceDto.getSourceName());
-            throw new CustomConflictException(ErrorConstants.ERR_SOURCE_NAME_EXISTS, errorParams,
-                new URI(HeaderUtil.buildPath("api", "sources", sourceDto.getSourceName())));
-        }
-
-        // update source name
-        sourceToUpdate.setSourceName(sourceDto.getSourceName());
+            Map<String, String> attributes) {
 
         // update source attributes
-        Map<String, String> mergedValues = Stream.of(sourceToUpdate.getAttributes(),
-                sourceDto.getAttributes())
+        Map<String, String> mergedValues = Stream.of(sourceToUpdate.getAttributes(), attributes)
                 .map(Map::entrySet)
                 .flatMap(Collection::stream)
                 .collect(
@@ -182,9 +160,7 @@ public class SourceService {
                     ));
 
         sourceToUpdate.setAttributes(mergedValues);
-        // update expected source-name
-        sourceToUpdate.setExpectedSourceName(sourceToUpdate.getExpectedSourceName());
-        // rest of the attributes should not be updated from this request.
+        // rest of the properties should not be updated from this request.
         return sourceMapper.sourceToMinimalSourceDetailsDTO(sourceRepository.save(sourceToUpdate));
     }
 }

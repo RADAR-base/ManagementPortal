@@ -466,15 +466,13 @@ public class SubjectResource {
     /**
      * POST  /subjects/:login/sources/:sourceName Update source attributes and source-name.
      *
-     * <p>The request body is a {@link MinimalSourceDetailsDTO}. The body should contain the data
-     * retrieved from management-portal and the data that need to be updated. This request allows
-     * update of attributes and source-name if necessary. The source-name will be updated only
-     * if the existing source-name doesn't match with the value requested and if no source
-     * available with the requested source-name. Attributes will be merged and if a new value is
-     * provided for an existing key, the new value will be updated.
+     * <p>The request body is a {@link Map} of strings. This request allows
+     * update of attributes only. Attributes will be merged and if a new value is
+     * provided for an existing key, the new value will be updated. The request will be validated
+     * for SOURCE.UPDATE permission and
      * </p>
      *
-     * @param sourceDto The {@link MinimalSourceDetailsDTO} specification
+     * @param attributes The {@link Map} specification
      * @return The {@link MinimalSourceDetailsDTO} completed with all identifying fields.
      * @throws CustomConflictException if a source already available with the existing name.
      * @throws CustomNotFoundException if the subject or the source not found using given ids.
@@ -488,7 +486,7 @@ public class SubjectResource {
     })
     @Timed
     public ResponseEntity<MinimalSourceDetailsDTO> updateSubjectSource(@PathVariable String login,
-            @PathVariable String sourceName, @RequestBody MinimalSourceDetailsDTO sourceDto)
+            @PathVariable String sourceName, @RequestBody Map<String, String> attributes)
             throws CustomNotFoundException, CustomConflictException, NotAuthorizedException,
             URISyntaxException {
         // check the subject id
@@ -519,6 +517,6 @@ public class SubjectResource {
         }
 
         // there should be only one source under a source-name.
-        return ResponseEntity.ok().body(sourceService.safeUpdate(sources.get(0), sourceDto));
+        return ResponseEntity.ok().body(sourceService.safeUpdate(sources.get(0), attributes));
     }
 }
