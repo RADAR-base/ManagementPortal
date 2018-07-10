@@ -23,6 +23,27 @@ public class TestUtil {
             MediaType.APPLICATION_JSON.getType(),
             MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
 
+
+    private  static final  JavaTimeModule module = new JavaTimeModule();
+
+    private static  final ObjectMapper mapper = new ObjectMapper()
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            .registerModule(module);
+
+
+    /**
+     * Convert a JSON String to an object.
+     *
+     * @param json JSON String to convert.
+     * @param  objectClass Object class to form.
+     *
+     * @return the converted object instance.
+     */
+    public static <T>  Object convertJsonStringToObject(String json, Class<T> objectClass)
+            throws IOException {
+        return mapper.readValue(json, objectClass);
+    }
+
     /**
      * Convert an object to JSON byte array.
      *
@@ -31,12 +52,6 @@ public class TestUtil {
      * @return the JSON byte array
      */
     public static byte[] convertObjectToJsonBytes(Object object) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
-        JavaTimeModule module = new JavaTimeModule();
-        mapper.registerModule(module);
-
         return mapper.writeValueAsBytes(object);
     }
 

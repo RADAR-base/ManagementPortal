@@ -1,9 +1,12 @@
 package org.radarcns.management.service;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
@@ -130,5 +133,25 @@ public class SourceService {
         return sourceRepository.findAllSourcesByProjectIdAndAssigned(projectId, assigned).stream()
                 .map(sourceMapper::sourceToMinimalSourceDetailsDTO)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * This method does a safe update of source assigned to a subject. It will allow updates of
+     * attributes only.
+     * @param sourceToUpdate source fetched from database
+     * @param attributes value to update
+     * @return Updated {@link MinimalSourceDetailsDTO} of source
+     */
+    public MinimalSourceDetailsDTO safeUpdate(Source sourceToUpdate,
+            Map<String, String> attributes) {
+
+        // update source attributes
+        Map<String, String> updatedAttributes = new HashMap<>();
+        updatedAttributes.putAll(sourceToUpdate.getAttributes());
+        updatedAttributes.putAll(attributes);
+
+        sourceToUpdate.setAttributes(updatedAttributes);
+        // rest of the properties should not be updated from this request.
+        return sourceMapper.sourceToMinimalSourceDetailsDTO(sourceRepository.save(sourceToUpdate));
     }
 }
