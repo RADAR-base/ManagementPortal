@@ -1,12 +1,11 @@
 package org.radarcns.management.service;
 
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.repository.SourceRepository;
@@ -147,19 +146,11 @@ public class SourceService {
             Map<String, String> attributes) {
 
         // update source attributes
-        Map<String, String> mergedValues = Stream.of(sourceToUpdate.getAttributes(), attributes)
-                .map(Map::entrySet)
-                .flatMap(Collection::stream)
-                .collect(
-                    Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        // such that if a value already exist
-                        // for a given key, the value from the request is taken
-                        (v1, v2) -> v2
-                    ));
+        Map<String, String> updatedAttributes = new HashMap<>();
+        updatedAttributes.putAll(sourceToUpdate.getAttributes());
+        updatedAttributes.putAll(attributes);
 
-        sourceToUpdate.setAttributes(mergedValues);
+        sourceToUpdate.setAttributes(updatedAttributes);
         // rest of the properties should not be updated from this request.
         return sourceMapper.sourceToMinimalSourceDetailsDTO(sourceRepository.save(sourceToUpdate));
     }
