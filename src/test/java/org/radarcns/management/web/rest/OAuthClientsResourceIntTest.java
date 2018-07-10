@@ -111,7 +111,7 @@ public class OAuthClientsResourceIntTest {
         ReflectionTestUtils.setField(oauthClientsResource, "clientDetailsService",
                 clientDetailsService);
 
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
 
         this.restProjectMockMvc = MockMvcBuilders.standaloneSetup(oauthClientsResource)

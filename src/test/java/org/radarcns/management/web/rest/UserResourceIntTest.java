@@ -115,7 +115,7 @@ public class UserResourceIntTest {
         ReflectionTestUtils.setField(userResource, "subjectRepository", subjectRepository);
         ReflectionTestUtils.setField(userResource, "servletRequest", servletRequest);
 
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
 
         this.restUserMockMvc = MockMvcBuilders.standaloneSetup(userResource)

@@ -109,7 +109,7 @@ public class SourceDataResourceIntTest {
         ReflectionTestUtils.setField(sourceDataResource, "sourceDataService", sourceDataService);
         ReflectionTestUtils.setField(sourceDataResource, "servletRequest", servletRequest);
 
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
 
         this.restSourceDataMockMvc = MockMvcBuilders.standaloneSetup(sourceDataResource)

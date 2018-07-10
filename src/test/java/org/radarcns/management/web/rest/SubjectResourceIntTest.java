@@ -115,7 +115,7 @@ public class SubjectResourceIntTest {
         ReflectionTestUtils.setField(subjectResource, "sourceTypeService", sourceTypeService);
         ReflectionTestUtils.setField(subjectResource, "servletRequest", servletRequest);
 
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
 
         this.restSubjectMockMvc = MockMvcBuilders.standaloneSetup(subjectResource)

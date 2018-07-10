@@ -27,7 +27,7 @@ public class UserStepDefs extends StepDefs {
 
     @Before
     public void setup() throws ServletException {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
         this.restUserMockMvc = MockMvcBuilders.standaloneSetup(userResource)
             .addFilter(filter).defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();

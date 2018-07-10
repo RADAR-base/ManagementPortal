@@ -52,7 +52,7 @@ public class TokenValidatorTest {
 
     @Test
     public void testValidToken() {
-        validator.validateAccessToken(TokenTestUtils.VALID_TOKEN);
+        validator.validateAccessToken(TokenTestUtils.VALID_RSA_TOKEN);
     }
 
     @Test(expected = TokenValidationException.class)
@@ -77,6 +77,6 @@ public class TokenValidatorTest {
         environmentVariables.set(YamlServerConfig.LOCATION_ENV, configFile.getAbsolutePath());
         // reinitialize TokenValidator to pick up new config
         validator = new TokenValidator();
-        validator.validateAccessToken(TokenTestUtils.VALID_TOKEN);
+        validator.validateAccessToken(TokenTestUtils.VALID_RSA_TOKEN);
     }
 }

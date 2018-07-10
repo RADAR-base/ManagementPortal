@@ -106,7 +106,7 @@ public class SourceResourceIntTest {
         ReflectionTestUtils.setField(sourceResource, "sourceService", sourceService);
         ReflectionTestUtils.setField(sourceResource, "sourceRepository", sourceRepository);
 
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
         this.restDeviceMockMvc = MockMvcBuilders.standaloneSetup(sourceResource)
                 .setCustomArgumentResolvers(pageableArgumentResolver)
