@@ -71,12 +71,12 @@ memory database and ManagementPortal.
 
 
 
-The docker image can be pulled by running `docker pull radarbase/management-portal:0.3.8
+The docker image can be pulled by running `docker pull radarbase/management-portal:0.3.8`.
 
 ## Configuration
 
 Management Portal comes with a set of default values for its configuration. You can either modify
-the `application.yml` and `appliation-prod.yml` (or `application-dev.yml` when running the
+the `application.yml` and `application-prod.yml` (or `application-dev.yml` when running the
 development profile) before building the application, or override the defaults using environment
 variables.
 
