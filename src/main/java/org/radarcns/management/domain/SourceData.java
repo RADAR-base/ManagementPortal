@@ -3,8 +3,6 @@ package org.radarcns.management.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.envers.Audited;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.enumeration.ProcessingState;
@@ -91,7 +89,6 @@ public class SourceData extends AbstractEntity implements Serializable {
     private boolean enabled = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotFound(action = NotFoundAction.IGNORE) // avoids exception from orphan object fetch
     @JsonIgnoreProperties({"sourceData"})     // avoids infinite recursion in JSON serialization
     private SourceType sourceType;
 
