@@ -136,7 +136,11 @@ describe('Discontinued subject should unassign sources', () => {
                         expect(value).toMatch(expect1);
                     });
                 });
-            });  
+            })
+            .then(() => {
+                //close the dialog
+                element(by.css('.modal-footer button.btn-secondary')).click();
+            });
     });
 
     it('should be able to delete a subject', function () {
