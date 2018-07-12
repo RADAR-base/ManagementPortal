@@ -31,10 +31,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.Revision;
-import org.springframework.data.repository.Repository;
-import org.springframework.data.repository.RepositoryDefinition;
-import org.springframework.data.repository.core.support.DefaultRepositoryMetadata;
-import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -62,9 +58,6 @@ import java.util.stream.Collectors;
 public class RevisionService implements ApplicationContextAware {
 
     @Autowired
-    private List<Repository> repositories;
-
-    @Autowired
     private EntityManagerFactory entityManagerFactory;
 
     @Autowired
@@ -73,8 +66,6 @@ public class RevisionService implements ApplicationContextAware {
     private EntityManager entityManager;
 
     private AuditReader auditReader;
-
-    private final Map<Class, Optional<RevisionRepository>> repositoryMap = new HashMap<>();
 
     private final Map<Class, Function<Object, Object>> dtoMapperMap = new HashMap<>();
 
@@ -109,19 +100,47 @@ public class RevisionService implements ApplicationContextAware {
      *         was not available.
      */
     public EntityAuditInfo getAuditInfo(AbstractEntity entity) {
-        List<Object[]> revisions = auditReader.createQuery()
-                .forRevisionsOfEntity(entity.getClass(), false, true)
-                .add(AuditEntity.id().eq(entity.getId()))
-                .addOrder(AuditEntity.revisionNumber().asc())
-                .getResultList();
-        if (revisions.isEmpty()) {
+        // find first revision of the entity
+        CustomRevisionEntity first;
+        try {
+            Object[] firstRevision = (Object[]) auditReader.createQuery()
+                    .forRevisionsOfEntity(entity.getClass(), false, true)
+                    .add(AuditEntity.id().eq(entity.getId()))
+                    .add(AuditEntity.id().minimize().computeAggregationInInstanceContext())
+                    .getSingleResult();
+            first = (CustomRevisionEntity) firstRevision[1];
+        } catch (NonUniqueResultException ex) {
+            // should not happen since we call 'minimize'
+            throw new CustomServerException(ErrorConstants.ERR_INTERNAL_SERVER_ERROR,
+                Collections.singletonMap("message", "Query for first revision returned a "
+                    + "non-unique result. Please report this to the administrator together with "
+                    + "the request issued."));
+        } catch (NoResultException ex) {
             // we did not find any auditing info, so we just return an empty object
             return new EntityAuditInfo();
         }
-        // the list will be ordered by revision number, so the first and last revision will be
-        // the first and last elements of this list
-        CustomRevisionEntity first = (CustomRevisionEntity) revisions.get(0)[1];
-        CustomRevisionEntity last = (CustomRevisionEntity) revisions.get(revisions.size() - 1)[1];
+
+        // find last revision of the entity
+        CustomRevisionEntity last;
+        try {
+            Object[] lastRevision = (Object[]) auditReader.createQuery()
+                .forRevisionsOfEntity(entity.getClass(), false, true)
+                .add(AuditEntity.id().eq(entity.getId()))
+                .add(AuditEntity.id().maximize().computeAggregationInInstanceContext())
+                .getSingleResult();
+            last = (CustomRevisionEntity) lastRevision[1];
+        } catch (NonUniqueResultException ex) {
+            // should not happen since we call 'minimize'
+            throw new CustomServerException(ErrorConstants.ERR_INTERNAL_SERVER_ERROR,
+                Collections.singletonMap("message", "Query for last revision returned a "
+                    + "non-unique result. Please report this to the administrator together with "
+                    + "the request issued."));
+        } catch (NoResultException ex) {
+            // we did not find any auditing info, so we just return an empty object
+            return new EntityAuditInfo();
+        }
+
+        // now populate the result object and return it
         return new EntityAuditInfo()
                 .setCreatedAt(ZonedDateTime.ofInstant(first.getTimestamp().toInstant(),
                         ZoneId.systemDefault()))
@@ -146,31 +165,6 @@ public class RevisionService implements ApplicationContextAware {
                 .add(AuditEntity.id().eq(id))
                 .add(AuditEntity.revisionNumber().eq(revisionNb))
                 .getSingleResult();
-    }
-
-    /**
-     * Find the RevisionRepository for a given entity. This will cache the result in the local
-     * repositoryMap field, and return future requests for the same entity from that map.
-     *
-     * @param entity the entity to find a repository for
-     * @return an {@link Optional} that contains the repository if it was found.
-     */
-    public Optional<RevisionRepository> getRepository(AbstractEntity entity) {
-        if (repositoryMap.containsKey(entity.getClass())) {
-            return repositoryMap.get(entity.getClass());
-        }
-        // Find a repository that is a RevisionRepository, has the RepositoryDefinition
-        // annotation which is needed for DefaultRepositoryMetadata, and has the correct domain type
-        Optional<RevisionRepository> result = repositories.stream()
-                .filter(repo -> repo instanceof RevisionRepository)
-                .filter(repo -> Arrays.stream(repo.getClass().getInterfaces())
-                        .anyMatch(repoInterface -> repoInterface
-                                .isAnnotationPresent(RepositoryDefinition.class)
-                                && DefaultRepositoryMetadata.getMetadata(repoInterface)
-                                .getDomainType().equals(entity.getClass()))
-                ).findFirst().map(repo -> (RevisionRepository) repo);
-        repositoryMap.put(entity.getClass(), result);
-        return result;
     }
 
     /**
@@ -286,7 +280,11 @@ public class RevisionService implements ApplicationContextAware {
         if (entity == null) {
             return null;
         }
-        dtoMapperMap.putIfAbsent(entity.getClass(), addMapperForClass(entity.getClass()));
+        // addMapperForClass adds quite some overhead, so better to check explicitly compared to
+        // using putIfAbsent()
+        if (!dtoMapperMap.containsKey(entity.getClass())) {
+            dtoMapperMap.put(entity.getClass(), addMapperForClass(entity.getClass()));
+        }
         return dtoMapperMap.get(entity.getClass()).apply(entity);
     }
 
