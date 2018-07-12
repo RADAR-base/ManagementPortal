@@ -41,8 +41,6 @@
             <column name="location_mod" type="BOOLEAN"/>
             <column name="jhi_organization" type="VARCHAR(255)"/>
             <column name="organization_mod" type="BOOLEAN"/>
-            <column name="project_admin" type="BIGINT"/>
-            <column name="project_admin_mod" type="BOOLEAN"/>
             <column name="project_name" type="VARCHAR(255)"/>
             <column name="project_name_mod" type="BOOLEAN"/>
             <column name="project_status" type="VARCHAR(255)"/>
@@ -453,7 +451,7 @@
     <!-- Initialize base revision -->
     <changeSet id="1520933868142-62" author="dverbeec@its.jnj.com">
         <sql>insert into _revisions_info values (1, 'system', ${now})</sql>
-        <sql>insert into project_aud(id, rev, revtype, description, description_mod, end_date, end_date_mod, location, location_mod, jhi_organization, organization_mod, project_admin, project_admin_mod, project_name, project_name_mod, project_status, project_status_mod, start_date, start_date_mod, attributes_mod, roles_mod, source_types_mod) select id, 1, 0, description, true, end_date, true, location, true, jhi_organization, true, project_admin, true, project_name, true, project_status, true, start_date, true, true, true, true from project</sql>
+        <sql>insert into project_aud(id, rev, revtype, description, description_mod, end_date, end_date_mod, location, location_mod, jhi_organization, organization_mod, project_name, project_name_mod, project_status, project_status_mod, start_date, start_date_mod, attributes_mod, roles_mod, source_types_mod) select id, 1, 0, description, true, end_date, true, location, true, jhi_organization, true, project_name, true, project_status, true, start_date, true, true, true, true from project</sql>
         <sql>insert into project_metadata_aud(id, rev, revtype, attribute_key, attribute_value) select id, 1, 0, attribute_key, attribute_value from project_metadata</sql>
         <sql>insert into project_source_type_aud(rev, revtype, projects_id, source_types_id) select 1, 0, projects_id, source_types_id from project_source_type</sql>
         <sql>insert into radar_authority_aud(rev, revtype, name) select 1, 0, name from radar_authority</sql>

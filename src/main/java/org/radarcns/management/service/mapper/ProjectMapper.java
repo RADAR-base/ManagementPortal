@@ -37,7 +37,6 @@ public interface ProjectMapper {
     @Mapping(target = "startDate", ignore = true)
     @Mapping(target = "endDate", ignore = true)
     @Mapping(target = "projectStatus", ignore = true)
-    @Mapping(target = "projectAdmin", ignore = true)
     @Mapping(target = "sourceTypes", ignore = true)
     Project descriptiveDTOToProject(MinimalProjectDetailsDTO minimalProjectDetailsDto);
 

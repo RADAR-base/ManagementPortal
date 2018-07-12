@@ -80,9 +80,6 @@ public class ProjectResourceIntTest {
     private static final ZonedDateTime UPDATED_END_DATE = ZonedDateTime.now(
             ZoneId.systemDefault()).withNano(0);
 
-    private static final Long DEFAULT_PROJECT_ADMIN = 1L;
-    private static final Long UPDATED_PROJECT_ADMIN = 2L;
-
     @Autowired
     private ProjectRepository projectRepository;
 
@@ -144,8 +141,7 @@ public class ProjectResourceIntTest {
                 .location(DEFAULT_LOCATION)
                 .startDate(DEFAULT_START_DATE)
                 .projectStatus(DEFAULT_PROJECT_STATUS)
-                .endDate(DEFAULT_END_DATE)
-                .projectAdmin(DEFAULT_PROJECT_ADMIN);
+                .endDate(DEFAULT_END_DATE);
         return project;
     }
 
@@ -177,7 +173,6 @@ public class ProjectResourceIntTest {
         assertThat(testProject.getStartDate()).isEqualTo(DEFAULT_START_DATE);
         assertThat(testProject.getProjectStatus()).isEqualTo(DEFAULT_PROJECT_STATUS);
         assertThat(testProject.getEndDate()).isEqualTo(DEFAULT_END_DATE);
-        assertThat(testProject.getProjectAdmin()).isEqualTo(DEFAULT_PROJECT_ADMIN);
     }
 
     @Test
@@ -276,9 +271,7 @@ public class ProjectResourceIntTest {
                         hasItem(sameInstant(DEFAULT_START_DATE))))
                 .andExpect(jsonPath("$.[*].projectStatus").value(
                         hasItem(DEFAULT_PROJECT_STATUS.toString())))
-                .andExpect(jsonPath("$.[*].endDate").value(hasItem(sameInstant(DEFAULT_END_DATE))))
-                .andExpect(jsonPath("$.[*].projectAdmin").value(
-                        hasItem(DEFAULT_PROJECT_ADMIN.intValue())));
+                .andExpect(jsonPath("$.[*].endDate").value(hasItem(sameInstant(DEFAULT_END_DATE))));
     }
 
     @Test
@@ -298,8 +291,7 @@ public class ProjectResourceIntTest {
                 .andExpect(jsonPath("$.location").value(DEFAULT_LOCATION))
                 .andExpect(jsonPath("$.startDate").value(sameInstant(DEFAULT_START_DATE)))
                 .andExpect(jsonPath("$.projectStatus").value(DEFAULT_PROJECT_STATUS.toString()))
-                .andExpect(jsonPath("$.endDate").value(sameInstant(DEFAULT_END_DATE)))
-                .andExpect(jsonPath("$.projectAdmin").value(DEFAULT_PROJECT_ADMIN.intValue()));
+                .andExpect(jsonPath("$.endDate").value(sameInstant(DEFAULT_END_DATE)));
     }
 
     @Test
@@ -326,8 +318,7 @@ public class ProjectResourceIntTest {
                 .location(UPDATED_LOCATION)
                 .startDate(UPDATED_START_DATE)
                 .projectStatus(UPDATED_PROJECT_STATUS)
-                .endDate(UPDATED_END_DATE)
-                .projectAdmin(UPDATED_PROJECT_ADMIN);
+                .endDate(UPDATED_END_DATE);
         ProjectDTO projectDto = projectMapper.projectToProjectDTO(updatedProject);
 
         restProjectMockMvc.perform(put("/api/projects")
@@ -346,7 +337,6 @@ public class ProjectResourceIntTest {
         assertThat(testProject.getStartDate()).isEqualTo(UPDATED_START_DATE);
         assertThat(testProject.getProjectStatus()).isEqualTo(UPDATED_PROJECT_STATUS);
         assertThat(testProject.getEndDate()).isEqualTo(UPDATED_END_DATE);
-        assertThat(testProject.getProjectAdmin()).isEqualTo(UPDATED_PROJECT_ADMIN);
     }
 
     @Test

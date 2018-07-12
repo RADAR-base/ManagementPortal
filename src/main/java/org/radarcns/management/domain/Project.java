@@ -80,9 +80,6 @@ public class Project extends AbstractEntity implements Serializable {
     @Column(name = "end_date")
     private ZonedDateTime endDate;
 
-    @Column(name = "project_admin")
-    private Long projectAdmin;
-
     @JsonIgnore
     @OneToMany(mappedBy = "project")
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
@@ -208,19 +205,6 @@ public class Project extends AbstractEntity implements Serializable {
         this.endDate = endDate;
     }
 
-    public Long getProjectAdmin() {
-        return projectAdmin;
-    }
-
-    public Project projectAdmin(Long projectAdmin) {
-        this.projectAdmin = projectAdmin;
-        return this;
-    }
-
-    public void setProjectAdmin(Long projectAdmin) {
-        this.projectAdmin = projectAdmin;
-    }
-
     public Set<SourceType> getSourceTypes() {
         return sourceTypes;
     }
@@ -297,7 +281,6 @@ public class Project extends AbstractEntity implements Serializable {
                 + ", startDate='" + startDate + "'"
                 + ", projectStatus='" + projectStatus + "'"
                 + ", endDate='" + endDate + "'"
-                + ", projectAdmin='" + projectAdmin + "'"
                 + "}";
     }
 }
