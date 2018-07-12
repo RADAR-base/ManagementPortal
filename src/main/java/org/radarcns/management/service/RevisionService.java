@@ -106,7 +106,8 @@ public class RevisionService implements ApplicationContextAware {
             Object[] firstRevision = (Object[]) auditReader.createQuery()
                     .forRevisionsOfEntity(entity.getClass(), false, true)
                     .add(AuditEntity.id().eq(entity.getId()))
-                    .add(AuditEntity.id().minimize().computeAggregationInInstanceContext())
+                    .add(AuditEntity.revisionNumber().minimize()
+                            .computeAggregationInInstanceContext())
                     .getSingleResult();
             first = (CustomRevisionEntity) firstRevision[1];
         } catch (NonUniqueResultException ex) {
@@ -124,17 +125,18 @@ public class RevisionService implements ApplicationContextAware {
         CustomRevisionEntity last;
         try {
             Object[] lastRevision = (Object[]) auditReader.createQuery()
-                .forRevisionsOfEntity(entity.getClass(), false, true)
-                .add(AuditEntity.id().eq(entity.getId()))
-                .add(AuditEntity.id().maximize().computeAggregationInInstanceContext())
-                .getSingleResult();
+                    .forRevisionsOfEntity(entity.getClass(), false, true)
+                    .add(AuditEntity.id().eq(entity.getId()))
+                    .add(AuditEntity.revisionNumber().maximize()
+                            .computeAggregationInInstanceContext())
+                    .getSingleResult();
             last = (CustomRevisionEntity) lastRevision[1];
         } catch (NonUniqueResultException ex) {
-            // should not happen since we call 'minimize'
+            // should not happen since we call 'maximize'
             throw new CustomServerException(ErrorConstants.ERR_INTERNAL_SERVER_ERROR,
-                Collections.singletonMap("message", "Query for last revision returned a "
-                    + "non-unique result. Please report this to the administrator together with "
-                    + "the request issued."));
+                    Collections.singletonMap("message", "Query for last revision returned a "
+                            + "non-unique result. Please report this to the administrator together "
+                            + "with the request issued."));
         } catch (NoResultException ex) {
             // we did not find any auditing info, so we just return an empty object
             return new EntityAuditInfo();
@@ -337,8 +339,9 @@ public class RevisionService implements ApplicationContextAware {
                 mapper = applicationContext.getBean(Class.forName(className));
             } catch (ClassNotFoundException ex) {
                 // should not happen, we got the classname from the bean definition
-                log.error(ex.getMessage(), ex);
-                continue;
+                throw new CustomServerException(ErrorConstants.ERR_INTERNAL_SERVER_ERROR,
+                        Collections.singletonMap("message", "Could not get Class from the given "
+                                + "bean classname. Please report this to the administrator."));
             }
             // now we look for the correct method in the bean
             Optional<Method> method = Arrays.stream(mapper.getClass().getMethods())

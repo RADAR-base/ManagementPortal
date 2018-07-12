@@ -323,11 +323,18 @@ public class SubjectResource {
         SubjectDTO blank = new SubjectDTO();
         RadarToken token = getJWT(servletRequest);
         // iterate the revisions, if we don't have read permission for the subject in a given
-        // revision, change the subject with a 'blank' subject so no information gets leaked
+        // revision, swap the subject with a 'blank' subject so no information gets leaked
         page = page.map(rev -> token.hasPermissionOnSubject(SUBJECT_READ,
                 ((SubjectDTO) rev.getEntity()).getProject().getProjectName(),
                 ((SubjectDTO) rev.getEntity()).getLogin())
                 ? rev : rev.setEntity(blank));
+        // This stream returns true if all values are equal to blank. To prevent people with no
+        // access to the requested subject in any of the subject history's projects from gaining
+        // information on the subject history this way, we throw a NotAuthorized.
+        if (page.getContent().stream().map(blank::equals)
+                    .reduce(Boolean.TRUE, Boolean::logicalAnd)) {
+            throw new NotAuthorizedException();
+        }
         return ResponseEntity.ok().headers(PaginationUtil.generatePaginationHttpHeaders(page,
                 HeaderUtil.buildPath("subjects", login, "revisions"))).body(page.getContent());
     }
