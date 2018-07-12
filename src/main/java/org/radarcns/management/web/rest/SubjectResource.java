@@ -436,11 +436,11 @@ public class SubjectResource {
             // check if combination (producer, model, version) is present
             try {
                 String producer = Objects.requireNonNull(sourceDto.getSourceTypeProducer(),
-                        ErrorConstants.ERR_SOURCE_NOT_FOUND);
+                        ErrorConstants.ERR_VALIDATION);
                 String model = Objects.requireNonNull(sourceDto.getSourceTypeModel(),
-                        ErrorConstants.ERR_SOURCE_NOT_FOUND);
+                        ErrorConstants.ERR_VALIDATION);
                 String version = Objects.requireNonNull(sourceDto.getSourceTypeCatalogVersion(),
-                        ErrorConstants.ERR_SOURCE_NOT_FOUND);
+                        ErrorConstants.ERR_VALIDATION);
                 SourceTypeDTO sourceTypeDto = sourceTypeService
                         .findByProducerAndModelAndVersion(producer, model, version);
                 if (Objects.isNull(sourceTypeDto)) {
