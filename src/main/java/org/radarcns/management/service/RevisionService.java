@@ -312,7 +312,7 @@ public class RevisionService implements ApplicationContextAware {
     public Optional<Object> getLatestRevisionForEntity(Class clazz, List<AuditCriterion> criteria)
             throws AuditException, NonUniqueResultException {
         AuditQuery query = auditReader.createQuery().forRevisionsOfEntity(clazz, true, true);
-        query.add(AuditEntity.revisionNumber().maximize());
+        query.add(AuditEntity.revisionNumber().maximize().computeAggregationInInstanceContext());
         criteria.forEach(criterion -> query.add(criterion));
         try {
             return Optional.of(toDto(query.getSingleResult()));
