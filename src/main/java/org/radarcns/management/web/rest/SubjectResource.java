@@ -249,8 +249,7 @@ public class SubjectResource {
                 INACTIVE_PARTICIPANT) : Collections.singletonList(PARTICIPANT);
 
         if (projectName != null && externalId != null) {
-            Optional<Subject> subject = Optional.empty();
-            subjectRepository
+            Optional<Subject> subject = subjectRepository
                     .findOneByProjectNameAndExternalIdAndAuthoritiesIn(projectName, externalId,
                             authoritiesToInclude);
 
@@ -515,6 +514,7 @@ public class SubjectResource {
         }
 
         // there should be only one source under a source-name.
-        return ResponseEntity.ok().body(sourceService.safeUpdate(sources.get(0), attributes));
+        return ResponseEntity.ok().body(sourceService.safeUpdateOfAttributes(sources.get(0),
+                attributes));
     }
 }
