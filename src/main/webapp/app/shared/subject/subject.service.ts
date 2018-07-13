@@ -3,6 +3,7 @@ import {BaseRequestOptions, Http, Response, URLSearchParams} from '@angular/http
 import {Observable} from 'rxjs/Rx';
 
 import {Subject} from './subject.model';
+import { EntityRevision } from '../../entities/revision/entity-revision.model';
 
 @Injectable()
 export class SubjectService {
@@ -40,10 +41,20 @@ export class SubjectService {
     });
   }
 
+  findForRevision(login: string, revisionNb: number): Observable<Subject> {
+    return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/revisions/${revisionNb}`).map((res: Response) => {
+      return res.json();
+    });
+  }
+
+  findRevisions(login: string, req?: any): Observable<Response> {
+    const options = this.createRequestOption(req);
+    return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/revisions`);
+  }
+
   query(req?: any): Observable<Response> {
     const options = this.createRequestOption(req);
-    return this.http.get(this.resourceUrl, options)
-        ;
+    return this.http.get(this.resourceUrl, options);
   }
 
   delete(login: string): Observable<Response> {

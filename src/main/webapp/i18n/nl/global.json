@@ -37,6 +37,7 @@
                 "audits": "Audits",
                 "apidocs": "API",
                 "database": "Databank",
+                "revisions": "Revisies",
                 "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
             },
             "language": "Taal"
@@ -138,6 +139,7 @@
     },
     "error": {
         "internalServerError": "Internal server error",
+        "internalParameterized": "Internal server error: {{ message }}",
         "server.not.reachable": "Server not reachable",
         "url.not.found": "Not found",
         "NotNull": "Field {{fieldName}} cannot be empty!",
@@ -145,7 +147,8 @@
         "userexists": "Login name already used!",
         "emailexists": "Email is already in use!",
         "idexists": "A new {{entityName}} cannot already have an ID",
-        "invalidsubjectstate": "Een stopgezette deelnemer kan niet geactiveerd worden"
+        "invalidsubjectstate": "Een stopgezette deelnemer kan niet geactiveerd worden",
+        "nameexists": "Er bestaat reeds een {{ entityName }} met deze naam"
     },
     "footer": "Dit is uw voettekst",
     "common" : {

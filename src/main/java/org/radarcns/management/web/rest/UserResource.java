@@ -11,6 +11,7 @@ import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.repository.filters.UserFilter;
 import org.radarcns.management.service.MailService;
+import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
@@ -35,7 +36,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
@@ -139,8 +139,7 @@ public class UserResource {
         } else {
             User newUser = userService.createUser(managedUserVm);
             mailService.sendCreationEmail(newUser);
-            return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "users",
-                    newUser.getLogin())))
+            return ResponseEntity.created(ResourceUriService.getUri(newUser))
                     .headers(HeaderUtil.createAlert("userManagement.created", newUser.getLogin()))
                     .body(newUser);
         }

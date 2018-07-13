@@ -21,10 +21,6 @@ public interface ProjectMapper {
 
     List<ProjectDTO> projectsToProjectDTOs(List<Project> projects);
 
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "createdDate", ignore = true)
-    @Mapping(target = "lastModifiedBy", ignore = true)
-    @Mapping(target = "lastModifiedDate", ignore = true)
     @Mapping(target = "roles", ignore = true)
     Project projectDTOToProject(ProjectDTO projectDto);
 
@@ -34,10 +30,6 @@ public interface ProjectMapper {
 
     List<MinimalProjectDetailsDTO> projectsToMinimalProjectDetailsDTOs(List<Project> projects);
 
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "createdDate", ignore = true)
-    @Mapping(target = "lastModifiedBy", ignore = true)
-    @Mapping(target = "lastModifiedDate", ignore = true)
     @Mapping(target = "description", ignore = true)
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "organization", ignore = true)
@@ -45,7 +37,6 @@ public interface ProjectMapper {
     @Mapping(target = "startDate", ignore = true)
     @Mapping(target = "endDate", ignore = true)
     @Mapping(target = "projectStatus", ignore = true)
-    @Mapping(target = "projectAdmin", ignore = true)
     @Mapping(target = "sourceTypes", ignore = true)
     Project descriptiveDTOToProject(MinimalProjectDetailsDTO minimalProjectDetailsDto);
 

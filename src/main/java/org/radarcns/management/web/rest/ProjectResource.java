@@ -1,34 +1,14 @@
 package org.radarcns.management.web.rest;
 
-import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
-import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
-import static org.radarcns.auth.authorization.Permission.PROJECT_CREATE;
-import static org.radarcns.auth.authorization.Permission.PROJECT_DELETE;
-import static org.radarcns.auth.authorization.Permission.PROJECT_READ;
-import static org.radarcns.auth.authorization.Permission.PROJECT_UPDATE;
-import static org.radarcns.auth.authorization.Permission.ROLE_READ;
-import static org.radarcns.auth.authorization.Permission.SOURCE_READ;
-import static org.radarcns.auth.authorization.Permission.SUBJECT_READ;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
-
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
+import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.service.ProjectService;
+import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.RoleService;
 import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
@@ -58,6 +38,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
+import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarcns.auth.authorization.Permission.PROJECT_CREATE;
+import static org.radarcns.auth.authorization.Permission.PROJECT_DELETE;
+import static org.radarcns.auth.authorization.Permission.PROJECT_READ;
+import static org.radarcns.auth.authorization.Permission.PROJECT_UPDATE;
+import static org.radarcns.auth.authorization.Permission.ROLE_READ;
+import static org.radarcns.auth.authorization.Permission.SOURCE_READ;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_READ;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
+
 /**
  * REST controller for managing Project.
  */
@@ -68,6 +70,9 @@ public class ProjectResource {
     private final Logger log = LoggerFactory.getLogger(ProjectResource.class);
 
     private static final String ENTITY_NAME = "project";
+
+    @Autowired
+    private ProjectRepository projectRepository;
 
     @Autowired
     private ProjectService projectService;
@@ -105,9 +110,14 @@ public class ProjectResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
                     ENTITY_NAME, "idexists", "A new project cannot already have an ID")).body(null);
         }
+        if (projectRepository.findOneWithEagerRelationshipsByName(projectDto.getProjectName())
+                .isPresent()) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
+                    ENTITY_NAME, "nameexists", "A project with this name already exists"))
+                    .body(null);
+        }
         ProjectDTO result = projectService.save(projectDto);
-        return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "projects",
-                result.getProjectName())))
+        return ResponseEntity.created(ResourceUriService.getUri(result))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getProjectName()))
                 .body(result);
     }

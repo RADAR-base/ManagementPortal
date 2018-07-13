@@ -1,5 +1,6 @@
 package org.radarcns.management.service;
 
+import org.hibernate.envers.query.AuditEntity;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Source;
@@ -12,6 +13,7 @@ import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
+import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
@@ -20,25 +22,29 @@ import org.radarcns.management.web.rest.errors.CustomConflictException;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
 import org.radarcns.management.web.rest.errors.CustomParameterizedException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
-import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.history.Revisions;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
@@ -77,6 +83,9 @@ public class SubjectService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private RevisionService revisionService;
+
 
     /**
      * Create a new subject.
@@ -103,12 +112,10 @@ public class SubjectService {
         user.setActivated(true);
         //set if any devices are set as assigned
         if (subject.getSources() != null && !subject.getSources().isEmpty()) {
-            for (Source source : subject.getSources()) {
-                source.setAssigned(true);
-            }
+            subject.getSources().forEach(s -> s.assigned(true).subject(subject));
         }
-        subject = subjectRepository.save(subject);
-        return subjectMapper.subjectToSubjectDTO(subject);
+        sourceRepository.save(subject.getSources());
+        return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subject));
     }
 
     /**
@@ -147,35 +154,29 @@ public class SubjectService {
         }
         Subject subjectFromDb = subjectRepository.findOne(newSubjectDto.getId());
         //reset all the sources assigned to a subject to unassigned
-        for (Source source : subjectFromDb.getSources()) {
-            source.setAssigned(false);
-            sourceRepository.save(source);
-        }
+        Set<Source> sourcesToUpdate = subjectFromDb.getSources();
+        sourcesToUpdate.forEach(s -> s.subject(null).assigned(false));
         //set only the devices assigned to a subject as assigned
         subjectMapper.safeUpdateSubjectFromDTO(newSubjectDto, subjectFromDb);
-        for (Source source : subjectFromDb.getSources()) {
-            source.setAssigned(true);
-        }
+        sourcesToUpdate.addAll(subjectFromDb.getSources());
+        subjectFromDb.getSources().forEach(s -> s.subject(subjectFromDb).assigned(true));
+        sourceRepository.save(sourcesToUpdate);
         // update participant role
-        Set<Role> managedRoles = updateParticipantRoles(subjectFromDb, newSubjectDto);
-        subjectFromDb.getUser().setRoles(managedRoles);
-        subjectFromDb = subjectRepository.save(subjectFromDb);
-
-        return subjectMapper.subjectToSubjectDTO(subjectFromDb);
+        subjectFromDb.getUser().setRoles(updateParticipantRoles(subjectFromDb, newSubjectDto));
+        return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subjectFromDb));
     }
 
     private Set<Role> updateParticipantRoles(Subject subject, SubjectDTO subjectDto) {
-        Set<Role> managedRoles = subject.getUser().getRoles().stream().map(role -> {
-            // inactivate existing patient roles
-            if (PARTICIPANT.equals(role.getAuthority().getName())) {
-                return getProjectParticipantRole(role.getProject(), INACTIVE_PARTICIPANT);
-            } else {
-                return role;
-            }
-            // and remove role for current project
-        }).filter(r -> !r.getProject().getProjectName().equals(subjectDto.getProject()
-                .getProjectName())).collect(Collectors.toSet());
-        // add participant role for current project
+        Set<Role> managedRoles = subject.getUser().getRoles().stream()
+                // make participant inactive in projects that do not match the new project
+                .map(role -> PARTICIPANT.equals(role.getAuthority().getName())
+                            && !role.getProject().getProjectName().equals(
+                                    subjectDto.getProject().getProjectName())
+                            ? getProjectParticipantRole(role.getProject(), INACTIVE_PARTICIPANT)
+                            : role)
+                .collect(Collectors.toSet());
+        // add participant role for current project, if the project did not change, then the set
+        // will not change since the role being added here already exists in the set
         managedRoles.add(getProjectParticipantRole(projectMapper.projectDTOToProject(subjectDto
                 .getProject()), PARTICIPANT));
         return managedRoles;
@@ -223,6 +224,7 @@ public class SubjectService {
     private void unassignAllSources(Subject subject) {
         subject.getSources().forEach(source -> {
             source.setAssigned(false);
+            source.setSubject(null);
             sourceRepository.save(source);
         });
         subject.getSources().clear();
@@ -256,6 +258,8 @@ public class SubjectService {
                     source.setSourceName(sourceRegistrationDto.getSourceName());
                 }
                 source.getAttributes().putAll(sourceRegistrationDto.getAttributes());
+                source.setAssigned(true);
+                source.setSubject(subject);
                 sourceRepository.save(source);
                 assignedSource = source;
             } else {
@@ -272,7 +276,9 @@ public class SubjectService {
             if (sources.isEmpty()) {
                 Source source1 = new Source(sourceType)
                         .project(project)
-                        .assigned(true);
+                        .assigned(true)
+                        .sourceType(sourceType)
+                        .subject(subject);
                 source1.getAttributes().putAll(sourceRegistrationDto.getAttributes());
                 // if source name is provided update source name
                 if (Objects.nonNull(sourceRegistrationDto.getSourceName())) {
@@ -307,13 +313,12 @@ public class SubjectService {
                 errorParams.put("catalogVersion", sourceType.getCatalogVersion());
                 errorParams.put("subject-id", subject.getUser().getLogin());
                 throw new CustomConflictException(ErrorConstants.ERR_SOURCE_TYPE_EXISTS,
-                        errorParams, new URI(HeaderUtil.buildPath("api", "subjects",
-                        subject.getUser().getLogin(), "sources")));
+                        errorParams, ResourceUriService.getUri(sources.get(0)));
             }
         }
 
-        /** all of the above codepaths lead to an initialized assignedSource or throw an
-         /* exception, so probably we can safely remove this check.
+        /* all of the above codepaths lead to an initialized assignedSource or throw an
+         * exception, so probably we can safely remove this check.
          */
         if (assignedSource == null) {
             log.error("Cannot find assigned source with sourceId or a source of sourceType with "
@@ -355,5 +360,67 @@ public class SubjectService {
             subjectRepository.delete(subject);
             log.debug("Deleted Subject: {}", subject);
         });
+    }
+
+    /**
+     * Finds all sources of subject including inactive sources.
+     *
+     * @param subject of whom the sources should be retrieved.
+     * @return list of {@link MinimalSourceDetailsDTO} of sources.
+     */
+    public List<MinimalSourceDetailsDTO> findSubjectSourcesFromRevisions(Subject subject) {
+
+        Revisions<Integer, Subject> revisions = subjectRepository.findRevisions(subject.getId());
+        // collect distinct sources in a set
+        Set<Source> sources = revisions
+                .getContent().stream().flatMap(p -> p.getEntity().getSources().stream())
+                .filter(distinctByKey(Source::getSourceId))
+                .collect(Collectors.toSet());
+        return sources.stream().map(p -> sourceMapper.sourceToMinimalSourceDetailsDTO(p))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get a specific revision for a given subject.
+     *
+     * @param login the login of the subject
+     * @param revision the revision number
+     * @return the subject at the given revision
+     * @throws CustomNotFoundException if there was no subject with the given login at the given
+     *         revision number
+     */
+    public SubjectDTO findRevision(String login, Integer revision) throws CustomNotFoundException {
+        // first get latest known version of the subject, if it's deleted we can't load the entity
+        // directly by e.g. findOneByLogin
+        SubjectDTO latest = getLatestRevision(login);
+        Subject sub = revisionService.findRevision(revision, latest.getId(), Subject.class);
+        if (sub == null) {
+            throw new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                    Collections.singletonMap("subjectLogin", login));
+        }
+        return subjectMapper.subjectToSubjectDTO(sub);
+    }
+
+    /**
+     * Get latest known revision of a subject with the given login.
+     *
+     * @param login the login of the subject
+     * @return the latest revision for that subject
+     * @throws CustomNotFoundException if no subject was found with the given login
+     */
+    public SubjectDTO getLatestRevision(String login) throws CustomNotFoundException {
+        UserDTO user = (UserDTO) revisionService.getLatestRevisionForEntity(User.class,
+                Arrays.asList(AuditEntity.property("login").eq(login)))
+                .orElseThrow(() -> new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                        Collections.singletonMap("subjectLogin", login)));
+        return (SubjectDTO) revisionService.getLatestRevisionForEntity(Subject.class,
+                Arrays.asList(AuditEntity.property("user").eq(user)))
+                .orElseThrow(() -> new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                        Collections.singletonMap("subjectLogin", login)));
+    }
+
+    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        final Set<Object> seen = new HashSet<>();
+        return t -> seen.add(keyExtractor.apply(t));
     }
 }

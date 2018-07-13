@@ -6,17 +6,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.service.mapper.SourceMapper;
+import org.radarcns.management.web.rest.errors.CustomParameterizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.history.Revisions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -105,9 +106,20 @@ public class SourceService {
      *
      * @param id the id of the entity
      */
+    @Transactional
     public void delete(Long id) {
-        log.debug("Request to delete Source : {}", id);
-        sourceRepository.delete(id);
+        log.info("Request to delete Source : {}", id);
+        Revisions<Integer, Source> sourceHistory = sourceRepository.findRevisions(id);
+        List<Source> sources = sourceHistory.getContent().stream().map(p -> (Source) p.getEntity())
+                .filter(Source::isAssigned).collect(Collectors.toList());
+        if (sources.isEmpty()) {
+            sourceRepository.delete(id);
+        } else {
+            Map<String, String> errorParams = new HashMap<>();
+            errorParams.put("message", "Cannot delete source with sourceId ");
+            errorParams.put("id", Long.toString(id));
+            throw new CustomParameterizedException("error.usedSourceDeletion", errorParams);
+        }
     }
 
     /**

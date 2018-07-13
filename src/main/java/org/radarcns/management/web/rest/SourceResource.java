@@ -1,26 +1,14 @@
 package org.radarcns.management.web.rest;
 
-import static org.radarcns.auth.authorization.Permission.SOURCE_CREATE;
-import static org.radarcns.auth.authorization.Permission.SOURCE_DELETE;
-import static org.radarcns.auth.authorization.Permission.SOURCE_READ;
-import static org.radarcns.auth.authorization.Permission.SOURCE_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
-
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SourceRepository;
+import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -41,6 +29,19 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+
+import static org.radarcns.auth.authorization.Permission.SOURCE_CREATE;
+import static org.radarcns.auth.authorization.Permission.SOURCE_DELETE;
+import static org.radarcns.auth.authorization.Permission.SOURCE_READ;
+import static org.radarcns.auth.authorization.Permission.SOURCE_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing Source.
@@ -94,9 +95,9 @@ public class SourceResource {
                             "A new source must have the 'assigned' field specified")).body(null);
         } else {
             SourceDTO result = sourceService.save(sourceDto);
-            String name = result.getSourceName();
-            return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "sources", name)))
-                    .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, name))
+            return ResponseEntity.created(ResourceUriService.getUri(result))
+                    .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME,
+                            result.getSourceName()))
                     .body(result);
         }
     }

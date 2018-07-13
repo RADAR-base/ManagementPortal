@@ -1,12 +1,18 @@
 package org.radarcns.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+import org.hibernate.envers.Audited;
+import org.radarcns.auth.config.Constants;
+import org.radarcns.management.domain.enumeration.SourceTypeScope;
+import org.radarcns.management.domain.support.AbstractEntityListener;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
@@ -19,20 +25,20 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-import org.radarcns.auth.config.Constants;
-import org.radarcns.management.domain.enumeration.SourceTypeScope;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * A SourceType.
  */
 @Entity
+@Audited
 @Table(name = "source_type")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class SourceType extends AbstractAuditingEntity implements Serializable {
+@EntityListeners({AbstractEntityListener.class})
+public class SourceType extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
