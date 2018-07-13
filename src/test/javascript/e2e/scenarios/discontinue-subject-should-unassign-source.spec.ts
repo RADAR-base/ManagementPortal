@@ -124,24 +124,6 @@ describe('Discontinued subject should unassign sources', () => {
         });
     });
 
-    it('should not be able to delete a source', function () {
-        element.all(by.linkText(sourceName))
-            .all(by.xpath('ancestor::tr'))
-            .all(by.cssContainingText('button', 'Delete'))
-            .click().then(() => {
-                element(by.css('.modal-footer button.btn-danger')).click().then(() => {
-                    const expect1 = /error.sourceIsAssigned/;
-                    element.all(by.css('.alert-danger')).first().getAttribute('jhiTranslate').then((value) => {
-                        expect(value).toMatch(expect1);
-                    });
-                });
-            })
-            .then(() => {
-                //close the dialog
-                element(by.css('.modal-footer button.btn-secondary')).click();
-            });
-    });
-
     it('should be able to delete a subject', function () {
         element(by.cssContainingText('li', 'Subjects')).click().then(() => {
             // find a row which contains a uuid
