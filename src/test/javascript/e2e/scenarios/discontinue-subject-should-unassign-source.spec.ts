@@ -130,7 +130,6 @@ describe('Discontinued subject should unassign sources', () => {
             .all(by.cssContainingText('button', 'Delete'))
             .click().then(() => {
                 element(by.css('.modal-footer button.btn-danger')).click().then(() => {
-                    browser.waitForAngular();
                     const expect1 = /error.sourceIsAssigned/;
                     element.all(by.css('.alert-danger')).first().getAttribute('jhiTranslate').then((value) => {
                         expect(value).toMatch(expect1);
