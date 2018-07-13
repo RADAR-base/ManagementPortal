@@ -16,7 +16,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
-import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
@@ -99,9 +98,6 @@ public class ProjectResourceIntTest {
     private ExceptionTranslator exceptionTranslator;
 
     @Autowired
-    private EntityManager em;
-
-    @Autowired
     private HttpServletRequest servletRequest;
 
     private MockMvc restProjectMockMvc;
@@ -133,7 +129,7 @@ public class ProjectResourceIntTest {
      * <p>This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.</p>
      */
-    public static Project createEntity(EntityManager em) {
+    public static Project createEntity() {
         Project project = new Project()
                 .projectName(DEFAULT_PROJECT_NAME)
                 .description(DEFAULT_DESCRIPTION)
@@ -147,7 +143,7 @@ public class ProjectResourceIntTest {
 
     @Before
     public void initTest() {
-        project = createEntity(em);
+        project = createEntity();
     }
 
     @Test

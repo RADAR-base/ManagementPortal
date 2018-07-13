@@ -5,6 +5,8 @@ import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
+import org.radarcns.management.domain.SourceType;
+import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.SourceService;
@@ -61,6 +63,9 @@ public class SourceResource {
     @Autowired
     private HttpServletRequest servletRequest;
 
+    @Autowired
+    private ProjectRepository projectRepository;
+
     /**
      * POST  /sources : Create a new source.
      *
@@ -115,6 +120,38 @@ public class SourceResource {
             return createSource(sourceDto);
         }
         checkPermission(getJWT(servletRequest), SOURCE_UPDATE);
+        Optional<SourceDTO> sourceToUpdateDto = sourceService
+                .findOneById(sourceDto.getId());
+
+        if (!sourceToUpdateDto.isPresent()) {
+            return ResponseEntity.notFound().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
+                "sourceNotFound",
+                "Cannot find a source by sourceName " + sourceDto.getSourceName())).build();
+        }
+        SourceDTO sourceToUpdate = sourceToUpdateDto.get();
+
+        // if the source is being transferred to another project.
+        if (!sourceToUpdate.getProject().getId().equals(sourceDto.getProject().getId())) {
+            if (sourceToUpdate.getAssigned()) {
+                return ResponseEntity.badRequest().headers(
+                    HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceIsAssigned",
+                        "Cannot transfer an assigned source")).build();
+            }
+            // check whether source-type of the device is assigned to the new project
+            // to be transferred.
+            Optional<SourceType> sourceType = projectRepository
+                    .findSourceTypeByProjectIdAndSourceTypeId(sourceDto.getProject().getId(),
+                    sourceToUpdate.getSourceType().getId());
+            if  (!sourceType.isPresent()) {
+                return ResponseEntity.badRequest().headers(HeaderUtil
+                    .createFailureAlert(ENTITY_NAME,
+                    "invalidTransfer", "Cannot transfer a source to a project which doesn't "
+                        + "have compatible source-type")).build();
+            }
+            // set old source-type, ensures compatibility
+            sourceDto.setSourceType(sourceToUpdate.getSourceType());
+
+        }
         SourceDTO result = sourceService.save(sourceDto);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceDto.getSourceName()))
