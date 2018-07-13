@@ -14,7 +14,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 import java.util.UUID;
-import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
@@ -22,7 +21,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.radarcns.management.ManagementPortalTestApp;
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Source;
+import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.radarcns.management.service.SourceService;
@@ -89,14 +90,16 @@ public class SourceResourceIntTest {
     private ExceptionTranslator exceptionTranslator;
 
     @Autowired
-    private EntityManager em;
+    private HttpServletRequest servletRequest;
 
     @Autowired
-    private HttpServletRequest servletRequest;
+    private ProjectRepository projectRepository;
 
     private MockMvc restDeviceMockMvc;
 
     private Source source;
+
+    private Project project;
 
     @Before
     public void setUp() throws ServletException {
@@ -105,6 +108,7 @@ public class SourceResourceIntTest {
         ReflectionTestUtils.setField(sourceResource, "servletRequest", servletRequest);
         ReflectionTestUtils.setField(sourceResource, "sourceService", sourceService);
         ReflectionTestUtils.setField(sourceResource, "sourceRepository", sourceRepository);
+        ReflectionTestUtils.setField(sourceResource, "projectRepository", projectRepository);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
@@ -123,7 +127,7 @@ public class SourceResourceIntTest {
      * <p>This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.</p>
      */
-    public static Source createEntity(EntityManager em) {
+    public static Source createEntity() {
         Source source = new Source()
                 .assigned(DEFAULT_ASSIGNED)
                 .sourceName(DEFAULT_SOURCE_NAME);
@@ -132,10 +136,12 @@ public class SourceResourceIntTest {
 
     @Before
     public void initTest() {
-        source = createEntity(em);
+        source = createEntity();
         List<SourceTypeDTO> sourceTypeDtos = sourceTypeService.findAll();
         assertThat(sourceTypeDtos.size()).isGreaterThan(0);
         source.setSourceType(sourceTypeMapper.sourceTypeDTOToSourceType(sourceTypeDtos.get(0)));
+        project = projectRepository.findOne(1L);
+        source.project(project);
     }
 
     @Test
@@ -156,6 +162,7 @@ public class SourceResourceIntTest {
         Source testSource = sourceList.get(sourceList.size() - 1);
         assertThat(testSource.isAssigned()).isEqualTo(DEFAULT_ASSIGNED);
         assertThat(testSource.getSourceName()).isEqualTo(DEFAULT_SOURCE_NAME);
+        assertThat(testSource.getProject().getProjectName()).isEqualTo(project.getProjectName());
     }
 
     @Test

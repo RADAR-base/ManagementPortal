@@ -86,6 +86,20 @@ public class SourceService {
                 .map(sourceMapper::sourceToSourceDTO);
     }
 
+
+    /**
+     * Get one source by id.
+     *
+     * @param id the id of the source
+     * @return the entity
+     */
+    @Transactional(readOnly = true)
+    public Optional<SourceDTO> findOneById(Long id) {
+        log.debug("Request to get Source by id: {}", id);
+        return Optional.ofNullable(sourceRepository.findOne(id))
+                .map(sourceMapper::sourceToSourceDTO);
+    }
+
     /**
      * Delete the  device by id.
      *
@@ -142,7 +156,7 @@ public class SourceService {
      * @param attributes value to update
      * @return Updated {@link MinimalSourceDetailsDTO} of source
      */
-    public MinimalSourceDetailsDTO safeUpdate(Source sourceToUpdate,
+    public MinimalSourceDetailsDTO safeUpdateOfAttributes(Source sourceToUpdate,
             Map<String, String> attributes) {
 
         // update source attributes

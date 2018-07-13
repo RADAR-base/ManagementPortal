@@ -32,18 +32,12 @@
         <div class="form-group">
             <label class="form-control-label" jhiTranslate="managementPortalApp.project.prettyProjectName" for="field_humanReadableProjectName">Human readable Name</label>
             <input type="text" class="form-control" name="prettyProjectName" id="field_humanReadableProjectName"
-                   [(ngModel)]="project.humanReadableProjectName" value="{{projectIdAsPrettyValue? project.projectName : ''}}" required/>
+                   [(ngModel)]="project.humanReadableProjectName" value="{{projectIdAsPrettyValue? project.projectName : ''}}"/>
             <small id="prettyProjectNameHelp" class="form-text text-muted">Human readable project name that doesn't have to follow url pattern.</small>
             <small>
             <input type="checkbox" class="form-control-check" name="grantTypes" [checked]="projectIdAsPrettyValue" (change)="projectIdAsPrettyValue = !projectIdAsPrettyValue" />
             Do you want to use the project-id as the human readable name?
             </small>
-            <div [hidden]="!(editForm.controls.humanReadableProjectName?.dirty && editForm.controls.humanReadableProjectName?.invalid)">
-                <small class="form-text text-danger"
-                       [hidden]="!editForm.controls.humanReadableProjectName?.errors?.required" jhiTranslate="entity.validation.required">
-                    This field is required.
-                </small>
-            </div>
         </div>
 
         <div class="form-group">
