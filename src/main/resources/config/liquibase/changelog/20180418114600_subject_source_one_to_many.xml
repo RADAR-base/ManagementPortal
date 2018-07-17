@@ -1,0 +1,18 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <!-- Change the subject-source relationship to be one to many -->
+    <changeSet author="dverbeec@its.jnj.com" id="20180418114600-01">
+        <addColumn tableName="radar_source">
+            <column name="subject_id" type="BIGINT" />
+        </addColumn>
+        <addForeignKeyConstraint baseTableName="radar_source" baseColumnNames="subject_id"
+                constraintName="fk_source_subject" referencedTableName="subject"
+                referencedColumnNames="id" />
+        <sql>
+            UPDATE radar_source source SET subject_id = (
+                    SELECT subjects_id FROM subject_sources WHERE sources_id = source.id limit 1
+            )
+        </sql>
+        <dropTable tableName="subject_sources"/>
+    </changeSet>
+</databaseChangeLog>

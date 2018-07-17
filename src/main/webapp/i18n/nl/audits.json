@@ -23,5 +23,28 @@
                 "remoteAddress": "Remote Adres:"
             }
         }
+    },
+    "revisions": {
+        "title": "Geschiedenis",
+        "revision": "Revisie",
+        "revisionList": "Geschiedenis voor",
+        "revisionType": "Revisie Type",
+        "number": "Revisienummer",
+        "author": "Auteur",
+        "modifications": "Wijzigingen",
+        "timestamp": "Tijdstip",
+        "type": {
+            "add": "Toegevoegd",
+            "mod": "Gewijzigd",
+            "del": "Verwijderd"
+        },
+        "entity": {
+            "user": "Gebruiker",
+            "subject": "Subject",
+            "source": "Source",
+            "project": "Project",
+            "sourceType": "Source Type",
+            "sourceData": "Source Data"
+        }
     }
 }

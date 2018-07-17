@@ -32,8 +32,8 @@ plugins {
 allprojects {
     group 'org.radarcns'
 
-    version '0.3.8' // project version
-    
+    version '0.4.0' // project version
+
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
     // script, do not remove it.
@@ -167,7 +167,7 @@ if (OperatingSystem.current().isWindows()) {
         addResources = false
         dependsOn pathingJar
         doFirst {
-            classpath = files("$buildDir/classes/main", "$buildDir/resources/main", pathingJar.archivePath)
+            classpath = files("$buildDir/classes/java/main", "$buildDir/resources/main", pathingJar.archivePath)
         }
     }
 } else {
@@ -311,6 +311,7 @@ dependencies {
     compile "com.h2database:h2"
     compile "org.mapstruct:mapstruct-jdk8:${mapstruct_version}"
     compile project(":radar-auth")
+    compile "org.springframework.data:spring-data-envers:${spring_data_envers_version}"
 
     codacy group: 'com.codacy', name: 'codacy-coverage-reporter', version: codacyVersion
 

@@ -11,12 +11,14 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.envers.Audited;
 import org.radarcns.auth.config.Constants;
 
 /**
  * An authority (a security role) used by Spring Security.
  */
 @Entity
+@Audited
 @Table(name = "radar_authority")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Authority implements Serializable {

@@ -1,0 +1,531 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <property name="now" value="now()" dbms="h2"/>
+    <property name="now" value="current_timestamp" dbms="postgresql"/>
+    <property name="revtype" value="tinyint" dbms="h2"/>
+    <property name="revtype" value="smallint" dbms="postgresql"/>
+
+    <!-- First we add the necessary tables, then we initialize a base revision which sets all
+         currently existing entities in the database as being created by the system at the point
+         of migration. Finally, we drop the old auditing columns. -->
+
+    <!-- Add necessary tables -->
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-1">
+        <createSequence sequenceName="sequence_revision" startValue="2" incrementBy="50"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-2">
+        <createTable tableName="_revisions_info">
+            <column name="id" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="auditor" type="VARCHAR(255)"/>
+            <column name="timestamp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-3">
+        <createTable tableName="project_aud">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rev" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revtype" type="${revtype}"/>
+            <column name="revend" type="INTEGER"/>
+            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="description_mod" type="BOOLEAN"/>
+            <column name="end_date" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+            <column name="end_date_mod" type="BOOLEAN"/>
+            <column name="location" type="VARCHAR(255)"/>
+            <column name="location_mod" type="BOOLEAN"/>
+            <column name="jhi_organization" type="VARCHAR(255)"/>
+            <column name="organization_mod" type="BOOLEAN"/>
+            <column name="project_name" type="VARCHAR(255)"/>
+            <column name="project_name_mod" type="BOOLEAN"/>
+            <column name="project_status" type="VARCHAR(255)"/>
+            <column name="project_status_mod" type="BOOLEAN"/>
+            <column name="start_date" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+            <column name="start_date_mod" type="BOOLEAN"/>
+            <column name="attributes_mod" type="BOOLEAN"/>
+            <column name="roles_mod" type="BOOLEAN"/>
+            <column name="source_types_mod" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-4">
+        <createTable tableName="project_metadata_aud">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rev" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="attribute_value" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="attribute_key" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revtype" type="${revtype}"/>
+            <column name="revend" type="INTEGER"/>
+            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-5">
+        <createTable tableName="project_source_type_aud">
+            <column name="rev" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="projects_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="source_types_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revtype" type="${revtype}"/>
+            <column name="revend" type="INTEGER"/>
+            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-6">
+        <createTable tableName="radar_authority_aud">
+            <column name="name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rev" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revtype" type="${revtype}"/>
+            <column name="revend" type="INTEGER"/>
+            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-7">
+        <createTable tableName="radar_role_aud">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rev" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revtype" type="${revtype}"/>
+            <column name="revend" type="INTEGER"/>
+            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+            <column name="authority_name" type="VARCHAR(50)"/>
+            <column name="authority_mod" type="BOOLEAN"/>
+            <column name="project_id" type="BIGINT"/>
+            <column name="project_mod" type="BOOLEAN"/>
+            <column name="users_mod" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-8">
+        <createTable tableName="radar_source_aud">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rev" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revtype" type="${revtype}"/>
+            <column name="revend" type="INTEGER"/>
+            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+            <column name="assigned" type="BOOLEAN"/>
+            <column name="assigned_mod" type="BOOLEAN"/>
+            <column name="expected_source_name" type="VARCHAR(255)"/>
+            <column name="expected_source_name_mod" type="BOOLEAN"/>
+            <column name="source_id" type="UUID"/>
+            <column name="source_id_mod" type="BOOLEAN"/>
+            <column name="source_name" type="VARCHAR(255)"/>
+            <column name="source_name_mod" type="BOOLEAN"/>
+            <column name="attributes_mod" type="BOOLEAN"/>
+            <column name="project_id" type="BIGINT"/>
+            <column name="project_mod" type="BOOLEAN"/>
+            <column name="source_type_id" type="BIGINT"/>
+            <column name="source_type_mod" type="BOOLEAN"/>
+            <column name="subject_id" type="BIGINT"/>
+            <column name="subject_mod" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-9">
+        <createTable tableName="radar_user_aud">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rev" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revtype" type="${revtype}"/>
+            <column name="revend" type="INTEGER"/>
+            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+            <column name="activated" type="BOOLEAN"/>
+            <column name="activated_mod" type="BOOLEAN"/>
+            <column name="activation_key" type="VARCHAR(20)"/>
+            <column name="activation_key_mod" type="BOOLEAN"/>
+            <column name="email" type="VARCHAR(100)"/>
+            <column name="email_mod" type="BOOLEAN"/>
+            <column name="first_name" type="VARCHAR(50)"/>
+            <column name="first_name_mod" type="BOOLEAN"/>
+            <column name="lang_key" type="VARCHAR(5)"/>
+            <column name="lang_key_mod" type="BOOLEAN"/>
+            <column name="last_name" type="VARCHAR(50)"/>
+            <column name="last_name_mod" type="BOOLEAN"/>
+            <column name="login" type="VARCHAR(50)"/>
+            <column name="login_mod" type="BOOLEAN"/>
+            <column name="password_hash" type="VARCHAR(60)"/>
+            <column name="password_mod" type="BOOLEAN"/>
+            <column name="reset_date" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+            <column name="reset_date_mod" type="BOOLEAN"/>
+            <column name="reset_key" type="VARCHAR(20)"/>
+            <column name="reset_key_mod" type="BOOLEAN"/>
+            <column name="roles_mod" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-10">
+        <createTable tableName="role_users_aud">
+            <column name="rev" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="users_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="roles_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revtype" type="${revtype}"/>
+            <column name="revend" type="INTEGER"/>
+            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-11">
+        <createTable tableName="source_data_aud">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rev" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revtype" type="${revtype}"/>
+            <column name="revend" type="INTEGER"/>
+            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+            <column name="data_class" type="VARCHAR(255)"/>
+            <column name="data_class_mod" type="BOOLEAN"/>
+            <column name="enabled" type="BOOLEAN"/>
+            <column name="enabled_mod" type="BOOLEAN"/>
+            <column name="frequency" type="VARCHAR(255)"/>
+            <column name="frequency_mod" type="BOOLEAN"/>
+            <column name="key_schema" type="VARCHAR(255)"/>
+            <column name="key_schema_mod" type="BOOLEAN"/>
+            <column name="processing_state" type="VARCHAR(255)"/>
+            <column name="processing_state_mod" type="BOOLEAN"/>
+            <column name="provider" type="VARCHAR(255)"/>
+            <column name="provider_mod" type="BOOLEAN"/>
+            <column name="source_data_name" type="VARCHAR(255)"/>
+            <column name="source_data_name_mod" type="BOOLEAN"/>
+            <column name="source_data_type" type="VARCHAR(255)"/>
+            <column name="source_data_type_mod" type="BOOLEAN"/>
+            <column name="topic" type="VARCHAR(255)"/>
+            <column name="topic_mod" type="BOOLEAN"/>
+            <column name="unit" type="VARCHAR(255)"/>
+            <column name="unit_mod" type="BOOLEAN"/>
+            <column name="value_schema" type="VARCHAR(255)"/>
+            <column name="value_schema_mod" type="BOOLEAN"/>
+            <column name="source_type_id" type="BIGINT"/>
+            <column name="source_type_mod" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-12">
+        <createTable tableName="source_metadata_aud">
+            <column name="rev" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="attribute_value" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="attribute_key" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revtype" type="${revtype}"/>
+            <column name="revend" type="INTEGER"/>
+            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-13">
+        <createTable tableName="source_type_aud">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rev" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revtype" type="${revtype}"/>
+            <column name="revend" type="INTEGER"/>
+            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+            <column name="app_provider" type="VARCHAR(255)"/>
+            <column name="app_provider_mod" type="BOOLEAN"/>
+            <column name="assessment_type" type="VARCHAR(255)"/>
+            <column name="assessment_type_mod" type="BOOLEAN"/>
+            <column name="dynamic_registration" type="BOOLEAN"/>
+            <column name="can_register_dynamically_mod" type="BOOLEAN"/>
+            <column name="catalog_version" type="VARCHAR(255)"/>
+            <column name="catalog_version_mod" type="BOOLEAN"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="description_mod" type="BOOLEAN"/>
+            <column name="model" type="VARCHAR(255)"/>
+            <column name="model_mod" type="BOOLEAN"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="name_mod" type="BOOLEAN"/>
+            <column name="producer" type="VARCHAR(255)"/>
+            <column name="producer_mod" type="BOOLEAN"/>
+            <column name="source_type_scope" type="VARCHAR(255)"/>
+            <column name="source_type_scope_mod" type="BOOLEAN"/>
+            <column name="projects_mod" type="BOOLEAN"/>
+            <column name="source_data_mod" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-14">
+        <createTable tableName="subject_aud">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rev" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revtype" type="${revtype}"/>
+            <column name="revend" type="INTEGER"/>
+            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+            <column name="external_id" type="VARCHAR(255)"/>
+            <column name="external_id_mod" type="BOOLEAN"/>
+            <column name="external_link" type="VARCHAR(255)"/>
+            <column name="external_link_mod" type="BOOLEAN"/>
+            <column name="removed" type="BOOLEAN"/>
+            <column name="removed_mod" type="BOOLEAN"/>
+            <column name="attributes_mod" type="BOOLEAN"/>
+            <column name="sources_mod" type="BOOLEAN"/>
+            <column name="user_id" type="BIGINT"/>
+            <column name="user_mod" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-15">
+        <createTable tableName="subject_metadata_aud">
+            <column name="rev" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="attribute_value" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="attribute_key" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revtype" type="${revtype}"/>
+            <column name="revend" type="INTEGER"/>
+            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-17">
+        <addPrimaryKey columnNames="id" constraintName="_revisions_info_pkey" tableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-18">
+        <addPrimaryKey columnNames="id, rev" constraintName="project_aud_pkey" tableName="project_aud"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-19">
+        <addPrimaryKey columnNames="rev, id, attribute_value, attribute_key" constraintName="project_metadata_aud_pkey" tableName="project_metadata_aud"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-20">
+        <addPrimaryKey columnNames="rev, projects_id, source_types_id" constraintName="project_source_type_aud_pkey" tableName="project_source_type_aud"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-21">
+        <addPrimaryKey columnNames="name, rev" constraintName="radar_authority_aud_pkey" tableName="radar_authority_aud"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-22">
+        <addPrimaryKey columnNames="id, rev" constraintName="radar_role_aud_pkey" tableName="radar_role_aud"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-23">
+        <addPrimaryKey columnNames="id, rev" constraintName="radar_source_aud_pkey" tableName="radar_source_aud"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-24">
+        <addPrimaryKey columnNames="id, rev" constraintName="radar_user_aud_pkey" tableName="radar_user_aud"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-25">
+        <addPrimaryKey columnNames="rev, users_id, roles_id" constraintName="role_users_aud_pkey" tableName="role_users_aud"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-26">
+        <addPrimaryKey columnNames="id, rev" constraintName="source_data_aud_pkey" tableName="source_data_aud"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-27">
+        <addPrimaryKey columnNames="rev, id, attribute_value, attribute_key" constraintName="source_metadata_aud_pkey" tableName="source_metadata_aud"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-28">
+        <addPrimaryKey columnNames="id, rev" constraintName="source_type_aud_pkey" tableName="source_type_aud"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-29">
+        <addPrimaryKey columnNames="id, rev" constraintName="subject_aud_pkey" tableName="subject_aud"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-30">
+        <addPrimaryKey columnNames="rev, id, attribute_value, attribute_key" constraintName="subject_metadata_aud_pkey" tableName="subject_metadata_aud"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-32">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="radar_role_aud" constraintName="fk21qld3mn1fvkk84kksnga6ymf" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-34">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="project_metadata_aud" constraintName="fk5gro00jme7tdbok8we3lvl1ym" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-35">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="source_type_aud" constraintName="fk60j1mm7desfe14qkayo10kjiv" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-36">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="project_aud" constraintName="fk7njyo2v717vkl3t25x9y5fgdt" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-37">
+        <addForeignKeyConstraint baseColumnNames="revend" baseTableName="project_source_type_aud" constraintName="fk7ttxj3hjmnikr1kmkyib0arig" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-38">
+        <addForeignKeyConstraint baseColumnNames="revend" baseTableName="source_metadata_aud" constraintName="fk9nn0f837vgslcg6o7i83h4xdb" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-39">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="radar_authority_aud" constraintName="fkaqfvp9b2f8w8a9fbth65uvok7" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-40">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="subject_metadata_aud" constraintName="fkaqqec6sadfv8w8ii1hpxu8ut5" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-41">
+        <addForeignKeyConstraint baseColumnNames="revend" baseTableName="subject_aud" constraintName="fkc1v0behg8qbjkii5ycqg43wlx" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-42">
+        <addForeignKeyConstraint baseColumnNames="revend" baseTableName="project_aud" constraintName="fkcwxshrkq2usk4l1cdoorwyuy7" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-43">
+        <addForeignKeyConstraint baseColumnNames="revend" baseTableName="source_data_aud" constraintName="fkebm4gaxlhcyncvuh4hy8v0xkl" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-44">
+        <addForeignKeyConstraint baseColumnNames="revend" baseTableName="project_metadata_aud" constraintName="fkfk4i00r0760d8ph0hae54wt47" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-45">
+        <addForeignKeyConstraint baseColumnNames="revend" baseTableName="radar_user_aud" constraintName="fkfsiu34jb74bx5jucqs5yi3e1x" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-46">
+        <addForeignKeyConstraint baseColumnNames="revend" baseTableName="radar_role_aud" constraintName="fkiyo5gjv4c45bc7j5e0ukputgh" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-47">
+        <addForeignKeyConstraint baseColumnNames="revend" baseTableName="source_type_aud" constraintName="fkjniothxmq74pmv3hfb7rwwqdx" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-48">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="subject_aud" constraintName="fkk9xchuqwhlpss728ufagnskus" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-49">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="source_metadata_aud" constraintName="fkkwq4yo83uudx2qfkpkkedaqqs" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-50">
+        <addForeignKeyConstraint baseColumnNames="revend" baseTableName="radar_authority_aud" constraintName="fklc2sifhh4ff22qkv4qv0tfgv0" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-51">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="source_data_aud" constraintName="fklvvuw28mvwjjcn281p3yp8ao1" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-52">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="radar_source_aud" constraintName="fkn5hs0tcn22iysl4s1054n0qsv" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-53">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="radar_user_aud" constraintName="fknql1feyhvwacykcij5jcn5wdc" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-54">
+        <addForeignKeyConstraint baseColumnNames="revend" baseTableName="role_users_aud" constraintName="fkoj2rv6evijwkso6omix67uh96" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-56">
+        <addForeignKeyConstraint baseColumnNames="revend" baseTableName="radar_source_aud" constraintName="fkp0qc312nhledbji45l4y1utlj" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-57">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="role_users_aud" constraintName="fkpadrhe0g08su4trr1xw0vinbm" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-58">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="project_source_type_aud" constraintName="fkpi0lan4p3k5kxdwxc3dk4oe8t" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-60">
+        <addForeignKeyConstraint baseColumnNames="revend" baseTableName="subject_metadata_aud" constraintName="fkr2u84umxwls8aqwyaoborj4vi" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+
+    <!-- Initialize base revision -->
+    <changeSet id="1520933868142-62" author="dverbeec@its.jnj.com">
+        <sql>insert into _revisions_info values (1, 'system', ${now})</sql>
+        <sql>insert into project_aud(id, rev, revtype, description, description_mod, end_date, end_date_mod, location, location_mod, jhi_organization, organization_mod, project_name, project_name_mod, project_status, project_status_mod, start_date, start_date_mod, attributes_mod, roles_mod, source_types_mod) select id, 1, 0, description, true, end_date, true, location, true, jhi_organization, true, project_name, true, project_status, true, start_date, true, true, true, true from project</sql>
+        <sql>insert into project_metadata_aud(id, rev, revtype, attribute_key, attribute_value) select id, 1, 0, attribute_key, attribute_value from project_metadata</sql>
+        <sql>insert into project_source_type_aud(rev, revtype, projects_id, source_types_id) select 1, 0, projects_id, source_types_id from project_source_type</sql>
+        <sql>insert into radar_authority_aud(rev, revtype, name) select 1, 0, name from radar_authority</sql>
+        <sql>insert into radar_role_aud(id, rev, revtype, authority_name, authority_mod, project_id, project_mod, users_mod) select id, 1, 0, authority_name, true, project_id, true, true from radar_role</sql>
+        <sql>insert into radar_source_aud(id, rev, revtype, assigned, assigned_mod, expected_source_name, expected_source_name_mod, source_id, source_id_mod, source_name, source_name_mod, attributes_mod, project_id, project_mod, source_type_id, source_type_mod, subject_id, subject_mod) select id, 1, 0, assigned, true, expected_source_name, true, source_id, true, source_name, true, true, project_id, true, source_type_id, true, subject_id, true from radar_source</sql>
+        <sql>insert into radar_user_aud(id, rev, revtype, activated, activated_mod, activation_key, activation_key_mod, email, email_mod, first_name, first_name_mod, lang_key, lang_key_mod, last_name, last_name_mod, login, login_mod, password_hash, password_mod, reset_date, reset_date_mod, reset_key, reset_key_mod, roles_mod) select id, 1, 0, activated, true, activation_key, true, email, true, first_name, true, lang_key, true, last_name, true, login, true, password_hash, true, reset_date, true, reset_key, true, true from radar_user</sql>
+        <sql>insert into role_users_aud(rev, revtype, users_id, roles_id) select 1, 0, users_id, roles_id from role_users</sql>
+        <sql>insert into source_data_aud(id, rev, revtype, data_class, data_class_mod, enabled, enabled_mod, frequency, frequency_mod, key_schema, key_schema_mod, processing_state, processing_state_mod, provider, provider_mod, source_data_name, source_data_name_mod, source_data_type, source_data_type_mod, topic, topic_mod, unit, unit_mod, value_schema, value_schema_mod, source_type_id, source_type_mod) select id, 1, 0, data_class, true, enabled, true, frequency, true, key_schema, true, processing_state, true, provider, true, source_data_name, true, source_data_type, true, topic, true, unit, true, value_schema, true, source_type_id, true from source_data</sql>
+        <sql>insert into source_metadata_aud(id, rev, revtype, attribute_key, attribute_value) select id, 1, 0, attribute_key, attribute_value from source_metadata</sql>
+        <sql>insert into source_type_aud(id, rev, revtype, app_provider, app_provider_mod, assessment_type, assessment_type_mod, dynamic_registration, can_register_dynamically_mod, catalog_version, catalog_version_mod, description, description_mod, model, model_mod, name, name_mod, producer, producer_mod, source_type_scope, source_type_scope_mod, projects_mod, source_data_mod) select id, 1, 0, app_provider, true, assessment_type, true, dynamic_registration, true, catalog_version, true, description, true, model, true, name, true, producer, true, source_type_scope, true, true, true from source_type</sql>
+        <sql>insert into subject_aud(id, rev, revtype, external_id, external_id_mod, external_link, external_link_mod, removed, removed_mod, attributes_mod, sources_mod, user_id, user_mod) select id, 1, 0, external_id, true, external_link, true, removed, true, true, true, user_id, true from subject</sql>
+        <sql>insert into subject_metadata_aud(id, rev, revtype, attribute_key, attribute_value) select id, 1, 0, attribute_key, attribute_value from subject_metadata</sql>
+    </changeSet>
+
+    <!-- Drop old audit columns -->
+    <changeSet id="1520933868142-64" author="dverbeec@its.jnj.com">
+        <dropColumn tableName="project" columnName="created_by"/>
+        <dropColumn tableName="project" columnName="created_date"/>
+        <dropColumn tableName="project" columnName="last_modified_by"/>
+        <dropColumn tableName="project" columnName="last_modified_date"/>
+    </changeSet>
+
+    <changeSet id="1520933868142-65" author="dverbeec@its.jnj.com">
+        <dropColumn tableName="radar_role" columnName="created_by"/>
+        <dropColumn tableName="radar_role" columnName="created_date"/>
+        <dropColumn tableName="radar_role" columnName="last_modified_by"/>
+        <dropColumn tableName="radar_role" columnName="last_modified_date"/>
+    </changeSet>
+
+    <changeSet id="1520933868142-66" author="dverbeec@its.jnj.com">
+        <dropColumn tableName="radar_source" columnName="created_by"/>
+        <dropColumn tableName="radar_source" columnName="created_date"/>
+        <dropColumn tableName="radar_source" columnName="last_modified_by"/>
+        <dropColumn tableName="radar_source" columnName="last_modified_date"/>
+    </changeSet>
+
+    <changeSet id="1520933868142-67" author="dverbeec@its.jnj.com">
+        <dropColumn tableName="radar_user" columnName="created_by"/>
+        <dropColumn tableName="radar_user" columnName="created_date"/>
+        <dropColumn tableName="radar_user" columnName="last_modified_by"/>
+        <dropColumn tableName="radar_user" columnName="last_modified_date"/>
+    </changeSet>
+
+    <changeSet id="1520933868142-68" author="dverbeec@its.jnj.com">
+        <dropColumn tableName="source_data" columnName="created_by"/>
+        <dropColumn tableName="source_data" columnName="created_date"/>
+        <dropColumn tableName="source_data" columnName="last_modified_by"/>
+        <dropColumn tableName="source_data" columnName="last_modified_date"/>
+    </changeSet>
+
+    <changeSet id="1520933868142-69" author="dverbeec@its.jnj.com">
+        <dropColumn tableName="source_type" columnName="created_by"/>
+        <dropColumn tableName="source_type" columnName="created_date"/>
+        <dropColumn tableName="source_type" columnName="last_modified_by"/>
+        <dropColumn tableName="source_type" columnName="last_modified_date"/>
+    </changeSet>
+
+    <changeSet id="1520933868142-70" author="dverbeec@its.jnj.com">
+        <dropColumn tableName="subject" columnName="created_by"/>
+        <dropColumn tableName="subject" columnName="created_date"/>
+        <dropColumn tableName="subject" columnName="last_modified_by"/>
+        <dropColumn tableName="subject" columnName="last_modified_date"/>
+    </changeSet>
+
+    <changeSet id="1520933868142-71" author="dverbeec@its.jnj.com">
+        <createTable tableName="revchanges">
+            <column name="rev" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entityname" type="varchar(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="dverbeec@its.jnj.com" id="1520933868142-72">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="revchanges" constraintName="FK6ccsoae5dclnhlrltuq7d2grq" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+</databaseChangeLog>

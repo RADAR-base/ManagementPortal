@@ -23,5 +23,28 @@
                 "remoteAddress": "Remote Address:"
             }
         }
+    },
+    "revisions": {
+        "title": "History",
+        "revision": "Revision",
+        "revisionList": "History for",
+        "revisionType": "Revision Type",
+        "number": "Revision Number",
+        "timestamp": "Timestamp",
+        "author": "Author",
+        "modifications": "Modifications",
+        "type": {
+            "add": "Added",
+            "mod": "Modified",
+            "del": "Deleted"
+        },
+        "entity": {
+            "user": "User",
+            "subject": "Subject",
+            "source": "Source",
+            "project": "Project",
+            "sourceType": "Source Type",
+            "sourceData": "Source Data"
+        }
     }
 }

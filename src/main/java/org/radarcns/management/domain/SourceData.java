@@ -1,9 +1,16 @@
 package org.radarcns.management.domain;
 
-import java.io.Serializable;
-import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.envers.Audited;
+import org.radarcns.auth.config.Constants;
+import org.radarcns.management.domain.enumeration.ProcessingState;
+import org.radarcns.management.domain.support.AbstractEntityListener;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
@@ -15,20 +22,18 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
-import org.radarcns.auth.config.Constants;
-import org.radarcns.management.domain.enumeration.ProcessingState;
+import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * A SourceData.
  */
 @Entity
+@Audited
 @Table(name = "source_data")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class SourceData extends AbstractAuditingEntity implements Serializable {
+@EntityListeners({AbstractEntityListener.class})
+public class SourceData extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -84,8 +89,7 @@ public class SourceData extends AbstractAuditingEntity implements Serializable {
     private boolean enabled = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotFound(
-            action = NotFoundAction.IGNORE) // avoids exception from orphan object fetch
+    @JsonIgnoreProperties({"sourceData"})     // avoids infinite recursion in JSON serialization
     private SourceType sourceType;
 
     public Long getId() {

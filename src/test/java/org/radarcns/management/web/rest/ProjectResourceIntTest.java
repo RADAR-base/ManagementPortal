@@ -16,7 +16,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
-import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
@@ -80,9 +79,6 @@ public class ProjectResourceIntTest {
     private static final ZonedDateTime UPDATED_END_DATE = ZonedDateTime.now(
             ZoneId.systemDefault()).withNano(0);
 
-    private static final Long DEFAULT_PROJECT_ADMIN = 1L;
-    private static final Long UPDATED_PROJECT_ADMIN = 2L;
-
     @Autowired
     private ProjectRepository projectRepository;
 
@@ -102,9 +98,6 @@ public class ProjectResourceIntTest {
     private ExceptionTranslator exceptionTranslator;
 
     @Autowired
-    private EntityManager em;
-
-    @Autowired
     private HttpServletRequest servletRequest;
 
     private MockMvc restProjectMockMvc;
@@ -115,10 +108,11 @@ public class ProjectResourceIntTest {
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         ProjectResource projectResource = new ProjectResource();
+        ReflectionTestUtils.setField(projectResource, "projectRepository", projectRepository);
         ReflectionTestUtils.setField(projectResource, "projectService", projectService);
         ReflectionTestUtils.setField(projectResource, "servletRequest", servletRequest);
 
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
 
         this.restProjectMockMvc = MockMvcBuilders.standaloneSetup(projectResource)
@@ -135,7 +129,7 @@ public class ProjectResourceIntTest {
      * <p>This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.</p>
      */
-    public static Project createEntity(EntityManager em) {
+    public static Project createEntity() {
         Project project = new Project()
                 .projectName(DEFAULT_PROJECT_NAME)
                 .description(DEFAULT_DESCRIPTION)
@@ -143,14 +137,13 @@ public class ProjectResourceIntTest {
                 .location(DEFAULT_LOCATION)
                 .startDate(DEFAULT_START_DATE)
                 .projectStatus(DEFAULT_PROJECT_STATUS)
-                .endDate(DEFAULT_END_DATE)
-                .projectAdmin(DEFAULT_PROJECT_ADMIN);
+                .endDate(DEFAULT_END_DATE);
         return project;
     }
 
     @Before
     public void initTest() {
-        project = createEntity(em);
+        project = createEntity();
     }
 
     @Test
@@ -176,7 +169,6 @@ public class ProjectResourceIntTest {
         assertThat(testProject.getStartDate()).isEqualTo(DEFAULT_START_DATE);
         assertThat(testProject.getProjectStatus()).isEqualTo(DEFAULT_PROJECT_STATUS);
         assertThat(testProject.getEndDate()).isEqualTo(DEFAULT_END_DATE);
-        assertThat(testProject.getProjectAdmin()).isEqualTo(DEFAULT_PROJECT_ADMIN);
     }
 
     @Test
@@ -275,9 +267,7 @@ public class ProjectResourceIntTest {
                         hasItem(sameInstant(DEFAULT_START_DATE))))
                 .andExpect(jsonPath("$.[*].projectStatus").value(
                         hasItem(DEFAULT_PROJECT_STATUS.toString())))
-                .andExpect(jsonPath("$.[*].endDate").value(hasItem(sameInstant(DEFAULT_END_DATE))))
-                .andExpect(jsonPath("$.[*].projectAdmin").value(
-                        hasItem(DEFAULT_PROJECT_ADMIN.intValue())));
+                .andExpect(jsonPath("$.[*].endDate").value(hasItem(sameInstant(DEFAULT_END_DATE))));
     }
 
     @Test
@@ -297,8 +287,7 @@ public class ProjectResourceIntTest {
                 .andExpect(jsonPath("$.location").value(DEFAULT_LOCATION))
                 .andExpect(jsonPath("$.startDate").value(sameInstant(DEFAULT_START_DATE)))
                 .andExpect(jsonPath("$.projectStatus").value(DEFAULT_PROJECT_STATUS.toString()))
-                .andExpect(jsonPath("$.endDate").value(sameInstant(DEFAULT_END_DATE)))
-                .andExpect(jsonPath("$.projectAdmin").value(DEFAULT_PROJECT_ADMIN.intValue()));
+                .andExpect(jsonPath("$.endDate").value(sameInstant(DEFAULT_END_DATE)));
     }
 
     @Test
@@ -325,8 +314,7 @@ public class ProjectResourceIntTest {
                 .location(UPDATED_LOCATION)
                 .startDate(UPDATED_START_DATE)
                 .projectStatus(UPDATED_PROJECT_STATUS)
-                .endDate(UPDATED_END_DATE)
-                .projectAdmin(UPDATED_PROJECT_ADMIN);
+                .endDate(UPDATED_END_DATE);
         ProjectDTO projectDto = projectMapper.projectToProjectDTO(updatedProject);
 
         restProjectMockMvc.perform(put("/api/projects")
@@ -345,7 +333,6 @@ public class ProjectResourceIntTest {
         assertThat(testProject.getStartDate()).isEqualTo(UPDATED_START_DATE);
         assertThat(testProject.getProjectStatus()).isEqualTo(UPDATED_PROJECT_STATUS);
         assertThat(testProject.getEndDate()).isEqualTo(UPDATED_END_DATE);
-        assertThat(testProject.getProjectAdmin()).isEqualTo(UPDATED_PROJECT_ADMIN);
     }
 
     @Test

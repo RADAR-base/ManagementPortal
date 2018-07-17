@@ -1,28 +1,13 @@
 package org.radarcns.management.web.rest;
 
-import static org.radarcns.auth.authorization.Permission.SOURCETYPE_CREATE;
-import static org.radarcns.auth.authorization.Permission.SOURCETYPE_DELETE;
-import static org.radarcns.auth.authorization.Permission.SOURCETYPE_READ;
-import static org.radarcns.auth.authorization.Permission.SOURCETYPE_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
-
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.repository.SourceTypeRepository;
+import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SourceTypeDTO;
@@ -47,6 +32,22 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
+import static org.radarcns.auth.authorization.Permission.SOURCETYPE_CREATE;
+import static org.radarcns.auth.authorization.Permission.SOURCETYPE_DELETE;
+import static org.radarcns.auth.authorization.Permission.SOURCETYPE_READ;
+import static org.radarcns.auth.authorization.Permission.SOURCETYPE_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing SourceType.
@@ -99,13 +100,10 @@ public class SourceTypeResource {
             errorParams.put("model", sourceTypeDto.getModel());
             errorParams.put("catalogVersion", sourceTypeDto.getCatalogVersion());
             throw new CustomConflictException(ErrorConstants.ERR_SOURCE_TYPE_EXISTS, errorParams,
-                    new URI(HeaderUtil.buildPath("api", "source-types",
-                            sourceTypeDto.getProducer(), sourceTypeDto.getModel(),
-                            sourceTypeDto.getCatalogVersion())));
+                    ResourceUriService.getUri(sourceTypeDto));
         }
         SourceTypeDTO result = sourceTypeService.save(sourceTypeDto);
-        return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "source-types",
-                result.getProducer(), result.getModel(), result.getCatalogVersion())))
+        return ResponseEntity.created(ResourceUriService.getUri(result))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, displayName(result)))
                 .body(result);
     }

@@ -1,39 +1,44 @@
 package org.radarcns.management.domain;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+import org.hibernate.envers.Audited;
+import org.radarcns.management.domain.support.AbstractEntityListener;
+
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 /**
  * A Subject.
  */
 @Entity
+@Audited
 @Table(name = "subject")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Subject extends AbstractAuditingEntity implements Serializable {
+@EntityListeners({AbstractEntityListener.class})
+public class Subject extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -57,11 +62,8 @@ public class Subject extends AbstractAuditingEntity implements Serializable {
     @Cascade(CascadeType.ALL)
     private User user;
 
-    @ManyToMany
+    @OneToMany(mappedBy = "subject")
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    @JoinTable(name = "subject_sources",
-            joinColumns = @JoinColumn(name = "subjects_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "sources_id", referencedColumnName = "id"))
     @Cascade(CascadeType.SAVE_UPDATE)
     private Set<Source> sources = new HashSet<>();
 
@@ -138,30 +140,6 @@ public class Subject extends AbstractAuditingEntity implements Serializable {
 
     public Subject sources(Set<Source> sources) {
         this.sources = sources;
-        return this;
-    }
-
-    /**
-     * Add a source to this subject.
-     *
-     * @param source the source to add
-     * @return this subject
-     */
-    public Subject addSources(Source source) {
-        this.sources.add(source);
-        source.getSubjects().add(this);
-        return this;
-    }
-
-    /**
-     * Remove a source from this subject.
-     *
-     * @param source the source to remove
-     * @return this subject
-     */
-    public Subject removeSources(Source source) {
-        this.sources.remove(source);
-        source.getSubjects().remove(this);
         return this;
     }
 

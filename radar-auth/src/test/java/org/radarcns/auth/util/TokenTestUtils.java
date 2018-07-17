@@ -21,7 +21,7 @@ import org.radarcns.auth.authorization.Permission;
 public class TokenTestUtils {
     public static final String PUBLIC_KEY = "/oauth/token_key";
     public static String PUBLIC_KEY_BODY;
-    public static String VALID_TOKEN;
+    public static String VALID_RSA_TOKEN;
     public static String INCORRECT_AUDIENCE_TOKEN;
     public static String EXPIRED_TOKEN;
     public static String INCORRECT_ALGORITHM_TOKEN;
@@ -189,7 +189,7 @@ public class TokenTestUtils {
     }
 
     private static void initValidToken(Algorithm algorithm, Instant exp, Instant iat) {
-        VALID_TOKEN = JWT.create()
+        VALID_RSA_TOKEN = JWT.create()
                 .withIssuer(ISS)
                 .withIssuedAt(Date.from(iat))
                 .withExpiresAt(Date.from(exp))
@@ -204,7 +204,7 @@ public class TokenTestUtils {
                 .withClaim("jti", JTI)
                 .withClaim("grant_type", "password")
                 .sign(algorithm);
-        SUPER_USER_TOKEN = JWT.decode(VALID_TOKEN);
+        SUPER_USER_TOKEN = JWT.decode(VALID_RSA_TOKEN);
     }
 
     private static void initTokenWithScopes(Algorithm algorithm, Instant exp, Instant iat) {

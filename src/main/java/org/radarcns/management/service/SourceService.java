@@ -1,7 +1,9 @@
 package org.radarcns.management.service;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.radarcns.management.domain.Source;
@@ -9,11 +11,13 @@ import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.service.mapper.SourceMapper;
+import org.radarcns.management.web.rest.errors.CustomParameterizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.history.Revisions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,14 +87,39 @@ public class SourceService {
                 .map(sourceMapper::sourceToSourceDTO);
     }
 
+
+    /**
+     * Get one source by id.
+     *
+     * @param id the id of the source
+     * @return the entity
+     */
+    @Transactional(readOnly = true)
+    public Optional<SourceDTO> findOneById(Long id) {
+        log.debug("Request to get Source by id: {}", id);
+        return Optional.ofNullable(sourceRepository.findOne(id))
+                .map(sourceMapper::sourceToSourceDTO);
+    }
+
     /**
      * Delete the  device by id.
      *
      * @param id the id of the entity
      */
+    @Transactional
     public void delete(Long id) {
-        log.debug("Request to delete Source : {}", id);
-        sourceRepository.delete(id);
+        log.info("Request to delete Source : {}", id);
+        Revisions<Integer, Source> sourceHistory = sourceRepository.findRevisions(id);
+        List<Source> sources = sourceHistory.getContent().stream().map(p -> (Source) p.getEntity())
+                .filter(Source::isAssigned).collect(Collectors.toList());
+        if (sources.isEmpty()) {
+            sourceRepository.delete(id);
+        } else {
+            Map<String, String> errorParams = new HashMap<>();
+            errorParams.put("message", "Cannot delete source with sourceId ");
+            errorParams.put("id", Long.toString(id));
+            throw new CustomParameterizedException("error.usedSourceDeletion", errorParams);
+        }
     }
 
     /**
@@ -130,5 +159,25 @@ public class SourceService {
         return sourceRepository.findAllSourcesByProjectIdAndAssigned(projectId, assigned).stream()
                 .map(sourceMapper::sourceToMinimalSourceDetailsDTO)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * This method does a safe update of source assigned to a subject. It will allow updates of
+     * attributes only.
+     * @param sourceToUpdate source fetched from database
+     * @param attributes value to update
+     * @return Updated {@link MinimalSourceDetailsDTO} of source
+     */
+    public MinimalSourceDetailsDTO safeUpdateOfAttributes(Source sourceToUpdate,
+            Map<String, String> attributes) {
+
+        // update source attributes
+        Map<String, String> updatedAttributes = new HashMap<>();
+        updatedAttributes.putAll(sourceToUpdate.getAttributes());
+        updatedAttributes.putAll(attributes);
+
+        sourceToUpdate.setAttributes(updatedAttributes);
+        // rest of the properties should not be updated from this request.
+        return sourceMapper.sourceToMinimalSourceDetailsDTO(sourceRepository.save(sourceToUpdate));
     }
 }

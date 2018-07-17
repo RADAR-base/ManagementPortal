@@ -113,6 +113,13 @@ public class ExceptionTranslator {
                 .body(ex.getErrorVM());
     }
 
+    @ExceptionHandler(CustomServerException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public ParameterizedErrorVM processParameterizedServerError(CustomServerException ex) {
+        return ex.getErrorVM();
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody

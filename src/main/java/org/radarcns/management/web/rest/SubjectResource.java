@@ -1,46 +1,33 @@
 package org.radarcns.management.web.rest;
 
-import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
-import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
-import static org.radarcns.auth.authorization.Permission.SUBJECT_CREATE;
-import static org.radarcns.auth.authorization.Permission.SUBJECT_DELETE;
-import static org.radarcns.auth.authorization.Permission.SUBJECT_READ;
-import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
-
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Stream;
-import javax.servlet.http.HttpServletRequest;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
+import org.radarcns.auth.token.RadarToken;
 import org.radarcns.management.domain.Role;
+import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.SecurityUtils;
+import org.radarcns.management.service.ResourceUriService;
+import org.radarcns.management.service.RevisionService;
+import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.SubjectService;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
+import org.radarcns.management.service.dto.RevisionDTO;
 import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
+import org.radarcns.management.web.rest.errors.CustomNotFoundException;
 import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
@@ -62,6 +49,30 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
+import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarcns.auth.authorization.Permission.SOURCE_UPDATE;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_CREATE;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_DELETE;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_READ;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing Subject.
@@ -94,6 +105,12 @@ public class SubjectResource {
 
     @Autowired
     private AuditEventRepository eventRepository;
+
+    @Autowired
+    private RevisionService revisionService;
+
+    @Autowired
+    private SourceService sourceService;
 
     /**
      * POST  /subjects : Create a new subject.
@@ -137,8 +154,7 @@ public class SubjectResource {
         }
 
         SubjectDTO result = subjectService.createSubject(subjectDto);
-        return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "subjects",
-                result.getLogin())))
+        return ResponseEntity.created(ResourceUriService.getUri(subjectDto))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getLogin()))
                 .body(result);
     }
@@ -236,8 +252,7 @@ public class SubjectResource {
                 INACTIVE_PARTICIPANT) : Collections.singletonList(PARTICIPANT);
 
         if (projectName != null && externalId != null) {
-            Optional<Subject> subject = Optional.empty();
-            subjectRepository
+            Optional<Subject> subject = subjectRepository
                     .findOneByProjectNameAndExternalIdAndAuthoritiesIn(projectName, externalId,
                             authoritiesToInclude);
 
@@ -287,6 +302,60 @@ public class SubjectResource {
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, subjectDto.getProject()
                 .getProjectName(), subjectDto.getLogin());
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(subjectDto));
+    }
+
+    /**
+     * GET  /subjects/:login/revisions : get all revisions for the "login" subject.
+     *
+     * @param login the login of the subjectDTO for which to retrieve the revisions
+     * @return the ResponseEntity with status 200 (OK) and with body the subjectDTO, or with status
+     *         404 (Not Found)
+     */
+    @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/revisions")
+    @Timed
+    public ResponseEntity<List<RevisionDTO>> getSubjectRevisions(
+            @ApiParam Pageable pageable, @PathVariable String login) throws NotAuthorizedException {
+        log.debug("REST request to get revisions for Subject : {}", login);
+        SubjectDTO subject = subjectService.getLatestRevision(login);
+        Page<RevisionDTO> page = revisionService.getRevisionsForEntity(pageable,
+                subjectMapper.subjectDTOToSubject(subject));
+        SubjectDTO blank = new SubjectDTO();
+        RadarToken token = getJWT(servletRequest);
+        // iterate the revisions, if we don't have read permission for the subject in a given
+        // revision, swap the subject with a 'blank' subject so no information gets leaked
+        page = page.map(rev -> token.hasPermissionOnSubject(SUBJECT_READ,
+                ((SubjectDTO) rev.getEntity()).getProject().getProjectName(),
+                ((SubjectDTO) rev.getEntity()).getLogin())
+                ? rev : rev.setEntity(blank));
+        // This stream returns true if all values are equal to blank. To prevent people with no
+        // access to the requested subject in any of the subject history's projects from gaining
+        // information on the subject history this way, we throw a NotAuthorized.
+        if (page.getContent().stream().map(blank::equals)
+                    .reduce(Boolean.TRUE, Boolean::logicalAnd)) {
+            throw new NotAuthorizedException();
+        }
+        return ResponseEntity.ok().headers(PaginationUtil.generatePaginationHttpHeaders(page,
+                HeaderUtil.buildPath("subjects", login, "revisions"))).body(page.getContent());
+    }
+
+    /**
+     * GET  /subjects/:login/revisions/:revisionNb : get the "login" subject at revisionNb
+     * 'revisionNb'.
+     *
+     * @param login the login of the subjectDTO to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the subjectDTO, or with status
+     *         404 (Not Found)
+     */
+    @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}"
+            + "/revisions/{revisionNb:^[0-9]*$}")
+    @Timed
+    public ResponseEntity<SubjectDTO> getSubjectRevision(@PathVariable String login,
+            @PathVariable Integer revisionNb) throws NotAuthorizedException {
+        log.debug("REST request to get Subject : {}, for revisionNb: {}", login, revisionNb);
+        SubjectDTO subjectDto = subjectService.findRevision(login, revisionNb);
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, subjectDto.getProject()
+                .getProjectName(), subjectDto.getLogin());
+        return ResponseEntity.ok(subjectDto);
     }
 
     /**
@@ -364,12 +433,13 @@ public class SubjectResource {
         Long sourceTypeId = sourceDto.getSourceTypeId();
         if (sourceTypeId == null) {
             // check if combination (producer, model, version) is present
-            final String msg = "error.sourceNotFound";
             try {
-                String producer = Objects.requireNonNull(sourceDto.getSourceTypeProducer(), msg);
-                String model = Objects.requireNonNull(sourceDto.getSourceTypeModel(), msg);
+                String producer = Objects.requireNonNull(sourceDto.getSourceTypeProducer(),
+                        ErrorConstants.ERR_VALIDATION);
+                String model = Objects.requireNonNull(sourceDto.getSourceTypeModel(),
+                        ErrorConstants.ERR_VALIDATION);
                 String version = Objects.requireNonNull(sourceDto.getSourceTypeCatalogVersion(),
-                        msg);
+                        ErrorConstants.ERR_VALIDATION);
                 SourceTypeDTO sourceTypeDto = sourceTypeService
                         .findByProducerAndModelAndVersion(producer, model, version);
                 if (Objects.isNull(sourceTypeDto)) {
@@ -395,8 +465,7 @@ public class SubjectResource {
             // return bad request
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(HeaderUtil
                     .createAlert("sourceTypeNotAvailable",
-                            "The source type is not registered in the"
-                                    + " given project")).build();
+                            "The source type is not registered in the given project")).build();
         }
 
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, role.getProject()
@@ -415,8 +484,7 @@ public class SubjectResource {
         // an existing source was provided. If an existing source was given but not found, the
         // assignOrUpdateSource would throw an error and we would not reach this point.
         if (!existing) {
-            return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "sources",
-                    sourceRegistered.getSourceName())))
+            return ResponseEntity.created(ResourceUriService.getUri(sourceRegistered))
                     .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, login))
                     .body(sourceRegistered);
         } else {
@@ -434,7 +502,12 @@ public class SubjectResource {
     @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/sources")
     @Timed
     public ResponseEntity<List<MinimalSourceDetailsDTO>> getSubjectSources(
-            @PathVariable String login) throws NotAuthorizedException {
+            @PathVariable String login,
+            @RequestParam(value = "withInactiveSources", required = false)
+                    Boolean withInactiveSourcesParam) throws NotAuthorizedException {
+
+        boolean withInactiveSources = withInactiveSourcesParam == null ? false
+                : withInactiveSourcesParam;
         // check the subject id
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         if (!subject.isPresent()) {
@@ -445,6 +518,71 @@ public class SubjectResource {
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, subjectDto.getProject()
                 .getProjectName(), subjectDto.getLogin());
 
+        if (withInactiveSources) {
+            return ResponseEntity.ok()
+                    .body(subjectService.findSubjectSourcesFromRevisions(subject.get()));
+        }
+
+        log.debug("REST request to get sources of Subject : {}", login);
+
         return ResponseEntity.ok().body(subjectService.getSources(subject.get()));
+    }
+
+
+    /**
+     * POST  /subjects/:login/sources/:sourceName Update source attributes and source-name.
+     *
+     * <p>The request body is a {@link Map} of strings. This request allows
+     * update of attributes only. Attributes will be merged and if a new value is
+     * provided for an existing key, the new value will be updated. The request will be validated
+     * for SOURCE.UPDATE permission and
+     * </p>
+     *
+     * @param attributes The {@link Map} specification
+     * @return The {@link MinimalSourceDetailsDTO} completed with all identifying fields.
+     * @throws CustomNotFoundException if the subject or the source not found using given ids.
+     */
+    @PostMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/sources/{sourceName:"
+            + Constants.ENTITY_ID_REGEX + "}")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "An existing source was updated"),
+            @ApiResponse(code = 400, message = "You must supply existing sourceId)"),
+            @ApiResponse(code = 404, message = "Either the subject or the source was not found.")
+    })
+    @Timed
+    public ResponseEntity<MinimalSourceDetailsDTO> updateSubjectSource(@PathVariable String login,
+            @PathVariable String sourceName, @RequestBody Map<String, String> attributes)
+            throws CustomNotFoundException, NotAuthorizedException,
+            URISyntaxException {
+        // check the subject id
+        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
+        if (!subject.isPresent()) {
+            Map<String, String> errorParams = new HashMap<>();
+            errorParams.put("message", "Subject ID not found");
+            errorParams.put("subjectLogin", login);
+            throw new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND, errorParams);
+        }
+        // check the permission to update source
+        SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject.get());
+        checkPermissionOnSubject(getJWT(servletRequest), SOURCE_UPDATE,
+                subjectDto.getProject().getProjectName(), subjectDto.getLogin());
+
+        // find source under subject
+        List<Source> sources = subject.get().getSources().stream()
+                .filter(s -> s.getSourceName().equals(sourceName))
+                .collect(Collectors.toList());
+
+        // exception if source is not found under subject
+        if (sources.isEmpty()) {
+            Map<String, String> errorParams = new HashMap<>();
+            errorParams.put("message", "Source not found under assigned sources of subject");
+            errorParams.put("subjectLogin", login);
+            errorParams.put("sourceName", sourceName);
+            throw new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND, errorParams);
+        }
+
+        // there should be only one source under a source-name.
+        return ResponseEntity.ok().body(sourceService.safeUpdateOfAttributes(sources.get(0),
+                attributes));
     }
 }

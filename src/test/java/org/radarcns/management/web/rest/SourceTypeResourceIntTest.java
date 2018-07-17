@@ -111,7 +111,7 @@ public class SourceTypeResourceIntTest {
                 sourceTypeRepository);
         ReflectionTestUtils.setField(sourceTypeResource, "servletRequest", servletRequest);
 
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
 
         this.restSourceTypeMockMvc = MockMvcBuilders.standaloneSetup(sourceTypeResource)

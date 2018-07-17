@@ -8,7 +8,7 @@ describe('Discontinued subject should unassign sources', () => {
     const accountMenu = element(by.id('account-menu'));
     const login = element(by.id('login'));
     const logout = element(by.id('logout'));
-    const sourceName = 'test-source-1';
+    const sourceName = 'test-source-2';
 
     beforeAll(() => {
         browser.get('#');
@@ -44,7 +44,7 @@ describe('Discontinued subject should unassign sources', () => {
                 element(by.css('.modal-footer button.btn-primary')).click().then(() => {
                     browser.waitForAngular();
                     element.all(by.css('sources tbody tr')).count().then(function(count) {
-                        expect(count).toEqual(2);
+                        expect(count).toEqual(3);
                     });
                 });
             });
@@ -61,18 +61,22 @@ describe('Discontinued subject should unassign sources', () => {
                 element.all(by.css('source-assigner tbody')).get(0).all(by.css('tr')).then(function(rows) {
                     expect(rows.length).toEqual(0);
                 });
-                // second table lists available sources, should have one element
+                // second table lists available sources, should have two elements
                 element.all(by.css('source-assigner tbody')).get(1).all(by.css('tr')).then(function(rows) {
-                    expect(rows.length).toEqual(1);
+                    expect(rows.length).toEqual(2);
                 });
-                element(by.cssContainingText('button', 'Add')).click().then(() => {
+
+                // element(by.xpath("//table/tr[td = 'Eve']")).click();
+              const source = element.all(by.xpath('//tr/td[2]')).filter(el => el.getText().then((text) => text.match(sourceName) != null)).first()
+              .element(by.xpath('ancestor::tr'));
+              source.element(by.cssContainingText('button', 'Add')).click().then(() => {
                     browser.waitForAngular();
                     // available source should be moved to first table
                     element.all(by.css('source-assigner tbody')).get(0).all(by.css('tr')).then(function(rows) {
                         expect(rows.length).toEqual(1);
                     });
                     element.all(by.css('source-assigner tbody')).get(1).all(by.css('tr')).then(function(rows) {
-                        expect(rows.length).toEqual(0);
+                        expect(rows.length).toEqual(1);
                     });
                     element(by.cssContainingText('button', 'Save')).click().then(() => {
                         browser.waitForAngular();
@@ -118,20 +122,6 @@ describe('Discontinued subject should unassign sources', () => {
                     expect(count).toBe(1);
                 });
         });
-    });
-
-    it('should be able to delete a source', function () {
-        element.all(by.linkText(sourceName))
-            .all(by.xpath('ancestor::tr'))
-            .all(by.cssContainingText('button', 'Delete'))
-            .click().then(() => {
-                element(by.css('.modal-footer button.btn-danger')).click().then(() => {
-                    browser.waitForAngular();
-                    element.all(by.css('sources tbody tr')).count().then(function (count) {
-                        expect(count).toBe(1);
-                    });
-                });
-            });
     });
 
     it('should be able to delete a subject', function () {

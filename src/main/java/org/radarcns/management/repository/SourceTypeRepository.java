@@ -6,13 +6,17 @@ import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.SourceType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.RepositoryDefinition;
+import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.query.Param;
 
 /**
  * Spring Data JPA repository for the SourceType entity.
  */
 @SuppressWarnings("unused")
-public interface SourceTypeRepository extends JpaRepository<SourceType, Long> {
+@RepositoryDefinition(domainClass = SourceType.class, idClass = Long.class)
+public interface SourceTypeRepository extends JpaRepository<SourceType, Long>,
+        RevisionRepository<SourceType, Long, Integer> {
 
     @Query("select distinct sourceType from SourceType sourceType left join fetch sourceType"
             + ".sourceData")

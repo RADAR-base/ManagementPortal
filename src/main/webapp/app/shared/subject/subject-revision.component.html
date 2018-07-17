@@ -1,0 +1,53 @@
+
+<div *ngIf="subject">
+    <h2><span jhiTranslate="managementPortalApp.subject.detail.title">Subject</span> {{subject.login}}</h2>
+    <h3 *ngIf="revision"><span jhiTranslate="revisions.revision">Revision</span>&nbsp; {{revision.id}} - {{revision.timestamp  | date:'MMMM d, y, h:mm:ss a Z'}}</h3>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="managementPortalApp.subject.login">Login</span></dt>
+        <dd>
+            <span>{{subject.login}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.externalLink">External Link</span></dt>
+        <dd>
+            <span>{{subject.externalLink}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.externalId">External Id</span></dt>
+        <dd>
+            <span>{{subject.externalId}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.removed">Removed</span></dt>
+        <dd>
+            <span>{{subject.removed}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.activated">Activated</span></dt>
+        <dd>
+            <span>{{subject.activated}}</span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.project">Project</span></dt>
+        <dd>
+            <span *ngIf="subject.project">
+                  <a [routerLink]="['/project', subject.project?.projectName ]" >{{subject.project?.projectName}}</a>
+            </span>
+        </dd>
+        <dt><span jhiTranslate="managementPortalApp.subject.sources">Sources</span></dt>
+        <dd>
+            <span *ngFor="let sources of subject.sources; let last = last">
+                <a [routerLink]="['/source', sources?.sourceName ]">{{sources.sourceTypeModel}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
+            </span>
+        </dd>
+
+    </dl>
+
+    <button type="submit"
+            (click)="previousState()"
+            class="btn btn-info">
+        <span class="fa fa-arrow-left"></span>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+    </button>
+    <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN']"
+        class="btn btn-dark"
+        [routerLink]="['/subject', subject.login, 'revisions']">
+        <span class="fa fa-history"></span>&nbsp;<span jhiTranslate="revisions.title"></span>
+    </button>
+</div>

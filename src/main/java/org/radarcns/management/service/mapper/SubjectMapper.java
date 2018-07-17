@@ -18,22 +18,18 @@ import org.radarcns.management.service.mapper.decorator.SubjectMapperDecorator;
 public interface SubjectMapper {
 
     @Mapping(source = "user.login", target = "login")
-    @Mapping(source = "user.createdBy", target = "createdBy")
-    @Mapping(source = "user.createdDate", target = "createdDate")
-    @Mapping(source = "user.lastModifiedBy", target = "lastModifiedBy")
-    @Mapping(source = "user.lastModifiedDate", target = "lastModifiedDate")
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "project", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
     @Mapping(source = "user.roles", target = "roles")
     SubjectDTO subjectToSubjectDTO(Subject subject);
 
     List<SubjectDTO> subjectsToSubjectDTOs(List<Subject> subjects);
 
     @Mapping(source = "login", target = "user.login")
-    @Mapping(source = "createdBy", target = "user.createdBy")
-    @Mapping(source = "createdDate", target = "user.createdDate")
-    @Mapping(source = "lastModifiedBy", target = "user.lastModifiedBy")
-    @Mapping(source = "lastModifiedDate", target = "user.lastModifiedDate")
     @Mapping(target = "user.email", ignore = true)
     @Mapping(target = "user.activated", ignore = true)
     @Mapping(target = "removed", ignore = true)

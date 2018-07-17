@@ -9,11 +9,14 @@ package org.radarcns.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
+import org.radarcns.management.domain.support.AbstractEntityListener;
+
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -22,16 +25,20 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * A Role.
  */
 @Entity
+@Audited
 @Table(name = "radar_role")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Role extends AbstractAuditingEntity implements Serializable {
+@EntityListeners({AbstractEntityListener.class})
+public class Role extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -43,6 +50,7 @@ public class Role extends AbstractAuditingEntity implements Serializable {
     @ManyToMany(mappedBy = "roles")
     @JsonIgnore
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Set<User> users = new HashSet<>();
 
     @ManyToOne

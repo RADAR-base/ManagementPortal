@@ -11,6 +11,7 @@ import org.radarcns.auth.exception.TokenValidationException;
 import org.radarcns.auth.util.TokenTestUtils;
 
 import java.io.File;
+import java.net.URISyntaxException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -52,7 +53,7 @@ public class TokenValidatorTest {
 
     @Test
     public void testValidToken() {
-        validator.validateAccessToken(TokenTestUtils.VALID_TOKEN);
+        validator.validateAccessToken(TokenTestUtils.VALID_RSA_TOKEN);
     }
 
     @Test(expected = TokenValidationException.class)
@@ -71,12 +72,12 @@ public class TokenValidatorTest {
     }
 
     @Test
-    public void testPublicKeyFromConfigFile() {
+    public void testPublicKeyFromConfigFile() throws URISyntaxException {
         ClassLoader loader = getClass().getClassLoader();
-        File configFile = new File(loader.getResource("radar-is-2.yml").getFile());
+        File configFile = new File(loader.getResource("radar-is-2.yml").toURI());
         environmentVariables.set(YamlServerConfig.LOCATION_ENV, configFile.getAbsolutePath());
         // reinitialize TokenValidator to pick up new config
         validator = new TokenValidator();
-        validator.validateAccessToken(TokenTestUtils.VALID_TOKEN);
+        validator.validateAccessToken(TokenTestUtils.VALID_RSA_TOKEN);
     }
 }

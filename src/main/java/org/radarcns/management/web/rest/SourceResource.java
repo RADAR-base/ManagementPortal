@@ -1,24 +1,14 @@
 package org.radarcns.management.web.rest;
 
-import static org.radarcns.auth.authorization.Permission.SOURCE_CREATE;
-import static org.radarcns.auth.authorization.Permission.SOURCE_DELETE;
-import static org.radarcns.auth.authorization.Permission.SOURCE_READ;
-import static org.radarcns.auth.authorization.Permission.SOURCE_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
-
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
+import org.radarcns.management.domain.SourceType;
+import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SourceRepository;
+import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -40,6 +30,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+
+import static org.radarcns.auth.authorization.Permission.SOURCE_CREATE;
+import static org.radarcns.auth.authorization.Permission.SOURCE_DELETE;
+import static org.radarcns.auth.authorization.Permission.SOURCE_READ;
+import static org.radarcns.auth.authorization.Permission.SOURCE_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
+
 /**
  * REST controller for managing Source.
  */
@@ -59,6 +62,9 @@ public class SourceResource {
 
     @Autowired
     private HttpServletRequest servletRequest;
+
+    @Autowired
+    private ProjectRepository projectRepository;
 
     /**
      * POST  /sources : Create a new source.
@@ -89,9 +95,9 @@ public class SourceResource {
                             "A new source must have the 'assigned' field specified")).body(null);
         } else {
             SourceDTO result = sourceService.save(sourceDto);
-            String name = result.getSourceName();
-            return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "sources", name)))
-                    .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, name))
+            return ResponseEntity.created(ResourceUriService.getUri(result))
+                    .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME,
+                            result.getSourceName()))
                     .body(result);
         }
     }
@@ -114,6 +120,38 @@ public class SourceResource {
             return createSource(sourceDto);
         }
         checkPermission(getJWT(servletRequest), SOURCE_UPDATE);
+        Optional<SourceDTO> sourceToUpdateDto = sourceService
+                .findOneById(sourceDto.getId());
+
+        if (!sourceToUpdateDto.isPresent()) {
+            return ResponseEntity.notFound().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
+                "sourceNotFound",
+                "Cannot find a source by sourceName " + sourceDto.getSourceName())).build();
+        }
+        SourceDTO sourceToUpdate = sourceToUpdateDto.get();
+
+        // if the source is being transferred to another project.
+        if (!sourceToUpdate.getProject().getId().equals(sourceDto.getProject().getId())) {
+            if (sourceToUpdate.getAssigned()) {
+                return ResponseEntity.badRequest().headers(
+                    HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceIsAssigned",
+                        "Cannot transfer an assigned source")).build();
+            }
+            // check whether source-type of the device is assigned to the new project
+            // to be transferred.
+            Optional<SourceType> sourceType = projectRepository
+                    .findSourceTypeByProjectIdAndSourceTypeId(sourceDto.getProject().getId(),
+                    sourceToUpdate.getSourceType().getId());
+            if  (!sourceType.isPresent()) {
+                return ResponseEntity.badRequest().headers(HeaderUtil
+                    .createFailureAlert(ENTITY_NAME,
+                    "invalidTransfer", "Cannot transfer a source to a project which doesn't "
+                        + "have compatible source-type")).build();
+            }
+            // set old source-type, ensures compatibility
+            sourceDto.setSourceType(sourceToUpdate.getSourceType());
+
+        }
         SourceDTO result = sourceService.save(sourceDto);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceDto.getSourceName()))
@@ -131,7 +169,7 @@ public class SourceResource {
         log.debug("REST request to get all Sources");
         Page<SourceDTO> page = sourceService.findAll(pageable);
         HttpHeaders headers = PaginationUtil
-                .generatePaginationHttpHeaders(page, "/api/source-types");
+                .generatePaginationHttpHeaders(page, "/api/sources");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 

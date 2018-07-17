@@ -1,17 +1,19 @@
 package org.radarcns.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.io.Serializable;
-import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.envers.Audited;
+import org.radarcns.auth.config.Constants;
+import org.radarcns.management.domain.enumeration.ProjectStatus;
+import org.radarcns.management.domain.support.AbstractEntityListener;
+
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
@@ -27,19 +29,23 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
-import org.radarcns.auth.config.Constants;
-import org.radarcns.management.domain.enumeration.ProjectStatus;
+import java.io.Serializable;
+import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * A Project.
  */
 @Entity
+@Audited
 @Table(name = "project")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Project extends AbstractAuditingEntity implements Serializable {
+@EntityListeners({AbstractEntityListener.class})
+public class Project extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -73,9 +79,6 @@ public class Project extends AbstractAuditingEntity implements Serializable {
 
     @Column(name = "end_date")
     private ZonedDateTime endDate;
-
-    @Column(name = "project_admin")
-    private Long projectAdmin;
 
     @JsonIgnore
     @OneToMany(mappedBy = "project")
@@ -202,19 +205,6 @@ public class Project extends AbstractAuditingEntity implements Serializable {
         this.endDate = endDate;
     }
 
-    public Long getProjectAdmin() {
-        return projectAdmin;
-    }
-
-    public Project projectAdmin(Long projectAdmin) {
-        this.projectAdmin = projectAdmin;
-        return this;
-    }
-
-    public void setProjectAdmin(Long projectAdmin) {
-        this.projectAdmin = projectAdmin;
-    }
-
     public Set<SourceType> getSourceTypes() {
         return sourceTypes;
     }
@@ -291,7 +281,6 @@ public class Project extends AbstractAuditingEntity implements Serializable {
                 + ", startDate='" + startDate + "'"
                 + ", projectStatus='" + projectStatus + "'"
                 + ", endDate='" + endDate + "'"
-                + ", projectAdmin='" + projectAdmin + "'"
                 + "}";
     }
 }

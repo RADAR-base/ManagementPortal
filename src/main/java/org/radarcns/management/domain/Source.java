@@ -1,23 +1,22 @@
 package org.radarcns.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.envers.Audited;
+import org.radarcns.auth.config.Constants;
+import org.radarcns.management.domain.support.AbstractEntityListener;
+
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.PrePersist;
@@ -25,17 +24,21 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.radarcns.auth.config.Constants;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * A Source.
  */
 @Entity
+@Audited
 @Table(name = "radar_source")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Source extends AbstractAuditingEntity implements Serializable {
+@EntityListeners({AbstractEntityListener.class})
+public class Source extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -60,10 +63,11 @@ public class Source extends AbstractAuditingEntity implements Serializable {
     @Column(name = "assigned", nullable = false)
     private Boolean assigned;
 
-    @ManyToMany(mappedBy = "sources")
+    @ManyToOne
+    @JoinColumn(name = "subject_id")
     @JsonIgnore
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    private Set<Subject> subjects = new HashSet<>();
+    private Subject subject;
 
     @ManyToOne
     private SourceType sourceType;
@@ -172,12 +176,12 @@ public class Source extends AbstractAuditingEntity implements Serializable {
         return this;
     }
 
-    public Set<Subject> getSubjects() {
-        return subjects;
+    public Subject getSubject() {
+        return subject;
     }
 
-    public Source subjects(Set<Subject> subjects) {
-        this.subjects = subjects;
+    public Source subject(Subject subject) {
+        this.subject = subject;
         return this;
     }
 
@@ -210,8 +214,8 @@ public class Source extends AbstractAuditingEntity implements Serializable {
         this.attributes = attributes;
     }
 
-    public void setSubjects(Set<Subject> subjects) {
-        this.subjects = subjects;
+    public void setSubject(Subject subject) {
+        this.subject = subject;
     }
 
     @Override
@@ -226,12 +230,13 @@ public class Source extends AbstractAuditingEntity implements Serializable {
         if (source.id == null || id == null) {
             return false;
         }
-        return Objects.equals(id, source.id);
+        return Objects.equals(id, source.id)
+                && Objects.equals(sourceId, source.sourceId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hash(id , sourceId);
     }
 
     @Override

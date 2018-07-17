@@ -1,24 +1,11 @@
 package org.radarcns.management.web.rest;
 
-import static org.radarcns.auth.authorization.Permission.SOURCEDATA_CREATE;
-import static org.radarcns.auth.authorization.Permission.SOURCEDATA_DELETE;
-import static org.radarcns.auth.authorization.Permission.SOURCEDATA_READ;
-import static org.radarcns.auth.authorization.Permission.SOURCEDATA_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
-
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
+import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.SourceDataService;
 import org.radarcns.management.service.dto.SourceDataDTO;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
@@ -40,6 +27,20 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_CREATE;
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_DELETE;
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_READ;
+import static org.radarcns.auth.authorization.Permission.SOURCEDATA_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing SourceData.
@@ -80,10 +81,10 @@ public class SourceDataResource {
         if (sourceDataService.findOneBySourceDataName(name).isPresent()) {
             throw new CustomConflictException("error.sourceDataNameAvailable",
                     Collections.singletonMap("sourceDataName", name),
-                    new URI(HeaderUtil.buildPath("api", "source-data", name)));
+                    ResourceUriService.getUri(sourceDataDto));
         }
         SourceDataDTO result = sourceDataService.save(sourceDataDto);
-        return ResponseEntity.created(new URI(HeaderUtil.buildPath("api", "source-data", name)))
+        return ResponseEntity.created(ResourceUriService.getUri(sourceDataDto))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, name))
                 .body(result);
     }

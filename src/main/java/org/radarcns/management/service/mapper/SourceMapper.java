@@ -1,6 +1,5 @@
 package org.radarcns.management.service.mapper;
 
-import java.util.List;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -8,6 +7,8 @@ import org.radarcns.management.domain.Source;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.service.mapper.decorator.SourceMapperDecorator;
+
+import java.util.List;
 
 /**
  * Mapper for the entity Source and its DTO SourceDTO.
@@ -22,26 +23,19 @@ public interface SourceMapper {
     @Mapping(source = "sourceType.producer", target = "sourceTypeProducer")
     @Mapping(source = "sourceType.model", target = "sourceTypeModel")
     @Mapping(source = "sourceType.catalogVersion", target = "sourceTypeCatalogVersion")
+    @Mapping(source = "assigned" , target = "assigned")
     MinimalSourceDetailsDTO sourceToMinimalSourceDetailsDTO(Source source);
 
     List<MinimalSourceDetailsDTO> sourcesToMinimalSourceDetailsDTOs(List<Source> sources);
 
     @Mapping(target = "sourceType", ignore = true)
     @Mapping(target = "project", ignore = true)
-    @Mapping(target = "subjects", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "createdDate", ignore = true)
-    @Mapping(target = "lastModifiedBy", ignore = true)
-    @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(target = "subject", ignore = true)
     Source descriptiveDTOToSource(MinimalSourceDetailsDTO minimalSourceDetailsDto);
 
     List<SourceDTO> sourcesToSourceDTOs(List<Source> sources);
 
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "createdDate", ignore = true)
-    @Mapping(target = "lastModifiedBy", ignore = true)
-    @Mapping(target = "lastModifiedDate", ignore = true)
-    @Mapping(target = "subjects", ignore = true)
+    @Mapping(target = "subject", ignore = true)
     Source sourceDTOToSource(SourceDTO sourceDto);
 
     List<Source> sourceDTOsToSources(List<SourceDTO> sourceDtos);

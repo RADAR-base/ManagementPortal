@@ -44,8 +44,6 @@ public class ProjectDTO implements Serializable {
 
     private ZonedDateTime endDate;
 
-    private Long projectAdmin;
-
     private Set<SourceTypeDTO> sourceTypes = new HashSet<>();
 
     private Map<String, String> attributes;
@@ -114,14 +112,6 @@ public class ProjectDTO implements Serializable {
         this.endDate = endDate;
     }
 
-    public Long getProjectAdmin() {
-        return projectAdmin;
-    }
-
-    public void setProjectAdmin(Long projectAdmin) {
-        this.projectAdmin = projectAdmin;
-    }
-
     public Set<SourceTypeDTO> getSourceTypes() {
         return sourceTypes;
     }
@@ -179,7 +169,6 @@ public class ProjectDTO implements Serializable {
                 + ", startDate='" + startDate + "'"
                 + ", projectStatus='" + projectStatus + "'"
                 + ", endDate='" + endDate + "'"
-                + ", projectAdmin='" + projectAdmin + "'"
                 + '}';
     }
 }

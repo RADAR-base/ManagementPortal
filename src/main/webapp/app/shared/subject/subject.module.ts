@@ -8,6 +8,7 @@ import {
     SubjectPopupService,
     SubjectComponent,
     SubjectDetailComponent,
+    SubjectRevisionComponent,
     SubjectDialogComponent,
     SubjectPopupComponent,
     SubjectDeletePopupComponent,
@@ -16,6 +17,7 @@ import {
     SubjectPairDialogComponent,
     subjectRoute,
     subjectPopupRoute,
+    SubjectRevisionListComponent,
 } from './';
 import {
     SubjectSourceAssignerDialogComponent,
@@ -36,6 +38,8 @@ const ENTITY_STATES = [
     declarations: [
         SubjectComponent,
         SubjectDetailComponent,
+        SubjectRevisionComponent,
+        SubjectRevisionListComponent,
         SubjectDialogComponent,
         SubjectDeleteDialogComponent,
         SubjectPairDialogComponent,

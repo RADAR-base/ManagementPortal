@@ -29,7 +29,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
@@ -93,9 +92,6 @@ public class UserResourceIntTest {
     private ExceptionTranslator exceptionTranslator;
 
     @Autowired
-    private EntityManager em;
-
-    @Autowired
     private SubjectRepository subjectRepository;
 
     @Autowired
@@ -115,7 +111,7 @@ public class UserResourceIntTest {
         ReflectionTestUtils.setField(userResource, "subjectRepository", subjectRepository);
         ReflectionTestUtils.setField(userResource, "servletRequest", servletRequest);
 
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
 
         this.restUserMockMvc = MockMvcBuilders.standaloneSetup(userResource)
@@ -132,7 +128,7 @@ public class UserResourceIntTest {
      * <p>This is a static method, as tests for other entities might also need it,
      * if they test an entity which has a required relationship to the User entity.</p>
      */
-    public static User createEntity(EntityManager em) {
+    public static User createEntity() {
         User user = new User();
         user.setLogin(DEFAULT_LOGIN);
         user.setPassword(RandomStringUtils.random(60));
@@ -146,7 +142,7 @@ public class UserResourceIntTest {
 
     @Before
     public void initTest() {
-        user = createEntity(em);
+        user = createEntity();
     }
 
     @Test
@@ -318,10 +314,6 @@ public class UserResourceIntTest {
         managedUserVm.setEmail(UPDATED_EMAIL);
         managedUserVm.setActivated(updatedUser.getActivated());
         managedUserVm.setLangKey(UPDATED_LANGKEY);
-        managedUserVm.setCreatedBy(updatedUser.getCreatedBy());
-        managedUserVm.setCreatedDate(updatedUser.getCreatedDate());
-        managedUserVm.setLastModifiedBy(updatedUser.getLastModifiedBy());
-        managedUserVm.setLastModifiedDate(updatedUser.getLastModifiedDate());
         managedUserVm.setRoles(roles);
 
         restUserMockMvc.perform(put("/api/users")
@@ -363,10 +355,6 @@ public class UserResourceIntTest {
         managedUserVm.setEmail(UPDATED_EMAIL);
         managedUserVm.setActivated(updatedUser.getActivated());
         managedUserVm.setLangKey(UPDATED_LANGKEY);
-        managedUserVm.setCreatedBy(updatedUser.getCreatedBy());
-        managedUserVm.setCreatedDate(updatedUser.getCreatedDate());
-        managedUserVm.setLastModifiedBy(updatedUser.getLastModifiedBy());
-        managedUserVm.setLastModifiedDate(updatedUser.getLastModifiedDate());
         managedUserVm.setRoles(roles);
 
         restUserMockMvc.perform(put("/api/users")
@@ -417,10 +405,6 @@ public class UserResourceIntTest {
         managedUserVm.setEmail("jhipster@localhost");
         managedUserVm.setActivated(updatedUser.getActivated());
         managedUserVm.setLangKey(updatedUser.getLangKey());
-        managedUserVm.setCreatedBy(updatedUser.getCreatedBy());
-        managedUserVm.setCreatedDate(updatedUser.getCreatedDate());
-        managedUserVm.setLastModifiedBy(updatedUser.getLastModifiedBy());
-        managedUserVm.setLastModifiedDate(updatedUser.getLastModifiedDate());
         managedUserVm.setRoles(roles);
 
         restUserMockMvc.perform(put("/api/users")
@@ -462,10 +446,6 @@ public class UserResourceIntTest {
         managedUserVm.setEmail(updatedUser.getEmail());
         managedUserVm.setActivated(updatedUser.getActivated());
         managedUserVm.setLangKey(updatedUser.getLangKey());
-        managedUserVm.setCreatedBy(updatedUser.getCreatedBy());
-        managedUserVm.setCreatedDate(updatedUser.getCreatedDate());
-        managedUserVm.setLastModifiedBy(updatedUser.getLastModifiedBy());
-        managedUserVm.setLastModifiedDate(updatedUser.getLastModifiedDate());
         managedUserVm.setRoles(roles);
 
         restUserMockMvc.perform(put("/api/users")
