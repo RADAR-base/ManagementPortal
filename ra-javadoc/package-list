@@ -3,3 +3,4 @@ org.radarcns.auth.authorization
 org.radarcns.auth.config
 org.radarcns.auth.exception
 org.radarcns.auth.token
+org.radarcns.auth.token.validation
