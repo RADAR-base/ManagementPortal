@@ -13,10 +13,32 @@
             <column name="token_name" type="varchar(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="token" type="LONGTEXT"/>
+            <column name="token" type="varchar(2000)"/>
             <column name="fetched" type="boolean" valueBoolean="false">
                 <constraints nullable="false" />
             </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="nivethika@thehyve.nl" id="20180724105800-2">
+        <createTable tableName="radar_meta_token_aud">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rev" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revtype" type="${revtype}"/>
+            <column name="revend" type="INTEGER"/>
+            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+            <column name="token_name" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="token_name_mod" type="BOOLEAN"/>
+            <column name="token" type="varchar(2000)"/>
+            <column name="token_mod" type="BOOLEAN"/>
+            <column name="fetched" type="BOOLEAN"/>
+            <column name="fetched_mod" type="BOOLEAN"/>
         </createTable>
     </changeSet>
 </databaseChangeLog>
