@@ -28,5 +28,6 @@
     <include file="classpath:config/liquibase/changelog/20180418114600_subject_source_one_to_many.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20180711141300_drop_project_admin.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20180313103735_enable_envers_revisions.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20180724105800_add_radar-meta_token.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>
