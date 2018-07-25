@@ -17,6 +17,9 @@
             <column name="fetched" type="boolean" valueBoolean="false">
                 <constraints nullable="false" />
             </column>
+            <column name="expiry_date" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
         </createTable>
     </changeSet>
 
@@ -39,6 +42,11 @@
             <column name="token_mod" type="BOOLEAN"/>
             <column name="fetched" type="BOOLEAN"/>
             <column name="fetched_mod" type="BOOLEAN"/>
+            <column name="expiry_date" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="expiry_date_mod" type="BOOLEAN"/>
+
         </createTable>
     </changeSet>
 </databaseChangeLog>
