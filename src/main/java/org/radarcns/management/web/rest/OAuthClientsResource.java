@@ -3,9 +3,12 @@ package org.radarcns.management.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
+import org.radarcns.management.config.ManagementPortalProperties;
+import org.radarcns.management.domain.MetaToken;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
+import org.radarcns.management.service.MetaTokenService;
 import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ClientDetailsDTO;
@@ -49,6 +52,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -100,6 +104,12 @@ public class OAuthClientsResource {
 
     @Autowired
     private AuditEventRepository eventRepository;
+
+    @Autowired
+    private MetaTokenService metaTokenService;
+
+    @Autowired
+    private ManagementPortalProperties managementPortalProperties;
 
     private static final String ENTITY_NAME = "oauthClient";
     private static final String PROTECTED_KEY = "protected";
@@ -235,7 +245,8 @@ public class OAuthClientsResource {
     @GetMapping("/oauth-clients/pair")
     @Timed
     public ResponseEntity<ClientPairInfoDTO> getRefreshToken(@RequestParam String login,
-            @RequestParam(value = "clientId") String clientId) throws NotAuthorizedException {
+            @RequestParam(value = "clientId") String clientId)
+            throws NotAuthorizedException, URISyntaxException {
         User currentUser = userService.getUserWithAuthorities();
         if (currentUser == null) {
             // We only allow this for actual logged in users for now, not for client_credentials
@@ -263,8 +274,18 @@ public class OAuthClientsResource {
         OAuth2AccessToken token = createToken(clientId, user.getLogin(), authorities,
                 details.getScope(), details.getResourceIds());
 
-        ClientPairInfoDTO cpi = new ClientPairInfoDTO(token.getRefreshToken().getValue());
-
+        // tokenName should be generated
+        MetaToken metaToken = new MetaToken()
+                .token(token.getRefreshToken().getValue())
+                .isFetched(false);
+        metaToken = metaTokenService.save(metaToken);
+        ClientPairInfoDTO cpi = null;
+        if(metaToken.getId() != null && metaToken.getTokenName() !=null) {
+            String baseUrl = managementPortalProperties.getMail().getBaseUrl();
+            baseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl+ "/";
+                String url = baseUrl+ "#" + ResourceUriService.getUri(metaToken).getPath();
+            cpi = new ClientPairInfoDTO(metaToken.getTokenName(), new URI(url));
+        }
         // generate audit event
         eventRepository.add(new AuditEvent(currentUser.getLogin(), "PAIR_CLIENT_REQUEST",
                 "client_id=" + clientId, "subject_login=" + login));
