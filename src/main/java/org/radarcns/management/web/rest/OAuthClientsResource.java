@@ -277,13 +277,17 @@ public class OAuthClientsResource {
         // tokenName should be generated
         MetaToken metaToken = new MetaToken()
                 .token(token.getRefreshToken().getValue())
-                .isFetched(false);
+                .fetched(false);
         metaToken = metaTokenService.save(metaToken);
         ClientPairInfoDTO cpi = null;
-        if(metaToken.getId() != null && metaToken.getTokenName() !=null) {
+        if (metaToken.getId() != null && metaToken.getTokenName() != null) {
+            // get base url from settings
             String baseUrl = managementPortalProperties.getMail().getBaseUrl();
-            baseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl+ "/";
-                String url = baseUrl+ "#" + ResourceUriService.getUri(metaToken).getPath();
+            // format base url
+            baseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+            // create complete uri string
+            String url = baseUrl + "#" + ResourceUriService.getUri(metaToken).getPath();
+            // create response
             cpi = new ClientPairInfoDTO(metaToken.getTokenName(), new URI(url));
         }
         // generate audit event

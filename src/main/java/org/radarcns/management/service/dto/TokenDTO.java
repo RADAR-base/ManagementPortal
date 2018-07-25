@@ -29,9 +29,9 @@ public class TokenDTO {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        TokenDTO tokenDTO = (TokenDTO) o;
-        return Objects.equals(refreshToken, tokenDTO.refreshToken) && Objects
-            .equals(baseUrl, tokenDTO.baseUrl);
+        TokenDTO that = (TokenDTO) o;
+        return Objects.equals(refreshToken, that.refreshToken) && Objects
+            .equals(baseUrl, that.baseUrl);
     }
 
     @Override

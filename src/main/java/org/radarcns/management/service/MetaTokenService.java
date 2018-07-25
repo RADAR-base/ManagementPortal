@@ -18,6 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Created by nivethika.
+ *
+ * <p>Service to delegate MetaToken handling.</p>
+ *
+ */
 @Service
 @Transactional
 public class MetaTokenService {
@@ -29,6 +35,7 @@ public class MetaTokenService {
 
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
+
     /**
      * Save a metaToken.
      *
@@ -49,22 +56,21 @@ public class MetaTokenService {
      */
     @Transactional()
     public TokenDTO fetchToken(String tokenName) throws CustomNotFoundException,
-        MalformedURLException {
+            MalformedURLException {
         log.debug("Request to get Token : {}", tokenName);
         Optional<MetaToken> fetchedToken = metaTokenRepository.findOneByTokenName(tokenName);
 
-        if(fetchedToken.isPresent()) {
+        if (fetchedToken.isPresent()) {
             // get token from database
             MetaToken metaToken = fetchedToken.get();
             // create response
-            TokenDTO result = new TokenDTO(metaToken.getToken() ,
-                new URL(managementPortalProperties.getMail().getBaseUrl()));
+            TokenDTO result = new TokenDTO(metaToken.getToken(),
+                    new URL(managementPortalProperties.getMail().getBaseUrl()));
             // change fetched status to true. This will be cleared later on.
-            metaTokenRepository.save(metaToken.isFetched(true));
+            metaTokenRepository.save(metaToken.fetched(true));
             // return result
             return result;
-        }
-        else {
+        } else {
             throw new CustomNotFoundException(
                 ErrorConstants.ERR_TOKEN_NOT_FOUND,
                 Collections.singletonMap("tokenName", tokenName));

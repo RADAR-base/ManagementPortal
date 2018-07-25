@@ -28,8 +28,8 @@ import org.radarcns.management.domain.support.AbstractEntityListener;
 public class MetaToken extends AbstractEntity {
 
 
-    //https://math.stackexchange.com/questions/889538/probability-of-collision-with-randomly
-    // -generated-id
+    //https://math.stackexchange.com/questions/889538/
+    // probability-of-collision-with-randomly-generated-id
     // Current length of tokenName is 12. If we think there might be collision we can increase
     // the length.
     public static final int SHORT_ID_LENGTH = 12;
@@ -53,7 +53,11 @@ public class MetaToken extends AbstractEntity {
     @Column(name = "expiry_date")
     private ZonedDateTime expiryDate = null;
 
-    public MetaToken () {
+    /**
+     * Meta token constructor.
+     * Generates a random string as the tokenName.
+     */
+    public MetaToken() {
         if (this.tokenName == null) {
             this.tokenName = RandomStringUtils.randomAlphanumeric(SHORT_ID_LENGTH);
         }
@@ -71,10 +75,6 @@ public class MetaToken extends AbstractEntity {
         return tokenName;
     }
 
-    public void setTokenName(String tokenName) {
-        this.tokenName = tokenName;
-    }
-
     public MetaToken tokenName(String tokenName) {
         this.tokenName = tokenName;
         return this;
@@ -82,10 +82,6 @@ public class MetaToken extends AbstractEntity {
 
     public String getToken() {
         return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
     }
 
     public MetaToken token(String token) {
@@ -97,12 +93,17 @@ public class MetaToken extends AbstractEntity {
         return fetched;
     }
 
-    public void setFetched(boolean fetched) {
+    public MetaToken fetched(boolean fetched) {
         this.fetched = fetched;
+        return this;
     }
 
-    public MetaToken isFetched(boolean fetched) {
-        this.fetched = fetched;
+    public ZonedDateTime getExpiryDate() {
+        return expiryDate;
+    }
+
+    public MetaToken expiryDate(ZonedDateTime expiryDate) {
+        this.expiryDate = expiryDate;
         return this;
     }
 
@@ -114,23 +115,21 @@ public class MetaToken extends AbstractEntity {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        MetaToken token1 = (MetaToken) o;
-        return Objects.equals(id, token1.id) && Objects.equals(tokenName, token1.tokenName)
-            && Objects.equals(fetched, token1.fetched);
+        MetaToken metaToken = (MetaToken) o;
+        return Objects.equals(id, metaToken.id) && Objects.equals(tokenName, metaToken.tokenName)
+            && Objects.equals(token, metaToken.token) && Objects.equals(fetched, metaToken.fetched)
+            && Objects.equals(expiryDate, metaToken.expiryDate);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, tokenName, token, fetched);
+        return Objects.hash(id, tokenName, token, fetched, expiryDate);
     }
 
     @Override
     public String toString() {
-        return "MetaToken{"
-            + "id=" + id + ","
-            + " tokenName='" + tokenName + '\''
-            + ", token='" + token + '\''
-            + ", fetched=" + fetched + '}';
+        return "MetaToken{" + "id=" + id + ", tokenName='" + tokenName + '\'' + ", token='" + token
+            + '\'' + ", fetched=" + fetched + ", expiryDate=" + expiryDate + '}';
     }
 }
