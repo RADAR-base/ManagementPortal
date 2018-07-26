@@ -97,7 +97,7 @@ server:
 managementportal:
     mail: # specific ManagementPortal mail property, for standard properties see MailProperties
         from: ManagementPortal@localhost
-        baseUrl: http://localhost:9000/ # Modify according to your server's URL
+        baseUrl: http://localhost:9000 # Modify according to your server's URL
     frontend:
         clientId: ManagementPortalapp
         clientSecret: my-secret-token-to-change-in-production

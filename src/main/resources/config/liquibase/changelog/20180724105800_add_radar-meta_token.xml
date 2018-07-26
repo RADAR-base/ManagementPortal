@@ -46,7 +46,9 @@
                 <constraints nullable="true"/>
             </column>
             <column name="expiry_date_mod" type="BOOLEAN"/>
-
         </createTable>
+    </changeSet>
+    <changeSet author="nivethika@thehyve.nl" id="20180726170000-3">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="radar_meta_token_aud" constraintName="bd888eb290e411e89eb6529269fb1459" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
     </changeSet>
 </databaseChangeLog>
