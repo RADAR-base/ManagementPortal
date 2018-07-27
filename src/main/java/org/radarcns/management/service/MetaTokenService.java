@@ -63,7 +63,7 @@ public class MetaTokenService {
         if (!fetchedToken.isFetched()) {
             // create response
             TokenDTO result = new TokenDTO(fetchedToken.getToken(),
-                new URL(managementPortalProperties.getMail().getBaseUrl()));
+                new URL(managementPortalProperties.getCommon().getBaseUrl()));
 
             fetchedToken.fetched(true);
             save(fetchedToken);

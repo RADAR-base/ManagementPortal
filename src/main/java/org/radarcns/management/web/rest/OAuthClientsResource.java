@@ -282,7 +282,7 @@ public class OAuthClientsResource {
         ClientPairInfoDTO cpi = null;
         if (metaToken.getId() != null && metaToken.getTokenName() != null) {
             // get base url from settings
-            String baseUrl = managementPortalProperties.getMail().getBaseUrl();
+            String baseUrl = managementPortalProperties.getCommon().getBaseUrl();
             // create complete uri string
             String url = baseUrl + ResourceUriService.getUri(metaToken).getPath();
             // create response
