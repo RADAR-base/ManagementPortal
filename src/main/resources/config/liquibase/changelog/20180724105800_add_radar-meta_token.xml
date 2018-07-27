@@ -34,9 +34,7 @@
             <column name="revtype" type="${revtype}"/>
             <column name="revend" type="INTEGER"/>
             <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
-            <column name="token_name" type="varchar(255)">
-                <constraints nullable="false" unique="true"/>
-            </column>
+            <column name="token_name" type="varchar(255)"/>
             <column name="token_name_mod" type="BOOLEAN"/>
             <column name="token" type="varchar(2000)"/>
             <column name="token_mod" type="BOOLEAN"/>
