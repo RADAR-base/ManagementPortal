@@ -2,6 +2,7 @@ package org.radarcns.management.web.rest;
 
 
 import java.net.MalformedURLException;
+import java.util.concurrent.TimeUnit;
 
 import com.codahale.metrics.annotation.Timed;
 import org.radarcns.auth.config.Constants;
@@ -39,7 +40,14 @@ public class MetaTokenResource {
     public ResponseEntity<TokenDTO> getTokenByTokenName(@PathVariable("tokenName") String tokenName)
             throws MalformedURLException {
         log.info("Requesting token with tokenName {}", tokenName);
-        // check whether token.read permission is available
-        return ResponseEntity.ok().body(metaTokenService.fetchToken(tokenName));
+        TokenDTO retrievedToken = metaTokenService.fetchToken(tokenName);
+
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        return ResponseEntity.ok().body(retrievedToken);
     }
 }
