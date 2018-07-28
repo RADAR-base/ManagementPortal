@@ -1,6 +1,6 @@
 package org.radarcns.management.domain;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -51,7 +51,7 @@ public class MetaToken extends AbstractEntity {
     private Boolean fetched;
 
     @Column(name = "expiry_date")
-    private ZonedDateTime expiryDate = null;
+    private Instant expiryDate = null;
 
     /**
      * Meta token constructor.
@@ -98,11 +98,11 @@ public class MetaToken extends AbstractEntity {
         return this;
     }
 
-    public ZonedDateTime getExpiryDate() {
+    public Instant getExpiryDate() {
         return expiryDate;
     }
 
-    public MetaToken expiryDate(ZonedDateTime expiryDate) {
+    public MetaToken expiryDate(Instant expiryDate) {
         this.expiryDate = expiryDate;
         return this;
     }
