@@ -2,6 +2,7 @@ package org.radarcns.management.web.rest;
 
 
 import java.net.MalformedURLException;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import com.codahale.metrics.annotation.Timed;
@@ -9,6 +10,7 @@ import org.radarcns.auth.config.Constants;
 import org.radarcns.management.service.MetaTokenService;
 import org.radarcns.management.service.dto.ClientPairInfoDTO;
 import org.radarcns.management.service.dto.TokenDTO;
+import org.radarcns.management.web.rest.errors.CustomNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,8 @@ public class MetaTokenResource {
 
     private final Logger log = LoggerFactory.getLogger(OAuthClientsResource.class);
 
+    public static final Duration DEFAULT_META_TOKEN_TIMEOUT = Duration.ofHours(1);
+
     @Autowired
     private MetaTokenService metaTokenService;
 
@@ -38,16 +42,16 @@ public class MetaTokenResource {
     @GetMapping("/meta-token/{tokenName:" + Constants.TOKEN_NAME_REGEX + "}")
     @Timed
     public ResponseEntity<TokenDTO> getTokenByTokenName(@PathVariable("tokenName") String tokenName)
-            throws MalformedURLException {
+            throws MalformedURLException, CustomNotFoundException {
         log.info("Requesting token with tokenName {}", tokenName);
-        TokenDTO retrievedToken = metaTokenService.fetchToken(tokenName);
-
         try {
-            TimeUnit.SECONDS.sleep(1);
+            // sleep for 5 seconds
+            TimeUnit.SECONDS.sleep(5);
+            TokenDTO retrievedToken = metaTokenService.fetchToken(tokenName);
+            return ResponseEntity.ok().body(retrievedToken);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            return ResponseEntity.unprocessableEntity().build();
         }
-
-        return ResponseEntity.ok().body(retrievedToken);
     }
 }
