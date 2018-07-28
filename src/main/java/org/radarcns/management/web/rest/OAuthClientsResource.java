@@ -56,6 +56,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -276,17 +277,11 @@ public class OAuthClientsResource {
 
         OAuth2AccessToken token = createToken(clientId, user.getLogin(), authorities,
                 details.getScope(), details.getResourceIds());
-
-        Duration timeout = managementPortalProperties.getOauth().getMetaTokenTimeout().isEmpty()
-                ? DEFAULT_META_TOKEN_TIMEOUT
-                : Duration.parse(managementPortalProperties.getOauth().getMetaTokenTimeout());
-
-
         // tokenName should be generated
         MetaToken metaToken = new MetaToken()
                 .token(token.getRefreshToken().getValue())
                 .fetched(false)
-                .expiryDate(Instant.now().plus(timeout));
+                .expiryDate(Instant.now().plus(getMetaTokenTimeout()));
 
         metaToken = metaTokenService.save(metaToken);
         ClientPairInfoDTO cpi = null;
@@ -304,6 +299,29 @@ public class OAuthClientsResource {
         log.info("[{}] by {}: client_id={}, subject_login={}", "PAIR_CLIENT_REQUEST", currentUser
                 .getLogin(), clientId, login);
         return new ResponseEntity<>(cpi, HttpStatus.OK);
+    }
+
+    /**
+     * Gets the meta-token timeout from config file. If the config is not mentioned or in wrong
+     * format, it will return default value.
+     * @return meta-token timeout duration.
+     */
+    private Duration getMetaTokenTimeout() {
+
+        String timeoutConfig = managementPortalProperties.getOauth().getMetaTokenTimeout();
+
+        if (timeoutConfig.isEmpty()) {
+            return DEFAULT_META_TOKEN_TIMEOUT;
+        }
+
+        try {
+            return Duration.parse(managementPortalProperties.getOauth()
+                .getMetaTokenTimeout());
+        } catch (DateTimeParseException e) {
+            // if the token timeout cannot be read, log the error and use the default value.
+            log.warn("Cannot parse meta-token timeout config. Using default value" , e);
+            return DEFAULT_META_TOKEN_TIMEOUT;
+        }
     }
 
     private OAuth2AccessToken createToken(String clientId, String login,
