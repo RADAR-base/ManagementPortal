@@ -54,6 +54,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -71,6 +73,7 @@ import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
 import static org.radarcns.management.security.SecurityUtils.getJWT;
+import static org.radarcns.management.web.rest.MetaTokenResource.DEFAULT_META_TOKEN_TIMEOUT;
 
 /**
  * Created by dverbeec on 5/09/2017.
@@ -274,10 +277,17 @@ public class OAuthClientsResource {
         OAuth2AccessToken token = createToken(clientId, user.getLogin(), authorities,
                 details.getScope(), details.getResourceIds());
 
+        Duration timeout = managementPortalProperties.getOauth().getMetaTokenTimeout().isEmpty()
+                ? DEFAULT_META_TOKEN_TIMEOUT
+                : Duration.parse(managementPortalProperties.getOauth().getMetaTokenTimeout());
+
+
         // tokenName should be generated
         MetaToken metaToken = new MetaToken()
                 .token(token.getRefreshToken().getValue())
-                .fetched(false);
+                .fetched(false)
+                .expiryDate(Instant.now().plus(timeout));
+
         metaToken = metaTokenService.save(metaToken);
         ClientPairInfoDTO cpi = null;
         if (metaToken.getId() != null && metaToken.getTokenName() != null) {

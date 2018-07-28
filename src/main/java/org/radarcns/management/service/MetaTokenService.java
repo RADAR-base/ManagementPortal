@@ -3,6 +3,7 @@ package org.radarcns.management.service;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -55,16 +56,17 @@ public class MetaTokenService {
      * @return the entity
      * @throws CustomNotFoundException if there is no project with the given id
      */
-    public TokenDTO fetchToken(String tokenName) throws CustomNotFoundException,
-            MalformedURLException {
+    public TokenDTO fetchToken(String tokenName) throws
+            MalformedURLException, CustomNotFoundException {
         log.debug("Request to get Token : {}", tokenName);
         MetaToken fetchedToken = getToken(tokenName);
 
-        if (!fetchedToken.isFetched()) {
+        // process the response if the token is not fetched or not expired
+        if (!fetchedToken.isFetched() && Instant.now().isBefore(fetchedToken.getExpiryDate())) {
             // create response
             TokenDTO result = new TokenDTO(fetchedToken.getToken(),
-                new URL(managementPortalProperties.getCommon().getBaseUrl()));
-
+                    new URL(managementPortalProperties.getCommon().getBaseUrl()));
+            // change fetched status to true.
             fetchedToken.fetched(true);
             save(fetchedToken);
             return result;
@@ -76,8 +78,15 @@ public class MetaTokenService {
 
     }
 
+    /**
+     * Gets a token from databased using the tokenName.
+     *
+     * @param tokenName tokenName.
+     * @throws CustomNotFoundException if the token not found.
+     * @return fetched token as {@link MetaToken}.
+     */
     @Transactional(readOnly = true)
-    public MetaToken getToken(String tokenName) {
+    public MetaToken getToken(String tokenName) throws CustomNotFoundException {
         Optional<MetaToken> fetchedToken = metaTokenRepository.findOneByTokenName(tokenName);
 
         if (fetchedToken.isPresent()) {
@@ -87,7 +96,6 @@ public class MetaTokenService {
                 ErrorConstants.ERR_TOKEN_NOT_FOUND,
                 Collections.singletonMap("tokenName", tokenName));
         }
-
     }
 
 
