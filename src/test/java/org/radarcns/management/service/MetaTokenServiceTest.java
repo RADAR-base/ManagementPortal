@@ -1,5 +1,6 @@
 package org.radarcns.management.service;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -7,11 +8,14 @@ import static org.junit.Assert.assertTrue;
 import java.net.MalformedURLException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.radarcns.management.ManagementPortalTestApp;
 import org.radarcns.management.domain.MetaToken;
+import org.radarcns.management.repository.MetaTokenRepository;
 import org.radarcns.management.service.dto.TokenDTO;
 import org.radarcns.management.web.rest.errors.CustomParameterizedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +31,9 @@ public class MetaTokenServiceTest {
 
     @Autowired
     private MetaTokenService metaTokenService;
+
+    @Autowired
+    private MetaTokenRepository metaTokenRepository;
 
     @Test
     public void testSaveThenFetchMetaToken() throws MalformedURLException {
@@ -115,5 +122,32 @@ public class MetaTokenServiceTest {
         String tokenName = saved.getTokenName();
 
         metaTokenService.fetchToken(tokenName);
+    }
+
+    @Test
+    public void testRemovingExpiredMetaToken() {
+
+        MetaToken tokenFetched = new MetaToken()
+                .fetched(true)
+                .tokenName("something")
+                .expiryDate(Instant.now().plus(Duration.ofHours(1)));
+
+        MetaToken tokenExpired = new MetaToken()
+                .fetched(false)
+                .tokenName("somethingelse")
+                .expiryDate(Instant.now().minus(Duration.ofHours(1)));
+
+        MetaToken tokenNew = new MetaToken()
+                .fetched(false)
+                .tokenName("somethingelseandelse")
+                .expiryDate(Instant.now().plus(Duration.ofHours(1)));
+
+        metaTokenRepository.save(Arrays.asList(tokenFetched, tokenExpired, tokenNew));
+
+        metaTokenService.removeStaleTokens();
+
+        List<MetaToken> availableTokens = metaTokenRepository.findAll();
+
+        assertEquals(availableTokens.size(), 1);
     }
 }
