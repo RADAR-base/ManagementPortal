@@ -103,7 +103,7 @@ managementportal:
         sessionTimeout : 86400
     oauth:
         clientsFile: /mp-includes/config/oauth_client_details.csv
-        metaTokenTimeout: 1H #timeout should be specified as the ISO-8601 duration format {@code PnDTnHnMn.nS}.
+        metaTokenTimeout: PT1H #timeout should be specified as the ISO-8601 duration format {@code PnDTnHnMn.nS}.
     catalogueServer:
         enableAutoImport: false
         serverUrl:
