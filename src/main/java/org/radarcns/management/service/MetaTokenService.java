@@ -1,12 +1,15 @@
 package org.radarcns.management.service;
 
 
+import static org.radarcns.management.domain.MetaToken.SHORT_ID_LENGTH;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.MetaToken;
 import org.radarcns.management.repository.MetaTokenRepository;
@@ -17,6 +20,7 @@ import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,5 +102,34 @@ public class MetaTokenService {
         }
     }
 
+    /**
+     * Builds a unique meta-token instance, by checking for token-name collision.
+     * @return an unique token
+     */
+    public MetaToken buildUniqueToken() {
+        MetaToken token = new MetaToken();
 
+        while (!metaTokenRepository.findOneByTokenName(token.getTokenName()).isPresent()) {
+            token.tokenName(RandomStringUtils.randomAlphanumeric(SHORT_ID_LENGTH));
+        }
+
+        return token;
+    }
+
+
+    /**
+     * Expired and fetched tokens are deleted after 1 month.
+     * <p> This is scheduled to get triggered first day of the month. </p>
+     */
+    @Scheduled(cron = "0 0 0 1 * ?")
+    public void removeStaleTokens() {
+        log.info("Scheduled scan for expired and fetched meta-tokens starting now");
+
+        metaTokenRepository.findAllByFetchedOrExpired(true, Instant.now())
+                .forEach(metaToken -> {
+                    log.info("Deleting deleting expired or fetched token {}",
+                            metaToken.getTokenName());
+                    metaTokenRepository.delete(metaToken);
+                });
+    }
 }

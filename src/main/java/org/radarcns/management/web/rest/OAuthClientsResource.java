@@ -278,7 +278,7 @@ public class OAuthClientsResource {
         OAuth2AccessToken token = createToken(clientId, user.getLogin(), authorities,
                 details.getScope(), details.getResourceIds());
         // tokenName should be generated
-        MetaToken metaToken = new MetaToken()
+        MetaToken metaToken = metaTokenService.buildUniqueToken()
                 .token(token.getRefreshToken().getValue())
                 .fetched(false)
                 .expiryDate(Instant.now().plus(getMetaTokenTimeout()));
