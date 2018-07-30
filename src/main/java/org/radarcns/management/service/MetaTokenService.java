@@ -71,8 +71,8 @@ public class MetaTokenService {
             save(fetchedToken);
             return result;
         } else {
-            throw new CustomParameterizedException("invalidRequest", "token is already fetched. "
-                + "Invalid request");
+            throw new CustomParameterizedException("invalidRequest", "token is already fetched "
+                + "or has expired. Invalid request");
         }
 
 
