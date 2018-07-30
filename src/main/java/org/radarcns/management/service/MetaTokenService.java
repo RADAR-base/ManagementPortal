@@ -109,7 +109,7 @@ public class MetaTokenService {
     public MetaToken buildUniqueToken() {
         MetaToken token = new MetaToken();
 
-        while (!metaTokenRepository.findOneByTokenName(token.getTokenName()).isPresent()) {
+        while (metaTokenRepository.findOneByTokenName(token.getTokenName()).isPresent()) {
             token.tokenName(RandomStringUtils.randomAlphanumeric(SHORT_ID_LENGTH));
         }
 
