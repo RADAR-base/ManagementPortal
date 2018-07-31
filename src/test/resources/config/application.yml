@@ -111,3 +111,6 @@ managementportal:
     oauth:
         keyStorePassword: radarbase
         signingKeyAlias: radarbase-managementportal-ec
+        metaTokenTimeout: 1H
+    common:
+        baseUrl: http://localhost:8080

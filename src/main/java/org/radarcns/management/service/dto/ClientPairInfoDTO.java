@@ -1,25 +1,36 @@
 package org.radarcns.management.service.dto;
 
+import java.net.URI;
+import java.util.Objects;
+
 /**
  * Created by dverbeec on 29/08/2017.
  */
 public class ClientPairInfoDTO {
 
-    private final String refreshToken;
+    private final String tokenName;
+
+    private final URI tokenUrl;
 
     /**
      * Initialize with the given refresh token.
-     * @param refreshToken the refresh token
+     * @param tokenName the refresh token
+     * @param tokenUrl the refresh token
      */
-    public ClientPairInfoDTO(String refreshToken) {
-        if (refreshToken == null) {
-            throw new IllegalArgumentException("refreshToken can not be null");
+    public ClientPairInfoDTO(String tokenName, URI tokenUrl) {
+        if (tokenUrl == null) {
+            throw new IllegalArgumentException("tokenUrl can not be null");
         }
-        this.refreshToken = refreshToken;
+        this.tokenName = tokenName;
+        this.tokenUrl = tokenUrl;
     }
 
-    public String getRefreshToken() {
-        return refreshToken;
+    public String getTokenName() {
+        return tokenName;
+    }
+
+    public URI getTokenUrl() {
+        return tokenUrl;
     }
 
     @Override
@@ -27,17 +38,17 @@ public class ClientPairInfoDTO {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ClientPairInfoDTO)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         ClientPairInfoDTO that = (ClientPairInfoDTO) o;
-
-        return refreshToken.equals(that.refreshToken);
+        return Objects.equals(tokenName, that.tokenName)
+            && Objects.equals(tokenUrl, that.tokenUrl);
     }
 
     @Override
     public int hashCode() {
-        return refreshToken.hashCode();
+
+        return Objects.hash(tokenName, tokenUrl);
     }
 }

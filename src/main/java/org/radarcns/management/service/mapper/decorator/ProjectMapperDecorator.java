@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.radarcns.management.domain.Project;
+import org.radarcns.management.repository.ProjectRepository;
+import org.radarcns.management.service.dto.MinimalProjectDetailsDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
     @Autowired
     @Qualifier("delegate")
     private ProjectMapper delegate;
+
+    @Autowired
+    private ProjectRepository projectRepository;
 
     @Override
     public ProjectDTO projectToProjectDTO(Project project) {
@@ -73,6 +78,14 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
         }
 
         return list;
+    }
+
+    @Override
+    public Project descriptiveDTOToProject(MinimalProjectDetailsDTO minimalProjectDetailsDto) {
+        if (minimalProjectDetailsDto == null) {
+            return null;
+        }
+        return projectRepository.getOne(minimalProjectDetailsDto.getId());
     }
 }
 

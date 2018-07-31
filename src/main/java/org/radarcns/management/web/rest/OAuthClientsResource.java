@@ -3,9 +3,12 @@ package org.radarcns.management.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
+import org.radarcns.management.config.ManagementPortalProperties;
+import org.radarcns.management.domain.MetaToken;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
+import org.radarcns.management.service.MetaTokenService;
 import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ClientDetailsDTO;
@@ -49,7 +52,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -67,6 +74,7 @@ import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
 import static org.radarcns.management.security.SecurityUtils.getJWT;
+import static org.radarcns.management.web.rest.MetaTokenResource.DEFAULT_META_TOKEN_TIMEOUT;
 
 /**
  * Created by dverbeec on 5/09/2017.
@@ -100,6 +108,12 @@ public class OAuthClientsResource {
 
     @Autowired
     private AuditEventRepository eventRepository;
+
+    @Autowired
+    private MetaTokenService metaTokenService;
+
+    @Autowired
+    private ManagementPortalProperties managementPortalProperties;
 
     private static final String ENTITY_NAME = "oauthClient";
     private static final String PROTECTED_KEY = "protected";
@@ -235,7 +249,8 @@ public class OAuthClientsResource {
     @GetMapping("/oauth-clients/pair")
     @Timed
     public ResponseEntity<ClientPairInfoDTO> getRefreshToken(@RequestParam String login,
-            @RequestParam(value = "clientId") String clientId) throws NotAuthorizedException {
+            @RequestParam(value = "clientId") String clientId)
+            throws NotAuthorizedException, URISyntaxException {
         User currentUser = userService.getUserWithAuthorities();
         if (currentUser == null) {
             // We only allow this for actual logged in users for now, not for client_credentials
@@ -262,15 +277,48 @@ public class OAuthClientsResource {
 
         OAuth2AccessToken token = createToken(clientId, user.getLogin(), authorities,
                 details.getScope(), details.getResourceIds());
+        // tokenName should be generated
+        MetaToken metaToken = metaTokenService.saveUniqueToken(token.getRefreshToken().getValue(),
+                false, Instant.now().plus(getMetaTokenTimeout()));
 
-        ClientPairInfoDTO cpi = new ClientPairInfoDTO(token.getRefreshToken().getValue());
-
+        ClientPairInfoDTO cpi = null;
+        if (metaToken.getId() != null && metaToken.getTokenName() != null) {
+            // get base url from settings
+            String baseUrl = managementPortalProperties.getCommon().getBaseUrl();
+            // create complete uri string
+            String url = baseUrl + ResourceUriService.getUri(metaToken).getPath();
+            // create response
+            cpi = new ClientPairInfoDTO(metaToken.getTokenName(), new URI(url));
+        }
         // generate audit event
         eventRepository.add(new AuditEvent(currentUser.getLogin(), "PAIR_CLIENT_REQUEST",
                 "client_id=" + clientId, "subject_login=" + login));
         log.info("[{}] by {}: client_id={}, subject_login={}", "PAIR_CLIENT_REQUEST", currentUser
                 .getLogin(), clientId, login);
         return new ResponseEntity<>(cpi, HttpStatus.OK);
+    }
+
+    /**
+     * Gets the meta-token timeout from config file. If the config is not mentioned or in wrong
+     * format, it will return default value.
+     * @return meta-token timeout duration.
+     */
+    private Duration getMetaTokenTimeout() {
+
+        String timeoutConfig = managementPortalProperties.getOauth().getMetaTokenTimeout();
+
+        if (timeoutConfig.isEmpty()) {
+            return DEFAULT_META_TOKEN_TIMEOUT;
+        }
+
+        try {
+            return Duration.parse(managementPortalProperties.getOauth()
+                .getMetaTokenTimeout());
+        } catch (DateTimeParseException e) {
+            // if the token timeout cannot be read, log the error and use the default value.
+            log.warn("Cannot parse meta-token timeout config. Using default value" , e);
+            return DEFAULT_META_TOKEN_TIMEOUT;
+        }
     }
 
     private OAuth2AccessToken createToken(String clientId, String login,

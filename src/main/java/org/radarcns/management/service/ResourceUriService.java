@@ -1,5 +1,6 @@
 package org.radarcns.management.service;
 
+import org.radarcns.management.domain.MetaToken;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.service.dto.ClientDetailsDTO;
@@ -120,5 +121,15 @@ public class ResourceUriService {
      */
     public static URI getUri(ProjectDTO resource) throws URISyntaxException {
         return new URI(HeaderUtil.buildPath("api", "projects", resource.getProjectName()));
+    }
+
+    /**
+     * Get the API location for the given resource.
+     * @param resource the resource
+     * @return the API location
+     * @throws URISyntaxException See {@link URI#URI(String)}
+     */
+    public static URI getUri(MetaToken resource) throws URISyntaxException {
+        return new URI(HeaderUtil.buildPath("api", "meta-token", resource.getTokenName()));
     }
 }
