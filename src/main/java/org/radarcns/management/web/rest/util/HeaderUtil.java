@@ -47,7 +47,7 @@ public final class HeaderUtil {
 
     /**
      * Create headers to display a failure alert in the frontend.
-     * @param entityName the entity on which the failure occured
+     * @param entityName the entity on which the failure occurred
      * @param errorKey the error key in the translation dictionary
      * @param defaultMessage the default message
      * @return the {@link HttpHeaders}
