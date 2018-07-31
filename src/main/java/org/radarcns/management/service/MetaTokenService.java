@@ -9,6 +9,8 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 
+import javax.validation.ConstraintViolationException;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.MetaToken;
@@ -103,19 +105,25 @@ public class MetaTokenService {
     }
 
     /**
-     * Builds a unique meta-token instance, by checking for token-name collision.
+     * Saves a unique meta-token instance, by checking for token-name collision.
+     * If a collision is detection, we try to save the token with a new tokenName
      * @return an unique token
      */
-    public MetaToken buildUniqueToken() {
-        MetaToken token = new MetaToken();
+    public MetaToken saveUniqueToken(String token, Boolean fetched, Instant expiryTime) {
+        MetaToken metaToken = new MetaToken()
+                .token(token)
+                .fetched(fetched)
+                .expiryDate(expiryTime);
 
-        while (metaTokenRepository.findOneByTokenName(token.getTokenName()).isPresent()) {
-            token.tokenName(RandomStringUtils.randomAlphanumeric(SHORT_ID_LENGTH));
+        try {
+            return metaTokenRepository.save(metaToken);
+        } catch (ConstraintViolationException e) {
+            log.warn("Unique constraint violation catched... Trying to save with new tokenName");
+            return saveUniqueToken(RandomStringUtils.randomAlphanumeric(SHORT_ID_LENGTH),
+                fetched, expiryTime);
         }
 
-        return token;
     }
-
 
     /**
      * Expired and fetched tokens are deleted after 1 month.

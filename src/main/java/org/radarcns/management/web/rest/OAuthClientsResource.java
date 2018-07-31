@@ -278,12 +278,9 @@ public class OAuthClientsResource {
         OAuth2AccessToken token = createToken(clientId, user.getLogin(), authorities,
                 details.getScope(), details.getResourceIds());
         // tokenName should be generated
-        MetaToken metaToken = metaTokenService.buildUniqueToken()
-                .token(token.getRefreshToken().getValue())
-                .fetched(false)
-                .expiryDate(Instant.now().plus(getMetaTokenTimeout()));
+        MetaToken metaToken = metaTokenService.saveUniqueToken(token.getRefreshToken().getValue(),
+                false, Instant.now().plus(getMetaTokenTimeout()));
 
-        metaToken = metaTokenService.save(metaToken);
         ClientPairInfoDTO cpi = null;
         if (metaToken.getId() != null && metaToken.getTokenName() != null) {
             // get base url from settings
