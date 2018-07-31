@@ -119,8 +119,7 @@ public class MetaTokenService {
             return metaTokenRepository.save(metaToken);
         } catch (ConstraintViolationException e) {
             log.warn("Unique constraint violation catched... Trying to save with new tokenName");
-            return saveUniqueToken(RandomStringUtils.randomAlphanumeric(SHORT_ID_LENGTH),
-                fetched, expiryTime);
+            return saveUniqueToken(token, fetched, expiryTime);
         }
 
     }
