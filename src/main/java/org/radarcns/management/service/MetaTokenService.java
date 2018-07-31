@@ -1,8 +1,5 @@
 package org.radarcns.management.service;
 
-
-import static org.radarcns.management.domain.MetaToken.SHORT_ID_LENGTH;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
@@ -11,7 +8,6 @@ import java.util.Optional;
 
 import javax.validation.ConstraintViolationException;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.MetaToken;
 import org.radarcns.management.repository.MetaTokenRepository;
