@@ -11,7 +11,7 @@ import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.service.mapper.SourceMapper;
-import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,7 +118,7 @@ public class SourceService {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Cannot delete source with sourceId ");
             errorParams.put("id", Long.toString(id));
-            throw new CustomParameterizedException("error.usedSourceDeletion", errorParams);
+            throw new RadarWebApplicationException("error.usedSourceDeletion", errorParams);
         }
     }
 

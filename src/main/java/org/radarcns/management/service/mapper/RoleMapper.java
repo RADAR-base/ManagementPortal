@@ -8,7 +8,7 @@ import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.service.dto.RoleDTO;
-import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,11 +35,11 @@ public abstract class RoleMapper {
      * Get an {@link Authority} from its name.
      * @param authorityName the authority name
      * @return the {@link Authority}
-     * @throws CustomParameterizedException if the authority name is not in the database
+     * @throws RadarWebApplicationException if the authority name is not in the database
      */
     public Authority authorityFromAuthorityName(String authorityName) {
         return authorityRepository.findByAuthorityName(authorityName)
-                .orElseThrow(() -> new CustomParameterizedException(
+                .orElseThrow(() -> new RadarWebApplicationException(
                         ErrorConstants.ERR_INVALID_AUTHORITY, authorityName));
     }
 

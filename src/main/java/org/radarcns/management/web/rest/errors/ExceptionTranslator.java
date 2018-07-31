@@ -84,11 +84,11 @@ public class ExceptionTranslator {
                 ex.getName() + ": " + ex.getMessage());
     }
 
-    @ExceptionHandler(CustomParameterizedException.class)
+    @ExceptionHandler(RadarWebApplicationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ParameterizedErrorVM processParameterizedValidationError(
-            CustomParameterizedException ex) {
+            RadarWebApplicationException ex) {
         return ex.getErrorVM();
     }
 

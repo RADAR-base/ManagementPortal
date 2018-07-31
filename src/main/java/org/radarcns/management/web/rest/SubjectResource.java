@@ -26,7 +26,7 @@ import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
-import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.web.rest.util.PaginationUtil;
@@ -426,7 +426,7 @@ public class SubjectResource {
             params.put("message", "Supplied login is not a participant in any study, a source can"
                     + "not be assigned.");
             params.put("login", login);
-            throw new CustomParameterizedException("error.loginNotParticipant", params);
+            throw new RadarWebApplicationException("error.loginNotParticipant", params);
         }
         Role role = roleOptional.get();
         // find out source type id of supplied source
@@ -450,7 +450,7 @@ public class SubjectResource {
                 sourceTypeId = sourceTypeDto.getId();
             } catch (NullPointerException ex) {
                 log.error(ex.getMessage() + ", supplied sourceDto: " + sourceDto.toString());
-                throw new CustomParameterizedException(ex.getMessage(),
+                throw new RadarWebApplicationException(ex.getMessage(),
                         Collections.singletonMap("message", "You must supply either the "
                                 + "sourceTypeId, or the combination of "
                                 + "(sourceTypeProducer, sourceTypeModel, catalogVersion) fields."));

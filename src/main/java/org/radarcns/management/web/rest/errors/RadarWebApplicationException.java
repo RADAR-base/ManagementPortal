@@ -4,19 +4,21 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 
 /**
  * Custom, parameterized exception, which can be translated on the client side.
  *
  * <p>For example: </p>
  *
- * <p>{@code throw new CustomParameterizedException("error.myCustomError", "hello", "world")}</p>
+ * <p>{@code throw new RadarWebApplicationException("error.myCustomError", "hello", "world")}</p>
  *
  * <p>can be translated with:</p>
  *
  * <p>{@code "error.myCustomError" : "The server says {{param0}} to {{param1}}"}</p>
  */
-public class CustomParameterizedException extends RuntimeException {
+public class RadarWebApplicationException extends WebApplicationException {
 
     private static final long serialVersionUID = 1L;
 
@@ -32,8 +34,8 @@ public class CustomParameterizedException extends RuntimeException {
      * @param message the error message
      * @param params the error parameters
      */
-    public CustomParameterizedException(String message, String... params) {
-        super(message);
+    public RadarWebApplicationException(String message, String... params) {
+        super(Response.Status.BAD_REQUEST);
         this.message = message;
         // add default timestamp first, so a timestamp key in the paramMap will overwrite it
         this.paramMap.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
@@ -50,8 +52,8 @@ public class CustomParameterizedException extends RuntimeException {
      * @param message the error message
      * @param paramMap the parameter map
      */
-    public CustomParameterizedException(String message, Map<String, String> paramMap) {
-        super(message);
+    public RadarWebApplicationException(String message, Map<String, String> paramMap) {
+        super(Response.Status.BAD_REQUEST);
         this.message = message;
         // add default timestamp first, so a timestamp key in the paramMap will overwrite it
         this.paramMap.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")

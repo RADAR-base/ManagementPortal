@@ -18,7 +18,7 @@ import org.radarcns.management.service.mapper.ClientDetailsMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
-import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
@@ -378,7 +378,7 @@ public class OAuthClientsResource {
         Map<String, Object> info = details.getAdditionalInformation();
         if (Objects.nonNull(info) && info.containsKey(PROTECTED_KEY)
                 && info.get(PROTECTED_KEY).toString().equalsIgnoreCase("true")) {
-            throw new CustomParameterizedException(ErrorConstants.ERR_OAUTH_CLIENT_PROTECTED,
+            throw new RadarWebApplicationException(ErrorConstants.ERR_OAUTH_CLIENT_PROTECTED,
                     details.getClientId());
         }
     }

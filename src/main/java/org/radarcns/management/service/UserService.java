@@ -17,7 +17,7 @@ import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
-import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -189,7 +189,7 @@ public class UserService {
                 Role currentRole = new Role();
                 currentRole.setAuthority(authorityRepository
                         .findByAuthorityName(roleDto.getAuthorityName())
-                        .orElseThrow(() -> new CustomParameterizedException(
+                        .orElseThrow(() -> new RadarWebApplicationException(
                                 ErrorConstants.ERR_INVALID_AUTHORITY, roleDto.getAuthorityName())));
                 if (roleDto.getProjectId() != null) {
                     currentRole.setProject(projectRepository.getOne(roleDto.getProjectId()));

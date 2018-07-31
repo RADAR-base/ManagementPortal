@@ -20,7 +20,7 @@ import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.service.util.RandomUtil;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
-import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -331,7 +331,7 @@ public class SubjectService {
             errorParams.put("model", sourceType.getModel());
             errorParams.put("subject-id", subject.getUser().getLogin());
             errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
-            throw new CustomParameterizedException("InvalidRequest", errorParams);
+            throw new RadarWebApplicationException("InvalidRequest", errorParams);
         }
         subjectRepository.save(subject);
         return sourceMapper.sourceToMinimalSourceDetailsDTO(assignedSource);

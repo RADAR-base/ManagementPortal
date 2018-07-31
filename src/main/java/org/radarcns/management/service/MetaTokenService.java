@@ -13,7 +13,7 @@ import org.radarcns.management.domain.MetaToken;
 import org.radarcns.management.repository.MetaTokenRepository;
 import org.radarcns.management.service.dto.TokenDTO;
 import org.radarcns.management.web.rest.errors.CustomNotFoundException;
-import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +73,7 @@ public class MetaTokenService {
             save(fetchedToken);
             return result;
         } else {
-            throw new CustomParameterizedException("invalidRequest", "token is already fetched "
+            throw new RadarWebApplicationException("invalidRequest", "token is already fetched "
                 + "or has expired. Invalid request");
         }
 

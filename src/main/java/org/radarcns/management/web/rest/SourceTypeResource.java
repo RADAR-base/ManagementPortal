@@ -12,7 +12,7 @@ import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.web.rest.errors.CustomConflictException;
-import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.web.rest.util.PaginationUtil;
@@ -224,7 +224,7 @@ public class SourceTypeResource {
         List<ProjectDTO> projects = sourceTypeService.findProjectsBySourceType(producer, model,
                 version);
         if (!projects.isEmpty()) {
-            throw new CustomParameterizedException(ErrorConstants.ERR_SOURCE_TYPE_IN_USE,
+            throw new RadarWebApplicationException(ErrorConstants.ERR_SOURCE_TYPE_IN_USE,
                     projects.stream()
                             .map(p -> p.getProjectName())
                             .reduce((s1, s2) -> String.join(", ", s1, s2))
