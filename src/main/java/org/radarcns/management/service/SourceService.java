@@ -1,5 +1,9 @@
 package org.radarcns.management.service;
 
+
+
+import static org.radarcns.management.web.rest.errors.EntityName.SOURCE;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -110,7 +114,7 @@ public class SourceService {
     public void delete(Long id) {
         log.info("Request to delete Source : {}", id);
         Revisions<Integer, Source> sourceHistory = sourceRepository.findRevisions(id);
-        List<Source> sources = sourceHistory.getContent().stream().map(p -> (Source) p.getEntity())
+        List<Source> sources = sourceHistory.getContent().stream().map(p -> p.getEntity())
                 .filter(Source::isAssigned).collect(Collectors.toList());
         if (sources.isEmpty()) {
             sourceRepository.delete(id);
@@ -118,7 +122,9 @@ public class SourceService {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Cannot delete source with sourceId ");
             errorParams.put("id", Long.toString(id));
-            throw new RadarWebApplicationException("error.usedSourceDeletion", errorParams);
+            throw new RadarWebApplicationException("Cannot delete a source that was once "
+                + "assigned.",  SOURCE, "error.usedSourceDeletion",
+                errorParams);
         }
     }
 

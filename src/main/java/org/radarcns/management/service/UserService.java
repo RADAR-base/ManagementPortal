@@ -1,5 +1,7 @@
 package org.radarcns.management.service;
 
+import static org.radarcns.management.web.rest.errors.EntityName.USER;
+
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Project;
@@ -17,7 +19,7 @@ import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
-import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
+import org.radarcns.management.web.rest.errors.NotFoundException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -187,14 +190,16 @@ public class UserService {
                     roleDto.getProjectId(), roleDto.getAuthorityName());
             if (!role.isPresent() || role.get().getId() == null) {
                 Role currentRole = new Role();
+                // supplied authorityname can be anything, so check if we actually have one
                 currentRole.setAuthority(authorityRepository
                         .findByAuthorityName(roleDto.getAuthorityName())
-                        .orElseThrow(() -> new RadarWebApplicationException(
-                                ErrorConstants.ERR_INVALID_AUTHORITY, roleDto.getAuthorityName())));
+                        .orElseThrow(() -> new NotFoundException("Authority not found with "
+                            + "authorityName", USER, ErrorConstants.ERR_INVALID_AUTHORITY,
+                            Collections.singletonMap("authorityName", roleDto.getAuthorityName()))));
                 if (roleDto.getProjectId() != null) {
                     currentRole.setProject(projectRepository.getOne(roleDto.getProjectId()));
                 }
-                // supplied authorityname can be anything, so check if we actually have one
+
                 if (Objects.nonNull(currentRole.getAuthority())) {
                     roles.add(roleRepository.save(currentRole));
                 }

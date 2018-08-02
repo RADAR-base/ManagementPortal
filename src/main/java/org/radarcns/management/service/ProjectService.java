@@ -1,6 +1,8 @@
 package org.radarcns.management.service;
 
 
+import static org.radarcns.management.web.rest.errors.EntityName.PROJECT;
+
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.repository.ProjectRepository;
@@ -8,7 +10,7 @@ import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.SourceTypeMapper;
-import org.radarcns.management.web.rest.errors.CustomNotFoundException;
+import org.radarcns.management.web.rest.errors.NotFoundException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,16 +76,16 @@ public class ProjectService {
      *
      * @param id the id of the entity
      * @return the entity
-     * @throws CustomNotFoundException if there is no project with the given id
+     * @throws NotFoundException if there is no project with the given id
      */
     @Transactional(readOnly = true)
-    public ProjectDTO findOne(Long id) throws CustomNotFoundException {
+    public ProjectDTO findOne(Long id) throws NotFoundException {
         log.debug("Request to get Project : {}", id);
         return projectRepository.findOneWithEagerRelationships(id)
                 .map(projectMapper::projectToProjectDTO)
-                .orElseThrow(() -> new CustomNotFoundException(
+                .orElseThrow(() -> new NotFoundException("Project not found with id", PROJECT,
                         ErrorConstants.ERR_PROJECT_ID_NOT_FOUND,
-                        Collections.singletonMap("param0", id.toString())));
+                        Collections.singletonMap("id", id.toString())));
     }
 
     /**
@@ -91,16 +93,16 @@ public class ProjectService {
      *
      * @param name the name of the entity
      * @return the entity
-     * @throws CustomNotFoundException if there is no project with the given name
+     * @throws NotFoundException if there is no project with the given name
      */
     @Transactional(readOnly = true)
-    public ProjectDTO findOneByName(String name) throws CustomNotFoundException {
+    public ProjectDTO findOneByName(String name) throws NotFoundException {
         log.debug("Request to get Project by name: {}", name);
         return projectRepository.findOneWithEagerRelationshipsByName(name)
                 .map(projectMapper::projectToProjectDTO)
-                .orElseThrow(() -> new CustomNotFoundException(
-                        ErrorConstants.ERR_PROJECT_NAME_NOT_FOUND,
-                        Collections.singletonMap("param0", name)));
+                .orElseThrow(() -> new NotFoundException("Project not found with projectName",
+                        PROJECT, ErrorConstants.ERR_PROJECT_NAME_NOT_FOUND,
+                        Collections.singletonMap("projectName", name)));
     }
 
     /**

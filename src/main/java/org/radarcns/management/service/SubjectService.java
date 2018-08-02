@@ -1,5 +1,24 @@
 package org.radarcns.management.service;
 
+import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
+import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarcns.management.web.rest.errors.EntityName.SUBJECT;
+
+import java.net.URISyntaxException;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import org.hibernate.envers.query.AuditEntity;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
@@ -18,10 +37,11 @@ import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.service.util.RandomUtil;
-import org.radarcns.management.web.rest.errors.CustomConflictException;
-import org.radarcns.management.web.rest.errors.CustomNotFoundException;
-import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
+import org.radarcns.management.web.rest.errors.BadRequestException;
+import org.radarcns.management.web.rest.errors.ConflictException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
+import org.radarcns.management.web.rest.errors.NotFoundException;
+import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,24 +51,6 @@ import org.springframework.data.history.Revisions;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.net.URISyntaxException;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
-import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 
 /**
  * Created by nivethika on 26-5-17.
@@ -265,10 +267,10 @@ public class SubjectService {
             } else {
                 log.error("Cannot find a Source of sourceId already registered for subject login");
                 Map<String, String> errorParams = new HashMap<>();
-                errorParams.put("message",
-                        "Cannot find a Source of sourceId already registered for subject login");
                 errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
-                throw new CustomNotFoundException(ErrorConstants.ERR_SOURCE_NOT_FOUND, errorParams);
+                throw new NotFoundException( "Cannot find a Source of sourceId already registered"
+                    + " for subject login", SUBJECT, ErrorConstants.ERR_SOURCE_NOT_FOUND,
+                    errorParams);
             }
         } else if (sourceType.getCanRegisterDynamically()) {
             // create a source and register meta data
@@ -291,12 +293,10 @@ public class SubjectService {
                 if (sourceToUpdate.isPresent()) {
                     log.error("Cannot create a source with existing source-name {}",
                             source1.getSourceName());
-                    Map<String, String> errorParams = new HashMap<>();
-                    errorParams.put("message",
-                            "SourceName already in use. Cannot create a source with source-name ");
-                    errorParams.put("source-name", source1.getSourceName());
-                    throw new CustomNotFoundException(ErrorConstants.ERR_SOURCE_NAME_EXISTS,
-                            errorParams);
+                    throw new NotFoundException("SourceName already in use. Cannot create a "
+                        + "source with source-name ", SUBJECT,
+                        ErrorConstants.ERR_SOURCE_NAME_EXISTS,
+                        Collections.singletonMap("source-name", source1.getSourceName()));
                 }
                 source1 = sourceRepository.save(source1);
 
@@ -304,16 +304,16 @@ public class SubjectService {
                 subject.getSources().add(source1);
             } else {
                 log.error("A Source of SourceType with the specified producer, model and version "
-                        + "was already registered for subject login");
+                    + "was already registered for subject login");
                 Map<String, String> errorParams = new HashMap<>();
-                errorParams.put("message", "A Source of SourceType with the specified producer, "
-                        + "model and version was already registered for subject login");
                 errorParams.put("producer", sourceType.getProducer());
                 errorParams.put("model", sourceType.getModel());
                 errorParams.put("catalogVersion", sourceType.getCatalogVersion());
                 errorParams.put("subject-id", subject.getUser().getLogin());
-                throw new CustomConflictException(ErrorConstants.ERR_SOURCE_TYPE_EXISTS,
-                        errorParams, ResourceUriService.getUri(sources.get(0)));
+                throw new ConflictException(
+                    "A Source of SourceType with the specified producer, model and version"
+                        + " was already registered for subject login",
+                    SUBJECT, ErrorConstants.ERR_SOURCE_TYPE_EXISTS, errorParams);
             }
         }
 
@@ -324,14 +324,13 @@ public class SubjectService {
             log.error("Cannot find assigned source with sourceId or a source of sourceType with "
                     + "the specified producer and model is already registered for subject login ");
             Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("message", "Cannot find assigned source with sourceId or a source of "
-                    + "sourceType with the specified producer and model is already registered "
-                    + "for subject login ");
             errorParams.put("producer", sourceType.getProducer());
             errorParams.put("model", sourceType.getModel());
             errorParams.put("subject-id", subject.getUser().getLogin());
             errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
-            throw new RadarWebApplicationException("InvalidRequest", errorParams);
+            throw new BadRequestException("Cannot find assigned source with sourceId or a source "
+                + "of sourceType with the specified producer and model is already registered "
+                + "for subject login ", SUBJECT, "InvalidRequest", errorParams);
         }
         subjectRepository.save(subject);
         return sourceMapper.sourceToMinimalSourceDetailsDTO(assignedSource);
@@ -386,16 +385,17 @@ public class SubjectService {
      * @param login the login of the subject
      * @param revision the revision number
      * @return the subject at the given revision
-     * @throws CustomNotFoundException if there was no subject with the given login at the given
+     * @throws NotFoundException if there was no subject with the given login at the given
      *         revision number
      */
-    public SubjectDTO findRevision(String login, Integer revision) throws CustomNotFoundException {
+    public SubjectDTO findRevision(String login, Integer revision) throws NotFoundException {
         // first get latest known version of the subject, if it's deleted we can't load the entity
         // directly by e.g. findOneByLogin
         SubjectDTO latest = getLatestRevision(login);
         Subject sub = revisionService.findRevision(revision, latest.getId(), Subject.class);
         if (sub == null) {
-            throw new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+            throw new NotFoundException("subject not found for given login and revision.", SUBJECT,
+                ErrorConstants.ERR_SUBJECT_NOT_FOUND,
                     Collections.singletonMap("subjectLogin", login));
         }
         return subjectMapper.subjectToSubjectDTO(sub);
@@ -406,17 +406,19 @@ public class SubjectService {
      *
      * @param login the login of the subject
      * @return the latest revision for that subject
-     * @throws CustomNotFoundException if no subject was found with the given login
+     * @throws NotFoundException if no subject was found with the given login
      */
-    public SubjectDTO getLatestRevision(String login) throws CustomNotFoundException {
+    public SubjectDTO getLatestRevision(String login) throws NotFoundException {
         UserDTO user = (UserDTO) revisionService.getLatestRevisionForEntity(User.class,
                 Arrays.asList(AuditEntity.property("login").eq(login)))
-                .orElseThrow(() -> new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                .orElseThrow(() -> new NotFoundException("Subject latest revision not found "
+                    + "for login" , SUBJECT, ErrorConstants.ERR_SUBJECT_NOT_FOUND,
                         Collections.singletonMap("subjectLogin", login)));
         return (SubjectDTO) revisionService.getLatestRevisionForEntity(Subject.class,
                 Arrays.asList(AuditEntity.property("user").eq(user)))
-                .orElseThrow(() -> new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND,
-                        Collections.singletonMap("subjectLogin", login)));
+                .orElseThrow(() -> new NotFoundException("Subject latest revision not found "
+                    + "for login" , SUBJECT, ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                    Collections.singletonMap("subjectLogin", login)));
     }
 
     private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {

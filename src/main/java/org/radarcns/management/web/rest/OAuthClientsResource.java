@@ -16,8 +16,8 @@ import org.radarcns.management.service.dto.ClientPairInfoDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.ClientDetailsMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
-import org.radarcns.management.web.rest.errors.CustomConflictException;
-import org.radarcns.management.web.rest.errors.CustomNotFoundException;
+import org.radarcns.management.web.rest.errors.ConflictException;
+import org.radarcns.management.web.rest.errors.NotFoundException;
 import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
@@ -75,6 +75,7 @@ import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
 import static org.radarcns.management.security.SecurityUtils.getJWT;
 import static org.radarcns.management.web.rest.MetaTokenResource.DEFAULT_META_TOKEN_TIMEOUT;
+import static org.radarcns.management.web.rest.errors.EntityName.OAUTH_CLIENT;
 
 /**
  * Created by dverbeec on 5/09/2017.
@@ -220,9 +221,9 @@ public class OAuthClientsResource {
         // check if the client id exists
         try {
             clientDetailsService.loadClientByClientId(clientDetailsDto.getClientId());
-            throw new CustomConflictException(ErrorConstants.ERR_CLIENT_ID_EXISTS,
-                    Collections.singletonMap("client_id", clientDetailsDto.getClientId()),
-                    ResourceUriService.getUri(clientDetailsDto));
+            throw new ConflictException("OAuth client already exists with this id", OAUTH_CLIENT,
+                ErrorConstants.ERR_CLIENT_ID_EXISTS,
+                    Collections.singletonMap("client_id", clientDetailsDto.getClientId()));
         } catch (NoSuchClientException ex) {
             // Client does not exist yet, we can go ahead and create it
         }
@@ -345,30 +346,30 @@ public class OAuthClientsResource {
      *
      * @param clientId The client ID to look up
      * @return a ClientDetails object with the requested client ID
-     * @throws CustomNotFoundException If there is no client with the requested ID
+     * @throws NotFoundException If there is no client with the requested ID
      */
-    private ClientDetails getOAuthClient(String clientId) throws CustomNotFoundException {
+    private ClientDetails getOAuthClient(String clientId) throws NotFoundException {
         try {
             return clientDetailsService.loadClientByClientId(clientId);
         } catch (NoSuchClientException e) {
             log.error("Pair client request for unknown client id: {}", clientId);
             Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("message", "Client ID not found");
             errorParams.put("clientId", clientId);
-            throw new CustomNotFoundException(ErrorConstants.ERR_OAUTH_CLIENT_ID_NOT_FOUND,
-                    errorParams);
+            throw new NotFoundException("Client not found for client-id", OAUTH_CLIENT,
+                ErrorConstants.ERR_OAUTH_CLIENT_ID_NOT_FOUND, errorParams);
         }
     }
 
-    private Subject getSubject(String login) throws CustomNotFoundException {
+    private Subject getSubject(String login) throws NotFoundException {
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
 
         if (!subject.isPresent()) {
             log.error("Pair client request for unknown subject login: {}", login);
             Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("message", "Subject ID not found");
             errorParams.put("subjectLogin", login);
-            throw new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND, errorParams);
+            throw new NotFoundException("Subject not found for subjectLogin", OAUTH_CLIENT,
+                ErrorConstants
+                .ERR_SUBJECT_NOT_FOUND, errorParams);
         }
 
         return subject.get();
@@ -378,8 +379,9 @@ public class OAuthClientsResource {
         Map<String, Object> info = details.getAdditionalInformation();
         if (Objects.nonNull(info) && info.containsKey(PROTECTED_KEY)
                 && info.get(PROTECTED_KEY).toString().equalsIgnoreCase("true")) {
-            throw new RadarWebApplicationException(ErrorConstants.ERR_OAUTH_CLIENT_PROTECTED,
-                    details.getClientId());
+            throw new RadarWebApplicationException("Cannot modify protected client",
+                OAUTH_CLIENT, ErrorConstants.ERR_OAUTH_CLIENT_PROTECTED,
+                Collections.singletonMap("client_id", details.getClientId()));
         }
     }
 }

@@ -1,5 +1,7 @@
 package org.radarcns.management.service;
 
+import static org.radarcns.management.web.rest.errors.EntityName.META_TOKEN;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
@@ -12,8 +14,8 @@ import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.MetaToken;
 import org.radarcns.management.repository.MetaTokenRepository;
 import org.radarcns.management.service.dto.TokenDTO;
-import org.radarcns.management.web.rest.errors.CustomNotFoundException;
-import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
+import org.radarcns.management.web.rest.errors.GoneRequestException;
+import org.radarcns.management.web.rest.errors.NotFoundException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,10 +58,9 @@ public class MetaTokenService {
      *
      * @param tokenName the id of the entity
      * @return the entity
-     * @throws CustomNotFoundException if there is no project with the given id
      */
     public TokenDTO fetchToken(String tokenName) throws
-            MalformedURLException, CustomNotFoundException {
+            MalformedURLException {
         log.debug("Request to get Token : {}", tokenName);
         MetaToken fetchedToken = getToken(tokenName);
 
@@ -73,8 +74,8 @@ public class MetaTokenService {
             save(fetchedToken);
             return result;
         } else {
-            throw new RadarWebApplicationException("invalidRequest", "token is already fetched "
-                + "or has expired. Invalid request");
+            throw new GoneRequestException("Token already fetched or expired. ",
+                META_TOKEN, "error.TokenCannotBeSent");
         }
 
 
@@ -84,17 +85,16 @@ public class MetaTokenService {
      * Gets a token from databased using the tokenName.
      *
      * @param tokenName tokenName.
-     * @throws CustomNotFoundException if the token not found.
      * @return fetched token as {@link MetaToken}.
      */
     @Transactional(readOnly = true)
-    public MetaToken getToken(String tokenName) throws CustomNotFoundException {
+    public MetaToken getToken(String tokenName) {
         Optional<MetaToken> fetchedToken = metaTokenRepository.findOneByTokenName(tokenName);
 
         if (fetchedToken.isPresent()) {
             return  fetchedToken.get();
         } else {
-            throw  new CustomNotFoundException(
+            throw  new NotFoundException("Meta token not found with tokenName", META_TOKEN,
                 ErrorConstants.ERR_TOKEN_NOT_FOUND,
                 Collections.singletonMap("tokenName", tokenName));
         }

@@ -10,7 +10,7 @@ import org.radarcns.auth.config.Constants;
 import org.radarcns.management.service.MetaTokenService;
 import org.radarcns.management.service.dto.ClientPairInfoDTO;
 import org.radarcns.management.service.dto.TokenDTO;
-import org.radarcns.management.web.rest.errors.CustomNotFoundException;
+import org.radarcns.management.web.rest.errors.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +43,7 @@ public class MetaTokenResource {
     @GetMapping("/meta-token/{tokenName:" + Constants.TOKEN_NAME_REGEX + "}")
     @Timed
     public ResponseEntity<TokenDTO> getTokenByTokenName(@PathVariable("tokenName") String tokenName)
-            throws MalformedURLException, CustomNotFoundException {
+            throws MalformedURLException, NotFoundException {
         log.info("Requesting token with tokenName {}", tokenName);
         try {
             // sleep for 5 seconds

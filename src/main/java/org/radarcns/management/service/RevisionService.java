@@ -1,5 +1,8 @@
 package org.radarcns.management.service;
 
+import static org.radarcns.management.web.rest.errors.EntityName.REVISION;
+import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_REVISIONS_NOT_FOUND;
+
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.RevisionType;
@@ -15,9 +18,8 @@ import org.radarcns.management.domain.audit.EntityAuditInfo;
 import org.radarcns.management.repository.CustomRevisionEntityRepository;
 import org.radarcns.management.service.dto.RevisionDTO;
 import org.radarcns.management.service.dto.RevisionInfoDTO;
-import org.radarcns.management.web.rest.errors.CustomNotFoundException;
-import org.radarcns.management.web.rest.errors.CustomServerException;
-import org.radarcns.management.web.rest.errors.ErrorConstants;
+import org.radarcns.management.web.rest.errors.InvalidStateException;
+import org.radarcns.management.web.rest.errors.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -112,10 +114,9 @@ public class RevisionService implements ApplicationContextAware {
             first = (CustomRevisionEntity) firstRevision[1];
         } catch (NonUniqueResultException ex) {
             // should not happen since we call 'minimize'
-            throw new CustomServerException(ErrorConstants.ERR_INTERNAL_SERVER_ERROR,
-                Collections.singletonMap("message", "Query for first revision returned a "
+            throw new IllegalStateException("Query for first revision returned a "
                     + "non-unique result. Please report this to the administrator together with "
-                    + "the request issued."));
+                    + "the request issued." , ex);
         } catch (NoResultException ex) {
             // we did not find any auditing info, so we just return an empty object
             return new EntityAuditInfo();
@@ -133,10 +134,9 @@ public class RevisionService implements ApplicationContextAware {
             last = (CustomRevisionEntity) lastRevision[1];
         } catch (NonUniqueResultException ex) {
             // should not happen since we call 'maximize'
-            throw new CustomServerException(ErrorConstants.ERR_INTERNAL_SERVER_ERROR,
-                    Collections.singletonMap("message", "Query for last revision returned a "
+            throw new IllegalStateException("Query for last revision returned a "
                             + "non-unique result. Please report this to the administrator together "
-                            + "with the request issued."));
+                            + "with the request issued.");
         } catch (NoResultException ex) {
             // we did not find any auditing info, so we just return an empty object
             return new EntityAuditInfo();
@@ -226,13 +226,14 @@ public class RevisionService implements ApplicationContextAware {
      *
      * @param revision the revision number
      * @return the revision
-     * @throws CustomNotFoundException if the revision number does not exist
+     * @throws NotFoundException if the revision number does not exist
      */
-    public RevisionInfoDTO getRevision(Integer revision) throws CustomNotFoundException {
+    public RevisionInfoDTO getRevision(Integer revision) throws NotFoundException {
         CustomRevisionEntity revisionEntity = revisionEntityRepository.findOne(revision);
         if (revisionEntity == null) {
-            throw new CustomNotFoundException("Requested revision not found", Collections
-                    .emptyMap());
+            throw new NotFoundException("Revision not found with revision id", REVISION,
+                    ERR_REVISIONS_NOT_FOUND,
+                    Collections.singletonMap("revision-id", revision.toString()));
         }
         return RevisionInfoDTO.from(revisionEntity, getChangesForRevision(revision));
     }
@@ -256,8 +257,9 @@ public class RevisionService implements ApplicationContextAware {
         revisionTypes.forEach(revisionType -> result.put(revisionType, new LinkedList<>()));
         CustomRevisionEntity revisionEntity = revisionEntityRepository.findOne(revision);
         if (revisionEntity == null) {
-            throw new CustomNotFoundException("The requested revision could not be found.",
-                    Collections.emptyMap());
+            throw new NotFoundException("The requested revision could not be found.", REVISION,
+                ERR_REVISIONS_NOT_FOUND,
+                    Collections.singletonMap("revision-id", revision.toString()));
         }
         revisionEntity.getModifiedEntityNames().forEach(entityName ->
                 revisionTypes.forEach(revisionType -> result.get(revisionType).addAll(
@@ -339,9 +341,7 @@ public class RevisionService implements ApplicationContextAware {
                 mapper = applicationContext.getBean(Class.forName(className));
             } catch (ClassNotFoundException ex) {
                 // should not happen, we got the classname from the bean definition
-                throw new CustomServerException(ErrorConstants.ERR_INTERNAL_SERVER_ERROR,
-                        Collections.singletonMap("message", "Could not get Class from the given "
-                                + "bean classname. Please report this to the administrator."));
+                throw new InvalidStateException(ex.getMessage(), REVISION, "error.InvalidState");
             }
             // now we look for the correct method in the bean
             Optional<Method> method = Arrays.stream(mapper.getClass().getMethods())
@@ -376,8 +376,7 @@ public class RevisionService implements ApplicationContextAware {
         } catch (ClassNotFoundException ex) {
             // this should not happen
             log.error("Unable to load class for modified entity", ex);
-            throw new CustomServerException(ErrorConstants.ERR_INTERNAL_SERVER_ERROR,
-                    Collections.emptyMap());
+            throw new InvalidStateException(ex.getMessage(), REVISION, "error.classNotFound");
         }
     }
 }

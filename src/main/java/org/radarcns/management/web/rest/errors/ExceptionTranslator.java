@@ -87,37 +87,30 @@ public class ExceptionTranslator {
     @ExceptionHandler(RadarWebApplicationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ParameterizedErrorVM processParameterizedValidationError(
+    public RadarWebApplicationExceptionVM processParameterizedValidationError(
             RadarWebApplicationException ex) {
-        return ex.getErrorVM();
+        return ex.getExceptionVM();
     }
 
-    @ExceptionHandler(CustomNotFoundException.class)
+    @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
-    public ParameterizedErrorVM processParameterizedNotFound(CustomNotFoundException ex) {
-        return ex.getErrorVM();
+    public RadarWebApplicationExceptionVM processParameterizedNotFound(NotFoundException ex) {
+        return ex.getExceptionVM();
     }
 
     /**
-     * Translate a {@link CustomConflictException}.
+     * Translate a {@link ConflictException}.
      * @param ex the exception
      * @return the view-model for the translated exception
      */
-    @ExceptionHandler(CustomConflictException.class)
-    public ResponseEntity<ParameterizedErrorVM> processParameterizedConflict(
-            CustomConflictException ex) {
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<RadarWebApplicationExceptionVM> processParameterizedConflict(
+            ConflictException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .headers(HeaderUtil.createAlert(ex.getMessage(), ex.getConflictingResource()
-                        .toString()))
-                .body(ex.getErrorVM());
-    }
-
-    @ExceptionHandler(CustomServerException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ResponseBody
-    public ParameterizedErrorVM processParameterizedServerError(CustomServerException ex) {
-        return ex.getErrorVM();
+                .headers(HeaderUtil.createFailureAlert(ex.getEntityName(), ex.getErrorCode(),
+                    ex.getMessage()))
+                .body(ex.getExceptionVM());
     }
 
     @ExceptionHandler(AccessDeniedException.class)

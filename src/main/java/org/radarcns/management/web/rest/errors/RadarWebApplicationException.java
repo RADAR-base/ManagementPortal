@@ -1,18 +1,22 @@
 package org.radarcns.management.web.rest.errors;
 
+import static java.util.Collections.emptyMap;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 /**
- * Custom, parameterized exception, which can be translated on the client side.
+ * A base parameterized exception, which can be translated on the client side.
  *
  * <p>For example: </p>
  *
- * <p>{@code throw new RadarWebApplicationException("error.myCustomError", "hello", "world")}</p>
+ * <p>{@code throw new RadarWebApplicationException("Message to client", "entity",
+ * "error.errorCode")}</p>
  *
  * <p>can be translated with:</p>
  *
@@ -20,48 +24,80 @@ import javax.ws.rs.core.Response;
  */
 public class RadarWebApplicationException extends WebApplicationException {
 
-    private static final long serialVersionUID = 1L;
+    private String message;
 
-    private static final String PARAM = "param";
+    private String entityName;
 
-    private final String message;
+    private String errorCode;
 
     private final Map<String, String> paramMap = new HashMap<>();
 
     /**
-     * Create an error with the given message and parameters. The parameters passed in will go
-     * into the parameter with as values, with keys being {@code param0, param1, ...}.
-     * @param message the error message
-     * @param params the error parameters
+     * Create an exception with the given parameters. This will be used to to create response
+     * body of the request.
+     *
+     * @param message Error message to the client
+     * @param entityName Entity related to the exception
+     * @param errorCode error code defined in MP if relevant.
      */
-    public RadarWebApplicationException(String message, String... params) {
-        super(Response.Status.BAD_REQUEST);
-        this.message = message;
-        // add default timestamp first, so a timestamp key in the paramMap will overwrite it
-        this.paramMap.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                .format(new Date()));
-        if (params != null && params.length > 0) {
-            for (int i = 0; i < params.length; i++) {
-                paramMap.put(PARAM + i, params[i]);
-            }
-        }
+    public RadarWebApplicationException(String message, String entityName,
+            String errorCode) {
+        this(INTERNAL_SERVER_ERROR, message, entityName, errorCode);
     }
 
     /**
-     * Create an error with the given message and parameter map.
-     * @param message the error message
-     * @param paramMap the parameter map
+     * Create an exception with the given parameters. This will be used to to create response
+     * body of the request.
+     *
+     * @param message Error message to the client
+     * @param entityName Entity related to the exception
+     * @param errorCode error code defined in MP if relevant.
      */
-    public RadarWebApplicationException(String message, Map<String, String> paramMap) {
-        super(Response.Status.BAD_REQUEST);
-        this.message = message;
-        // add default timestamp first, so a timestamp key in the paramMap will overwrite it
-        this.paramMap.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                .format(new Date()));
-        this.paramMap.putAll(paramMap);
+    public RadarWebApplicationException(String message, String entityName,
+        String errorCode, Map<String, String> params) {
+        this(INTERNAL_SERVER_ERROR, message, entityName, errorCode, params);
     }
 
-    public ParameterizedErrorVM getErrorVM() {
-        return new ParameterizedErrorVM(message, paramMap);
+    /**
+     * Create an exception with the given parameters. This will be used to to create response
+     * body of the request.
+     *
+     * @param message Error message to the client
+     * @param entityName Entity related to the exception
+     * @param errorCode error code defined in MP if relevant.
+     */
+    public RadarWebApplicationException(Status status,  String message, String entityName,
+        String errorCode) {
+        this(status, message, entityName, errorCode, emptyMap());
+    }
+
+
+    public RadarWebApplicationException(Status status, String message, String entityName,
+            String errorCode, Map<String, String> params) {
+        super(status);
+        // add default timestamp first, so a timestamp key in the paramMap will overwrite it
+        this.paramMap.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            .format(new Date()));
+        this.paramMap.putAll(params);
+        this.message = message;
+        this.entityName = entityName;
+        this.errorCode = errorCode;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
+    }
+
+    public String getEntityName() {
+        return entityName;
+    }
+
+    public String getErrorCode() {
+        return errorCode;
+    }
+
+    public RadarWebApplicationExceptionVM getExceptionVM() {
+        return new RadarWebApplicationExceptionVM(message, entityName, errorCode, paramMap);
     }
 }

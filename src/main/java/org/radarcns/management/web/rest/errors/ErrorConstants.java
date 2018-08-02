@@ -23,6 +23,7 @@ public final class ErrorConstants {
     public static final String ERR_INTERNAL = "error.internalParameterized";
     public static final String ERR_ENTITY_NOT_FOUND = "error.entityNotFound";
     public static final String ERR_TOKEN_NOT_FOUND = "error.tokenNotFound";
+    public static final String ERR_SOURCE_TYPE_NOT_PROVIDED = "error.sourceTypeNotProvided";
 
     private ErrorConstants() {
     }
