@@ -76,10 +76,9 @@ public class ProjectService {
      *
      * @param id the id of the entity
      * @return the entity
-     * @throws NotFoundException if there is no project with the given id
      */
     @Transactional(readOnly = true)
-    public ProjectDTO findOne(Long id) throws NotFoundException {
+    public ProjectDTO findOne(Long id) {
         log.debug("Request to get Project : {}", id);
         return projectRepository.findOneWithEagerRelationships(id)
                 .map(projectMapper::projectToProjectDTO)
@@ -93,10 +92,9 @@ public class ProjectService {
      *
      * @param name the name of the entity
      * @return the entity
-     * @throws NotFoundException if there is no project with the given name
      */
     @Transactional(readOnly = true)
-    public ProjectDTO findOneByName(String name) throws NotFoundException {
+    public ProjectDTO findOneByName(String name) {
         log.debug("Request to get Project by name: {}", name);
         return projectRepository.findOneWithEagerRelationshipsByName(name)
                 .map(projectMapper::projectToProjectDTO)
@@ -106,13 +104,13 @@ public class ProjectService {
     }
 
     /**
-     * Get one project by id.
+     * Get source-types assigned to a project.
      *
-     * @param id the id of the entity
-     * @return the entity
+     * @param id the id of the project
+     * @return the list of source-types assigned.
      */
     @Transactional(readOnly = true)
-    public List<SourceTypeDTO> findSourceTypesById(Long id) {
+    public List<SourceTypeDTO> findSourceTypesByProjectId(Long id) {
         log.debug("Request to get Project.sourceTypes of project: {}", id);
         List<SourceType> sourceTypes = projectRepository.findSourceTypesByProjectId(id);
         return sourceTypeMapper.sourceTypesToSourceTypeDTOs(sourceTypes);

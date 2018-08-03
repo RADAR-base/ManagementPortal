@@ -4,7 +4,6 @@ import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PART
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarcns.management.web.rest.errors.EntityName.SUBJECT;
 
-import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -239,14 +238,8 @@ public class SubjectService {
      */
     @Transactional
     public MinimalSourceDetailsDTO assignOrUpdateSource(Subject subject, SourceType sourceType,
-            Project project, MinimalSourceDetailsDTO sourceRegistrationDto)
-            throws URISyntaxException {
+            Project project, MinimalSourceDetailsDTO sourceRegistrationDto) {
         Source assignedSource = null;
-
-        List<Source> sources = subjectRepository
-                .findSubjectSourcesBySourceType(subject.getUser().getLogin(),
-                        sourceType.getProducer(), sourceType.getModel(),
-                        sourceType.getCatalogVersion());
 
         // update meta-data for existing sources
         if (sourceRegistrationDto.getSourceId() != null) {
@@ -272,6 +265,10 @@ public class SubjectService {
                     errorParams);
             }
         } else if (sourceType.getCanRegisterDynamically()) {
+            List<Source> sources = subjectRepository
+                    .findSubjectSourcesBySourceType(subject.getUser().getLogin(),
+                    sourceType.getProducer(), sourceType.getModel(),
+                    sourceType.getCatalogVersion());
             // create a source and register meta data
             // we allow only one source of a source-type per subject
             if (sources.isEmpty()) {

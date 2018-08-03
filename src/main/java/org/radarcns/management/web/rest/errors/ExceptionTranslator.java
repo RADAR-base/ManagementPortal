@@ -111,6 +111,12 @@ public class ExceptionTranslator {
         return processRadarWebApplicationException(ex);
     }
 
+    @ExceptionHandler(InvalidRequestException.class)
+    public ResponseEntity<RadarWebApplicationExceptionVM> processNotFound(
+            InvalidRequestException ex) {
+        return processRadarWebApplicationException(ex);
+    }
+
 
     /**
      * Translate a {@link ConflictException}.

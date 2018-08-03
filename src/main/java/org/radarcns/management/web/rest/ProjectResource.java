@@ -197,7 +197,7 @@ public class ProjectResource {
         log.debug("REST request to get Project : {}", projectName);
         ProjectDTO projectDto = projectService.findOneByName(projectName);
         checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ, projectDto.getProjectName());
-        return projectService.findSourceTypesById(projectDto.getId());
+        return projectService.findSourceTypesByProjectId(projectDto.getId());
     }
 
 

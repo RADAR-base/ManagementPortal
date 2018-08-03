@@ -341,7 +341,7 @@ public class RevisionService implements ApplicationContextAware {
                 mapper = applicationContext.getBean(Class.forName(className));
             } catch (ClassNotFoundException ex) {
                 // should not happen, we got the classname from the bean definition
-                throw new InvalidStateException(ex.getMessage(), REVISION, "error.InvalidState");
+                throw new InvalidStateException(ex.getMessage(), REVISION, "error.classNotFound");
             }
             // now we look for the correct method in the bean
             Optional<Method> method = Arrays.stream(mapper.getClass().getMethods())
