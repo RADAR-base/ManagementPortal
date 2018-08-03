@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -241,29 +240,10 @@ public class SubjectService {
             Project project, MinimalSourceDetailsDTO sourceRegistrationDto) {
         Source assignedSource = null;
 
-        // update meta-data for existing sources
         if (sourceRegistrationDto.getSourceId() != null) {
-            // for manually registered devices only add meta-data
-            Optional<Source> sourceToUpdate = subjectRepository.findSubjectSourcesBySourceId(
-                    subject.getUser().getLogin(), sourceRegistrationDto.getSourceId());
-            if (sourceToUpdate.isPresent()) {
-                Source source = sourceToUpdate.get();
-                if (sourceRegistrationDto.getSourceName() != null) {
-                    source.setSourceName(sourceRegistrationDto.getSourceName());
-                }
-                source.getAttributes().putAll(sourceRegistrationDto.getAttributes());
-                source.setAssigned(true);
-                source.setSubject(subject);
-                sourceRepository.save(source);
-                assignedSource = source;
-            } else {
-                log.error("Cannot find a Source of sourceId already registered for subject login");
-                Map<String, String> errorParams = new HashMap<>();
-                errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
-                throw new NotFoundException( "Cannot find a Source of sourceId already registered"
-                    + " for subject login", SUBJECT, ErrorConstants.ERR_SOURCE_NOT_FOUND,
-                    errorParams);
-            }
+            // update meta-data and source-name for existing sources
+            assignedSource = updateSourceAssignedSubject(subject, sourceRegistrationDto);
+
         } else if (sourceType.getCanRegisterDynamically()) {
             List<Source> sources = subjectRepository
                     .findSubjectSourcesBySourceType(subject.getUser().getLogin(),
@@ -272,32 +252,31 @@ public class SubjectService {
             // create a source and register meta data
             // we allow only one source of a source-type per subject
             if (sources.isEmpty()) {
-                Source source1 = new Source(sourceType)
+                Source source = new Source(sourceType)
                         .project(project)
                         .assigned(true)
                         .sourceType(sourceType)
                         .subject(subject);
-                source1.getAttributes().putAll(sourceRegistrationDto.getAttributes());
+                source.getAttributes().putAll(sourceRegistrationDto.getAttributes());
                 // if source name is provided update source name
-                if (Objects.nonNull(sourceRegistrationDto.getSourceName())) {
+                if (sourceRegistrationDto.getSourceName() != null) {
                     // append the auto generated source-name to given source-name to avoid conflicts
-                    source1.setSourceName(
-                            sourceRegistrationDto.getSourceName() + "_" + source1.getSourceName());
+                    source.setSourceName(
+                            sourceRegistrationDto.getSourceName() + "_" + source.getSourceName());
                 }
-                Optional<Source> sourceToUpdate = sourceRepository.findOneBySourceName(
-                        source1.getSourceName());
-                if (sourceToUpdate.isPresent()) {
+                // make sure there is no source available on the same name.
+                if (sourceRepository.findOneBySourceName(source.getSourceName()).isPresent()) {
                     log.error("Cannot create a source with existing source-name {}",
-                            source1.getSourceName());
-                    throw new NotFoundException("SourceName already in use. Cannot create a "
-                        + "source with source-name ", SUBJECT,
+                            source.getSourceName());
+                    throw new ConflictException("SourceName already in use. Cannot create a "
+                        + "source with existing source-name ", SUBJECT,
                         ErrorConstants.ERR_SOURCE_NAME_EXISTS,
-                        Collections.singletonMap("source-name", source1.getSourceName()));
+                        Collections.singletonMap("source-name", source.getSourceName()));
                 }
-                source1 = sourceRepository.save(source1);
+                source = sourceRepository.save(source);
 
-                assignedSource = source1;
-                subject.getSources().add(source1);
+                assignedSource = source;
+                subject.getSources().add(source);
             } else {
                 log.error("A Source of SourceType with the specified producer, model and version "
                         + "was already registered for subject login");
@@ -326,10 +305,45 @@ public class SubjectService {
             errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
             throw new BadRequestException("Cannot find assigned source with sourceId or a source "
                 + "of sourceType with the specified producer and model is already registered "
-                + "for subject login ", SUBJECT, "InvalidRequest", errorParams);
+                + "for subject login ", SUBJECT, "error.InvalidDynamicSourceRegistration",
+                errorParams);
         }
         subjectRepository.save(subject);
         return sourceMapper.sourceToMinimalSourceDetailsDTO(assignedSource);
+    }
+
+    /**
+     * Updates source name and attributes of the source assigned to subject. Otherwise returns
+     * {@link NotFoundException}.
+     * @param subject subject
+     * @param sourceRegistrationDto details of source which need to be updated.
+     * @return Updated {@link Source} instance.
+     */
+    private Source updateSourceAssignedSubject(Subject subject,
+            MinimalSourceDetailsDTO sourceRegistrationDto) {
+        // for manually registered devices only add meta-data
+        Optional<Source> sourceToUpdate = subjectRepository.findSubjectSourcesBySourceId(
+                subject.getUser().getLogin(), sourceRegistrationDto.getSourceId());
+
+        if (sourceToUpdate.isPresent()) {
+            Source source = sourceToUpdate.get();
+            if (sourceRegistrationDto.getSourceName() != null) {
+                source.setSourceName(sourceRegistrationDto.getSourceName());
+            }
+            source.getAttributes().putAll(sourceRegistrationDto.getAttributes());
+            source.setAssigned(true);
+            source.setSubject(subject);
+
+            return sourceRepository.save(source);
+        } else {
+            log.error("No source with source-id to assigned to the subject with subject-login");
+            Map<String, String> errorParams = new HashMap<>();
+            errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
+            errorParams.put("subject-login", subject.getUser().getLogin());
+            throw new NotFoundException( "No source with source-id to assigned to the subject"
+                + " with subject-login", SUBJECT, ErrorConstants.ERR_SOURCE_NOT_FOUND,
+                errorParams);
+        }
     }
 
     /**
