@@ -1,6 +1,7 @@
 package org.radarcns.management.web.rest.errors;
 
 import java.util.List;
+
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
@@ -77,7 +78,6 @@ public class ExceptionTranslator {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ErrorVM processValidationError(MethodArgumentTypeMismatchException ex) {
         return new ErrorVM(ErrorConstants.ERR_VALIDATION,
@@ -85,19 +85,32 @@ public class ExceptionTranslator {
     }
 
     @ExceptionHandler(RadarWebApplicationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public RadarWebApplicationExceptionVM processParameterizedValidationError(
+    public ResponseEntity<RadarWebApplicationExceptionVM> processParameterizedValidationError(
             RadarWebApplicationException ex) {
-        return ex.getExceptionVM();
+        return processRadarWebApplicationException(ex);
     }
 
     @ExceptionHandler(NotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ResponseBody
-    public RadarWebApplicationExceptionVM processParameterizedNotFound(NotFoundException ex) {
-        return ex.getExceptionVM();
+    public ResponseEntity<RadarWebApplicationExceptionVM> processNotFound(NotFoundException ex) {
+        return processRadarWebApplicationException(ex);
     }
+
+    @ExceptionHandler(InvalidStateException.class)
+    public ResponseEntity<RadarWebApplicationExceptionVM> processNotFound(
+            InvalidStateException ex) {
+        return processRadarWebApplicationException(ex);
+    }
+
+    @ExceptionHandler(RequestGoneException.class)
+    public ResponseEntity<RadarWebApplicationExceptionVM> processNotFound(RequestGoneException ex) {
+        return processRadarWebApplicationException(ex);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<RadarWebApplicationExceptionVM> processNotFound(BadRequestException ex) {
+        return processRadarWebApplicationException(ex);
+    }
+
 
     /**
      * Translate a {@link ConflictException}.
@@ -105,12 +118,18 @@ public class ExceptionTranslator {
      * @return the view-model for the translated exception
      */
     @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<RadarWebApplicationExceptionVM> processParameterizedConflict(
+    public ResponseEntity<RadarWebApplicationExceptionVM> processConflict(
             ConflictException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .headers(HeaderUtil.createFailureAlert(ex.getEntityName(), ex.getErrorCode(),
-                    ex.getMessage()))
-                .body(ex.getExceptionVM());
+        return processRadarWebApplicationException(ex);
+    }
+
+    private ResponseEntity<RadarWebApplicationExceptionVM> processRadarWebApplicationException(
+            RadarWebApplicationException exception) {
+        return ResponseEntity
+            .status(exception.getResponse().getStatus())
+            .headers(HeaderUtil.createExceptionAlert(exception.getEntityName(),
+                    exception.getErrorCode(), exception.getMessage()))
+            .body(exception.getExceptionVM());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
