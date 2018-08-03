@@ -2,7 +2,7 @@ package org.radarcns.management.web.rest.errors;
 
 public interface EntityName {
 
-    String OAUTH_CLIENT = "oauth-client";
+    String OAUTH_CLIENT = "oauthClient";
     String SOURCE_DATA = "sourceData";
     String SOURCE_TYPE = "sourceType";
     String SUBJECT = "subject";
@@ -11,4 +11,5 @@ public interface EntityName {
     String META_TOKEN = "meta-token";
     String PROJECT = "project";
     String REVISION = "revision";
+
 }

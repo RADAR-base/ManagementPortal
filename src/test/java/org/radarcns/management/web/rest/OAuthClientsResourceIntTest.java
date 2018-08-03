@@ -21,8 +21,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.radarcns.management.ManagementPortalApp;
-import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.JwtAuthenticationFilter;
+import org.radarcns.management.service.OAuthClientService;
+import org.radarcns.management.service.SubjectService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ClientDetailsDTO;
 import org.radarcns.management.service.mapper.ClientDetailsMapper;
@@ -35,7 +36,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerEndpointsConfiguration;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -54,22 +54,22 @@ import org.springframework.transaction.annotation.Transactional;
 public class OAuthClientsResourceIntTest {
 
     @Autowired
-    private AuthorizationServerEndpointsConfiguration authorizationServerEndpointsConfiguration;
-
-    @Autowired
     private JdbcClientDetailsService clientDetailsService;
 
     @Autowired
     private ClientDetailsMapper clientDetailsMapper;
 
     @Autowired
-    private SubjectRepository subjectRepository;
+    private SubjectService subjectService;
 
     @Autowired
     private SubjectMapper subjectMapper;
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private OAuthClientService oAuthClientService;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -95,21 +95,18 @@ public class OAuthClientsResourceIntTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         OAuthClientsResource oauthClientsResource = new OAuthClientsResource();
-        ReflectionTestUtils.setField(oauthClientsResource,
-                "authorizationServerEndpointsConfiguration",
-                authorizationServerEndpointsConfiguration);
         ReflectionTestUtils.setField(oauthClientsResource, "clientDetailsMapper",
                 clientDetailsMapper);
-        ReflectionTestUtils.setField(oauthClientsResource, "subjectRepository",
-                subjectRepository);
+        ReflectionTestUtils.setField(oauthClientsResource, "subjectService",
+                subjectService);
         ReflectionTestUtils.setField(oauthClientsResource, "subjectMapper",
                 subjectMapper);
         ReflectionTestUtils.setField(oauthClientsResource, "userService",
                 userService);
         ReflectionTestUtils.setField(oauthClientsResource, "servletRequest",
                 servletRequest);
-        ReflectionTestUtils.setField(oauthClientsResource, "clientDetailsService",
-                clientDetailsService);
+        ReflectionTestUtils.setField(oauthClientsResource, "oAuthClientService",
+                oAuthClientService);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
