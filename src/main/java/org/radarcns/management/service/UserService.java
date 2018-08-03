@@ -2,6 +2,16 @@ package org.radarcns.management.service;
 
 import static org.radarcns.management.web.rest.errors.EntityName.USER;
 
+import java.time.Period;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Project;
@@ -19,8 +29,8 @@ import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
-import org.radarcns.management.web.rest.errors.NotFoundException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
+import org.radarcns.management.web.rest.errors.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,16 +40,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Period;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * Service class for managing users.
@@ -191,11 +191,12 @@ public class UserService {
             if (!role.isPresent() || role.get().getId() == null) {
                 Role currentRole = new Role();
                 // supplied authorityname can be anything, so check if we actually have one
-                currentRole.setAuthority(authorityRepository
-                        .findByAuthorityName(roleDto.getAuthorityName())
+                currentRole.setAuthority(
+                        authorityRepository.findByAuthorityName(roleDto.getAuthorityName())
                         .orElseThrow(() -> new NotFoundException("Authority not found with "
                             + "authorityName", USER, ErrorConstants.ERR_INVALID_AUTHORITY,
-                            Collections.singletonMap("authorityName", roleDto.getAuthorityName()))));
+                            Collections.singletonMap("authorityName",
+                                roleDto.getAuthorityName()))));
                 if (roleDto.getProjectId() != null) {
                     currentRole.setProject(projectRepository.getOne(roleDto.getProjectId()));
                 }

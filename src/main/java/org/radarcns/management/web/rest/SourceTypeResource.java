@@ -227,8 +227,9 @@ public class SourceTypeResource {
                 version);
         if (!projects.isEmpty()) {
             throw new RadarWebApplicationException(
+                // we know the list is not empty so calling get() is safe here
                 "Cannot delete a source-type that " + "is being used by project(s)", SOURCE_TYPE,
-                ErrorConstants.ERR_SOURCE_TYPE_IN_USE); // we know the list is not empty so calling get() is safe here
+                ErrorConstants.ERR_SOURCE_TYPE_IN_USE);
         }
         sourceTypeService.delete(sourceTypeDto.getId());
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(SOURCE_TYPE,

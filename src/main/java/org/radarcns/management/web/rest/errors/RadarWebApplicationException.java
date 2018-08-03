@@ -36,12 +36,11 @@ public class RadarWebApplicationException extends WebApplicationException {
      * Create an exception with the given parameters. This will be used to to create response
      * body of the request.
      *
-     * @param message Error message to the client
+     * @param message    Error message to the client
      * @param entityName Entity related to the exception
-     * @param errorCode error code defined in MP if relevant.
+     * @param errorCode  error code defined in MP if relevant.
      */
-    public RadarWebApplicationException(String message, String entityName,
-            String errorCode) {
+    public RadarWebApplicationException(String message, String entityName, String errorCode) {
         this(INTERNAL_SERVER_ERROR, message, entityName, errorCode);
     }
 
@@ -49,12 +48,12 @@ public class RadarWebApplicationException extends WebApplicationException {
      * Create an exception with the given parameters. This will be used to to create response
      * body of the request.
      *
-     * @param message Error message to the client
+     * @param message    Error message to the client
      * @param entityName Entity related to the exception
-     * @param errorCode error code defined in MP if relevant.
+     * @param errorCode  error code defined in MP if relevant.
      */
-    public RadarWebApplicationException(String message, String entityName,
-        String errorCode, Map<String, String> params) {
+    public RadarWebApplicationException(String message, String entityName, String errorCode,
+            Map<String, String> params) {
         this(INTERNAL_SERVER_ERROR, message, entityName, errorCode, params);
     }
 
@@ -62,22 +61,30 @@ public class RadarWebApplicationException extends WebApplicationException {
      * Create an exception with the given parameters. This will be used to to create response
      * body of the request.
      *
-     * @param message Error message to the client
+     * @param message    Error message to the client
      * @param entityName Entity related to the exception
-     * @param errorCode error code defined in MP if relevant.
+     * @param errorCode  error code defined in MP if relevant.
      */
-    public RadarWebApplicationException(Status status,  String message, String entityName,
-        String errorCode) {
+    public RadarWebApplicationException(Status status, String message, String entityName,
+            String errorCode) {
         this(status, message, entityName, errorCode, emptyMap());
     }
 
 
+    /**
+     * A base parameterized exception, which can be translated on the client side.
+     * @param status {@link javax.ws.rs.core.Response.Status} code.
+     * @param message message to client.
+     * @param entityName entityRelated from {@link EntityName}
+     * @param errorCode errorCode from {@link ErrorConstants}
+     * @param params map of optional information.
+     */
     public RadarWebApplicationException(Status status, String message, String entityName,
             String errorCode, Map<String, String> params) {
         super(status);
         // add default timestamp first, so a timestamp key in the paramMap will overwrite it
-        this.paramMap.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-            .format(new Date()));
+        this.paramMap.put("timestamp",
+                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         this.paramMap.putAll(params);
         this.message = message;
         this.entityName = entityName;
@@ -97,7 +104,7 @@ public class RadarWebApplicationException extends WebApplicationException {
         return errorCode;
     }
 
-    public RadarWebApplicationExceptionVM getExceptionVM() {
+    protected RadarWebApplicationExceptionVM getExceptionVM() {
         return new RadarWebApplicationExceptionVM(message, entityName, errorCode, paramMap);
     }
 }

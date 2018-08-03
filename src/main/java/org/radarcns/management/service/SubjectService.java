@@ -41,7 +41,6 @@ import org.radarcns.management.web.rest.errors.BadRequestException;
 import org.radarcns.management.web.rest.errors.ConflictException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.errors.NotFoundException;
-import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -304,7 +303,7 @@ public class SubjectService {
                 subject.getSources().add(source1);
             } else {
                 log.error("A Source of SourceType with the specified producer, model and version "
-                    + "was already registered for subject login");
+                        + "was already registered for subject login");
                 Map<String, String> errorParams = new HashMap<>();
                 errorParams.put("producer", sourceType.getProducer());
                 errorParams.put("model", sourceType.getModel());

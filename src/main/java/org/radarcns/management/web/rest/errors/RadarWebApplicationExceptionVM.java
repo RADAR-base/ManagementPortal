@@ -8,7 +8,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * View Model for sending a {@link RadarWebApplicationException}
+ * View Model for sending a {@link RadarWebApplicationException}.
  */
 public class RadarWebApplicationExceptionVM implements Serializable {
 
@@ -28,16 +28,25 @@ public class RadarWebApplicationExceptionVM implements Serializable {
 
     /**
      * Creates an error view model with message, entityName and errorCode.
-     * @param message for the client.
-     * @param entityName related entity.
-     * @param errorCode errorCode.
+     *
+     * @param message message to client.
+     * @param entityName entityRelated from {@link EntityName}
+     * @param errorCode errorCode from {@link ErrorConstants}
      */
-    public RadarWebApplicationExceptionVM(String message, String entityName, String errorCode) {
+    protected RadarWebApplicationExceptionVM(String message, String entityName, String errorCode) {
         this(message, entityName, errorCode, Collections.emptyMap());
     }
 
-    public RadarWebApplicationExceptionVM(String message, String entityName, String errorCode, Map<String,
-            String> params) {
+    /**
+     * Creates an error view model with message, entityName and errorCode.
+     *
+     * @param message message to client.
+     * @param entityName entityRelated from {@link EntityName}
+     * @param errorCode errorCode from {@link ErrorConstants}
+     * @param params map of optional information.
+     */
+    protected RadarWebApplicationExceptionVM(String message, String entityName, String errorCode,
+            Map<String, String> params) {
         this.message = message;
         this.entityName = entityName;
         this.errorCode = errorCode;
@@ -82,7 +91,8 @@ public class RadarWebApplicationExceptionVM implements Serializable {
 
     @Override
     public String toString() {
-        return "RadarWebApplicationExceptionVM{" + "entityName='" + entityName + '\'' + ", errorCode='"
-            + errorCode + '\'' + ", message='" + message + '\'' + ", params=" + params + '}';
+        return "RadarWebApplicationExceptionVM{" + "entityName='" + entityName + '\''
+            + ", errorCode='" + errorCode + '\'' + ", message='" + message + '\'' + ", params="
+            + params + '}';
     }
 }
