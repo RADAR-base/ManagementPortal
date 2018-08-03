@@ -14,7 +14,7 @@ import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.MetaToken;
 import org.radarcns.management.repository.MetaTokenRepository;
 import org.radarcns.management.service.dto.TokenDTO;
-import org.radarcns.management.web.rest.errors.GoneRequestException;
+import org.radarcns.management.web.rest.errors.RequestGoneException;
 import org.radarcns.management.web.rest.errors.NotFoundException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.slf4j.Logger;
@@ -74,7 +74,7 @@ public class MetaTokenService {
             save(fetchedToken);
             return result;
         } else {
-            throw new GoneRequestException("Token already fetched or expired. ",
+            throw new RequestGoneException("Token already fetched or expired. ",
                 META_TOKEN, "error.TokenCannotBeSent");
         }
 

@@ -8,29 +8,29 @@ import javax.ws.rs.core.Response;
  * address is known. This condition is expected to be considered permanent. Clients with
  * link editing capabilities SHOULD delete references to the Request-URI after user approval.
  */
-public class GoneRequestException extends RadarWebApplicationException {
+public class RequestGoneException extends RadarWebApplicationException {
 
     /**
-     * Create a {@link GoneRequestException} with the given message, relatedEntityName, errorCode.
+     * Create a {@link RequestGoneException} with the given message, relatedEntityName, errorCode.
      *
      * @param message    the message.
      * @param entityName relatedEntityName from {@link EntityName}.
      * @param errorCode  errorCode from {@link ErrorConstants}
      */
-    public GoneRequestException(String message, String entityName, String errorCode) {
+    public RequestGoneException(String message, String entityName, String errorCode) {
         super(Response.Status.GONE, message, entityName, errorCode);
     }
 
 
     /**
-     * Create a {@link GoneRequestException} with the given message, relatedEntityName, errorCode.
+     * Create a {@link RequestGoneException} with the given message, relatedEntityName, errorCode.
      *
      * @param message    the message.
      * @param entityName relatedEntityName from {@link EntityName}.
      * @param errorCode  errorCode from {@link ErrorConstants}
      * @param paramMap   map of additional information.
      */
-    public GoneRequestException(String message, String entityName, String errorCode,
+    public RequestGoneException(String message, String entityName, String errorCode,
             Map<String, String> paramMap) {
         super(Response.Status.GONE, message, entityName, errorCode, paramMap);
     }
