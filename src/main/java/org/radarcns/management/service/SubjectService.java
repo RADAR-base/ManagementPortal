@@ -3,6 +3,8 @@ package org.radarcns.management.service;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarcns.management.web.rest.errors.EntityName.SUBJECT;
+import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_SOURCE_NOT_FOUND;
+import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_SUBJECT_NOT_FOUND;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -341,8 +343,7 @@ public class SubjectService {
             errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
             errorParams.put("subject-login", subject.getUser().getLogin());
             throw new NotFoundException( "No source with source-id to assigned to the subject"
-                + " with subject-login", SUBJECT, ErrorConstants.ERR_SOURCE_NOT_FOUND,
-                errorParams);
+                + " with subject-login", SUBJECT, ERR_SOURCE_NOT_FOUND, errorParams);
         }
     }
 
@@ -405,8 +406,7 @@ public class SubjectService {
         Subject sub = revisionService.findRevision(revision, latest.getId(), Subject.class);
         if (sub == null) {
             throw new NotFoundException("subject not found for given login and revision.", SUBJECT,
-                ErrorConstants.ERR_SUBJECT_NOT_FOUND,
-                    Collections.singletonMap("subjectLogin", login));
+                ERR_SUBJECT_NOT_FOUND, Collections.singletonMap("subjectLogin", login));
         }
         return subjectMapper.subjectToSubjectDTO(sub);
     }
@@ -422,17 +422,32 @@ public class SubjectService {
         UserDTO user = (UserDTO) revisionService.getLatestRevisionForEntity(User.class,
                 Arrays.asList(AuditEntity.property("login").eq(login)))
                 .orElseThrow(() -> new NotFoundException("Subject latest revision not found "
-                    + "for login" , SUBJECT, ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                    + "for login" , SUBJECT, ERR_SUBJECT_NOT_FOUND,
                         Collections.singletonMap("subjectLogin", login)));
         return (SubjectDTO) revisionService.getLatestRevisionForEntity(Subject.class,
                 Arrays.asList(AuditEntity.property("user").eq(user)))
                 .orElseThrow(() -> new NotFoundException("Subject latest revision not found "
-                    + "for login" , SUBJECT, ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                    + "for login" , SUBJECT, ERR_SUBJECT_NOT_FOUND,
                     Collections.singletonMap("subjectLogin", login)));
     }
 
     private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
         final Set<Object> seen = new HashSet<>();
         return t -> seen.add(keyExtractor.apply(t));
+    }
+
+
+    /**
+     * Finds {@link Subject} from databased from login provided.
+     * @param login of subject to look for.
+     * @return {@link Subject} loaded.
+     */
+    public Subject findOneByLogin(String login) {
+        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
+        if (!subject.isPresent()) {
+            throw new NotFoundException("Subject not found with login", SUBJECT,
+                ERR_SUBJECT_NOT_FOUND);
+        }
+        return subject.get();
     }
 }

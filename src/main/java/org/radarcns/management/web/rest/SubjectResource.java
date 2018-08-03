@@ -11,8 +11,11 @@ import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnProject;
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
 import static org.radarcns.management.security.SecurityUtils.getJWT;
+import static org.radarcns.management.web.rest.errors.EntityName.SOURCE;
+import static org.radarcns.management.web.rest.errors.EntityName.SOURCE_TYPE;
 import static org.radarcns.management.web.rest.errors.EntityName.SUBJECT;
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_SOURCE_TYPE_NOT_PROVIDED;
+import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
 
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -48,11 +51,11 @@ import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.SubjectService;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.RevisionDTO;
-import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
-import org.radarcns.management.web.rest.errors.NotFoundException;
+import org.radarcns.management.web.rest.errors.BadRequestException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
+import org.radarcns.management.web.rest.errors.NotFoundException;
 import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.web.rest.util.PaginationUtil;
@@ -294,11 +297,8 @@ public class SubjectResource {
     public ResponseEntity<SubjectDTO> getSubject(@PathVariable String login)
             throws NotAuthorizedException {
         log.debug("REST request to get Subject : {}", login);
-        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
-        if (!subject.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject.get());
+        Subject subject = subjectService.findOneByLogin(login);
+        SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject);
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, subjectDto.getProject()
                 .getProjectName(), subjectDto.getLogin());
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(subjectDto));
@@ -369,11 +369,9 @@ public class SubjectResource {
     public ResponseEntity<Void> deleteSubject(@PathVariable String login)
             throws NotAuthorizedException {
         log.debug("REST request to delete Subject : {}", login);
-        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
-        if (!subject.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject.get());
+        Subject subject = subjectService.findOneByLogin(login);
+
+        SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject);
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_DELETE, subjectDto.getProject()
                 .getProjectName(), subjectDto.getLogin());
         subjectService.deleteSubject(login);
@@ -411,11 +409,7 @@ public class SubjectResource {
             @RequestBody MinimalSourceDetailsDTO sourceDto) throws URISyntaxException,
             NotAuthorizedException {
         // check the subject id
-        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
-        if (!subject.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        Subject sub = subject.get();
+        Subject sub = subjectService.findOneByLogin(login);
         // find the PARTICIPANT role for this subject
         Optional<Role> roleOptional = sub.getUser().getRoles().stream()
                 .filter(r -> r.getAuthority().getName().equals(PARTICIPANT))
@@ -433,39 +427,29 @@ public class SubjectResource {
         Long sourceTypeId = sourceDto.getSourceTypeId();
         if (sourceTypeId == null) {
             // check if combination (producer, model, version) is present
-            try {
-                String producer = Objects.requireNonNull(sourceDto.getSourceTypeProducer(),
-                        ErrorConstants.ERR_VALIDATION);
-                String model = Objects.requireNonNull(sourceDto.getSourceTypeModel(),
-                        ErrorConstants.ERR_VALIDATION);
-                String version = Objects.requireNonNull(sourceDto.getSourceTypeCatalogVersion(),
-                        ErrorConstants.ERR_VALIDATION);
-                SourceTypeDTO sourceTypeDto = sourceTypeService
-                        .findByProducerAndModelAndVersion(producer, model, version);
-                if (Objects.isNull(sourceTypeDto)) {
-                    return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
-                        SUBJECT, "sourceNotFound", String.join(" ", producer, model,
-                                    version))).build();
-                }
-                sourceTypeId = sourceTypeDto.getId();
-            } catch (NullPointerException ex) {
-                log.error(ex.getMessage() + ", supplied sourceDto: " + sourceDto.toString());
-                throw new RadarWebApplicationException("You must supply either the "
-                    + "sourceTypeId, or the combination of "
-                    + "(sourceTypeProducer, sourceTypeModel, catalogVersion) fields.", SUBJECT,
-                    ERR_SOURCE_TYPE_NOT_PROVIDED);
+
+            if (sourceDto.getSourceTypeProducer() == null
+                    || sourceDto.getSourceTypeModel() == null
+                    || sourceDto.getSourceTypeCatalogVersion() == null) {
+                throw new BadRequestException("Producer or model or version value for the "
+                    + "source-type is null" , SOURCE_TYPE, ERR_VALIDATION);
             }
+            sourceTypeId = sourceTypeService
+                    .findByProducerAndModelAndVersion(
+                        sourceDto.getSourceTypeProducer(),
+                        sourceDto.getSourceTypeModel(),
+                        sourceDto.getSourceTypeCatalogVersion()).getId();
+
         }
         // find whether the relevant source-type is available in the subject's project
-        Optional<SourceType> sourceType;
-        sourceType = projectRepository.findSourceTypeByProjectIdAndSourceTypeId(
-                role.getProject().getId(), sourceTypeId);
+        Optional<SourceType> sourceType = projectRepository
+                .findSourceTypeByProjectIdAndSourceTypeId(role.getProject().getId(), sourceTypeId);
 
         if (!sourceType.isPresent()) {
             // return bad request
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(HeaderUtil
-                    .createAlert("sourceTypeNotAvailable",
-                            "The source type is not registered in the given project")).build();
+            throw new BadRequestException("No valid source-type found for project. You must "
+                + "provide either valid source-type id or producer, model, version of a "
+                + "source-type", SUBJECT, ERR_SOURCE_TYPE_NOT_PROVIDED);
         }
 
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, role.getProject()
@@ -485,11 +469,12 @@ public class SubjectResource {
         // assignOrUpdateSource would throw an error and we would not reach this point.
         if (!existing) {
             return ResponseEntity.created(ResourceUriService.getUri(sourceRegistered))
-                    .headers(HeaderUtil.createEntityUpdateAlert(SUBJECT, login))
+                    .headers(HeaderUtil.createEntityCreationAlert(SOURCE,
+                        sourceRegistered.getSourceName()))
                     .body(sourceRegistered);
         } else {
-            return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(SUBJECT,
-                    login)).body(sourceRegistered);
+            return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(SOURCE,
+                sourceRegistered.getSourceName())).body(sourceRegistered);
         }
     }
 
