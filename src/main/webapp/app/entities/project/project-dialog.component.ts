@@ -40,7 +40,7 @@ export class ProjectDialogComponent implements OnInit  {
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN' , 'ROLE_PROJECT_ADMIN'];
         this.sourceTypeService.query().subscribe(
             (res: Response) => { this.sourceTypes = res.json(); }, (res: Response) => this.onError(res.json()));
-        this.options = ['Work-package', 'Phase' , 'External-project-url' , 'External-project-id'];
+        this.options = ['Work-package', 'Phase' , 'External-project-url' , 'External-project-id' , 'Privacy-policy-url'];
         this.registerChangesInProject();
         this.projectIdAsPrettyValue = true;
     }

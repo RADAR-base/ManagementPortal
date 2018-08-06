@@ -48,6 +48,11 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
             project.getAttributes().put(HUMAN_READABLE_PROJECT_NAME, projectDto
                     .getHumanReadableProjectName());
         }
+        if (projectDto.getHumanReadableProjectName() != null && !projectDto
+                .getHumanReadableProjectName().isEmpty()) {
+            project.getAttributes().put(HUMAN_READABLE_PROJECT_NAME, projectDto
+                    .getHumanReadableProjectName());
+        }
         return project;
     }
 

@@ -44,12 +44,22 @@ public class ManagementPortalProperties {
 
         private String baseUrl = "";
 
+        private String privacyPolicyUrl = "";
+
         public String getBaseUrl() {
             return baseUrl;
         }
 
         public void setBaseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
+        }
+
+        public String getPrivacyPolicyUrl() {
+            return privacyPolicyUrl;
+        }
+
+        public void setPrivacyPolicyUrl(String privacyPolicyUrl) {
+            this.privacyPolicyUrl = privacyPolicyUrl;
         }
     }
 

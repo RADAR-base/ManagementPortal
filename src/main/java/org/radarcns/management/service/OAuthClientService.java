@@ -1,5 +1,6 @@
 package org.radarcns.management.service;
 
+import static org.radarcns.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
 import static org.radarcns.management.web.rest.MetaTokenResource.DEFAULT_META_TOKEN_TIMEOUT;
 import static org.radarcns.management.web.rest.errors.EntityName.OAUTH_CLIENT;
 
@@ -14,11 +15,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.MetaToken;
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.service.dto.ClientDetailsDTO;
@@ -201,13 +204,27 @@ public class OAuthClientService {
             // get base url from settings
             String baseUrl = managementPortalProperties.getCommon().getBaseUrl();
             // create complete uri string
-            String url = baseUrl + ResourceUriService.getUri(metaToken).getPath();
+            String tokenUrl = baseUrl + ResourceUriService.getUri(metaToken).getPath();
             // create response
-            return new ClientPairInfoDTO(metaToken.getTokenName(), new URL(url));
+            return new ClientPairInfoDTO(metaToken.getTokenName(), new URL(tokenUrl),
+                    getPrivacyPolicyUrl(subject));
         } else {
             throw new InvalidStateException("Could not create a valid token", OAUTH_CLIENT,
                 "error.couldNotCreateToken");
         }
+    }
+
+
+    private URL getPrivacyPolicyUrl(Subject subject) throws MalformedURLException {
+
+        Optional<Project> project = subject.getActiveProject();
+
+        if (project.isPresent()
+                && !project.get().getAttributes().get(PRIVACY_POLICY_URL).isEmpty()) {
+            return new URL(project.get().getAttributes().get(PRIVACY_POLICY_URL));
+        }
+
+        return new URL(managementPortalProperties.getCommon().getPrivacyPolicyUrl());
     }
 
     /**
