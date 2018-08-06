@@ -208,7 +208,7 @@ public class OAuthClientsResource {
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
                 subjectDto.getProject().getProjectName(), subjectDto.getLogin());
 
-        ClientPairInfoDTO cpi = oAuthClientService.createRefreshToken(subject, login);
+        ClientPairInfoDTO cpi = oAuthClientService.createRefreshToken(subject, clientId);
         // generate audit event
         eventRepository.add(new AuditEvent(currentUser.getLogin(), "PAIR_CLIENT_REQUEST",
                 "client_id=" + clientId, "subject_login=" + login));
