@@ -158,10 +158,10 @@ public class OAuthClientService {
         } catch (NoSuchClientException ex) {
             // Client does not exist yet, we can go ahead and create it
             log.info("No client existing with client-id {}. Proceeding to create new client",
-                clientDetailsDto.getClientId());
+                    clientDetailsDto.getClientId());
         }
         ClientDetails details =
-            clientDetailsMapper.clientDetailsDTOToClientDetails(clientDetailsDto);
+                clientDetailsMapper.clientDetailsDTOToClientDetails(clientDetailsDto);
         // create oauth client.
         clientDetailsService.addClientDetails(details);
 
