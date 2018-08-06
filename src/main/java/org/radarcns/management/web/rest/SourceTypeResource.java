@@ -30,7 +30,7 @@ import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.web.rest.errors.ConflictException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
-import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
+import org.radarcns.management.web.rest.errors.InvalidRequestException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
@@ -226,7 +226,7 @@ public class SourceTypeResource {
         List<ProjectDTO> projects = sourceTypeService.findProjectsBySourceType(producer, model,
                 version);
         if (!projects.isEmpty()) {
-            throw new RadarWebApplicationException(
+            throw new InvalidRequestException(
                 // we know the list is not empty so calling get() is safe here
                 "Cannot delete a source-type that " + "is being used by project(s)", SOURCE_TYPE,
                 ErrorConstants.ERR_SOURCE_TYPE_IN_USE);

@@ -15,7 +15,7 @@ import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
-import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
+import org.radarcns.management.web.rest.errors.InvalidRequestException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.web.rest.util.PaginationUtil;
 import org.radarcns.management.web.rest.vm.ManagedUserVM;
@@ -182,7 +182,7 @@ public class UserResource {
                 .findOneWithEagerBySubjectLogin(managedUserVm.getLogin());
         if (subject.isPresent() && managedUserVm.isActivated() && subject.get().isRemoved()) {
             // if the subject is also a user, check if the removed/activated states are valid
-            throw new RadarWebApplicationException("Subject cannot be the user to request "
+            throw new InvalidRequestException("Subject cannot be the user to request "
                 + "this changes", USER, "error.invalidsubjectstate");
 
         }

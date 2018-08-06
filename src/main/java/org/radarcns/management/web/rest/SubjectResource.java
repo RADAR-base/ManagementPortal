@@ -55,8 +55,8 @@ import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.BadRequestException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
+import org.radarcns.management.web.rest.errors.InvalidRequestException;
 import org.radarcns.management.web.rest.errors.NotFoundException;
-import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
@@ -418,7 +418,7 @@ public class SubjectResource {
             // no participant role found
             HashMap<String, String> params = new HashMap<>();
             params.put("login", login);
-            throw new RadarWebApplicationException(
+            throw new InvalidRequestException(
                 "Supplied login is not a participant in any study, a source cannot be assigned.",
                 SUBJECT, "error.loginNotParticipant", params);
         }
