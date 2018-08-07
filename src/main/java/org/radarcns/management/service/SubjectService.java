@@ -444,10 +444,9 @@ public class SubjectService {
      */
     public Subject findOneByLogin(String login) {
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
-        if (!subject.isPresent()) {
-            throw new NotFoundException("Subject not found with login", SUBJECT,
-                ERR_SUBJECT_NOT_FOUND);
-        }
-        return subject.get();
+        return subject.orElseThrow(() ->
+            new NotFoundException("Subject not found with login", SUBJECT,
+                ERR_SUBJECT_NOT_FOUND)
+        );
     }
 }
