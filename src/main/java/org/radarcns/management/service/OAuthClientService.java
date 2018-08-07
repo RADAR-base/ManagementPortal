@@ -3,6 +3,7 @@ package org.radarcns.management.service;
 import static org.radarcns.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
 import static org.radarcns.management.web.rest.MetaTokenResource.DEFAULT_META_TOKEN_TIMEOUT;
 import static org.radarcns.management.web.rest.errors.EntityName.OAUTH_CLIENT;
+import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -215,20 +216,42 @@ public class OAuthClientService {
     }
 
 
-    private URL getPrivacyPolicyUrl(Subject subject) throws MalformedURLException {
+    /**
+     * Gets relevant privacy-policy-url for this subject.
+     * <p>
+     *     If the active project of the subject has a valid privacy-policy-url returns that url.
+     *     Otherwise, it loads the default URL from ManagementPortal configurations that is
+     *     general.
+     * </p>
+     * @param subject to get relevant policy url
+     * @return URL of privacy policy for this token
+     */
+    private URL getPrivacyPolicyUrl(Subject subject) {
 
         Optional<Project> project = subject.getActiveProject();
 
-        String defaultPrivacyPolicy = managementPortalProperties.getCommon().getPrivacyPolicyUrl();
+        // load default url from config
+        String policyUrl = managementPortalProperties.getCommon().getPrivacyPolicyUrl();
 
+        // override from project specific url if available.
         if (project.isPresent()) {
             String projectPrivacyPolicyUrl = project.get().getAttributes().get(PRIVACY_POLICY_URL);
             if (projectPrivacyPolicyUrl != null && !projectPrivacyPolicyUrl.isEmpty()) {
-                defaultPrivacyPolicy = projectPrivacyPolicyUrl;
+                policyUrl = projectPrivacyPolicyUrl;
             }
         }
 
-        return new URL(defaultPrivacyPolicy);
+        try {
+            return new URL(policyUrl);
+        } catch (MalformedURLException e) {
+            Map<String, String> params = new HashMap<>();
+            params.put("Url" , policyUrl);
+            params.put("message" , e.getMessage());
+            throw new InvalidStateException("No valid privacy-policy Url configured. Please "
+                    + "verify your project's privacy-policy url and/or general url config",
+                OAUTH_CLIENT, ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED,
+                params);
+        }
     }
 
     /**
