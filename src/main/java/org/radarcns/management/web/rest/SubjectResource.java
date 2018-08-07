@@ -14,6 +14,7 @@ import static org.radarcns.management.security.SecurityUtils.getJWT;
 import static org.radarcns.management.web.rest.errors.EntityName.SOURCE;
 import static org.radarcns.management.web.rest.errors.EntityName.SOURCE_TYPE;
 import static org.radarcns.management.web.rest.errors.EntityName.SUBJECT;
+import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND;
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_SOURCE_TYPE_NOT_PROVIDED;
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
 
@@ -37,7 +38,7 @@ import io.swagger.annotations.ApiResponses;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.auth.token.RadarToken;
-import org.radarcns.management.domain.Role;
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Subject;
@@ -408,26 +409,11 @@ public class SubjectResource {
     public ResponseEntity<MinimalSourceDetailsDTO> assignSources(@PathVariable String login,
             @RequestBody MinimalSourceDetailsDTO sourceDto) throws URISyntaxException,
             NotAuthorizedException {
-        // check the subject id
-        Subject sub = subjectService.findOneByLogin(login);
-        // find the PARTICIPANT role for this subject
-        Optional<Role> roleOptional = sub.getUser().getRoles().stream()
-                .filter(r -> r.getAuthority().getName().equals(PARTICIPANT))
-                .findFirst();
-        if (!roleOptional.isPresent()) {
-            // no participant role found
-            HashMap<String, String> params = new HashMap<>();
-            params.put("login", login);
-            throw new InvalidRequestException(
-                "Supplied login is not a participant in any study, a source cannot be assigned.",
-                SUBJECT, "error.loginNotParticipant", params);
-        }
-        Role role = roleOptional.get();
+
         // find out source type id of supplied source
         Long sourceTypeId = sourceDto.getSourceTypeId();
         if (sourceTypeId == null) {
             // check if combination (producer, model, version) is present
-
             if (sourceDto.getSourceTypeProducer() == null
                     || sourceDto.getSourceTypeModel() == null
                     || sourceDto.getSourceTypeCatalogVersion() == null) {
@@ -441,18 +427,31 @@ public class SubjectResource {
                         sourceDto.getSourceTypeCatalogVersion()).getId();
 
         }
+
+        // check the subject id
+        Subject sub = subjectService.findOneByLogin(login);
+
+        // find the actively assigned project for this subject
+        Optional<Project> activeProject = sub.getActiveProject();
+
+        if (!activeProject.isPresent()) {
+            throw new InvalidRequestException("Requested subject does not have an active project",
+                    SUBJECT, ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND);
+        }
+
+        Project currentProject = activeProject.get();
         // find whether the relevant source-type is available in the subject's project
         Optional<SourceType> sourceType = projectRepository
-                .findSourceTypeByProjectIdAndSourceTypeId(role.getProject().getId(), sourceTypeId);
+                .findSourceTypeByProjectIdAndSourceTypeId(currentProject.getId(), sourceTypeId);
 
         if (!sourceType.isPresent()) {
             // return bad request
             throw new BadRequestException("No valid source-type found for project. You must "
                 + "provide either valid source-type id or producer, model, version of a "
-                + "source-type", SUBJECT, ERR_SOURCE_TYPE_NOT_PROVIDED);
+                + "source-type that is assigned to project", SUBJECT, ERR_SOURCE_TYPE_NOT_PROVIDED);
         }
 
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, role.getProject()
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, currentProject
                 .getProjectName(), sub.getUser().getLogin());
 
         // check if any of id, sourceID, sourceName were non-null
@@ -462,7 +461,7 @@ public class SubjectResource {
 
         // handle the source registration
         MinimalSourceDetailsDTO sourceRegistered = subjectService
-                .assignOrUpdateSource(sub, sourceType.get(), role.getProject(), sourceDto);
+                .assignOrUpdateSource(sub, sourceType.get(), currentProject, sourceDto);
 
         // Return the correct response type, either created if a new source was created, or ok if
         // an existing source was provided. If an existing source was given but not found, the

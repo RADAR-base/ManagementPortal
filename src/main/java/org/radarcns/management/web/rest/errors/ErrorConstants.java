@@ -24,6 +24,8 @@ public final class ErrorConstants {
     public static final String ERR_ENTITY_NOT_FOUND = "error.entityNotFound";
     public static final String ERR_TOKEN_NOT_FOUND = "error.tokenNotFound";
     public static final String ERR_SOURCE_TYPE_NOT_PROVIDED = "error.sourceTypeNotProvided";
+    public static final String ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND = "error"
+            + ".activeParticipantProjectNotFound";
     public static final String ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED = "error"
             + ".noValidPrivacyPolicyUrl";
 
