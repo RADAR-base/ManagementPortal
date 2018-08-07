@@ -44,12 +44,32 @@ public class ManagementPortalProperties {
 
         private String baseUrl = "";
 
+        private String privacyPolicyUrl = "";
+
+        private String adminPassword = "";
+
         public String getBaseUrl() {
             return baseUrl;
         }
 
         public void setBaseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
+        }
+
+        public String getPrivacyPolicyUrl() {
+            return privacyPolicyUrl;
+        }
+
+        public void setPrivacyPolicyUrl(String privacyPolicyUrl) {
+            this.privacyPolicyUrl = privacyPolicyUrl;
+        }
+
+        public String getAdminPassword() {
+            return adminPassword;
+        }
+
+        public void setAdminPassword(String adminPassword) {
+            this.adminPassword = adminPassword;
         }
     }
 

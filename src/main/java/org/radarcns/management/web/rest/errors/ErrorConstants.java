@@ -21,10 +21,13 @@ public final class ErrorConstants {
     public static final String ERR_PROJECT_ID_NOT_FOUND = "error.projectIdNotFound";
     public static final String ERR_PROJECT_NAME_NOT_FOUND = "error.projectNameNotFound";
     public static final String ERR_REVISIONS_NOT_FOUND = "error.revisionsNotFound";
-    public static final String ERR_INTERNAL = "error.internalParameterized";
     public static final String ERR_ENTITY_NOT_FOUND = "error.entityNotFound";
     public static final String ERR_TOKEN_NOT_FOUND = "error.tokenNotFound";
     public static final String ERR_SOURCE_TYPE_NOT_PROVIDED = "error.sourceTypeNotProvided";
+    public static final String ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND = "error"
+            + ".activeParticipantProjectNotFound";
+    public static final String ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED = "error"
+            + ".noValidPrivacyPolicyUrl";
 
     private ErrorConstants() {
     }

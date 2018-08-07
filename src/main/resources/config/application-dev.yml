@@ -97,6 +97,8 @@ server:
 managementportal:
     common:
         baseUrl: http://localhost:9000 # Modify according to your server's URL
+        privacyPolicyUrl: http://info.thehyve.nl/radar-cns-privacy-policy
+        adminPassword: admin
     mail: # specific ManagementPortal mail property, for standard properties see MailProperties
         from: ManagementPortal@localhost
     frontend:

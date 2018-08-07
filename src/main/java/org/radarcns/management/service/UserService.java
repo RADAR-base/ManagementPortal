@@ -271,7 +271,16 @@ public class UserService {
      * @param password the new password
      */
     public void changePassword(String password) {
-        userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
+        changePassword(SecurityUtils.getCurrentUserLogin(), password);
+    }
+
+    /**
+     * Change the current user's password.
+     * @param password the new password
+     * @param login of the user to change password
+     */
+    public void changePassword(String login, String password) {
+        userRepository.findOneByLogin(login).ifPresent(user -> {
             String encryptedPassword = passwordEncoder.encode(password);
             user.setPassword(encryptedPassword);
             log.debug("Changed password for User: {}", user);

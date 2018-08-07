@@ -1,8 +1,9 @@
 package org.radarcns.management.service.mapper.decorator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.mapstruct.MappingTarget;
-import org.radarcns.auth.authorization.AuthoritiesConstants;
-import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.audit.EntityAuditInfo;
 import org.radarcns.management.service.RevisionService;
@@ -12,10 +13,6 @@ import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Created by nivethika on 30-8-17.
@@ -39,12 +36,9 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
         }
         SubjectDTO dto = delegate.subjectToSubjectDTO(subject);
         dto.setStatus(getSubjectStatus(subject));
-        Optional<Role> role = subject.getUser().getRoles().stream()
-                .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PARTICIPANT))
-                .findFirst();
-
-        role.ifPresent(role1 ->
-                dto.setProject(projectMapper.projectToProjectDTO(role1.getProject())));
+        subject.getActiveProject()
+                .ifPresent(
+                    project -> dto.setProject(projectMapper.projectToProjectDTO(project)));
 
         EntityAuditInfo auditInfo = revisionService.getAuditInfo(subject);
         dto.setCreatedDate(auditInfo.getCreatedAt());

@@ -93,6 +93,8 @@ server:
 managementportal:
     common:
         baseUrl: http://my-server-url-to-change-here # Modify according to your server's URL
+        privacyPolicyUrl: http://info.thehyve.nl/radar-cns-privacy-policy
+        adminPassword:
     mail: # specific JHipster mail property, for standard properties see MailProperties
         from: ManagementPortal@localhost
     frontend:
