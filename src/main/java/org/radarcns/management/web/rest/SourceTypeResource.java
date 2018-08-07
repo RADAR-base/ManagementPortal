@@ -9,11 +9,13 @@ import static org.radarcns.management.security.SecurityUtils.getJWT;
 import static org.radarcns.management.web.rest.errors.EntityName.SOURCE_TYPE;
 
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -229,7 +231,11 @@ public class SourceTypeResource {
             throw new InvalidRequestException(
                 // we know the list is not empty so calling get() is safe here
                 "Cannot delete a source-type that " + "is being used by project(s)", SOURCE_TYPE,
-                ErrorConstants.ERR_SOURCE_TYPE_IN_USE);
+                ErrorConstants.ERR_SOURCE_TYPE_IN_USE, Collections.singletonMap("project-names",
+                projects
+                        .stream()
+                        .map(ProjectDTO::getProjectName)
+                        .collect(Collectors.joining("-"))));
         }
         sourceTypeService.delete(sourceTypeDto.getId());
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(SOURCE_TYPE,
