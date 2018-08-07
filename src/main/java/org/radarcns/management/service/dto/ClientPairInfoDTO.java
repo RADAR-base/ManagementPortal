@@ -1,6 +1,6 @@
 package org.radarcns.management.service.dto;
 
-import java.net.URI;
+import java.net.URL;
 import java.util.Objects;
 
 /**
@@ -10,14 +10,14 @@ public class ClientPairInfoDTO {
 
     private final String tokenName;
 
-    private final URI tokenUrl;
+    private final URL tokenUrl;
 
     /**
      * Initialize with the given refresh token.
      * @param tokenName the refresh token
      * @param tokenUrl the refresh token
      */
-    public ClientPairInfoDTO(String tokenName, URI tokenUrl) {
+    public ClientPairInfoDTO(String tokenName, URL tokenUrl) {
         if (tokenUrl == null) {
             throw new IllegalArgumentException("tokenUrl can not be null");
         }
@@ -29,7 +29,7 @@ public class ClientPairInfoDTO {
         return tokenName;
     }
 
-    public URI getTokenUrl() {
+    public URL getTokenUrl() {
         return tokenUrl;
     }
 

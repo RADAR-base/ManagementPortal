@@ -47,7 +47,7 @@ public final class HeaderUtil {
 
     /**
      * Create headers to display a failure alert in the frontend.
-     * @param entityName the entity on which the failure occured
+     * @param entityName the entity on which the failure occurred
      * @param errorKey the error key in the translation dictionary
      * @param defaultMessage the default message
      * @return the {@link HttpHeaders}
@@ -57,6 +57,23 @@ public final class HeaderUtil {
         log.error("Entity creation failed, {}", defaultMessage);
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-managementPortalApp-error", "error." + errorKey);
+        headers.add("X-managementPortalApp-params", entityName);
+        return headers;
+    }
+
+    /**
+     * Create headers to display a failure alert in the frontend.
+     * @param entityName the entity on which the failure occurred
+     * @param errorKey the error key in the translation dictionary
+     * @param defaultMessage the default message
+     * @return the {@link HttpHeaders}
+     */
+    public static HttpHeaders createExceptionAlert(String entityName, String errorKey,
+            String defaultMessage) {
+        //TODO: Replace createFailureAlert with error. addition
+        log.error("Entity creation failed, {}", defaultMessage);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-managementPortalApp-error", errorKey);
         headers.add("X-managementPortalApp-params", entityName);
         return headers;
     }

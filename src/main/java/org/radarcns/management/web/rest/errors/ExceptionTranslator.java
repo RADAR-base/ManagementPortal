@@ -1,6 +1,7 @@
 package org.radarcns.management.web.rest.errors;
 
 import java.util.List;
+
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
@@ -77,47 +78,64 @@ public class ExceptionTranslator {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ErrorVM processValidationError(MethodArgumentTypeMismatchException ex) {
         return new ErrorVM(ErrorConstants.ERR_VALIDATION,
                 ex.getName() + ": " + ex.getMessage());
     }
 
-    @ExceptionHandler(CustomParameterizedException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public ParameterizedErrorVM processParameterizedValidationError(
-            CustomParameterizedException ex) {
-        return ex.getErrorVM();
+    @ExceptionHandler(RadarWebApplicationException.class)
+    public ResponseEntity<RadarWebApplicationExceptionVM> processParameterizedValidationError(
+            RadarWebApplicationException ex) {
+        return processRadarWebApplicationException(ex);
     }
 
-    @ExceptionHandler(CustomNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ResponseBody
-    public ParameterizedErrorVM processParameterizedNotFound(CustomNotFoundException ex) {
-        return ex.getErrorVM();
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<RadarWebApplicationExceptionVM> processNotFound(NotFoundException ex) {
+        return processRadarWebApplicationException(ex);
     }
+
+    @ExceptionHandler(InvalidStateException.class)
+    public ResponseEntity<RadarWebApplicationExceptionVM> processNotFound(
+            InvalidStateException ex) {
+        return processRadarWebApplicationException(ex);
+    }
+
+    @ExceptionHandler(RequestGoneException.class)
+    public ResponseEntity<RadarWebApplicationExceptionVM> processNotFound(RequestGoneException ex) {
+        return processRadarWebApplicationException(ex);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<RadarWebApplicationExceptionVM> processNotFound(BadRequestException ex) {
+        return processRadarWebApplicationException(ex);
+    }
+
+    @ExceptionHandler(InvalidRequestException.class)
+    public ResponseEntity<RadarWebApplicationExceptionVM> processNotFound(
+            InvalidRequestException ex) {
+        return processRadarWebApplicationException(ex);
+    }
+
 
     /**
-     * Translate a {@link CustomConflictException}.
+     * Translate a {@link ConflictException}.
      * @param ex the exception
      * @return the view-model for the translated exception
      */
-    @ExceptionHandler(CustomConflictException.class)
-    public ResponseEntity<ParameterizedErrorVM> processParameterizedConflict(
-            CustomConflictException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .headers(HeaderUtil.createAlert(ex.getMessage(), ex.getConflictingResource()
-                        .toString()))
-                .body(ex.getErrorVM());
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<RadarWebApplicationExceptionVM> processConflict(
+            ConflictException ex) {
+        return processRadarWebApplicationException(ex);
     }
 
-    @ExceptionHandler(CustomServerException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ResponseBody
-    public ParameterizedErrorVM processParameterizedServerError(CustomServerException ex) {
-        return ex.getErrorVM();
+    private ResponseEntity<RadarWebApplicationExceptionVM> processRadarWebApplicationException(
+            RadarWebApplicationException exception) {
+        return ResponseEntity
+            .status(exception.getResponse().getStatus())
+            .headers(HeaderUtil.createExceptionAlert(exception.getEntityName(),
+                    exception.getErrorCode(), exception.getMessage()))
+            .body(exception.getExceptionVM());
     }
 
     @ExceptionHandler(AccessDeniedException.class)

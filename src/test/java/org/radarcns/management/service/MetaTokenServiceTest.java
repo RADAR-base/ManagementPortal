@@ -17,7 +17,7 @@ import org.radarcns.management.ManagementPortalTestApp;
 import org.radarcns.management.domain.MetaToken;
 import org.radarcns.management.repository.MetaTokenRepository;
 import org.radarcns.management.service.dto.TokenDTO;
-import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -88,7 +88,7 @@ public class MetaTokenServiceTest {
 
     }
 
-    @Test(expected = CustomParameterizedException.class)
+    @Test(expected = RadarWebApplicationException.class)
     public void testGetAFetchedMetaToken() throws MalformedURLException {
         MetaToken token = new MetaToken()
                 .fetched(true)
@@ -105,7 +105,7 @@ public class MetaTokenServiceTest {
         metaTokenService.fetchToken(tokenName);
     }
 
-    @Test(expected = CustomParameterizedException.class)
+    @Test(expected = RadarWebApplicationException.class)
     public void testGetAnExpiredMetaToken() throws MalformedURLException {
         MetaToken token = new MetaToken()
                 .fetched(false)

@@ -15,7 +15,7 @@ import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
-import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.InvalidRequestException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.web.rest.util.PaginationUtil;
 import org.radarcns.management.web.rest.vm.ManagedUserVM;
@@ -47,6 +47,7 @@ import static org.radarcns.auth.authorization.Permission.USER_READ;
 import static org.radarcns.auth.authorization.Permission.USER_UPDATE;
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarcns.management.security.SecurityUtils.getJWT;
+import static org.radarcns.management.web.rest.errors.EntityName.USER;
 
 /**
  * REST controller for managing users.
@@ -78,8 +79,6 @@ import static org.radarcns.management.security.SecurityUtils.getJWT;
 public class UserResource {
 
     private final Logger log = LoggerFactory.getLogger(UserResource.class);
-
-    private static final String ENTITY_NAME = "userManagement";
 
     @Autowired
     private UserRepository userRepository;
@@ -114,7 +113,7 @@ public class UserResource {
         checkPermission(getJWT(servletRequest), USER_CREATE);
         if (managedUserVm.getId() != null) {
             return ResponseEntity.badRequest()
-                    .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists",
+                    .headers(HeaderUtil.createFailureAlert(USER, "idexists",
                             "A new user cannot already have an ID"))
                     .body(null);
             // Lowercase the user login before comparing with database
@@ -122,18 +121,18 @@ public class UserResource {
                 .isPresent()) {
             return ResponseEntity.badRequest()
                     .headers(HeaderUtil
-                            .createFailureAlert(ENTITY_NAME, "userexists",
+                            .createFailureAlert(USER, "userexists",
                                     "Login already in use"))
                     .body(null);
         } else if (userRepository.findOneByEmail(managedUserVm.getEmail()).isPresent()) {
             return ResponseEntity.badRequest()
                     .headers(HeaderUtil
-                            .createFailureAlert(ENTITY_NAME, "emailexists",
+                            .createFailureAlert(USER, "emailexists",
                                     "Email already in use"))
                     .body(null);
         } else if (managedUserVm.getRoles() == null || managedUserVm.getRoles().isEmpty()) {
             return ResponseEntity.badRequest()
-                    .headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "rolesRequired",
+                    .headers(HeaderUtil.createFailureAlert(USER, "rolesRequired",
                             "One or more roles are required"))
                     .body(null);
         } else {
@@ -163,19 +162,19 @@ public class UserResource {
         if (existingUser.isPresent() && (!existingUser.get().getId()
                 .equals(managedUserVm.getId()))) {
             return ResponseEntity.badRequest().headers(HeaderUtil
-                    .createFailureAlert(ENTITY_NAME, "emailexists", "Email already in use"))
+                    .createFailureAlert(USER, "emailexists", "Email already in use"))
                     .body(null);
         }
         existingUser = userRepository.findOneByLogin(managedUserVm.getLogin().toLowerCase());
         if (existingUser.isPresent() && (!existingUser.get().getId()
                 .equals(managedUserVm.getId()))) {
             return ResponseEntity.badRequest().headers(HeaderUtil
-                    .createFailureAlert(ENTITY_NAME, "userexists", "Login already in use"))
+                    .createFailureAlert(USER, "userexists", "Login already in use"))
                     .body(null);
         }
         if (managedUserVm.getRoles() == null || managedUserVm.getRoles().isEmpty()) {
             return ResponseEntity.badRequest()
-                    .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, "rolesRequired"))
+                    .headers(HeaderUtil.createEntityUpdateAlert(USER, "rolesRequired"))
                     .body(null);
         }
 
@@ -183,7 +182,8 @@ public class UserResource {
                 .findOneWithEagerBySubjectLogin(managedUserVm.getLogin());
         if (subject.isPresent() && managedUserVm.isActivated() && subject.get().isRemoved()) {
             // if the subject is also a user, check if the removed/activated states are valid
-            throw new CustomParameterizedException("error.invalidsubjectstate");
+            throw new InvalidRequestException("Subject cannot be the user to request "
+                + "this changes", USER, "error.invalidsubjectstate");
 
         }
 
