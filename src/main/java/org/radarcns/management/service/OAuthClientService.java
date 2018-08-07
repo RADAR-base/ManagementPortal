@@ -219,12 +219,16 @@ public class OAuthClientService {
 
         Optional<Project> project = subject.getActiveProject();
 
-        if (project.isPresent()
-                && !project.get().getAttributes().get(PRIVACY_POLICY_URL).isEmpty()) {
-            return new URL(project.get().getAttributes().get(PRIVACY_POLICY_URL));
+        String defaultPrivacyPolicy = managementPortalProperties.getCommon().getPrivacyPolicyUrl();
+
+        if (project.isPresent()) {
+            String projectPrivacyPolicyUrl = project.get().getAttributes().get(PRIVACY_POLICY_URL);
+            if (projectPrivacyPolicyUrl != null && !projectPrivacyPolicyUrl.isEmpty()) {
+                defaultPrivacyPolicy = projectPrivacyPolicyUrl;
+            }
         }
 
-        return new URL(managementPortalProperties.getCommon().getPrivacyPolicyUrl());
+        return new URL(defaultPrivacyPolicy);
     }
 
     /**

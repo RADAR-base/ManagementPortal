@@ -7,7 +7,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.envers.Audited;
-import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.domain.support.AbstractEntityListener;
 
 import javax.persistence.CollectionTable;
@@ -33,7 +32,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * A Subject.
@@ -170,7 +168,7 @@ public class Subject extends AbstractEntity implements Serializable {
      */
     public Optional<Project> getActiveProject() {
         Optional<Role> activeProjectRole = this.getUser().getRoles().stream()
-                .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PARTICIPANT))
+                .filter(r -> r.getAuthority().getName().equals(PARTICIPANT))
                 .findFirst();
 
         if (activeProjectRole.isPresent()) {

@@ -1,8 +1,7 @@
 package org.radarcns.management.service.mapper.decorator;
 
 import org.mapstruct.MappingTarget;
-import org.radarcns.auth.authorization.AuthoritiesConstants;
-import org.radarcns.management.domain.Role;
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.audit.EntityAuditInfo;
 import org.radarcns.management.service.RevisionService;
@@ -39,12 +38,10 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
         }
         SubjectDTO dto = delegate.subjectToSubjectDTO(subject);
         dto.setStatus(getSubjectStatus(subject));
-        Optional<Role> role = subject.getUser().getRoles().stream()
-                .filter(r -> r.getAuthority().getName().equals(AuthoritiesConstants.PARTICIPANT))
-                .findFirst();
-
-        role.ifPresent(role1 ->
-                dto.setProject(projectMapper.projectToProjectDTO(role1.getProject())));
+        Optional<Project> activeProject = subject.getActiveProject();
+        if (activeProject.isPresent()) {
+            dto.setProject(projectMapper.projectToProjectDTO(activeProject.get()));
+        }
 
         EntityAuditInfo auditInfo = revisionService.getAuditInfo(subject);
         dto.setCreatedDate(auditInfo.getCreatedAt());
