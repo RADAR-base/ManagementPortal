@@ -1,12 +1,5 @@
 package org.radarcns.management.config;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,7 +11,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.radarcns.auth.authorization.Permission;
+import org.radarcns.management.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +33,11 @@ import org.springframework.security.oauth2.provider.client.JdbcClientDetailsServ
 import org.springframework.stereotype.Component;
 
 /**
+ * Loads security configs such as oauth-clients, and overriding admin password if specified.
  * Created by dverbeec on 20/11/2017.
  */
 @Component
-public class OAuthClientLoader {
+public class ManagementPortalSecurityConfigLoader {
 
     @Autowired
     private JdbcClientDetailsService clientDetailsService;
@@ -42,15 +45,37 @@ public class OAuthClientLoader {
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
 
-    private static Logger logger = LoggerFactory.getLogger(OAuthClientLoader.class);
+    @Autowired
+    private UserService userService;
+
+    private static Logger logger =
+            LoggerFactory.getLogger(ManagementPortalSecurityConfigLoader.class);
 
     private static final Character SEPARATOR = ';';
+
+    /**
+     * Resets the admin password to the value of managementportal.common.adminPassword value if
+     * exists.
+     */
+    @EventListener(ContextRefreshedEvent.class)
+    public void overrideAdminPassword() {
+        String adminPassword = managementPortalProperties.getCommon().getAdminPassword();
+
+        if (adminPassword != null && !adminPassword.isEmpty()) {
+            logger.info("Overriding admin password to configured password");
+            userService.changePassword("admin", adminPassword);
+        } else {
+            logger.info("AdminPassword property is empty. Using default password...");
+        }
+    }
+
 
     /**
      * Build the ClientDetails for the ManagementPortal frontend and load it to the database.
      */
     @EventListener(ContextRefreshedEvent.class)
     public void loadFrontendOauthClient() {
+        logger.info("Loading ManagementPortal frontend client");
         ManagementPortalProperties.Frontend frontend = managementPortalProperties.getFrontend();
         BaseClientDetails details = new BaseClientDetails();
         details.setClientId(frontend.getClientId());
