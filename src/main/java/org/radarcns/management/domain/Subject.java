@@ -167,15 +167,10 @@ public class Subject extends AbstractEntity implements Serializable {
      * @return {@link Project} currently active project of subject.
      */
     public Optional<Project> getActiveProject() {
-        Optional<Role> activeProjectRole = this.getUser().getRoles().stream()
+        return this.getUser().getRoles().stream()
                 .filter(r -> r.getAuthority().getName().equals(PARTICIPANT))
-                .findFirst();
-
-        if (activeProjectRole.isPresent()) {
-            return Optional.of(activeProjectRole.get().getProject());
-        } else {
-            return Optional.empty();
-        }
+                .findFirst()
+                .map(Role::getProject);
     }
 
     @Override

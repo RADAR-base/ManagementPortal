@@ -16,13 +16,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.MetaToken;
-import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.service.dto.ClientDetailsDTO;
@@ -228,24 +226,17 @@ public class OAuthClientService {
      */
     private URL getPrivacyPolicyUrl(Subject subject) {
 
-        Optional<Project> project = subject.getActiveProject();
-
         // load default url from config
-        String policyUrl = managementPortalProperties.getCommon().getPrivacyPolicyUrl();
-
-        // override from project specific url if available.
-        if (project.isPresent()) {
-            String projectPrivacyPolicyUrl = project.get().getAttributes().get(PRIVACY_POLICY_URL);
-            if (projectPrivacyPolicyUrl != null && !projectPrivacyPolicyUrl.isEmpty()) {
-                policyUrl = projectPrivacyPolicyUrl;
-            }
-        }
+        String policyUrl = subject.getActiveProject()
+                .map(p -> p.getAttributes().get(PRIVACY_POLICY_URL))
+                .filter(u -> u != null && !u.isEmpty())
+                .orElse(managementPortalProperties.getCommon().getPrivacyPolicyUrl());
 
         try {
             return new URL(policyUrl);
         } catch (MalformedURLException e) {
             Map<String, String> params = new HashMap<>();
-            params.put("Url" , policyUrl);
+            params.put("url" , policyUrl);
             params.put("message" , e.getMessage());
             throw new InvalidStateException("No valid privacy-policy Url configured. Please "
                     + "verify your project's privacy-policy url and/or general url config",

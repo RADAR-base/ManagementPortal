@@ -432,24 +432,19 @@ public class SubjectResource {
         Subject sub = subjectService.findOneByLogin(login);
 
         // find the actively assigned project for this subject
-        Optional<Project> activeProject = sub.getActiveProject();
 
-        if (!activeProject.isPresent()) {
-            throw new InvalidRequestException("Requested subject does not have an active project",
-                    SUBJECT, ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND);
-        }
+        Project currentProject = sub.getActiveProject()
+                .orElseThrow(() ->
+                    new InvalidRequestException("Requested subject does not have an active project",
+                SUBJECT, ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND));
 
-        Project currentProject = activeProject.get();
         // find whether the relevant source-type is available in the subject's project
-        Optional<SourceType> sourceType = projectRepository
-                .findSourceTypeByProjectIdAndSourceTypeId(currentProject.getId(), sourceTypeId);
-
-        if (!sourceType.isPresent()) {
-            // return bad request
-            throw new BadRequestException("No valid source-type found for project. You must "
-                + "provide either valid source-type id or producer, model, version of a "
-                + "source-type that is assigned to project", SUBJECT, ERR_SOURCE_TYPE_NOT_PROVIDED);
-        }
+        SourceType sourceType = projectRepository
+                .findSourceTypeByProjectIdAndSourceTypeId(currentProject.getId(), sourceTypeId)
+                .orElseThrow(() -> new BadRequestException("No valid source-type found for project."
+                + " You must provide either valid source-type id or producer, model, version of a "
+                + "source-type that is assigned to project", SUBJECT, ERR_SOURCE_TYPE_NOT_PROVIDED)
+        );
 
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, currentProject
                 .getProjectName(), sub.getUser().getLogin());
@@ -461,7 +456,7 @@ public class SubjectResource {
 
         // handle the source registration
         MinimalSourceDetailsDTO sourceRegistered = subjectService
-                .assignOrUpdateSource(sub, sourceType.get(), currentProject, sourceDto);
+                .assignOrUpdateSource(sub, sourceType, currentProject, sourceDto);
 
         // Return the correct response type, either created if a new source was created, or ok if
         // an existing source was provided. If an existing source was given but not found, the
