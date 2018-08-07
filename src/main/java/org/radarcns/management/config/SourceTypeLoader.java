@@ -117,6 +117,9 @@ public class SourceTypeLoader implements CommandLineRunner {
             } catch (MalformedURLException e) {
                 log.warn("Invalid Url provided for Catalog server url {} : {}", catalogServerUrl,
                         e.getMessage());
+            } catch (Exception exe) {
+                log.warn("An error has occurred during auto import of source-types. ", exe
+                        .getMessage());
             }
         } else {
             log.info("Auto source-type import is disabled");
