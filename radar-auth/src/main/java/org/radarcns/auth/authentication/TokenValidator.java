@@ -117,7 +117,7 @@ public class TokenValidator {
 
                 Map<String, Claim> claims = jwt.getClaims();
 
-                log.debug("JWT claims from token {} are {}", token, jwt.getClaims());
+                log.debug("JWT claims from token {} are {}", token, claims);
 
                 // check for scope claim
                 if (!claims.containsKey(JwtRadarToken.SCOPE_CLAIM)) {
