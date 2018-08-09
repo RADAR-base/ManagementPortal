@@ -121,8 +121,8 @@ public class TokenValidator {
 
                 // check for scope claim
                 if (!claims.containsKey(JwtRadarToken.SCOPE_CLAIM)) {
-                    throw new TokenValidationException("The required claim "+
-                            JwtRadarToken.SCOPE_CLAIM + "is missing from the token");
+                    throw new TokenValidationException("The required claim "
+                            + JwtRadarToken.SCOPE_CLAIM + "is missing from the token");
                 }
                 return new JwtRadarToken(jwt);
             } catch (SignatureVerificationException sve) {
