@@ -69,11 +69,17 @@ public class SourceTypeLoader implements CommandLineRunner {
                     if (catalogueDto.getPassiveSources() != null) {
                         catalogSourceTypes.addAll(catalogueDto.getPassiveSources());
                     }
+
                     if (catalogueDto.getActiveSources() != null) {
                         catalogSourceTypes.addAll(catalogueDto.getActiveSources());
                     }
+
                     if (catalogueDto.getMonitorSources() != null) {
                         catalogSourceTypes.addAll(catalogueDto.getMonitorSources());
+                    }
+
+                    if (catalogueDto.getConnectorSources() != null) {
+                        catalogSourceTypes.addAll(catalogueDto.getConnectorSources());
                     }
 
                     saveSourceTypesFromCatalogServer(catalogSourceTypes);
