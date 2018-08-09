@@ -67,6 +67,7 @@ import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
 import static org.radarcns.management.security.SecurityUtils.getJWT;
+import static org.springframework.security.oauth2.common.util.OAuth2Utils.GRANT_TYPE;
 
 /**
  * Created by dverbeec on 5/09/2017.
@@ -276,6 +277,7 @@ public class OAuthClientsResource {
     private OAuth2AccessToken createToken(String clientId, String login,
             Set<GrantedAuthority> authorities, Set<String> scope, Set<String> resourceIds) {
         Map<String, String> requestParameters = new HashMap<>();
+        requestParameters.put(GRANT_TYPE , "authorization_code");
 
         Set<String> responseTypes = Collections.singleton("code");
 
