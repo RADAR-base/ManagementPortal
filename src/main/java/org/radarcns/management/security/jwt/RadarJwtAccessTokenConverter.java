@@ -8,6 +8,7 @@ import org.springframework.security.jwt.crypto.sign.RsaSigner;
 import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.util.Assert;
 
@@ -31,6 +32,17 @@ import java.util.Map;
 public class RadarJwtAccessTokenConverter extends JwtAccessTokenConverter {
 
     private Algorithm algorithm;
+
+    /**
+     * Default constructor.
+     * Creates {@link RadarJwtAccessTokenConverter} with {@link DefaultAccessTokenConverter} as
+     * the accessTokenConverter with explicitly including grant_type claim.
+     */
+    public RadarJwtAccessTokenConverter() {
+        DefaultAccessTokenConverter tokenConverter = new DefaultAccessTokenConverter();
+        tokenConverter.setIncludeGrantType(true);
+        setAccessTokenConverter(tokenConverter);
+    }
 
     @Override
     public void setKeyPair(KeyPair keyPair) {
