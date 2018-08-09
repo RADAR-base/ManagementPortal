@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +28,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -112,14 +114,15 @@ public class TokenValidator {
         for (JWTVerifier verifier : getVerifiers()) {
             try {
                 DecodedJWT jwt = verifier.verify(token);
+
+                Map<String, Claim> claims = jwt.getClaims();
+
                 log.debug("JWT claims from token {} are {}", token, jwt.getClaims());
-                Set<String> claims = jwt.getClaims().keySet();
-                log.debug("Claims included in the token are {}", claims);
 
                 // check for scope claim
-                if (!claims.contains(JwtRadarToken.SCOPE_CLAIM)) {
-                    throw new TokenValidationException("The required claim {} is"
-                        + "missing from the token: " + JwtRadarToken.SCOPE_CLAIM);
+                if (!claims.containsKey(JwtRadarToken.SCOPE_CLAIM)) {
+                    throw new TokenValidationException("The required claim "+
+                            JwtRadarToken.SCOPE_CLAIM + "is missing from the token");
                 }
                 return new JwtRadarToken(jwt);
             } catch (SignatureVerificationException sve) {
