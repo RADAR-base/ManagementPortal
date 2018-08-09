@@ -95,12 +95,17 @@ public class CatalogSourceType {
             return false;
         }
         CatalogSourceType that = (CatalogSourceType) o;
-        return Objects.equals(assessmentType, that.assessmentType) && Objects
-            .equals(appProvider, that.appProvider) && Objects.equals(vendor, that.vendor) && Objects
-            .equals(model, that.model) && Objects.equals(version, that.version) && Objects
-            .equals(name, that.name) && Objects.equals(doc, that.doc) && Objects
-            .equals(scope, that.scope) && Objects.equals(properties, that.properties) && Objects
-            .equals(labels, that.labels) && Objects.equals(data, that.data);
+        return Objects.equals(assessmentType, that.assessmentType)
+                && Objects.equals(appProvider, that.appProvider)
+                && Objects.equals(vendor, that.vendor)
+                && Objects.equals(model, that.model)
+                && Objects.equals(version, that.version)
+                && Objects.equals(name, that.name)
+                && Objects.equals(doc, that.doc)
+                && Objects.equals(scope, that.scope)
+                && Objects.equals(properties, that.properties)
+                && Objects.equals(labels, that.labels)
+                && Objects.equals(data, that.data);
     }
 
     @Override
