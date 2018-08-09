@@ -4,6 +4,7 @@ import static org.radarcns.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
 import static org.radarcns.management.web.rest.MetaTokenResource.DEFAULT_META_TOKEN_TIMEOUT;
 import static org.radarcns.management.web.rest.errors.EntityName.OAUTH_CLIENT;
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED;
+import static org.springframework.security.oauth2.common.util.OAuth2Utils.GRANT_TYPE;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -192,8 +193,8 @@ public class OAuthClientService {
         ClientDetails details = findOneByClientId(clientId);
 
         OAuth2AccessToken token =
-                createToken(clientId, user.getLogin(), authorities, details.getScope(),
-                details.getResourceIds());
+                createAuthorizationCodeToken(clientId, user.getLogin(), authorities,
+                    details.getScope(), details.getResourceIds());
         // tokenName should be generated
         MetaToken metaToken = metaTokenService
                 .saveUniqueToken(token.getRefreshToken().getValue(), false,
@@ -278,10 +279,12 @@ public class OAuthClientService {
      * @param resourceIds resource-ids of the token.
      * @return Created {@link OAuth2AccessToken} instance.
      */
-    private OAuth2AccessToken createToken(String clientId, String login,
+    private OAuth2AccessToken createAuthorizationCodeToken(String clientId, String login,
             Set<GrantedAuthority> authorities, Set<String> scope, Set<String> resourceIds) {
 
         Map<String, String> requestParameters = new HashMap<>();
+        requestParameters.put(GRANT_TYPE , "authorization_code");
+
 
         Set<String> responseTypes = Collections.singleton("code");
 
