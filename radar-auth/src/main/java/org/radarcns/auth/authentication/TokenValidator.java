@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,7 +28,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -40,10 +41,6 @@ import java.util.stream.Collectors;
 public class TokenValidator {
 
     protected static final Logger log = LoggerFactory.getLogger(TokenValidator.class);
-    // additional required claims apart from the required JWT claims
-    protected static final List<String> REQUIRED_CLAIMS = Arrays.asList(
-            JwtRadarToken.GRANT_TYPE_CLAIM, JwtRadarToken.SCOPE_CLAIM);
-
     private final ServerConfig config;
     private List<JWTVerifier> verifiers = new LinkedList<>();
     private final List<TokenValidationAlgorithm> algorithmList = Arrays.asList(
@@ -116,12 +113,15 @@ public class TokenValidator {
         for (JWTVerifier verifier : getVerifiers()) {
             try {
                 DecodedJWT jwt = verifier.verify(token);
-                Set<String> claims = jwt.getClaims().keySet();
-                Set<String> missing = REQUIRED_CLAIMS.stream()
-                        .filter(c -> !claims.contains(c)).collect(Collectors.toSet());
-                if (!missing.isEmpty()) {
-                    throw new TokenValidationException("The following required claims were "
-                            + "missing from the token: " + String.join(", ", missing));
+
+                Map<String, Claim> claims = jwt.getClaims();
+
+                log.debug("JWT claims from token {} are {}", token, claims);
+
+                // check for scope claim
+                if (!claims.containsKey(JwtRadarToken.SCOPE_CLAIM)) {
+                    throw new TokenValidationException("The required claim "
+                            + JwtRadarToken.SCOPE_CLAIM + "is missing from the token");
                 }
                 return new JwtRadarToken(jwt);
             } catch (SignatureVerificationException sve) {
@@ -186,9 +186,10 @@ public class TokenValidator {
         }
 
         // Create a verifier for each signature verification algorithm we created
-        return algorithms.stream().map(alg -> JWT.require(alg)
-                .withAudience(config.getResourceName())
-                .build())
+        return algorithms.stream()
+                .map(alg -> JWT.require(alg)
+                        .withAudience(config.getResourceName())
+                        .build())
                 .collect(Collectors.toList());
     }
 
