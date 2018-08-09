@@ -40,10 +40,6 @@ import java.util.stream.Collectors;
 public class TokenValidator {
 
     protected static final Logger log = LoggerFactory.getLogger(TokenValidator.class);
-    // additional required claims apart from the required JWT claims
-    protected static final List<String> REQUIRED_CLAIMS = Arrays.asList(
-            JwtRadarToken.GRANT_TYPE_CLAIM, JwtRadarToken.SCOPE_CLAIM);
-
     private final ServerConfig config;
     private List<JWTVerifier> verifiers = new LinkedList<>();
     private final List<TokenValidationAlgorithm> algorithmList = Arrays.asList(
@@ -116,12 +112,14 @@ public class TokenValidator {
         for (JWTVerifier verifier : getVerifiers()) {
             try {
                 DecodedJWT jwt = verifier.verify(token);
+                log.debug("JWT claims from token {} are {}", token, jwt.getClaims());
                 Set<String> claims = jwt.getClaims().keySet();
-                Set<String> missing = REQUIRED_CLAIMS.stream()
-                        .filter(c -> !claims.contains(c)).collect(Collectors.toSet());
-                if (!missing.isEmpty()) {
-                    throw new TokenValidationException("The following required claims were "
-                            + "missing from the token: " + String.join(", ", missing));
+                log.debug("Claims included in the token are {}", claims);
+
+                // check for scope claim
+                if (!claims.contains(JwtRadarToken.SCOPE_CLAIM)) {
+                    throw new TokenValidationException("The required claim {} is"
+                        + "missing from the token: " + JwtRadarToken.SCOPE_CLAIM);
                 }
                 return new JwtRadarToken(jwt);
             } catch (SignatureVerificationException sve) {
@@ -186,9 +184,10 @@ public class TokenValidator {
         }
 
         // Create a verifier for each signature verification algorithm we created
-        return algorithms.stream().map(alg -> JWT.require(alg)
-                .withAudience(config.getResourceName())
-                .build())
+        return algorithms.stream()
+                .map(alg -> JWT.require(alg)
+                        .withAudience(config.getResourceName())
+                        .build())
                 .collect(Collectors.toList());
     }
 
