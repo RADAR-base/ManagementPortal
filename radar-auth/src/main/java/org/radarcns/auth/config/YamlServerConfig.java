@@ -1,11 +1,5 @@
 package org.radarcns.auth.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.radarcns.auth.exception.ConfigurationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +9,12 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.radarcns.auth.exception.ConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by dverbeec on 14/06/2017.
@@ -27,7 +27,7 @@ public class YamlServerConfig implements ServerConfig {
     private List<String> publicKeys = new LinkedList<>();
 
     private static YamlServerConfig config;
-    private final Logger log = LoggerFactory.getLogger(YamlServerConfig.class);
+    private static final Logger log = LoggerFactory.getLogger(YamlServerConfig.class);
 
 
 
@@ -41,33 +41,38 @@ public class YamlServerConfig implements ServerConfig {
      * @throws ConfigurationException If there is any problem loading the configuration
      */
     public static YamlServerConfig readFromFileOrClasspath() {
-        if (config != null) {
-            return config;
-        }
-        Logger log = LoggerFactory.getLogger(YamlServerConfig.class);
-        String customLocation = System.getenv(LOCATION_ENV);
-        URL configFile;
-        try {
+        if (config == null) {
+            String customLocation = System.getenv(LOCATION_ENV);
+            URL configFile;
             if (customLocation != null) {
                 log.info(LOCATION_ENV + " environment variable set, loading config from {}",
                         customLocation);
-                configFile = new File(customLocation).toURI().toURL();
+                try {
+                    configFile = new File(customLocation).toURI().toURL();
+                } catch (MalformedURLException ex) {
+                    throw new ConfigurationException(ex);
+                }
             } else {
                 // if config location not defined, look for it on the classpath
-                log.info(LOCATION_ENV + " environment variable not set, looking for it on"
-                        + " the classpath");
+                log.info(LOCATION_ENV
+                        + " environment variable not set, looking for it on the classpath");
                 configFile = YamlServerConfig.class.getClassLoader().getResource(CONFIG_FILE_NAME);
-                log.info("Config file found at {}", configFile.getPath());
+
+                if (configFile == null) {
+                    throw new ConfigurationException("Cannot find " + CONFIG_FILE_NAME +
+                            " file " + "in classpath. ");
+                }
             }
-        } catch (MalformedURLException ex) {
-            throw new ConfigurationException(ex);
+            log.info("Config file found at {}", configFile.getPath());
+
+            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+            try (InputStream stream = configFile.openStream()) {
+                config = mapper.readValue(stream, YamlServerConfig.class);
+            } catch (IOException ex) {
+                throw new ConfigurationException(ex);
+            }
         }
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        try (InputStream stream = configFile.openStream()) {
-            return mapper.readValue(stream, YamlServerConfig.class);
-        } catch (IOException ex) {
-            throw new ConfigurationException(ex);
-        }
+        return config;
     }
 
     /**
