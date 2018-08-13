@@ -26,7 +26,6 @@ public class YamlServerConfig implements ServerConfig {
     private String resourceName;
     private List<String> publicKeys = new LinkedList<>();
 
-    private YamlServerConfig config;
     private static final Logger log = LoggerFactory.getLogger(YamlServerConfig.class);
 
     /**
@@ -38,15 +37,7 @@ public class YamlServerConfig implements ServerConfig {
      * @return The initialized configuration object based on the contents of the configuration file
      * @throws ConfigurationException If there is any problem loading the configuration
      */
-    public YamlServerConfig loadConfig() {
-        if (config == null) {
-            config = readFromFileOrClasspath();
-        }
-        return config;
-    }
-
-
-    private YamlServerConfig readFromFileOrClasspath() {
+    public static synchronized YamlServerConfig readFromFileOrClasspath() {
         String customLocation = System.getenv(LOCATION_ENV);
         URL configFile;
         if (customLocation != null) {
@@ -78,16 +69,7 @@ public class YamlServerConfig implements ServerConfig {
         }
     }
 
-    /**
-     * Forcibly reload the configuration from file, and reinitialize the static field holding the
-     * configuration with the new object.
-     * @return The new configuration
-     * @throws ConfigurationException If there is any problem loading the configuration
-     */
-    public YamlServerConfig reloadConfig() {
-        config = null;
-        return loadConfig();
-    }
+
 
     public List<URI> getPublicKeyEndpoints() {
         return publicKeyEndpoints;

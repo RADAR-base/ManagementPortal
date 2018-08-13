@@ -27,7 +27,7 @@ public class YamlServerConfigTest {
 
     @Test
     public void testLoadYamlFileFromClasspath() throws URISyntaxException {
-        ServerConfig config = new YamlServerConfig().loadConfig();
+        ServerConfig config = YamlServerConfig.readFromFileOrClasspath();
         checkConfig(config);
     }
 
@@ -36,7 +36,7 @@ public class YamlServerConfigTest {
         ClassLoader loader = getClass().getClassLoader();
         File configFile = new File(loader.getResource(YamlServerConfig.CONFIG_FILE_NAME).toURI());
         environmentVariables.set(YamlServerConfig.LOCATION_ENV, configFile.getAbsolutePath());
-        ServerConfig config = new YamlServerConfig().loadConfig();
+        ServerConfig config = YamlServerConfig.readFromFileOrClasspath();
         checkConfig(config);
     }
 
