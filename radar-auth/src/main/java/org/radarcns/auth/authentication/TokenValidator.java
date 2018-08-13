@@ -60,7 +60,7 @@ public class TokenValidator {
      * identity server for checking token signatures.
      */
     public TokenValidator() {
-        this(YamlServerConfig.readFromFileOrClasspath(), FETCH_TIMEOUT_DEFAULT);
+        this(new YamlServerConfig().loadConfig(), FETCH_TIMEOUT_DEFAULT);
     }
 
     /**

@@ -26,10 +26,8 @@ public class YamlServerConfig implements ServerConfig {
     private String resourceName;
     private List<String> publicKeys = new LinkedList<>();
 
-    private static YamlServerConfig config;
+    private YamlServerConfig config;
     private static final Logger log = LoggerFactory.getLogger(YamlServerConfig.class);
-
-
 
     /**
      * Read the configuration from file. This method will first check if the environment variable
@@ -40,39 +38,44 @@ public class YamlServerConfig implements ServerConfig {
      * @return The initialized configuration object based on the contents of the configuration file
      * @throws ConfigurationException If there is any problem loading the configuration
      */
-    public static YamlServerConfig readFromFileOrClasspath() {
+    public YamlServerConfig loadConfig() {
         if (config == null) {
-            String customLocation = System.getenv(LOCATION_ENV);
-            URL configFile;
-            if (customLocation != null) {
-                log.info(LOCATION_ENV + " environment variable set, loading config from {}",
-                        customLocation);
-                try {
-                    configFile = new File(customLocation).toURI().toURL();
-                } catch (MalformedURLException ex) {
-                    throw new ConfigurationException(ex);
-                }
-            } else {
-                // if config location not defined, look for it on the classpath
-                log.info(LOCATION_ENV
-                        + " environment variable not set, looking for it on the classpath");
-                configFile = YamlServerConfig.class.getClassLoader().getResource(CONFIG_FILE_NAME);
-
-                if (configFile == null) {
-                    throw new ConfigurationException("Cannot find " + CONFIG_FILE_NAME +
-                            " file " + "in classpath. ");
-                }
-            }
-            log.info("Config file found at {}", configFile.getPath());
-
-            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-            try (InputStream stream = configFile.openStream()) {
-                config = mapper.readValue(stream, YamlServerConfig.class);
-            } catch (IOException ex) {
-                throw new ConfigurationException(ex);
-            }
+            config = readFromFileOrClasspath();
         }
         return config;
+    }
+
+
+    private YamlServerConfig readFromFileOrClasspath() {
+        String customLocation = System.getenv(LOCATION_ENV);
+        URL configFile;
+        if (customLocation != null) {
+            log.info(LOCATION_ENV + " environment variable set, loading config from {}",
+                    customLocation);
+            try {
+                configFile = new File(customLocation).toURI().toURL();
+            } catch (MalformedURLException ex) {
+                throw new ConfigurationException(ex);
+            }
+        } else {
+            // if config location not defined, look for it on the classpath
+            log.info(LOCATION_ENV
+                    + " environment variable not set, looking for it on the classpath");
+            configFile = YamlServerConfig.class.getClassLoader().getResource(CONFIG_FILE_NAME);
+
+            if (configFile == null) {
+                throw new ConfigurationException("Cannot find " + CONFIG_FILE_NAME
+                        + " file in classpath. ");
+            }
+        }
+        log.info("Config file found at {}", configFile.getPath());
+
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        try (InputStream stream = configFile.openStream()) {
+            return config = mapper.readValue(stream, YamlServerConfig.class);
+        } catch (IOException ex) {
+            throw new ConfigurationException(ex);
+        }
     }
 
     /**
@@ -81,9 +84,9 @@ public class YamlServerConfig implements ServerConfig {
      * @return The new configuration
      * @throws ConfigurationException If there is any problem loading the configuration
      */
-    public static YamlServerConfig reloadConfig() {
+    public YamlServerConfig reloadConfig() {
         config = null;
-        return readFromFileOrClasspath();
+        return loadConfig();
     }
 
     public List<URI> getPublicKeyEndpoints() {
