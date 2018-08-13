@@ -72,7 +72,7 @@ public class YamlServerConfig implements ServerConfig {
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try (InputStream stream = configFile.openStream()) {
-            return config = mapper.readValue(stream, YamlServerConfig.class);
+            return mapper.readValue(stream, YamlServerConfig.class);
         } catch (IOException ex) {
             throw new ConfigurationException(ex);
         }
