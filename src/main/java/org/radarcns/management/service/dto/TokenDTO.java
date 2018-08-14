@@ -10,6 +10,13 @@ public class TokenDTO {
 
     private final URL privacyPolicyUrl;
 
+    /**
+     * Create a meta-token using refreshToken, baseUrl of platform, and privacyPolicyURL for this
+     * token.
+     * @param refreshToken refreshToken.
+     * @param baseUrl baseUrl of the platform
+     * @param privacyPolicyUrl privacyPolicyUrl for this token.
+     */
     public TokenDTO(String refreshToken, URL baseUrl, URL privacyPolicyUrl) {
         this.refreshToken = refreshToken;
         this.baseUrl = baseUrl;

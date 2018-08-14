@@ -153,6 +153,6 @@ public class MetaToken extends AbstractEntity {
                 + ", token='" + token
                 + ", fetched=" + fetched
                 + ", expiryDate=" + expiryDate
-                +", subject=" + subject + '}';
+                + ", subject=" + subject + '}';
     }
 }

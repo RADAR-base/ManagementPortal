@@ -1,9 +1,7 @@
 package org.radarcns.management.service;
 
-import static org.radarcns.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
 import static org.radarcns.management.web.rest.MetaTokenResource.DEFAULT_META_TOKEN_TIMEOUT;
 import static org.radarcns.management.web.rest.errors.EntityName.OAUTH_CLIENT;
-import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED;
 import static org.springframework.security.oauth2.common.util.OAuth2Utils.GRANT_TYPE;
 
 import java.net.MalformedURLException;
