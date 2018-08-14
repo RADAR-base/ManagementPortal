@@ -2,10 +2,15 @@ package org.radarcns.management.service;
 
 import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarcns.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
+import static org.radarcns.management.web.rest.errors.EntityName.OAUTH_CLIENT;
 import static org.radarcns.management.web.rest.errors.EntityName.SUBJECT;
+import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED;
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_SOURCE_NOT_FOUND;
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_SUBJECT_NOT_FOUND;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,6 +25,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.hibernate.envers.query.AuditEntity;
+import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Source;
@@ -40,6 +46,7 @@ import org.radarcns.management.service.util.RandomUtil;
 import org.radarcns.management.web.rest.errors.BadRequestException;
 import org.radarcns.management.web.rest.errors.ConflictException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
+import org.radarcns.management.web.rest.errors.InvalidStateException;
 import org.radarcns.management.web.rest.errors.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +93,9 @@ public class SubjectService {
 
     @Autowired
     private RevisionService revisionService;
+
+    @Autowired
+    private ManagementPortalProperties managementPortalProperties;
 
 
     /**
@@ -448,5 +458,36 @@ public class SubjectService {
             new NotFoundException("Subject not found with login", SUBJECT,
                 ERR_SUBJECT_NOT_FOUND)
         );
+    }
+
+    /**
+     * Gets relevant privacy-policy-url for this subject.
+     * <p>
+     *     If the active project of the subject has a valid privacy-policy-url returns that url.
+     *     Otherwise, it loads the default URL from ManagementPortal configurations that is
+     *     general.
+     * </p>
+     * @param subject to get relevant policy url
+     * @return URL of privacy policy for this token
+     */
+    protected URL getPrivacyPolicyUrl(Subject subject) {
+
+        // load default url from config
+        String policyUrl = subject.getActiveProject()
+                .map(p -> p.getAttributes().get(PRIVACY_POLICY_URL))
+                .filter(u -> u != null && !u.isEmpty())
+                .orElse(managementPortalProperties.getCommon().getPrivacyPolicyUrl());
+
+        try {
+            return new URL(policyUrl);
+        } catch (MalformedURLException e) {
+            Map<String, String> params = new HashMap<>();
+            params.put("url" , policyUrl);
+            params.put("message" , e.getMessage());
+            throw new InvalidStateException("No valid privacy-policy Url configured. Please "
+                    + "verify your project's privacy-policy url and/or general url config",
+                    OAUTH_CLIENT, ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED,
+                    params);
+        }
     }
 }

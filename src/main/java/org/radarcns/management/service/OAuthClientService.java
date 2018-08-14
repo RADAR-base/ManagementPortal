@@ -1,9 +1,7 @@
 package org.radarcns.management.service;
 
-import static org.radarcns.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
 import static org.radarcns.management.web.rest.MetaTokenResource.DEFAULT_META_TOKEN_TIMEOUT;
 import static org.radarcns.management.web.rest.errors.EntityName.OAUTH_CLIENT;
-import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED;
 import static org.springframework.security.oauth2.common.util.OAuth2Utils.GRANT_TYPE;
 
 import java.net.MalformedURLException;
@@ -197,7 +195,7 @@ public class OAuthClientService {
                     details.getScope(), details.getResourceIds());
         // tokenName should be generated
         MetaToken metaToken = metaTokenService
-                .saveUniqueToken(token.getRefreshToken().getValue(), false,
+                .saveUniqueToken(subject, token.getRefreshToken().getValue(), false,
                 Instant.now().plus(getMetaTokenTimeout()));
 
         if (metaToken.getId() != null && metaToken.getTokenName() != null) {
@@ -206,8 +204,7 @@ public class OAuthClientService {
             // create complete uri string
             String tokenUrl = baseUrl + ResourceUriService.getUri(metaToken).getPath();
             // create response
-            return new ClientPairInfoDTO(metaToken.getTokenName(), new URL(tokenUrl),
-                    getPrivacyPolicyUrl(subject));
+            return new ClientPairInfoDTO(metaToken.getTokenName(), new URL(tokenUrl));
         } else {
             throw new InvalidStateException("Could not create a valid token", OAUTH_CLIENT,
                 "error.couldNotCreateToken");
@@ -215,36 +212,7 @@ public class OAuthClientService {
     }
 
 
-    /**
-     * Gets relevant privacy-policy-url for this subject.
-     * <p>
-     *     If the active project of the subject has a valid privacy-policy-url returns that url.
-     *     Otherwise, it loads the default URL from ManagementPortal configurations that is
-     *     general.
-     * </p>
-     * @param subject to get relevant policy url
-     * @return URL of privacy policy for this token
-     */
-    private URL getPrivacyPolicyUrl(Subject subject) {
 
-        // load default url from config
-        String policyUrl = subject.getActiveProject()
-                .map(p -> p.getAttributes().get(PRIVACY_POLICY_URL))
-                .filter(u -> u != null && !u.isEmpty())
-                .orElse(managementPortalProperties.getCommon().getPrivacyPolicyUrl());
-
-        try {
-            return new URL(policyUrl);
-        } catch (MalformedURLException e) {
-            Map<String, String> params = new HashMap<>();
-            params.put("url" , policyUrl);
-            params.put("message" , e.getMessage());
-            throw new InvalidStateException("No valid privacy-policy Url configured. Please "
-                    + "verify your project's privacy-policy url and/or general url config",
-                OAUTH_CLIENT, ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED,
-                params);
-        }
-    }
 
     /**
      * Gets the meta-token timeout from config file. If the config is not mentioned or in wrong

@@ -57,7 +57,7 @@ export class SubjectPairDialogComponent implements OnInit {
         if (this.selectedClient != null) {
             this.oauthClientPairInfoService.get(this.selectedClient, this.subject).subscribe(
                 (res) => {
-                    this.oauthClientPairInfo = res.text();
+                    this.oauthClientPairInfo = res.json().tokenUrl;
                     this.showQRCode = true;
                 });
         }
@@ -65,6 +65,7 @@ export class SubjectPairDialogComponent implements OnInit {
             this.showQRCode = false;
             this.oauthClientPairInfo = "";
         }
+
     }
 
 

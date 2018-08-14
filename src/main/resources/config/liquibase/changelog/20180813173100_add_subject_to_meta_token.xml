@@ -1,0 +1,23 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+                   http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <!-- Add a subject to meta-token -->
+    <changeSet author="nivethika@thehyve.nl" id="20180813173100-1">
+        <addColumn tableName="radar_meta_token">
+            <column name="subject_id" type="bigint">
+            </column>
+        </addColumn>
+        <addForeignKeyConstraint baseColumnNames="subject_id"
+                                 baseTableName="radar_meta_token"
+                                 constraintName="fk_token_subject_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="subject"/>
+        <addColumn tableName="radar_meta_token_aud">
+            <column name="subject_id" type="BIGINT"/>
+            <column name="subject_mod" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

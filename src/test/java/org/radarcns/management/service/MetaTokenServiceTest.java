@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.radarcns.management.service.UserServiceIntTest.createEntity;
 
 import java.net.MalformedURLException;
 import java.time.Duration;
@@ -11,10 +12,13 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.radarcns.management.ManagementPortalTestApp;
 import org.radarcns.management.domain.MetaToken;
+import org.radarcns.management.domain.Subject;
+import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.MetaTokenRepository;
 import org.radarcns.management.service.dto.TokenDTO;
 import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
@@ -34,6 +38,16 @@ public class MetaTokenServiceTest {
 
     @Autowired
     private MetaTokenRepository metaTokenRepository;
+
+    private Subject subject;
+
+    @Before
+    public void setUp() {
+        User user = createEntity();
+        subject = new Subject()
+                .user(user);
+
+    }
 
     @Test
     public void testSaveThenFetchMetaToken() throws MalformedURLException {
@@ -73,7 +87,9 @@ public class MetaTokenServiceTest {
                 + "MENT.READ MEASUREMENT.UPDATE MEASUREMENT.DELETE\",\"sub\":\"admin\",\"sources"
                 + "\":[],\"grant_type\":\"password\",\"roles\":[],\"iss\":\"ManagementPortal\","
                 + "\"iat\":1532437928,\"jti\":\"dca7047b-467e-4991-9f5f-77cb108104c4\"}")
-                .expiryDate(Instant.now().plus(Duration.ofHours(1)));
+                .expiryDate(Instant.now().plus(Duration.ofHours(1)))
+                .subject(subject);
+
         MetaToken saved = metaTokenService.save(metaToken);
         assertNotNull(saved.getId());
         assertNotNull(saved.getTokenName());
@@ -93,7 +109,8 @@ public class MetaTokenServiceTest {
         MetaToken token = new MetaToken()
                 .fetched(true)
                 .tokenName("something")
-                .expiryDate(Instant.now().plus(Duration.ofHours(1)));
+                .expiryDate(Instant.now().plus(Duration.ofHours(1)))
+                .subject(subject);
 
         MetaToken saved = metaTokenService.save(token);
         assertNotNull(saved.getId());
@@ -110,7 +127,8 @@ public class MetaTokenServiceTest {
         MetaToken token = new MetaToken()
                 .fetched(false)
                 .tokenName("somethingelse")
-                .expiryDate(Instant.now().minus(Duration.ofHours(1)));
+                .expiryDate(Instant.now().minus(Duration.ofHours(1)))
+                .subject(subject);
 
         MetaToken saved = metaTokenService.save(token);
 

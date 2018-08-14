@@ -37,6 +37,19 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.radarcns.management.service.UserServiceIntTest.DEFAULT_EMAIL;
+import static org.radarcns.management.service.UserServiceIntTest.DEFAULT_FIRSTNAME;
+import static org.radarcns.management.service.UserServiceIntTest.DEFAULT_LANGKEY;
+import static org.radarcns.management.service.UserServiceIntTest.DEFAULT_LASTNAME;
+import static org.radarcns.management.service.UserServiceIntTest.DEFAULT_LOGIN;
+import static org.radarcns.management.service.UserServiceIntTest.DEFAULT_PASSWORD;
+import static org.radarcns.management.service.UserServiceIntTest.UPDATED_EMAIL;
+import static org.radarcns.management.service.UserServiceIntTest.UPDATED_FIRSTNAME;
+import static org.radarcns.management.service.UserServiceIntTest.UPDATED_LANGKEY;
+import static org.radarcns.management.service.UserServiceIntTest.UPDATED_LASTNAME;
+import static org.radarcns.management.service.UserServiceIntTest.UPDATED_LOGIN;
+import static org.radarcns.management.service.UserServiceIntTest.UPDATED_PASSWORD;
+import static org.radarcns.management.service.UserServiceIntTest.createEntity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -54,24 +67,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @WithMockUser
 public class UserResourceIntTest {
-
-    private static final String DEFAULT_LOGIN = "johndoe";
-    private static final String UPDATED_LOGIN = "jhipster";
-
-    private static final String DEFAULT_PASSWORD = "passjohndoe";
-    private static final String UPDATED_PASSWORD = "passjhipster";
-
-    private static final String DEFAULT_EMAIL = "johndoe@localhost";
-    private static final String UPDATED_EMAIL = "jhipster@localhost";
-
-    private static final String DEFAULT_FIRSTNAME = "john";
-    private static final String UPDATED_FIRSTNAME = "jhipsterFirstName";
-
-    private static final String DEFAULT_LASTNAME = "doe";
-    private static final String UPDATED_LASTNAME = "jhipsterLastName";
-
-    private static final String DEFAULT_LANGKEY = "en";
-    private static final String UPDATED_LANGKEY = "fr";
 
     @Autowired
     private UserRepository userRepository;
@@ -122,23 +117,7 @@ public class UserResourceIntTest {
                 .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
     }
 
-    /**
-     * Create a User.
-     *
-     * <p>This is a static method, as tests for other entities might also need it,
-     * if they test an entity which has a required relationship to the User entity.</p>
-     */
-    public static User createEntity() {
-        User user = new User();
-        user.setLogin(DEFAULT_LOGIN);
-        user.setPassword(RandomStringUtils.random(60));
-        user.setActivated(true);
-        user.setEmail(DEFAULT_EMAIL);
-        user.setFirstName(DEFAULT_FIRSTNAME);
-        user.setLastName(DEFAULT_LASTNAME);
-        user.setLangKey(DEFAULT_LANGKEY);
-        return user;
-    }
+
 
     @Before
     public void initTest() {
