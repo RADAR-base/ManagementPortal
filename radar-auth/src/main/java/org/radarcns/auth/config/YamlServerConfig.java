@@ -32,12 +32,11 @@ public class YamlServerConfig implements ServerConfig {
      * Read the configuration from file. This method will first check if the environment variable
      * <code>RADAR_IS_CONFIG_LOCATION</code> is set. If not set, it will look for a file called
      * <code>radar_is.yml</code> on the classpath. The configuration will be kept in a static field,
-     * so subsequent calls to this method will return the same object. Use {@link #reloadConfig()}
-     * to forcibly reload the configuration from the configuration file.
+     * so subsequent calls to this method will return the same object.
      * @return The initialized configuration object based on the contents of the configuration file
      * @throws ConfigurationException If there is any problem loading the configuration
      */
-    public static synchronized YamlServerConfig readFromFileOrClasspath() {
+    public static YamlServerConfig readFromFileOrClasspath() {
         String customLocation = System.getenv(LOCATION_ENV);
         URL configFile;
         if (customLocation != null) {
