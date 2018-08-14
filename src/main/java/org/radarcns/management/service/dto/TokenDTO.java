@@ -8,9 +8,12 @@ public class TokenDTO {
 
     private final URL baseUrl;
 
-    public TokenDTO(String refreshToken, URL baseUrl) {
+    private final URL privacyPolicyUrl;
+
+    public TokenDTO(String refreshToken, URL baseUrl, URL privacyPolicyUrl) {
         this.refreshToken = refreshToken;
         this.baseUrl = baseUrl;
+        this.privacyPolicyUrl = privacyPolicyUrl;
     }
 
     public String getRefreshToken() {
@@ -19,6 +22,10 @@ public class TokenDTO {
 
     public URL getBaseUrl() {
         return baseUrl;
+    }
+
+    public URL getPrivacyPolicyUrl() {
+        return privacyPolicyUrl;
     }
 
     @Override
@@ -30,18 +37,23 @@ public class TokenDTO {
             return false;
         }
         TokenDTO that = (TokenDTO) o;
-        return Objects.equals(refreshToken, that.refreshToken) && Objects
-            .equals(baseUrl, that.baseUrl);
+        return Objects.equals(refreshToken, that.refreshToken)
+                && Objects.equals(baseUrl, that.baseUrl)
+                && Objects.equals(privacyPolicyUrl, that.privacyPolicyUrl);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(refreshToken, baseUrl);
+        return Objects.hash(refreshToken, baseUrl, privacyPolicyUrl);
     }
 
     @Override
     public String toString() {
-        return "TokenDTO{" + "refreshToken='" + refreshToken + '\'' + ", baseUrl=" + baseUrl + '}';
+        return "TokenDTO{"
+                + "refreshToken='" + refreshToken
+                + ", baseUrl=" + baseUrl
+                + ", privacyPolicyUrl=" + privacyPolicyUrl
+                + '}';
     }
 }

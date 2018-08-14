@@ -43,6 +43,9 @@ public class MetaTokenService {
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
 
+    @Autowired
+    private SubjectService subjectService;
+
     /**
      * Save a metaToken.
      *
@@ -69,7 +72,8 @@ public class MetaTokenService {
         if (!fetchedToken.isFetched() && Instant.now().isBefore(fetchedToken.getExpiryDate())) {
             // create response
             TokenDTO result = new TokenDTO(fetchedToken.getToken(),
-                    new URL(managementPortalProperties.getCommon().getBaseUrl()));
+                    new URL(managementPortalProperties.getCommon().getBaseUrl()),
+                    subjectService.getPrivacyPolicyUrl(fetchedToken.getSubject()));
             // change fetched status to true.
             fetchedToken.fetched(true);
             save(fetchedToken);
