@@ -4,7 +4,7 @@
 if [ -z $TRAVIS_TAG ]
 then
   echo "Running e2e tests"
-  ./node_modules/protractor/bin/webdriver-manager update
+  ls -al node_modules/webdriver-manager/selenium/
   yarn e2e
 else
   echo "Skipping e2e tests on tag builds"
