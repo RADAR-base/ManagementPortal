@@ -44,7 +44,6 @@ public class MetaTokenServiceTest {
     @Before
     public void setUp() {
         User user = createEntity();
-
         subject = new Subject()
                 .user(user);
 
@@ -110,7 +109,8 @@ public class MetaTokenServiceTest {
         MetaToken token = new MetaToken()
                 .fetched(true)
                 .tokenName("something")
-                .expiryDate(Instant.now().plus(Duration.ofHours(1)));
+                .expiryDate(Instant.now().plus(Duration.ofHours(1)))
+                .subject(subject);
 
         MetaToken saved = metaTokenService.save(token);
         assertNotNull(saved.getId());
@@ -127,7 +127,8 @@ public class MetaTokenServiceTest {
         MetaToken token = new MetaToken()
                 .fetched(false)
                 .tokenName("somethingelse")
-                .expiryDate(Instant.now().minus(Duration.ofHours(1)));
+                .expiryDate(Instant.now().minus(Duration.ofHours(1)))
+                .subject(subject);
 
         MetaToken saved = metaTokenService.save(token);
 
