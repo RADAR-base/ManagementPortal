@@ -12,20 +12,18 @@ public class ClientPairInfoDTO {
 
     private final URL tokenUrl;
 
-    private final URL privacyPolicyUrl;
 
     /**
      * Initialize with the given refresh token.
      * @param tokenName the refresh token
      * @param tokenUrl the refresh token
      */
-    public ClientPairInfoDTO(String tokenName, URL tokenUrl, URL privacyPolicyUrl) {
+    public ClientPairInfoDTO(String tokenName, URL tokenUrl) {
         if (tokenUrl == null) {
             throw new IllegalArgumentException("tokenUrl can not be null");
         }
         this.tokenName = tokenName;
         this.tokenUrl = tokenUrl;
-        this.privacyPolicyUrl = privacyPolicyUrl;
     }
 
     public String getTokenName() {
@@ -34,10 +32,6 @@ public class ClientPairInfoDTO {
 
     public URL getTokenUrl() {
         return tokenUrl;
-    }
-
-    public URL getPrivacyPolicyUrl() {
-        return privacyPolicyUrl;
     }
 
     @Override
@@ -49,14 +43,14 @@ public class ClientPairInfoDTO {
             return false;
         }
         ClientPairInfoDTO that = (ClientPairInfoDTO) o;
-        return Objects.equals(tokenName, that.tokenName) && Objects.equals(tokenUrl, that.tokenUrl)
-            && Objects.equals(privacyPolicyUrl, that.privacyPolicyUrl);
+        return Objects.equals(tokenName, that.tokenName)
+                && Objects.equals(tokenUrl, that.tokenUrl);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(tokenName, tokenUrl, privacyPolicyUrl);
+        return Objects.hash(tokenName, tokenUrl);
     }
 
     @Override
