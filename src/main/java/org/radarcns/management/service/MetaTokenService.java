@@ -12,6 +12,7 @@ import javax.validation.ConstraintViolationException;
 
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.MetaToken;
+import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.MetaTokenRepository;
 import org.radarcns.management.service.dto.TokenDTO;
 import org.radarcns.management.web.rest.errors.RequestGoneException;
@@ -105,17 +106,19 @@ public class MetaTokenService {
      * If a collision is detection, we try to save the token with a new tokenName
      * @return an unique token
      */
-    public MetaToken saveUniqueToken(String token, Boolean fetched, Instant expiryTime) {
+    public MetaToken saveUniqueToken(Subject subject, String token, Boolean fetched, Instant
+            expiryTime) {
         MetaToken metaToken = new MetaToken()
                 .token(token)
                 .fetched(fetched)
-                .expiryDate(expiryTime);
+                .expiryDate(expiryTime)
+                .subject(subject);
 
         try {
             return metaTokenRepository.save(metaToken);
         } catch (ConstraintViolationException e) {
             log.warn("Unique constraint violation catched... Trying to save with new tokenName");
-            return saveUniqueToken(token, fetched, expiryTime);
+            return saveUniqueToken(subject, token, fetched, expiryTime);
         }
 
     }

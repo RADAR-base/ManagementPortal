@@ -197,7 +197,7 @@ public class OAuthClientService {
                     details.getScope(), details.getResourceIds());
         // tokenName should be generated
         MetaToken metaToken = metaTokenService
-                .saveUniqueToken(token.getRefreshToken().getValue(), false,
+                .saveUniqueToken(subject, token.getRefreshToken().getValue(), false,
                 Instant.now().plus(getMetaTokenTimeout()));
 
         if (metaToken.getId() != null && metaToken.getTokenName() != null) {

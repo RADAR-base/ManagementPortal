@@ -8,6 +8,8 @@ import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -32,7 +34,7 @@ public class MetaToken extends AbstractEntity {
     // probability-of-collision-with-randomly-generated-id
     // Current length of tokenName is 12. If we think there might be collision we can increase
     // the length.
-    public static final int SHORT_ID_LENGTH = 12;
+    private static final int SHORT_ID_LENGTH = 12;
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
@@ -52,6 +54,11 @@ public class MetaToken extends AbstractEntity {
 
     @Column(name = "expiry_date")
     private Instant expiryDate = null;
+
+    @ManyToOne
+    @JoinColumn(name = "subject_id")
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Subject subject;
 
     /**
      * Meta token constructor.
@@ -107,6 +114,15 @@ public class MetaToken extends AbstractEntity {
         return this;
     }
 
+    public Subject getSubject() {
+        return subject;
+    }
+
+    public MetaToken subject(Subject subject) {
+        this.subject = subject;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -116,8 +132,10 @@ public class MetaToken extends AbstractEntity {
             return false;
         }
         MetaToken metaToken = (MetaToken) o;
-        return Objects.equals(id, metaToken.id) && Objects.equals(tokenName, metaToken.tokenName)
-            && Objects.equals(token, metaToken.token) && Objects.equals(fetched, metaToken.fetched)
+        return Objects.equals(id, metaToken.id)
+            && Objects.equals(tokenName, metaToken.tokenName)
+            && Objects.equals(token, metaToken.token)
+            && Objects.equals(fetched, metaToken.fetched)
             && Objects.equals(expiryDate, metaToken.expiryDate);
     }
 
@@ -129,7 +147,11 @@ public class MetaToken extends AbstractEntity {
 
     @Override
     public String toString() {
-        return "MetaToken{" + "id=" + id + ", tokenName='" + tokenName + '\'' + ", token='" + token
-            + '\'' + ", fetched=" + fetched + ", expiryDate=" + expiryDate + '}';
+        return "MetaToken{" + "id=" + id
+                + ", tokenName='" + tokenName
+                + ", token='" + token
+                + ", fetched=" + fetched
+                + ", expiryDate=" + expiryDate
+                +", subject=" + subject + '}';
     }
 }
