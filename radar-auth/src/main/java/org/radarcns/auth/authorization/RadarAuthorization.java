@@ -74,4 +74,27 @@ public class RadarAuthorization {
                     permission.toString(), subjectName, projectName));
         }
     }
+
+    /**
+     * Similar to {@link RadarToken#hasPermissionOnSource(Permission, String, String, String)}, but
+     * this method throws an exception rather than returning a boolean. Useful in combination with,
+     * e.g., Spring's controllers and exception translators.
+     * @param token The token of the logged in user
+     * @param permission The permission to check
+     * @param projectName The project for which to check the permission
+     * @param subjectName The name of the subject to check
+     * @param sourceId The source ID to check
+     * @throws NotAuthorizedException if the supplied token does not have the permission in the
+     *     given project for the given subject and source.
+     */
+    public static void checkPermissionOnSource(RadarToken token, Permission permission,
+            String projectName, String subjectName, String sourceId) throws NotAuthorizedException {
+        log.debug("Checking permission {} for user {} on source {} of subject {} in project {}",
+                permission.toString(), token.getSubject(), sourceId, subjectName, projectName);
+        if (!token.hasPermissionOnSource(permission, projectName, subjectName, sourceId)) {
+            throw new NotAuthorizedException(String.format("Client %s does not have "
+                            + "permission %s on source %s of subject %s in project %s",
+                    token.getSubject(), permission.toString(), sourceId, subjectName, projectName));
+        }
+    }
 }

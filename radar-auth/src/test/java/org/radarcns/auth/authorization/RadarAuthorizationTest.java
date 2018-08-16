@@ -1,23 +1,22 @@
 package org.radarcns.auth.authorization;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map.Entry;
-
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.radarcns.auth.authorization.Permission.Entity;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.auth.token.JwtRadarToken;
 import org.radarcns.auth.token.RadarToken;
 import org.radarcns.auth.util.TokenTestUtils;
-
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 /**
  * Created by dverbeec on 25/09/2017.
@@ -114,16 +113,66 @@ public class RadarAuthorizationTest {
     }
 
     @Test
+    public void testCheckPermissionOnSource() throws NotAuthorizedException {
+        String project = "PROJECT1";
+        // this token is participant in PROJECT2
+        RadarToken token = new JwtRadarToken(TokenTestUtils.PROJECT_ADMIN_TOKEN);
+        String subject = "some-subject";
+        String source = "source-1";
+
+        Permission.allPermissions()
+                .forEach(p -> assertNotAuthorized(
+                        () -> RadarAuthorization.checkPermissionOnSource(
+                                token, p, project, subject, source),
+                        "Token should not have permission " + p + " on another subject"));
+    }
+
+    @Test
+    public void testCheckPermissionOnOwnSource() throws NotAuthorizedException {
+        String project = "PROJECT2";
+        // this token is participant in PROJECT2
+        RadarToken token = new JwtRadarToken(TokenTestUtils.MULTIPLE_ROLES_IN_PROJECT_TOKEN);
+        String subject = token.getSubject();
+        String source = "source-1";  // source to use
+
+        Set<Permission> permissions = Permission.allPermissions().stream()
+                .filter(p -> p.getEntity() == Entity.MEASUREMENT)
+                .collect(Collectors.toSet());
+
+        for (Permission p : permissions) {
+            RadarAuthorization.checkPermissionOnSource(token, p, project, subject, source);
+        }
+    }
+
+
+    @Test
+    public void testCheckPermissionOnOtherSource() {
+        String project = "PROJECT2";
+        // this token is participant in PROJECT2
+        RadarToken token = new JwtRadarToken(TokenTestUtils.MULTIPLE_ROLES_IN_PROJECT_TOKEN);
+        String subject = token.getSubject();
+        String source = "source-2";  // source to use
+
+        Permission.allPermissions()
+                .forEach(p -> assertNotAuthorized(
+                        () -> RadarAuthorization.checkPermissionOnSource(
+                                token, p, project, subject, source),
+                        "Token should not have permission " + p + " on another subject"));
+    }
+
+    @Test
     public void testScopeOnlyToken() throws NotAuthorizedException {
         RadarToken token = new JwtRadarToken(TokenTestUtils.SCOPE_TOKEN);
         // test that we can do the things we have a scope for
         Collection<Permission> scope = Arrays.asList(
-                Permission.SUBJECT_READ, Permission.SUBJECT_CREATE, Permission.PROJECT_READ);
+                Permission.SUBJECT_READ, Permission.SUBJECT_CREATE, Permission.PROJECT_READ,
+                Permission.MEASUREMENT_CREATE);
 
         for (Permission p : scope) {
             RadarAuthorization.checkPermission(token, p);
             RadarAuthorization.checkPermissionOnProject(token, p, "");
             RadarAuthorization.checkPermissionOnSubject(token, p, "", "");
+            RadarAuthorization.checkPermissionOnSource(token, p, "", "", "");
         }
 
         // test we can do nothing else, for each of the checkPermission methods
@@ -144,6 +193,12 @@ public class RadarAuthorizationTest {
                 .forEach(p -> assertNotAuthorized(
                     () -> RadarAuthorization.checkPermissionOnSubject(token, p, "", ""),
                     "Permission " + p + " is granted but not in scope."));
+
+        Permission.allPermissions().stream()
+                .filter(p -> !scope.contains(p))
+                .forEach(p -> assertNotAuthorized(
+                        () -> RadarAuthorization.checkPermissionOnSource(token, p, "", "", ""),
+                        "Permission " + p + " is granted but not in scope."));
     }
 
     private static void assertNotAuthorized(AuthorizationCheck supplier, String message) {
