@@ -5,19 +5,17 @@ import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link RadarToken} based on JWT tokens.
  */
 public class JwtRadarToken extends AbstractRadarToken {
-    private static final Pattern COLON_PATTERN = Pattern.compile(":");
+    private static final Pattern ROLE_SEPARATOR_PATTERN = Pattern.compile(":");
 
     public static final String AUTHORITIES_CLAIM = "authorities";
     public static final String ROLES_CLAIM = "roles";
@@ -124,7 +122,7 @@ public class JwtRadarToken extends AbstractRadarToken {
         return emptyIfNull(jwt.getClaim(ROLES_CLAIM).asList(String.class)).stream()
                 .filter(s -> s.contains(":"))
                 .distinct()
-                .map(COLON_PATTERN::split)
+                .map(ROLE_SEPARATOR_PATTERN::split)
                 .collect(groupingBy(s -> s[0],
                         mapping(s -> s[1], toList())));
     }

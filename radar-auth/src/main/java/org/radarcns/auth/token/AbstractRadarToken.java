@@ -7,10 +7,7 @@ import static org.radarcns.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
 
 import java.util.Collection;
 import java.util.Objects;
-import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.authorization.Permission;
-
-import java.util.Collections;
 
 /**
  * Partial implementation of {@link RadarToken}, providing a default implementation for the three
