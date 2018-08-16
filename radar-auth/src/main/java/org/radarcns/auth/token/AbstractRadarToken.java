@@ -39,9 +39,11 @@ public abstract class AbstractRadarToken implements RadarToken {
     }
 
     @Override
-    public boolean hasPermissionOnSource(Permission permission, String sourceId) {
+    public boolean hasPermissionOnSource(Permission permission, String projectName,
+            String subjectName, String sourceId) {
         return hasScope(permission.scopeName())
-                && (isClientCredentials() || hasAuthorityForSource(permission, sourceId));
+                && (isClientCredentials()
+                || hasAuthorityForSource(permission, projectName, subjectName, sourceId));
     }
 
     protected boolean hasScope(String scope) {
@@ -59,7 +61,8 @@ public abstract class AbstractRadarToken implements RadarToken {
      * @return {@code true} if any authority contains the permission, {@code false} otherwise
      */
     protected boolean hasAuthorityForPermission(Permission permission) {
-        return getRoles().values().stream()
+        return getRoles()
+                .values().stream()
                 .flatMap(Collection::stream)
                 .anyMatch(permission::isAuthorityAllowed)
                 || hasNonProjectRelatedAuthorityForPermission(permission);
@@ -73,7 +76,8 @@ public abstract class AbstractRadarToken implements RadarToken {
      * @return {@code true} if any authority contains the permission, {@code false} otherwise
      */
     protected boolean hasAuthorityForProject(Permission permission, String projectName) {
-        return getRoles().getOrDefault(projectName, emptyList()).stream()
+        return getRoles()
+                .getOrDefault(projectName, emptyList()).stream()
                 .anyMatch(permission::isAuthorityAllowed)
                 || hasNonProjectRelatedAuthorityForPermission(permission);
     }
@@ -99,6 +103,12 @@ public abstract class AbstractRadarToken implements RadarToken {
         }
     }
 
+    protected boolean hasAuthorityForSource(Permission permission, String projectName,
+            String subjectName, String sourceId) {
+        return hasAuthorityForSubject(permission, projectName, subjectName)
+                && getSources().contains(sourceId);
+    }
+
     /**
      * Check if any non-project related authority has the given permission. Currently the only
      * non-project authority is {@code SYS_ADMIN}, so we only check for that.
@@ -118,12 +128,7 @@ public abstract class AbstractRadarToken implements RadarToken {
      *     {@code false} otherwise
      */
     protected boolean isJustParticipant(String projectName) {
-        return Objects.equals(getRoles().get(projectName), singletonList(PARTICIPANT));
-    }
-
-    protected boolean hasAuthorityForSource(Permission permission, String sourceId) {
-        return hasAuthorityForPermission(permission)
-                && getSources().contains(sourceId);
+        return singletonList(PARTICIPANT).equals(getRoles().get(projectName));
     }
 
     @Override

@@ -118,8 +118,11 @@ public interface RadarToken {
     /**
      * Check if this token gives a permission on a given source.
      * @param permission the permission
+     * @param projectName the project name
+     * @param subjectName the subject name
      * @param sourceId the source ID
      * @return true if this token gives permission for the source, false otherwise
      */
-    boolean hasPermissionOnSource(Permission permission, String sourceId);
+    boolean hasPermissionOnSource(Permission permission, String projectName, String subjectName,
+            String sourceId);
 }
