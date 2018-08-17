@@ -1,17 +1,21 @@
 package org.radarcns.auth.token;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
+
 import com.auth0.jwt.interfaces.DecodedJWT;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
 /**
  * Implementation of {@link RadarToken} based on JWT tokens.
  */
 public class JwtRadarToken extends AbstractRadarToken {
+    private static final Pattern ROLE_SEPARATOR_PATTERN = Pattern.compile(":");
 
     public static final String AUTHORITIES_CLAIM = "authorities";
     public static final String ROLES_CLAIM = "roles";
@@ -118,16 +122,9 @@ public class JwtRadarToken extends AbstractRadarToken {
         return emptyIfNull(jwt.getClaim(ROLES_CLAIM).asList(String.class)).stream()
                 .filter(s -> s.contains(":"))
                 .distinct()
-                .map(s -> s.split(":"))
-                .collect(Collectors.toMap(
-                    s -> s[0],  // project
-                    s -> Collections.singletonList(s[1]),  // role
-                    (roles1, roles2) -> {  // merge
-                        List<String> merged = new ArrayList<>(roles1.size() + roles2.size());
-                        merged.addAll(roles1);
-                        merged.addAll(roles2);
-                        return merged;
-                    }));
+                .map(ROLE_SEPARATOR_PATTERN::split)
+                .collect(groupingBy(s -> s[0],
+                        mapping(s -> s[1], toList())));
     }
 
     private static String emptyIfNull(String string) {

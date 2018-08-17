@@ -9,6 +9,8 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collection;
+import java.util.stream.Stream;
 import org.radarcns.auth.config.ServerConfig;
 import org.radarcns.auth.config.YamlServerConfig;
 import org.radarcns.auth.exception.TokenValidationException;
@@ -175,18 +177,14 @@ public class TokenValidator {
             lastFetch = Instant.now();
         }
 
-        List<Algorithm> algorithms = new LinkedList<>();
-        if (config.getPublicKeyEndpoints() != null) {
-            algorithms.addAll(config.getPublicKeyEndpoints().stream()
-                    .map(this::algorithmFromServerPublicKey).collect(Collectors.toList()));
-        }
-        if (config.getPublicKeys() != null) {
-            algorithms.addAll(config.getPublicKeys().stream()
-                    .map(this::algorithmFromString).collect(Collectors.toList()));
-        }
+        Stream<Algorithm> endpointKeys = streamEmptyIfNull(config.getPublicKeyEndpoints())
+                .map(this::algorithmFromServerPublicKey);
+
+        Stream<Algorithm> stringKeys = streamEmptyIfNull(config.getPublicKeys())
+                .map(this::algorithmFromString);
 
         // Create a verifier for each signature verification algorithm we created
-        return algorithms.stream()
+        return Stream.concat(endpointKeys, stringKeys)
                 .map(alg -> JWT.require(alg)
                         .withAudience(config.getResourceName())
                         .build())
@@ -206,8 +204,8 @@ public class TokenValidator {
                 String alg = publicKeyInfo.get("alg").asText();
                 String pk = publicKeyInfo.get("value").asText();
                 return algorithmList.stream()
-                        .filter(algorithm -> algorithm.getJwtAlgorithm().equals(alg))
-                        .filter(algorithm -> pk.startsWith(algorithm.getKeyHeader()))
+                        .filter(algorithm -> algorithm.getJwtAlgorithm().equals(alg)
+                                && pk.startsWith(algorithm.getKeyHeader()))
                         .findFirst()
                         .orElseThrow(() -> new TokenValidationException("The identity server "
                                 + "reported an unsupported signing algorithm: " + alg))
@@ -225,5 +223,9 @@ public class TokenValidator {
                 .orElseThrow(() -> new TokenValidationException("Unsupported public key: "
                         + publicKey))
                 .getAlgorithm(publicKey);
+    }
+
+    private static <T> Stream<T> streamEmptyIfNull(Collection<T> collection) {
+        return collection != null ? collection.stream() : Stream.empty();
     }
 }

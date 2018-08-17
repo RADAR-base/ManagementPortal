@@ -1,11 +1,13 @@
 package org.radarcns.auth.token;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarcns.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
+
 import java.util.Collection;
 import java.util.Objects;
-import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.authorization.Permission;
-
-import java.util.Collections;
 
 /**
  * Partial implementation of {@link RadarToken}, providing a default implementation for the three
@@ -25,15 +27,23 @@ public abstract class AbstractRadarToken implements RadarToken {
     @Override
     public boolean hasPermissionOnProject(Permission permission, String projectName) {
         return hasScope(permission.scopeName())
-                && (isClientCredentials() || hasAuthorityForPermission(permission, projectName));
+                && (isClientCredentials() || hasAuthorityForProject(permission, projectName));
     }
 
     @Override
     public boolean hasPermissionOnSubject(Permission permission, String projectName,
             String subjectName) {
         return hasScope(permission.scopeName())
-                && (isClientCredentials() || hasAuthorityForPermission(permission, projectName,
+                && (isClientCredentials() || hasAuthorityForSubject(permission, projectName,
                         subjectName));
+    }
+
+    @Override
+    public boolean hasPermissionOnSource(Permission permission, String projectName,
+            String subjectName, String sourceId) {
+        return hasScope(permission.scopeName())
+                && (isClientCredentials()
+                || hasAuthorityForSource(permission, projectName, subjectName, sourceId));
     }
 
     protected boolean hasScope(String scope) {
@@ -51,7 +61,8 @@ public abstract class AbstractRadarToken implements RadarToken {
      * @return {@code true} if any authority contains the permission, {@code false} otherwise
      */
     protected boolean hasAuthorityForPermission(Permission permission) {
-        return getRoles().values().stream()
+        return getRoles()
+                .values().stream()
                 .flatMap(Collection::stream)
                 .anyMatch(permission::isAuthorityAllowed)
                 || hasNonProjectRelatedAuthorityForPermission(permission);
@@ -64,8 +75,9 @@ public abstract class AbstractRadarToken implements RadarToken {
      * @param projectName the project name
      * @return {@code true} if any authority contains the permission, {@code false} otherwise
      */
-    protected boolean hasAuthorityForPermission(Permission permission, String projectName) {
-        return getRoles().getOrDefault(projectName, Collections.emptyList()).stream()
+    protected boolean hasAuthorityForProject(Permission permission, String projectName) {
+        return getRoles()
+                .getOrDefault(projectName, emptyList()).stream()
                 .anyMatch(permission::isAuthorityAllowed)
                 || hasNonProjectRelatedAuthorityForPermission(permission);
     }
@@ -78,15 +90,23 @@ public abstract class AbstractRadarToken implements RadarToken {
      * @param subjectName the subject name
      * @return {@code true} if any authority contains the permission, {@code false} otherwise
      */
-    protected boolean hasAuthorityForPermission(Permission permission, String projectName,
+    protected boolean hasAuthorityForSubject(Permission permission, String projectName,
             String subjectName) {
-        // if we're only a participant, we can only do operations on our own data
-        return (isJustParticipant(projectName) && getSubject().equals(subjectName)
-                && permission.isAuthorityAllowed(AuthoritiesConstants.PARTICIPANT))
-                // if we have other roles beside participant, we should check those on the
-                // project level
-                || (!isJustParticipant(projectName) && hasAuthorityForPermission(permission,
-                        projectName));
+        if (isJustParticipant(projectName)) {
+            // if we're only a participant, we can only do operations on our own data
+            return getSubject().equals(subjectName)
+                    && permission.isAuthorityAllowed(PARTICIPANT);
+        } else {
+            // if we have other roles beside participant, we should check those on the
+            // project level
+            return hasAuthorityForProject(permission, projectName);
+        }
+    }
+
+    protected boolean hasAuthorityForSource(Permission permission, String projectName,
+            String subjectName, String sourceId) {
+        return hasAuthorityForSubject(permission, projectName, subjectName)
+                && getSources().contains(sourceId);
     }
 
     /**
@@ -97,8 +117,8 @@ public abstract class AbstractRadarToken implements RadarToken {
      *     otherwise
      */
     protected boolean hasNonProjectRelatedAuthorityForPermission(Permission permission) {
-        return getAuthorities().contains(AuthoritiesConstants.SYS_ADMIN)
-                && permission.isAuthorityAllowed(AuthoritiesConstants.SYS_ADMIN);
+        return getAuthorities().contains(SYS_ADMIN)
+                && permission.isAuthorityAllowed(SYS_ADMIN);
     }
 
     /**
@@ -108,8 +128,7 @@ public abstract class AbstractRadarToken implements RadarToken {
      *     {@code false} otherwise
      */
     protected boolean isJustParticipant(String projectName) {
-        return Objects.equals(getRoles().get(projectName),
-            Collections.singletonList(AuthoritiesConstants.PARTICIPANT));
+        return singletonList(PARTICIPANT).equals(getRoles().get(projectName));
     }
 
     @Override
