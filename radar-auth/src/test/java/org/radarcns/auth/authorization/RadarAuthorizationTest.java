@@ -80,7 +80,7 @@ public class RadarAuthorizationTest {
         String other = "other-subject";
         Permission.allPermissions()
                 .forEach(p -> assertNotAuthorized(
-                    () -> RadarAuthorization.checkPermissionOnSubject(token, p, project, other),
+                        () -> RadarAuthorization.checkPermissionOnSubject(token, p, project, other),
                     "Token should not have permission " + p + " on another subject"));
     }
 
@@ -122,7 +122,7 @@ public class RadarAuthorizationTest {
 
         Permission.allPermissions()
                 .forEach(p -> assertNotAuthorized(
-                        () -> RadarAuthorization.checkPermissionOnSource(
+                    () -> RadarAuthorization.checkPermissionOnSource(
                                 token, p, project, subject, source),
                         "Token should not have permission " + p + " on another subject"));
     }
@@ -155,7 +155,7 @@ public class RadarAuthorizationTest {
 
         Permission.allPermissions()
                 .forEach(p -> assertNotAuthorized(
-                        () -> RadarAuthorization.checkPermissionOnSource(
+                    () -> RadarAuthorization.checkPermissionOnSource(
                                 token, p, project, subject, source),
                         "Token should not have permission " + p + " on another subject"));
     }
@@ -197,7 +197,7 @@ public class RadarAuthorizationTest {
         Permission.allPermissions().stream()
                 .filter(p -> !scope.contains(p))
                 .forEach(p -> assertNotAuthorized(
-                        () -> RadarAuthorization.checkPermissionOnSource(token, p, "", "", ""),
+                    () -> RadarAuthorization.checkPermissionOnSource(token, p, "", "", ""),
                         "Permission " + p + " is granted but not in scope."));
     }
 
