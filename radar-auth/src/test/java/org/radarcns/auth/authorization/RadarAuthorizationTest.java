@@ -80,7 +80,7 @@ public class RadarAuthorizationTest {
         String other = "other-subject";
         Permission.allPermissions()
                 .forEach(p -> assertNotAuthorized(
-                        () -> RadarAuthorization.checkPermissionOnSubject(token, p, project, other),
+                    () -> RadarAuthorization.checkPermissionOnSubject(token, p, project, other),
                     "Token should not have permission " + p + " on another subject"));
     }
 
