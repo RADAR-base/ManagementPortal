@@ -50,7 +50,6 @@ script:
   - ./gradlew generateJavaClient
   - killall java # stop running MP instance
   - ./src/test/bash/run-prod-e2e.sh
-  - ./src/test/bash/test-docker-build-on-release-branch.sh
   - echo "include 'managementportal-client'" >> settings.gradle # make this a sub-project so we can build artifacts and javadoc easily
 after_script:
   - ./gradlew sendCoverageToCodacy
