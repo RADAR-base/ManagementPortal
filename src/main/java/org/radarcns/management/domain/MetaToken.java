@@ -63,12 +63,10 @@ public class MetaToken extends AbstractEntity {
 
     /**
      * Meta token constructor.
-     * Generates a random string as the tokenName.
+     * Must generate a random string as the tokenName.
      */
     public MetaToken() {
-        if (this.tokenName == null) {
-            this.tokenName = RandomStringUtils.randomAlphanumeric(SHORT_ID_LENGTH);
-        }
+        this.tokenName = RandomStringUtils.randomAlphanumeric(SHORT_ID_LENGTH);
     }
 
     public Long getId() {

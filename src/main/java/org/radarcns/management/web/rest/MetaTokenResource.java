@@ -45,8 +45,13 @@ public class MetaTokenResource {
             throws MalformedURLException {
         log.info("Requesting token with tokenName {}", tokenName);
         try {
-            // sleep for 5 seconds
-            TimeUnit.SECONDS.sleep(5);
+            // sleep for 3 seconds
+            // makes brute-force attacks too expensive to be worthwhile.
+            // For every guess, an attacker needs to wait X seconds before a response is returned.
+            // This needs to be done after both valid and invalid requests, to ensure that an
+            // attacker does not define an internal time threshold that would only be reached
+            // for invalid URLs.
+            TimeUnit.SECONDS.sleep(3);
             TokenDTO retrievedToken = metaTokenService.fetchToken(tokenName);
             return ResponseEntity.ok().body(retrievedToken);
         } catch (InterruptedException e) {

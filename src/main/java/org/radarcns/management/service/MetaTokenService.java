@@ -97,9 +97,9 @@ public class MetaTokenService {
         Optional<MetaToken> fetchedToken = metaTokenRepository.findOneByTokenName(tokenName);
 
         if (fetchedToken.isPresent()) {
-            return  fetchedToken.get();
+            return fetchedToken.get();
         } else {
-            throw  new NotFoundException("Meta token not found with tokenName", META_TOKEN,
+            throw new NotFoundException("Meta token not found with tokenName", META_TOKEN,
                 ErrorConstants.ERR_TOKEN_NOT_FOUND,
                 Collections.singletonMap("tokenName", tokenName));
         }
