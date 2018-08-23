@@ -114,3 +114,5 @@ managementportal:
         metaTokenTimeout: 1H
     common:
         baseUrl: http://localhost:8080
+        managementPortalBaseUrl: http://localhost:9000
+        privacyPolicyUrl: http://info.thehyve.nl/radar-cns-privacy-policy
