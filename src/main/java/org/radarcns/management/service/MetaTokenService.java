@@ -1,6 +1,7 @@
 package org.radarcns.management.service;
 
 import static org.radarcns.management.web.rest.errors.EntityName.META_TOKEN;
+import static org.radarcns.management.web.rest.errors.EntityName.OAUTH_CLIENT;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -22,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +48,9 @@ public class MetaTokenService {
     @Autowired
     private SubjectService subjectService;
 
+    @Autowired
+    private OAuthClientService oAuthClientService;
+
     /**
      * Save a metaToken.
      *
@@ -67,13 +72,24 @@ public class MetaTokenService {
             MalformedURLException {
         log.debug("Request to get Token : {}", tokenName);
         MetaToken fetchedToken = getToken(tokenName);
-
+        TokenDTO result = null;
         // process the response if the token is not fetched or not expired
         if (!fetchedToken.isFetched() && Instant.now().isBefore(fetchedToken.getExpiryDate())) {
             // create response
-            TokenDTO result = new TokenDTO(fetchedToken.getToken(),
-                    new URL(managementPortalProperties.getCommon().getBaseUrl()),
-                    subjectService.getPrivacyPolicyUrl(fetchedToken.getSubject()));
+
+            ClientDetails clientDetails = oAuthClientService.findOneByClientId(fetchedToken
+                    .getClientId());
+            if (clientDetails != null) {
+                result = new TokenDTO(fetchedToken.getToken(),
+                        new URL(managementPortalProperties.getCommon().getBaseUrl()),
+                        subjectService.getPrivacyPolicyUrl(fetchedToken.getSubject()),
+                        clientDetails.getClientSecret());
+            } else {
+                throw new NotFoundException("Oauth client not found with client-id", OAUTH_CLIENT,
+                        ErrorConstants.ERR_TOKEN_NOT_FOUND,
+                        Collections.singletonMap("client-id", fetchedToken.getClientId()));
+            }
+
             // change fetched status to true.
             fetchedToken.fetched(true);
             save(fetchedToken);
@@ -110,19 +126,20 @@ public class MetaTokenService {
      * If a collision is detection, we try to save the token with a new tokenName
      * @return an unique token
      */
-    public MetaToken saveUniqueToken(Subject subject, String token, Boolean fetched, Instant
-            expiryTime) {
+    public MetaToken saveUniqueToken(Subject subject, String clientId, String token, Boolean
+            fetched, Instant expiryTime ) {
         MetaToken metaToken = new MetaToken()
                 .token(token)
                 .fetched(fetched)
                 .expiryDate(expiryTime)
-                .subject(subject);
+                .subject(subject)
+                .clientId(clientId);
 
         try {
             return metaTokenRepository.save(metaToken);
         } catch (ConstraintViolationException e) {
             log.warn("Unique constraint violation catched... Trying to save with new tokenName");
-            return saveUniqueToken(subject, token, fetched, expiryTime);
+            return saveUniqueToken(subject, clientId, token, fetched, expiryTime);
         }
 
     }

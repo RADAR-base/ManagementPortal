@@ -46,12 +46,12 @@ public class MetaTokenServiceTest {
 
     private SubjectDTO subjectDto;
 
+    private final static String CLIENT_ID = "something";
 
     @Before
     public void setUp() {
         subjectDto = SubjectServiceTest.createEntityDTO();
         subjectDto = subjectService.createSubject(subjectDto);
-
     }
 
     @Test
@@ -93,7 +93,8 @@ public class MetaTokenServiceTest {
                 + "\":[],\"grant_type\":\"password\",\"roles\":[],\"iss\":\"ManagementPortal\","
                 + "\"iat\":1532437928,\"jti\":\"dca7047b-467e-4991-9f5f-77cb108104c4\"}")
                 .expiryDate(Instant.now().plus(Duration.ofHours(1)))
-                .subject(subjectMapper.subjectDTOToSubject(subjectDto));
+                .subject(subjectMapper.subjectDTOToSubject(subjectDto))
+                .clientId(CLIENT_ID);
 
         MetaToken saved = metaTokenService.save(metaToken);
         assertNotNull(saved.getId());
