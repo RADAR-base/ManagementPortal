@@ -23,6 +23,7 @@ import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,14 +45,21 @@ public class MetaTokenServiceTest {
     @Autowired
     private SubjectMapper subjectMapper;
 
+    @Autowired
+    private OAuthClientService oAuthClientService;
+
+    private ClientDetails clientDetails;
+
     private SubjectDTO subjectDto;
 
-    private final static String CLIENT_ID = "something";
 
     @Before
     public void setUp() {
         subjectDto = SubjectServiceTest.createEntityDTO();
         subjectDto = subjectService.createSubject(subjectDto);
+
+        clientDetails = oAuthClientService
+                .createClientDetail(OauthClientServiceTest.createClient());
     }
 
     @Test
@@ -94,7 +102,7 @@ public class MetaTokenServiceTest {
                 + "\"iat\":1532437928,\"jti\":\"dca7047b-467e-4991-9f5f-77cb108104c4\"}")
                 .expiryDate(Instant.now().plus(Duration.ofHours(1)))
                 .subject(subjectMapper.subjectDTOToSubject(subjectDto))
-                .clientId(CLIENT_ID);
+                .clientId(clientDetails.getClientId());
 
         MetaToken saved = metaTokenService.save(metaToken);
         assertNotNull(saved.getId());
