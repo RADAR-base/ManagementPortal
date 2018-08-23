@@ -1,4 +1,4 @@
-package org.radarcns.management.cucumber;
+package cucumber;
 
 import org.junit.runner.RunWith;
 
@@ -7,7 +7,7 @@ import cucumber.api.CucumberOptions;
 import cucumber.api.junit.Cucumber;
 
 @RunWith(Cucumber.class)
-@CucumberOptions(plugin = "pretty", features = "src/test/features")
+@CucumberOptions(plugin = "pretty", features = "src/cucumberTest/features")
 public class CucumberTest  {
 
 }
