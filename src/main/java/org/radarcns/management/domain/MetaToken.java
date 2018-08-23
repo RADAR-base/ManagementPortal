@@ -61,6 +61,9 @@ public class MetaToken extends AbstractEntity {
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Subject subject;
 
+    @Column(name = "client_id", nullable = false)
+    private String clientId;
+
     /**
      * Meta token constructor.
      * Must generate a random string as the tokenName.
@@ -122,6 +125,15 @@ public class MetaToken extends AbstractEntity {
         return this;
     }
 
+    public String getClientId() {
+        return clientId;
+    }
+
+    public MetaToken clientId(String clientId) {
+        this.clientId = clientId;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -135,13 +147,15 @@ public class MetaToken extends AbstractEntity {
             && Objects.equals(tokenName, metaToken.tokenName)
             && Objects.equals(token, metaToken.token)
             && Objects.equals(fetched, metaToken.fetched)
-            && Objects.equals(expiryDate, metaToken.expiryDate);
+            && Objects.equals(expiryDate, metaToken.expiryDate)
+            && Objects.equals(clientId, metaToken.clientId)
+            && Objects.equals(subject, metaToken.subject);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, tokenName, token, fetched, expiryDate);
+        return Objects.hash(id, tokenName, token, fetched, expiryDate, subject, clientId);
     }
 
     @Override
@@ -151,6 +165,7 @@ public class MetaToken extends AbstractEntity {
                 + ", token='" + token
                 + ", fetched=" + fetched
                 + ", expiryDate=" + expiryDate
-                + ", subject=" + subject + '}';
+                + ", subject=" + subject
+                + ", clientId=" + clientId + '}';
     }
 }
