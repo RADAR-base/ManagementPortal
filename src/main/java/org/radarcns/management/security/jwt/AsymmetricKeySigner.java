@@ -1,11 +1,9 @@
 package org.radarcns.management.security.jwt;
 
-import java.security.PrivateKey;
-import org.springframework.security.jwt.crypto.sign.Signer;
-
 import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
 import java.security.Signature;
-import java.security.interfaces.ECPrivateKey;
+import org.springframework.security.jwt.crypto.sign.Signer;
 
 /**
  * Class that creates signatures from asymmetric keys for use in Spring Security.

@@ -4,38 +4,31 @@ import com.auth0.jwt.algorithms.Algorithm;
 import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import org.springframework.security.jwt.crypto.sign.SignatureVerifier;
-import org.springframework.security.jwt.crypto.sign.Signer;
 
-public class RsaJwtAlgorithm extends JwtAlgorithm<RSAPublicKey, RSAPrivateKey> {
-    private static final String ALGORITHM_NAME = "SHA256withRSA";
-
+public class RsaJwtAlgorithm extends AssymmetricJwtAlgorithm {
+    /** RSA JWT algorithm. */
     public RsaJwtAlgorithm(KeyPair keyPair) {
-        super((RSAPublicKey)keyPair.getPublic(), (RSAPrivateKey)keyPair.getPrivate());
-    }
-
-    @Override
-    public Signer getSigner() {
-        return new AsymmetricKeySigner(privateKey, ALGORITHM_NAME);
-    }
-
-    @Override
-    public SignatureVerifier getVerifier() {
-        return new AsymmetricKeyVerifier(publicKey, ALGORITHM_NAME);
+        super(keyPair, "SHA256withRSA");
+        if (!(keyPair.getPrivate() instanceof RSAPrivateKey)) {
+            throw new IllegalArgumentException(
+                    "Cannot make EcdsaJwtAlgorithm with " + keyPair.getPrivate().getClass());
+        }
     }
 
     @Override
     public Algorithm getAlgorithm() {
-        return Algorithm.RSA256(publicKey, privateKey);
+        return Algorithm.RSA256(
+                (RSAPublicKey)keyPair.getPublic(),
+                (RSAPrivateKey)keyPair.getPrivate());
     }
 
     @Override
-    public String getEncodedPublicKeyHeader() {
+    public String getEncodedStringHeader() {
         return "-----BEGIN PUBLIC KEY-----";
     }
 
     @Override
-    public String getEncodedPublicKeyFooter() {
+    public String getEncodedStringFooter() {
         return "-----END PUBLIC KEY-----";
     }
 }

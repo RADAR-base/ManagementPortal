@@ -4,38 +4,31 @@ import com.auth0.jwt.algorithms.Algorithm;
 import java.security.KeyPair;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
-import org.springframework.security.jwt.crypto.sign.SignatureVerifier;
-import org.springframework.security.jwt.crypto.sign.Signer;
 
-public class EcdsaJwtAlgorithm extends JwtAlgorithm<ECPublicKey, ECPrivateKey> {
-    public static final String ALGORITHM_NAME = "SHA256withECDSA";
-
+public class EcdsaJwtAlgorithm extends AssymmetricJwtAlgorithm {
+    /** ECDSA JWT algorithm. */
     public EcdsaJwtAlgorithm(KeyPair keyPair) {
-        super((ECPublicKey)keyPair.getPublic(), (ECPrivateKey)keyPair.getPrivate());
-    }
-
-    @Override
-    public Signer getSigner() {
-        return new AsymmetricKeySigner(privateKey, ALGORITHM_NAME);
-    }
-
-    @Override
-    public SignatureVerifier getVerifier() {
-        return new AsymmetricKeyVerifier(publicKey, ALGORITHM_NAME);
+        super(keyPair, "SHA256withECDSA");
+        if (!(keyPair.getPrivate() instanceof ECPrivateKey)) {
+            throw new IllegalArgumentException(
+                    "Cannot make EcdsaJwtAlgorithm with " + keyPair.getPrivate().getClass());
+        }
     }
 
     @Override
     public Algorithm getAlgorithm() {
-        return Algorithm.ECDSA256(publicKey, privateKey);
+        return Algorithm.ECDSA256(
+                (ECPublicKey)keyPair.getPublic(),
+                (ECPrivateKey)keyPair.getPrivate());
     }
 
     @Override
-    public String getEncodedPublicKeyHeader() {
+    public String getEncodedStringHeader() {
         return "-----BEGIN EC PUBLIC KEY-----";
     }
 
     @Override
-    public String getEncodedPublicKeyFooter() {
+    public String getEncodedStringFooter() {
         return "-----END EC PUBLIC KEY-----";
     }
 }

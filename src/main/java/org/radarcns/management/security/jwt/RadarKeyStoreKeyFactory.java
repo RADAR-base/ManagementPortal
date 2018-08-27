@@ -66,6 +66,12 @@ public class RadarKeyStoreKeyFactory {
         }
     }
 
+    /**
+     * Stream JwtAlgorithm for given keystore key pair aliases.
+     * Unknown algorithms will be excluded from output.
+     * @param aliases key aliases, possibly null.
+     * @return stream of JwtAlgorithm objects matching given aliases.
+     */
     public Stream<JwtAlgorithm> streamJwtAlgorithm(Collection<String> aliases) {
         if (aliases == null) {
             return Stream.empty();

@@ -29,7 +29,7 @@ public class LocalKeystoreConfig implements ServerConfig {
         // JwtAccessTokenConverter to do that for the token_key endpoint. We can use it here as
         // well.
         publicKeys = keyFactory.streamJwtAlgorithm(checkingKeyAliases)
-                .map(JwtAlgorithm::getEncodedPublicKey)
+                .map(JwtAlgorithm::getEncodedString)
                 .collect(Collectors.toList());
     }
 

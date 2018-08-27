@@ -52,7 +52,7 @@ public class RadarJwtAccessTokenConverter extends JwtAccessTokenConverter {
         algorithm = alg.getAlgorithm();
         setSigner(alg.getSigner());
         setVerifier(alg.getVerifier());
-        setVerifierKey(alg.getEncodedPublicKey());
+        setVerifierKey(alg.getEncodedString());
     }
 
     @Override

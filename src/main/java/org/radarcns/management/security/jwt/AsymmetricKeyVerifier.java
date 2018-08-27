@@ -1,12 +1,10 @@
 package org.radarcns.management.security.jwt;
 
+import java.security.GeneralSecurityException;
 import java.security.PublicKey;
+import java.security.Signature;
 import org.springframework.security.jwt.crypto.sign.InvalidSignatureException;
 import org.springframework.security.jwt.crypto.sign.SignatureVerifier;
-
-import java.security.GeneralSecurityException;
-import java.security.Signature;
-import java.security.interfaces.ECPublicKey;
 
 /**
  * Class that verifies signatures from asymmetric keys for use in Spring Security.
