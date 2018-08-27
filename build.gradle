@@ -526,3 +526,9 @@ artifactory {
 artifactoryPublish {
     publications('ManagementPortalPublication')
 }
+
+task downloadDependencies {
+    description "Pre-downloads dependencies"
+    configurations.compileClasspath.files
+    configurations.runtimeClasspath.files
+}

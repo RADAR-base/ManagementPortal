@@ -8,16 +8,25 @@ RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
 
 # installing the node packages before adding the src directory will allow us to re-use these image layers when only the souce code changes
 WORKDIR /app
-COPY build.gradle gradle.properties gradlew package.json postcss.config.js proxy.conf.json settings.gradle tsconfig-aot.json tsconfig.json tslint.json yarn.lock /app/
+ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.project.prod=true"
+COPY gradlew /app/
+COPY gradle/wrapper gradle/wrapper
+RUN ./gradlew --version
+
 COPY gradle gradle
+COPY build.gradle gradle.properties settings.gradle /app/
+COPY radar-auth/build.gradle radar-auth/
+COPY oauth-client-util/build.gradle oauth-client-util/
+RUN ./gradlew downloadDependencies
+
+COPY package.json postcss.config.js proxy.conf.json tsconfig-aot.json tsconfig.json tslint.json yarn.lock /app/
 COPY webpack webpack
-COPY radar-auth radar-auth
-COPY oauth-client-util oauth-client-util
-RUN ./gradlew --no-daemon -s -Pprod npmInstall
+RUN ./gradlew -s npmInstall
 
 # now we copy our application source code and build it
+COPY radar-auth radar-auth
 COPY src src
-RUN ./gradlew --no-daemon -s -Pprod bootRepackage
+RUN ./gradlew -s bootRepackage
 
 # Run stage
 FROM openjdk:8-jre-alpine

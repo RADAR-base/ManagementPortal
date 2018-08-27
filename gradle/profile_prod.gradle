@@ -8,10 +8,6 @@ ext {
     swaggerTargetFolder = "managementportal-client"
 }
 
-dependencies {
-
-}
-
 def profiles = 'prod'
 if (project.hasProperty('no-liquibase')) {
     profiles += ',no-liquibase'
@@ -44,7 +40,7 @@ processResources {
             it.replace('#spring.profiles.active#', profiles)
         }
         filter {
-            it.replace('#project.version#', version)
+            it.replace('#project.version#', version.toString())
         }
     }
 }
