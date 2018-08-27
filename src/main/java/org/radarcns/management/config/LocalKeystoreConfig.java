@@ -1,15 +1,13 @@
 package org.radarcns.management.config;
 
-import org.radarcns.auth.config.ServerConfig;
-import org.radarcns.management.security.jwt.RadarJwtAccessTokenConverter;
-import org.radarcns.management.security.jwt.RadarKeyStoreKeyFactory;
-import org.springframework.core.io.ClassPathResource;
-
 import java.net.URI;
-import java.security.KeyPair;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.radarcns.auth.config.ServerConfig;
+import org.radarcns.management.security.jwt.JwtAlgorithm;
+import org.radarcns.management.security.jwt.RadarKeyStoreKeyFactory;
+import org.springframework.core.io.ClassPathResource;
 
 /**
  * Radar-auth server configuration for using a local keystore. This will load the MP public key
@@ -30,13 +28,8 @@ public class LocalKeystoreConfig implements ServerConfig {
         // Load the key and convert to PEM format, internally spring uses the
         // JwtAccessTokenConverter to do that for the token_key endpoint. We can use it here as
         // well.
-        RadarJwtAccessTokenConverter converter = new RadarJwtAccessTokenConverter();
-        publicKeys = checkingKeyAliases.stream()
-                .map(alias -> {
-                    KeyPair keyPair = keyFactory.getKeyPair(alias);
-                    converter.setKeyPair(keyPair);
-                    return converter.getKey().get("value");
-                })
+        publicKeys = keyFactory.streamJwtAlgorithm(checkingKeyAliases)
+                .map(JwtAlgorithm::getEncodedPublicKey)
                 .collect(Collectors.toList());
     }
 

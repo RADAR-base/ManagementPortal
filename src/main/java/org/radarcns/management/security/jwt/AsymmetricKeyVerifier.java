@@ -1,5 +1,6 @@
 package org.radarcns.management.security.jwt;
 
+import java.security.PublicKey;
 import org.springframework.security.jwt.crypto.sign.InvalidSignatureException;
 import org.springframework.security.jwt.crypto.sign.SignatureVerifier;
 
@@ -7,16 +8,15 @@ import java.security.GeneralSecurityException;
 import java.security.Signature;
 import java.security.interfaces.ECPublicKey;
 
-public class EcdsaVerifier implements SignatureVerifier {
+/**
+ * Class that verifies signatures from asymmetric keys for use in Spring Security.
+ */
+public class AsymmetricKeyVerifier implements SignatureVerifier {
 
-    private final ECPublicKey publicKey;
+    private final PublicKey publicKey;
     private final String algorithm;
 
-    public EcdsaVerifier(ECPublicKey publicKey) {
-        this(publicKey, EcdsaSigner.DEFAULT_ALGORITHM);
-    }
-
-    public EcdsaVerifier(ECPublicKey publicKey, String algorithm) {
+    public AsymmetricKeyVerifier(PublicKey publicKey, String algorithm) {
         this.publicKey = publicKey;
         this.algorithm = algorithm;
     }
@@ -29,7 +29,7 @@ public class EcdsaVerifier implements SignatureVerifier {
             signature.update(content);
 
             if (!signature.verify(sig)) {
-                throw new InvalidSignatureException("EC Signature did not match content");
+                throw new InvalidSignatureException("Signature did not match content");
             }
         } catch (GeneralSecurityException ex) {
             throw new SignatureException("An error occured verifying the signature", ex);
