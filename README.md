@@ -94,13 +94,13 @@ for other options on overriding the default configuration.
 | `SPRING_DATASOURCE_URL`                                    | `jdbc:postgresql://localhost:5432/managementportal` | URL for the database to be used                                                                        |
 | `SPRING_DATASOURCE_USERNAME`                               | `<username>`                                        | Username to access the database                                                                        |
 | `SPRING_DATASOURCE_PASSWORD`                               | `<password>`                                        | Password to access the database                                                                        |
+| `SPRING_APPLICATION_JSON`                                  | None                                                | Generic environment variable for overriding all types of application settings                          |
 | `MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET`                  | None, you need to override this                     | OAuth client secret for the frontend                                                                   |
 | `MANAGEMENTPORTAL_FRONTEND_ACCESS_TOKEN_VALIDITY_SECONDS`  | `14400`                                             | Frontend access token validity period in seconds                                                       |
 | `MANAGEMENTPORTAL_FRONTEND_REFRESH_TOKEN_VALIDITY_SECONDS` | `259200`                                            | Frontend refresh token validity period in seconds                                                      |
 | `MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE`                      | `/mp-includes/config/oauth_client_details.csv`      | Location of the OAuth clients file                                                                     |
 | `MANAGEMENTPORTAL_OAUTH_KEY_STORE_PASSWORD`                | `radarbase`                                         | Password for the JKS keystore                                                                          |
 | `MANAGEMENTPORTAL_OAUTH_SIGNING_KEY_ALIAS`                 | `radarbase-managementportal-ec`                     | Alias in the keystore of the keypair to use for signing                                                |
-| `MANAGEMENTPORTAL_OAUTH_CHECKING_KEY_ALIASES_0`            | None                                                | Alias in the keystore of the public key to use for checking. Define multiple aliases by increasing number suffix (i.e. setting `MANAGEMENTPORTAL_OAUTH_CHECKING_KEY_ALIASES_1`, `MANAGEMENTPORTAL_OAUTH_CHECKING_KEY_ALIASES_2` etc.). If you do not set a list of checking key aliases, the public key of the signing keypair will be used for checking signatures. |
 | `MANAGEMENTPORTAL_CATALOGUE_SERVER_ENABLE_AUTO_IMPORT`     | `false`                                             | Wether to enable or disable auto import of sources from the catalogue server                           |
 | `MANAGEMENTPORTAL_CATALOGUE_SERVER_SERVER_URL`             | None                                                | URL to the catalogue server                                                                            |
 | `MANAGEMENTPORTAL_COMMON_BASE_URL`                         | None                                                | Resolvable baseUrl of this managementportal  instance                                                  |
@@ -108,6 +108,8 @@ for other options on overriding the default configuration.
 | `MANAGEMENTPORTAL_COMMON_ADMIN_PASSWORD`                   | None                                                | Admin password                                                                                         |
 | `JHIPSTER_SLEEP`                                           | `10`                                                | Time in seconds that the application should wait at bootup. Used to allow the database to become ready |
 | `JAVA_OPTS`                                                | `-Xmx512m`                                          | Options to pass on the JVM                                                                             |
+
+Lists cannot directly be encoded by environment variables in this version of Spring. So for example the OAuth checking key aliases need to be encoded using the `SPRING_APPLICATION_JSON` variable. For setting two aliases, set it to `{"managementportal":{"oauth":{"checkingKeyAliases":["one","two"]}}}`, for example. If this list is not set, the signing key will also be used as the checking key.
 
 ### OAuth Clients
 
