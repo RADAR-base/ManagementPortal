@@ -5,6 +5,8 @@ import org.radarcns.management.domain.MetaToken;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.MetaTokenRepository;
 import org.radarcns.management.service.dto.TokenDTO;
+import org.radarcns.management.web.rest.errors.ErrorConstants;
+import org.radarcns.management.web.rest.errors.NotFoundException;
 import org.radarcns.management.web.rest.errors.RequestGoneException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.validation.ConstraintViolationException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Optional;
+
+import static org.radarcns.management.web.rest.errors.EntityName.META_TOKEN;
 
 /**
  * Created by nivethika.
@@ -34,9 +45,6 @@ public class MetaTokenService {
     @Autowired
     private SubjectService subjectService;
 
-    @Autowired
-    private OAuthClientService oAuthClientService;
-
     /**
      * Save a metaToken.
      *
@@ -54,8 +62,7 @@ public class MetaTokenService {
      * @param tokenName the id of the entity
      * @return the entity
      */
-    public TokenDTO fetchToken(String tokenName) throws
-            MalformedURLException {
+    public TokenDTO fetchToken(String tokenName) throws MalformedURLException {
         log.debug("Request to get Token : {}", tokenName);
         MetaToken fetchedToken = getToken(tokenName);
         // process the response if the token is not fetched or not expired
