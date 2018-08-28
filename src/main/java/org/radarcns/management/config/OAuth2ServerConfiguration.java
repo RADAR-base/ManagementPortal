@@ -1,14 +1,24 @@
 package org.radarcns.management.config;
 
+import static org.springframework.orm.jpa.vendor.Database.POSTGRESQL;
+
 import io.github.jhipster.security.AjaxLogoutSuccessHandler;
 import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
+import java.security.KeyPair;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.sql.DataSource;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
+import org.radarcns.management.config.ManagementPortalProperties.Oauth;
 import org.radarcns.management.security.ClaimsTokenEnhancer;
 import org.radarcns.management.security.PostgresApprovalStore;
-import org.radarcns.management.security.jwt.EcdsaVerifier;
+import org.radarcns.management.security.jwt.JwtAlgorithm;
 import org.radarcns.management.security.jwt.MultiVerifier;
 import org.radarcns.management.security.jwt.RadarJwtAccessTokenConverter;
 import org.radarcns.management.security.jwt.RadarKeyStoreKeyFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
@@ -26,7 +36,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 import org.springframework.security.jwt.crypto.sign.SignatureVerifier;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
@@ -50,18 +59,9 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 
-import javax.sql.DataSource;
-import java.security.KeyPair;
-import java.security.interfaces.ECPublicKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.springframework.orm.jpa.vendor.Database.POSTGRESQL;
-
 @Configuration
 public class OAuth2ServerConfiguration {
+    private static final Logger logger = LoggerFactory.getLogger(OAuth2ServerConfiguration.class);
 
     @Autowired
     private DataSource dataSource;
@@ -216,33 +216,32 @@ public class OAuth2ServerConfiguration {
         public JwtAccessTokenConverter accessTokenConverter() {
             RadarJwtAccessTokenConverter converter = new RadarJwtAccessTokenConverter();
 
+            Oauth oauthConfig = managementPortalProperties.getOauth();
+
             // set the keypair for signing
             RadarKeyStoreKeyFactory kf = new RadarKeyStoreKeyFactory(
                     new ClassPathResource("/config/keystore.jks"),
-                    managementPortalProperties.getOauth().getKeyStorePassword().toCharArray());
-            String signKey = managementPortalProperties.getOauth().getSigningKeyAlias();
+                    oauthConfig.getKeyStorePassword().toCharArray());
+            String signKey = oauthConfig.getSigningKeyAlias();
+            logger.debug("Using JWT signing key {}", signKey);
             KeyPair keyPair = kf.getKeyPair(signKey);
             converter.setKeyPair(keyPair);
 
             // if a list of checking keys is defined, use that for checking
-            if (managementPortalProperties.getOauth().getCheckingKeyAliases() != null
-                    && !managementPortalProperties.getOauth().getCheckingKeyAliases().isEmpty()) {
+            List<String> checkingAliases = oauthConfig.getCheckingKeyAliases();
+            logger.debug("Using JWT verification keys {}", checkingAliases);
+            List<SignatureVerifier> verifiers = kf.streamJwtAlgorithm(checkingAliases)
+                    .map(JwtAlgorithm::getVerifier)
+                    .collect(Collectors.toList());
+
+            if (verifiers.size() > 1) {
                 // get all public keys for verifying and set the converter's verifier
                 // to a MultiVerifier
-                List<SignatureVerifier> verifiers = managementPortalProperties.getOauth()
-                        .getCheckingKeyAliases().stream()
-                        .map(alias -> kf.getKeyPair(alias).getPublic())
-                        .filter(publicKey -> publicKey instanceof RSAPublicKey
-                                || publicKey instanceof ECPublicKey).map(publicKey -> {
-                                    if (publicKey instanceof RSAPublicKey) {
-                                        return new RsaVerifier((RSAPublicKey) publicKey);
-                                    } else {
-                                        return new EcdsaVerifier((ECPublicKey) publicKey);
-                                    }
-                                })
-                        .collect(Collectors.toList());
                 converter.setVerifier(new MultiVerifier(verifiers));
-            }
+            } else if (verifiers.size() == 1) {
+                // only has one verifier, use it directly
+                converter.setVerifier(verifiers.get(0));
+            } // else, use the signing key verifier.
 
             return converter;
         }
