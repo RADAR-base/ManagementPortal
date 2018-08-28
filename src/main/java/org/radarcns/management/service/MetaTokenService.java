@@ -1,29 +1,15 @@
 package org.radarcns.management.service;
 
-import static org.radarcns.management.web.rest.errors.EntityName.META_TOKEN;
-import static org.radarcns.management.web.rest.errors.EntityName.OAUTH_CLIENT;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.Optional;
-
-import javax.validation.ConstraintViolationException;
-
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.MetaToken;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.MetaTokenRepository;
 import org.radarcns.management.service.dto.TokenDTO;
 import org.radarcns.management.web.rest.errors.RequestGoneException;
-import org.radarcns.management.web.rest.errors.NotFoundException;
-import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,23 +58,12 @@ public class MetaTokenService {
             MalformedURLException {
         log.debug("Request to get Token : {}", tokenName);
         MetaToken fetchedToken = getToken(tokenName);
-        TokenDTO result = null;
         // process the response if the token is not fetched or not expired
         if (!fetchedToken.isFetched() && Instant.now().isBefore(fetchedToken.getExpiryDate())) {
             // create response
-
-            ClientDetails clientDetails = oAuthClientService.findOneByClientId(fetchedToken
-                    .getClientId());
-            if (clientDetails != null) {
-                result = new TokenDTO(fetchedToken.getToken(),
-                        new URL(managementPortalProperties.getCommon().getBaseUrl()),
-                        subjectService.getPrivacyPolicyUrl(fetchedToken.getSubject()),
-                        clientDetails.getClientSecret());
-            } else {
-                throw new NotFoundException("Oauth client not found with client-id", OAUTH_CLIENT,
-                        ErrorConstants.ERR_TOKEN_NOT_FOUND,
-                        Collections.singletonMap("client-id", fetchedToken.getClientId()));
-            }
+            TokenDTO result = new TokenDTO(fetchedToken.getToken(),
+                    new URL(managementPortalProperties.getCommon().getBaseUrl()),
+                    subjectService.getPrivacyPolicyUrl(fetchedToken.getSubject()));
 
             // change fetched status to true.
             fetchedToken.fetched(true);
@@ -98,8 +73,6 @@ public class MetaTokenService {
             throw new RequestGoneException("Token already fetched or expired. ",
                 META_TOKEN, "error.TokenCannotBeSent");
         }
-
-
     }
 
     /**

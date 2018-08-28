@@ -10,8 +10,6 @@ public class TokenDTO {
 
     private final URL privacyPolicyUrl;
 
-    private final String clientSecret;
-
     /**
      * Create a meta-token using refreshToken, baseUrl of platform, and privacyPolicyURL for this
      * token.
@@ -19,11 +17,10 @@ public class TokenDTO {
      * @param baseUrl baseUrl of the platform
      * @param privacyPolicyUrl privacyPolicyUrl for this token.
      */
-    public TokenDTO(String refreshToken, URL baseUrl, URL privacyPolicyUrl, String clientSecret) {
+    public TokenDTO(String refreshToken, URL baseUrl, URL privacyPolicyUrl) {
         this.refreshToken = refreshToken;
         this.baseUrl = baseUrl;
         this.privacyPolicyUrl = privacyPolicyUrl;
-        this.clientSecret = clientSecret;
     }
 
     public String getRefreshToken() {
@@ -38,10 +35,6 @@ public class TokenDTO {
         return privacyPolicyUrl;
     }
 
-    public String getClientSecret() {
-        return clientSecret;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -53,14 +46,13 @@ public class TokenDTO {
         TokenDTO that = (TokenDTO) o;
         return Objects.equals(refreshToken, that.refreshToken)
                 && Objects.equals(baseUrl, that.baseUrl)
-                && Objects.equals(privacyPolicyUrl, that.privacyPolicyUrl)
-                && Objects.equals(clientSecret, that.clientSecret);
+                && Objects.equals(privacyPolicyUrl, that.privacyPolicyUrl);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(refreshToken, baseUrl, privacyPolicyUrl, clientSecret);
+        return Objects.hash(refreshToken, baseUrl, privacyPolicyUrl);
     }
 
     @Override
@@ -69,7 +61,6 @@ public class TokenDTO {
                 + "refreshToken='" + refreshToken
                 + ", baseUrl=" + baseUrl
                 + ", privacyPolicyUrl=" + privacyPolicyUrl
-                + ", clientSecret=" + clientSecret
                 + '}';
     }
 }
