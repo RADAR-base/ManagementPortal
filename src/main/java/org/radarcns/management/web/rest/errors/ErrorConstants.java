@@ -28,6 +28,7 @@ public final class ErrorConstants {
             + ".activeParticipantProjectNotFound";
     public static final String ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED = "error"
             + ".noValidPrivacyPolicyUrl";
+    public static final String ERR_NO_SUCH_CLIENT = "error.noSuchClient";
 
     private ErrorConstants() {
     }
