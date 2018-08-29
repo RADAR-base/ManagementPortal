@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.oauth2.provider.NoSuchClientException;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -157,6 +158,21 @@ public class ExceptionTranslator {
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public ErrorVM processMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
         return new ErrorVM(ErrorConstants.ERR_METHOD_NOT_SUPPORTED, ex.getMessage());
+    }
+
+    /**
+     * If a client tries to initiate an OAuth flow with a non-existing client, this will
+     * translate the error into a bad request status. Otherwise we return an internal server
+     * error status, but it is not a server error.
+     *
+     * @param ex the exception
+     * @return the view-model for the translated exception
+     */
+    @ExceptionHandler(NoSuchClientException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorVM processNoSuchClientException(NoSuchClientException ex) {
+        return new ErrorVM(ErrorConstants.ERR_NO_SUCH_CLIENT, ex.getMessage());
     }
 
     /**

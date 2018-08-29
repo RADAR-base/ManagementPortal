@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.radarcns.management.service.UserServiceIntTest.createEntity;
 
 import java.net.MalformedURLException;
 import java.time.Duration;
@@ -17,13 +16,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.radarcns.management.ManagementPortalTestApp;
 import org.radarcns.management.domain.MetaToken;
-import org.radarcns.management.domain.Subject;
-import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.MetaTokenRepository;
+import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.TokenDTO;
+import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.RadarWebApplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,14 +39,27 @@ public class MetaTokenServiceTest {
     @Autowired
     private MetaTokenRepository metaTokenRepository;
 
-    private Subject subject;
+    @Autowired
+    private SubjectService subjectService;
+
+    @Autowired
+    private SubjectMapper subjectMapper;
+
+    @Autowired
+    private OAuthClientService oAuthClientService;
+
+    private ClientDetails clientDetails;
+
+    private SubjectDTO subjectDto;
+
 
     @Before
     public void setUp() {
-        User user = createEntity();
-        subject = new Subject()
-                .user(user);
+        subjectDto = SubjectServiceTest.createEntityDTO();
+        subjectDto = subjectService.createSubject(subjectDto);
 
+        clientDetails = oAuthClientService
+                .createClientDetail(OauthClientServiceTest.createClient());
     }
 
     @Test
@@ -88,7 +101,8 @@ public class MetaTokenServiceTest {
                 + "\":[],\"grant_type\":\"password\",\"roles\":[],\"iss\":\"ManagementPortal\","
                 + "\"iat\":1532437928,\"jti\":\"dca7047b-467e-4991-9f5f-77cb108104c4\"}")
                 .expiryDate(Instant.now().plus(Duration.ofHours(1)))
-                .subject(subject);
+                .subject(subjectMapper.subjectDTOToSubject(subjectDto))
+                .clientId(clientDetails.getClientId());
 
         MetaToken saved = metaTokenService.save(metaToken);
         assertNotNull(saved.getId());
@@ -110,7 +124,7 @@ public class MetaTokenServiceTest {
                 .fetched(true)
                 .tokenName("something")
                 .expiryDate(Instant.now().plus(Duration.ofHours(1)))
-                .subject(subject);
+                .subject(subjectMapper.subjectDTOToSubject(subjectDto));
 
         MetaToken saved = metaTokenService.save(token);
         assertNotNull(saved.getId());
@@ -128,7 +142,7 @@ public class MetaTokenServiceTest {
                 .fetched(false)
                 .tokenName("somethingelse")
                 .expiryDate(Instant.now().minus(Duration.ofHours(1)))
-                .subject(subject);
+                .subject(subjectMapper.subjectDTOToSubject(subjectDto));
 
         MetaToken saved = metaTokenService.save(token);
 

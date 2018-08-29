@@ -2,6 +2,7 @@ package org.radarcns.management.service;
 
 import java.util.Locale;
 import javax.mail.internet.MimeMessage;
+
 import org.apache.commons.lang3.CharEncoding;
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.User;
@@ -81,7 +82,8 @@ public class MailService {
         Locale locale = Locale.forLanguageTag(user.getLangKey());
         Context context = new Context(locale);
         context.setVariable(USER, user);
-        context.setVariable(BASE_URL, managementPortalProperties.getCommon().getBaseUrl());
+        context.setVariable(BASE_URL,
+                managementPortalProperties.getCommon().getManagementPortalBaseUrl());
         String content = templateEngine.process("activationEmail", context);
         String subject = messageSource.getMessage("email.activation.title", null, locale);
         sendEmail(user.getEmail(), subject, content, false, true);
@@ -97,7 +99,8 @@ public class MailService {
         Locale locale = Locale.forLanguageTag(user.getLangKey());
         Context context = new Context(locale);
         context.setVariable(USER, user);
-        context.setVariable(BASE_URL, managementPortalProperties.getCommon().getBaseUrl());
+        context.setVariable(BASE_URL,
+                managementPortalProperties.getCommon().getManagementPortalBaseUrl());
         String content = templateEngine.process("creationEmail", context);
         String subject = messageSource.getMessage("email.activation.title", null, locale);
         sendEmail(user.getEmail(), subject, content, false, true);
@@ -114,7 +117,8 @@ public class MailService {
         Locale locale = Locale.forLanguageTag(user.getLangKey());
         Context context = new Context(locale);
         context.setVariable(USER, user);
-        context.setVariable(BASE_URL, managementPortalProperties.getCommon().getBaseUrl());
+        context.setVariable(BASE_URL,
+                managementPortalProperties.getCommon().getManagementPortalBaseUrl());
         String content = templateEngine.process("creationEmail", context);
         String subject = messageSource.getMessage("email.activation.title", null, locale);
         sendEmail(email, subject, content, false, true);
@@ -130,7 +134,8 @@ public class MailService {
         Locale locale = Locale.forLanguageTag(user.getLangKey());
         Context context = new Context(locale);
         context.setVariable(USER, user);
-        context.setVariable(BASE_URL, managementPortalProperties.getCommon().getBaseUrl());
+        context.setVariable(BASE_URL,
+                managementPortalProperties.getCommon().getManagementPortalBaseUrl());
         String content = templateEngine.process("passwordResetEmail", context);
         String subject = messageSource.getMessage("email.reset.title", null, locale);
         sendEmail(user.getEmail(), subject, content, false, true);

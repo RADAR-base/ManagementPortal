@@ -267,7 +267,7 @@ public class UserService {
     }
 
     /**
-     * Change the current user's password.
+     * Change the password of the user with the given login.
      * @param password the new password
      */
     public void changePassword(String password) {
@@ -275,7 +275,7 @@ public class UserService {
     }
 
     /**
-     * Change the current user's password.
+     * Change the user's password.
      * @param password the new password
      * @param login of the user to change password
      */

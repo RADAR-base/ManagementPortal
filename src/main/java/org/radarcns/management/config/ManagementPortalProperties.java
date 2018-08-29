@@ -44,6 +44,8 @@ public class ManagementPortalProperties {
 
         private String baseUrl = "";
 
+        private String managementPortalBaseUrl = "";
+
         private String privacyPolicyUrl = "";
 
         private String adminPassword = "";
@@ -70,6 +72,14 @@ public class ManagementPortalProperties {
 
         public void setAdminPassword(String adminPassword) {
             this.adminPassword = adminPassword;
+        }
+
+        public String getManagementPortalBaseUrl() {
+            return managementPortalBaseUrl;
+        }
+
+        public void setManagementPortalBaseUrl(String managementPortalBaseUrl) {
+            this.managementPortalBaseUrl = managementPortalBaseUrl;
         }
     }
 

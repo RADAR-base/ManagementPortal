@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
+import static org.radarcns.management.service.OauthClientServiceTest.createClient;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -11,10 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
@@ -236,20 +234,5 @@ public class OAuthClientsResourceIntTest {
                 .andExpect(status().isForbidden());
     }
 
-    private static ClientDetailsDTO createClient() {
-        ClientDetailsDTO result = new ClientDetailsDTO();
-        result.setClientId("TEST_CLIENT");
-        result.setClientSecret("TEST_SECRET");
-        result.setScope(Arrays.asList("scope-1", "scope-2").stream().collect(Collectors.toSet()));
-        result.setResourceIds(Arrays.asList("res-1", "res-2").stream().collect(Collectors.toSet()));
-        result.setAutoApproveScopes(Arrays.asList("scope-1").stream().collect(Collectors.toSet()));
-        result.setAuthorizedGrantTypes(Arrays.asList("password", "refresh_token",
-                "authorization_code").stream().collect(Collectors.toSet()));
-        result.setAccessTokenValiditySeconds(3600L);
-        result.setRefreshTokenValiditySeconds(7200L);
-        result.setAuthorities(Arrays.asList("AUTHORITY-1").stream().collect(Collectors.toSet()));
-        result.setAdditionalInformation(new HashMap<>());
-        result.getAdditionalInformation().put("dynamic_registration", "true");
-        return result;
-    }
+
 }

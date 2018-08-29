@@ -1,4 +1,4 @@
-package org.radarcns.management.cucumber.stepdefs;
+package cucumber.stepdefs;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -18,7 +18,7 @@ import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-public class UserStepDefs extends StepDefs {
+public class UserStepDefs extends cucumber.stepdefs.StepDefs {
 
     @Autowired
     private UserResource userResource;

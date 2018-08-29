@@ -1,4 +1,4 @@
-package org.radarcns.management.cucumber.stepdefs;
+package cucumber.stepdefs;
 
 
 import org.radarcns.management.ManagementPortalTestApp;

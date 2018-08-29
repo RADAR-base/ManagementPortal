@@ -195,12 +195,12 @@ public class OAuthClientService {
                     details.getScope(), details.getResourceIds());
         // tokenName should be generated
         MetaToken metaToken = metaTokenService
-                .saveUniqueToken(subject, token.getRefreshToken().getValue(), false,
+                .saveUniqueToken(subject, clientId, token.getRefreshToken().getValue(), false,
                 Instant.now().plus(getMetaTokenTimeout()));
 
         if (metaToken.getId() != null && metaToken.getTokenName() != null) {
             // get base url from settings
-            String baseUrl = managementPortalProperties.getCommon().getBaseUrl();
+            String baseUrl = managementPortalProperties.getCommon().getManagementPortalBaseUrl();
             // create complete uri string
             String tokenUrl = baseUrl + ResourceUriService.getUri(metaToken).getPath();
             // create response

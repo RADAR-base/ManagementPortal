@@ -85,7 +85,7 @@ public class SubjectServiceTest {
 
         URL privacyPolicyUrl = subjectService.getPrivacyPolicyUrl(subject);
         assertNotNull(privacyPolicyUrl);
-        assertEquals(privacyPolicyUrl.getPath(), DEFAULT_PROJECT_PRIVACY_POLICY_URL);
+        assertEquals(privacyPolicyUrl.toExternalForm(), DEFAULT_PROJECT_PRIVACY_POLICY_URL);
 
     }
 }
