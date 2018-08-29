@@ -16,6 +16,8 @@ public class ManagementPortalProperties {
 
     private final Oauth oauth = new Oauth();
 
+    private final Common common = new Common();
+
     private final CatalogueServer catalogueServer = new CatalogueServer();
 
     public ManagementPortalProperties.Frontend getFrontend() {
@@ -34,11 +36,56 @@ public class ManagementPortalProperties {
         return catalogueServer;
     }
 
+    public Common getCommon() {
+        return common;
+    }
+
+    public static class Common {
+
+        private String baseUrl = "";
+
+        private String managementPortalBaseUrl = "";
+
+        private String privacyPolicyUrl = "";
+
+        private String adminPassword = "";
+
+        public String getBaseUrl() {
+            return baseUrl;
+        }
+
+        public void setBaseUrl(String baseUrl) {
+            this.baseUrl = baseUrl;
+        }
+
+        public String getPrivacyPolicyUrl() {
+            return privacyPolicyUrl;
+        }
+
+        public void setPrivacyPolicyUrl(String privacyPolicyUrl) {
+            this.privacyPolicyUrl = privacyPolicyUrl;
+        }
+
+        public String getAdminPassword() {
+            return adminPassword;
+        }
+
+        public void setAdminPassword(String adminPassword) {
+            this.adminPassword = adminPassword;
+        }
+
+        public String getManagementPortalBaseUrl() {
+            return managementPortalBaseUrl;
+        }
+
+        public void setManagementPortalBaseUrl(String managementPortalBaseUrl) {
+            this.managementPortalBaseUrl = managementPortalBaseUrl;
+        }
+    }
+
     public static class Mail {
 
         private String from = "";
-
-        private String baseUrl = "";
 
         public String getFrom() {
             return from;
@@ -48,13 +95,6 @@ public class ManagementPortalProperties {
             this.from = from;
         }
 
-        public String getBaseUrl() {
-            return baseUrl;
-        }
-
-        public void setBaseUrl(String baseUrl) {
-            this.baseUrl = baseUrl;
-        }
     }
 
     public static class Frontend {
@@ -120,6 +160,8 @@ public class ManagementPortalProperties {
 
         private String keyStorePassword;
 
+        private String metaTokenTimeout;
+
         public String getClientsFile() {
             return clientsFile;
         }
@@ -150,6 +192,14 @@ public class ManagementPortalProperties {
 
         public void setKeyStorePassword(String keyStorePassword) {
             this.keyStorePassword = keyStorePassword;
+        }
+
+        public String getMetaTokenTimeout() {
+            return metaTokenTimeout;
+        }
+
+        public void setMetaTokenTimeout(String metaTokenTimeout) {
+            this.metaTokenTimeout = metaTokenTimeout;
         }
     }
 

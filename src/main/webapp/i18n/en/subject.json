@@ -72,6 +72,8 @@
         "loginRequired": "A subject login is required",
         "sourceNotFound": "A source with that sourceName is not assigned to the subject.",
         "sourceNameExists": "A source with that name already exists.",
-        "sourceTypeExists": "The subject has already been assigned a source of this type."
+        "sourceTypeExists": "The subject has already been assigned a source of this type.",
+        "activeParticipantProjectNotFound": "The subject does not have an active participant project",
+        "sourceTypeNotProvided": "The request does not include valid source-type properties"
     }
 }

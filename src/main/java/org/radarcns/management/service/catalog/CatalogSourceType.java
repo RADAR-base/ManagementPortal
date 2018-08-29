@@ -78,28 +78,6 @@ public class CatalogSourceType {
         return scope;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        CatalogSourceType producer = (CatalogSourceType) o;
-        return Objects.equals(name, producer.name)
-                && Objects.equals(doc, producer.doc)
-                && Objects.equals(vendor, producer.vendor)
-                && Objects.equals(version, producer.version)
-                && Objects.equals(scope, producer.scope)
-                && Objects.equals(model, producer.model);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, vendor, model, version, scope);
-    }
-
     public List<CatalogSourceData> getData() {
         return data;
     }
@@ -108,4 +86,33 @@ public class CatalogSourceType {
         return assessmentType;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        CatalogSourceType that = (CatalogSourceType) o;
+        return Objects.equals(assessmentType, that.assessmentType)
+                && Objects.equals(appProvider, that.appProvider)
+                && Objects.equals(vendor, that.vendor)
+                && Objects.equals(model, that.model)
+                && Objects.equals(version, that.version)
+                && Objects.equals(name, that.name)
+                && Objects.equals(doc, that.doc)
+                && Objects.equals(scope, that.scope)
+                && Objects.equals(properties, that.properties)
+                && Objects.equals(labels, that.labels)
+                && Objects.equals(data, that.data);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects
+            .hash(assessmentType, appProvider, vendor, model, version, name, doc, scope, properties,
+                labels, data);
+    }
 }

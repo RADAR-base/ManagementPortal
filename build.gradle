@@ -32,7 +32,7 @@ plugins {
 allprojects {
     group 'org.radarcns'
 
-    version '0.4.1' // project version
+    version '0.5.0' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
@@ -139,6 +139,27 @@ apply plugin: 'com.moowork.node'
 apply plugin: 'io.spring.dependency-management'
 defaultTasks 'bootRun'
 
+configurations {
+    codacy
+    providedRuntime
+    compile.exclude module: "spring-boot-starter-tomcat"
+    cucumberTestCompile.extendsFrom testCompile
+    cucumberTestRuntime.extendsFrom testRuntime
+}
+
+sourceSets {
+    cucumberTest {
+        java {
+            compileClasspath += main.output + test.output + test.compileClasspath
+            runtimeClasspath += main.output + test.output + test.compileClasspath
+            srcDir file('src/cucumberTest/java')
+        }
+        resources {
+            srcDir 'src/cucumberTest/resources'
+        }
+    }
+}
+
 bootRepackage {
     mainClass = 'org.radarcns.management.ManagementPortalApp'
 }
@@ -176,20 +197,13 @@ if (OperatingSystem.current().isWindows()) {
     }
 }
 
-
-
-test {
-    include '**/*UnitTest*'
-    include '**/*IntTest*'
-
-    // uncomment if the tests reports are not generated
-    // see https://github.com/jhipster/generator-jhipster/pull/2771 and https://github.com/jhipster/generator-jhipster/pull/4484
-    // ignoreFailures true
-    reports.html.enabled = true
-}
-
 task cucumberTest(type: Test) {
-    include '**/CucumberTest*'
+    testClassesDirs = sourceSets.cucumberTest.output.classesDirs
+    classpath = sourceSets.cucumberTest.runtimeClasspath
+
+    testLogging {
+        events "skipped", "failed", "passed"
+    }
 
     // uncomment if the tests reports are not generated
     // see https://github.com/jhipster/generator-jhipster/pull/2771 and https://github.com/jhipster/generator-jhipster/pull/4484
@@ -228,11 +242,6 @@ ext.codacyVersion = '2.0.1'
 
 description = ''
 
-configurations {
-    codacy
-    providedRuntime
-    compile.exclude module: "spring-boot-starter-tomcat"
-}
 
 repositories {
     mavenCentral()
@@ -525,4 +534,10 @@ artifactory {
 
 artifactoryPublish {
     publications('ManagementPortalPublication')
+}
+
+task downloadDependencies {
+    description "Pre-downloads dependencies"
+    configurations.compileClasspath.files
+    configurations.runtimeClasspath.files
 }

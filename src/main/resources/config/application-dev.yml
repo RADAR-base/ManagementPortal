@@ -95,9 +95,13 @@ server:
 #
 # ===================================================================
 managementportal:
+    common:
+        baseUrl: http://localhost:9000 # Modify according to your server's URL
+        managementPortalBaseUrl: http://localhost:9000
+        privacyPolicyUrl: http://info.thehyve.nl/radar-cns-privacy-policy
+        adminPassword: admin
     mail: # specific ManagementPortal mail property, for standard properties see MailProperties
         from: ManagementPortal@localhost
-        baseUrl: http://my-server-url-to-change # Modify according to your server's URL
     frontend:
         clientId: ManagementPortalapp
         clientSecret: my-secret-token-to-change-in-production
@@ -106,6 +110,7 @@ managementportal:
         sessionTimeout : 86400 # session for rft cookie
     oauth:
         clientsFile: src/main/docker/etc/config/oauth_client_details.csv
+        metaTokenTimeout: PT1H #timeout should be specified as the ISO-8601 duration format {@code PnDTnHnMn.nS}.
     catalogueServer:
         enableAutoImport: false
         serverUrl:

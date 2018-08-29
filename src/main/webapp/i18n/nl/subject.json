@@ -72,7 +72,9 @@
         "sourceNotFound": "Er is geen source met deze naam toegewezen aan de deelnemer.",
         "sourceNameExists": "Er bestaat reeds een source met deze naam.",
         "validation": "Validatie fout, controleer de ingevoerde waarden.",
-        "sourceTypeExists": "De deelnemer werd reeds een source van dit type toegewezen."
+        "sourceTypeExists": "De deelnemer werd reeds een source van dit type toegewezen.",
+        "activeParticipantProjectNotFound": "Het Subject heeft geen actief deelnemersproject",
+        "sourceTypeNotProvided" : "Het verzoek bevat geen geldige eigenschappen van het source-type"
     }
 
 }

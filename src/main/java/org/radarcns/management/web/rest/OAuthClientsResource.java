@@ -1,22 +1,36 @@
 package org.radarcns.management.web.rest;
 
+import static org.hibernate.id.IdentifierGenerator.ENTITY_NAME;
+import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_CREATE;
+import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_DELETE;
+import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_READ;
+import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_UPDATE;
+import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
+import static org.radarcns.management.service.OAuthClientService.checkProtected;
+
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
 import com.codahale.metrics.annotation.Timed;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
-import org.radarcns.management.repository.SubjectRepository;
+import org.radarcns.management.service.OAuthClientService;
 import org.radarcns.management.service.ResourceUriService;
+import org.radarcns.management.service.SubjectService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ClientDetailsDTO;
 import org.radarcns.management.service.dto.ClientPairInfoDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.ClientDetailsMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
-import org.radarcns.management.web.rest.errors.CustomConflictException;
-import org.radarcns.management.web.rest.errors.CustomNotFoundException;
-import org.radarcns.management.web.rest.errors.CustomParameterizedException;
-import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,17 +40,7 @@ import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerEndpointsConfiguration;
 import org.springframework.security.oauth2.provider.ClientDetails;
-import org.springframework.security.oauth2.provider.NoSuchClientException;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Request;
-import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
-import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,28 +51,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_CREATE;
-import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_DELETE;
-import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_READ;
-import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_UPDATE;
-import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
-import static org.springframework.security.oauth2.common.util.OAuth2Utils.GRANT_TYPE;
-
 /**
  * Created by dverbeec on 5/09/2017.
  */
@@ -78,17 +60,15 @@ public class OAuthClientsResource {
 
     private final Logger log = LoggerFactory.getLogger(OAuthClientsResource.class);
 
-    @Autowired
-    private AuthorizationServerEndpointsConfiguration authorizationServerEndpointsConfiguration;
 
     @Autowired
-    private JdbcClientDetailsService clientDetailsService;
+    private OAuthClientService oAuthClientService;
 
     @Autowired
     private ClientDetailsMapper clientDetailsMapper;
 
     @Autowired
-    private SubjectRepository subjectRepository;
+    private SubjectService subjectService;
 
     @Autowired
     private SubjectMapper subjectMapper;
@@ -102,9 +82,6 @@ public class OAuthClientsResource {
     @Autowired
     private AuditEventRepository eventRepository;
 
-    private static final String ENTITY_NAME = "oauthClient";
-    private static final String PROTECTED_KEY = "protected";
-
     /**
      * GET /api/oauth-clients.
      *
@@ -117,7 +94,7 @@ public class OAuthClientsResource {
     public ResponseEntity<List<ClientDetailsDTO>> getOAuthClients() throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_READ);
         return ResponseEntity.ok().body(clientDetailsMapper
-                .clientDetailsToClientDetailsDTO(clientDetailsService.listClientDetails()));
+                .clientDetailsToClientDetailsDTO(oAuthClientService.findAllOAuthClients()));
     }
 
     /**
@@ -135,7 +112,7 @@ public class OAuthClientsResource {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_READ);
         // getOAuthClient checks if the id exists
         return ResponseEntity.ok().body(clientDetailsMapper
-                .clientDetailsToClientDetailsDTO(getOAuthClient(id)));
+                .clientDetailsToClientDetailsDTO(oAuthClientService.findOneByClientId(id)));
     }
 
     /**
@@ -152,18 +129,9 @@ public class OAuthClientsResource {
             clientDetailsDto) throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_UPDATE);
         // getOAuthClient checks if the id exists
-        checkProtected(getOAuthClient(clientDetailsDto.getClientId()));
-        ClientDetails details = clientDetailsMapper
-                .clientDetailsDTOToClientDetails(clientDetailsDto);
-        clientDetailsService.updateClientDetails(details);
-        ClientDetails updated = getOAuthClient(clientDetailsDto.getClientId());
-        // updateClientDetails does not update secret, so check for it separately
-        if (Objects.nonNull(clientDetailsDto.getClientSecret()) && !clientDetailsDto
-                .getClientSecret().equals(updated.getClientSecret())) {
-            clientDetailsService.updateClientSecret(clientDetailsDto.getClientId(),
-                    clientDetailsDto.getClientSecret());
-        }
-        updated = getOAuthClient(clientDetailsDto.getClientId());
+        checkProtected(oAuthClientService.findOneByClientId(clientDetailsDto.getClientId()));
+
+        ClientDetails updated = oAuthClientService.updateOauthClient(clientDetailsDto);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME,
                         clientDetailsDto.getClientId()))
@@ -184,8 +152,8 @@ public class OAuthClientsResource {
             throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_DELETE);
         // getOAuthClient checks if the id exists
-        checkProtected(getOAuthClient(id));
-        clientDetailsService.removeClientDetails(id);
+        checkProtected(oAuthClientService.findOneByClientId(id));
+        oAuthClientService.deleteClientDetails(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id))
                 .build();
     }
@@ -204,19 +172,7 @@ public class OAuthClientsResource {
     public ResponseEntity<ClientDetailsDTO> createOAuthClient(@Valid @RequestBody ClientDetailsDTO
             clientDetailsDto) throws URISyntaxException, NotAuthorizedException {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_CREATE);
-        // check if the client id exists
-        try {
-            clientDetailsService.loadClientByClientId(clientDetailsDto.getClientId());
-            throw new CustomConflictException(ErrorConstants.ERR_CLIENT_ID_EXISTS,
-                    Collections.singletonMap("client_id", clientDetailsDto.getClientId()),
-                    ResourceUriService.getUri(clientDetailsDto));
-        } catch (NoSuchClientException ex) {
-            // Client does not exist yet, we can go ahead and create it
-        }
-        ClientDetails details = clientDetailsMapper
-                .clientDetailsDTOToClientDetails(clientDetailsDto);
-        clientDetailsService.addClientDetails(details);
-        ClientDetails created = getOAuthClient(clientDetailsDto.getClientId());
+        ClientDetails created = oAuthClientService.createClientDetail(clientDetailsDto);
         return ResponseEntity.created(ResourceUriService.getUri(clientDetailsDto))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, created.getClientId()))
                 .body(clientDetailsMapper.clientDetailsToClientDetailsDTO(created));
@@ -236,7 +192,8 @@ public class OAuthClientsResource {
     @GetMapping("/oauth-clients/pair")
     @Timed
     public ResponseEntity<ClientPairInfoDTO> getRefreshToken(@RequestParam String login,
-            @RequestParam(value = "clientId") String clientId) throws NotAuthorizedException {
+            @RequestParam(value = "clientId") String clientId)
+            throws NotAuthorizedException, URISyntaxException, MalformedURLException {
         User currentUser = userService.getUserWithAuthorities();
         if (currentUser == null) {
             // We only allow this for actual logged in users for now, not for client_credentials
@@ -244,28 +201,14 @@ public class OAuthClientsResource {
         }
 
         // lookup the subject
-        Subject subject = getSubject(login);
+        Subject subject = subjectService.findOneByLogin(login);
         SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject);
 
         // Users who can update a subject can also generate a refresh token for that subject
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
                 subjectDto.getProject().getProjectName(), subjectDto.getLogin());
 
-        // lookup the OAuth client
-        // getOAuthClient checks if the id exists
-        ClientDetails details = getOAuthClient(clientId);
-
-        // add the user's authorities
-        User user = subject.getUser();
-        Set<GrantedAuthority> authorities = user.getAuthorities().stream()
-                .map(a -> new SimpleGrantedAuthority(a.getName()))
-                .collect(Collectors.toSet());
-
-        OAuth2AccessToken token = createToken(clientId, user.getLogin(), authorities,
-                details.getScope(), details.getResourceIds());
-
-        ClientPairInfoDTO cpi = new ClientPairInfoDTO(token.getRefreshToken().getValue());
-
+        ClientPairInfoDTO cpi = oAuthClientService.createRefreshToken(subject, clientId);
         // generate audit event
         eventRepository.add(new AuditEvent(currentUser.getLogin(), "PAIR_CLIENT_REQUEST",
                 "client_id=" + clientId, "subject_login=" + login));
@@ -274,66 +217,4 @@ public class OAuthClientsResource {
         return new ResponseEntity<>(cpi, HttpStatus.OK);
     }
 
-    private OAuth2AccessToken createToken(String clientId, String login,
-            Set<GrantedAuthority> authorities, Set<String> scope, Set<String> resourceIds) {
-        Map<String, String> requestParameters = new HashMap<>();
-        requestParameters.put(GRANT_TYPE , "authorization_code");
-
-        Set<String> responseTypes = Collections.singleton("code");
-
-        OAuth2Request oAuth2Request = new OAuth2Request(requestParameters, clientId, authorities,
-                true, scope, resourceIds, null, responseTypes, Collections.emptyMap());
-
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(login, null, authorities);
-        OAuth2Authentication auth = new OAuth2Authentication(oAuth2Request, authenticationToken);
-
-        AuthorizationServerTokenServices tokenServices = authorizationServerEndpointsConfiguration
-                .getEndpointsConfigurer().getTokenServices();
-
-        return tokenServices.createAccessToken(auth);
-    }
-
-    /**
-     * Find ClientDetails by OAuth client id.
-     *
-     * @param clientId The client ID to look up
-     * @return a ClientDetails object with the requested client ID
-     * @throws CustomNotFoundException If there is no client with the requested ID
-     */
-    private ClientDetails getOAuthClient(String clientId) throws CustomNotFoundException {
-        try {
-            return clientDetailsService.loadClientByClientId(clientId);
-        } catch (NoSuchClientException e) {
-            log.error("Pair client request for unknown client id: {}", clientId);
-            Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("message", "Client ID not found");
-            errorParams.put("clientId", clientId);
-            throw new CustomNotFoundException(ErrorConstants.ERR_OAUTH_CLIENT_ID_NOT_FOUND,
-                    errorParams);
-        }
-    }
-
-    private Subject getSubject(String login) throws CustomNotFoundException {
-        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
-
-        if (!subject.isPresent()) {
-            log.error("Pair client request for unknown subject login: {}", login);
-            Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("message", "Subject ID not found");
-            errorParams.put("subjectLogin", login);
-            throw new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND, errorParams);
-        }
-
-        return subject.get();
-    }
-
-    private void checkProtected(ClientDetails details) {
-        Map<String, Object> info = details.getAdditionalInformation();
-        if (Objects.nonNull(info) && info.containsKey(PROTECTED_KEY)
-                && info.get(PROTECTED_KEY).toString().equalsIgnoreCase("true")) {
-            throw new CustomParameterizedException(ErrorConstants.ERR_OAUTH_CLIENT_PROTECTED,
-                    details.getClientId());
-        }
-    }
 }

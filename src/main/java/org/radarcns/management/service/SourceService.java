@@ -1,5 +1,9 @@
 package org.radarcns.management.service;
 
+
+
+import static org.radarcns.management.web.rest.errors.EntityName.SOURCE;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,12 +15,13 @@ import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.service.mapper.SourceMapper;
-import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.InvalidRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.history.Revision;
 import org.springframework.data.history.Revisions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -110,7 +115,7 @@ public class SourceService {
     public void delete(Long id) {
         log.info("Request to delete Source : {}", id);
         Revisions<Integer, Source> sourceHistory = sourceRepository.findRevisions(id);
-        List<Source> sources = sourceHistory.getContent().stream().map(p -> (Source) p.getEntity())
+        List<Source> sources = sourceHistory.getContent().stream().map(Revision::getEntity)
                 .filter(Source::isAssigned).collect(Collectors.toList());
         if (sources.isEmpty()) {
             sourceRepository.delete(id);
@@ -118,7 +123,9 @@ public class SourceService {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Cannot delete source with sourceId ");
             errorParams.put("id", Long.toString(id));
-            throw new CustomParameterizedException("error.usedSourceDeletion", errorParams);
+            throw new InvalidRequestException("Cannot delete a source that was once "
+                + "assigned.",  SOURCE, "error.usedSourceDeletion",
+                errorParams);
         }
     }
 

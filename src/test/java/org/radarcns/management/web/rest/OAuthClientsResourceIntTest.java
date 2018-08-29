@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
+import static org.radarcns.management.service.OauthClientServiceTest.createClient;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -11,18 +12,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.radarcns.management.ManagementPortalApp;
-import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.security.JwtAuthenticationFilter;
+import org.radarcns.management.service.OAuthClientService;
+import org.radarcns.management.service.SubjectService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ClientDetailsDTO;
 import org.radarcns.management.service.mapper.ClientDetailsMapper;
@@ -35,7 +34,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerEndpointsConfiguration;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -54,22 +52,22 @@ import org.springframework.transaction.annotation.Transactional;
 public class OAuthClientsResourceIntTest {
 
     @Autowired
-    private AuthorizationServerEndpointsConfiguration authorizationServerEndpointsConfiguration;
-
-    @Autowired
     private JdbcClientDetailsService clientDetailsService;
 
     @Autowired
     private ClientDetailsMapper clientDetailsMapper;
 
     @Autowired
-    private SubjectRepository subjectRepository;
+    private SubjectService subjectService;
 
     @Autowired
     private SubjectMapper subjectMapper;
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private OAuthClientService oAuthClientService;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -95,21 +93,18 @@ public class OAuthClientsResourceIntTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         OAuthClientsResource oauthClientsResource = new OAuthClientsResource();
-        ReflectionTestUtils.setField(oauthClientsResource,
-                "authorizationServerEndpointsConfiguration",
-                authorizationServerEndpointsConfiguration);
         ReflectionTestUtils.setField(oauthClientsResource, "clientDetailsMapper",
                 clientDetailsMapper);
-        ReflectionTestUtils.setField(oauthClientsResource, "subjectRepository",
-                subjectRepository);
+        ReflectionTestUtils.setField(oauthClientsResource, "subjectService",
+                subjectService);
         ReflectionTestUtils.setField(oauthClientsResource, "subjectMapper",
                 subjectMapper);
         ReflectionTestUtils.setField(oauthClientsResource, "userService",
                 userService);
         ReflectionTestUtils.setField(oauthClientsResource, "servletRequest",
                 servletRequest);
-        ReflectionTestUtils.setField(oauthClientsResource, "clientDetailsService",
-                clientDetailsService);
+        ReflectionTestUtils.setField(oauthClientsResource, "oAuthClientService",
+                oAuthClientService);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
@@ -229,30 +224,15 @@ public class OAuthClientsResourceIntTest {
         restProjectMockMvc.perform(delete("/api/oauth-clients/" + details.getClientId())
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
 
         // expect we can not update it now
         details.setRefreshTokenValiditySeconds(20L);
         restProjectMockMvc.perform(put("/api/oauth-clients")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
     }
 
-    private static ClientDetailsDTO createClient() {
-        ClientDetailsDTO result = new ClientDetailsDTO();
-        result.setClientId("TEST_CLIENT");
-        result.setClientSecret("TEST_SECRET");
-        result.setScope(Arrays.asList("scope-1", "scope-2").stream().collect(Collectors.toSet()));
-        result.setResourceIds(Arrays.asList("res-1", "res-2").stream().collect(Collectors.toSet()));
-        result.setAutoApproveScopes(Arrays.asList("scope-1").stream().collect(Collectors.toSet()));
-        result.setAuthorizedGrantTypes(Arrays.asList("password", "refresh_token",
-                "authorization_code").stream().collect(Collectors.toSet()));
-        result.setAccessTokenValiditySeconds(3600L);
-        result.setRefreshTokenValiditySeconds(7200L);
-        result.setAuthorities(Arrays.asList("AUTHORITY-1").stream().collect(Collectors.toSet()));
-        result.setAdditionalInformation(new HashMap<>());
-        result.getAdditionalInformation().put("dynamic_registration", "true");
-        return result;
-    }
+
 }

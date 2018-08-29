@@ -1,5 +1,17 @@
 package org.radarcns.management.service;
 
+import static org.radarcns.management.web.rest.errors.EntityName.USER;
+
+import java.time.Period;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Project;
@@ -17,8 +29,8 @@ import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
-import org.radarcns.management.web.rest.errors.CustomParameterizedException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
+import org.radarcns.management.web.rest.errors.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +40,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Period;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * Service class for managing users.
@@ -187,14 +190,17 @@ public class UserService {
                     roleDto.getProjectId(), roleDto.getAuthorityName());
             if (!role.isPresent() || role.get().getId() == null) {
                 Role currentRole = new Role();
-                currentRole.setAuthority(authorityRepository
-                        .findByAuthorityName(roleDto.getAuthorityName())
-                        .orElseThrow(() -> new CustomParameterizedException(
-                                ErrorConstants.ERR_INVALID_AUTHORITY, roleDto.getAuthorityName())));
+                // supplied authorityname can be anything, so check if we actually have one
+                currentRole.setAuthority(
+                        authorityRepository.findByAuthorityName(roleDto.getAuthorityName())
+                        .orElseThrow(() -> new NotFoundException("Authority not found with "
+                            + "authorityName", USER, ErrorConstants.ERR_INVALID_AUTHORITY,
+                            Collections.singletonMap("authorityName",
+                                roleDto.getAuthorityName()))));
                 if (roleDto.getProjectId() != null) {
                     currentRole.setProject(projectRepository.getOne(roleDto.getProjectId()));
                 }
-                // supplied authorityname can be anything, so check if we actually have one
+
                 if (Objects.nonNull(currentRole.getAuthority())) {
                     roles.add(roleRepository.save(currentRole));
                 }
@@ -261,11 +267,20 @@ public class UserService {
     }
 
     /**
-     * Change the current user's password.
+     * Change the password of the user with the given login.
      * @param password the new password
      */
     public void changePassword(String password) {
-        userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
+        changePassword(SecurityUtils.getCurrentUserLogin(), password);
+    }
+
+    /**
+     * Change the user's password.
+     * @param password the new password
+     * @param login of the user to change password
+     */
+    public void changePassword(String login, String password) {
+        userRepository.findOneByLogin(login).ifPresent(user -> {
             String encryptedPassword = passwordEncoder.encode(password);
             user.setPassword(encryptedPassword);
             log.debug("Changed password for User: {}", user);

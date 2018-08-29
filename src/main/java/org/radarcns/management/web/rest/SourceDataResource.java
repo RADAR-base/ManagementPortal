@@ -8,7 +8,7 @@ import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.SourceDataService;
 import org.radarcns.management.service.dto.SourceDataDTO;
-import org.radarcns.management.web.rest.errors.CustomConflictException;
+import org.radarcns.management.web.rest.errors.ConflictException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
@@ -41,6 +41,7 @@ import static org.radarcns.auth.authorization.Permission.SOURCEDATA_READ;
 import static org.radarcns.auth.authorization.Permission.SOURCEDATA_UPDATE;
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarcns.management.security.SecurityUtils.getJWT;
+import static org.radarcns.management.web.rest.errors.EntityName.SOURCE_DATA;
 
 /**
  * REST controller for managing SourceData.
@@ -50,8 +51,6 @@ import static org.radarcns.management.security.SecurityUtils.getJWT;
 public class SourceDataResource {
 
     private final Logger log = LoggerFactory.getLogger(SourceDataResource.class);
-
-    private static final String ENTITY_NAME = "sourceData";
 
     @Autowired
     private SourceDataService sourceDataService;
@@ -74,18 +73,18 @@ public class SourceDataResource {
         log.debug("REST request to save SourceData : {}", sourceDataDto);
         checkPermission(getJWT(servletRequest), SOURCEDATA_CREATE);
         if (sourceDataDto.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(SOURCE_DATA,
                     "idexists", "A new sourceData cannot already have an ID")).build();
         }
         String name = sourceDataDto.getSourceDataName();
         if (sourceDataService.findOneBySourceDataName(name).isPresent()) {
-            throw new CustomConflictException("error.sourceDataNameAvailable",
-                    Collections.singletonMap("sourceDataName", name),
-                    ResourceUriService.getUri(sourceDataDto));
+            throw new ConflictException("SourceData already available with source-name",
+                SOURCE_DATA, "error.sourceDataNameAvailable",
+                    Collections.singletonMap("sourceDataName", name));
         }
         SourceDataDTO result = sourceDataService.save(sourceDataDto);
         return ResponseEntity.created(ResourceUriService.getUri(sourceDataDto))
-                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, name))
+                .headers(HeaderUtil.createEntityCreationAlert(SOURCE_DATA, name))
                 .body(result);
     }
 
@@ -109,7 +108,7 @@ public class SourceDataResource {
         checkPermission(getJWT(servletRequest), SOURCEDATA_UPDATE);
         SourceDataDTO result = sourceDataService.save(sourceDataDto);
         return ResponseEntity.ok().headers(HeaderUtil
-                .createEntityUpdateAlert(ENTITY_NAME, sourceDataDto.getSourceDataName()))
+                .createEntityUpdateAlert(SOURCE_DATA, sourceDataDto.getSourceDataName()))
                 .body(result);
     }
 
@@ -165,7 +164,7 @@ public class SourceDataResource {
         }
         sourceDataService.delete(sourceDataDto.get().getId());
         return ResponseEntity.ok().headers(HeaderUtil
-                .createEntityDeletionAlert(ENTITY_NAME, sourceDataName)).build();
+                .createEntityDeletionAlert(SOURCE_DATA, sourceDataName)).build();
     }
 
 }

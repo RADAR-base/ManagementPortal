@@ -26,18 +26,6 @@ public class ErrorVM implements Serializable {
     }
 
     /**
-     * Initialize with the given message, description and field errors.
-     * @param message the message
-     * @param description the description
-     * @param fieldErrors the field errors
-     */
-    public ErrorVM(String message, String description, List<FieldErrorVM> fieldErrors) {
-        this.message = message;
-        this.description = description;
-        this.fieldErrors = fieldErrors;
-    }
-
-    /**
      * Add a field error.
      * @param objectName the object name
      * @param field the field name

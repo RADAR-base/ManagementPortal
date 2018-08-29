@@ -1,6 +1,31 @@
 package org.radarcns.management.service;
 
+import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
+import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarcns.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
+import static org.radarcns.management.web.rest.errors.EntityName.OAUTH_CLIENT;
+import static org.radarcns.management.web.rest.errors.EntityName.SUBJECT;
+import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED;
+import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_SOURCE_NOT_FOUND;
+import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_SUBJECT_NOT_FOUND;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import org.hibernate.envers.query.AuditEntity;
+import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.Source;
@@ -18,10 +43,11 @@ import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.service.util.RandomUtil;
-import org.radarcns.management.web.rest.errors.CustomConflictException;
-import org.radarcns.management.web.rest.errors.CustomNotFoundException;
-import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.BadRequestException;
+import org.radarcns.management.web.rest.errors.ConflictException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
+import org.radarcns.management.web.rest.errors.InvalidStateException;
+import org.radarcns.management.web.rest.errors.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,24 +57,6 @@ import org.springframework.data.history.Revisions;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.net.URISyntaxException;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
-import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 
 /**
  * Created by nivethika on 26-5-17.
@@ -85,6 +93,9 @@ public class SubjectService {
 
     @Autowired
     private RevisionService revisionService;
+
+    @Autowired
+    private ManagementPortalProperties managementPortalProperties;
 
 
     /**
@@ -238,82 +249,58 @@ public class SubjectService {
      */
     @Transactional
     public MinimalSourceDetailsDTO assignOrUpdateSource(Subject subject, SourceType sourceType,
-            Project project, MinimalSourceDetailsDTO sourceRegistrationDto)
-            throws URISyntaxException {
+            Project project, MinimalSourceDetailsDTO sourceRegistrationDto) {
         Source assignedSource = null;
 
-        List<Source> sources = subjectRepository
-                .findSubjectSourcesBySourceType(subject.getUser().getLogin(),
-                        sourceType.getProducer(), sourceType.getModel(),
-                        sourceType.getCatalogVersion());
-
-        // update meta-data for existing sources
         if (sourceRegistrationDto.getSourceId() != null) {
-            // for manually registered devices only add meta-data
-            Optional<Source> sourceToUpdate = subjectRepository.findSubjectSourcesBySourceId(
-                    subject.getUser().getLogin(), sourceRegistrationDto.getSourceId());
-            if (sourceToUpdate.isPresent()) {
-                Source source = sourceToUpdate.get();
-                if (sourceRegistrationDto.getSourceName() != null) {
-                    source.setSourceName(sourceRegistrationDto.getSourceName());
-                }
-                source.getAttributes().putAll(sourceRegistrationDto.getAttributes());
-                source.setAssigned(true);
-                source.setSubject(subject);
-                sourceRepository.save(source);
-                assignedSource = source;
-            } else {
-                log.error("Cannot find a Source of sourceId already registered for subject login");
-                Map<String, String> errorParams = new HashMap<>();
-                errorParams.put("message",
-                        "Cannot find a Source of sourceId already registered for subject login");
-                errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
-                throw new CustomNotFoundException(ErrorConstants.ERR_SOURCE_NOT_FOUND, errorParams);
-            }
+            // update meta-data and source-name for existing sources
+            assignedSource = updateSourceAssignedSubject(subject, sourceRegistrationDto);
+
         } else if (sourceType.getCanRegisterDynamically()) {
+            List<Source> sources = subjectRepository
+                    .findSubjectSourcesBySourceType(subject.getUser().getLogin(),
+                    sourceType.getProducer(), sourceType.getModel(),
+                    sourceType.getCatalogVersion());
             // create a source and register meta data
             // we allow only one source of a source-type per subject
             if (sources.isEmpty()) {
-                Source source1 = new Source(sourceType)
+                Source source = new Source(sourceType)
                         .project(project)
                         .assigned(true)
                         .sourceType(sourceType)
                         .subject(subject);
-                source1.getAttributes().putAll(sourceRegistrationDto.getAttributes());
+                source.getAttributes().putAll(sourceRegistrationDto.getAttributes());
                 // if source name is provided update source name
-                if (Objects.nonNull(sourceRegistrationDto.getSourceName())) {
+                if (sourceRegistrationDto.getSourceName() != null) {
                     // append the auto generated source-name to given source-name to avoid conflicts
-                    source1.setSourceName(
-                            sourceRegistrationDto.getSourceName() + "_" + source1.getSourceName());
+                    source.setSourceName(
+                            sourceRegistrationDto.getSourceName() + "_" + source.getSourceName());
                 }
-                Optional<Source> sourceToUpdate = sourceRepository.findOneBySourceName(
-                        source1.getSourceName());
-                if (sourceToUpdate.isPresent()) {
+                // make sure there is no source available on the same name.
+                if (sourceRepository.findOneBySourceName(source.getSourceName()).isPresent()) {
                     log.error("Cannot create a source with existing source-name {}",
-                            source1.getSourceName());
-                    Map<String, String> errorParams = new HashMap<>();
-                    errorParams.put("message",
-                            "SourceName already in use. Cannot create a source with source-name ");
-                    errorParams.put("source-name", source1.getSourceName());
-                    throw new CustomNotFoundException(ErrorConstants.ERR_SOURCE_NAME_EXISTS,
-                            errorParams);
+                            source.getSourceName());
+                    throw new ConflictException("SourceName already in use. Cannot create a "
+                        + "source with existing source-name ", SUBJECT,
+                        ErrorConstants.ERR_SOURCE_NAME_EXISTS,
+                        Collections.singletonMap("source-name", source.getSourceName()));
                 }
-                source1 = sourceRepository.save(source1);
+                source = sourceRepository.save(source);
 
-                assignedSource = source1;
-                subject.getSources().add(source1);
+                assignedSource = source;
+                subject.getSources().add(source);
             } else {
                 log.error("A Source of SourceType with the specified producer, model and version "
                         + "was already registered for subject login");
                 Map<String, String> errorParams = new HashMap<>();
-                errorParams.put("message", "A Source of SourceType with the specified producer, "
-                        + "model and version was already registered for subject login");
                 errorParams.put("producer", sourceType.getProducer());
                 errorParams.put("model", sourceType.getModel());
                 errorParams.put("catalogVersion", sourceType.getCatalogVersion());
                 errorParams.put("subject-id", subject.getUser().getLogin());
-                throw new CustomConflictException(ErrorConstants.ERR_SOURCE_TYPE_EXISTS,
-                        errorParams, ResourceUriService.getUri(sources.get(0)));
+                throw new ConflictException(
+                    "A Source of SourceType with the specified producer, model and version"
+                        + " was already registered for subject login",
+                    SUBJECT, ErrorConstants.ERR_SOURCE_TYPE_EXISTS, errorParams);
             }
         }
 
@@ -324,17 +311,50 @@ public class SubjectService {
             log.error("Cannot find assigned source with sourceId or a source of sourceType with "
                     + "the specified producer and model is already registered for subject login ");
             Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("message", "Cannot find assigned source with sourceId or a source of "
-                    + "sourceType with the specified producer and model is already registered "
-                    + "for subject login ");
             errorParams.put("producer", sourceType.getProducer());
             errorParams.put("model", sourceType.getModel());
             errorParams.put("subject-id", subject.getUser().getLogin());
             errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
-            throw new CustomParameterizedException("InvalidRequest", errorParams);
+            throw new BadRequestException("Cannot find assigned source with sourceId or a source "
+                + "of sourceType with the specified producer and model is already registered "
+                + "for subject login ", SUBJECT, "error.InvalidDynamicSourceRegistration",
+                errorParams);
         }
         subjectRepository.save(subject);
         return sourceMapper.sourceToMinimalSourceDetailsDTO(assignedSource);
+    }
+
+    /**
+     * Updates source name and attributes of the source assigned to subject. Otherwise returns
+     * {@link NotFoundException}.
+     * @param subject subject
+     * @param sourceRegistrationDto details of source which need to be updated.
+     * @return Updated {@link Source} instance.
+     */
+    private Source updateSourceAssignedSubject(Subject subject,
+            MinimalSourceDetailsDTO sourceRegistrationDto) {
+        // for manually registered devices only add meta-data
+        Optional<Source> sourceToUpdate = subjectRepository.findSubjectSourcesBySourceId(
+                subject.getUser().getLogin(), sourceRegistrationDto.getSourceId());
+
+        if (sourceToUpdate.isPresent()) {
+            Source source = sourceToUpdate.get();
+            if (sourceRegistrationDto.getSourceName() != null) {
+                source.setSourceName(sourceRegistrationDto.getSourceName());
+            }
+            source.getAttributes().putAll(sourceRegistrationDto.getAttributes());
+            source.setAssigned(true);
+            source.setSubject(subject);
+
+            return sourceRepository.save(source);
+        } else {
+            log.error("No source with source-id to assigned to the subject with subject-login");
+            Map<String, String> errorParams = new HashMap<>();
+            errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
+            errorParams.put("subject-login", subject.getUser().getLogin());
+            throw new NotFoundException( "No source with source-id to assigned to the subject"
+                + " with subject-login", SUBJECT, ERR_SOURCE_NOT_FOUND, errorParams);
+        }
     }
 
     /**
@@ -386,17 +406,17 @@ public class SubjectService {
      * @param login the login of the subject
      * @param revision the revision number
      * @return the subject at the given revision
-     * @throws CustomNotFoundException if there was no subject with the given login at the given
+     * @throws NotFoundException if there was no subject with the given login at the given
      *         revision number
      */
-    public SubjectDTO findRevision(String login, Integer revision) throws CustomNotFoundException {
+    public SubjectDTO findRevision(String login, Integer revision) throws NotFoundException {
         // first get latest known version of the subject, if it's deleted we can't load the entity
         // directly by e.g. findOneByLogin
         SubjectDTO latest = getLatestRevision(login);
         Subject sub = revisionService.findRevision(revision, latest.getId(), Subject.class);
         if (sub == null) {
-            throw new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND,
-                    Collections.singletonMap("subjectLogin", login));
+            throw new NotFoundException("subject not found for given login and revision.", SUBJECT,
+                ERR_SUBJECT_NOT_FOUND, Collections.singletonMap("subjectLogin", login));
         }
         return subjectMapper.subjectToSubjectDTO(sub);
     }
@@ -406,21 +426,68 @@ public class SubjectService {
      *
      * @param login the login of the subject
      * @return the latest revision for that subject
-     * @throws CustomNotFoundException if no subject was found with the given login
+     * @throws NotFoundException if no subject was found with the given login
      */
-    public SubjectDTO getLatestRevision(String login) throws CustomNotFoundException {
+    public SubjectDTO getLatestRevision(String login) throws NotFoundException {
         UserDTO user = (UserDTO) revisionService.getLatestRevisionForEntity(User.class,
                 Arrays.asList(AuditEntity.property("login").eq(login)))
-                .orElseThrow(() -> new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                .orElseThrow(() -> new NotFoundException("Subject latest revision not found "
+                    + "for login" , SUBJECT, ERR_SUBJECT_NOT_FOUND,
                         Collections.singletonMap("subjectLogin", login)));
         return (SubjectDTO) revisionService.getLatestRevisionForEntity(Subject.class,
                 Arrays.asList(AuditEntity.property("user").eq(user)))
-                .orElseThrow(() -> new CustomNotFoundException(ErrorConstants.ERR_SUBJECT_NOT_FOUND,
-                        Collections.singletonMap("subjectLogin", login)));
+                .orElseThrow(() -> new NotFoundException("Subject latest revision not found "
+                    + "for login" , SUBJECT, ERR_SUBJECT_NOT_FOUND,
+                    Collections.singletonMap("subjectLogin", login)));
     }
 
     private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
         final Set<Object> seen = new HashSet<>();
         return t -> seen.add(keyExtractor.apply(t));
+    }
+
+
+    /**
+     * Finds {@link Subject} from databased from login provided.
+     * @param login of subject to look for.
+     * @return {@link Subject} loaded.
+     */
+    public Subject findOneByLogin(String login) {
+        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
+        return subject.orElseThrow(() ->
+            new NotFoundException("Subject not found with login", SUBJECT,
+                ERR_SUBJECT_NOT_FOUND)
+        );
+    }
+
+    /**
+     * Gets relevant privacy-policy-url for this subject.
+     * <p>
+     *     If the active project of the subject has a valid privacy-policy-url returns that url.
+     *     Otherwise, it loads the default URL from ManagementPortal configurations that is
+     *     general.
+     * </p>
+     * @param subject to get relevant policy url
+     * @return URL of privacy policy for this token
+     */
+    protected URL getPrivacyPolicyUrl(Subject subject) {
+
+        // load default url from config
+        String policyUrl = subject.getActiveProject()
+                .map(p -> p.getAttributes().get(PRIVACY_POLICY_URL))
+                .filter(u -> u != null && !u.isEmpty())
+                .orElse(managementPortalProperties.getCommon().getPrivacyPolicyUrl());
+
+        try {
+            return new URL(policyUrl);
+        } catch (MalformedURLException e) {
+            Map<String, String> params = new HashMap<>();
+            params.put("url" , policyUrl);
+            params.put("message" , e.getMessage());
+            throw new InvalidStateException("No valid privacy-policy Url configured. Please "
+                    + "verify your project's privacy-policy url and/or general url config",
+                    OAUTH_CLIENT, ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED,
+                    params);
+        }
     }
 }

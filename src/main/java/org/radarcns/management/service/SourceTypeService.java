@@ -1,5 +1,14 @@
 package org.radarcns.management.service;
 
+import static org.radarcns.management.web.rest.errors.EntityName.SOURCE_TYPE;
+import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_SOURCE_TYPE_NOT_FOUND;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.validation.constraints.NotNull;
+
 import org.radarcns.management.domain.SourceData;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.repository.SourceDataRepository;
@@ -8,6 +17,7 @@ import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.SourceTypeMapper;
+import org.radarcns.management.web.rest.errors.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +25,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing SourceType.
@@ -99,14 +104,17 @@ public class SourceTypeService {
     /**
      * Fetch SourceType by producer and model.
      */
-    public SourceTypeDTO findByProducerAndModelAndVersion(String producer, String model,
-            String version) {
+    public SourceTypeDTO findByProducerAndModelAndVersion(@NotNull String producer,
+            @NotNull String model, @NotNull String version) {
         log.debug("Request to get SourceType by producer and model and version: {}, {}, {}",
                 producer, model, version);
-        Optional<SourceType> sourceType = sourceTypeRepository
-                .findOneWithEagerRelationshipsByProducerAndModelAndVersion(producer, model,
-                        version);
-        return sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType.orElse(null));
+        return sourceTypeRepository
+            .findOneWithEagerRelationshipsByProducerAndModelAndVersion(producer, model, version)
+            .map(sourceTypeMapper::sourceTypeToSourceTypeDTO).orElseThrow(
+                () -> new NotFoundException(
+                    "SourceType not found with producer, model, " + "version ", SOURCE_TYPE,
+                    ERR_SOURCE_TYPE_NOT_FOUND, Collections.singletonMap("producer-model-version",
+                    producer + "-" + model + "-" + version)));
     }
 
     /**

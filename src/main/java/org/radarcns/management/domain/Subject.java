@@ -1,5 +1,7 @@
 package org.radarcns.management.domain;
 
+import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
@@ -28,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -153,6 +156,21 @@ public class Subject extends AbstractEntity implements Serializable {
 
     public void setAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
+    }
+
+    /**
+     * Gets the active project of subject.
+     *
+     * <p> There can be only one role with PARTICIPANT authority
+     * and the project that is related to that role is the active role.</p>
+     *
+     * @return {@link Project} currently active project of subject.
+     */
+    public Optional<Project> getActiveProject() {
+        return this.getUser().getRoles().stream()
+                .filter(r -> r.getAuthority().getName().equals(PARTICIPANT))
+                .findFirst()
+                .map(Role::getProject);
     }
 
     @Override

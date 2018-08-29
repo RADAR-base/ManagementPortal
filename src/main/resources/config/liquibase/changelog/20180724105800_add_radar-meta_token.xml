@@ -1,0 +1,52 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+                   http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <!-- Add a table to meta-token -->
+    <changeSet author="nivethika@thehyve.nl" id="20180724105800-1">
+        <createTable tableName="radar_meta_token">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="token_name" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="token" type="varchar(3000)"/>
+            <column name="fetched" type="boolean" valueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+            <column name="expiry_date" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="nivethika@thehyve.nl" id="20180724105800-2">
+        <createTable tableName="radar_meta_token_aud">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rev" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revtype" type="${revtype}"/>
+            <column name="revend" type="INTEGER"/>
+            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+            <column name="token_name" type="varchar(255)"/>
+            <column name="token_name_mod" type="BOOLEAN"/>
+            <column name="token" type="varchar(3000)"/>
+            <column name="token_mod" type="BOOLEAN"/>
+            <column name="fetched" type="BOOLEAN"/>
+            <column name="fetched_mod" type="BOOLEAN"/>
+            <column name="expiry_date" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="expiry_date_mod" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="nivethika@thehyve.nl" id="20180726170000-3">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="radar_meta_token_aud" constraintName="bd888eb290e411e89eb6529269fb1459" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="_revisions_info"/>
+    </changeSet>
+</databaseChangeLog>

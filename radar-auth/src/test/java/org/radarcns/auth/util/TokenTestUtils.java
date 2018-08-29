@@ -157,7 +157,7 @@ public class TokenTestUtils {
                 .withArrayClaim("authorities", new String[] {"ROLE_PROJECT_ADMIN"})
                 .withArrayClaim("roles", new String[] {"PROJECT2:ROLE_PROJECT_ADMIN",
                         "PROJECT2:ROLE_PARTICIPANT"})
-                .withArrayClaim("sources", new String[] {})
+                .withArrayClaim("sources", new String[] {"source-1"})
                 .withClaim("client_id", CLIENT)
                 .withClaim("user_name", USER)
                 .withClaim("jti", JTI)
@@ -215,7 +215,7 @@ public class TokenTestUtils {
                 .withAudience(CLIENT)
                 .withSubject("i'm a trusted oauth client")
                 .withArrayClaim("scope", new String[] {"PROJECT.READ", "SUBJECT.CREATE",
-                        "SUBJECT.READ"})
+                        "SUBJECT.READ", "MEASUREMENT.CREATE"})
                 .withClaim("client_id", "i'm a trusted oauth client")
                 .withClaim("jti", JTI)
                 .withClaim("grant_type", "client_credentials")

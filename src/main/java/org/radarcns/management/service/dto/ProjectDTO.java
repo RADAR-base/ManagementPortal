@@ -22,6 +22,7 @@ public class ProjectDTO implements Serializable {
     public static final String WORK_PACKAGE_KEY = "Work-package";
     public static final String PHASE_KEY = "Phase";
     public static final String HUMAN_READABLE_PROJECT_NAME = "Human-readable-project-name";
+    public static final String PRIVACY_POLICY_URL = "Privacy-policy-url";
 
     private Long id;
 

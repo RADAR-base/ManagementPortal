@@ -1,5 +1,24 @@
 package org.radarcns.management.web.rest;
 
+import static org.radarcns.auth.authorization.Permission.SOURCETYPE_CREATE;
+import static org.radarcns.auth.authorization.Permission.SOURCETYPE_DELETE;
+import static org.radarcns.auth.authorization.Permission.SOURCETYPE_READ;
+import static org.radarcns.auth.authorization.Permission.SOURCETYPE_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
+import static org.radarcns.management.web.rest.errors.EntityName.SOURCE_TYPE;
+
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
@@ -11,9 +30,9 @@ import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.SourceTypeDTO;
-import org.radarcns.management.web.rest.errors.CustomConflictException;
-import org.radarcns.management.web.rest.errors.CustomParameterizedException;
+import org.radarcns.management.web.rest.errors.ConflictException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
+import org.radarcns.management.web.rest.errors.InvalidRequestException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
@@ -33,22 +52,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-
-import static org.radarcns.auth.authorization.Permission.SOURCETYPE_CREATE;
-import static org.radarcns.auth.authorization.Permission.SOURCETYPE_DELETE;
-import static org.radarcns.auth.authorization.Permission.SOURCETYPE_READ;
-import static org.radarcns.auth.authorization.Permission.SOURCETYPE_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
-
 /**
  * REST controller for managing SourceType.
  */
@@ -58,7 +61,7 @@ public class SourceTypeResource {
 
     private final Logger log = LoggerFactory.getLogger(SourceTypeResource.class);
 
-    private static final String ENTITY_NAME = "sourceType";
+
 
     @Autowired
     private SourceTypeService sourceTypeService;
@@ -84,7 +87,7 @@ public class SourceTypeResource {
         log.debug("REST request to save SourceType : {}", sourceTypeDto);
         checkPermission(getJWT(servletRequest), SOURCETYPE_CREATE);
         if (sourceTypeDto.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(SOURCE_TYPE,
                     "idexists", "A new sourceType cannot already have an ID")).build();
         }
         Optional<SourceType> existing = sourceTypeRepository
@@ -99,12 +102,13 @@ public class SourceTypeResource {
             errorParams.put("producer", sourceTypeDto.getProducer());
             errorParams.put("model", sourceTypeDto.getModel());
             errorParams.put("catalogVersion", sourceTypeDto.getCatalogVersion());
-            throw new CustomConflictException(ErrorConstants.ERR_SOURCE_TYPE_EXISTS, errorParams,
-                    ResourceUriService.getUri(sourceTypeDto));
+            throw new ConflictException("A SourceType with the specified producer, model and"
+                + "version already exists. This combination needs to be unique.", SOURCE_TYPE,
+                ErrorConstants.ERR_SOURCE_TYPE_EXISTS, errorParams);
         }
         SourceTypeDTO result = sourceTypeService.save(sourceTypeDto);
         return ResponseEntity.created(ResourceUriService.getUri(result))
-                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, displayName(result)))
+                .headers(HeaderUtil.createEntityCreationAlert(SOURCE_TYPE, displayName(result)))
                 .body(result);
     }
 
@@ -129,7 +133,7 @@ public class SourceTypeResource {
         SourceTypeDTO result = sourceTypeService.save(sourceTypeDto);
         return ResponseEntity.ok()
                 .headers(
-                        HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, displayName(sourceTypeDto)))
+                        HeaderUtil.createEntityUpdateAlert(SOURCE_TYPE, displayName(sourceTypeDto)))
                 .body(result);
     }
 
@@ -224,14 +228,17 @@ public class SourceTypeResource {
         List<ProjectDTO> projects = sourceTypeService.findProjectsBySourceType(producer, model,
                 version);
         if (!projects.isEmpty()) {
-            throw new CustomParameterizedException(ErrorConstants.ERR_SOURCE_TYPE_IN_USE,
-                    projects.stream()
-                            .map(p -> p.getProjectName())
-                            .reduce((s1, s2) -> String.join(", ", s1, s2))
-                            .get()); // we know the list is not empty so calling get() is safe here
+            throw new InvalidRequestException(
+                // we know the list is not empty so calling get() is safe here
+                "Cannot delete a source-type that " + "is being used by project(s)", SOURCE_TYPE,
+                ErrorConstants.ERR_SOURCE_TYPE_IN_USE, Collections.singletonMap("project-names",
+                projects
+                        .stream()
+                        .map(ProjectDTO::getProjectName)
+                        .collect(Collectors.joining("-"))));
         }
         sourceTypeService.delete(sourceTypeDto.getId());
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME,
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(SOURCE_TYPE,
                 displayName(sourceTypeDto))).build();
     }
 

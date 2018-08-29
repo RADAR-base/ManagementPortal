@@ -1,25 +1,18 @@
 package org.radarcns.management.security.jwt;
 
+import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
+import java.security.Signature;
 import org.springframework.security.jwt.crypto.sign.Signer;
 
-import java.security.GeneralSecurityException;
-import java.security.Signature;
-import java.security.interfaces.ECPrivateKey;
-
 /**
- * Class that creates ECDSA signatures for use in Spring Security.
+ * Class that creates signatures from asymmetric keys for use in Spring Security.
  */
-public class EcdsaSigner implements Signer {
-
-    public static final String DEFAULT_ALGORITHM = "SHA256withECDSA";
-    private final ECPrivateKey privateKey;
+public class AsymmetricKeySigner implements Signer {
+    private final PrivateKey privateKey;
     private final String algorithm;
 
-    public EcdsaSigner(ECPrivateKey privateKey) {
-        this(privateKey, DEFAULT_ALGORITHM);
-    }
-
-    public EcdsaSigner(ECPrivateKey privateKey, String signingAlgorithm) {
+    public AsymmetricKeySigner(PrivateKey privateKey, String signingAlgorithm) {
         this.privateKey = privateKey;
         this.algorithm = signingAlgorithm;
     }

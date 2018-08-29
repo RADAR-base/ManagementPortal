@@ -14,7 +14,6 @@ import org.radarcns.management.repository.filters.UserFilter;
 import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
-import org.radarcns.management.web.rest.UserResourceIntTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
@@ -40,6 +39,24 @@ import static org.radarcns.management.web.rest.TestUtil.commitTransactionAndStar
 @Transactional
 public class UserServiceIntTest {
 
+    public static final String DEFAULT_LOGIN = "johndoe";
+    public static final String UPDATED_LOGIN = "jhipster";
+
+    public static final String DEFAULT_PASSWORD = "passjohndoe";
+    public static final String UPDATED_PASSWORD = "passjhipster";
+
+    public static final String DEFAULT_EMAIL = "johndoe@localhost";
+    public static final String UPDATED_EMAIL = "jhipster@localhost";
+
+    public static final String DEFAULT_FIRSTNAME = "john";
+    public static final String UPDATED_FIRSTNAME = "jhipsterFirstName";
+
+    public static final String DEFAULT_LASTNAME = "doe";
+    public static final String UPDATED_LASTNAME = "jhipsterLastName";
+
+    public static final String DEFAULT_LANGKEY = "en";
+    public static final String UPDATED_LANGKEY = "fr";
+
     @Autowired
     private UserRepository userRepository;
 
@@ -52,14 +69,29 @@ public class UserServiceIntTest {
     @Autowired
     private CustomRevisionEntityRepository revisionEntityRepository;
 
-    //@Autowired
-    //private RevisionService revisionService;
-
     private UserDTO userDto;
 
     @Before
     public void setUp() {
-        userDto = userMapper.userToUserDTO(UserResourceIntTest.createEntity());
+        userDto = userMapper.userToUserDTO(createEntity());
+    }
+
+    /**
+     * Create a User.
+     *
+     * <p>This is a static method, as tests for other entities might also need it,
+     * if they test an entity which has a required relationship to the User entity.</p>
+     */
+    public static User createEntity() {
+        User user = new User();
+        user.setLogin(DEFAULT_LOGIN);
+        user.setPassword(RandomStringUtils.random(60));
+        user.setActivated(true);
+        user.setEmail(DEFAULT_EMAIL);
+        user.setFirstName(DEFAULT_FIRSTNAME);
+        user.setLastName(DEFAULT_LASTNAME);
+        user.setLangKey(DEFAULT_LANGKEY);
+        return user;
     }
 
     @Test
