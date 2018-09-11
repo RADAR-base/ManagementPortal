@@ -1,17 +1,5 @@
 package org.radarcns.management.service;
 
-import static org.radarcns.management.web.rest.errors.EntityName.USER;
-
-import java.time.Period;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Project;
@@ -20,6 +8,7 @@ import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.RoleRepository;
+import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.repository.filters.UserFilter;
 import org.radarcns.management.security.SecurityUtils;
@@ -40,6 +29,18 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Period;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.radarcns.management.web.rest.errors.EntityName.USER;
 
 /**
  * Service class for managing users.
@@ -73,6 +74,9 @@ public class UserService {
 
     @Autowired
     private RevisionService revisionService;
+
+    @Autowired
+    private SubjectRepository subjectRepository;
 
     /**
      * Activate a user with the given activation key.
@@ -351,10 +355,22 @@ public class UserService {
     public void removeNotActivatedUsers() {
         log.info("Scheduled scan for expired user accounts starting now");
         ZonedDateTime cutoff = ZonedDateTime.now().minus(Period.ofDays(3));
+
+        // first delete non-activated users related to subjects
         userRepository.findAllByActivated(false).stream()
-                .filter(user ->
-                    revisionService.getAuditInfo(user).getCreatedAt().isBefore(cutoff)
-                )
+                .filter(user -> revisionService.getAuditInfo(user).getCreatedAt().isBefore(cutoff))
+                .map(User::getLogin)
+                .map(subjectRepository::findOneWithEagerBySubjectLogin)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(subject -> {
+                    log.info("Deleting not activated subject after 3 days: {}", subject);
+                    subjectRepository.delete(subject);
+                });
+
+        // now re-query to find non-activated users not related to subjects and delete them
+        userRepository.findAllByActivated(false).stream()
+                .filter(user -> revisionService.getAuditInfo(user).getCreatedAt().isBefore(cutoff))
                 .forEach(user -> {
                     log.info("Deleting not activated user after 3 days: {}", user.getLogin());
                     userRepository.delete(user);
