@@ -279,8 +279,6 @@ public class SubjectService {
                 }
                 // make sure there is no source available on the same name.
                 if (sourceRepository.findOneBySourceName(source.getSourceName()).isPresent()) {
-                    log.error("Cannot create a source with existing source-name {}",
-                            source.getSourceName());
                     throw new ConflictException("SourceName already in use. Cannot create a "
                         + "source with existing source-name ", SUBJECT,
                         ErrorConstants.ERR_SOURCE_NAME_EXISTS,
@@ -291,8 +289,6 @@ public class SubjectService {
                 assignedSource = source;
                 subject.getSources().add(source);
             } else {
-                log.error("A Source of SourceType with the specified producer, model and version "
-                        + "was already registered for subject login");
                 Map<String, String> errorParams = new HashMap<>();
                 errorParams.put("producer", sourceType.getProducer());
                 errorParams.put("model", sourceType.getModel());
@@ -305,7 +301,6 @@ public class SubjectService {
             }
         } else {
             // new source since sourceId == null, but canRegisterDynamically == false
-            log.error("The source type is not eligible for dynamic registration");
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("producer", sourceType.getProducer());
             errorParams.put("model", sourceType.getModel());
@@ -344,7 +339,6 @@ public class SubjectService {
 
             return sourceRepository.save(source);
         } else {
-            log.error("No source with source-id to assigned to the subject with subject-login");
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
             errorParams.put("subject-login", subject.getUser().getLogin());
