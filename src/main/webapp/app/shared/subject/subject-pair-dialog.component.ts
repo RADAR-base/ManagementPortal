@@ -70,7 +70,6 @@ export class SubjectPairDialogComponent implements OnInit {
     }
 
     unlockTokenUrl() {
-        console.log("Show token url")
         this.showTokenUrl = true;
     }
 
