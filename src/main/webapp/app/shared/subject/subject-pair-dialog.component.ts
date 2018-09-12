@@ -20,7 +20,7 @@ export class SubjectPairDialogComponent implements OnInit {
     subject: Subject;
     authorities: any[];
     oauthClients: OAuthClient[];
-    oauthClientPairInfo: string;
+    oauthClientPairInfo: any;
     selectedClient: OAuthClient;
     showQRCode = false;
     showTokenUrl = false;
@@ -58,13 +58,13 @@ export class SubjectPairDialogComponent implements OnInit {
         if (this.selectedClient != null) {
             this.oauthClientPairInfoService.get(this.selectedClient, this.subject).subscribe(
                 (res) => {
-                    this.oauthClientPairInfo = res.json().tokenUrl;
+                    this.oauthClientPairInfo = res.json();
                     this.showQRCode = true;
                 });
         }
         else {
             this.showQRCode = false;
-            this.oauthClientPairInfo = "";
+            this.oauthClientPairInfo = {};
         }
 
     }

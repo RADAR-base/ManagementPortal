@@ -64,7 +64,8 @@
             "subjectId" : "Subject Id",
             "showTokenUrl" : "Tokengegevens weergeven",
             "hideTokenUrl" : "Gegevens token verbergen",
-            "tokenUrl" : "Token Url"
+            "baseUrl" : "Base Url",
+            "tokenName" : "Token naam"
         }
     },
     "error": {

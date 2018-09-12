@@ -28,14 +28,25 @@
 
         <div class="form-group" *ngIf="showQRCode">
             <div class="text-center">
-                <qr-code [value]="oauthClientPairInfo" [size]="450"></qr-code>
+                <qr-code [value]="oauthClientPairInfo.tokenUrl" [size]="450"></qr-code>
             </div>
         </div>
 
         <div class="form-group" *ngIf="subject.id && showTokenUrl">
-            <label for="meta-token-url" jhiTranslate="managementPortalApp.subject.tokenUrl">Token URL</label>
-            <input type="text" class="form-control" id="meta-token-url" name="meta-token-url"
-                   [(ngModel)]="oauthClientPairInfo" readonly />
+            <table class="table table-striped">
+                <thead>
+                <tr >
+                    <th><span jhiTranslate="managementPortalApp.subject.baseUrl">Base Url</span></th>
+                    <th><span jhiTranslate="managementPortalApp.subject.tokenName">Token Name</span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{oauthClientPairInfo.baseUrl}}</td>
+                    <td>{{oauthClientPairInfo.tokenName}}</td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
     <div class="modal-footer">

@@ -64,7 +64,8 @@
             "subjectId" : "Subject Id",
             "showTokenUrl" : "Show token data",
             "hideTokenUrl" : "Hide token data",
-            "tokenUrl" : "Token Url"
+            "baseUrl" : "Base Url",
+            "tokenName" : "Token Name"
         }
     },
     "error": {
