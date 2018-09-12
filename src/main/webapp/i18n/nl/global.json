@@ -115,7 +115,8 @@
             "open": "Open",
             "save": "Opslaan",
             "view": "Bekijken",
-            "close": "Sluiten"
+            "close": "Sluiten",
+            "refresh": "Verversen"
         },
         "detail": {
             "field": "Veld",

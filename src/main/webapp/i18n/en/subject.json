@@ -61,7 +61,8 @@
                 "question" : "Are you sure you want to discontinue Subject {{ id }}?"
             },
             "discontinued": "A Subject is discontinued with identifier {{ param }}",
-            "subjectId" : "Subject Id"
+            "subjectId" : "Subject Id",
+            "showTokenUrl" : "Show token"
         }
     },
     "error": {

@@ -32,4 +32,15 @@
             </div>
         </div>
     </div>
+    <div class="modal-footer">
+        <button type="button" class="btn float-left" (click)="showTokenUrl()">
+            <span class="fa fa-unlock"></span>&nbsp;<span jhiTranslate="managementPortalApp.subject.showTokenUrl">Show Token URL</span>
+        </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+            <span class="fa fa-ban"></span>&nbsp;<span jhiTranslate="entity.action.close">Close</span>
+        </button>
+        <button type="button" class="btn btn-primary" (click)="updateQRCode()">
+            <span class="fa fa-refresh"></span>&nbsp;<span jhiTranslate="entity.action.refresh">Refresh</span>
+        </button>
+    </div>
 </form>

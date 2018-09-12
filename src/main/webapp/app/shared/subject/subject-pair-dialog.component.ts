@@ -68,6 +68,10 @@ export class SubjectPairDialogComponent implements OnInit {
 
     }
 
+    showTokenUrl() {
+        console.log("Show token url")
+    }
+
 
 }
 
