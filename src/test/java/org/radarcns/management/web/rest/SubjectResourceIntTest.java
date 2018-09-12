@@ -406,6 +406,37 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
+    public void dynamicSourceRegistrationWithoutDynamicRegistrationFlag() throws Exception {
+        final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
+
+        // Create the Subject
+        SubjectDTO subjectDto = createEntityDTO();
+        restSubjectMockMvc.perform(post("/api/subjects")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
+                .andExpect(status().isCreated());
+
+        // Validate the Subject in the database
+        List<Subject> subjectList = subjectRepository.findAll();
+        assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1);
+        Subject testSubject = subjectList.get(subjectList.size() - 1);
+
+        String subjectLogin = testSubject.getUser().getLogin();
+        assertNotNull(subjectLogin);
+
+        // Create a source description
+        MinimalSourceDetailsDTO sourceRegistrationDto =
+                createSourceWithoutSourceTypeIdAndWithoutDynamicRegistration();
+
+        restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto)))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.message").isNotEmpty());
+    }
+
+    @Test
+    @Transactional
     public void getSubjectSources() throws Exception {
         // Initialize the database
         SubjectDTO subjectDtoToCreate = createEntityDTO();
@@ -525,6 +556,18 @@ public class SubjectResourceIntTest {
     private MinimalSourceDetailsDTO createSourceWithoutSourceTypeId() {
         List<SourceTypeDTO> sourceTypes = sourceTypeService.findAll().stream()
                 .filter(SourceTypeDTO::getCanRegisterDynamically)
+                .collect(Collectors.toList());
+        assertThat(sourceTypes.size()).isGreaterThan(0);
+        SourceTypeDTO sourceType = sourceTypes.get(0);
+        return getSource()
+                .sourceTypeCatalogVersion(sourceType.getCatalogVersion())
+                .sourceTypeModel(sourceType.getModel())
+                .sourceTypeProducer(sourceType.getProducer());
+    }
+
+    private MinimalSourceDetailsDTO createSourceWithoutSourceTypeIdAndWithoutDynamicRegistration() {
+        List<SourceTypeDTO> sourceTypes = sourceTypeService.findAll().stream()
+                .filter(it -> !it.getCanRegisterDynamically())
                 .collect(Collectors.toList());
         assertThat(sourceTypes.size()).isGreaterThan(0);
         SourceTypeDTO sourceType = sourceTypes.get(0);

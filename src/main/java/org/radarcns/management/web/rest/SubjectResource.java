@@ -425,7 +425,8 @@ public class SubjectResource {
                         sourceDto.getSourceTypeProducer(),
                         sourceDto.getSourceTypeModel(),
                         sourceDto.getSourceTypeCatalogVersion()).getId();
-
+            // also update the sourceDto, since we pass it on to SubjectService later
+            sourceDto.setSourceTypeId(sourceTypeId);
         }
 
         // check the subject id
