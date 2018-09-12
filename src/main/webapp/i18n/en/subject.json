@@ -62,7 +62,9 @@
             },
             "discontinued": "A Subject is discontinued with identifier {{ param }}",
             "subjectId" : "Subject Id",
-            "showTokenUrl" : "Show token"
+            "showTokenUrl" : "Show token data",
+            "hideTokenUrl" : "Hide token data",
+            "tokenUrl" : "Token Url"
         }
     },
     "error": {

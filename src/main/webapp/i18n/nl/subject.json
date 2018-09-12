@@ -62,7 +62,9 @@
             },
             "discontinued": "Een onderwerp wordt beëindigd met een identificatiecode {{ param }}",
             "subjectId" : "Subject Id",
-            "showTokenUrl" : ""
+            "showTokenUrl" : "Tokengegevens weergeven",
+            "hideTokenUrl" : "Gegevens token verbergen",
+            "tokenUrl" : "Token Url"
         }
     },
     "error": {

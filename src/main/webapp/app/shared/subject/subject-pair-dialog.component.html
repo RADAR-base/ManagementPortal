@@ -31,15 +31,30 @@
                 <qr-code [value]="oauthClientPairInfo" [size]="450"></qr-code>
             </div>
         </div>
+
+        <div class="form-group" *ngIf="subject.id && showTokenUrl">
+            <label for="meta-token-url" jhiTranslate="managementPortalApp.subject.tokenUrl">Token URL</label>
+            <input type="text" class="form-control" id="meta-token-url" name="meta-token-url"
+                   [(ngModel)]="oauthClientPairInfo" readonly />
+        </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn float-left" (click)="showTokenUrl()">
-            <span class="fa fa-unlock"></span>&nbsp;<span jhiTranslate="managementPortalApp.subject.showTokenUrl">Show Token URL</span>
-        </button>
         <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
             <span class="fa fa-ban"></span>&nbsp;<span jhiTranslate="entity.action.close">Close</span>
         </button>
-        <button type="button" class="btn btn-primary" (click)="updateQRCode()">
+        <button type="button" class="btn btn-warning"
+                *ngIf="showTokenUrl"
+                [disabled]="!showQRCode"
+                (click)="lockTokenUrl()">
+            <span class="fa fa-lock"></span>&nbsp;<span jhiTranslate="managementPortalApp.subject.hideTokenUrl">Hide Token Url</span>
+        </button>
+        <button type="button" class="btn btn-warning"
+                *ngIf="!showTokenUrl"
+                [disabled]="!showQRCode"
+                (click)="unlockTokenUrl()">
+            <span class="fa fa-unlock"></span>&nbsp;<span jhiTranslate="managementPortalApp.subject.showTokenUrl">Show Token Url</span>
+        </button>
+        <button type="button" class="btn btn-primary" [disabled]="!showQRCode" (click)="updateQRCode()">
             <span class="fa fa-refresh"></span>&nbsp;<span jhiTranslate="entity.action.refresh">Refresh</span>
         </button>
     </div>

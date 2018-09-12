@@ -23,6 +23,7 @@ export class SubjectPairDialogComponent implements OnInit {
     oauthClientPairInfo: string;
     selectedClient: OAuthClient;
     showQRCode = false;
+    showTokenUrl = false;
 
     constructor(public activeModal: NgbActiveModal,
                 private jhiLanguageService: JhiLanguageService,
@@ -68,10 +69,14 @@ export class SubjectPairDialogComponent implements OnInit {
 
     }
 
-    showTokenUrl() {
+    unlockTokenUrl() {
         console.log("Show token url")
+        this.showTokenUrl = true;
     }
 
+    lockTokenUrl() {
+        this.showTokenUrl = false;
+    }
 
 }
 
