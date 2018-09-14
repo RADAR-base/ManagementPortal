@@ -4,6 +4,7 @@ import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PART
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarcns.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
 import static org.radarcns.management.web.rest.errors.EntityName.OAUTH_CLIENT;
+import static org.radarcns.management.web.rest.errors.EntityName.SOURCE_TYPE;
 import static org.radarcns.management.web.rest.errors.EntityName.SUBJECT;
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED;
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_SOURCE_NOT_FOUND;
@@ -242,7 +243,7 @@ public class SubjectService {
     }
 
     /**
-     * Creates or updates a source for a subject.It creates and assigns a source of a for a
+     * Creates or updates a source for a subject. It creates and assigns a source of a for a
      * dynamicallyRegister-able sourceType. Currently, it is allowed to create only once source of a
      * dynamicallyRegistrable sourceType per subject. Otherwise finds the matching source and
      * updates meta-data.
@@ -278,8 +279,6 @@ public class SubjectService {
                 }
                 // make sure there is no source available on the same name.
                 if (sourceRepository.findOneBySourceName(source.getSourceName()).isPresent()) {
-                    log.error("Cannot create a source with existing source-name {}",
-                            source.getSourceName());
                     throw new ConflictException("SourceName already in use. Cannot create a "
                         + "source with existing source-name ", SUBJECT,
                         ErrorConstants.ERR_SOURCE_NAME_EXISTS,
@@ -290,8 +289,6 @@ public class SubjectService {
                 assignedSource = source;
                 subject.getSources().add(source);
             } else {
-                log.error("A Source of SourceType with the specified producer, model and version "
-                        + "was already registered for subject login");
                 Map<String, String> errorParams = new HashMap<>();
                 errorParams.put("producer", sourceType.getProducer());
                 errorParams.put("model", sourceType.getModel());
@@ -302,24 +299,18 @@ public class SubjectService {
                         + " was already registered for subject login",
                     SUBJECT, ErrorConstants.ERR_SOURCE_TYPE_EXISTS, errorParams);
             }
-        }
-
-        /* all of the above codepaths lead to an initialized assignedSource or throw an
-         * exception, so probably we can safely remove this check.
-         */
-        if (assignedSource == null) {
-            log.error("Cannot find assigned source with sourceId or a source of sourceType with "
-                    + "the specified producer and model is already registered for subject login ");
+        } else {
+            // new source since sourceId == null, but canRegisterDynamically == false
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("producer", sourceType.getProducer());
             errorParams.put("model", sourceType.getModel());
+            errorParams.put("catalogVersion", sourceType.getCatalogVersion());
             errorParams.put("subject-id", subject.getUser().getLogin());
-            errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
-            throw new BadRequestException("Cannot find assigned source with sourceId or a source "
-                + "of sourceType with the specified producer and model is already registered "
-                + "for subject login ", SUBJECT, "error.InvalidDynamicSourceRegistration",
-                errorParams);
+            throw new BadRequestException("The source type is not eligible for dynamic "
+                    + "registration", SOURCE_TYPE, "error.InvalidDynamicSourceRegistration",
+                    errorParams);
         }
+
         subjectRepository.save(subject);
         return sourceMapper.sourceToMinimalSourceDetailsDTO(assignedSource);
     }
@@ -348,7 +339,6 @@ public class SubjectService {
 
             return sourceRepository.save(source);
         } else {
-            log.error("No source with source-id to assigned to the subject with subject-login");
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
             errorParams.put("subject-login", subject.getUser().getLogin());
