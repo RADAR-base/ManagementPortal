@@ -8,11 +8,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.ManagementPortalTestApp;
-import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.domain.audit.CustomRevisionEntity;
 import org.radarcns.management.repository.CustomRevisionEntityRepository;
-import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.repository.filters.UserFilter;
 import org.radarcns.management.service.dto.UserDTO;
@@ -82,9 +80,6 @@ public class UserServiceIntTest {
 
     @Autowired
     private EntityManagerFactory entityManagerFactory;
-
-    @Autowired
-    private SubjectRepository subjectRepository;
 
     private UserDTO userDto;
 
@@ -193,7 +188,7 @@ public class UserServiceIntTest {
 
     @Test
     public void testFindNotActivatedUsersByCreationDateBefore() {
-        User expiredUser = addExpiredUser();
+        User expiredUser = addExpiredUser(userRepository);
         commitTransactionAndStartNew();
 
         AuditReader auditReader = ((AuditReader) ReflectionTestUtils
@@ -230,46 +225,6 @@ public class UserServiceIntTest {
     }
 
     @Test
-    public void testFindNotActivatedSubjectsByCreationDateBefore() {
-        User expiredUser = addExpiredUser();
-        Subject expiredSubject = new Subject();
-        expiredSubject.setUser(expiredUser);
-        subjectRepository.save(expiredSubject);
-        commitTransactionAndStartNew();
-
-        AuditReader auditReader = ((AuditReader) ReflectionTestUtils
-                .getField(revisionService, "auditReader"));
-        Object[] firstRevision = (Object[]) auditReader.createQuery()
-                .forRevisionsOfEntity(expiredUser.getClass(), false, true)
-                .add(AuditEntity.id().eq(expiredUser.getId()))
-                .add(AuditEntity.revisionNumber().minimize()
-                        .computeAggregationInInstanceContext())
-                .getSingleResult();
-        CustomRevisionEntity first = (CustomRevisionEntity) firstRevision[1];
-        // Update the timestamp of the revision so it appears to have been created 5 days ago
-        ZonedDateTime expDateTime = ZonedDateTime.now().minus(Period.ofDays(5));
-        first.setTimestamp(Date.from(expDateTime.toInstant()));
-        EntityManager entityManager = ((EntityManager) ReflectionTestUtils
-                .getField(revisionService, "entityManager"));
-        entityManager.persist(first);
-
-        // make sure when we reload the expired user we have the new created date
-        assertThat(revisionService.getAuditInfo(expiredUser).getCreatedAt()).isEqualTo(expDateTime);
-
-        // Now we know we have an 'old' user in the database, we can test our deletion method
-        int numUsers = userRepository.findAll().size();
-        userService.removeNotActivatedUsers();
-        List<User> users = userRepository.findAll();
-        // make sure have actually deleted some users, otherwise this test is pointless
-        assertThat(numUsers - users.size()).isEqualTo(1);
-        // remaining users should be either activated or have a created date less then 3 days ago
-        ZonedDateTime cutoff = ZonedDateTime.now().minus(Period.ofDays(3));
-        users.forEach(u -> assertThat(u.getActivated() || revisionService.getAuditInfo(u)
-                .getCreatedAt().isAfter(cutoff)).isTrue());
-        commitTransactionAndStartNew();
-    }
-
-    @Test
     public void assertThatAnonymousUserIsNotGet() {
         final PageRequest pageable = new PageRequest(0, (int) userRepository.count());
         final Page<UserDTO> allManagedUsers = userService.findUsers(new UserFilter(), pageable);
@@ -278,7 +233,12 @@ public class UserServiceIntTest {
                 .isTrue();
     }
 
-    private User addExpiredUser() {
+    /**
+     * Create an expired user, save it and return the saved object.
+     * @param userRepository The UserRepository that will be used to save the object
+     * @return the saved object
+     */
+    public static User addExpiredUser(UserRepository userRepository) {
         User user = new User();
         user.setLogin("expired");
         user.setEmail("expired@expired");

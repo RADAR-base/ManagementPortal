@@ -8,7 +8,6 @@ import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.RoleRepository;
-import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.repository.filters.UserFilter;
 import org.radarcns.management.security.SecurityUtils;
@@ -23,6 +22,7 @@ import org.radarcns.management.web.rest.errors.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -74,9 +74,6 @@ public class UserService {
 
     @Autowired
     private RevisionService revisionService;
-
-    @Autowired
-    private SubjectRepository subjectRepository;
 
     /**
      * Activate a user with the given activation key.
@@ -356,24 +353,15 @@ public class UserService {
         log.info("Scheduled scan for expired user accounts starting now");
         ZonedDateTime cutoff = ZonedDateTime.now().minus(Period.ofDays(3));
 
-        // first delete non-activated users related to subjects
-        userRepository.findAllByActivated(false).stream()
-                .filter(user -> revisionService.getAuditInfo(user).getCreatedAt().isBefore(cutoff))
-                .map(User::getLogin)
-                .map(subjectRepository::findOneWithEagerBySubjectLogin)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .forEach(subject -> {
-                    log.info("Deleting not activated subject after 3 days: {}", subject);
-                    subjectRepository.delete(subject);
-                });
-
-        // now re-query to find non-activated users not related to subjects and delete them
         userRepository.findAllByActivated(false).stream()
                 .filter(user -> revisionService.getAuditInfo(user).getCreatedAt().isBefore(cutoff))
                 .forEach(user -> {
-                    log.info("Deleting not activated user after 3 days: {}", user.getLogin());
-                    userRepository.delete(user);
+                    try {
+                        userRepository.delete(user);
+                        log.info("Deleted not activated user after 3 days: {}", user.getLogin());
+                    } catch (DataIntegrityViolationException ex) {
+                        log.error("Could not delete user with login " +  user.getLogin(), ex);
+                    }
                 });
     }
 
