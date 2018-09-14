@@ -1,17 +1,5 @@
 package org.radarcns.management.service;
 
-import static org.radarcns.management.web.rest.errors.EntityName.USER;
-
-import java.time.Period;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.domain.Project;
@@ -34,12 +22,25 @@ import org.radarcns.management.web.rest.errors.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Period;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.radarcns.management.web.rest.errors.EntityName.USER;
 
 /**
  * Service class for managing users.
@@ -351,13 +352,16 @@ public class UserService {
     public void removeNotActivatedUsers() {
         log.info("Scheduled scan for expired user accounts starting now");
         ZonedDateTime cutoff = ZonedDateTime.now().minus(Period.ofDays(3));
+
         userRepository.findAllByActivated(false).stream()
-                .filter(user ->
-                    revisionService.getAuditInfo(user).getCreatedAt().isBefore(cutoff)
-                )
+                .filter(user -> revisionService.getAuditInfo(user).getCreatedAt().isBefore(cutoff))
                 .forEach(user -> {
-                    log.info("Deleting not activated user after 3 days: {}", user.getLogin());
-                    userRepository.delete(user);
+                    try {
+                        userRepository.delete(user);
+                        log.info("Deleted not activated user after 3 days: {}", user.getLogin());
+                    } catch (DataIntegrityViolationException ex) {
+                        log.error("Could not delete user with login " +  user.getLogin(), ex);
+                    }
                 });
     }
 
