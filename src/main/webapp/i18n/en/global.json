@@ -115,7 +115,8 @@
             "open": "Open",
             "save": "Save",
             "view": "View",
-            "close": "Close"
+            "close": "Close",
+            "refresh": "Refresh"
         },
         "detail": {
             "field": "Field",

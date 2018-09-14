@@ -61,7 +61,11 @@
                 "question" : "Weet u zeker dat u het onderwerp wilt stoppen {{ id }}?"
             },
             "discontinued": "Een onderwerp wordt beëindigd met een identificatiecode {{ param }}",
-            "subjectId" : "Subject Id"
+            "subjectId" : "Subject Id",
+            "showTokenUrl" : "Tokengegevens weergeven",
+            "hideTokenUrl" : "Gegevens token verbergen",
+            "baseUrl" : "Base Url",
+            "tokenName" : "Token naam"
         }
     },
     "error": {
