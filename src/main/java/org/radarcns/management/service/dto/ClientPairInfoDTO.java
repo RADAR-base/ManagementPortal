@@ -12,16 +12,20 @@ public class ClientPairInfoDTO {
 
     private final URL tokenUrl;
 
+    private final URL baseUrl;
+
 
     /**
      * Initialize with the given refresh token.
+     * @param baseUrl the base url of the platform
      * @param tokenName the refresh token
      * @param tokenUrl the refresh token
      */
-    public ClientPairInfoDTO(String tokenName, URL tokenUrl) {
+    public ClientPairInfoDTO(URL baseUrl, String tokenName, URL tokenUrl) {
         if (tokenUrl == null) {
             throw new IllegalArgumentException("tokenUrl can not be null");
         }
+        this.baseUrl = baseUrl;
         this.tokenName = tokenName;
         this.tokenUrl = tokenUrl;
     }
@@ -34,6 +38,10 @@ public class ClientPairInfoDTO {
         return tokenUrl;
     }
 
+    public URL getBaseUrl() {
+        return baseUrl;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -44,17 +52,20 @@ public class ClientPairInfoDTO {
         }
         ClientPairInfoDTO that = (ClientPairInfoDTO) o;
         return Objects.equals(tokenName, that.tokenName)
-                && Objects.equals(tokenUrl, that.tokenUrl);
+                && Objects.equals(tokenUrl, that.tokenUrl)
+                && Objects.equals(baseUrl, that.baseUrl);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(tokenName, tokenUrl);
+        return Objects.hash(baseUrl, tokenName, tokenUrl);
     }
 
     @Override
     public String toString() {
-        return "ClientPairInfoDTO{" + "tokenName='" + tokenName + '\'' + '}';
+        return "ClientPairInfoDTO{" + "tokenName='" + tokenName + '\''
+                + ", tokenUrl=" + tokenUrl
+                + ", baseUrl=" + baseUrl + '}';
     }
 }

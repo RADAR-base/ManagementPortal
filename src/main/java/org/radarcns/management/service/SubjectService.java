@@ -4,6 +4,7 @@ import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PART
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarcns.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
 import static org.radarcns.management.web.rest.errors.EntityName.OAUTH_CLIENT;
+import static org.radarcns.management.web.rest.errors.EntityName.SOURCE_TYPE;
 import static org.radarcns.management.web.rest.errors.EntityName.SUBJECT;
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED;
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_SOURCE_NOT_FOUND;
@@ -11,6 +12,7 @@ import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_SUBJECT
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,6 +38,7 @@ import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
+import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
@@ -54,6 +57,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.Revisions;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -97,6 +101,8 @@ public class SubjectService {
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
 
+    @Autowired
+    private UserRepository userRepository;
 
     /**
      * Create a new subject.
@@ -242,7 +248,7 @@ public class SubjectService {
     }
 
     /**
-     * Creates or updates a source for a subject.It creates and assigns a source of a for a
+     * Creates or updates a source for a subject. It creates and assigns a source of a for a
      * dynamicallyRegister-able sourceType. Currently, it is allowed to create only once source of a
      * dynamicallyRegistrable sourceType per subject. Otherwise finds the matching source and
      * updates meta-data.
@@ -278,8 +284,6 @@ public class SubjectService {
                 }
                 // make sure there is no source available on the same name.
                 if (sourceRepository.findOneBySourceName(source.getSourceName()).isPresent()) {
-                    log.error("Cannot create a source with existing source-name {}",
-                            source.getSourceName());
                     throw new ConflictException("SourceName already in use. Cannot create a "
                         + "source with existing source-name ", SUBJECT,
                         ErrorConstants.ERR_SOURCE_NAME_EXISTS,
@@ -290,8 +294,6 @@ public class SubjectService {
                 assignedSource = source;
                 subject.getSources().add(source);
             } else {
-                log.error("A Source of SourceType with the specified producer, model and version "
-                        + "was already registered for subject login");
                 Map<String, String> errorParams = new HashMap<>();
                 errorParams.put("producer", sourceType.getProducer());
                 errorParams.put("model", sourceType.getModel());
@@ -302,24 +304,18 @@ public class SubjectService {
                         + " was already registered for subject login",
                     SUBJECT, ErrorConstants.ERR_SOURCE_TYPE_EXISTS, errorParams);
             }
-        }
-
-        /* all of the above codepaths lead to an initialized assignedSource or throw an
-         * exception, so probably we can safely remove this check.
-         */
-        if (assignedSource == null) {
-            log.error("Cannot find assigned source with sourceId or a source of sourceType with "
-                    + "the specified producer and model is already registered for subject login ");
+        } else {
+            // new source since sourceId == null, but canRegisterDynamically == false
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("producer", sourceType.getProducer());
             errorParams.put("model", sourceType.getModel());
+            errorParams.put("catalogVersion", sourceType.getCatalogVersion());
             errorParams.put("subject-id", subject.getUser().getLogin());
-            errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
-            throw new BadRequestException("Cannot find assigned source with sourceId or a source "
-                + "of sourceType with the specified producer and model is already registered "
-                + "for subject login ", SUBJECT, "error.InvalidDynamicSourceRegistration",
-                errorParams);
+            throw new BadRequestException("The source type is not eligible for dynamic "
+                    + "registration", SOURCE_TYPE, "error.InvalidDynamicSourceRegistration",
+                    errorParams);
         }
+
         subjectRepository.save(subject);
         return sourceMapper.sourceToMinimalSourceDetailsDTO(assignedSource);
     }
@@ -348,7 +344,6 @@ public class SubjectService {
 
             return sourceRepository.save(source);
         } else {
-            log.error("No source with source-id to assigned to the subject with subject-login");
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
             errorParams.put("subject-login", subject.getUser().getLogin());
@@ -489,5 +484,29 @@ public class SubjectService {
                     OAUTH_CLIENT, ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED,
                     params);
         }
+    }
+
+    /**
+     * Not activated users should be automatically deleted after 3 days. <p> This is scheduled to
+     * get fired everyday, at midnight. Preferably we do this scan before
+     * {@link UserService#removeNotActivatedUsers()}, since this will remove the not activated
+     * user tied to the subject as well.</p>
+     */
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void removeNotActivatedSubjects() {
+        log.info("Scheduled scan for expired subject accounts starting now");
+        ZonedDateTime cutoff = ZonedDateTime.now().minus(Period.ofDays(3));
+
+        // first delete non-activated users related to subjects
+        userRepository.findAllByActivated(false).stream()
+                .filter(user -> revisionService.getAuditInfo(user).getCreatedAt().isBefore(cutoff))
+                .map(User::getLogin)
+                .map(subjectRepository::findOneWithEagerBySubjectLogin)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(subject -> {
+                    log.info("Deleting not activated subject after 3 days: {}", subject);
+                    subjectRepository.delete(subject);
+                });
     }
 }
