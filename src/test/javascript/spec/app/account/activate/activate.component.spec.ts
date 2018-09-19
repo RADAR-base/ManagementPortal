@@ -28,11 +28,7 @@ describe('Component Tests', () => {
                         useValue: null
                     }
                 ]
-            }).overrideComponent(ActivateComponent, {
-                set: {
-                    template: ''
-                }
-            }).compileComponents();
+            }).overrideTemplate(ActivateComponent, '').compileComponents();
         }));
 
         beforeEach(() => {

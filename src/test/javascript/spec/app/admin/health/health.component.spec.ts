@@ -25,11 +25,7 @@ describe('Component Tests', () => {
                     }
                 ]
             })
-            .overrideComponent(JhiHealthCheckComponent, {
-                set: {
-                    template: ''
-                }
-            })
+            .overrideTemplate(JhiHealthCheckComponent, '')
             .compileComponents();
         }));
 
