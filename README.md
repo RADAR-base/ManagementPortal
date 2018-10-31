@@ -95,6 +95,7 @@ for other options on overriding the default configuration.
 | `SPRING_DATASOURCE_USERNAME`                               | `<username>`                                        | Username to access the database                                                                        |
 | `SPRING_DATASOURCE_PASSWORD`                               | `<password>`                                        | Password to access the database                                                                        |
 | `SPRING_APPLICATION_JSON`                                  | None                                                | Generic environment variable for overriding all types of application settings                          |
+| `MANAGEMENTPORTAL_MAIL_FROM`                               | None, you need to override this       |   Email address that will be set  in the From email header.    |
 | `MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET`                  | None, you need to override this                     | OAuth client secret for the frontend                                                                   |
 | `MANAGEMENTPORTAL_FRONTEND_ACCESS_TOKEN_VALIDITY_SECONDS`  | `14400`                                             | Frontend access token validity period in seconds                                                       |
 | `MANAGEMENTPORTAL_FRONTEND_REFRESH_TOKEN_VALIDITY_SECONDS` | `259200`                                            | Frontend refresh token validity period in seconds                                                      |
