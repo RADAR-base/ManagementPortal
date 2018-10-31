@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import {JhiLanguageService} from "ng-jhipster";
 
 @Component({
     selector: 'jhi-metrics-modal',
@@ -15,7 +16,11 @@ export class JhiMetricsMonitoringModalComponent implements OnInit {
     threadDumpTimedWaiting = 0;
     threadDumpWaiting = 0;
 
-    constructor(public activeModal: NgbActiveModal) {}
+    constructor(
+            public activeModal: NgbActiveModal,
+            private jhiLanguageService: JhiLanguageService) {
+        this.jhiLanguageService.addLocation('metrics');
+    }
 
     ngOnInit() {
         this.threadDump.forEach((value) => {
@@ -29,7 +34,6 @@ export class JhiMetricsMonitoringModalComponent implements OnInit {
                 this.threadDumpBlocked += 1;
             }
         });
-
         this.threadDumpAll = this.threadDumpRunnable + this.threadDumpWaiting +
             this.threadDumpTimedWaiting + this.threadDumpBlocked;
     }

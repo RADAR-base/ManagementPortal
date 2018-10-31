@@ -3,7 +3,7 @@ import { Http, Response, URLSearchParams, BaseRequestOptions } from '@angular/ht
 import { Observable } from 'rxjs/Rx';
 
 import { OAuthClient } from './oauth-client.model';
-import {Subject} from "../../shared/subject/subject.model";
+import { Subject } from "../../shared/subject";
 @Injectable()
 export class OAuthClientPairInfoService {
 
@@ -21,7 +21,7 @@ constructor(private http: Http) { }
         const params: URLSearchParams = new URLSearchParams();
         params.set('clientId', clientId);
         params.set('login', subjectLogin);
-        options.search = params;
+        options.params = params;
         return options;
     }
 }

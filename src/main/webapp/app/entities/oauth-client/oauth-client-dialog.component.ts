@@ -127,10 +127,6 @@ export class OAuthClientDialogComponent implements OnInit  {
         this.alertService.error(error.message, null, null);
     }
 
-    trackByClientId(index: number, item: OAuthClient) {
-        return item.clientId;
-    }
-
     getSelected(selectedVals: Array<any>, option: any) {
         if (selectedVals) {
             for (let i = 0; i < selectedVals.length; i++) {
@@ -143,10 +139,10 @@ export class OAuthClientDialogComponent implements OnInit  {
     }
 
     generateRandomSecret() {
-        var text = [];
+        const text = [];
         const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
       
-        for (var i = 0; i < 36; i++) {
+        for (let i = 0; i < 36; i++) {
           text.push(possible.charAt(Math.floor(Math.random() * possible.length)));
         }
 

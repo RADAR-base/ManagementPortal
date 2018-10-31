@@ -8,8 +8,8 @@ import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 import { Source } from './source.model';
 import { SourcePopupService } from './source-popup.service';
 import { SourceService } from './source.service';
-import {SourceType} from "../../entities/source-type/source-type.model";
-import {ProjectService} from "../../entities/project/project.service";
+import {SourceType} from "../../entities/source-type";
+import {ProjectService} from "../../entities/project";
 
 @Component({
     selector: 'jhi-source-dialog',
@@ -32,7 +32,7 @@ export class SourceDialogComponent implements OnInit {
         private projectService: ProjectService,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['source' , 'project' , 'projectStatus']);
+        this.jhiLanguageService.addLocation('source');
     }
 
     ngOnInit() {

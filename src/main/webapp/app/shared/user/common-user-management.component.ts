@@ -3,12 +3,10 @@ import {
     OnChanges
 } from '@angular/core';
 import { Response } from '@angular/http';
-import { ActivatedRoute, Router } from '@angular/router';
-import { EventManager, PaginationUtil, ParseLinks, AlertService, JhiLanguageService } from 'ng-jhipster';
+import { EventManager, ParseLinks, AlertService, JhiLanguageService } from 'ng-jhipster';
 
-import { ITEMS_PER_PAGE, Principal, User, UserService } from '../../shared';
-import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
-import {Project} from "../../entities/project/project.model";
+import { ITEMS_PER_PAGE, User, UserService } from '..';
+import {Project} from "../../entities/project";
 
 @Component({
     selector: 'common-user-mgmt',
@@ -20,7 +18,6 @@ export class CommonUserMgmtComponent implements OnInit, OnChanges{
     users: User[];
     error: any;
     success: any;
-    links: any;
     totalItems: any;
     queryCount: any;
     itemsPerPage: any;
@@ -40,7 +37,7 @@ export class CommonUserMgmtComponent implements OnInit, OnChanges{
         private eventManager: EventManager,
     ) {
         this.itemsPerPage = ITEMS_PER_PAGE;
-        this.jhiLanguageService.setLocations(['user-management' , 'project' , 'projectStatus']);
+        this.jhiLanguageService.addLocation('user-management');
     }
 
     ngOnInit() {
@@ -50,7 +47,7 @@ export class CommonUserMgmtComponent implements OnInit, OnChanges{
 
 
     registerChangeInUsers() {
-        this.eventManager.subscribe('userListModification', (response) => this.loadAll());
+        this.eventManager.subscribe('userListModification', () => this.loadAll());
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -94,16 +91,5 @@ export class CommonUserMgmtComponent implements OnInit, OnChanges{
 
     transition() {
         this.loadAll();
-    }
-
-    private onSuccess(data, headers) {
-        this.links = this.parseLinks.parse(headers.get('link'));
-        this.totalItems = headers.get('X-Total-Count');
-        this.queryCount = this.totalItems;
-        this.users = data;
-    }
-
-    private onError(error) {
-        this.alertService.error(error.error, error.message, null);
     }
 }

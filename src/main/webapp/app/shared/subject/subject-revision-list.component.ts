@@ -49,7 +49,8 @@ export class SubjectRevisionListComponent implements OnInit, OnDestroy {
                 this.reverse = true;
             }
         });
-        this.jhiLanguageService.setLocations(['subject', 'audits']);
+        this.jhiLanguageService.addLocation('subject');
+        this.jhiLanguageService.addLocation('audits');
     }
 
     ngOnInit() {

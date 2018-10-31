@@ -9,7 +9,7 @@ import {EventManager, AlertService, JhiLanguageService} from 'ng-jhipster';
 import {Subject} from './subject.model';
 import {SubjectPopupService} from './subject-popup.service';
 import {SubjectService} from './subject.service';
-import {MinimalSource} from "../source/source.model";
+import {MinimalSource} from "../source";
 
 @Component({
     selector: 'jhi-subject-dialog',
@@ -30,7 +30,7 @@ export class SubjectDialogComponent implements OnInit {
                 private alertService: AlertService,
                 private subjectService: SubjectService,
                 private eventManager: EventManager) {
-        this.jhiLanguageService.setLocations(['subject', 'project', 'projectStatus']);
+        this.jhiLanguageService.addLocation('subject');
     }
 
     ngOnInit() {

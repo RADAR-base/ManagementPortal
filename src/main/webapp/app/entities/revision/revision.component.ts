@@ -1,15 +1,12 @@
-import {
-    Component, OnInit, OnDestroy, Input, SimpleChanges, SimpleChange,
-    OnChanges
-} from '@angular/core';
-import { Subscription } from 'rxjs/Rx';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Response } from '@angular/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EventManager, PaginationUtil, ParseLinks, AlertService, JhiLanguageService } from 'ng-jhipster';
+import { Subscription } from 'rxjs/Rx';
+import { EventManager, ParseLinks, AlertService, JhiLanguageService } from 'ng-jhipster';
+
 import { Revision } from './revision.model';
 import { RevisionService } from './revision.service';
-import { ITEMS_PER_PAGE, User } from '../../shared';
-import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
+import { ITEMS_PER_PAGE} from '../../shared';
 
 @Component({
     selector: 'revisions',

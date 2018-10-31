@@ -20,7 +20,7 @@ export class UserMgmtDeleteDialogComponent {
         public activeModal: NgbActiveModal,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['user-management']);
+        this.jhiLanguageService.addLocation('user-management');
     }
 
     clear() {

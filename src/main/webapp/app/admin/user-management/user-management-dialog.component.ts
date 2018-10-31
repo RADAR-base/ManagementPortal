@@ -1,17 +1,12 @@
-import {Component, OnInit, OnDestroy, OnChanges, SimpleChanges} from '@angular/core';
+import {Component, OnInit, OnDestroy} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Response } from '@angular/http';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, JhiLanguageService } from 'ng-jhipster';
 
 import { UserModalService } from './user-modal.service';
-import { JhiLanguageHelper, User, UserService } from '../../shared';
-import { Project, ProjectService} from '../../entities/project';
-import {RoleService} from "../../entities/role/role.service";
-import {Authority} from "../../shared/user/authority.model";
-import {AuthorityService} from "../../shared/user/authority.service";
-import {SYSTEM_ADMIN} from "../../shared/constants/common.constants";
+import { JhiLanguageHelper, User, UserService, AuthorityService } from '../../shared';
+import {RoleService} from "../../entities/role";
 import {Role} from "./role.model";
 
 @Component({
@@ -24,7 +19,6 @@ export class UserMgmtDialogComponent implements OnInit {
     isAdmin: boolean;
     languages: any[];
     roles: Role[];
-    defaultRoles: Role[];
     isSaving: Boolean;
 
     constructor(
@@ -35,14 +29,15 @@ export class UserMgmtDialogComponent implements OnInit {
         private roleService: RoleService,
         private authorityService: AuthorityService,
         private eventManager: EventManager
-    ) {}
+    ) {
+        this.jhiLanguageService.addLocation('user-management');
+    }
 
     ngOnInit() {
         this.isSaving = false;
         this.languageHelper.getAll().then((languages) => {
             this.languages = languages;
         });
-        this.jhiLanguageService.setLocations(['user-management']);
         this.registerChangeInRoles();
     }
 
@@ -59,9 +54,11 @@ export class UserMgmtDialogComponent implements OnInit {
     save() {
         this.isSaving = true;
         if (this.user.id !== null) {
-            this.userService.update(this.user).subscribe((response) => this.onSaveSuccess(response), () => this.onSaveError());
+            this.userService.update(this.user)
+                .subscribe((response) => this.onSaveSuccess(response), () => this.onSaveError());
         } else {
-            this.userService.create(this.user).subscribe((response) => this.onSaveSuccess(response), () => this.onSaveError());
+            this.userService.create(this.user)
+                .subscribe((response) => this.onSaveSuccess(response), () => this.onSaveError());
         }
     }
 

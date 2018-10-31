@@ -5,9 +5,8 @@ import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {EventManager, AlertService, JhiLanguageService} from 'ng-jhipster';
 
 import {SubjectPopupService} from './subject-popup.service';
-import {OAuthClientService} from "../../entities/oauth-client/oauth-client.service";
 import {OAuthClientPairInfoService} from "../../entities/oauth-client/oauth-client-pair-info.service";
-import {OAuthClient} from "../../entities/oauth-client/oauth-client.model";
+import {OAuthClient, OAuthClientService} from "../../entities/oauth-client";
 import {Subject} from "./subject.model";
 
 @Component({
@@ -29,9 +28,8 @@ export class SubjectPairDialogComponent implements OnInit {
                 private jhiLanguageService: JhiLanguageService,
                 private alertService: AlertService,
                 private oauthClientService: OAuthClientService,
-                private oauthClientPairInfoService: OAuthClientPairInfoService,
-                private eventManager: EventManager) {
-        this.jhiLanguageService.setLocations(['subject' , 'project' , 'projectStatus']);
+                private oauthClientPairInfoService: OAuthClientPairInfoService) {
+        this.jhiLanguageService.addLocation('subject');
     }
 
     ngOnInit() {

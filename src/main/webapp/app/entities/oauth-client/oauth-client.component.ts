@@ -1,13 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Response } from '@angular/http';
-import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
-import { EventManager, ParseLinks, PaginationUtil, JhiLanguageService, AlertService } from 'ng-jhipster';
+import { EventManager, JhiLanguageService, AlertService } from 'ng-jhipster';
 
 import { OAuthClient } from './oauth-client.model';
 import { OAuthClientService } from './oauth-client.service';
-import { ITEMS_PER_PAGE, Principal } from '../../shared';
-import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
+import { Principal } from '../../shared';
 
 @Component({
     selector: 'jhi-oauth-client',
@@ -24,7 +22,7 @@ export class OAuthClientComponent implements OnInit, OnDestroy {
         hour: 3600,
         minute: 60,
         second: 1
-    }
+    };
 
     constructor(
         private jhiLanguageService: JhiLanguageService,
@@ -61,30 +59,10 @@ export class OAuthClientComponent implements OnInit, OnDestroy {
     }
 
     registerChangeInOAuthClients() {
-        this.eventSubscriber = this.eventManager.subscribe('oauthClientListModification', (response) => this.loadAll());
+        this.eventSubscriber = this.eventManager.subscribe('oauthClientListModification', () => this.loadAll());
     }
 
     private onError(error) {
         this.alertService.error(error.message, null, null);
-    }
-
-    private convertSeconds(seconds: number) {
-        let time_string: string = '';
-        let plural: string = '';
-        for(var key in this.times){
-            if(Math.floor(seconds / this.times[key]) > 0){
-                if(Math.floor(seconds / this.times[key]) >1 ){
-                    plural = 's';
-                }
-                else{
-                    plural = '';
-                }
-
-                time_string += Math.floor(seconds / this.times[key]).toString() + ' ' + key.toString() + plural + ' ';
-                seconds = seconds - this.times[key] * Math.floor(seconds / this.times[key]);
-
-            }
-        }
-        return time_string;
     }
 }

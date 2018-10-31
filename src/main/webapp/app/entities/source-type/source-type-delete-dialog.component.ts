@@ -22,7 +22,7 @@ export class SourceTypeDeleteDialogComponent {
         public activeModal: NgbActiveModal,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['sourceType', 'sourceTypeScope']);
+        this.jhiLanguageService.addLocation('sourceType');
     }
 
     clear() {

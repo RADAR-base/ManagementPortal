@@ -7,10 +7,8 @@ import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 
 import {RolePopupService} from "./role-popup.service";
 import {RoleService} from "./role.service";
-import {Project} from "../project/project.model";
-import {ProjectService} from "../project/project.service";
-import {AuthorityService} from "../../shared/user/authority.service";
-import {Principal} from "../../shared/auth/principal.service";
+import {Project, ProjectService} from "../project";
+import {Principal, AuthorityService} from "../../shared";
 import {Role} from "../../admin/user-management/role.model";
 
 @Component({
@@ -35,7 +33,7 @@ export class RoleDialogComponent implements OnInit {
         private principal: Principal,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['role', 'processingState']);
+        this.jhiLanguageService.addLocation('role');
     }
 
     ngOnInit() {

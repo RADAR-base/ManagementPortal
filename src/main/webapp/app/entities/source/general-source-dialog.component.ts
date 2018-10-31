@@ -6,11 +6,9 @@ import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
 
 import { SourceType } from '../source-type';
-import {MinimalProject} from "../project/project.model";
-import {ProjectService} from "../project/project.service";
+import {MinimalProject, ProjectService} from "../project";
 import {GeneralSourcePopupService} from "./general-source-popup.service";
-import {Source} from "../../shared/source/source.model";
-import {SourceService} from "../../shared/source/source.service";
+import {Source, SourceService} from "../../shared/source";
 
 @Component({
     selector: 'jhi-source-dialog',
@@ -31,7 +29,7 @@ export class GeneralSourceDialogComponent implements OnInit {
         private projectService: ProjectService,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['source' , 'project' , 'projectStatus']);
+        this.jhiLanguageService.addLocation('source');
     }
 
     ngOnInit() {

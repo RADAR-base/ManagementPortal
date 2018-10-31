@@ -47,7 +47,7 @@ export class UserModalService {
         const modalRef = this.modalService.open(component, { size: 'lg', backdrop: 'static'});
         modalRef.componentInstance.user = user;
         modalRef.componentInstance.isAdmin = isAdmin;
-        modalRef.result.then((result) => {
+        modalRef.result.then(() => {
             this.router.navigate([{ outlets: { popup: null }}], { replaceUrl: true });
             this.isOpen = false;
         }, (reason) => {

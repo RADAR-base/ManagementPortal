@@ -20,7 +20,7 @@ export class UserSendActivationLinkDialogComponent {
         public activeModal: NgbActiveModal,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['user-management']);
+        this.jhiLanguageService.addLocation('user-management');
     }
 
     clear() {
@@ -28,7 +28,7 @@ export class UserSendActivationLinkDialogComponent {
     }
 
     sendActivationLink(login) {
-        this.userService.sendActivation(login).subscribe((response) => {
+        this.userService.sendActivation(login).subscribe(() => {
             this.eventManager.broadcast({ name: 'userListModification',
                 content: 'Sent activation link a user'});
             this.activeModal.dismiss(true);

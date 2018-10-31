@@ -22,7 +22,7 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
         private roleService: RoleService,
         private route: ActivatedRoute
     ) {
-        this.jhiLanguageService.setLocations(['role', 'processingState']);
+        this.jhiLanguageService.setLocations(['role']);
     }
 
     ngOnInit() {

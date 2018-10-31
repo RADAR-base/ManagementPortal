@@ -24,7 +24,8 @@ export class SubjectRevisionComponent implements OnInit, OnDestroy {
         private revisionService: RevisionService,
         private route: ActivatedRoute
     ) {
-        this.jhiLanguageService.setLocations(['subject' , 'project' , 'projectStatus', 'audits']);
+        this.jhiLanguageService.addLocation('subject');
+        this.jhiLanguageService.addLocation('audits');
     }
 
     ngOnInit() {

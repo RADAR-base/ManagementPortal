@@ -22,7 +22,7 @@ export class SourceDeleteDialogComponent {
         public activeModal: NgbActiveModal,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['source']);
+        this.jhiLanguageService.addLocation('source');
     }
 
     clear() {
@@ -30,7 +30,7 @@ export class SourceDeleteDialogComponent {
     }
 
     confirmDelete(sourceName: string) {
-        this.sourceService.delete(sourceName).subscribe((response) => {
+        this.sourceService.delete(sourceName).subscribe(() => {
             this.eventManager.broadcast({
                 name: 'sourceListModification',
                 content: 'Deleted a source'

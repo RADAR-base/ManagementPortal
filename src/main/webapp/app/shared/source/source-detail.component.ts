@@ -22,7 +22,7 @@ export class SourceDetailComponent implements OnInit, OnDestroy {
         private sourceService: SourceService,
         private route: ActivatedRoute
     ) {
-        this.jhiLanguageService.setLocations(['source']);
+        this.jhiLanguageService.addLocation('source');
     }
 
     ngOnInit() {

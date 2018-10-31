@@ -32,7 +32,8 @@ export class SourceTypeDialogComponent implements OnInit {
         private projectService: ProjectService,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['sourceType', 'sourceTypeScope']);
+        this.jhiLanguageService.addLocation('sourceType');
+        this.jhiLanguageService.addLocation('sourceTypeScope');
     }
 
     ngOnInit() {

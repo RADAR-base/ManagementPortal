@@ -36,7 +36,8 @@ export class RegisterComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit() {
-        this.renderer.invokeElementMethod(this.elementRef.nativeElement.querySelector('#login'), 'focus', []);
+        const loginElement = this.elementRef.nativeElement.querySelector('#login');
+        this.renderer.invokeElementMethod(loginElement, 'focus', []);
     }
 
     register() {

@@ -5,13 +5,12 @@ import {
 import {Response} from '@angular/http';
 import {Subscription} from 'rxjs/Rx';
 import {EventManager, JhiLanguageService, AlertService, ParseLinks} from 'ng-jhipster';
+import {ActivatedRoute, Router} from "@angular/router";
 
 import {Source} from './source.model';
 import {SourceService} from './source.service';
-import {Principal} from '../../shared';
-import {Project} from "../../entities/project/project.model";
-import {ActivatedRoute, Router} from "@angular/router";
-import {ITEMS_PER_PAGE} from "../constants/pagination.constants";
+import {Principal, ITEMS_PER_PAGE} from '..';
+import {Project} from "../../entities/project";
 
 @Component({
     selector: 'sources',
@@ -58,7 +57,7 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
                 this.reverse = true;
             }
         });
-        this.jhiLanguageService.setLocations(['source', 'project', 'projectStatus']);
+        this.jhiLanguageService.addLocation('source');
     }
 
     ngOnInit() {

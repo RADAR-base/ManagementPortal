@@ -32,7 +32,7 @@ export class ProjectDialogComponent implements OnInit  {
         private sourceTypeService: SourceTypeService,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['project', 'projectStatus' , 'source' , 'subject' , 'user-management']);
+        this.jhiLanguageService.setLocations(['project', 'projectStatus']);
     }
 
     ngOnInit() {

@@ -1,21 +1,14 @@
-import {Component, OnInit, Input, OnDestroy,} from '@angular/core';
+import {Component, OnInit, OnDestroy,} from '@angular/core';
 import {Response} from '@angular/http';
-import {
-    EventManager,
-    AlertService,
-    JhiLanguageService
-} from 'ng-jhipster';
-
-
+import {ActivatedRoute} from "@angular/router";
+import {EventManager, AlertService, JhiLanguageService} from 'ng-jhipster';
 import {NgbActiveModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 
-import {ActivatedRoute} from "@angular/router";
 import {Subject} from "../subject.model";
-import {MinimalSource, Source} from "../../source/source.model";
+import {MinimalSource, SourceService} from "../../source";
 import {SubjectService} from "../subject.service";
-import {SourceService} from "../../source/index";
 import {SubjectPopupService} from "../subject-popup.service";
-import {Principal} from "../../auth/principal.service";
+import {Principal} from "../..";
 
 
 @Component({
@@ -42,7 +35,7 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
         private principal: Principal,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations([ 'source' , 'subject', 'project' , 'projectStatus']);
+        this.jhiLanguageService.addLocation( 'subject');
     }
 
     ngOnInit() {

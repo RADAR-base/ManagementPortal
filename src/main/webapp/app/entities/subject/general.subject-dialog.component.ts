@@ -7,12 +7,10 @@ import {Response} from '@angular/http';
 import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {EventManager, AlertService, JhiLanguageService} from 'ng-jhipster';
 
-import {Project} from "../project/project.model";
-import {ProjectService} from "../project/project.service";
-import {Subject} from "../../shared/subject/subject.model";
-import {SubjectService} from "../../shared/subject/subject.service";
+import {Project, ProjectService} from "../project";
+import {Subject, SubjectService} from "../../shared/subject";
 import {GeneralSubjectPopupService} from "./general.subject-popup.service";
-import {MinimalSource} from "../../shared/source/source.model";
+import {MinimalSource} from "../../shared/source";
 @Component({
     selector: 'jhi-subject-dialog',
     templateUrl: './general.subject-dialog.component.html'
@@ -33,7 +31,7 @@ export class GeneralSubjectDialogComponent implements OnInit {
                 private subjectService: SubjectService,
                 private projectService: ProjectService,
                 private eventManager: EventManager) {
-        this.jhiLanguageService.setLocations(['subject' , 'project' , 'projectStatus']);
+        this.jhiLanguageService.addLocation('subject');
     }
 
     ngOnInit() {

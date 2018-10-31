@@ -5,7 +5,6 @@ import {
     JhiLanguageService
 } from 'ng-jhipster';
 
-import {Principal} from '../../shared';
 import {Subscription} from "rxjs/Subscription";
 import {Attribute} from "./attribute-mapper.model";
 
@@ -25,8 +24,7 @@ export class AttributeMapperComponent implements OnInit {
 
     constructor(private jhiLanguageService: JhiLanguageService,
                 private alertService: AlertService,
-                private eventManager: EventManager,
-                private principal: Principal) {
+                private eventManager: EventManager) {
         this.jhiLanguageService.addLocation('global');
     }
 

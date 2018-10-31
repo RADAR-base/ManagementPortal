@@ -59,7 +59,7 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
                 this.reverse = true;
             }
         });
-        this.jhiLanguageService.setLocations(['subject' , 'project' , 'projectStatus']);
+        this.jhiLanguageService.addLocation('subject');
     }
 
     loadSubjects() {

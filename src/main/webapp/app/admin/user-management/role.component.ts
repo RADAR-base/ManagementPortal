@@ -1,18 +1,14 @@
-import {Component, OnInit, OnDestroy, EventEmitter, Output, Input,} from '@angular/core';
+import {Component, OnInit, Input,} from '@angular/core';
 import {
     EventManager,
-    PaginationUtil,
-    ParseLinks,
     AlertService,
     JhiLanguageService
 } from 'ng-jhipster';
 
 import {Role} from './role.model';
-import {ITEMS_PER_PAGE, Principal} from '../../shared';
+import {Principal, AuthorityService} from '../../shared';
 import {Subscription} from "rxjs/Subscription";
-import {Project} from "../../entities/project/project.model";
-import {AuthorityService} from "../../shared/user/authority.service";
-import {ProjectService} from "../../entities/project/project.service";
+import {Project, ProjectService} from "../../entities/project";
 
 @Component({
     selector: 'user-role',
@@ -34,7 +30,7 @@ export class RoleComponent implements OnInit {
                 private alertService: AlertService,
                 private eventManager: EventManager,
                 private principal: Principal) {
-        this.jhiLanguageService.setLocations(['role']);
+        this.jhiLanguageService.addLocation('role');
     }
 
     loadAll() {
@@ -47,8 +43,8 @@ export class RoleComponent implements OnInit {
     }
 
     ngOnInit() {
-        if(this.roles ==null) {
-            this.roles = new Array();
+        if(this.roles == null) {
+            this.roles = [];
         }
         this.loadAll();
         this.principal.identity().then((account) => {
@@ -56,19 +52,8 @@ export class RoleComponent implements OnInit {
         });
     }
 
-    registerChangeInRoles() {
-        this.eventManager.subscribe('roleEditListModification', (response ) => {
-            this.roles = response.content ;
-        });
-    }
-
-
     trackId(index: number, item: Role) {
         return item.id;
-    }
-
-    private onError(error) {
-        this.alertService.error(error.message, null, null);
     }
 
     addRole() {

@@ -29,7 +29,8 @@ export class SourceDataDialogComponent implements OnInit {
         private sourceTypeService: SourceTypeService,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['sourceData', 'processingState']);
+        this.jhiLanguageService.addLocation('sourceData');
+        this.jhiLanguageService.addLocation('processingState');
     }
 
     ngOnInit() {

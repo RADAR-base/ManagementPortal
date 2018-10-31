@@ -22,7 +22,7 @@ export class SourceDataDeleteDialogComponent {
         public activeModal: NgbActiveModal,
         private eventManager: EventManager
     ) {
-        this.jhiLanguageService.setLocations(['sourceData', 'processingState']);
+        this.jhiLanguageService.addLocation('sourceData');
     }
 
     clear() {
@@ -30,7 +30,7 @@ export class SourceDataDeleteDialogComponent {
     }
 
     confirmDelete(sourceDataName: string) {
-        this.sourceDataService.delete(sourceDataName).subscribe((response) => {
+        this.sourceDataService.delete(sourceDataName).subscribe(() => {
             this.eventManager.broadcast({
                 name: 'sourceDataListModification',
                 content: 'Deleted an sourceData'
