@@ -2,7 +2,6 @@ export const enum ProjectStatus {
     'PLANNING',
     'ONGOING',
     'ENDED'
-
 }
 
 export class Project {

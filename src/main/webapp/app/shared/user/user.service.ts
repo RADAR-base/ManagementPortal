@@ -49,11 +49,7 @@ export class UserService {
             }
         }
 
-        const options = {
-            search: params,
-        };
-
-        return this.http.get(this.resourceUrl, options);
+        return this.http.get(this.resourceUrl, {params});
     }
 
     delete(login: string): Observable<Response> {
@@ -72,9 +68,6 @@ export class UserService {
         if (req.projectName) {
             params.set('projectName', req.projectName);
         }
-        const options = {
-            search: params,
-        };
-        return this.http.get(this.resourceUrl, options);
+        return this.http.get(this.resourceUrl, {params});
     }
 }

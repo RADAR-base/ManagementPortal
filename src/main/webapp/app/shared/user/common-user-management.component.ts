@@ -3,14 +3,13 @@ import { Response } from '@angular/http';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
 
 import { ITEMS_PER_PAGE, User, UserService } from '..';
-import { Project } from '../../entities/project';
+import { Project } from '../../entities/project/project.model';
 
 @Component({
     selector: 'jhi-common-user-mgmt',
-    templateUrl: './common-user-management.component.html',
+    templateUrl: './common-user-management.component.html'
 })
-export class CommonUserMgmtComponent implements OnInit, OnChanges {
-
+export class CommonUserMgmtComponent implements OnInit, OnChanges{
     currentAccount: any;
     users: User[];
     error: any;
@@ -61,8 +60,7 @@ export class CommonUserMgmtComponent implements OnInit, OnChanges {
                         projectName: this.project.projectName,
                         authority: this.authority,
                     },
-            ).subscribe(
-                    (res: Response) => this.users = res.json());
+            ).subscribe((res: Response) => this.users = res.json());
         }
     }
 
