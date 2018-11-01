@@ -265,7 +265,7 @@ public class OAuth2ServerConfiguration {
                     converter.setVerifier(verifiers.get(0));
                 } else {
                     // else, use the signing key verifier.
-                    logger.debug("Using JWT signing key {} for verification: none of the provided"
+                    logger.warn("Using JWT signing key {} for verification: none of the provided"
                             + " verification keys were valid.", signKey);
                 }
             }
