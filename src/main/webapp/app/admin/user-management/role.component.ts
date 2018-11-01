@@ -1,21 +1,17 @@
-import {Component, OnInit, Input,} from '@angular/core';
-import {
-    EventManager,
-    AlertService,
-    JhiLanguageService
-} from 'ng-jhipster';
+import { Component, Input, OnInit } from '@angular/core';
+import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
+import { Subscription } from 'rxjs/Subscription';
+import { Project, ProjectService } from '../../entities/project';
+import { AuthorityService, Principal } from '../../shared';
 
-import {Role} from './role.model';
-import {Principal, AuthorityService} from '../../shared';
-import {Subscription} from "rxjs/Subscription";
-import {Project, ProjectService} from "../../entities/project";
+import { Role } from './role.model';
 
 @Component({
-    selector: 'user-role',
-    templateUrl: './role.component.html'
+    selector: 'jhi-user-role',
+    templateUrl: './role.component.html',
 })
 export class RoleComponent implements OnInit {
-    @Input() roles: Role[] ;
+    @Input() roles: Role[];
     currentAccount: any;
     eventSubscriber: Subscription;
     authorities: any[];
@@ -43,7 +39,7 @@ export class RoleComponent implements OnInit {
     }
 
     ngOnInit() {
-        if(this.roles == null) {
+        if (this.roles === null) {
             this.roles = [];
         }
         this.loadAll();
@@ -57,14 +53,13 @@ export class RoleComponent implements OnInit {
     }
 
     addRole() {
-        let newRole = new Role();
+        const newRole = new Role();
         newRole.authorityName = this.selectedAuthority;
         newRole.projectId = this.selectedProject.id;
         newRole.projectName = this.selectedProject.projectName;
         if (this.hasRole(newRole)) {
             this.alertService.error('userManagement.role.error.alreadyExist', null, null);
-        }
-        else {
+        } else {
             this.roles.push(newRole);
         }
         this.eventManager.broadcast({name: 'roleListModification', content: this.roles});
@@ -72,7 +67,7 @@ export class RoleComponent implements OnInit {
 
     hasRole(role: Role): boolean {
         return this.roles.some(v => v.projectId === role.projectId &&
-        v.authorityName === role.authorityName)
+                v.authorityName === role.authorityName);
     }
 
     removeRole(role: Role) {

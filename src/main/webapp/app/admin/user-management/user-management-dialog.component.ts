@@ -1,17 +1,17 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, JhiLanguageService } from 'ng-jhipster';
+import { RoleService } from '../../entities/role';
+import { AuthorityService, JhiLanguageHelper, User, UserService } from '../../shared';
+import { Role } from './role.model';
 
 import { UserModalService } from './user-modal.service';
-import { JhiLanguageHelper, User, UserService, AuthorityService } from '../../shared';
-import {RoleService} from "../../entities/role";
-import {Role} from "./role.model";
 
 @Component({
     selector: 'jhi-user-mgmt-dialog',
-    templateUrl: './user-management-dialog.component.html'
+    templateUrl: './user-management-dialog.component.html',
 })
 export class UserMgmtDialogComponent implements OnInit {
 
@@ -22,13 +22,13 @@ export class UserMgmtDialogComponent implements OnInit {
     isSaving: Boolean;
 
     constructor(
-        public activeModal: NgbActiveModal,
-        private languageHelper: JhiLanguageHelper,
-        private jhiLanguageService: JhiLanguageService,
-        private userService: UserService,
-        private roleService: RoleService,
-        private authorityService: AuthorityService,
-        private eventManager: EventManager
+            public activeModal: NgbActiveModal,
+            private languageHelper: JhiLanguageHelper,
+            private jhiLanguageService: JhiLanguageService,
+            private userService: UserService,
+            private roleService: RoleService,
+            private authorityService: AuthorityService,
+            private eventManager: EventManager,
     ) {
         this.jhiLanguageService.addLocation('user-management');
     }
@@ -42,7 +42,7 @@ export class UserMgmtDialogComponent implements OnInit {
     }
 
     registerChangeInRoles() {
-        this.eventManager.subscribe('roleListModification', (response ) => {
+        this.eventManager.subscribe('roleListModification', (response) => {
             this.user.roles = response.content;
         });
     }
@@ -55,17 +55,17 @@ export class UserMgmtDialogComponent implements OnInit {
         this.isSaving = true;
         if (this.user.id !== null) {
             this.userService.update(this.user)
-                .subscribe((response) => this.onSaveSuccess(response), () => this.onSaveError());
+            .subscribe((response) => this.onSaveSuccess(response), () => this.onSaveError());
         } else {
             this.userService.create(this.user)
-                .subscribe((response) => this.onSaveSuccess(response), () => this.onSaveError());
+            .subscribe((response) => this.onSaveSuccess(response), () => this.onSaveError());
         }
     }
 
     getSelected(selectedVals: Array<any>, option: any) {
         if (selectedVals) {
             for (let i = 0; i < selectedVals.length; i++) {
-                if (option == selectedVals[i]) {
+                if (option === selectedVals[i]) {
                     return selectedVals[i];
                 }
             }
@@ -74,7 +74,7 @@ export class UserMgmtDialogComponent implements OnInit {
     }
 
     private onSaveSuccess(result) {
-        this.eventManager.broadcast({ name: 'userListModification', content: 'OK' });
+        this.eventManager.broadcast({name: 'userListModification', content: 'OK'});
         this.isSaving = false;
         this.activeModal.dismiss(result);
     }
@@ -86,7 +86,7 @@ export class UserMgmtDialogComponent implements OnInit {
 
 @Component({
     selector: 'jhi-user-dialog',
-    template: ''
+    template: '',
 })
 export class UserDialogComponent implements OnInit, OnDestroy {
 
@@ -94,22 +94,23 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     routeSub: any;
 
     constructor(
-        private route: ActivatedRoute,
-        private userModalService: UserModalService
-    ) {}
+            private route: ActivatedRoute,
+            private userModalService: UserModalService,
+    ) {
+    }
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            this.route.url.subscribe(url =>{
-                if('user-management-new-admin'==(url[0].path)){
-                    this.modalRef = this.userModalService.open(UserMgmtDialogComponent , null, true);
+            this.route.url.subscribe(url => {
+                if ('user-management-new-admin' === (url[0].path)) {
+                    this.modalRef = this.userModalService.open(UserMgmtDialogComponent, null, true);
                 }
                 return;
             });
-            if ( params['login'] ) {
-                this.modalRef = this.userModalService.open(UserMgmtDialogComponent,params['login'], false );
+            if (params['login']) {
+                this.modalRef = this.userModalService.open(UserMgmtDialogComponent, params['login'], false);
             } else {
-                this.modalRef = this.userModalService.open(UserMgmtDialogComponent, null , false);
+                this.modalRef = this.userModalService.open(UserMgmtDialogComponent, null, false);
             }
         });
     }

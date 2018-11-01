@@ -1,7 +1,8 @@
-import {Project} from "../../entities/project/project.model";
-import {MinimalSource} from "../source/source.model";
-import {Dictionary} from "../dictionary-mapper/dictionary-mapper.model";
-import {Role} from "../../admin/user-management/role.model";
+import { Role } from '../../admin/user-management/role.model';
+import { Project } from '../../entities/project/project.model';
+import { Dictionary } from '../dictionary-mapper/dictionary-mapper.model';
+import { MinimalSource } from '../source/source.model';
+
 export class Subject {
     public id?: any;
     public login?: string;
@@ -19,20 +20,19 @@ export class Subject {
     public roles?: Role[];
 
     constructor(
-         id?: number,
-         login?: string,
-         externalLink?: string,
-         externalId?: string,
-         status?: SubjectStatus,
-         createdBy?: string,
-         createdDate?: Date,
-         lastModifiedBy?: string,
-         lastModifiedDate?: Date,
-         password?: string,
-         project?: Project,
-         sources?: MinimalSource[],
-         roles?: Role[]
-
+            id?: number,
+            login?: string,
+            externalLink?: string,
+            externalId?: string,
+            status?: SubjectStatus,
+            createdBy?: string,
+            createdDate?: Date,
+            lastModifiedBy?: string,
+            lastModifiedDate?: Date,
+            password?: string,
+            project?: Project,
+            sources?: MinimalSource[],
+            roles?: Role[],
     ) {
         this.id = id ? id : null;
         this.login = login ? login : null;
@@ -43,12 +43,13 @@ export class Subject {
         this.lastModifiedBy = lastModifiedBy ? lastModifiedBy : null;
         this.lastModifiedDate = lastModifiedDate ? lastModifiedDate : null;
         this.password = password ? password : null;
-        this.project = project ? project: null;
-        this.sources = sources ? sources: [];
-        this.status = status ? status: SubjectStatus.DEACTIVATED;
+        this.project = project ? project : null;
+        this.sources = sources ? sources : [];
+        this.status = status ? status : SubjectStatus.DEACTIVATED;
         this.roles = roles;
     }
 }
+
 export const enum SubjectStatus {
     'DEACTIVATED',
     'ACTIVATED',

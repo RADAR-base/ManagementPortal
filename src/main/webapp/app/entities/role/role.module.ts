@@ -1,15 +1,15 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { ManagementPortalSharedModule } from '../../shared';
 import {
-    RoleService,
-    RolePopupService,
     RoleDetailComponent,
     RoleDialogComponent,
     RolePopupComponent,
-    roleRoute,
     rolePopupRoute,
+    RolePopupService,
+    roleRoute,
+    RoleService,
 } from './';
 
 const ENTITY_STATES = [
@@ -20,7 +20,7 @@ const ENTITY_STATES = [
 @NgModule({
     imports: [
         ManagementPortalSharedModule,
-        RouterModule.forRoot(ENTITY_STATES, { useHash: true })
+        RouterModule.forRoot(ENTITY_STATES, {useHash: true}),
     ],
     declarations: [
         RoleDetailComponent,
@@ -35,6 +35,7 @@ const ENTITY_STATES = [
         RoleService,
         RolePopupService,
     ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ManagementPortalRoleModule {}
+export class ManagementPortalRoleModule {
+}

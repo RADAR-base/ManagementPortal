@@ -6,9 +6,11 @@ import { Revision } from './revision.model';
 
 @Injectable()
 export class RevisionService {
-private resourceUrl = 'api/revisions';
+    private resourceUrl = 'api/revisions';
 
-constructor(private http: Http) { }
+    constructor(private http: Http) {
+    }
+
     query(req?: any): Observable<Response> {
         const params: URLSearchParams = new URLSearchParams();
         if (req) {
@@ -20,7 +22,7 @@ constructor(private http: Http) { }
         }
 
         const options = {
-            search: params
+            search: params,
         };
 
         return this.http.get(this.resourceUrl, options);
@@ -29,6 +31,6 @@ constructor(private http: Http) { }
     find(id: number): Observable<Revision> {
         return this.http.get(`${this.resourceUrl}/${id}`).map((res: Response) => {
             return res.json();
-          });
+        });
     }
 }

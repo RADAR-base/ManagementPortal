@@ -1,11 +1,12 @@
-import {Injectable} from "@angular/core";
-import {ActivatedRouteSnapshot, Resolve, RouterStateSnapshot} from "@angular/router";
-import {PaginationUtil} from "ng-jhipster";
+import { Injectable } from '@angular/core';
+import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
+import { PaginationUtil } from 'ng-jhipster';
 
 @Injectable()
 export class ResolvePagingParams implements Resolve<any> {
 
-    constructor(private paginationUtil: PaginationUtil) {}
+    constructor(private paginationUtil: PaginationUtil) {
+    }
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
         const page = route.queryParams['page'] ? route.queryParams['page'] : '1';
@@ -13,7 +14,7 @@ export class ResolvePagingParams implements Resolve<any> {
         return {
             page: this.paginationUtil.parsePage(page),
             predicate: this.paginationUtil.parsePredicate(sort),
-            ascending: this.paginationUtil.parseAscending(sort)
+            ascending: this.paginationUtil.parseAscending(sort),
         };
     }
 }

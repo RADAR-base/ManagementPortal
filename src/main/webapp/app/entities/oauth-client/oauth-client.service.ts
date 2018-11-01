@@ -1,14 +1,16 @@
 import { Injectable } from '@angular/core';
-import { Http, Response, URLSearchParams, BaseRequestOptions } from '@angular/http';
+import { BaseRequestOptions, Http, Response, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 
 import { OAuthClient } from './oauth-client.model';
+
 @Injectable()
 export class OAuthClientService {
 
-private resourceUrl = 'api/oauth-clients';
+    private resourceUrl = 'api/oauth-clients';
 
-constructor(private http: Http) { }
+    constructor(private http: Http) {
+    }
 
     create(client: OAuthClient): Observable<OAuthClient> {
         const copy: OAuthClient = Object.assign({}, client);
@@ -33,12 +35,13 @@ constructor(private http: Http) { }
     query(req?: any): Observable<Response> {
         const options = this.createRequestOption(req);
         return this.http.get(this.resourceUrl, options)
-        ;
+                ;
     }
 
     delete(id: string): Observable<Response> {
         return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(id)}`);
     }
+
     private createRequestOption(req?: any): BaseRequestOptions {
         const options: BaseRequestOptions = new BaseRequestOptions();
         if (req) {

@@ -1,20 +1,20 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Response} from '@angular/http';
-import {ActivatedRoute, Router} from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Response } from '@angular/http';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
     AlertService,
     EventManager,
     JhiLanguageService,
     PaginationUtil,
-    ParseLinks
+    ParseLinks,
 } from 'ng-jhipster';
+import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
 
-import {ITEMS_PER_PAGE, Principal, User, UserService} from '../../shared';
-import {PaginationConfig} from '../../blocks/config/uib-pagination.config';
+import { ITEMS_PER_PAGE, Principal, User, UserService } from '../../shared';
 
 @Component({
     selector: 'jhi-user-mgmt',
-    templateUrl: './user-management.component.html'
+    templateUrl: './user-management.component.html',
 })
 export class UserMgmtComponent implements OnInit, OnDestroy {
 
@@ -37,16 +37,16 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
     byEmail: string;
 
     constructor(
-        private jhiLanguageService: JhiLanguageService,
-        private userService: UserService,
-        private parseLinks: ParseLinks,
-        private alertService: AlertService,
-        private principal: Principal,
-        private eventManager: EventManager,
-        private paginationUtil: PaginationUtil,
-        private paginationConfig: PaginationConfig,
-        private activatedRoute: ActivatedRoute,
-        private router: Router
+            private jhiLanguageService: JhiLanguageService,
+            private userService: UserService,
+            private parseLinks: ParseLinks,
+            private alertService: AlertService,
+            private principal: Principal,
+            private eventManager: EventManager,
+            private paginationUtil: PaginationUtil,
+            private paginationConfig: PaginationConfig,
+            private activatedRoute: ActivatedRoute,
+            private router: Router,
     ) {
         this.itemsPerPage = ITEMS_PER_PAGE;
         this.routeData = this.activatedRoute.data.subscribe((data) => {
@@ -75,7 +75,7 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
     }
 
     onChange() {
-        console.log('log', this.byLogin, 'byEmail', this.byEmail, 'byAut', this.byAuthority, 'byProj', this.byProject)
+        console.log('log', this.byLogin, 'byEmail', this.byEmail, 'byAut', this.byAuthority, 'byProj', this.byProject);
         this.userService.query({
             page: this.page - 1,
             size: this.itemsPerPage,
@@ -83,9 +83,10 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
             email: this.byEmail,
             login: this.byLogin,
             projectName: this.byProject,
-            sort: this.sort()}).subscribe(
-            (res: Response) => this.onSuccess(res.json(), res.headers),
-            (res: Response) => this.onError(res.json())
+            sort: this.sort(),
+        }).subscribe(
+                (res: Response) => this.onSuccess(res.json(), res.headers),
+                (res: Response) => this.onError(res.json()),
         );
 
     }
@@ -94,12 +95,12 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
         user.activated = isActivated;
 
         this.userService.update(user).subscribe(
-            (res: Response) => {
+                (res: Response) => {
                     this.error = null;
                     this.success = 'OK';
                     this.loadAll();
                 },
-            (res: Response) => {
+                (res: Response) => {
                     user.activated = !isActivated;
                     this.success = null;
                     this.error = 'ERROR';
@@ -111,9 +112,10 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
         this.userService.query({
             page: this.page - 1,
             size: this.itemsPerPage,
-            sort: this.sort()}).subscribe(
-            (res: Response) => this.onSuccess(res.json(), res.headers),
-            (res: Response) => this.onError(res.json())
+            sort: this.sort(),
+        }).subscribe(
+                (res: Response) => this.onSuccess(res.json(), res.headers),
+                (res: Response) => this.onError(res.json()),
         );
     }
 
@@ -137,11 +139,12 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
     }
 
     transition() {
-        this.router.navigate(['/user-management'], { queryParams:
-                {
-                    page: this.page,
-                    sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc')
-                }
+        this.router.navigate(['/user-management'], {
+            queryParams:
+                    {
+                        page: this.page,
+                        sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc'),
+                    },
         });
         this.loadAll();
     }

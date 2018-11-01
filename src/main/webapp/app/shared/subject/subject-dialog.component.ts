@@ -1,19 +1,18 @@
-import {
-    Component, OnInit, OnDestroy} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {Response} from '@angular/http';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Response } from '@angular/http';
+import { ActivatedRoute } from '@angular/router';
 
-import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {EventManager, AlertService, JhiLanguageService} from 'ng-jhipster';
+import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
+import { MinimalSource } from '../source';
+import { SubjectPopupService } from './subject-popup.service';
 
-import {Subject} from './subject.model';
-import {SubjectPopupService} from './subject-popup.service';
-import {SubjectService} from './subject.service';
-import {MinimalSource} from "../source";
+import { Subject } from './subject.model';
+import { SubjectService } from './subject.service';
 
 @Component({
     selector: 'jhi-subject-dialog',
-    templateUrl: './subject-dialog.component.html'
+    templateUrl: './subject-dialog.component.html',
 })
 export class SubjectDialogComponent implements OnInit {
 
@@ -55,11 +54,11 @@ export class SubjectDialogComponent implements OnInit {
         if (this.subject.id !== null) {
             this.subjectService.update(this.subject)
             .subscribe((res: Subject) =>
-                this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         } else {
             this.subjectService.create(this.subject)
             .subscribe((res: Subject) =>
-                this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         }
     }
 
@@ -101,7 +100,7 @@ export class SubjectDialogComponent implements OnInit {
 
 @Component({
     selector: 'jhi-subject-popup',
-    template: ''
+    template: '',
 })
 export class SubjectPopupComponent implements OnInit, OnDestroy {
 
@@ -109,7 +108,7 @@ export class SubjectPopupComponent implements OnInit, OnDestroy {
     routeSub: any;
 
     constructor(private route: ActivatedRoute,
-                private subjectPopupService: SubjectPopupService,) {
+                private subjectPopupService: SubjectPopupService) {
     }
 
     ngOnInit() {

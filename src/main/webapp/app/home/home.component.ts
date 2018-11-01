@@ -1,16 +1,16 @@
-import {Component, OnInit} from '@angular/core';
-import {NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {EventManager, JhiLanguageService} from 'ng-jhipster';
+import { Component, OnInit } from '@angular/core';
+import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { EventManager, JhiLanguageService } from 'ng-jhipster';
+import { Project } from '../entities/project';
 
-import {Account, LoginModalService, Principal, UserService} from '../shared';
-import {Project} from "../entities/project";
+import { Account, LoginModalService, Principal, UserService } from '../shared';
 
 @Component({
     selector: 'jhi-home',
     templateUrl: './home.component.html',
     styleUrls: [
-        'home.scss'
-    ]
+        'home.scss',
+    ],
 
 })
 export class HomeComponent implements OnInit {
@@ -19,11 +19,11 @@ export class HomeComponent implements OnInit {
     projects: Project[];
 
     constructor(
-        private jhiLanguageService: JhiLanguageService,
-        private principal: Principal,
-        private loginModalService: LoginModalService,
-        private eventManager: EventManager,
-        private userService: UserService
+            private jhiLanguageService: JhiLanguageService,
+            private principal: Principal,
+            private loginModalService: LoginModalService,
+            private eventManager: EventManager,
+            private userService: UserService,
     ) {
         this.jhiLanguageService.setLocations(['home']);
     }

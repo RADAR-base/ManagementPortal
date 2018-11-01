@@ -1,71 +1,67 @@
-import { Injectable } from '@angular/core';
-import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Routes, CanActivate } from '@angular/router';
+import { Routes } from '@angular/router';
 
 import { UserRouteAccessService } from '../../shared';
-import { PaginationUtil } from 'ng-jhipster';
-
-import { ProjectComponent } from './project.component';
+import { ResolvePagingParams } from '../../shared/commons';
+import { PROJECT_ADMIN, SYSTEM_ADMIN } from '../../shared/constants/common.constants';
+import { ProjectDeletePopupComponent } from './project-delete-dialog.component';
 import { ProjectDetailComponent } from './project-detail.component';
 import { ProjectPopupComponent } from './project-dialog.component';
-import { ProjectDeletePopupComponent } from './project-delete-dialog.component';
 
-import { Principal } from '../../shared';
-import {SYSTEM_ADMIN, PROJECT_ADMIN} from "../../shared/constants/common.constants";
-import {ResolvePagingParams} from "../../shared/commons";
+import { ProjectComponent } from './project.component';
 
 export const projectRoute: Routes = [
-  {
-    path: 'project',
-    resolve: {
-        'pagingParams': ResolvePagingParams
+    {
+        path: 'project',
+        resolve: {
+            'pagingParams': ResolvePagingParams,
+        },
+        component: ProjectComponent,
+        data: {
+            authorities: [SYSTEM_ADMIN],
+            pageTitle: 'managementPortalApp.project.home.title',
+        },
+        canActivate: [UserRouteAccessService],
     },
-    component: ProjectComponent,
-    data: {
-        authorities: [SYSTEM_ADMIN],
-        pageTitle: 'managementPortalApp.project.home.title'
+    {
+        path: 'project/:projectName',
+        component: ProjectDetailComponent,
+        data: {
+            authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
+            pageTitle: 'managementPortalApp.project.home.title',
+        },
+        canActivate: [UserRouteAccessService],
     },
-    canActivate: [UserRouteAccessService]
-  },
-  {
-    path: 'project/:projectName',
-    component: ProjectDetailComponent,
-    data: {
-        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
-        pageTitle: 'managementPortalApp.project.home.title'
-    },
-    canActivate: [UserRouteAccessService]
-  }
 ];
 
 export const projectPopupRoute: Routes = [
-  {
-    path: 'project-new',
-    component: ProjectPopupComponent,
-    data: {
-        authorities: [SYSTEM_ADMIN],
-        pageTitle: 'managementPortalApp.project.home.title'
+    {
+        path: 'project-new',
+        component: ProjectPopupComponent,
+        data: {
+            authorities: [SYSTEM_ADMIN],
+            pageTitle: 'managementPortalApp.project.home.title',
+        },
+        canActivate: [UserRouteAccessService],
+        outlet: 'popup',
     },
-    canActivate: [UserRouteAccessService],
-    outlet: 'popup'
-  },
-  {
-    path: 'project/:projectName/edit',
-    component: ProjectPopupComponent,
-    data: {
-        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
-        pageTitle: 'managementPortalApp.project.home.title'
+    {
+        path: 'project/:projectName/edit',
+        component: ProjectPopupComponent,
+        data: {
+            authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
+            pageTitle: 'managementPortalApp.project.home.title',
+        },
+        canActivate: [UserRouteAccessService],
+        outlet: 'popup',
     },
-    canActivate: [UserRouteAccessService],
-    outlet: 'popup'
-  },
-  {
-    path: 'project/:projectName/delete',
-    component: ProjectDeletePopupComponent,
-    data: {
-        authorities: [SYSTEM_ADMIN],
-        pageTitle: 'managementPortalApp.project.home.title'
+    {
+        path: 'project/:projectName/delete',
+        component: ProjectDeletePopupComponent,
+        data: {
+            authorities: [SYSTEM_ADMIN],
+            pageTitle: 'managementPortalApp.project.home.title',
+        },
+        canActivate: [UserRouteAccessService],
+        outlet: 'popup',
     },
-    canActivate: [UserRouteAccessService],
-    outlet: 'popup'
-  }
 ];

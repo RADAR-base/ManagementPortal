@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { JhiLanguageService } from 'ng-jhipster';
 
-import { Principal, AccountService, JhiLanguageHelper } from '../../shared';
+import { AccountService, JhiLanguageHelper, Principal } from '../../shared';
 
 @Component({
     selector: 'jhi-settings',
-    templateUrl: './settings.component.html'
+    templateUrl: './settings.component.html',
 })
 export class SettingsComponent implements OnInit {
     error: string;
@@ -14,10 +14,10 @@ export class SettingsComponent implements OnInit {
     languages: any[];
 
     constructor(
-        private account: AccountService,
-        private principal: Principal,
-        private languageService: JhiLanguageService,
-        private languageHelper: JhiLanguageHelper
+            private account: AccountService,
+            private principal: Principal,
+            private languageService: JhiLanguageService,
+            private languageHelper: JhiLanguageHelper,
     ) {
         this.languageService.setLocations(['settings']);
     }
@@ -57,7 +57,7 @@ export class SettingsComponent implements OnInit {
             langKey: account.langKey,
             lastName: account.lastName,
             login: account.login,
-            imageUrl: account.imageUrl
+            imageUrl: account.imageUrl,
         };
     }
 }

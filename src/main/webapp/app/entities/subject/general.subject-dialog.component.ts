@@ -1,19 +1,18 @@
-import {
-    Component, OnInit, OnDestroy
-} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Response} from '@angular/http';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Response } from '@angular/http';
+import { ActivatedRoute } from '@angular/router';
 
-import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {EventManager, AlertService, JhiLanguageService} from 'ng-jhipster';
+import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
+import { MinimalSource } from '../../shared/source';
+import { Subject, SubjectService } from '../../shared/subject';
 
-import {Project, ProjectService} from "../project";
-import {Subject, SubjectService} from "../../shared/subject";
-import {GeneralSubjectPopupService} from "./general.subject-popup.service";
-import {MinimalSource} from "../../shared/source";
+import { Project, ProjectService } from '../project';
+import { GeneralSubjectPopupService } from './general.subject-popup.service';
+
 @Component({
     selector: 'jhi-subject-dialog',
-    templateUrl: './general.subject-dialog.component.html'
+    templateUrl: './general.subject-dialog.component.html',
 })
 export class GeneralSubjectDialogComponent implements OnInit {
 
@@ -22,8 +21,8 @@ export class GeneralSubjectDialogComponent implements OnInit {
     isSaving: boolean;
     projects: Project[];
 
-    options : string[];
-    attributeComponentEventPrefix : 'subjectAttributes';
+    options: string[];
+    attributeComponentEventPrefix: 'subjectAttributes';
 
     constructor(public activeModal: NgbActiveModal,
                 private jhiLanguageService: JhiLanguageService,
@@ -39,17 +38,17 @@ export class GeneralSubjectDialogComponent implements OnInit {
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.options = ['Human-readable-identifier'];
         this.projectService.query().subscribe(
-            (res) => {
-                this.projects = res.json();
-            });
+                (res) => {
+                    this.projects = res.json();
+                });
         this.registerChangesInSubject();
     }
 
     private registerChangesInSubject() {
         this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification',
-            (response) => {
-                this.subject.attributes = response.content;
-            });
+                (response) => {
+                    this.subject.attributes = response.content;
+                });
     }
 
     clear() {
@@ -61,11 +60,11 @@ export class GeneralSubjectDialogComponent implements OnInit {
         if (this.subject.id !== null) {
             this.subjectService.update(this.subject)
             .subscribe((res: Subject) =>
-                this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         } else {
             this.subjectService.create(this.subject)
             .subscribe((res: Subject) =>
-                this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         }
     }
 
@@ -111,7 +110,7 @@ export class GeneralSubjectDialogComponent implements OnInit {
 
 @Component({
     selector: 'jhi-subject-popup',
-    template: ''
+    template: '',
 })
 export class GeneralSubjectPopupComponent implements OnInit, OnDestroy {
 

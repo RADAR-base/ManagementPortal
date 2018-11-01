@@ -1,18 +1,18 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Response } from '@angular/http';
+import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
+import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
+import { Source, SourceService } from '../../shared/source';
+import { MinimalProject, ProjectService } from '../project';
 
 import { SourceType } from '../source-type';
-import {MinimalProject, ProjectService} from "../project";
-import {GeneralSourcePopupService} from "./general-source-popup.service";
-import {Source, SourceService} from "../../shared/source";
+import { GeneralSourcePopupService } from './general-source-popup.service';
 
 @Component({
     selector: 'jhi-source-dialog',
-    templateUrl: './general-source-dialog.component.html'
+    templateUrl: './general-source-dialog.component.html',
 })
 export class GeneralSourceDialogComponent implements OnInit {
 
@@ -21,13 +21,14 @@ export class GeneralSourceDialogComponent implements OnInit {
     isSaving: boolean;
     sourceTypes: SourceType[];
     projects: MinimalProject[];
+
     constructor(
-        public activeModal: NgbActiveModal,
-        private jhiLanguageService: JhiLanguageService,
-        private alertService: AlertService,
-        private sourceService: SourceService,
-        private projectService: ProjectService,
-        private eventManager: EventManager
+            public activeModal: NgbActiveModal,
+            private jhiLanguageService: JhiLanguageService,
+            private alertService: AlertService,
+            private sourceService: SourceService,
+            private projectService: ProjectService,
+            private eventManager: EventManager,
     ) {
         this.jhiLanguageService.addLocation('source');
     }
@@ -36,8 +37,10 @@ export class GeneralSourceDialogComponent implements OnInit {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.projectService.findAll(true).subscribe(
-            (res: Response) => { this.projects = res.json(); }, (res: Response) => this.onError(res.json()));
-        if(this.source.project) {
+                (res: Response) => {
+                    this.projects = res.json();
+                }, (res: Response) => this.onError(res.json()));
+        if (this.source.project) {
             this.projectService.findSourceTypesByName(this.source.project.projectName).subscribe((res: Response) => {
                 this.sourceTypes = res.json();
             });
@@ -45,12 +48,11 @@ export class GeneralSourceDialogComponent implements OnInit {
     }
 
     public onProjectChange(project: any) {
-        if(project!=null) {
+        if (project !== null) {
             this.projectService.findSourceTypesByName(project.projectName).subscribe((res: Response) => {
                 this.sourceTypes = res.json();
             });
-        }
-        else {
+        } else {
             this.sourceTypes = null;
         }
     }
@@ -63,17 +65,17 @@ export class GeneralSourceDialogComponent implements OnInit {
         this.isSaving = true;
         if (this.source.id !== undefined) {
             this.sourceService.update(this.source)
-                .subscribe((res: Source) =>
+            .subscribe((res: Source) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         } else {
             this.sourceService.create(this.source)
-                .subscribe((res: Source) =>
+            .subscribe((res: Source) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         }
     }
 
     private onSaveSuccess(result: Source) {
-        this.eventManager.broadcast({ name: 'sourceListModification', content: 'OK'});
+        this.eventManager.broadcast({name: 'sourceListModification', content: 'OK'});
         this.isSaving = false;
         this.activeModal.dismiss(result);
     }
@@ -95,6 +97,7 @@ export class GeneralSourceDialogComponent implements OnInit {
     trackSourceTypeById(index: number, item: SourceType) {
         return item.id;
     }
+
     trackProjectById(index: number, item: MinimalProject) {
         return item.id;
     }
@@ -113,7 +116,7 @@ export class GeneralSourceDialogComponent implements OnInit {
 
 @Component({
     selector: 'jhi-source-popup',
-    template: ''
+    template: '',
 })
 export class GeneralSourcePopupComponent implements OnInit, OnDestroy {
 
@@ -121,18 +124,19 @@ export class GeneralSourcePopupComponent implements OnInit, OnDestroy {
     routeSub: any;
 
     constructor(
-        private route: ActivatedRoute,
-        private sourcePopupService: GeneralSourcePopupService
-    ) {}
+            private route: ActivatedRoute,
+            private sourcePopupService: GeneralSourcePopupService,
+    ) {
+    }
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if ( params['sourceName'] ) {
+            if (params['sourceName']) {
                 this.modalRef = this.sourcePopupService
-                    .open(GeneralSourceDialogComponent, params['sourceName']);
+                .open(GeneralSourceDialogComponent, params['sourceName']);
             } else {
                 this.modalRef = this.sourcePopupService
-                    .open(GeneralSourceDialogComponent);
+                .open(GeneralSourceDialogComponent);
             }
         });
     }

@@ -1,25 +1,28 @@
 import {
-    Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges,
-    SimpleChange
+    Component,
+    Input,
+    OnChanges,
+    OnDestroy,
+    OnInit,
+    SimpleChange,
+    SimpleChanges,
 } from '@angular/core';
 import { Response } from '@angular/http';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
-import {EventManager, JhiLanguageService, AlertService, ParseLinks} from 'ng-jhipster';
+import { ITEMS_PER_PAGE, Principal } from '..';
+import { Project } from '../../entities/project';
 
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
-import { Principal } from '../../shared';
-import {Project} from "../../entities/project/index";
-import {ActivatedRoute, Router} from "@angular/router";
-import {ITEMS_PER_PAGE} from "../constants/pagination.constants";
 
 @Component({
-    selector: 'subjects',
-    templateUrl: './subject.component.html'
+    selector: 'jhi-subjects',
+    templateUrl: './subject.component.html',
 })
-export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
-
-    @Input() project : Project;
+export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
+    @Input() project: Project;
     subjects: Subject[];
     currentAccount: any;
     eventSubscriber: Subscription;
@@ -33,16 +36,17 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
     routeData: any;
     previousPage: any;
 
-    @Input() isProjectSpecific : boolean;
+    @Input() isProjectSpecific: boolean;
+
     constructor(
-        private jhiLanguageService: JhiLanguageService,
-        private subjectService: SubjectService,
-        private alertService: AlertService,
-        private eventManager: EventManager,
-        private principal: Principal,
-        private parseLinks: ParseLinks,
-        private activatedRoute: ActivatedRoute,
-        private router: Router
+            private jhiLanguageService: JhiLanguageService,
+            private subjectService: SubjectService,
+            private alertService: AlertService,
+            private eventManager: EventManager,
+            private principal: Principal,
+            private parseLinks: ParseLinks,
+            private activatedRoute: ActivatedRoute,
+            private router: Router,
     ) {
         this.subjects = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
@@ -63,25 +67,26 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
     }
 
     loadSubjects() {
-        if(this.isProjectSpecific) {
+        if (this.isProjectSpecific) {
             this.loadAllFromProject();
-        }
-        else {
+        } else {
             this.loadAll();
         }
     }
+
     loadAll() {
         this.subjectService.query(
-            {
-                page: this.page - 1,
-                size: this.itemsPerPage,
-                sort: this.sort()
-            }
+                {
+                    page: this.page - 1,
+                    size: this.itemsPerPage,
+                    sort: this.sort(),
+                },
         ).subscribe(
-            (res: Response) => this.onSuccess(res.json(), res.headers),
-            (res: Response) => this.onError(res.json())
+                (res: Response) => this.onSuccess(res.json(), res.headers),
+                (res: Response) => this.onError(res.json()),
         );
     }
+
     ngOnInit() {
         this.loadSubjects();
         this.principal.identity().then((account) => {
@@ -112,8 +117,8 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        const project: SimpleChange = changes.project? changes.project: null;
-        if(project){
+        const project: SimpleChange = changes.project ? changes.project : null;
+        if (project) {
             this.project = project.currentValue;
             this.loadAllFromProject();
         }
@@ -124,18 +129,17 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
             projectName: this.project.projectName,
             page: this.page - 1,
             size: this.itemsPerPage,
-            sort: this.sort()
+            sort: this.sort(),
         }).subscribe(
-            (res: Response) => {
-                this.onSuccess(res.json(), res.headers)
-            },
-            (res: Response) => this.onError(res.json())
+                (res: Response) => {
+                    this.onSuccess(res.json(), res.headers);
+                },
+                (res: Response) => this.onError(res.json()),
         );
     }
 
     sort() {
-        const result = [this.predicate + ',' + (this.reverse ? 'asc' : 'desc')];
-        return result;
+        return [this.predicate + ',' + (this.reverse ? 'asc' : 'desc')];
     }
 
     private onSuccess(data, headers) {
@@ -156,10 +160,10 @@ export class SubjectComponent implements OnInit, OnDestroy , OnChanges{
         if (!this.isProjectSpecific) {
             this.router.navigate(['/subject'], {
                 queryParams:
-                    {
-                        page: this.page,
-                        sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc')
-                    }
+                        {
+                            page: this.page,
+                            sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc'),
+                        },
             });
         }
         this.loadSubjects();

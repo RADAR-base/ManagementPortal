@@ -1,35 +1,35 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 import { CookieService } from 'angular2-cookie/services/cookies.service';
 import {
-    ManagementPortalSharedLibsModule,
-    ManagementPortalSharedCommonModule,
-    CSRFService,
-    AuthService,
-    AuthServerProvider,
     AccountService,
-    UserService,
-    StateStorageService,
-    LoginService,
-    LoginModalService,
-    Principal,
+    AuthServerProvider,
+    AuthService,
+    CSRFService,
     HasAnyAuthorityDirective,
-    JhiLoginModalComponent
+    JhiLoginModalComponent,
+    LoginModalService,
+    LoginService,
+    ManagementPortalSharedCommonModule,
+    ManagementPortalSharedLibsModule,
+    Principal,
+    StateStorageService,
+    UserService,
 } from './';
-import {AuthorityService} from "./user/authority.service";
-import {AttributeMapperComponent} from "./attribute-mapper/attribute-mapper.component";
-import {DictionaryMapperComponent} from "./dictionary-mapper/dictionary-mapper.component";
-import {CommonUserMgmtComponent} from "./user/common-user-management.component";
-import {RouterModule} from "@angular/router";
-import {ShowMoreComponent} from "./show-more/show-more.component";
-import {ResolvePagingParams} from "./commons";
+import { AttributeMapperComponent } from './attribute-mapper/attribute-mapper.component';
+import { ResolvePagingParams } from './commons';
+import { DictionaryMapperComponent } from './dictionary-mapper/dictionary-mapper.component';
+import { ShowMoreComponent } from './show-more/show-more.component';
+import { AuthorityService } from './user/authority.service';
+import { CommonUserMgmtComponent } from './user/common-user-management.component';
 
 @NgModule({
     imports: [
         ManagementPortalSharedLibsModule,
         ManagementPortalSharedCommonModule,
-        RouterModule
+        RouterModule,
     ],
     declarations: [
         JhiLoginModalComponent,
@@ -37,7 +37,7 @@ import {ResolvePagingParams} from "./commons";
         AttributeMapperComponent,
         DictionaryMapperComponent,
         CommonUserMgmtComponent,
-        ShowMoreComponent
+        ShowMoreComponent,
     ],
     providers: [
         CookieService,
@@ -52,7 +52,7 @@ import {ResolvePagingParams} from "./commons";
         UserService,
         AuthorityService,
         DatePipe,
-        ResolvePagingParams
+        ResolvePagingParams,
     ],
     entryComponents: [JhiLoginModalComponent],
     exports: [
@@ -65,7 +65,8 @@ import {ResolvePagingParams} from "./commons";
         ShowMoreComponent,
         DatePipe,
     ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
 
 })
-export class ManagementPortalSharedModule {}
+export class ManagementPortalSharedModule {
+}

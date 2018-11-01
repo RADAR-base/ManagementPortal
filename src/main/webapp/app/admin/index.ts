@@ -26,7 +26,7 @@ export * from './user-management/user-management.component';
 export * from './user-management/user-management.route';
 export * from './user-management/user-modal.service';
 export * from './admin.route';
-export * from './user-management/user-mgnt-send-activation.component'
+export * from './user-management/user-mgnt-send-activation.component';
 // export * from './project-authorities/role.component';
 // export * from './project-authorities/role-dialog.component';
 // export * from './project-authorities/role-popup.service';

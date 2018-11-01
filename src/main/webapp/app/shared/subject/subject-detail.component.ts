@@ -1,14 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { EventManager, JhiLanguageService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
-import { EventManager , JhiLanguageService  } from 'ng-jhipster';
 
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
 
 @Component({
     selector: 'jhi-subject-detail',
-    templateUrl: './subject-detail.component.html'
+    templateUrl: './subject-detail.component.html',
 })
 export class SubjectDetailComponent implements OnInit, OnDestroy {
 
@@ -17,10 +17,10 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
     private eventSubscriber: Subscription;
 
     constructor(
-        private eventManager: EventManager,
-        private jhiLanguageService: JhiLanguageService,
-        private subjectService: SubjectService,
-        private route: ActivatedRoute
+            private eventManager: EventManager,
+            private jhiLanguageService: JhiLanguageService,
+            private subjectService: SubjectService,
+            private route: ActivatedRoute,
     ) {
         this.jhiLanguageService.addLocation('subject');
     }
@@ -37,6 +37,7 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
             this.subject = subject;
         });
     }
+
     previousState() {
         window.history.back();
     }

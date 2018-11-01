@@ -1,17 +1,19 @@
-import { Injectable, Component } from '@angular/core';
+import { Component, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { SourceData } from './source-data.model';
 import { SourceDataService } from './source-data.service';
+
 @Injectable()
 export class SourceDataPopupService {
     private isOpen = false;
-    constructor(
-        private modalService: NgbModal,
-        private router: Router,
-        private sourceDataService: SourceDataService
 
-    ) {}
+    constructor(
+            private modalService: NgbModal,
+            private router: Router,
+            private sourceDataService: SourceDataService,
+    ) {
+    }
 
     open(component: Component, sourceDataName?: string): NgbModalRef {
         if (this.isOpen) {
@@ -29,13 +31,13 @@ export class SourceDataPopupService {
     }
 
     sourceDataModalRef(component: Component, sourceData: SourceData): NgbModalRef {
-        const modalRef = this.modalService.open(component, { size: 'lg', backdrop: 'static'});
+        const modalRef = this.modalService.open(component, {size: 'lg', backdrop: 'static'});
         modalRef.componentInstance.sourceData = sourceData;
         modalRef.result.then((result) => {
-            this.router.navigate([{ outlets: { popup: null }}], { replaceUrl: true });
+            this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;
         }, (reason) => {
-            this.router.navigate([{ outlets: { popup: null }}], { replaceUrl: true });
+            this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;
         });
         return modalRef;

@@ -45,7 +45,6 @@ describe('Component Tests', () => {
             service = fixture.debugElement.injector.get(ProjectService);
         });
 
-
         describe('OnInit', () => {
             it('Should call load all on init', () => {
             // GIVEN

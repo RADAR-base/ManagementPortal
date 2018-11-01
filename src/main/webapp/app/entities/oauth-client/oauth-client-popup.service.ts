@@ -1,20 +1,21 @@
-import { Injectable, Component } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Component, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { DatePipe } from '@angular/common';
 import { OAuthClient } from './oauth-client.model';
 import { OAuthClientService } from './oauth-client.service';
 
 @Injectable()
 export class OAuthClientPopupService {
     private isOpen = false;
-    constructor(
-        private datePipe: DatePipe,
-        private modalService: NgbModal,
-        private router: Router,
-        private oauthClientService: OAuthClientService
 
-    ) {}
+    constructor(
+            private datePipe: DatePipe,
+            private modalService: NgbModal,
+            private router: Router,
+            private oauthClientService: OAuthClientService,
+    ) {
+    }
 
     open(component: Component, clientId?: string): NgbModalRef {
         if (this.isOpen) {
@@ -32,13 +33,13 @@ export class OAuthClientPopupService {
     }
 
     oauthClientModalRef(component: Component, client: OAuthClient): NgbModalRef {
-        const modalRef = this.modalService.open(component, { size: 'lg', backdrop: 'static'});
+        const modalRef = this.modalService.open(component, {size: 'lg', backdrop: 'static'});
         modalRef.componentInstance.client = client;
         modalRef.result.then((result) => {
-            this.router.navigate([{ outlets: { popup: null }}], { replaceUrl: true });
+            this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;
         }, (reason) => {
-            this.router.navigate([{ outlets: { popup: null }}], { replaceUrl: true });
+            this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;
         });
         return modalRef;

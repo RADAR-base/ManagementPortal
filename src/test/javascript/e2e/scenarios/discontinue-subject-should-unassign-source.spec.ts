@@ -54,7 +54,7 @@ describe('Discontinued subject should unassign sources', () => {
     it('should be able to assign a source', function () {
         element(by.cssContainingText('li', 'Subjects')).click().then(() => {
             // find a row which contains a uuid
-            const row = element.all(by.xpath('//tr/td')).filter(el => el.getText().then((text) => text.match(/[a-z0-9\-]{36}/) != null)).first()
+            const row = element.all(by.xpath('//tr/td')).filter(el => el.getText().then((text) => text.match(/[a-z0-9\-]{36}/) !== null)).first()
                 .element(by.xpath('ancestor::tr'));
             row.element(by.buttonText('Pair Sources')).click().then(() => {
                 // first table lists assigned sources, this should be empty
@@ -67,7 +67,7 @@ describe('Discontinued subject should unassign sources', () => {
                 });
 
                 // element(by.xpath("//table/tr[td = 'Eve']")).click();
-              const source = element.all(by.xpath('//tr/td[2]')).filter(el => el.getText().then((text) => text.match(sourceName) != null)).first()
+              const source = element.all(by.xpath('//tr/td[2]')).filter(el => el.getText().then((text) => text.match(sourceName) !== null)).first()
               .element(by.xpath('ancestor::tr'));
               source.element(by.cssContainingText('button', 'Add')).click().then(() => {
                     browser.waitForAngular();
@@ -104,7 +104,7 @@ describe('Discontinued subject should unassign sources', () => {
     it('should be able to discontinue a subject', function () {
         element(by.cssContainingText('li', 'Subjects')).click().then(() => {
             // find a row which contains a uuid
-            const row = element.all(by.xpath('//tr/td')).filter(el => el.getText().then((text) => text.match(/[a-z0-9\-]{36}/) != null)).first()
+            const row = element.all(by.xpath('//tr/td')).filter(el => el.getText().then((text) => text.match(/[a-z0-9\-]{36}/) !== null)).first()
                 .element(by.xpath('ancestor::tr'));
             row.element(by.buttonText('Discontinue')).click().then(() => {
                 expect(element(by.css('h4.modal-title')).getAttribute('jhitranslate')).toMatch('managementPortalApp.subject.discontinue.title');
@@ -127,7 +127,7 @@ describe('Discontinued subject should unassign sources', () => {
     it('should be able to delete a subject', function () {
         element(by.cssContainingText('li', 'Subjects')).click().then(() => {
             // find a row which contains a uuid
-            const row = element.all(by.xpath('//tr/td')).filter(el => el.getText().then((text) => text.match(/[a-z0-9\-]{36}/) != null)).first()
+            const row = element.all(by.xpath('//tr/td')).filter(el => el.getText().then((text) => text.match(/[a-z0-9\-]{36}/) !== null)).first()
                 .element(by.xpath('ancestor::tr'));
             row.element(by.buttonText('Delete')).click().then(() => {
                 expect(element(by.css('h4.modal-title')).getAttribute('jhitranslate')).toMatch('entity.delete.title');

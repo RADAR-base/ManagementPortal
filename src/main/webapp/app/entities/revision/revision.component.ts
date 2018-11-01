@@ -1,16 +1,16 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Response } from '@angular/http';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
-import { EventManager, ParseLinks, AlertService, JhiLanguageService } from 'ng-jhipster';
+import { ITEMS_PER_PAGE } from '../../shared';
 
 import { Revision } from './revision.model';
 import { RevisionService } from './revision.service';
-import { ITEMS_PER_PAGE} from '../../shared';
 
 @Component({
-    selector: 'revisions',
-    templateUrl: './revision.component.html'
+    selector: 'jhi-revisions',
+    templateUrl: './revision.component.html',
 })
 export class RevisionComponent implements OnInit, OnDestroy {
 
@@ -30,13 +30,13 @@ export class RevisionComponent implements OnInit, OnDestroy {
     routeData: any;
 
     constructor(
-        private jhiLanguageService: JhiLanguageService,
-        private revisionService: RevisionService,
-        private parseLinks: ParseLinks,
-        private alertService: AlertService,
-        private activatedRoute: ActivatedRoute,
-        private eventManager: EventManager,
-        private router: Router
+            private jhiLanguageService: JhiLanguageService,
+            private revisionService: RevisionService,
+            private parseLinks: ParseLinks,
+            private alertService: AlertService,
+            private activatedRoute: ActivatedRoute,
+            private eventManager: EventManager,
+            private router: Router,
     ) {
         this.itemsPerPage = ITEMS_PER_PAGE;
         this.routeData = this.activatedRoute.data.subscribe((data) => {
@@ -63,16 +63,17 @@ export class RevisionComponent implements OnInit, OnDestroy {
     }
 
     loadAll() {
-       this.revisionService.query({
+        this.revisionService.query({
             page: this.page - 1,
             size: this.itemsPerPage,
-            sort: this.sort()}).subscribe(
-            (res: Response) => this.onSuccess(res.json(), res.headers),
-            (res: Response) => this.onError(res.json())
+            sort: this.sort(),
+        }).subscribe(
+                (res: Response) => this.onSuccess(res.json(), res.headers),
+                (res: Response) => this.onError(res.json()),
         );
     }
 
-    trackIdentity(index, item:Revision) {
+    trackIdentity(index, item: Revision) {
         return item.id;
     }
 
@@ -92,11 +93,12 @@ export class RevisionComponent implements OnInit, OnDestroy {
     }
 
     transition() {
-        this.router.navigate(['/revisions'], { queryParams:
-                {
-                    page: this.page,
-                    sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc')
-                }
+        this.router.navigate(['/revisions'], {
+            queryParams:
+                    {
+                        page: this.page,
+                        sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc'),
+                    },
         });
         this.loadAll();
     }

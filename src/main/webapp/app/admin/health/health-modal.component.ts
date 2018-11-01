@@ -1,12 +1,12 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { JhiLanguageService } from 'ng-jhipster';
 
 import { JhiHealthService } from './health.service';
-import {JhiLanguageService} from "ng-jhipster";
 
 @Component({
     selector: 'jhi-health-modal',
-    templateUrl: './health-modal.component.html'
+    templateUrl: './health-modal.component.html',
 })
 export class JhiHealthModalComponent implements OnInit {
 
@@ -15,8 +15,7 @@ export class JhiHealthModalComponent implements OnInit {
     constructor(
             private healthService: JhiHealthService,
             public activeModal: NgbActiveModal,
-            private jhiLanguageService: JhiLanguageService)
-    {
+            private jhiLanguageService: JhiLanguageService) {
         this.jhiLanguageService.addLocation('health');
     }
 

@@ -6,7 +6,8 @@ import { Log } from './log.model';
 
 @Injectable()
 export class LogsService {
-    constructor(private http: Http) { }
+    constructor(private http: Http) {
+    }
 
     changeLevel(log: Log): Observable<Response> {
         return this.http.put('management/logs', log);

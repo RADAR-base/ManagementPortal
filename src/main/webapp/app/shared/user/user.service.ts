@@ -8,7 +8,8 @@ import { User } from './user.model';
 export class UserService {
     private resourceUrl = 'api/users';
 
-    constructor(private http: Http) { }
+    constructor(private http: Http) {
+    }
 
     create(user: User): Observable<Response> {
         return this.http.post(this.resourceUrl, user);
@@ -49,7 +50,7 @@ export class UserService {
         }
 
         const options = {
-            search: params
+            search: params,
         };
 
         return this.http.get(this.resourceUrl, options);
@@ -59,13 +60,11 @@ export class UserService {
         return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(login)}`);
     }
 
-
     sendActivation(login: string): Observable<Response> {
         return this.http.post('api/account/reset-activation/init', login);
     }
 
-
-    findByProjectAndAuthority(req: any) : Observable<Response> {
+    findByProjectAndAuthority(req: any): Observable<Response> {
         const params: URLSearchParams = new URLSearchParams();
         if (req.authority) {
             params.set('authority', req.authority);
@@ -74,7 +73,7 @@ export class UserService {
             params.set('projectName', req.projectName);
         }
         const options = {
-            search: params
+            search: params,
         };
         return this.http.get(this.resourceUrl, options);
     }

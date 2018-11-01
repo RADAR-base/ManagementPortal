@@ -1,14 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { EventManager, JhiLanguageService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
-import { EventManager , JhiLanguageService  } from 'ng-jhipster';
 
 import { Source } from './source.model';
 import { SourceService } from './source.service';
 
 @Component({
     selector: 'jhi-source-detail',
-    templateUrl: './source-detail.component.html'
+    templateUrl: './source-detail.component.html',
 })
 export class SourceDetailComponent implements OnInit, OnDestroy {
 
@@ -17,10 +17,10 @@ export class SourceDetailComponent implements OnInit, OnDestroy {
     private eventSubscriber: Subscription;
 
     constructor(
-        private eventManager: EventManager,
-        private jhiLanguageService: JhiLanguageService,
-        private sourceService: SourceService,
-        private route: ActivatedRoute
+            private eventManager: EventManager,
+            private jhiLanguageService: JhiLanguageService,
+            private sourceService: SourceService,
+            private route: ActivatedRoute,
     ) {
         this.jhiLanguageService.addLocation('source');
     }
@@ -37,6 +37,7 @@ export class SourceDetailComponent implements OnInit, OnDestroy {
             this.source = source;
         });
     }
+
     previousState() {
         window.history.back();
     }
@@ -48,6 +49,6 @@ export class SourceDetailComponent implements OnInit, OnDestroy {
 
     registerChangeInDevices() {
         this.eventSubscriber = this.eventManager.subscribe('sourceListModification',
-            (response) => this.load(this.source.sourceName));
+                (response) => this.load(this.source.sourceName));
     }
 }

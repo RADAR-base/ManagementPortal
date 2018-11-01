@@ -1,19 +1,19 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Response } from '@angular/http';
+import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
+import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
+import { Project, ProjectService } from '../project';
+import { SourceDataService } from '../source-data';
+import { SourceTypePopupService } from './source-type-popup.service';
 
 import { SourceType } from './source-type.model';
-import { SourceTypePopupService } from './source-type-popup.service';
 import { SourceTypeService } from './source-type.service';
-import { SourceData, SourceDataService } from '../source-data';
-import { Project, ProjectService } from '../project';
 
 @Component({
     selector: 'jhi-source-type-dialog',
-    templateUrl: './source-type-dialog.component.html'
+    templateUrl: './source-type-dialog.component.html',
 })
 export class SourceTypeDialogComponent implements OnInit {
 
@@ -21,16 +21,16 @@ export class SourceTypeDialogComponent implements OnInit {
     authorities: any[];
     isSaving: boolean;
 
-
     projects: Project[];
+
     constructor(
-        public activeModal: NgbActiveModal,
-        private jhiLanguageService: JhiLanguageService,
-        private alertService: AlertService,
-        private sourceTypeService: SourceTypeService,
-        private sourceDataService: SourceDataService,
-        private projectService: ProjectService,
-        private eventManager: EventManager
+            public activeModal: NgbActiveModal,
+            private jhiLanguageService: JhiLanguageService,
+            private alertService: AlertService,
+            private sourceTypeService: SourceTypeService,
+            private sourceDataService: SourceDataService,
+            private projectService: ProjectService,
+            private eventManager: EventManager,
     ) {
         this.jhiLanguageService.addLocation('sourceType');
         this.jhiLanguageService.addLocation('sourceTypeScope');
@@ -40,8 +40,11 @@ export class SourceTypeDialogComponent implements OnInit {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.projectService.query().subscribe(
-            (res: Response) => { this.projects = res.json(); }, (res: Response) => this.onError(res.json()));
+                (res: Response) => {
+                    this.projects = res.json();
+                }, (res: Response) => this.onError(res.json()));
     }
+
     clear() {
         this.activeModal.dismiss('cancel');
     }
@@ -50,17 +53,17 @@ export class SourceTypeDialogComponent implements OnInit {
         this.isSaving = true;
         if (this.sourceType.id !== undefined) {
             this.sourceTypeService.update(this.sourceType)
-                .subscribe((res: SourceType) =>
+            .subscribe((res: SourceType) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         } else {
             this.sourceTypeService.create(this.sourceType)
-                .subscribe((res: SourceType) =>
+            .subscribe((res: SourceType) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         }
     }
 
     private onSaveSuccess(result: SourceType) {
-        this.eventManager.broadcast({ name: 'sourceTypeListModification', content: 'OK'});
+        this.eventManager.broadcast({name: 'sourceTypeListModification', content: 'OK'});
         this.isSaving = false;
         this.activeModal.dismiss(result);
     }
@@ -97,7 +100,7 @@ export class SourceTypeDialogComponent implements OnInit {
 
 @Component({
     selector: 'jhi-source-type-popup',
-    template: ''
+    template: '',
 })
 export class SourceTypePopupComponent implements OnInit, OnDestroy {
 
@@ -105,18 +108,19 @@ export class SourceTypePopupComponent implements OnInit, OnDestroy {
     routeSub: any;
 
     constructor(
-        private route: ActivatedRoute,
-        private sourceTypePopupService: SourceTypePopupService
-    ) {}
+            private route: ActivatedRoute,
+            private sourceTypePopupService: SourceTypePopupService,
+    ) {
+    }
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if ( params['sourceTypeProducer'] &&  params['sourceTypeModel'] && params['catalogVersion']) {
+            if (params['sourceTypeProducer'] && params['sourceTypeModel'] && params['catalogVersion']) {
                 this.modalRef = this.sourceTypePopupService
-                    .open(SourceTypeDialogComponent, params['sourceTypeProducer'], params['sourceTypeModel'], params['catalogVersion']);
+                .open(SourceTypeDialogComponent, params['sourceTypeProducer'], params['sourceTypeModel'], params['catalogVersion']);
             } else {
                 this.modalRef = this.sourceTypePopupService
-                    .open(SourceTypeDialogComponent);
+                .open(SourceTypeDialogComponent);
             }
         });
     }

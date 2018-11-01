@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import {JhiLanguageService} from "ng-jhipster";
+import { JhiLanguageService } from 'ng-jhipster';
 
 @Component({
     selector: 'jhi-metrics-modal',
-    templateUrl: './metrics-modal.component.html'
+    templateUrl: './metrics-modal.component.html',
 })
 export class JhiMetricsMonitoringModalComponent implements OnInit {
 
@@ -35,7 +35,7 @@ export class JhiMetricsMonitoringModalComponent implements OnInit {
             }
         });
         this.threadDumpAll = this.threadDumpRunnable + this.threadDumpWaiting +
-            this.threadDumpTimedWaiting + this.threadDumpBlocked;
+                this.threadDumpTimedWaiting + this.threadDumpBlocked;
     }
 
     getBadgeClass(threadState) {

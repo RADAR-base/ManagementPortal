@@ -1,20 +1,25 @@
 import {
-    Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges,
-    SimpleChange
+    Component,
+    Input,
+    OnChanges,
+    OnDestroy,
+    OnInit,
+    SimpleChange,
+    SimpleChanges,
 } from '@angular/core';
-import {Response} from '@angular/http';
-import {Subscription} from 'rxjs/Rx';
-import {EventManager, JhiLanguageService, AlertService, ParseLinks} from 'ng-jhipster';
-import {ActivatedRoute, Router} from "@angular/router";
+import { Response } from '@angular/http';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
+import { Subscription } from 'rxjs/Rx';
+import { ITEMS_PER_PAGE, Principal } from '..';
+import { Project } from '../../entities/project';
 
-import {Source} from './source.model';
-import {SourceService} from './source.service';
-import {Principal, ITEMS_PER_PAGE} from '..';
-import {Project} from "../../entities/project";
+import { Source } from './source.model';
+import { SourceService } from './source.service';
 
 @Component({
-    selector: 'sources',
-    templateUrl: './source.component.html'
+    selector: 'jhi-sources',
+    templateUrl: './source.component.html',
 })
 export class SourceComponent implements OnInit, OnDestroy, OnChanges {
 
@@ -71,8 +76,7 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
     private loadSources() {
         if (this.project) {
             this.loadAllFromProject();
-        }
-        else {
+        } else {
             this.loadAll();
         }
     }
@@ -88,7 +92,7 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
 
     registerChangeInDevices() {
         this.eventSubscriber = this.eventManager.subscribe('sourceListModification',
-            (response) => this.loadSources());
+                (response) => this.loadSources());
     }
 
     private onError(error) {
@@ -97,14 +101,14 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
 
     loadAll() {
         this.sourceService.query(
-            {
-                page: this.page - 1,
-                size: this.itemsPerPage,
-                sort: this.sort()
-            }
+                {
+                    page: this.page - 1,
+                    size: this.itemsPerPage,
+                    sort: this.sort(),
+                },
         ).subscribe(
-            (res: Response) => this.onSuccess(res.json(), res.headers),
-            (res: Response) => this.onError(res.json())
+                (res: Response) => this.onSuccess(res.json(), res.headers),
+                (res: Response) => this.onError(res.json()),
         );
     }
 
@@ -113,12 +117,12 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
             projectName: this.project.projectName,
             page: this.page - 1,
             size: this.itemsPerPage,
-            sort: this.sort()
+            sort: this.sort(),
         }).subscribe(
-            (res: Response) => {
-                this.onSuccess(res.json(), res.headers)
-            },
-            (res: Response) => this.onError(res.json())
+                (res: Response) => {
+                    this.onSuccess(res.json(), res.headers);
+                },
+                (res: Response) => this.onError(res.json()),
         );
     }
 
@@ -156,10 +160,10 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
         if (!this.isProjectSpecific) {
             this.router.navigate(['/source'], {
                 queryParams:
-                    {
-                        page: this.page,
-                        sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc')
-                    }
+                        {
+                            page: this.page,
+                            sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc'),
+                        },
             });
         }
         this.loadSources();

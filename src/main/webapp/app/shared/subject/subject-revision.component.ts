@@ -1,16 +1,15 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs/Rx';
-import { EventManager , JhiLanguageService  } from 'ng-jhipster';
-
-import { Subject } from './subject.model';
-import { SubjectService } from './subject.service';
+import { JhiLanguageService } from 'ng-jhipster';
 import { Revision } from '../../entities/revision/revision.model';
 import { RevisionService } from '../../entities/revision/revision.service';
 
+import { Subject } from './subject.model';
+import { SubjectService } from './subject.service';
+
 @Component({
     selector: 'jhi-subject-revision',
-    templateUrl: './subject-revision.component.html'
+    templateUrl: './subject-revision.component.html',
 })
 export class SubjectRevisionComponent implements OnInit, OnDestroy {
 
@@ -19,10 +18,10 @@ export class SubjectRevisionComponent implements OnInit, OnDestroy {
     private subscription: any;
 
     constructor(
-        private jhiLanguageService: JhiLanguageService,
-        private subjectService: SubjectService,
-        private revisionService: RevisionService,
-        private route: ActivatedRoute
+            private jhiLanguageService: JhiLanguageService,
+            private subjectService: SubjectService,
+            private revisionService: RevisionService,
+            private route: ActivatedRoute,
     ) {
         this.jhiLanguageService.addLocation('subject');
         this.jhiLanguageService.addLocation('audits');
@@ -42,6 +41,7 @@ export class SubjectRevisionComponent implements OnInit, OnDestroy {
             this.revision = revision;
         });
     }
+
     previousState() {
         window.history.back();
     }

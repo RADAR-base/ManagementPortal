@@ -1,26 +1,21 @@
-import {Component, OnInit, Input,} from '@angular/core';
-import {
-    EventManager,
-    AlertService,
-    JhiLanguageService
-} from 'ng-jhipster';
+import { Component, Input, OnInit } from '@angular/core';
+import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
 
-import {Subscription} from "rxjs/Subscription";
-import {Attribute} from "./attribute-mapper.model";
+import { Subscription } from 'rxjs/Subscription';
+import { Attribute } from './attribute-mapper.model';
 
 @Component({
-    selector: 'attribute-mapper',
-    templateUrl: './attribute-mapper.component.html'
+    selector: 'jhi-attribute-mapper',
+    templateUrl: './attribute-mapper.component.html',
 })
 export class AttributeMapperComponent implements OnInit {
-    @Input() attributes: Attribute[] ;
+    @Input() attributes: Attribute[];
     eventSubscriber: Subscription;
 
-    @Input() keys : string[];
-    @Input() eventPrefix : string;
+    @Input() keys: string[];
+    @Input() eventPrefix: string;
     selectedKey: any;
     enteredValue: string;
-
 
     constructor(private jhiLanguageService: JhiLanguageService,
                 private alertService: AlertService,
@@ -29,7 +24,7 @@ export class AttributeMapperComponent implements OnInit {
     }
 
     ngOnInit() {
-        if(this.attributes == null) {
+        if (this.attributes === null) {
             this.attributes = [];
         }
         this.registerChangeInParentComponent();
@@ -45,33 +40,35 @@ export class AttributeMapperComponent implements OnInit {
         return item.key;
     }
 
-    private onError(error) {
-        this.alertService.error(error.message, null, null);
-    }
-
     addAttribute() {
-        let newAttributeData = new Attribute();
+        const newAttributeData = new Attribute();
         newAttributeData.key = this.selectedKey;
         newAttributeData.value = this.enteredValue;
         if (this.hasAttribute(newAttributeData)) {
             this.alertService.error('global.attribute.error.alreadyExist', null, null);
-        }
-        else {
+        } else {
             this.attributes.push(newAttributeData);
         }
-        this.eventManager.broadcast({name: this.eventPrefix + 'ListModification', content: this.attributes});
+        this.eventManager.broadcast({
+            name: this.eventPrefix + 'ListModification',
+            content: this.attributes,
+        });
     }
 
     hasAttribute(attribute: Attribute): boolean {
-        return this.attributes.some(v => v.key=== attribute.key)
+        return this.attributes.some(v => v.key === attribute.key);
     }
 
     removeAttribute(attribute: Attribute) {
         this.attributes.splice(this.attributes.indexOf(v => v.key === attribute.key), 1);
-        this.eventManager.broadcast({name: this.eventPrefix + 'ListModification', content: this.attributes});
+        this.eventManager.broadcast({
+            name: this.eventPrefix + 'ListModification',
+            content: this.attributes,
+        });
     }
 
 }
+
 /**
  * Created by nivethika on 30-8-17.
  */

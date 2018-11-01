@@ -1,14 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { EventManager, JhiLanguageService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
-import { EventManager , JhiLanguageService  } from 'ng-jhipster';
 
 import { SourceData } from './source-data.model';
 import { SourceDataService } from './source-data.service';
 
 @Component({
     selector: 'jhi-source-data-detail',
-    templateUrl: './source-data-detail.component.html'
+    templateUrl: './source-data-detail.component.html',
 })
 export class SourceDataDetailComponent implements OnInit, OnDestroy {
 
@@ -17,10 +17,10 @@ export class SourceDataDetailComponent implements OnInit, OnDestroy {
     private eventSubscriber: Subscription;
 
     constructor(
-        private eventManager: EventManager,
-        private jhiLanguageService: JhiLanguageService,
-        private sourceDataService: SourceDataService,
-        private route: ActivatedRoute
+            private eventManager: EventManager,
+            private jhiLanguageService: JhiLanguageService,
+            private sourceDataService: SourceDataService,
+            private route: ActivatedRoute,
     ) {
         this.jhiLanguageService.setLocations(['sourceData', 'processingState']);
     }
@@ -37,6 +37,7 @@ export class SourceDataDetailComponent implements OnInit, OnDestroy {
             this.sourceData = sourceData;
         });
     }
+
     previousState() {
         window.history.back();
     }

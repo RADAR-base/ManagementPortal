@@ -1,5 +1,8 @@
 import { Routes } from '@angular/router';
 
+import { UserRouteAccessService } from '../shared';
+import { PROJECT_ADMIN, SYSTEM_ADMIN } from '../shared/constants/common.constants';
+
 import {
     auditsRoute,
     configurationRoute,
@@ -7,12 +10,9 @@ import {
     healthRoute,
     logsRoute,
     metricsRoute,
-    userMgmtRoute,
     userDialogRoute,
+    userMgmtRoute,
 } from './';
-
-import { UserRouteAccessService } from '../shared';
-import {PROJECT_ADMIN, SYSTEM_ADMIN} from "../shared/constants/common.constants";
 
 const ADMIN_ROUTES = [
     auditsRoute,
@@ -21,16 +21,16 @@ const ADMIN_ROUTES = [
     healthRoute,
     logsRoute,
     ...userMgmtRoute,
-    metricsRoute
+    metricsRoute,
 ];
 
 export const adminState: Routes = [{
     path: '',
     data: {
-        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN]
+        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
     },
     canActivate: [UserRouteAccessService],
-    children: ADMIN_ROUTES
+    children: ADMIN_ROUTES,
 },
-    ...userDialogRoute
+    ...userDialogRoute,
 ];

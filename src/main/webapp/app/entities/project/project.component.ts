@@ -1,17 +1,16 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Response } from '@angular/http';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
-import { EventManager, ParseLinks, PaginationUtil, JhiLanguageService, AlertService } from 'ng-jhipster';
+import { ITEMS_PER_PAGE, Principal } from '../../shared';
 
 import { Project } from './project.model';
 import { ProjectService } from './project.service';
-import { ITEMS_PER_PAGE, Principal } from '../../shared';
-import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
 
 @Component({
     selector: 'jhi-project',
-    templateUrl: './project.component.html'
+    templateUrl: './project.component.html',
 })
 export class ProjectComponent implements OnInit, OnDestroy {
     projects: Project[];
@@ -28,14 +27,14 @@ export class ProjectComponent implements OnInit, OnDestroy {
     previousPage: any;
 
     constructor(
-        private jhiLanguageService: JhiLanguageService,
-        private projectService: ProjectService,
-        private alertService: AlertService,
-        private eventManager: EventManager,
-        private principal: Principal,
-        private parseLinks: ParseLinks,
-        private activatedRoute: ActivatedRoute,
-        private router: Router
+            private jhiLanguageService: JhiLanguageService,
+            private projectService: ProjectService,
+            private alertService: AlertService,
+            private eventManager: EventManager,
+            private principal: Principal,
+            private parseLinks: ParseLinks,
+            private activatedRoute: ActivatedRoute,
+            private router: Router,
     ) {
         this.projects = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
@@ -50,16 +49,17 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
     loadAll() {
         this.projectService.query(
-            {
-                page: this.page - 1,
-                size: this.itemsPerPage,
-                sort: this.sort()
-            }
+                {
+                    page: this.page - 1,
+                    size: this.itemsPerPage,
+                    sort: this.sort(),
+                },
         ).subscribe(
-            (res: Response) => this.onSuccess(res.json(), res.headers),
-            (res: Response) => this.onError(res.json())
+                (res: Response) => this.onSuccess(res.json(), res.headers),
+                (res: Response) => this.onError(res.json()),
         );
     }
+
     ngOnInit() {
         this.loadAll();
         this.principal.identity().then((account) => {
@@ -105,12 +105,14 @@ export class ProjectComponent implements OnInit, OnDestroy {
             this.transition();
         }
     }
+
     transition() {
-        this.router.navigate(['/project'], { queryParams:
-            {
-                page: this.page,
-                sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc')
-            }
+        this.router.navigate(['/project'], {
+            queryParams:
+                    {
+                        page: this.page,
+                        sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc'),
+                    },
         });
         this.loadAll();
     }
