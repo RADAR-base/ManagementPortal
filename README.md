@@ -35,7 +35,7 @@ docker-compose files.
 1. Make sure [Docker][] and [Docker-Compose][] are installed on your system.
 2. Generate a key pair for signing JWT tokens as follows:
    ```shell
-   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -keysize 256 -sigalg SHA256withECDSA -storetype JKS -keystore src/main/docker/etc/config/keystore.jks -storepass radarbase
+   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -keysize 256 -sigalg SHA256withECDSA -storetype PKCS12 -keystore src/main/docker/etc/config/keystore.p12 -storepass radarbase -keypass radarbase
    ```
 3. Now, we can start the stack with `docker-compose -f src/main/docker/management-portal.yml up -d`.
 
@@ -50,7 +50,7 @@ you must install and configure the following dependencies on your machine to run
    Depending on your system, you can install Yarn either from source or as a pre-packaged bundle.
 3. Generate a key pair for signing JWT tokens as follows:
    ```shell
-   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -keysize 256 -sigalg SHA256withECDSA -storetype JKS -keystore keystore.jks -storepass radarbase
+   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -keysize 256 -sigalg SHA256withECDSA -storetype PKCS12 -keystore keystore.p12 -storepass radarbase -keypass radarbase
    ```
    **Make sure the key password and store password are the same!** This is a requirement for Spring Security.
 
@@ -100,7 +100,7 @@ for other options on overriding the default configuration.
 | `MANAGEMENTPORTAL_FRONTEND_ACCESS_TOKEN_VALIDITY_SECONDS`  | `14400`                                             | Frontend access token validity period in seconds                                                       |
 | `MANAGEMENTPORTAL_FRONTEND_REFRESH_TOKEN_VALIDITY_SECONDS` | `259200`                                            | Frontend refresh token validity period in seconds                                                      |
 | `MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE`                      | `/mp-includes/config/oauth_client_details.csv`      | Location of the OAuth clients file                                                                     |
-| `MANAGEMENTPORTAL_OAUTH_KEY_STORE_PASSWORD`                | `radarbase`                                         | Password for the JKS keystore                                                                          |
+| `MANAGEMENTPORTAL_OAUTH_KEY_STORE_PASSWORD`                | `radarbase`                                         | Password for the JWT keystore                                                                          |
 | `MANAGEMENTPORTAL_OAUTH_SIGNING_KEY_ALIAS`                 | `radarbase-managementportal-ec`                     | Alias in the keystore of the keypair to use for signing                                                |
 | `MANAGEMENTPORTAL_CATALOGUE_SERVER_ENABLE_AUTO_IMPORT`     | `false`                                             | Wether to enable or disable auto import of sources from the catalogue server                           |
 | `MANAGEMENTPORTAL_CATALOGUE_SERVER_SERVER_URL`             | None                                                | URL to the catalogue server                                                                            |

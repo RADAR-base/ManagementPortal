@@ -348,9 +348,8 @@ task cleanResources(type: Delete) {
     delete 'build/resources'
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion '4.4'
-    distributionType 'all'
+wrapper {
+    gradleVersion '4.10.2'
 }
 
 task stage(dependsOn: 'bootRepackage') {

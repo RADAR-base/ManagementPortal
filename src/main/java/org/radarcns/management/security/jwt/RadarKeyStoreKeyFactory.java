@@ -1,12 +1,22 @@
 package org.radarcns.management.security.jwt;
 
+import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.Collection;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
-import java.util.stream.Stream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 /**
@@ -15,70 +25,101 @@ import org.springframework.core.io.Resource;
  * this class does not assume a specific key type, while the Spring factory assumes RSA keys.
  */
 public class RadarKeyStoreKeyFactory {
-    private final Resource resource;
+    private static final Logger logger = LoggerFactory.getLogger(RadarKeyStoreKeyFactory.class);
 
     private final char[] password;
+    private final KeyStore store;
+    private Resource loadedResource;
 
-    private KeyStore store;
+    /**
+     * Keystore factory. This tries to load the first valid keystore listed in resources.
+     * @param resources where the keystore is located
+     * @param password keystore password
+     *
+     * @throws IllegalArgumentException if none of the provided resources can be used to load a
+     *                                  keystore.
+     */
+    public RadarKeyStoreKeyFactory(@Nonnull List<Resource> resources, @Nonnull char[] password) {
+        this.password = Objects.requireNonNull(password);
+        this.store = loadStore(Objects.requireNonNull(resources));
 
-    private final Object lock = new Object();
+    }
 
-    public RadarKeyStoreKeyFactory(Resource resource, char[] password) {
-        this.resource = resource;
-        this.password = password;
+    private @Nonnull KeyStore loadStore(List<Resource> resources) {
+        for (Resource resource : resources) {
+            if (!resource.exists()) {
+                logger.trace("Ignoring non-existant JWT key store {}", resource);
+                continue;
+            }
+            try {
+                String fileName = resource.getFilename().toLowerCase(Locale.US);
+                String type = fileName.endsWith(".pfx") || fileName.endsWith(".p12")
+                        ? "PKCS12" : "jks";
+                KeyStore localStore = KeyStore.getInstance(type);
+                localStore.load(resource.getInputStream(), this.password);
+                logger.debug("Loaded JWT key store {}", resource);
+                this.loadedResource = resource;
+                return localStore;
+            } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException
+                    | IOException ex) {
+                logger.error("Cannot load JWT key store {}", ex);
+            }
+        }
+        throw new IllegalArgumentException("Cannot load any of the given JWT key stores "
+                + resources);
     }
 
     /**
-     * Get a keypair from the store using the store password.
-     * @param alias the keypair alias
-     * @return the keypair
-     * @throws IllegalStateException if the keys cannot be loaded, e.g. the alias does not exist,
-     *                               the configured password is invalid or the store file cannot be
-     *                               loaded.
+     * Get a key pair from the store using the store password.
+     * @param alias key pair alias
+     * @return loaded key pair or {@code null} if the key store does not contain a loadable key with
+     *         given alias.
+     * @throws IllegalArgumentException if the key alias password is wrong or the key cannot
+     *                                  loaded.
      */
-    public KeyPair getKeyPair(String alias) {
+    public @Nullable KeyPair getKeyPair(@Nullable String alias) {
         return getKeyPair(alias, password);
     }
 
     /**
-     * Get a keypair from the store with a given alias and password.
-     * @param alias the keypair alias
-     * @param password the keypair password
-     * @return the keypair
-     * @throws IllegalStateException if the keys cannot be loaded, e.g. the alias does not exist,
-     *                               the password is invalid or the store file cannot be loaded.
+     * Get a key pair from the store with a given alias and password.
+     * @param alias key pair alias
+     * @param password key pair password
+     * @return loaded key pair or {@code null} if the key store does not contain a loadable key with
+     *         given alias.
+     * @throws IllegalArgumentException if the key alias password is wrong or the key cannot
+     *                                  loaded.
      */
-    public KeyPair getKeyPair(String alias, char[] password) {
+    public @Nullable KeyPair getKeyPair(@Nullable String alias, char[] password) {
         try {
-            KeyStore localStore;
-            synchronized (lock) {
-                if (store == null) {
-                    store = KeyStore.getInstance("jks");
-                    store.load(resource.getInputStream(), this.password);
-                }
-                localStore = store;
+            PrivateKey key = (PrivateKey) store.getKey(alias, password);
+            if (key == null) {
+                logger.warn("JWT key store {} does not contain private key pair for alias {}",
+                        loadedResource, alias);
+                return null;
             }
-            PrivateKey key = (PrivateKey) localStore.getKey(alias, password);
-            PublicKey publicKey = localStore.getCertificate(alias).getPublicKey();
+            Certificate cert = store.getCertificate(alias);
+            if (cert == null) {
+                logger.warn("JWT key store {} does not contain certificate pair for alias {}",
+                        loadedResource, alias);
+                return null;
+            }
+            PublicKey publicKey = cert.getPublicKey();
+            if (publicKey == null) {
+                logger.warn("JWT key store {} does not contain public key pair for alias {}",
+                        loadedResource, alias);
+                return null;
+            }
             return new KeyPair(publicKey, key);
-        } catch (Exception e) {
-            throw new IllegalStateException("Cannot load keys from store: " + resource, e);
+        } catch (NoSuchAlgorithmException ex) {
+            logger.warn(
+                    "JWT key store {} contains unknown algorithm for key pair with alias {}: {}",
+                    loadedResource, alias, ex.toString());
+            return null;
+        } catch (UnrecoverableKeyException | KeyStoreException ex) {
+            throw new IllegalArgumentException("JWT key store " + loadedResource
+                    + " contains unrecoverable key pair with alias "
+                    + alias + " (the password may be wrong)", ex);
         }
-    }
-
-    /**
-     * Stream JwtAlgorithm for given keystore key pair aliases.
-     * Unknown algorithms will be excluded from output.
-     * @param aliases key aliases, possibly null.
-     * @return stream of JwtAlgorithm objects matching given aliases.
-     */
-    public Stream<JwtAlgorithm> streamJwtAlgorithm(Collection<String> aliases) {
-        if (aliases == null) {
-            return Stream.empty();
-        }
-        return aliases.stream()
-                .map(this::getKeyPair)
-                .map(RadarJwtAccessTokenConverter::getJwtAlgorithm)
-                .filter(Objects::nonNull);
     }
 }
