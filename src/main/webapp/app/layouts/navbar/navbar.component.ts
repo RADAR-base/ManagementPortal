@@ -5,9 +5,7 @@ import { EventManager, JhiLanguageService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Subscription';
 
 import { DEBUG_INFO_ENABLED, VERSION } from '../../app.constants';
-import { Project } from '../../entities/project/project.model';
-import { JhiLanguageHelper, LoginModalService, LoginService, Principal } from '../../shared';
-import { UserService } from '../../shared/user/user.service';
+import { JhiLanguageHelper, LoginModalService, LoginService, Principal, Project, UserService } from '../../shared';
 
 import { ProfileService } from '../profiles/profile.service'; // FIXME barrel doesn't work here
 

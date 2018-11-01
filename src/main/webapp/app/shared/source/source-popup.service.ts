@@ -1,7 +1,7 @@
 import { Component, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ProjectService } from '../../entities/project';
+import { ProjectService } from '../project/project.service';
 import { Source } from './source.model';
 import { SourceService } from './source.service';
 

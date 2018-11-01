@@ -1,5 +1,5 @@
 import { Role } from '../../admin/user-management/role.model';
-import { Project } from '../../entities/project/project.model';
+import { Project } from '../../shared/project';
 
 export class User {
     public id?: any;

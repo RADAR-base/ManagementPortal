@@ -24,6 +24,7 @@ import { ShowMoreComponent } from './show-more/show-more.component';
 import { AuthorityService } from './user/authority.service';
 import { CommonUserMgmtComponent } from './user/common-user-management.component';
 import { ResolvePagingParams } from './commons';
+import { ProjectService } from './project/project.service';
 
 @NgModule({
     imports: [
@@ -50,6 +51,7 @@ import { ResolvePagingParams } from './commons';
         AuthServerProvider,
         AuthService,
         UserService,
+        ProjectService,
         AuthorityService,
         DatePipe,
         ResolvePagingParams,

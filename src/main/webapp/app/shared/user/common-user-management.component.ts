@@ -2,14 +2,13 @@ import { Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges } from
 import { Response } from '@angular/http';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
 
-import { ITEMS_PER_PAGE, User, UserService } from '..';
-import { Project } from '../../entities/project/project.model';
+import { ITEMS_PER_PAGE, Project, User, UserService } from '..';
 
 @Component({
     selector: 'jhi-common-user-mgmt',
     templateUrl: './common-user-management.component.html'
 })
-export class CommonUserMgmtComponent implements OnInit, OnChanges{
+export class CommonUserMgmtComponent implements OnInit, OnChanges {
     currentAccount: any;
     users: User[];
     error: any;

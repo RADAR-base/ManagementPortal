@@ -5,8 +5,7 @@ import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, JhiLanguageService } from 'ng-jhipster';
 import { ProjectPopupService } from './project-popup.service';
 
-import { Project } from './project.model';
-import { ProjectService } from './project.service';
+import { Project, ProjectService } from '../../shared';
 
 @Component({
     selector: 'jhi-project-delete-dialog',

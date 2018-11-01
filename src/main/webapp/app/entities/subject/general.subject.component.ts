@@ -6,9 +6,9 @@ import { JhiLanguageService } from 'ng-jhipster';
     templateUrl: './general.subject.component.html',
 })
 export class GeneralSubjectComponent {
-    constructor(private jhiLanguateService: JhiLanguageService) {
-        this.jhiLanguateService.setLocations([])
-    }
-
     isProjectSpecific = false;
+
+    constructor(private jhiLanguateService: JhiLanguageService) {
+        this.jhiLanguateService.setLocations([]);
+    }
 }

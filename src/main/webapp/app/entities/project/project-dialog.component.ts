@@ -7,8 +7,7 @@ import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
 import { SourceType, SourceTypeService } from '../source-type';
 import { ProjectPopupService } from './project-popup.service';
 
-import { Project } from './project.model';
-import { ProjectService } from './project.service';
+import { Project, ProjectService } from '../../shared/project';
 
 @Component({
     selector: 'jhi-project-dialog',

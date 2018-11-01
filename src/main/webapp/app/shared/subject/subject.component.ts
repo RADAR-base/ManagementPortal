@@ -11,8 +11,7 @@ import { Response } from '@angular/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
-import { ITEMS_PER_PAGE, Principal } from '..';
-import { Project } from '../../entities/project';
+import { ITEMS_PER_PAGE, Principal, Project } from '..';
 
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';

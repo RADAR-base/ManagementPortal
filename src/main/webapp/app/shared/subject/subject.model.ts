@@ -1,5 +1,5 @@
 import { Role } from '../../admin/user-management/role.model';
-import { Project } from '../../entities/project/project.model';
+import { Project } from '../project/project.model';
 import { Dictionary } from '../dictionary-mapper/dictionary-mapper.model';
 import { MinimalSource } from '../source/source.model';
 

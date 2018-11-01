@@ -5,8 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
 import { Role } from '../../admin/user-management/role.model';
-import { AuthorityService, Principal } from '../../shared';
-import { Project, ProjectService } from '../project';
+import { AuthorityService, Principal, Project, ProjectService } from '../../shared';
 
 import { RolePopupService } from './role-popup.service';
 import { RoleService } from './role.service';

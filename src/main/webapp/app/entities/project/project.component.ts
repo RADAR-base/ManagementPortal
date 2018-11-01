@@ -3,10 +3,7 @@ import { Response } from '@angular/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
-import { ITEMS_PER_PAGE, Principal } from '../../shared';
-
-import { Project } from './project.model';
-import { ProjectService } from './project.service';
+import { ITEMS_PER_PAGE, Principal, Project, ProjectService } from '../../shared';
 
 @Component({
     selector: 'jhi-project',

@@ -1,4 +1,4 @@
-import { MinimalProject } from '../../entities/project/project.model';
+import { MinimalProject } from '../project/project.model';
 import { SourceType } from '../../entities/source-type/source-type.model';
 import { Dictionary } from '../dictionary-mapper/dictionary-mapper.model';
 

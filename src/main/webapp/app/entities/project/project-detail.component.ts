@@ -4,8 +4,7 @@ import { EventManager, JhiLanguageService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
 import { Source } from '../../shared/source/source.model';
 
-import { Project } from './project.model';
-import { ProjectService } from './project.service';
+import { Project, ProjectService } from '../../shared';
 
 @Component({
     selector: 'jhi-project-detail',

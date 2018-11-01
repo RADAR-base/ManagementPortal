@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, JhiLanguageService } from 'ng-jhipster';
-import { Project } from '../entities/project';
 
-import { Account, LoginModalService, Principal, UserService } from '../shared';
+import { Account, LoginModalService, Principal, Project, UserService } from '../shared';
 
 @Component({
     selector: 'jhi-home',

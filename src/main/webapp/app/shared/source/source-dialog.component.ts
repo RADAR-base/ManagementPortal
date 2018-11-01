@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
-import { ProjectService } from '../../entities/project';
+import { ProjectService } from '../project/project.service';
 import { SourceType } from '../../entities/source-type';
 import { SourcePopupService } from './source-popup.service';
 

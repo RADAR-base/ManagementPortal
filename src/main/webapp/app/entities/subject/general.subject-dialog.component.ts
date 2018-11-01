@@ -7,7 +7,7 @@ import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
 import { MinimalSource } from '../../shared/source';
 import { Subject, SubjectService } from '../../shared/subject';
 
-import { Project, ProjectService } from '../project';
+import { Project, ProjectService } from '../../shared/project';
 import { GeneralSubjectPopupService } from './general.subject-popup.service';
 
 @Component({
