@@ -13,8 +13,8 @@ keystore.p12
 ######################
 *.patch
 
-# don't ignore .jks keystores in test folders
-!**/test/resources/**/keystore.jks
+# don't ignore keystores in test folders
+!**/test/resources/**/keystore.*
 
 ######################
 # Node
