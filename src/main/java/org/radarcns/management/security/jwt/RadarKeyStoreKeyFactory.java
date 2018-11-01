@@ -27,21 +27,17 @@ import org.springframework.core.io.Resource;
 public class RadarKeyStoreKeyFactory {
     private static final Logger logger = LoggerFactory.getLogger(RadarKeyStoreKeyFactory.class);
 
-    private final List<Resource> resources;
-
     private final char[] password;
     private final KeyStore store;
+    private Resource loadedResource;
 
     public RadarKeyStoreKeyFactory(@Nonnull List<Resource> resources, @Nonnull char[] password) {
-        this.resources = Objects.requireNonNull(resources);
-        if (this.resources.isEmpty()) {
-            throw new IllegalArgumentException("No JWT keystore resource paths specified.");
-        }
         this.password = Objects.requireNonNull(password);
-        this.store = loadStore();
+        this.store = loadStore(Objects.requireNonNull(resources));
+
     }
 
-    private @Nonnull KeyStore loadStore() {
+    private @Nonnull KeyStore loadStore(List<Resource> resources) {
         for (Resource resource : resources) {
             if (!resource.exists()) {
                 logger.trace("Ignoring non-existant JWT key store {}", resource);
@@ -54,6 +50,7 @@ public class RadarKeyStoreKeyFactory {
                 KeyStore localStore = KeyStore.getInstance(type);
                 localStore.load(resource.getInputStream(), this.password);
                 logger.debug("Loaded JWT key store {}", resource);
+                this.loadedResource = resource;
                 return localStore;
             } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException
                     | IOException ex) {
@@ -90,28 +87,28 @@ public class RadarKeyStoreKeyFactory {
             PrivateKey key = (PrivateKey) store.getKey(alias, password);
             if (key == null) {
                 logger.warn("JWT key store {} does not contain private key pair for alias {}",
-                        resources, alias);
+                        loadedResource, alias);
                 return null;
             }
             Certificate cert = store.getCertificate(alias);
             if (cert == null) {
                 logger.warn("JWT key store {} does not contain certificate pair for alias {}",
-                        resources, alias);
+                        loadedResource, alias);
                 return null;
             }
             PublicKey publicKey = cert.getPublicKey();
             if (publicKey == null) {
                 logger.warn("JWT key store {} does not contain public key pair for alias {}",
-                        resources, alias);
+                        loadedResource, alias);
                 return null;
             }
             return new KeyPair(publicKey, key);
         } catch (NoSuchAlgorithmException ex) {
             logger.warn("JWT key store {} contains unknown algorithm for key pair with alias {}: {}",
-                    resources, alias, ex.toString());
+                    loadedResource, alias, ex.toString());
             return null;
         } catch (UnrecoverableKeyException | KeyStoreException ex) {
-            throw new IllegalArgumentException("JWT key store " + resources
+            throw new IllegalArgumentException("JWT key store " + loadedResource
                     + " contains unrecoverable key pair with alias "
                     + alias + " (the password may be wrong)", ex);
         }
