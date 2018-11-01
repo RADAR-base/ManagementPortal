@@ -35,7 +35,7 @@ docker-compose files.
 1. Make sure [Docker][] and [Docker-Compose][] are installed on your system.
 2. Generate a key pair for signing JWT tokens as follows:
    ```shell
-   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -keysize 256 -sigalg SHA256withECDSA -storetype JKS -keystore src/main/docker/etc/config/keystore.jks -storepass radarbase
+   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -keysize 256 -sigalg SHA256withECDSA -storetype PKCS12 -keystore src/main/docker/etc/config/keystore.p12 -storepass radarbase -keypass radarbase
    ```
 3. Now, we can start the stack with `docker-compose -f src/main/docker/management-portal.yml up -d`.
 
@@ -50,7 +50,7 @@ you must install and configure the following dependencies on your machine to run
    Depending on your system, you can install Yarn either from source or as a pre-packaged bundle.
 3. Generate a key pair for signing JWT tokens as follows:
    ```shell
-   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -keysize 256 -sigalg SHA256withECDSA -storetype JKS -keystore keystore.jks -storepass radarbase
+   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -keysize 256 -sigalg SHA256withECDSA -storetype PKCS12 -keystore keystore.p12 -storepass radarbase -keypass radarbase
    ```
    **Make sure the key password and store password are the same!** This is a requirement for Spring Security.
 

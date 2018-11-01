@@ -1,6 +1,7 @@
 package org.radarcns.management.security.jwt;
 
 import java.security.KeyPair;
+import java.util.Objects;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.jwt.crypto.sign.SignatureVerifier;
 import org.springframework.security.jwt.crypto.sign.Signer;
