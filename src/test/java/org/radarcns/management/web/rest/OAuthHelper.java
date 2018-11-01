@@ -78,9 +78,9 @@ public class OAuthHelper {
      * @throws Exception If anything goes wrong during setup
      */
     public static void setUp() throws Exception {
-        KeyStore ks = KeyStore.getInstance("JKS");
+        KeyStore ks = KeyStore.getInstance("PKCS12");
         InputStream keyStream = OAuthHelper.class
-                .getClassLoader().getResourceAsStream("config/keystore.jks");
+                .getClassLoader().getResourceAsStream("config/keystore.p12");
         ks.load(keyStream, TEST_KEYSTORE_PASSWORD.toCharArray());
 
         // get the EC keypair for signing
