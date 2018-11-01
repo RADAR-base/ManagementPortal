@@ -38,34 +38,30 @@ public class RadarKeyStoreKeyFactory {
             throw new IllegalArgumentException("No JWT keystore resource paths specified.");
         }
         this.password = Objects.requireNonNull(password);
+        this.store = loadStore();
+    }
 
-        KeyStore localStore = null;
+    private @Nonnull KeyStore loadStore() {
         for (Resource resource : resources) {
             if (!resource.exists()) {
+                logger.trace("Ignoring non-existant JWT key store {}", resource);
                 continue;
             }
             try {
                 String fileName = resource.getFilename().toLowerCase(Locale.US);
-                if (fileName.endsWith(".pfx") || fileName.endsWith(".p12")) {
-                    localStore = KeyStore.getInstance("PKCS12");
-                } else {
-                    localStore = KeyStore.getInstance("jks");
-                }
+                String type = fileName.endsWith(".pfx") || fileName.endsWith(".p12")
+                        ? "PKCS12" : "jks";
+                KeyStore localStore = KeyStore.getInstance(type);
                 localStore.load(resource.getInputStream(), this.password);
                 logger.debug("Loaded JWT key store {}", resource);
-                break;
+                return localStore;
             } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException
                     | IOException ex) {
-                localStore = null;
                 logger.error("Cannot load JWT key store {}", ex);
             }
         }
-        if (localStore == null) {
-            throw new IllegalArgumentException("Cannot load any of the given JWT key stores "
-                    + resources);
-        }
-
-        this.store = localStore;
+        throw new IllegalArgumentException("Cannot load any of the given JWT key stores "
+                + resources);
     }
 
     /**
