@@ -31,6 +31,14 @@ public class RadarKeyStoreKeyFactory {
     private final KeyStore store;
     private Resource loadedResource;
 
+    /**
+     * Keystore factory. This tries to load the first valid keystore listed in resources.
+     * @param resources where the keystore is located
+     * @param password keystore password
+     *
+     * @throws IllegalArgumentException if none of the provided resources can be used to load a
+     *                                  keystore.
+     */
     public RadarKeyStoreKeyFactory(@Nonnull List<Resource> resources, @Nonnull char[] password) {
         this.password = Objects.requireNonNull(password);
         this.store = loadStore(Objects.requireNonNull(resources));
@@ -104,7 +112,8 @@ public class RadarKeyStoreKeyFactory {
             }
             return new KeyPair(publicKey, key);
         } catch (NoSuchAlgorithmException ex) {
-            logger.warn("JWT key store {} contains unknown algorithm for key pair with alias {}: {}",
+            logger.warn(
+                    "JWT key store {} contains unknown algorithm for key pair with alias {}: {}",
                     loadedResource, alias, ex.toString());
             return null;
         } catch (UnrecoverableKeyException | KeyStoreException ex) {

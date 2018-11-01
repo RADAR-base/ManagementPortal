@@ -12,7 +12,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import javax.validation.constraints.Null;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
