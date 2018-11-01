@@ -1,13 +1,13 @@
 import { Routes } from '@angular/router';
 
 import { UserRouteAccessService } from '../../shared';
-import { ResolvePagingParams } from '../../shared/commons';
 import { PROJECT_ADMIN, SYSTEM_ADMIN } from '../../shared/constants/common.constants';
 import { SourceTypeDeletePopupComponent } from './source-type-delete-dialog.component';
 import { SourceTypeDetailComponent } from './source-type-detail.component';
 import { SourceTypePopupComponent } from './source-type-dialog.component';
 
 import { SourceTypeComponent } from './source-type.component';
+import { ResolvePagingParams } from '../../shared/commons';
 
 export const sourceTypeRoute: Routes = [
     {

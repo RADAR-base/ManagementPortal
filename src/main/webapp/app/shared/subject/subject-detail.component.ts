@@ -23,6 +23,7 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
             private route: ActivatedRoute,
     ) {
         this.jhiLanguageService.addLocation('subject');
+        this.jhiLanguageService.addLocation('audits');
     }
 
     ngOnInit() {

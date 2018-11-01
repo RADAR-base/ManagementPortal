@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 
 import { UserRouteAccessService } from '../../shared';
-import { ResolvePagingParams } from '../commons';
 
 import { PROJECT_ADMIN, SYSTEM_ADMIN } from '../constants/common.constants';
 import { SubjectSourceAssignerPopupComponent } from './source-assigner/source-assigner.component';
@@ -11,6 +10,7 @@ import { SubjectPopupComponent } from './subject-dialog.component';
 import { SubjectPairPopupComponent } from './subject-pair-dialog.component';
 import { SubjectRevisionListComponent } from './subject-revision-list.component';
 import { SubjectRevisionComponent } from './subject-revision.component';
+import { ResolvePagingParams } from '../commons';
 
 export const subjectRoute: Routes = [
     {

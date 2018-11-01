@@ -19,11 +19,11 @@ import {
     UserService,
 } from './';
 import { AttributeMapperComponent } from './attribute-mapper/attribute-mapper.component';
-import { ResolvePagingParams } from './commons';
 import { DictionaryMapperComponent } from './dictionary-mapper/dictionary-mapper.component';
 import { ShowMoreComponent } from './show-more/show-more.component';
 import { AuthorityService } from './user/authority.service';
 import { CommonUserMgmtComponent } from './user/common-user-management.component';
+import { ResolvePagingParams } from './commons';
 
 @NgModule({
     imports: [

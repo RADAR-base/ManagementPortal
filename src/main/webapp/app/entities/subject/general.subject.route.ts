@@ -1,11 +1,11 @@
 import { Routes } from '@angular/router';
 
 import { UserRouteAccessService } from '../../shared';
-import { ResolvePagingParams } from '../../shared/commons';
 import { SYSTEM_ADMIN } from '../../shared/constants/common.constants';
 import { GeneralSubjectPopupComponent } from './general.subject-dialog.component';
 
 import { GeneralSubjectComponent } from './general.subject.component';
+import { ResolvePagingParams } from '../../shared/commons';
 
 export const subjectRoute: Routes = [
     {

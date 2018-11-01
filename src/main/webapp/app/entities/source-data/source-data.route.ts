@@ -7,10 +7,8 @@ import { SourceDataDetailComponent } from './source-data-detail.component';
 import { SourceDataPopupComponent } from './source-data-dialog.component';
 import { SourceDataDeletePopupComponent } from './source-data-delete-dialog.component';
 
-import {PROJECT_ADMIN, SYSTEM_ADMIN} from "../../shared/constants/common.constants";
-import {ResolvePagingParams} from "../../shared/commons";
-
-
+import {PROJECT_ADMIN, SYSTEM_ADMIN} from '../../shared/constants/common.constants';
+import {ResolvePagingParams} from '../../shared/commons';
 
 export const sourceDataRoute: Routes = [
   {
