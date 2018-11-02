@@ -28,7 +28,7 @@ describe('Discontinued subject should unassign sources', () => {
     });
 
     it('should be able to create a subject', function () {
-        element(by.css('subjects h4 button.btn-primary')).click().then(() => {
+        element(by.css('jhi-subjects h4 button.btn-primary')).click().then(() => {
             element(by.css('.modal-footer button.btn-primary')).click();
         });
     });
@@ -43,7 +43,7 @@ describe('Discontinued subject should unassign sources', () => {
                 });
                 element(by.css('.modal-footer button.btn-primary')).click().then(() => {
                     browser.waitForAngular();
-                    element.all(by.css('sources tbody tr')).count().then(function(count) {
+                    element.all(by.css('jhi-sources tbody tr')).count().then(function(count) {
                         expect(count).toEqual(3);
                     });
                 });
@@ -58,11 +58,11 @@ describe('Discontinued subject should unassign sources', () => {
                 .element(by.xpath('ancestor::tr'));
             row.element(by.buttonText('Pair Sources')).click().then(() => {
                 // first table lists assigned sources, this should be empty
-                element.all(by.css('source-assigner tbody')).get(0).all(by.css('tr')).then(function(rows) {
+                element.all(by.css('jhi-source-assigner tbody')).get(0).all(by.css('tr')).then(function(rows) {
                     expect(rows.length).toEqual(0);
                 });
                 // second table lists available sources, should have two elements
-                element.all(by.css('source-assigner tbody')).get(1).all(by.css('tr')).then(function(rows) {
+                element.all(by.css('jhi-source-assigner tbody')).get(1).all(by.css('tr')).then(function(rows) {
                     expect(rows.length).toEqual(2);
                 });
 
@@ -72,16 +72,16 @@ describe('Discontinued subject should unassign sources', () => {
               source.element(by.cssContainingText('button', 'Add')).click().then(() => {
                     browser.waitForAngular();
                     // available source should be moved to first table
-                    element.all(by.css('source-assigner tbody')).get(0).all(by.css('tr')).then(function(rows) {
+                    element.all(by.css('jhi-source-assigner tbody')).get(0).all(by.css('tr')).then(function(rows) {
                         expect(rows.length).toEqual(1);
                     });
-                    element.all(by.css('source-assigner tbody')).get(1).all(by.css('tr')).then(function(rows) {
+                    element.all(by.css('jhi-source-assigner tbody')).get(1).all(by.css('tr')).then(function(rows) {
                         expect(rows.length).toEqual(1);
                     });
                     element(by.cssContainingText('button', 'Save')).click().then(() => {
                         browser.waitForAngular();
                         // check that we have exactly one cell in the subjects table containing the sourceName
-                        element.all(by.cssContainingText('subjects td', sourceName)).count().then(function(count) {
+                        element.all(by.cssContainingText('jhi-subjects td', sourceName)).count().then(function(count) {
                             expect(count).toBe(1);
                         });
                     });

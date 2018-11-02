@@ -23,7 +23,7 @@ export class DictionaryMapperComponent implements OnInit {
     }
 
     ngOnInit() {
-        if (this.attributes === null) {
+        if (this.attributes === undefined) {
             this.attributes = {};
         }
         this.update();
@@ -59,9 +59,11 @@ export class DictionaryMapperComponent implements OnInit {
     }
 
     isEmpty(obj: any) {
-        for (const key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                return false;
+        if (obj) {
+            for (const key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    return false;
+                }
             }
         }
         return true;
