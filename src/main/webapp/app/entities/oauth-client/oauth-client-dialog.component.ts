@@ -14,15 +14,14 @@ import { OAuthClientService } from './oauth-client.service';
     templateUrl: './oauth-client-dialog.component.html',
 })
 export class OAuthClientDialogComponent implements OnInit {
-
+    readonly authorities: string[];
+    readonly availableGrants: string[];
     client: OAuthClient;
     isSaving: boolean;
-    authorities: any[];
     grantTypes: any[];
     scopeList: string;
     resourcesList: string;
     autoApproveScopeList: string;
-    availableGrants: string[];
     dynamicRegistration: boolean;
     dynamicRegistrationKey: string;
     newClient: boolean;
@@ -37,18 +36,16 @@ export class OAuthClientDialogComponent implements OnInit {
     ) {
         this.jhiLanguageService.addLocation('oauthClient');
         this.availableGrants = ['authorization_code', 'implicit', 'client_credentials', 'refresh_token', 'password'];
+        this.authorities = ['ROLE_SYS_ADMIN'];
+        this.isSaving = false;
     }
 
     ngOnInit() {
-        this.isSaving = false;
         // transform array of authorized grant types to array of objects with name and authorized property, so we can bind a checkbox to the authorized property
-        this.grantTypes = [];
-        this.availableGrants.forEach((grant) => {
-            this.grantTypes.push({
-                'name': grant,
-                'authorized': this.client.authorizedGrantTypes.indexOf(grant) > -1,
-            });
-        });
+        this.grantTypes = this.availableGrants.map(grant => ({
+            name: grant,
+            authorized: this.client.authorizedGrantTypes.indexOf(grant) > -1,
+        }));
         // transform array of scopes to a comma seperated string so we can bind a single text box to it
         this.scopeList = this.client.scope.join(', ');
         // transform array of resources to a comma seperated string so we can bind a single text box to it
@@ -57,7 +54,6 @@ export class OAuthClientDialogComponent implements OnInit {
         this.autoApproveScopeList = this.client.autoApproveScopes ? this.client.autoApproveScopes.join(', ') : '';
         this.dynamicRegistrationKey = 'dynamic_registration';
         this.dynamicRegistration = this.client.additionalInformation[this.dynamicRegistrationKey] === 'true';
-        this.authorities = ['ROLE_SYS_ADMIN'];
         // are we creating a new client?
         this.newClient = this.client.clientId === '';
         this.protectedClient = this.client.additionalInformation['protected'] === 'true';
@@ -130,17 +126,6 @@ export class OAuthClientDialogComponent implements OnInit {
         this.alertService.error(error.message, null, null);
     }
 
-    getSelected(selectedVals: Array<any>, option: any) {
-        if (selectedVals) {
-            for (let i = 0; i < selectedVals.length; i++) {
-                if (option.id === selectedVals[i].id) {
-                    return selectedVals[i];
-                }
-            }
-        }
-        return option;
-    }
-
     generateRandomSecret() {
         const text = [];
         const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -170,13 +155,8 @@ export class OAuthClientPopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if (params['clientId']) {
-                this.modalRef = this.oauthClientPopupService
-                .open(OAuthClientDialogComponent, params['clientId']);
-            } else {
-                this.modalRef = this.oauthClientPopupService
-                .open(OAuthClientDialogComponent);
-            }
+            this.modalRef = this.oauthClientPopupService
+                    .open(OAuthClientDialogComponent, params['clientId']);
         });
     }
 

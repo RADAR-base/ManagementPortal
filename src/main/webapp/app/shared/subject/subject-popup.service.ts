@@ -28,14 +28,12 @@ export class SubjectPopupService {
             this.subjectService.find(login).subscribe((subject) => {
                 this.subjectModalRef(component, subject, isDelete);
             });
-        } else {
-            if (projectName) {
-                this.projectService.find(projectName).subscribe((project) => {
-                    const subject = new Subject();
-                    subject.project = project;
-                    return this.subjectModalRef(component, subject, isDelete);
-                });
-            }
+        } else if (projectName) {
+            this.projectService.find(projectName).subscribe((project) => {
+                const subject = new Subject();
+                subject.project = project;
+                return this.subjectModalRef(component, subject, isDelete);
+            });
         }
     }
 
@@ -43,10 +41,10 @@ export class SubjectPopupService {
         const modalRef = this.modalService.open(component, {size: 'lg', backdrop: 'static'});
         modalRef.componentInstance.subject = subject;
         modalRef.componentInstance.isDelete = isDelete;
-        modalRef.result.then((result) => {
+        modalRef.result.then(() => {
             this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;
-        }, (reason) => {
+        }, () => {
             this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;
         });

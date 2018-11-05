@@ -13,7 +13,7 @@ export class RoleComponent implements OnInit {
     @Input() roles: Role[];
     currentAccount: any;
     eventSubscriber: Subscription;
-    authorities: any[];
+    authorities: string[];
     projects: Project[];
 
     selectedAuthority: any;
@@ -26,10 +26,12 @@ export class RoleComponent implements OnInit {
                 private eventManager: EventManager,
                 private principal: Principal) {
         this.jhiLanguageService.addLocation('role');
-        this.roles = [];
     }
 
     ngOnInit() {
+        if (this.roles === undefined) {
+            this.roles = [];
+        }
         this.authorityService.findAll().subscribe(res => {
             this.authorities = res.json();
         });

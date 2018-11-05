@@ -58,7 +58,7 @@ export class ProjectDeletePopupComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
             this.modalRef = this.projectPopupService
-            .open(ProjectDeleteDialogComponent, params['projectName']);
+                    .open(ProjectDeleteDialogComponent, params['projectName']);
         });
     }
 

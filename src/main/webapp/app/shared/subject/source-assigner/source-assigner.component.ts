@@ -16,7 +16,6 @@ import { SubjectService } from '../subject.service';
 })
 
 export class SubjectSourceAssignerDialogComponent implements OnInit {
-
     subject: Subject;
     authorities: any[];
     assignableSources: MinimalSource[];
@@ -34,10 +33,10 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
             private eventManager: EventManager,
     ) {
         this.jhiLanguageService.addLocation('subject');
+        this.isSaving = false;
     }
 
     ngOnInit() {
-        this.isSaving = false;
         if (this.subject.id !== null) {
             this.sourceService.findAvailable(
                     {
@@ -58,21 +57,17 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
         this.activeModal.dismiss('cancel');
     }
 
-    trackSourceById(index: number, item: MinimalSource) {
-        return item.id;
-    }
-
     save() {
         this.isSaving = true;
         if (this.subject.id !== null) {
             this.subject.sources = this.assignedSources;
             this.subjectService.update(this.subject)
-            .subscribe((res: Subject) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    .subscribe((res: Subject) => this.onSaveSuccess(res),
+                            (res: Response) => this.onSaveError(res));
         } else {
             this.subjectService.create(this.subject)
-            .subscribe((res: Subject) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    .subscribe((res: Subject) => this.onSaveSuccess(res),
+                            (res: Response) => this.onSaveError(res));
         }
     }
 
@@ -115,17 +110,6 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
     private onError(error) {
         this.alertService.error(error.message, null, null);
     }
-
-    getSelected(selectedVals: Array<any>, option: any) {
-        if (selectedVals) {
-            for (let i = 0; i < selectedVals.length; i++) {
-                if (option.id === selectedVals[i].id) {
-                    return selectedVals[i];
-                }
-            }
-        }
-        return option;
-    }
 }
 
 @Component({
@@ -145,7 +129,7 @@ export class SubjectSourceAssignerPopupComponent implements OnInit, OnDestroy {
         this.routeSub = this.route.params.subscribe((params) => {
             if (params['login']) {
                 this.modalRef = this.subjectPopupService
-                .open(SubjectSourceAssignerDialogComponent, params['login'], false);
+                        .open(SubjectSourceAssignerDialogComponent, params['login'], false);
             } else {
                 console.log('Unknown subject found');
             }

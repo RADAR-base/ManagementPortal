@@ -58,7 +58,7 @@ export class SourceDataDeletePopupComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
             this.modalRef = this.sourceDataPopupService
-            .open(SourceDataDeleteDialogComponent, params['sourceDataName']);
+                    .open(SourceDataDeleteDialogComponent, params['sourceDataName']);
         });
     }
 

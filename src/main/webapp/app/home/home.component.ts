@@ -36,9 +36,8 @@ export class HomeComponent implements OnInit {
         this.principal.identity().then((account) => {
             this.account = account;
             if (this.account) {
-                this.userService.findProject(this.account.login).subscribe(res => {
-                    this.projects = res.json();
-                });
+                this.userService.findProject(this.account.login)
+                        .subscribe(res => this.projects = res.json());
             }
         });
     }
@@ -48,7 +47,7 @@ export class HomeComponent implements OnInit {
     }
 
     registerAuthenticationSuccess() {
-        this.eventManager.subscribe('authenticationSuccess', (message) => {
+        this.eventManager.subscribe('authenticationSuccess', () => {
             this.principal.identity().then((account) => {
                 this.account = account;
                 this.loadRelevantProjects();

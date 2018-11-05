@@ -63,7 +63,7 @@ export class OAuthClientDeletePopupComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
             this.modalRef = this.oauthClientPopupService
-            .open(OAuthClientDeleteDialogComponent, params['clientId']);
+                    .open(OAuthClientDeleteDialogComponent, params['clientId']);
         });
     }
 

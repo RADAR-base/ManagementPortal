@@ -63,14 +63,11 @@ export class UserMgmtDialogComponent implements OnInit {
     }
 
     getSelected(selectedVals: Array<any>, option: any) {
-        if (selectedVals) {
-            for (let i = 0; i < selectedVals.length; i++) {
-                if (option === selectedVals[i]) {
-                    return selectedVals[i];
-                }
-            }
+        if (!selectedVals) {
+            return option;
         }
-        return option;
+        const idx = selectedVals.indexOf(option);
+        return idx === -1 ? option : selectedVals[idx];
     }
 
     private onSaveSuccess(result) {
@@ -107,11 +104,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
                 }
                 return;
             });
-            if (params['login']) {
-                this.modalRef = this.userModalService.open(UserMgmtDialogComponent, params['login'], false);
-            } else {
-                this.modalRef = this.userModalService.open(UserMgmtDialogComponent, null, false);
-            }
+            this.modalRef = this.userModalService.open(UserMgmtDialogComponent, params['login'], false);
         });
     }
 

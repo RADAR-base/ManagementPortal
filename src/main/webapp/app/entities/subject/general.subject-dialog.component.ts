@@ -15,13 +15,13 @@ import { GeneralSubjectPopupService } from './general.subject-popup.service';
     templateUrl: './general.subject-dialog.component.html',
 })
 export class GeneralSubjectDialogComponent implements OnInit {
+    readonly authorities: string[];
+    readonly options: string[];
 
     subject: Subject;
-    authorities: any[];
     isSaving: boolean;
     projects: Project[];
 
-    options: string[];
     attributeComponentEventPrefix: 'subjectAttributes';
 
     constructor(public activeModal: NgbActiveModal,
@@ -31,24 +31,16 @@ export class GeneralSubjectDialogComponent implements OnInit {
                 private projectService: ProjectService,
                 private eventManager: EventManager) {
         this.jhiLanguageService.addLocation('subject');
-    }
-
-    ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.options = ['Human-readable-identifier'];
-        this.projectService.query().subscribe(
-                (res) => {
-                    this.projects = res.json();
-                });
-        this.registerChangesInSubject();
     }
 
-    private registerChangesInSubject() {
+    ngOnInit() {
+        this.projectService.query()
+                .subscribe((res) => this.projects = res.json());
         this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification',
-                (response) => {
-                    this.subject.attributes = response.content;
-                });
+                (response) => this.subject.attributes = response.content);
     }
 
     clear() {
@@ -95,17 +87,6 @@ export class GeneralSubjectDialogComponent implements OnInit {
     trackProjectById(index: number, item: Project) {
         return item.id;
     }
-
-    getSelected(selectedVals: Array<any>, option: any) {
-        if (selectedVals) {
-            for (let i = 0; i < selectedVals.length; i++) {
-                if (selectedVals[i] && option.id === selectedVals[i].id) {
-                    return selectedVals[i];
-                }
-            }
-        }
-        return option;
-    }
 }
 
 @Component({
@@ -124,15 +105,9 @@ export class GeneralSubjectPopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if (params['login']) {
-                this.modalRef = this.subjectPopupService
-                .open(GeneralSubjectDialogComponent, params['login']);
-            } else {
-                this.modalRef = this.subjectPopupService
-                .open(GeneralSubjectDialogComponent);
-            }
+            this.modalRef = this.subjectPopupService
+                    .open(GeneralSubjectDialogComponent, params['login']);
         });
-
     }
 
     ngOnDestroy() {

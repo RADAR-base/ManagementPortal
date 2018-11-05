@@ -83,17 +83,6 @@ export class SourceDataDialogComponent implements OnInit {
     trackSourceTypeById(index: number, item: SourceType) {
         return item.id;
     }
-
-    getSelected(selectedVals: Array<any>, option: any) {
-        if (selectedVals) {
-            for (let i = 0; i < selectedVals.length; i++) {
-                if (option.id === selectedVals[i].id) {
-                    return selectedVals[i];
-                }
-            }
-        }
-        return option;
-    }
 }
 
 @Component({
@@ -113,13 +102,8 @@ export class SourceDataPopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if (params['sourceDataName']) {
-                this.modalRef = this.sourceDataPopupService
-                .open(SourceDataDialogComponent, params['sourceDataName']);
-            } else {
-                this.modalRef = this.sourceDataPopupService
-                .open(SourceDataDialogComponent);
-            }
+            this.modalRef = this.sourceDataPopupService
+                    .open(SourceDataDialogComponent, params['sourceDataName']);
         });
     }
 

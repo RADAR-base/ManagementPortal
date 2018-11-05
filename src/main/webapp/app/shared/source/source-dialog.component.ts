@@ -16,13 +16,13 @@ import { SourceService } from './source.service';
     templateUrl: './source-dialog.component.html',
 })
 export class SourceDialogComponent implements OnInit {
+    readonly authorities: string[];
+    readonly options: string[];
 
     source: Source;
-    authorities: any[];
     isSaving: boolean;
     sourceTypes: SourceType[];
     attributeComponentEventPrefix: 'sourceAttributes';
-    options: string[];
 
     constructor(
             public activeModal: NgbActiveModal,
@@ -33,21 +33,17 @@ export class SourceDialogComponent implements OnInit {
             private eventManager: EventManager,
     ) {
         this.jhiLanguageService.addLocation('source');
+        this.isSaving = false;
+        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
+        this.options = ['External-identifier'];
     }
 
     ngOnInit() {
-        this.isSaving = false;
-        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         if (this.source.project) {
             this.projectService.findSourceTypesByName(this.source.project.projectName).subscribe((res: Response) => {
                 this.sourceTypes = res.json();
             });
         }
-        this.options = ['External-identifier'];
-        this.registerChangesInSubject();
-    }
-
-    private registerChangesInSubject() {
         this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
             this.source.attributes = response.content;
         });
@@ -93,17 +89,6 @@ export class SourceDialogComponent implements OnInit {
     trackSourceTypeById(index: number, item: SourceType) {
         return item.id;
     }
-
-    getSelected(selectedVals: any, option: any) {
-        if (selectedVals) {
-            for (let i = 0; i < selectedVals.length; i++) {
-                if (selectedVals[i] && option.id === selectedVals[i].id) {
-                    return selectedVals[i];
-                }
-            }
-        }
-        return option;
-    }
 }
 
 @Component({
@@ -123,17 +108,8 @@ export class SourcePopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            let projectName: string;
-            if (params['projectName']) {
-                projectName = params['projectName'];
-            }
-            if (params['sourceName']) {
-                this.modalRef = this.sourcePopupService
-                .open(SourceDialogComponent, params['sourceName'], projectName);
-            } else {
-                this.modalRef = this.sourcePopupService
-                .open(SourceDialogComponent, null, projectName);
-            }
+            this.modalRef = this.sourcePopupService
+                    .open(SourceDialogComponent, params['sourceName'], params['projectName']);
         });
     }
 

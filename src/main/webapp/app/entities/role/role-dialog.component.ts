@@ -87,17 +87,6 @@ export class RoleDialogComponent implements OnInit {
     private onError(error) {
         this.alertService.error(error.message, null, null);
     }
-
-    getSelected(selectedVals: Array<any>, option: any) {
-        if (selectedVals) {
-            for (let i = 0; i < selectedVals.length; i++) {
-                if (option.id === selectedVals[i].id) {
-                    return selectedVals[i];
-                }
-            }
-        }
-        return option;
-    }
 }
 
 @Component({
@@ -117,13 +106,8 @@ export class RolePopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if (params['projectName'] && params['authorityName']) {
-                this.modalRef = this.rolePopupService
-                .open(RoleDialogComponent, params['projectName'], params['authorityName']);
-            } else {
-                this.modalRef = this.rolePopupService
-                .open(RoleDialogComponent);
-            }
+            this.modalRef = this.rolePopupService
+                    .open(RoleDialogComponent, params['projectName'], params['authorityName']);
         });
     }
 

@@ -118,9 +118,7 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
             size: this.itemsPerPage,
             sort: this.sort(),
         }).subscribe(
-                (res: Response) => {
-                    this.onSuccess(res.json(), res.headers);
-                },
+                (res: Response) => this.onSuccess(res.json(), res.headers),
                 (res: Response) => this.onError(res.json()),
         );
     }

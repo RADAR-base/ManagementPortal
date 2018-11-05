@@ -14,14 +14,14 @@ import { Project, ProjectService } from '../../shared/project';
     templateUrl: './project-dialog.component.html',
 })
 export class ProjectDialogComponent implements OnInit {
+    readonly authorities: any[];
+    readonly options: string[];
 
     project: Project;
-    authorities: any[];
     isSaving: boolean;
     projectIdAsPrettyValue: boolean;
 
     sourceTypes: SourceType[];
-    options: string[];
     attributeComponentEventPrefix: 'projectAttributes';
 
     constructor(
@@ -33,18 +33,20 @@ export class ProjectDialogComponent implements OnInit {
             private eventManager: EventManager,
     ) {
         this.jhiLanguageService.setLocations(['project', 'projectStatus']);
+        this.isSaving = false;
+        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN'];
+        this.options = ['Work-package', 'Phase', 'External-project-url', 'External-project-id', 'Privacy-policy-url'];
+        this.projectIdAsPrettyValue = true;
     }
 
     ngOnInit() {
-        this.isSaving = false;
-        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN'];
         this.sourceTypeService.query().subscribe(
                 (res: Response) => {
                     this.sourceTypes = res.json();
                 }, (res: Response) => this.onError(res.json()));
-        this.options = ['Work-package', 'Phase', 'External-project-url', 'External-project-id', 'Privacy-policy-url'];
-        this.registerChangesInProject();
-        this.projectIdAsPrettyValue = true;
+        this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
+            this.project.attributes = response.content;
+        });
     }
 
     clear() {
@@ -89,20 +91,11 @@ export class ProjectDialogComponent implements OnInit {
     }
 
     getSelected(selectedVals: Array<any>, option: any) {
-        if (selectedVals) {
-            for (let i = 0; i < selectedVals.length; i++) {
-                if (option.id === selectedVals[i].id) {
-                    return selectedVals[i];
-                }
-            }
+        if (!selectedVals) {
+            return option;
         }
-        return option;
-    }
-
-    private registerChangesInProject() {
-        this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
-            this.project.attributes = response.content;
-        });
+        const idx = selectedVals.findIndex(v => option.id === v.id);
+        return idx === -1 ? option : selectedVals[idx];
     }
 }
 
@@ -123,13 +116,8 @@ export class ProjectPopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if (params['projectName']) {
-                this.modalRef = this.projectPopupService
-                .open(ProjectDialogComponent, params['projectName']);
-            } else {
-                this.modalRef = this.projectPopupService
-                .open(ProjectDialogComponent);
-            }
+            this.modalRef = this.projectPopupService
+                    .open(ProjectDialogComponent, params['projectName']);
         });
     }
 

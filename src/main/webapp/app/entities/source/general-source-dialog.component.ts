@@ -15,9 +15,9 @@ import { GeneralSourcePopupService } from './general-source-popup.service';
     templateUrl: './general-source-dialog.component.html',
 })
 export class GeneralSourceDialogComponent implements OnInit {
+    readonly authorities: string[];
 
     source: Source;
-    authorities: any[];
     isSaving: boolean;
     sourceTypes: SourceType[];
     projects: MinimalProject[];
@@ -31,27 +31,23 @@ export class GeneralSourceDialogComponent implements OnInit {
             private eventManager: EventManager,
     ) {
         this.jhiLanguageService.addLocation('source');
+        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
+        this.isSaving = false;
     }
 
     ngOnInit() {
-        this.isSaving = false;
-        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.projectService.findAll(true).subscribe(
                 (res: Response) => {
                     this.projects = res.json();
                 }, (res: Response) => this.onError(res.json()));
-        if (this.source.project) {
-            this.projectService.findSourceTypesByName(this.source.project.projectName).subscribe((res: Response) => {
-                this.sourceTypes = res.json();
-            });
-        }
+
+        this.onProjectChange(this.source.project);
     }
 
     public onProjectChange(project: any) {
-        if (project !== null) {
-            this.projectService.findSourceTypesByName(project.projectName).subscribe((res: Response) => {
-                this.sourceTypes = res.json();
-            });
+        if (project) {
+            this.projectService.findSourceTypesByName(project.projectName)
+                    .subscribe((res: Response) => this.sourceTypes = res.json());
         } else {
             this.sourceTypes = null;
         }
@@ -101,17 +97,6 @@ export class GeneralSourceDialogComponent implements OnInit {
     trackProjectById(index: number, item: MinimalProject) {
         return item.id;
     }
-
-    getSelected(selectedVals: any, option: any) {
-        if (selectedVals) {
-            for (let i = 0; i < selectedVals.length; i++) {
-                if (selectedVals[i] && option.id === selectedVals[i].id) {
-                    return selectedVals[i];
-                }
-            }
-        }
-        return option;
-    }
 }
 
 @Component({
@@ -131,13 +116,8 @@ export class GeneralSourcePopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if (params['sourceName']) {
-                this.modalRef = this.sourcePopupService
-                .open(GeneralSourceDialogComponent, params['sourceName']);
-            } else {
-                this.modalRef = this.sourcePopupService
-                .open(GeneralSourceDialogComponent);
-            }
+            this.modalRef = this.sourcePopupService
+                    .open(GeneralSourceDialogComponent, params['sourceName']);
         });
     }
 

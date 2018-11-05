@@ -71,7 +71,7 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
     }
 
     registerChangeInUsers() {
-        this.eventManager.subscribe('userListModification', (response) => this.loadAll());
+        this.eventManager.subscribe('userListModification', () => this.loadAll());
     }
 
     onChange() {
@@ -89,23 +89,6 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
                 (res: Response) => this.onError(res.json()),
         );
 
-    }
-
-    setActive(user, isActivated) {
-        user.activated = isActivated;
-
-        this.userService.update(user).subscribe(
-                (res: Response) => {
-                    this.error = null;
-                    this.success = 'OK';
-                    this.loadAll();
-                },
-                (res: Response) => {
-                    user.activated = !isActivated;
-                    this.success = null;
-                    this.error = 'ERROR';
-                    this.onError(res.json());
-                });
     }
 
     loadAll() {

@@ -66,15 +66,14 @@ export class SubjectDeletePopupComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
             this.route.url.subscribe(url => {
-                if ('discontinue' === (url[2].path)) {
+                if ('discontinue' === url[2].path) {
                     this.modalRef = this.subjectPopupService
-                    .open(SubjectDeleteDialogComponent, params['login'], false);
-                } else if ('delete' === (url[2].path)) {
+                            .open(SubjectDeleteDialogComponent, params['login'], false);
+                } else if ('delete' === url[2].path) {
                     this.modalRef = this.subjectPopupService
-                    .open(SubjectDeleteDialogComponent, params['login'], true);
+                            .open(SubjectDeleteDialogComponent, params['login'], true);
                 }
             });
-
         });
     }
 

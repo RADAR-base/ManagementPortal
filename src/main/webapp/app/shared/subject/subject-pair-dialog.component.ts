@@ -15,8 +15,9 @@ import { Subject } from './subject.model';
     providers: [OAuthClientService, OAuthClientPairInfoService],
 })
 export class SubjectPairDialogComponent implements OnInit {
+    readonly authorities: string[];
+
     subject: Subject;
-    authorities: any[];
     oauthClients: OAuthClient[];
     oauthClientPairInfo: any;
     selectedClient: OAuthClient;
@@ -29,10 +30,10 @@ export class SubjectPairDialogComponent implements OnInit {
                 private oauthClientService: OAuthClientService,
                 private oauthClientPairInfoService: OAuthClientPairInfoService) {
         this.jhiLanguageService.addLocation('subject');
+        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
     }
 
     ngOnInit() {
-        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.oauthClientService.query().subscribe(
                 (res) => {
                     // only keep clients that have the dynamic_registration key in additionalInformation
@@ -89,13 +90,8 @@ export class SubjectPairPopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if (params['login']) {
-                this.modalRef = this.subjectPopupService
-                .open(SubjectPairDialogComponent, params['login']);
-            } else {
-                this.modalRef = this.subjectPopupService
-                .open(SubjectPairDialogComponent);
-            }
+            this.modalRef = this.subjectPopupService
+                    .open(SubjectPairDialogComponent, params['login']);
         });
     }
 

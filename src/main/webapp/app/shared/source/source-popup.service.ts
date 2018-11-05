@@ -27,14 +27,12 @@ export class SourcePopupService {
             this.sourceService.find(sourceName).subscribe((source) => {
                 this.sourceModalRef(component, source);
             });
-        } else {
-            if (projectName) {
-                this.projectService.find(projectName).subscribe((project) => {
-                    const source = new Source();
-                    source.project = project;
-                    return this.sourceModalRef(component, source);
-                });
-            }
+        } else if (projectName) {
+            this.projectService.find(projectName).subscribe((project) => {
+                const source = new Source();
+                source.project = project;
+                return this.sourceModalRef(component, source);
+            });
         }
     }
 

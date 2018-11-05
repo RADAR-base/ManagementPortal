@@ -8,17 +8,14 @@ import { Project, ProjectService } from '../../shared/project';
 import { SourceDataService } from '../source-data';
 import { SourceTypePopupService } from './source-type-popup.service';
 
-import { SourceType } from './source-type.model';
-import { SourceTypeService } from './source-type.service';
-
 @Component({
     selector: 'jhi-source-type-dialog',
     templateUrl: './source-type-dialog.component.html',
 })
 export class SourceTypeDialogComponent implements OnInit {
+    readonly authorities: string[];
 
     sourceType: SourceType;
-    authorities: any[];
     isSaving: boolean;
 
     projects: Project[];
@@ -34,15 +31,14 @@ export class SourceTypeDialogComponent implements OnInit {
     ) {
         this.jhiLanguageService.addLocation('sourceType');
         this.jhiLanguageService.addLocation('sourceTypeScope');
+        this.isSaving = false;
+        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
     }
 
     ngOnInit() {
-        this.isSaving = false;
-        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.projectService.query().subscribe(
-                (res: Response) => {
-                    this.projects = res.json();
-                }, (res: Response) => this.onError(res.json()));
+                (res: Response) => this.projects = res.json(),
+                (res: Response) => this.onError(res.json()));
     }
 
     clear() {
@@ -53,12 +49,12 @@ export class SourceTypeDialogComponent implements OnInit {
         this.isSaving = true;
         if (this.sourceType.id !== undefined) {
             this.sourceTypeService.update(this.sourceType)
-            .subscribe((res: SourceType) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    .subscribe((res: SourceType) => this.onSaveSuccess(res),
+                            (res: Response) => this.onSaveError(res));
         } else {
             this.sourceTypeService.create(this.sourceType)
-            .subscribe((res: SourceType) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    .subscribe((res: SourceType) => this.onSaveSuccess(res),
+                            (res: Response) => this.onSaveError(res));
         }
     }
 
@@ -81,22 +77,10 @@ export class SourceTypeDialogComponent implements OnInit {
     private onError(error) {
         this.alertService.error(error.message, null, null);
     }
-
-    trackProjectById(index: number, item: Project) {
-        return item.projectName;
-    }
-
-    getSelected(selectedVals: Array<any>, option: any) {
-        if (selectedVals) {
-            for (let i = 0; i < selectedVals.length; i++) {
-                if (option.id === selectedVals[i].id) {
-                    return selectedVals[i];
-                }
-            }
-        }
-        return option;
-    }
 }
+
+import { SourceType } from './source-type.model';
+import { SourceTypeService } from './source-type.service';
 
 @Component({
     selector: 'jhi-source-type-popup',
@@ -115,13 +99,9 @@ export class SourceTypePopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if (params['sourceTypeProducer'] && params['sourceTypeModel'] && params['catalogVersion']) {
-                this.modalRef = this.sourceTypePopupService
-                .open(SourceTypeDialogComponent, params['sourceTypeProducer'], params['sourceTypeModel'], params['catalogVersion']);
-            } else {
-                this.modalRef = this.sourceTypePopupService
-                .open(SourceTypeDialogComponent);
-            }
+            this.modalRef = this.sourceTypePopupService
+                    .open(SourceTypeDialogComponent, params['sourceTypeProducer'],
+                            params['sourceTypeModel'], params['catalogVersion']);
         });
     }
 

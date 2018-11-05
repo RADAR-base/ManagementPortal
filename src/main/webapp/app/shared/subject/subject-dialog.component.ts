@@ -16,12 +16,13 @@ import { SubjectService } from './subject.service';
 })
 export class SubjectDialogComponent implements OnInit {
 
+    readonly authorities: string[];
+    readonly options: string[];
+
     subject: Subject;
-    authorities: any[];
     isSaving: boolean;
 
     // sources: MinimalSource[];
-    options: string[];
     attributeComponentEventPrefix: 'subjectAttributes';
 
     constructor(public activeModal: NgbActiveModal,
@@ -30,16 +31,12 @@ export class SubjectDialogComponent implements OnInit {
                 private subjectService: SubjectService,
                 private eventManager: EventManager) {
         this.jhiLanguageService.addLocation('subject');
-    }
-
-    ngOnInit() {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.options = ['Human-readable-identifier'];
-        this.registerChangesInSubject();
     }
 
-    private registerChangesInSubject() {
+    ngOnInit() {
         this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
             this.subject.attributes = response.content;
         });
@@ -85,17 +82,6 @@ export class SubjectDialogComponent implements OnInit {
     trackDeviceById(index: number, item: MinimalSource) {
         return item.id;
     }
-
-    getSelected(selectedVals: Array<any>, option: any) {
-        if (selectedVals) {
-            for (let i = 0; i < selectedVals.length; i++) {
-                if (selectedVals[i] && option.id === selectedVals[i].id) {
-                    return selectedVals[i];
-                }
-            }
-        }
-        return option;
-    }
 }
 
 @Component({
@@ -113,17 +99,8 @@ export class SubjectPopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            let projectName: string;
-            if (params['projectName']) {
-                projectName = params['projectName'];
-            }
-            if (params['login']) {
-                this.modalRef = this.subjectPopupService
-                .open(SubjectDialogComponent, params['login'], false, projectName);
-            } else {
-                this.modalRef = this.subjectPopupService
-                .open(SubjectDialogComponent, null, false, projectName);
-            }
+            this.modalRef = this.subjectPopupService
+                    .open(SubjectDialogComponent, params['login'], false, params['projectName']);
         });
     }
 
