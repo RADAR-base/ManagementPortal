@@ -42,8 +42,56 @@ describe('Source e2e test', () => {
         });
     });
 
+
+    it('should be able to create new source', () => {
+        element(by.cssContainingText('button.btn-primary', 'Create a new Source')).click().then(() => {
+            element(by.name('sourceName')).sendKeys('test-source1');
+            element(by.name('expectedSourceName')).sendKeys('A007C');
+            element(by.name('project')).sendKeys('radar');
+            element(by.name('sourceType')).sendKeys('Empatica_E4_v1');
+
+            element(by.cssContainingText('button.btn-primary', 'Save')).click().then(() => {
+                browser.waitForAngular();
+                element.all(by.css('jhi-source tbody tr')).count().then(function(count) {
+                    expect(count).toEqual(2);
+                });
+            });
+        });
+    });
+
+    it('should be able to edit a source', () => {
+        element.all(by.cssContainingText('jhi-source tbody tr td', 'test-source1'))
+                .all(by.xpath('ancestor::tr'))
+                .all(by.cssContainingText('jhi-source tbody tr button', 'Edit'))
+                .first().click().then(() => {
+            element(by.name('expectedSourceName')).sendKeys('A007C9');
+            element(by.cssContainingText('button.btn-primary', 'Save')).click().then(() => {
+                browser.waitForAngular();
+                element.all(by.css('jhi-source tbody tr')).count().then(function(count) {
+                    expect(count).toEqual(2);
+                });
+            });
+
+        });
+    });
+
+    it('should be able to delete an unassigned source', () => {
+        element(by.cssContainingText('jhi-source tbody tr td', 'test-source1'))
+                .element(by.xpath('ancestor::tr'))
+                .element(by.cssContainingText('button', 'Delete')).click().then(() => {
+            browser.waitForAngular();
+            element(by.cssContainingText('jhi-source-delete-dialog button.btn-danger', 'Delete'))
+                    .click().then(() => {
+                browser.waitForAngular();
+                element.all(by.css('jhi-source tbody tr')).count().then(function(count) {
+                    expect(count).toEqual(1);
+                });
+            });
+        });
+    });
+
     // Source creation and deletion already covered in scenarios/create-and-assign-source.spec.ts
-    
+
     afterAll(function () {
         accountMenu.click();
         logout.click();

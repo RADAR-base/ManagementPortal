@@ -42,7 +42,50 @@ describe('Subject e2e test', () => {
         });
     });
 
-    // Subject creation covered in scenarios/discontinue-subject-should-unassign-source.spec.ts
+    it('should be able to create new subject', () => {
+        element(by.cssContainingText('button.btn-primary', 'Create a new Subject')).click().then(() => {
+            element(by.name('externalId')).sendKeys('test-subject1');
+            element(by.name('project')).sendKeys('radar');
+
+            element(by.cssContainingText('button.btn-primary', 'Save')).click().then(() => {
+                browser.waitForAngular();
+                element.all(by.css('jhi-subjects tbody tr')).count().then(function(count) {
+                    expect(count).toEqual(5);
+                });
+            });
+        });
+    });
+
+    it('should be able to edit a source', () => {
+        element.all(by.cssContainingText('jhi-subjects tbody tr td', 'test-subject1'))
+                .all(by.xpath('ancestor::tr'))
+                .all(by.cssContainingText('jhi-subjects tbody tr button', 'Edit'))
+                .first().click().then(() => {
+            element(by.name('externalLink')).sendKeys('www.radarcns.org');
+            element(by.cssContainingText('button.btn-primary', 'Save')).click().then(() => {
+                browser.waitForAngular();
+                element.all(by.css('jhi-subjects tbody tr')).count().then(function(count) {
+                    expect(count).toEqual(5);
+                });
+            });
+
+        });
+    });
+
+    it('should be able to delete a subject without source', () => {
+        element(by.cssContainingText('jhi-subjects tbody tr td', 'test-subject1'))
+                .element(by.xpath('ancestor::tr'))
+                .element(by.cssContainingText('button', 'Delete')).click().then(() => {
+            browser.waitForAngular();
+            element(by.cssContainingText('jhi-subject-delete-dialog button.btn-danger', 'Delete'))
+                    .click().then(() => {
+                browser.waitForAngular();
+                element.all(by.css('jhi-subjects tbody tr')).count().then(function(count) {
+                    expect(count).toEqual(4);
+                });
+            });
+        });
+    });
 
     afterAll(function () {
         accountMenu.click();
