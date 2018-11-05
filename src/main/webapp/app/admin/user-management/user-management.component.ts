@@ -75,7 +75,6 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
     }
 
     onChange() {
-        console.log('log', this.byLogin, 'byEmail', this.byEmail, 'byAut', this.byAuthority, 'byProj', this.byProject);
         this.userService.query({
             page: this.page - 1,
             size: this.itemsPerPage,

@@ -1,6 +1,5 @@
 package org.radarcns.management.web.rest;
 
-import static org.hibernate.id.IdentifierGenerator.ENTITY_NAME;
 import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_CREATE;
 import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_DELETE;
 import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_READ;
