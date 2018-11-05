@@ -32,11 +32,7 @@ describe('Component Tests', () => {
                     SubjectService,
                     EventManager
                 ]
-            }).overrideComponent(SubjectDetailComponent, {
-                set: {
-                    template: ''
-                }
-            }).compileComponents();
+            }).overrideTemplate(SubjectDetailComponent, '').compileComponents();
         }));
 
         beforeEach(() => {

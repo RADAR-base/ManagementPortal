@@ -33,11 +33,7 @@ describe('Component Tests', () => {
                     SourceTypeService,
                     EventManager
                 ]
-            }).overrideComponent(SourceTypeDetailComponent, {
-                set: {
-                    template: ''
-                }
-            }).compileComponents();
+            }).overrideTemplate(SourceTypeDetailComponent, '').compileComponents();
         }));
 
         beforeEach(() => {

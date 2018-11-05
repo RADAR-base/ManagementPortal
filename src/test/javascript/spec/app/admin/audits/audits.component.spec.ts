@@ -44,11 +44,7 @@ describe('Component Tests', () => {
                     DatePipe
                 ]
             })
-            .overrideComponent(AuditsComponent, {
-                set: {
-                    template: ''
-                }
-            })
+            .overrideTemplate(AuditsComponent, '')
             .compileComponents();
         }));
 

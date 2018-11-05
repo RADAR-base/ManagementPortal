@@ -49,9 +49,9 @@ public class TokenTestUtils {
      * @throws Exception If anything goes wrong during setup
      */
     public static void setUp() throws Exception {
-        KeyStore ks = KeyStore.getInstance("JKS");
+        KeyStore ks = KeyStore.getInstance("PKCS12");
         InputStream keyStream = TokenTestUtils.class
-                .getClassLoader().getResourceAsStream("keystore.jks");
+                .getClassLoader().getResourceAsStream("keystore.p12");
         ks.load(keyStream, "radarbase".toCharArray());
         RSAPrivateKey privateKey = (RSAPrivateKey) ks.getKey("selfsigned",
                 "radarbase".toCharArray());

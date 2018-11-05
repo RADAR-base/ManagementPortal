@@ -23,11 +23,7 @@ describe('Component Tests', () => {
                     AccountService,
                     Password
                 ]
-            }).overrideComponent(PasswordComponent, {
-                set: {
-                    template: ''
-                }
-            }).compileComponents();
+            }).overrideTemplate(PasswordComponent, '').compileComponents();
         }));
 
         beforeEach(() => {
