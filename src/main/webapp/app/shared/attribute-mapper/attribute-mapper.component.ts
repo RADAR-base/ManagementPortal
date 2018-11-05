@@ -21,16 +21,10 @@ export class AttributeMapperComponent implements OnInit {
                 private alertService: AlertService,
                 private eventManager: EventManager) {
         this.jhiLanguageService.addLocation('global');
+        this.attributes = [];
     }
 
     ngOnInit() {
-        if (this.attributes === null) {
-            this.attributes = [];
-        }
-        this.registerChangeInParentComponent();
-    }
-
-    registerChangeInParentComponent() {
         this.eventManager.subscribe(this.eventPrefix + 'EditListModification', (response) => {
             this.attributes = response.content;
         });
@@ -60,7 +54,7 @@ export class AttributeMapperComponent implements OnInit {
     }
 
     removeAttribute(attribute: Attribute) {
-        this.attributes.splice(this.attributes.indexOf(v => v.key === attribute.key), 1);
+        this.attributes.splice(this.attributes.findIndex(v => v.key === attribute.key), 1);
         this.eventManager.broadcast({
             name: this.eventPrefix + 'ListModification',
             content: this.attributes,

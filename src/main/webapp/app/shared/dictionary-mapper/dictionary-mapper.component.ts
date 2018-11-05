@@ -20,16 +20,12 @@ export class DictionaryMapperComponent implements OnInit {
     constructor(private jhiLanguageService: JhiLanguageService,
                 private eventManager: EventManager) {
         this.jhiLanguageService.addLocation('global');
+        this.attributes = {};
+        this.selectedKey = null;
+        this.enteredValue = '';
     }
 
     ngOnInit() {
-        if (this.attributes === undefined) {
-            this.attributes = {};
-        }
-        this.update();
-    }
-
-    update() {
         this.eventManager.subscribe(this.eventPrefix + 'EditListModification', (response) => {
             this.attributes = response.content;
         });
@@ -59,11 +55,9 @@ export class DictionaryMapperComponent implements OnInit {
     }
 
     isEmpty(obj: any) {
-        if (obj) {
-            for (const key in obj) {
-                if (obj.hasOwnProperty(key)) {
-                    return false;
-                }
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                return false;
             }
         }
         return true;

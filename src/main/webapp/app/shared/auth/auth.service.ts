@@ -17,11 +17,7 @@ export class AuthService {
     }
 
     authorize(force) {
-        const authReturn = this.principal.identity(force).then(authThen.bind(this));
-
-        return authReturn;
-
-        function authThen() {
+        return this.principal.identity(force).then(() => {
             const isAuthenticated = this.principal.isAuthenticated();
             const toStateInfo = this.stateStorageService.getDestinationState().destination;
 
@@ -61,6 +57,6 @@ export class AuthService {
                 });
             }
             return true;
-        }
+        });
     }
 }

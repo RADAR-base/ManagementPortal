@@ -26,22 +26,16 @@ export class RoleComponent implements OnInit {
                 private eventManager: EventManager,
                 private principal: Principal) {
         this.jhiLanguageService.addLocation('role');
+        this.roles = [];
     }
 
-    loadAll() {
+    ngOnInit() {
         this.authorityService.findAll().subscribe(res => {
             this.authorities = res.json();
         });
         this.projectService.query().subscribe((res) => {
             this.projects = res.json();
         });
-    }
-
-    ngOnInit() {
-        if (this.roles === null) {
-            this.roles = [];
-        }
-        this.loadAll();
         this.principal.identity().then((account) => {
             this.currentAccount = account;
         });
@@ -70,7 +64,7 @@ export class RoleComponent implements OnInit {
     }
 
     removeRole(role: Role) {
-        this.roles.splice(this.roles.indexOf(v => v.projectId === role.projectId && v.authorityName === role.authorityName), 1);
+        this.roles.splice(this.roles.findIndex(v => v.projectId === role.projectId && v.authorityName === role.authorityName), 1);
         this.eventManager.broadcast({name: 'roleListModification', content: this.roles});
     }
 
