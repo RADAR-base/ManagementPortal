@@ -29,11 +29,7 @@ describe('Component Tests', () => {
                         useValue: new ElementRef(null)
                     }
                 ]
-            }).overrideComponent(PasswordResetInitComponent, {
-                set: {
-                    template: ''
-                }
-            }).createComponent(PasswordResetInitComponent);
+            }).overrideTemplate(PasswordResetInitComponent, '').createComponent(PasswordResetInitComponent);
             comp = fixture.componentInstance;
             comp.ngOnInit();
         });
