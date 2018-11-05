@@ -7,7 +7,6 @@ import { SettingsComponent } from '../../../../../../main/webapp/app/account/set
 import { MockAccountService } from '../../../helpers/mock-account.service';
 import { MockPrincipal } from '../../../helpers/mock-principal.service';
 
-
 describe('Component Tests', () => {
 
     describe('SettingsComponent', () => {

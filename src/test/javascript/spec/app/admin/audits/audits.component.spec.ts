@@ -8,7 +8,6 @@ import { AuditsComponent } from '../../../../../../main/webapp/app/admin/audits/
 import { AuditsService } from '../../../../../../main/webapp/app/admin/audits/audits.service';
 import { ITEMS_PER_PAGE } from '../../../../../../main/webapp/app/shared';
 
-
 function getDate(isToday= true){
     let date: Date = new Date();
     if (isToday) {

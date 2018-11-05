@@ -1,22 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { JhiLanguageService, EventManager} from 'ng-jhipster';
+import { EventManager, JhiLanguageService } from 'ng-jhipster';
+import { Subscription } from 'rxjs/Subscription';
+
+import { DEBUG_INFO_ENABLED, VERSION } from '../../app.constants';
+import { JhiLanguageHelper, LoginModalService, LoginService, Principal, Project, UserService } from '../../shared';
 
 import { ProfileService } from '../profiles/profile.service'; // FIXME barrel doesn't work here
-import { JhiLanguageHelper, Principal, LoginModalService, LoginService } from '../../shared';
-
-import { VERSION, DEBUG_INFO_ENABLED } from '../../app.constants';
-import {Project} from "../../entities/project/project.model";
-import {UserService} from "../../shared/user/user.service";
-import {Subscription} from "rxjs/Subscription";
 
 @Component({
     selector: 'jhi-navbar',
     templateUrl: './navbar.component.html',
     styleUrls: [
-        'navbar.scss'
-    ]
+        'navbar.scss',
+    ],
 })
 export class NavbarComponent implements OnInit {
 
@@ -32,15 +30,15 @@ export class NavbarComponent implements OnInit {
     currentAccount: any;
 
     constructor(
-        private loginService: LoginService,
-        private languageHelper: JhiLanguageHelper,
-        private languageService: JhiLanguageService,
-        private principal: Principal,
-        private loginModalService: LoginModalService,
-        private profileService: ProfileService,
-        private router: Router,
-        private eventManager: EventManager,
-        private userService : UserService
+            private loginService: LoginService,
+            private languageHelper: JhiLanguageHelper,
+            private languageService: JhiLanguageService,
+            private principal: Principal,
+            private loginModalService: LoginModalService,
+            private profileService: ProfileService,
+            private router: Router,
+            private eventManager: EventManager,
+            private userService: UserService,
     ) {
         this.version = DEBUG_INFO_ENABLED ? 'v' + VERSION : '';
         this.isNavbarCollapsed = true;
@@ -81,12 +79,13 @@ export class NavbarComponent implements OnInit {
     registerChangeInUsers() {
         this.eventSubscriber = this.eventManager.subscribe('userListModification', (response) => this.loadRelevantProjects());
     }
+
     trackProjectName(index: number, item: Project) {
         return item.projectName;
     }
 
     changeLanguage(languageKey: string) {
-      this.languageService.changeLanguage(languageKey);
+        this.languageService.changeLanguage(languageKey);
     }
 
     collapseNavbar() {

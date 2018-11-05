@@ -5,7 +5,6 @@ import { ManagementPortalTestModule } from '../../../../test.module';
 import { PasswordResetInitComponent } from '../../../../../../../main/webapp/app/account/password-reset/init/password-reset-init.component';
 import { PasswordResetInit } from '../../../../../../../main/webapp/app/account/password-reset/init/password-reset-init.service';
 
-
 describe('Component Tests', () => {
 
     describe('PasswordResetInitComponent', function () {

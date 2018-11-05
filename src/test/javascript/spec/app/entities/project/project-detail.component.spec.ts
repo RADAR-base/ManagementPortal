@@ -7,8 +7,7 @@ import { DateUtils, DataUtils, EventManager } from 'ng-jhipster';
 import { ManagementPortalTestModule } from '../../../test.module';
 import { MockActivatedRoute } from '../../../helpers/mock-route.service';
 import { ProjectDetailComponent } from '../../../../../../main/webapp/app/entities/project/project-detail.component';
-import { ProjectService } from '../../../../../../main/webapp/app/entities/project/project.service';
-import { Project } from '../../../../../../main/webapp/app/entities/project/project.model';
+import { Project, ProjectService } from '../../../../../../main/webapp/app/shared/project';
 
 describe('Component Tests', () => {
 
@@ -40,7 +39,6 @@ describe('Component Tests', () => {
             comp = fixture.componentInstance;
             service = fixture.debugElement.injector.get(ProjectService);
         });
-
 
         describe('OnInit', () => {
             it('Should call load all on init', () => {

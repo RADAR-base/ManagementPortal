@@ -1,24 +1,23 @@
-import {Component, OnInit, OnDestroy, Input} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
-import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {EventManager, AlertService, JhiLanguageService} from 'ng-jhipster';
+import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { AlertService, JhiLanguageService } from 'ng-jhipster';
+import { OAuthClient, OAuthClientService } from '../../entities/oauth-client';
+import { OAuthClientPairInfoService } from '../../entities/oauth-client/oauth-client-pair-info.service';
 
-import {SubjectPopupService} from './subject-popup.service';
-import {OAuthClientService} from "../../entities/oauth-client/oauth-client.service";
-import {OAuthClientPairInfoService} from "../../entities/oauth-client/oauth-client-pair-info.service";
-import {OAuthClient} from "../../entities/oauth-client/oauth-client.model";
-import {Subject} from "./subject.model";
+import { SubjectPopupService } from './subject-popup.service';
+import { Subject } from './subject.model';
 
 @Component({
     selector: 'jhi-subject-pair-dialog',
     templateUrl: './subject-pair-dialog.component.html',
-    providers: [OAuthClientService, OAuthClientPairInfoService]
+    providers: [OAuthClientService, OAuthClientPairInfoService],
 })
 export class SubjectPairDialogComponent implements OnInit {
+    readonly authorities: string[];
 
     subject: Subject;
-    authorities: any[];
     oauthClients: OAuthClient[];
     oauthClientPairInfo: any;
     selectedClient: OAuthClient;
@@ -29,21 +28,20 @@ export class SubjectPairDialogComponent implements OnInit {
                 private jhiLanguageService: JhiLanguageService,
                 private alertService: AlertService,
                 private oauthClientService: OAuthClientService,
-                private oauthClientPairInfoService: OAuthClientPairInfoService,
-                private eventManager: EventManager) {
-        this.jhiLanguageService.setLocations(['subject' , 'project' , 'projectStatus']);
+                private oauthClientPairInfoService: OAuthClientPairInfoService) {
+        this.jhiLanguageService.addLocation('subject');
+        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
     }
 
     ngOnInit() {
-        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.oauthClientService.query().subscribe(
-            (res) => {
-                // only keep clients that have the dynamic_registration key in additionalInformation
-                // and have set it to true
-                this.oauthClients = res.json()
-                    .filter(c => c.additionalInformation.dynamic_registration &&
-                            c.additionalInformation.dynamic_registration.toLowerCase() === "true");
-            });
+                (res) => {
+                    // only keep clients that have the dynamic_registration key in additionalInformation
+                    // and have set it to true
+                    this.oauthClients = res.json()
+                    .filter((c) => c.additionalInformation.dynamic_registration &&
+                            c.additionalInformation.dynamic_registration.toLowerCase() === 'true');
+                });
     }
 
     clear() {
@@ -55,18 +53,16 @@ export class SubjectPairDialogComponent implements OnInit {
     }
 
     updateQRCode() {
-        if (this.selectedClient != null) {
+        if (this.selectedClient !== null) {
             this.oauthClientPairInfoService.get(this.selectedClient, this.subject).subscribe(
-                (res) => {
-                    this.oauthClientPairInfo = res.json();
-                    this.showQRCode = true;
-                });
-        }
-        else {
+                    (res) => {
+                        this.oauthClientPairInfo = res.json();
+                        this.showQRCode = true;
+                    });
+        } else {
             this.showQRCode = false;
             this.oauthClientPairInfo = {};
         }
-
     }
 
     unlockTokenUrl() {
@@ -81,7 +77,7 @@ export class SubjectPairDialogComponent implements OnInit {
 
 @Component({
     selector: 'jhi-subject-pair-popup',
-    template: ''
+    template: '',
 })
 export class SubjectPairPopupComponent implements OnInit, OnDestroy {
 
@@ -94,13 +90,8 @@ export class SubjectPairPopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if (params['login']) {
-                this.modalRef = this.subjectPopupService
-                .open(SubjectPairDialogComponent, params['login']);
-            } else {
-                this.modalRef = this.subjectPopupService
-                .open(SubjectPairDialogComponent);
-            }
+            this.modalRef = this.subjectPopupService
+                    .open(SubjectPairDialogComponent, params['login']);
         });
     }
 

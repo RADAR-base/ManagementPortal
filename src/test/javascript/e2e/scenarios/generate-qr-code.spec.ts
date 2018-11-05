@@ -26,7 +26,7 @@ describe('Generate QR code', () => {
         element.all(by.partialLinkText('radar')).first().click().then(() => {
             expect(element(by.className('status-header')).getText()).toMatch('RADAR');
             // expect 3 subjects in this table
-            element.all(by.css('subjects tbody tr')).count().then(function(count) {
+            element.all(by.css('jhi-subjects tbody tr')).count().then(function(count) {
                 expect(count).toEqual(3);
             });
         });

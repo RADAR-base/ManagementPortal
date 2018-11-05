@@ -1,28 +1,28 @@
-import {
-    Component, OnInit, OnDestroy} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {Response} from '@angular/http';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Response } from '@angular/http';
+import { ActivatedRoute } from '@angular/router';
 
-import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {EventManager, AlertService, JhiLanguageService} from 'ng-jhipster';
+import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
+import { MinimalSource } from '../source';
+import { SubjectPopupService } from './subject-popup.service';
 
-import {Subject} from './subject.model';
-import {SubjectPopupService} from './subject-popup.service';
-import {SubjectService} from './subject.service';
-import {MinimalSource} from "../source/source.model";
+import { Subject } from './subject.model';
+import { SubjectService } from './subject.service';
 
 @Component({
     selector: 'jhi-subject-dialog',
-    templateUrl: './subject-dialog.component.html'
+    templateUrl: './subject-dialog.component.html',
 })
 export class SubjectDialogComponent implements OnInit {
 
+    readonly authorities: string[];
+    readonly options: string[];
+
     subject: Subject;
-    authorities: any[];
     isSaving: boolean;
 
     // sources: MinimalSource[];
-    options: string[];
     attributeComponentEventPrefix: 'subjectAttributes';
 
     constructor(public activeModal: NgbActiveModal,
@@ -30,17 +30,13 @@ export class SubjectDialogComponent implements OnInit {
                 private alertService: AlertService,
                 private subjectService: SubjectService,
                 private eventManager: EventManager) {
-        this.jhiLanguageService.setLocations(['subject', 'project', 'projectStatus']);
-    }
-
-    ngOnInit() {
+        this.jhiLanguageService.addLocation('subject');
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.options = ['Human-readable-identifier'];
-        this.registerChangesInSubject();
     }
 
-    private registerChangesInSubject() {
+    ngOnInit() {
         this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
             this.subject.attributes = response.content;
         });
@@ -55,11 +51,11 @@ export class SubjectDialogComponent implements OnInit {
         if (this.subject.id !== null) {
             this.subjectService.update(this.subject)
             .subscribe((res: Subject) =>
-                this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         } else {
             this.subjectService.create(this.subject)
             .subscribe((res: Subject) =>
-                this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         }
     }
 
@@ -86,22 +82,11 @@ export class SubjectDialogComponent implements OnInit {
     trackDeviceById(index: number, item: MinimalSource) {
         return item.id;
     }
-
-    getSelected(selectedVals: Array<any>, option: any) {
-        if (selectedVals) {
-            for (let i = 0; i < selectedVals.length; i++) {
-                if (selectedVals[i] && option.id === selectedVals[i].id) {
-                    return selectedVals[i];
-                }
-            }
-        }
-        return option;
-    }
 }
 
 @Component({
     selector: 'jhi-subject-popup',
-    template: ''
+    template: '',
 })
 export class SubjectPopupComponent implements OnInit, OnDestroy {
 
@@ -109,22 +94,13 @@ export class SubjectPopupComponent implements OnInit, OnDestroy {
     routeSub: any;
 
     constructor(private route: ActivatedRoute,
-                private subjectPopupService: SubjectPopupService,) {
+                private subjectPopupService: SubjectPopupService) {
     }
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            let projectName: string;
-            if (params['projectName']) {
-                projectName = params['projectName'];
-            }
-            if (params['login']) {
-                this.modalRef = this.subjectPopupService
-                .open(SubjectDialogComponent, params['login'], false, projectName);
-            } else {
-                this.modalRef = this.subjectPopupService
-                .open(SubjectDialogComponent, null, false, projectName);
-            }
+            this.modalRef = this.subjectPopupService
+                    .open(SubjectDialogComponent, params['login'], false, params['projectName']);
         });
     }
 

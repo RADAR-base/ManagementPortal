@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {Http, Response, URLSearchParams} from '@angular/http';
+import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 
 import { Authority } from './authority.model';
@@ -8,7 +8,8 @@ import { Authority } from './authority.model';
 export class AuthorityService {
     private resourceUrl = 'api/authorities';
 
-    constructor(private http: Http) { }
+    constructor(private http: Http) {
+    }
 
     findAll(): Observable<Response> {
         return this.http.get(`${this.resourceUrl}/`);

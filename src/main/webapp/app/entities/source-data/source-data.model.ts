@@ -1,11 +1,10 @@
-
-import {MinimalSourceType, SourceType} from "../source-type/source-type.model";
+import {MinimalSourceType} from '../source-type/source-type.model';
 
 const enum ProcessingState {
     'RAW',
     'DERIVED'
+}
 
-};
 export class SourceData {
     constructor(
         public id?: number,

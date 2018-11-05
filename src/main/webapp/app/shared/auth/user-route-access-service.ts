@@ -7,15 +7,15 @@ import { StateStorageService } from './state-storage.service';
 @Injectable()
 export class UserRouteAccessService implements CanActivate {
 
-    constructor( private router: Router,
-                 private auth: AuthService,
-                 private stateStorageService: StateStorageService) {
+    constructor(private router: Router,
+                private auth: AuthService,
+                private stateStorageService: StateStorageService) {
     }
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | Promise<boolean> {
 
         this.setStateStorage(route, state);
-        return this.auth.authorize(false).then( canActivate => {
+        return this.auth.authorize(false).then(canActivate => {
             return canActivate;
         });
     }
@@ -28,14 +28,14 @@ export class UserRouteAccessService implements CanActivate {
         let params = {};
         let destinationData = {};
         let destinationName = '';
-        let destinationEvent = route;
+        const destinationEvent = route;
         if (destinationEvent !== undefined) {
             params = destinationEvent.params;
             destinationData = destinationEvent.data;
             destinationName = state.url;
         }
-        let from = {name: this.router.url.slice(1)};
-        let destination = {name: destinationName, data: destinationData};
+        const from = {name: this.router.url.slice(1)};
+        const destination = {name: destinationName, data: destinationData};
         this.stateStorageService.storeDestinationState(destination, params, from);
     }
 }

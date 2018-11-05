@@ -87,7 +87,7 @@
                 <option *ngFor="let language of languages" [value]="language">{{language | findLanguageFromKey}}</option>
             </select>
         </div>
-        <user-role [roles]='user.roles'></user-role>
+        <jhi-user-role [roles]='user.roles'></jhi-user-role>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="clear()">

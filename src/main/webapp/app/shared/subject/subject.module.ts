@@ -1,28 +1,28 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { QRCodeModule } from 'angular2-qrcode';
 
 import { ManagementPortalSharedModule } from '../../shared';
 import {
-    SubjectService,
-    SubjectPopupService,
     SubjectComponent,
-    SubjectDetailComponent,
-    SubjectRevisionComponent,
-    SubjectDialogComponent,
-    SubjectPopupComponent,
-    SubjectDeletePopupComponent,
     SubjectDeleteDialogComponent,
-    SubjectPairPopupComponent,
+    SubjectDeletePopupComponent,
+    SubjectDetailComponent,
+    SubjectDialogComponent,
     SubjectPairDialogComponent,
-    subjectRoute,
+    SubjectPairPopupComponent,
+    SubjectPopupComponent,
     subjectPopupRoute,
+    SubjectPopupService,
+    SubjectRevisionComponent,
     SubjectRevisionListComponent,
+    subjectRoute,
+    SubjectService,
 } from './';
 import {
     SubjectSourceAssignerDialogComponent,
-    SubjectSourceAssignerPopupComponent
-} from "./source-assigner/source-assigner.component";
+    SubjectSourceAssignerPopupComponent,
+} from './source-assigner/source-assigner.component';
 
 const ENTITY_STATES = [
     ...subjectRoute,
@@ -32,8 +32,8 @@ const ENTITY_STATES = [
 @NgModule({
     imports: [
         ManagementPortalSharedModule,
-        RouterModule.forRoot(ENTITY_STATES, { useHash: true }),
-        QRCodeModule
+        RouterModule.forRoot(ENTITY_STATES, {useHash: true}),
+        QRCodeModule,
     ],
     declarations: [
         SubjectComponent,
@@ -47,7 +47,7 @@ const ENTITY_STATES = [
         SubjectDeletePopupComponent,
         SubjectPairPopupComponent,
         SubjectSourceAssignerDialogComponent,
-        SubjectSourceAssignerPopupComponent
+        SubjectSourceAssignerPopupComponent,
     ],
     entryComponents: [
         SubjectComponent,
@@ -58,7 +58,7 @@ const ENTITY_STATES = [
         SubjectPairDialogComponent,
         SubjectPairPopupComponent,
         SubjectSourceAssignerDialogComponent,
-        SubjectSourceAssignerPopupComponent
+        SubjectSourceAssignerPopupComponent,
     ],
     providers: [
         SubjectService,
@@ -66,7 +66,8 @@ const ENTITY_STATES = [
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [
-        SubjectComponent
+        SubjectComponent,
     ],
 })
-export class ManagementPortalSharedSubjectModule {}
+export class ManagementPortalSharedSubjectModule {
+}

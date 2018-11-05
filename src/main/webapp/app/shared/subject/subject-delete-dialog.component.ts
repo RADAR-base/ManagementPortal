@@ -1,29 +1,29 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, JhiLanguageService } from 'ng-jhipster';
-
-import {Subject} from './subject.model';
 import { SubjectPopupService } from './subject-popup.service';
+
+import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
 
 @Component({
     selector: 'jhi-subject-delete-dialog',
-    templateUrl: './subject-delete-dialog.component.html'
+    templateUrl: './subject-delete-dialog.component.html',
 })
 export class SubjectDeleteDialogComponent {
 
     subject: Subject;
-    isDelete : boolean;
+    isDelete: boolean;
 
     constructor(
-        private jhiLanguageService: JhiLanguageService,
-        private subjectService: SubjectService,
-        public activeModal: NgbActiveModal,
-        private eventManager: EventManager
+            private jhiLanguageService: JhiLanguageService,
+            private subjectService: SubjectService,
+            public activeModal: NgbActiveModal,
+            private eventManager: EventManager,
     ) {
-        this.jhiLanguageService.setLocations(['subject' , 'project' , 'projectStatus']);
+        this.jhiLanguageService.addLocation('subject');
     }
 
     clear() {
@@ -31,16 +31,15 @@ export class SubjectDeleteDialogComponent {
     }
 
     confirmDelete(login: string) {
-        if(this.isDelete) {
+        if (this.isDelete) {
             this.subjectService.delete(login).subscribe((response) => {
                 this.eventManager.broadcast({
                     name: 'subjectListModification',
-                    content: 'Deleted an subject'
+                    content: 'Deleted an subject',
                 });
                 this.activeModal.dismiss(true);
             });
-        }
-        else {
+        } else {
             this.subjectService.discontinue(this.subject).subscribe((res: Subject) => {
                 this.eventManager.broadcast({name: 'subjectListModification', content: 'OK'});
                 this.activeModal.dismiss(true);
@@ -51,7 +50,7 @@ export class SubjectDeleteDialogComponent {
 
 @Component({
     selector: 'jhi-subject-delete-popup',
-    template: ''
+    template: '',
 })
 export class SubjectDeletePopupComponent implements OnInit, OnDestroy {
 
@@ -59,24 +58,22 @@ export class SubjectDeletePopupComponent implements OnInit, OnDestroy {
     routeSub: any;
 
     constructor(
-        private route: ActivatedRoute,
-        private subjectPopupService: SubjectPopupService
-    ) {}
+            private route: ActivatedRoute,
+            private subjectPopupService: SubjectPopupService,
+    ) {
+    }
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            this.route.url.subscribe(url =>{
-                if('discontinue'==(url[2].path)) {
+            this.route.url.subscribe(url => {
+                if ('discontinue' === url[2].path) {
                     this.modalRef = this.subjectPopupService
-                    .open(SubjectDeleteDialogComponent, params['login'] , false);
-                }
-                else if('delete'==(url[2].path)) {
+                            .open(SubjectDeleteDialogComponent, params['login'], false);
+                } else if ('delete' === url[2].path) {
                     this.modalRef = this.subjectPopupService
-                    .open(SubjectDeleteDialogComponent, params['login'] , true);
+                            .open(SubjectDeleteDialogComponent, params['login'], true);
                 }
             });
-
-
         });
     }
 

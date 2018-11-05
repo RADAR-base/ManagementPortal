@@ -1,7 +1,7 @@
-import {Component, Input, OnInit, OnChanges, SimpleChanges} from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 @Component({
-    selector: 'show-more',
+    selector: 'jhi-show-more',
     template: `
         <div>
             <span *ngFor="let item of items; let last = last">
@@ -23,19 +23,20 @@ import {Component, Input, OnInit, OnChanges, SimpleChanges} from '@angular/core'
             <span class="fa fa-angle-up"></span>
             <span class="hidden-md-down" jhiTranslate="common.showLess">Less</span>
         </button>
-    `
+    `,
 })
 /**
  * This component collapses if number of array items are more than 10 and allows to expand
  * and collapse in the view.
  */
 export class ShowMoreComponent implements OnInit, OnChanges {
-    isCollapsed: boolean = false;
+    isCollapsed = false;
     @Input() items?: string[];
-    @Input() spanClass : string;
-    maxLength =10;
+    @Input() spanClass: string;
+    maxLength = 10;
 
     allItems?: string[];
+
     ngOnInit() {
         this.itemsChanged();
     }
@@ -50,13 +51,13 @@ export class ShowMoreComponent implements OnInit, OnChanges {
     }
 
     collapse() {
-        this.items = this.items.slice(0,this.maxLength);
+        this.items = this.items.slice(0, this.maxLength);
         this.isCollapsed = true;
     }
 
     private itemsChanged() {
         this.allItems = this.items;
-        if(this.items && this.items.length > this.maxLength){
+        if (this.items && this.items.length > this.maxLength) {
             this.collapse();
         }
     }

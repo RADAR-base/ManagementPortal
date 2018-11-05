@@ -45,19 +45,19 @@
             </thead>
             <tbody>
                 <td>
-                    <select [(ngModel)]="selectedAuthority" class="form-control" required>
+                    <select name='authority' [(ngModel)]="selectedAuthority" class="form-control" required>
                         <option [ngValue]="null"></option>
                         <option *ngFor="let authority of authorities;">{{authority}}</option>
                     </select>
                 </td>
                 <td>
-                    <select [(ngModel)]="selectedProject" class="form-control" required>
+                    <select name='project' [(ngModel)]="selectedProject" class="form-control" required>
                         <option [ngValue]="null"></option>
                         <option [ngValue]="projectOption" *ngFor="let projectOption of projects; trackBy: trackProjectById">{{projectOption.projectName}}</option>
                     </select>
                 </td>
                 <td>
-                    <button type="button" class="btn btn-primary float-right" (click)="addRole()">
+                    <button name='addRole'type="button" class="btn btn-primary float-right" (click)="addRole()">
                         <span  jhiTranslate="userManagement.role.create">
                             Add
                         </span>

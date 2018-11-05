@@ -1,25 +1,25 @@
-import {  Routes} from '@angular/router';
+import { Routes } from '@angular/router';
 
 import { UserRouteAccessService } from '../../shared';
+import { SYSTEM_ADMIN } from '../../shared/constants/common.constants';
+import { GeneralSubjectPopupComponent } from './general.subject-dialog.component';
 
-import {GeneralSubjectComponent} from "./general.subject.component";
-import {GeneralSubjectPopupComponent} from "./general.subject-dialog.component";
-import {SYSTEM_ADMIN} from "../../shared/constants/common.constants";
-import {ResolvePagingParams} from "../../shared/commons";
+import { GeneralSubjectComponent } from './general.subject.component';
+import { ResolvePagingParams } from '../../shared/commons';
 
 export const subjectRoute: Routes = [
-  {
-    path: 'subject',
-    resolve: {
-        'pagingParams': ResolvePagingParams
+    {
+        path: 'subject',
+        resolve: {
+            'pagingParams': ResolvePagingParams,
+        },
+        component: GeneralSubjectComponent,
+        data: {
+            authorities: ['ROLE_SYS_ADMIN'],
+            pageTitle: 'managementPortalApp.subject.home.title',
+        },
+        canActivate: [UserRouteAccessService],
     },
-    component: GeneralSubjectComponent,
-    data: {
-        authorities: ['ROLE_SYS_ADMIN'],
-        pageTitle: 'managementPortalApp.subject.home.title'
-    },
-    canActivate: [UserRouteAccessService]
-  },
 ];
 
 export const subjectPopupRoute: Routes = [
@@ -28,19 +28,19 @@ export const subjectPopupRoute: Routes = [
         component: GeneralSubjectPopupComponent,
         data: {
             authorities: [SYSTEM_ADMIN],
-            pageTitle: 'managementPortalApp.subject.home.title'
+            pageTitle: 'managementPortalApp.subject.home.title',
         },
         canActivate: [UserRouteAccessService],
-        outlet: 'popup'
+        outlet: 'popup',
     },
     {
-    path: 'general-subject/:login/edit',
-    component: GeneralSubjectPopupComponent,
-    data: {
-        authorities: [SYSTEM_ADMIN],
-        pageTitle: 'managementPortalApp.subject.home.title'
+        path: 'general-subject/:login/edit',
+        component: GeneralSubjectPopupComponent,
+        data: {
+            authorities: [SYSTEM_ADMIN],
+            pageTitle: 'managementPortalApp.subject.home.title',
+        },
+        canActivate: [UserRouteAccessService],
+        outlet: 'popup',
     },
-    canActivate: [UserRouteAccessService],
-    outlet: 'popup'
-  }
 ];

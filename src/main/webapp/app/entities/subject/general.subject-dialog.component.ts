@@ -1,31 +1,28 @@
-import {
-    Component, OnInit, OnDestroy
-} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Response} from '@angular/http';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Response } from '@angular/http';
+import { ActivatedRoute } from '@angular/router';
 
-import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {EventManager, AlertService, JhiLanguageService} from 'ng-jhipster';
+import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
+import { MinimalSource } from '../../shared/source';
+import { Subject, SubjectService } from '../../shared/subject';
 
-import {Project} from "../project/project.model";
-import {ProjectService} from "../project/project.service";
-import {Subject} from "../../shared/subject/subject.model";
-import {SubjectService} from "../../shared/subject/subject.service";
-import {GeneralSubjectPopupService} from "./general.subject-popup.service";
-import {MinimalSource} from "../../shared/source/source.model";
+import { Project, ProjectService } from '../../shared/project';
+import { GeneralSubjectPopupService } from './general.subject-popup.service';
+
 @Component({
     selector: 'jhi-subject-dialog',
-    templateUrl: './general.subject-dialog.component.html'
+    templateUrl: './general.subject-dialog.component.html',
 })
 export class GeneralSubjectDialogComponent implements OnInit {
+    readonly authorities: string[];
+    readonly options: string[];
 
     subject: Subject;
-    authorities: any[];
     isSaving: boolean;
     projects: Project[];
 
-    options : string[];
-    attributeComponentEventPrefix : 'subjectAttributes';
+    attributeComponentEventPrefix: 'subjectAttributes';
 
     constructor(public activeModal: NgbActiveModal,
                 private jhiLanguageService: JhiLanguageService,
@@ -33,25 +30,17 @@ export class GeneralSubjectDialogComponent implements OnInit {
                 private subjectService: SubjectService,
                 private projectService: ProjectService,
                 private eventManager: EventManager) {
-        this.jhiLanguageService.setLocations(['subject' , 'project' , 'projectStatus']);
-    }
-
-    ngOnInit() {
+        this.jhiLanguageService.addLocation('subject');
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.options = ['Human-readable-identifier'];
-        this.projectService.query().subscribe(
-            (res) => {
-                this.projects = res.json();
-            });
-        this.registerChangesInSubject();
     }
 
-    private registerChangesInSubject() {
+    ngOnInit() {
+        this.projectService.query()
+                .subscribe((res) => this.projects = res.json());
         this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification',
-            (response) => {
-                this.subject.attributes = response.content;
-            });
+                (response) => this.subject.attributes = response.content);
     }
 
     clear() {
@@ -63,11 +52,11 @@ export class GeneralSubjectDialogComponent implements OnInit {
         if (this.subject.id !== null) {
             this.subjectService.update(this.subject)
             .subscribe((res: Subject) =>
-                this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         } else {
             this.subjectService.create(this.subject)
             .subscribe((res: Subject) =>
-                this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         }
     }
 
@@ -98,22 +87,11 @@ export class GeneralSubjectDialogComponent implements OnInit {
     trackProjectById(index: number, item: Project) {
         return item.id;
     }
-
-    getSelected(selectedVals: Array<any>, option: any) {
-        if (selectedVals) {
-            for (let i = 0; i < selectedVals.length; i++) {
-                if (selectedVals[i] && option.id === selectedVals[i].id) {
-                    return selectedVals[i];
-                }
-            }
-        }
-        return option;
-    }
 }
 
 @Component({
     selector: 'jhi-subject-popup',
-    template: ''
+    template: '',
 })
 export class GeneralSubjectPopupComponent implements OnInit, OnDestroy {
 
@@ -127,15 +105,9 @@ export class GeneralSubjectPopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if (params['login']) {
-                this.modalRef = this.subjectPopupService
-                .open(GeneralSubjectDialogComponent, params['login']);
-            } else {
-                this.modalRef = this.subjectPopupService
-                .open(GeneralSubjectDialogComponent);
-            }
+            this.modalRef = this.subjectPopupService
+                    .open(GeneralSubjectDialogComponent, params['login']);
         });
-
     }
 
     ngOnDestroy() {

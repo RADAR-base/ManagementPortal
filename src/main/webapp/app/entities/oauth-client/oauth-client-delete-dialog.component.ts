@@ -1,16 +1,16 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, JhiLanguageService } from 'ng-jhipster';
+import { OAuthClientPopupService } from './oauth-client-popup.service';
 
 import { OAuthClient } from './oauth-client.model';
 import { OAuthClientService } from './oauth-client.service';
-import { OAuthClientPopupService } from './oauth-client-popup.service';
 
 @Component({
     selector: 'jhi-oauth-client-delete-dialog',
-    templateUrl: './oauth-client-delete-dialog.component.html'
+    templateUrl: './oauth-client-delete-dialog.component.html',
 })
 export class OAuthClientDeleteDialogComponent implements OnInit {
 
@@ -18,16 +18,16 @@ export class OAuthClientDeleteDialogComponent implements OnInit {
     protectedClient: boolean;
 
     constructor(
-        private jhiLanguageService: JhiLanguageService,
-        private oauthClientService: OAuthClientService,
-        public activeModal: NgbActiveModal,
-        private eventManager: EventManager
+            private jhiLanguageService: JhiLanguageService,
+            private oauthClientService: OAuthClientService,
+            public activeModal: NgbActiveModal,
+            private eventManager: EventManager,
     ) {
         this.jhiLanguageService.addLocation('oauthClient');
     }
 
     ngOnInit() {
-        this.protectedClient = this.client.additionalInformation['protected'] == 'true';
+        this.protectedClient = this.client.additionalInformation['protected'] === 'true';
     }
 
     clear() {
@@ -35,10 +35,10 @@ export class OAuthClientDeleteDialogComponent implements OnInit {
     }
 
     confirmDelete(clientId: string) {
-        this.oauthClientService.delete(clientId).subscribe((response) => {
+        this.oauthClientService.delete(clientId).subscribe(() => {
             this.eventManager.broadcast({
                 name: 'oauthClientListModification',
-                content: 'Deleted OAuth Client'
+                content: 'Deleted OAuth Client',
             });
             this.activeModal.dismiss(true);
         });
@@ -47,7 +47,7 @@ export class OAuthClientDeleteDialogComponent implements OnInit {
 
 @Component({
     selector: 'jhi-oauth-client-delete-popup',
-    template: ''
+    template: '',
 })
 export class OAuthClientDeletePopupComponent implements OnInit, OnDestroy {
 
@@ -55,14 +55,15 @@ export class OAuthClientDeletePopupComponent implements OnInit, OnDestroy {
     routeSub: any;
 
     constructor(
-        private route: ActivatedRoute,
-        private oauthClientPopupService: OAuthClientPopupService
-    ) {}
+            private route: ActivatedRoute,
+            private oauthClientPopupService: OAuthClientPopupService,
+    ) {
+    }
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
             this.modalRef = this.oauthClientPopupService
-                .open(OAuthClientDeleteDialogComponent, params['clientId']);
+                    .open(OAuthClientDeleteDialogComponent, params['clientId']);
         });
     }
 

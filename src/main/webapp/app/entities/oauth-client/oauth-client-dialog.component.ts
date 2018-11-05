@@ -1,64 +1,64 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Response } from '@angular/http';
+import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { EventManager, AlertService, JhiLanguageService } from 'ng-jhipster';
+import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
+import { OAuthClientPopupService } from './oauth-client-popup.service';
 
 import { OAuthClient } from './oauth-client.model';
 import { OAuthClientService } from './oauth-client.service';
-import { OAuthClientPopupService } from './oauth-client-popup.service';
 
 @Component({
     selector: 'jhi-oauth-client-dialog',
-    templateUrl: './oauth-client-dialog.component.html'
+    templateUrl: './oauth-client-dialog.component.html',
 })
-export class OAuthClientDialogComponent implements OnInit  {
-
+export class OAuthClientDialogComponent implements OnInit {
+    readonly authorities: string[];
+    readonly availableGrants: string[];
     client: OAuthClient;
     isSaving: boolean;
-    authorities: any[];
     grantTypes: any[];
     scopeList: string;
     resourcesList: string;
     autoApproveScopeList: string;
-    availableGrants: string[];
     dynamicRegistration: boolean;
     dynamicRegistrationKey: string;
     newClient: boolean;
     protectedClient: boolean;
 
     constructor(
-        public activeModal: NgbActiveModal,
-        private jhiLanguageService: JhiLanguageService,
-        private alertService: AlertService,
-        private oauthClientSerivce: OAuthClientService,
-        private eventManager: EventManager
+            public activeModal: NgbActiveModal,
+            private jhiLanguageService: JhiLanguageService,
+            private alertService: AlertService,
+            private oauthClientSerivce: OAuthClientService,
+            private eventManager: EventManager,
     ) {
         this.jhiLanguageService.addLocation('oauthClient');
         this.availableGrants = ['authorization_code', 'implicit', 'client_credentials', 'refresh_token', 'password'];
+        this.authorities = ['ROLE_SYS_ADMIN'];
+        this.isSaving = false;
     }
 
     ngOnInit() {
-        this.isSaving = false;
         // transform array of authorized grant types to array of objects with name and authorized property, so we can bind a checkbox to the authorized property
-        this.grantTypes = [];
-        this.availableGrants.forEach((grant) => {
-            this.grantTypes.push({"name": grant, "authorized": this.client.authorizedGrantTypes.indexOf(grant) > -1});
-        });
+        this.grantTypes = this.availableGrants.map(grant => ({
+            name: grant,
+            authorized: this.client.authorizedGrantTypes.indexOf(grant) > -1,
+        }));
         // transform array of scopes to a comma seperated string so we can bind a single text box to it
-        this.scopeList = this.client.scope.join(", ");
+        this.scopeList = this.client.scope.join(', ');
         // transform array of resources to a comma seperated string so we can bind a single text box to it
-        this.resourcesList = this.client.resourceIds.join(", ");
+        this.resourcesList = this.client.resourceIds.join(', ');
         // transform array of auto-approve scopes to a comma seperated string so we can bind a single text box to it
-        this.autoApproveScopeList = this.client.autoApproveScopes ? this.client.autoApproveScopes.join(", ") : "";
+        this.autoApproveScopeList = this.client.autoApproveScopes ? this.client.autoApproveScopes.join(', ') : '';
         this.dynamicRegistrationKey = 'dynamic_registration';
-        this.dynamicRegistration = this.client.additionalInformation[this.dynamicRegistrationKey] == 'true';
-        this.authorities = ['ROLE_SYS_ADMIN'];
+        this.dynamicRegistration = this.client.additionalInformation[this.dynamicRegistrationKey] === 'true';
         // are we creating a new client?
-        this.newClient = this.client.clientId == '';
-        this.protectedClient = this.client.additionalInformation['protected'] == 'true';
+        this.newClient = this.client.clientId === '';
+        this.protectedClient = this.client.additionalInformation['protected'] === 'true';
     }
+
     clear() {
         this.activeModal.dismiss('cancel');
     }
@@ -80,27 +80,26 @@ export class OAuthClientDialogComponent implements OnInit  {
         this.client.autoApproveScopes = this.listStringToArray(this.autoApproveScopeList);
         if (this.dynamicRegistration) {
             this.client.additionalInformation[this.dynamicRegistrationKey] = true;
-        }
-        else {
+        } else {
             delete this.client.additionalInformation[this.dynamicRegistrationKey];
         }
         if (!this.newClient) {
             this.oauthClientSerivce.update(this.client)
-                .subscribe((res: OAuthClient) =>
+            .subscribe((res: OAuthClient) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         } else {
             this.oauthClientSerivce.create(this.client)
-                .subscribe((res: OAuthClient) =>
+            .subscribe((res: OAuthClient) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         }
     }
 
     // convert comma seperated list of values to array
     private listStringToArray(list: string) {
-        var result = [];
+        const result = [];
         list.split(',').forEach((value) => {
-            var trimmed = value.trim();
-            if (trimmed != '') {
+            const trimmed = value.trim();
+            if (trimmed !== '') {
                 result.push(trimmed);
             }
         });
@@ -108,7 +107,7 @@ export class OAuthClientDialogComponent implements OnInit  {
     }
 
     private onSaveSuccess(result: OAuthClient) {
-        this.eventManager.broadcast({ name: 'oauthClientListModification', content: 'OK'});
+        this.eventManager.broadcast({name: 'oauthClientListModification', content: 'OK'});
         this.isSaving = false;
         this.activeModal.dismiss(result);
     }
@@ -127,27 +126,12 @@ export class OAuthClientDialogComponent implements OnInit  {
         this.alertService.error(error.message, null, null);
     }
 
-    trackByClientId(index: number, item: OAuthClient) {
-        return item.clientId;
-    }
-
-    getSelected(selectedVals: Array<any>, option: any) {
-        if (selectedVals) {
-            for (let i = 0; i < selectedVals.length; i++) {
-                if (option.id === selectedVals[i].id) {
-                    return selectedVals[i];
-                }
-            }
-        }
-        return option;
-    }
-
     generateRandomSecret() {
-        var text = [];
-        const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-      
-        for (var i = 0; i < 36; i++) {
-          text.push(possible.charAt(Math.floor(Math.random() * possible.length)));
+        const text = [];
+        const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+        for (let i = 0; i < 36; i++) {
+            text.push(possible.charAt(Math.floor(Math.random() * possible.length)));
         }
 
         this.client.clientSecret = text.join('');
@@ -156,7 +140,7 @@ export class OAuthClientDialogComponent implements OnInit  {
 
 @Component({
     selector: 'jhi-oauth-client-popup',
-    template: ''
+    template: '',
 })
 export class OAuthClientPopupComponent implements OnInit, OnDestroy {
 
@@ -164,19 +148,15 @@ export class OAuthClientPopupComponent implements OnInit, OnDestroy {
     routeSub: any;
 
     constructor(
-        private route: ActivatedRoute,
-        private oauthClientPopupService: OAuthClientPopupService
-    ) {}
+            private route: ActivatedRoute,
+            private oauthClientPopupService: OAuthClientPopupService,
+    ) {
+    }
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            if ( params['clientId'] ) {
-                this.modalRef = this.oauthClientPopupService
+            this.modalRef = this.oauthClientPopupService
                     .open(OAuthClientDialogComponent, params['clientId']);
-            } else {
-                this.modalRef = this.oauthClientPopupService
-                    .open(OAuthClientDialogComponent);
-            }
         });
     }
 

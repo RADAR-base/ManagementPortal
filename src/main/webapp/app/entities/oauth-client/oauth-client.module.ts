@@ -1,51 +1,50 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { FormsModule} from '@angular/forms';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 import { ManagementPortalSharedModule } from '../../shared';
 import {
-OAuthClientService,
-OAuthClientComponent,
-OAuthClientPopupService,
-OAuthClientDialogComponent,
-OAuthClientPopupComponent,
-OAuthClientDeleteDialogComponent,
-OAuthClientDeletePopupComponent,
-oauthClientRoute,
-oauthClientPopupRoute
+    OAuthClientComponent,
+    OAuthClientDeleteDialogComponent,
+    OAuthClientDeletePopupComponent,
+    OAuthClientDialogComponent,
+    OAuthClientPopupComponent,
+    oauthClientPopupRoute,
+    OAuthClientPopupService,
+    oauthClientRoute,
+    OAuthClientService,
 } from './';
-
 
 const ENTITY_STATES = [
     ...oauthClientRoute,
-    ...oauthClientPopupRoute
+    ...oauthClientPopupRoute,
 ];
-
 
 @NgModule({
     imports: [
         ManagementPortalSharedModule,
-        RouterModule.forRoot(ENTITY_STATES, { useHash: true }),
-        FormsModule
+        RouterModule.forRoot(ENTITY_STATES, {useHash: true}),
+        FormsModule,
     ],
     declarations: [
         OAuthClientComponent,
         OAuthClientDialogComponent,
         OAuthClientPopupComponent,
         OAuthClientDeleteDialogComponent,
-        OAuthClientDeletePopupComponent
+        OAuthClientDeletePopupComponent,
     ],
     entryComponents: [
         OAuthClientComponent,
         OAuthClientDialogComponent,
         OAuthClientPopupComponent,
         OAuthClientDeleteDialogComponent,
-        OAuthClientDeletePopupComponent
+        OAuthClientDeletePopupComponent,
     ],
     providers: [
         OAuthClientService,
-        OAuthClientPopupService
+        OAuthClientPopupService,
     ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ManagementPortalOAuthClientModule {}
+export class ManagementPortalOAuthClientModule {
+}

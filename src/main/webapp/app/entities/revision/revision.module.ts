@@ -1,32 +1,33 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { ManagementPortalSharedModule } from '../../shared';
-import { RevisionService } from './revision.service';
 import { RevisionComponent } from './revision.component';
 import { revisionRoute } from './revision.route';
+import { RevisionService } from './revision.service';
 
 const ENTITY_STATES = [
-...revisionRoute,
+    ...revisionRoute,
 ];
 
 @NgModule({
     imports: [
         ManagementPortalSharedModule,
-        RouterModule.forRoot(ENTITY_STATES, { useHash: true })
+        RouterModule.forRoot(ENTITY_STATES, {useHash: true}),
     ],
     declarations: [
-        RevisionComponent
+        RevisionComponent,
     ],
     entryComponents: [
-        RevisionComponent
+        RevisionComponent,
     ],
     providers: [
-        RevisionService
+        RevisionService,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [
-        RevisionComponent
+        RevisionComponent,
     ],
 })
-export class ManagementPortalRevisionModule {}
+export class ManagementPortalRevisionModule {
+}
