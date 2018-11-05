@@ -29,7 +29,7 @@ export class RoleComponent implements OnInit {
     }
 
     ngOnInit() {
-        if (this.roles === undefined) {
+        if (this.roles === null) {
             this.roles = [];
         }
         this.authorityService.findAll().subscribe(res => {
