@@ -8,6 +8,9 @@ import { Project, ProjectService } from '../../shared/project';
 import { SourceDataService } from '../source-data';
 import { SourceTypePopupService } from './source-type-popup.service';
 
+import { SourceType } from './source-type.model';
+import { SourceTypeService } from './source-type.service';
+
 @Component({
     selector: 'jhi-source-type-dialog',
     templateUrl: './source-type-dialog.component.html',
@@ -78,9 +81,6 @@ export class SourceTypeDialogComponent implements OnInit {
         this.alertService.error(error.message, null, null);
     }
 }
-
-import { SourceType } from './source-type.model';
-import { SourceTypeService } from './source-type.service';
 
 @Component({
     selector: 'jhi-source-type-popup',
