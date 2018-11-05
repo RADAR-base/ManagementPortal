@@ -32,7 +32,7 @@ export class HomeComponent implements OnInit {
         this.registerAuthenticationSuccess();
     }
 
-    loadRelevantProjects() {
+    private loadRelevantProjects() {
         this.principal.identity().then((account) => {
             this.account = account;
             if (this.account) {
@@ -42,17 +42,17 @@ export class HomeComponent implements OnInit {
         });
     }
 
-    trackId(index: number, item: Project) {
-        return item.projectName;
-    }
-
-    registerAuthenticationSuccess() {
+    private registerAuthenticationSuccess() {
         this.eventManager.subscribe('authenticationSuccess', () => {
             this.principal.identity().then((account) => {
                 this.account = account;
                 this.loadRelevantProjects();
             });
         });
+    }
+
+    trackId(index: number, item: Project) {
+        return item.projectName;
     }
 
     isAuthenticated() {
