@@ -1,17 +1,16 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Response } from '@angular/http';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
-import { EventManager, ParseLinks, PaginationUtil, JhiLanguageService, AlertService } from 'ng-jhipster';
+import { ITEMS_PER_PAGE, Principal } from '../../shared';
 
 import { SourceType } from './source-type.model';
 import { SourceTypeService } from './source-type.service';
-import { ITEMS_PER_PAGE, Principal } from '../../shared';
-import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
 
 @Component({
     selector: 'jhi-source-type',
-    templateUrl: './source-type.component.html'
+    templateUrl: './source-type.component.html',
 })
 export class SourceTypeComponent implements OnInit, OnDestroy {
 
@@ -29,14 +28,14 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
     previousPage: any;
 
     constructor(
-        private jhiLanguageService: JhiLanguageService,
-        private sourceTypeService: SourceTypeService,
-        private alertService: AlertService,
-        private eventManager: EventManager,
-        private principal: Principal,
-        private parseLinks: ParseLinks,
-        private activatedRoute: ActivatedRoute,
-        private router: Router
+            private jhiLanguageService: JhiLanguageService,
+            private sourceTypeService: SourceTypeService,
+            private alertService: AlertService,
+            private eventManager: EventManager,
+            private principal: Principal,
+            private parseLinks: ParseLinks,
+            private activatedRoute: ActivatedRoute,
+            private router: Router,
     ) {
         this.sourceTypes = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
@@ -51,16 +50,17 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
 
     loadAll() {
         this.sourceTypeService.query(
-            {
-                page: this.page - 1,
-                size: this.itemsPerPage,
-                sort: this.sort()
-            }
+                {
+                    page: this.page - 1,
+                    size: this.itemsPerPage,
+                    sort: this.sort(),
+                },
         ).subscribe(
-            (res: Response) => this.onSuccess(res.json(), res.headers),
-            (res: Response) => this.onError(res.json())
+                (res: Response) => this.onSuccess(res.json(), res.headers),
+                (res: Response) => this.onError(res.json()),
         );
     }
+
     ngOnInit() {
         this.loadAll();
         this.principal.identity().then((account) => {
@@ -77,6 +77,7 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
     trackId(index: number, item: SourceType) {
         return item.id;
     }
+
     registerChangeInSourceTypes() {
         this.eventSubscriber = this.eventManager.subscribe('sourceTypeListModification', (response) => this.loadAll());
     }
@@ -106,12 +107,14 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
             this.transition();
         }
     }
+
     transition() {
-        this.router.navigate(['/source-types'], { queryParams:
-            {
-                page: this.page,
-                sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc')
-            }
+        this.router.navigate(['/source-types'], {
+            queryParams:
+                    {
+                        page: this.page,
+                        sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc'),
+                    },
         });
         this.loadAll();
     }

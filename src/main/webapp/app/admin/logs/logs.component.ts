@@ -16,8 +16,8 @@ export class LogsComponent implements OnInit {
     reverse: boolean;
 
     constructor(
-        private jhiLanguageService: JhiLanguageService,
-        private logsService: LogsService
+            private jhiLanguageService: JhiLanguageService,
+            private logsService: LogsService,
     ) {
         this.filter = '';
         this.orderProp = 'name';

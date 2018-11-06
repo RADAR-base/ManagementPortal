@@ -1,20 +1,20 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 import { ManagementPortalSharedModule } from '../../shared';
 import {
-    SourceTypeService,
-    SourceTypePopupService,
     SourceTypeComponent,
+    SourceTypeDeleteDialogComponent,
+    SourceTypeDeletePopupComponent,
     SourceTypeDetailComponent,
     SourceTypeDialogComponent,
     SourceTypePopupComponent,
-    SourceTypeDeletePopupComponent,
-    SourceTypeDeleteDialogComponent,
-    sourceTypeRoute,
     sourceTypePopupRoute,
+    SourceTypePopupService,
+    sourceTypeRoute,
+    SourceTypeService,
 } from './';
-import {FormsModule} from "@angular/forms";
 
 const ENTITY_STATES = [
     ...sourceTypeRoute,
@@ -24,8 +24,8 @@ const ENTITY_STATES = [
 @NgModule({
     imports: [
         ManagementPortalSharedModule,
-        RouterModule.forRoot(ENTITY_STATES, { useHash: true }),
-        FormsModule
+        RouterModule.forRoot(ENTITY_STATES, {useHash: true}),
+        FormsModule,
     ],
     declarations: [
         SourceTypeComponent,
@@ -46,6 +46,7 @@ const ENTITY_STATES = [
         SourceTypeService,
         SourceTypePopupService,
     ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ManagementPortalSourceTypeModule {}
+export class ManagementPortalSourceTypeModule {
+}

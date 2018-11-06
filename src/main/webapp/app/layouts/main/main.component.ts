@@ -1,19 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRouteSnapshot, NavigationEnd, RoutesRecognized } from '@angular/router';
+import { ActivatedRouteSnapshot, NavigationEnd, Router } from '@angular/router';
 
-import { JhiLanguageHelper, StateStorageService } from '../../shared';
+import { JhiLanguageHelper } from '../../shared';
 
 @Component({
     selector: 'jhi-main',
-    templateUrl: './main.component.html'
+    templateUrl: './main.component.html',
 })
 export class JhiMainComponent implements OnInit {
 
     constructor(
-        private jhiLanguageHelper: JhiLanguageHelper,
-        private router: Router,
-        private $storageService: StateStorageService,
-    ) {}
+            private jhiLanguageHelper: JhiLanguageHelper,
+            private router: Router,
+    ) {
+    }
 
     private getPageTitle(routeSnapshot: ActivatedRouteSnapshot) {
         let title: string = (routeSnapshot.data && routeSnapshot.data['pageTitle']) ? routeSnapshot.data['pageTitle'] : 'managementPortalApp';

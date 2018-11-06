@@ -1,14 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { EventManager, JhiLanguageService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
-import { EventManager , JhiLanguageService  } from 'ng-jhipster';
+import { Role } from '../../admin/user-management/role.model';
 
-import {RoleService} from "./role.service";
-import {Role} from "../../admin/user-management/role.model";
+import { RoleService } from './role.service';
 
 @Component({
     selector: 'jhi-role-detail',
-    templateUrl: './role-detail.component.html'
+    templateUrl: './role-detail.component.html',
 })
 export class RoleDetailComponent implements OnInit, OnDestroy {
 
@@ -17,12 +17,12 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
     private eventSubscriber: Subscription;
 
     constructor(
-        private eventManager: EventManager,
-        private jhiLanguageService: JhiLanguageService,
-        private roleService: RoleService,
-        private route: ActivatedRoute
+            private eventManager: EventManager,
+            private jhiLanguageService: JhiLanguageService,
+            private roleService: RoleService,
+            private route: ActivatedRoute,
     ) {
-        this.jhiLanguageService.setLocations(['role', 'processingState']);
+        this.jhiLanguageService.setLocations(['role']);
     }
 
     ngOnInit() {
@@ -37,6 +37,7 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
             this.role = role;
         });
     }
+
     previousState() {
         window.history.back();
     }

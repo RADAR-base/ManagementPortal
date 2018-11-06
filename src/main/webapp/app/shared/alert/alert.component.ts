@@ -8,12 +8,13 @@ import { AlertService } from 'ng-jhipster';
             <div *ngFor="let alert of alerts" [ngClass]="{\'alert.position\': true, \'toast\': alert.toast}">
                 <ngb-alert [type]="alert.type" (close)="alert.close(alerts)"><pre [innerHTML]="alert.msg"></pre></ngb-alert>
             </div>
-        </div>`
+        </div>`,
 })
 export class JhiAlertComponent implements OnInit, OnDestroy {
     alerts: any[];
 
-    constructor(private alertService: AlertService) { }
+    constructor(private alertService: AlertService) {
+    }
 
     ngOnInit() {
         this.alerts = this.alertService.get();

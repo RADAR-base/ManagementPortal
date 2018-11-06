@@ -7,7 +7,6 @@ import { PasswordResetFinishComponent } from '../../../../../../../main/webapp/a
 import { PasswordResetFinish } from '../../../../../../../main/webapp/app/account/password-reset/finish/password-reset-finish.service';
 import { MockActivatedRoute } from '../../../../helpers/mock-route.service';
 
-
 describe('Component Tests', () => {
 
     describe('PasswordResetFinishComponent', () => {
@@ -40,11 +39,8 @@ describe('Component Tests', () => {
                         useValue: new ElementRef(null)
                     }
                 ]
-            }).overrideComponent(PasswordResetFinishComponent, {
-                set: {
-                    template: ''
-                }
-            }).createComponent(PasswordResetFinishComponent);
+            }).overrideTemplate(PasswordResetFinishComponent, 'overrideTemplate')
+                    .createComponent(PasswordResetFinishComponent);
             comp = fixture.componentInstance;
         });
 

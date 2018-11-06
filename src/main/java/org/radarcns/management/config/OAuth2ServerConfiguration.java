@@ -7,7 +7,9 @@ import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
 import java.security.KeyPair;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.sql.DataSource;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.config.ManagementPortalProperties.Oauth;
@@ -219,29 +221,54 @@ public class OAuth2ServerConfiguration {
             Oauth oauthConfig = managementPortalProperties.getOauth();
 
             // set the keypair for signing
-            RadarKeyStoreKeyFactory kf = new RadarKeyStoreKeyFactory(
-                    new ClassPathResource("/config/keystore.jks"),
+            RadarKeyStoreKeyFactory keyFactory = new RadarKeyStoreKeyFactory(
+                    Arrays.asList(
+                            new ClassPathResource("/config/keystore.p12"),
+                            new ClassPathResource("/config/keystore.jks")),
                     oauthConfig.getKeyStorePassword().toCharArray());
             String signKey = oauthConfig.getSigningKeyAlias();
             logger.debug("Using JWT signing key {}", signKey);
-            KeyPair keyPair = kf.getKeyPair(signKey);
+            KeyPair keyPair = keyFactory.getKeyPair(signKey);
+            if (keyPair == null) {
+                throw new IllegalArgumentException("Cannot load JWT signing key " + signKey
+                        + " from JWT key store.");
+            }
             converter.setKeyPair(keyPair);
 
             // if a list of checking keys is defined, use that for checking
             List<String> checkingAliases = oauthConfig.getCheckingKeyAliases();
-            logger.debug("Using JWT verification keys {}", checkingAliases);
-            List<SignatureVerifier> verifiers = kf.streamJwtAlgorithm(checkingAliases)
-                    .map(JwtAlgorithm::getVerifier)
-                    .collect(Collectors.toList());
 
-            if (verifiers.size() > 1) {
-                // get all public keys for verifying and set the converter's verifier
-                // to a MultiVerifier
-                converter.setVerifier(new MultiVerifier(verifiers));
-            } else if (verifiers.size() == 1) {
-                // only has one verifier, use it directly
-                converter.setVerifier(verifiers.get(0));
-            } // else, use the signing key verifier.
+            if (checkingAliases == null || checkingAliases.isEmpty()) {
+                logger.debug("Using JWT verification key {}", signKey);
+            } else {
+                List<SignatureVerifier> verifiers = Stream
+                        .concat(checkingAliases.stream(), Stream.of(signKey))
+                        .distinct()
+                        .map(alias -> {
+                            KeyPair pair = keyFactory.getKeyPair(alias);
+                            JwtAlgorithm alg = RadarJwtAccessTokenConverter.getJwtAlgorithm(pair);
+                            if (alg != null) {
+                                logger.debug("Using JWT verification key {}", alias);
+                            }
+                            return alg;
+                        })
+                        .filter(Objects::nonNull)
+                        .map(JwtAlgorithm::getVerifier)
+                        .collect(Collectors.toList());
+
+                if (verifiers.size() > 1) {
+                    // get all public keys for verifying and set the converter's verifier
+                    // to a MultiVerifier
+                    converter.setVerifier(new MultiVerifier(verifiers));
+                } else if (verifiers.size() == 1) {
+                    // only has one verifier, use it directly
+                    converter.setVerifier(verifiers.get(0));
+                } else {
+                    // else, use the signing key verifier.
+                    logger.warn("Using JWT signing key {} for verification: none of the provided"
+                            + " verification keys were valid.", signKey);
+                }
+            }
 
             return converter;
         }
@@ -257,8 +284,7 @@ public class OAuth2ServerConfiguration {
         }
 
         @Override
-        public void configure(AuthorizationServerEndpointsConfigurer endpoints)
-                throws Exception {
+        public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
             TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
             tokenEnhancerChain.setTokenEnhancers(
                     Arrays.asList(tokenEnhancer(), accessTokenConverter()));
@@ -273,7 +299,7 @@ public class OAuth2ServerConfiguration {
         }
 
         @Override
-        public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
+        public void configure(AuthorizationServerSecurityConfigurer oauthServer) {
             oauthServer.allowFormAuthenticationForClients()
                     .checkTokenAccess("isAuthenticated()")
                     .tokenKeyAccess("isAnonymous() || isAuthenticated()")

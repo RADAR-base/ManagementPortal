@@ -13,7 +13,7 @@ import { Principal } from './principal.service';
  * ```
  */
 @Directive({
-    selector: '[jhiHasAnyAuthority]'
+    selector: '[jhiHasAnyAuthority]',
 })
 export class HasAnyAuthorityDirective {
 
@@ -23,11 +23,11 @@ export class HasAnyAuthorityDirective {
     }
 
     @Input()
-    set jhiHasAnyAuthority(value: string|string[]) {
-        this.authorities = typeof value === 'string' ? [ <string> value ] : <string[]> value;
+    set jhiHasAnyAuthority(value: string | string[]) {
+        this.authorities = typeof value === 'string' ? [<string> value] : <string[]> value;
         this.updateView();
         // Get notified each time authentication state changes.
-        this.principal.getAuthenticationState().subscribe((identity) => this.updateView());
+        this.principal.getAuthenticationState().subscribe(() => this.updateView());
     }
 
     private updateView(): void {

@@ -1,28 +1,28 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, JhiLanguageService } from 'ng-jhipster';
+import { SourcePopupService } from './source-popup.service';
 
 import { Source } from './source.model';
-import { SourcePopupService } from './source-popup.service';
 import { SourceService } from './source.service';
 
 @Component({
     selector: 'jhi-source-delete-dialog',
-    templateUrl: './source-delete-dialog.component.html'
+    templateUrl: './source-delete-dialog.component.html',
 })
 export class SourceDeleteDialogComponent {
 
     source: Source;
 
     constructor(
-        private jhiLanguageService: JhiLanguageService,
-        private sourceService: SourceService,
-        public activeModal: NgbActiveModal,
-        private eventManager: EventManager
+            private jhiLanguageService: JhiLanguageService,
+            private sourceService: SourceService,
+            public activeModal: NgbActiveModal,
+            private eventManager: EventManager,
     ) {
-        this.jhiLanguageService.setLocations(['source']);
+        this.jhiLanguageService.addLocation('source');
     }
 
     clear() {
@@ -30,10 +30,10 @@ export class SourceDeleteDialogComponent {
     }
 
     confirmDelete(sourceName: string) {
-        this.sourceService.delete(sourceName).subscribe((response) => {
+        this.sourceService.delete(sourceName).subscribe(() => {
             this.eventManager.broadcast({
                 name: 'sourceListModification',
-                content: 'Deleted a source'
+                content: 'Deleted a source',
             });
             this.activeModal.dismiss(true);
         });
@@ -42,7 +42,7 @@ export class SourceDeleteDialogComponent {
 
 @Component({
     selector: 'jhi-source-delete-popup',
-    template: ''
+    template: '',
 })
 export class SourceDeletePopupComponent implements OnInit, OnDestroy {
 
@@ -50,14 +50,15 @@ export class SourceDeletePopupComponent implements OnInit, OnDestroy {
     routeSub: any;
 
     constructor(
-        private route: ActivatedRoute,
-        private sourcePopupService: SourcePopupService
-    ) {}
+            private route: ActivatedRoute,
+            private sourcePopupService: SourcePopupService,
+    ) {
+    }
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
             this.modalRef = this.sourcePopupService
-                .open(SourceDeleteDialogComponent, params['sourceName']);
+                    .open(SourceDeleteDialogComponent, params['sourceName']);
         });
     }
 

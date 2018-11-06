@@ -1,16 +1,13 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs/Rx';
-import { EventManager , JhiLanguageService, ParseLinks  } from 'ng-jhipster';
-
-import { Subject } from './subject.model';
-import { SubjectService } from './subject.service';
-import { EntityRevision } from '../../entities/revision/entity-revision.model';
+import { JhiLanguageService, ParseLinks } from 'ng-jhipster';
 import { ITEMS_PER_PAGE } from '..';
+import { EntityRevision } from '../../entities/revision/entity-revision.model';
+import { SubjectService } from './subject.service';
 
 @Component({
     selector: 'jhi-subject-revision-list',
-    templateUrl: './subject-revision-list.component.html'
+    templateUrl: './subject-revision-list.component.html',
 })
 export class SubjectRevisionListComponent implements OnInit, OnDestroy {
 
@@ -28,11 +25,11 @@ export class SubjectRevisionListComponent implements OnInit, OnDestroy {
     private subscription: any;
 
     constructor(
-        private jhiLanguageService: JhiLanguageService,
-        private subjectService: SubjectService,
-        private route: ActivatedRoute,
-        private parseLinks: ParseLinks,
-        private router: Router
+            private jhiLanguageService: JhiLanguageService,
+            private subjectService: SubjectService,
+            private route: ActivatedRoute,
+            private parseLinks: ParseLinks,
+            private router: Router,
     ) {
         this.revisions = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
@@ -49,7 +46,8 @@ export class SubjectRevisionListComponent implements OnInit, OnDestroy {
                 this.reverse = true;
             }
         });
-        this.jhiLanguageService.setLocations(['subject', 'audits']);
+        this.jhiLanguageService.addLocation('subject');
+        this.jhiLanguageService.addLocation('audits');
     }
 
     ngOnInit() {
@@ -69,15 +67,15 @@ export class SubjectRevisionListComponent implements OnInit, OnDestroy {
 
     load(id) {
         this.subjectService.findRevisions(id, {
-                page: this.page - 1,
-                size: this.itemsPerPage,
-                sort: this.sort()
-            }).subscribe((response) => {
-                this.links = this.parseLinks.parse(response.headers.get('link'));
-                this.totalItems = parseInt(response.headers.get('X-Total-Count'));
-                this.queryCount = this.totalItems;
-                this.revisions = response.json();
-            });
+            page: this.page - 1,
+            size: this.itemsPerPage,
+            sort: this.sort(),
+        }).subscribe((response) => {
+            this.links = this.parseLinks.parse(response.headers.get('link'));
+            this.totalItems = parseInt(response.headers.get('X-Total-Count'), 10);
+            this.queryCount = this.totalItems;
+            this.revisions = response.json();
+        });
     }
 
     loadPage(page) {
@@ -90,15 +88,15 @@ export class SubjectRevisionListComponent implements OnInit, OnDestroy {
     transition() {
         this.router.navigate(['/subject', this.subjectLogin, 'revisions'], {
             queryParams:
-                {
-                    page: this.page,
-                    size: this.itemsPerPage,
-                    sort: this.sort()
-                }
+                    {
+                        page: this.page,
+                        size: this.itemsPerPage,
+                        sort: this.sort(),
+                    },
         });
         this.load(this.subjectLogin);
     }
-    
+
     sort() {
         const result = [this.predicate + ',' + (this.reverse ? 'asc' : 'desc')];
         return result;

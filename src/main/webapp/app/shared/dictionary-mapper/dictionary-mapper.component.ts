@@ -1,38 +1,33 @@
-import {Component, OnInit, Input} from '@angular/core';
-import {
-    EventManager,
-    JhiLanguageService
-} from 'ng-jhipster';
+import { Component, Input, OnInit } from '@angular/core';
+import { EventManager, JhiLanguageService } from 'ng-jhipster';
 
-import {Subscription} from "rxjs/Subscription";
-import {Dictionary} from "./dictionary-mapper.model";
+import { Subscription } from 'rxjs/Subscription';
+import { Dictionary } from './dictionary-mapper.model';
 
 @Component({
-    selector: 'dictionary-mapper',
-    templateUrl: './dictionary-mapper.component.html'
+    selector: 'jhi-dictionary-mapper',
+    templateUrl: './dictionary-mapper.component.html',
 })
 export class DictionaryMapperComponent implements OnInit {
     @Input() attributes: Dictionary;
     eventSubscriber: Subscription;
 
-    @Input() options : string[];
-    @Input() eventPrefix : string;
+    @Input() options: string[];
+    @Input() eventPrefix: string;
     selectedKey: any;
     enteredValue: string;
 
     constructor(private jhiLanguageService: JhiLanguageService,
                 private eventManager: EventManager) {
         this.jhiLanguageService.addLocation('global');
+        this.selectedKey = null;
+        this.enteredValue = '';
     }
 
     ngOnInit() {
-        if (this.attributes == null) {
+        if (this.attributes === undefined) {
             this.attributes = {};
         }
-        this.update();
-    }
-
-    update() {
         this.eventManager.subscribe(this.eventPrefix + 'EditListModification', (response) => {
             this.attributes = response.content;
         });
@@ -51,25 +46,26 @@ export class DictionaryMapperComponent implements OnInit {
     }
 
     activeOptions(): string[] {
-        return this.options.filter(o => !(o in this.attributes))
+        return this.options.filter(o => !(o in this.attributes));
     }
 
     private broadcastAttributes(): void {
         this.eventManager.broadcast({
             name: this.eventPrefix + 'ListModification',
-            content: this.attributes
+            content: this.attributes,
         });
     }
 
     isEmpty(obj: any) {
-        for (let key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                return false;
+        if (obj) {
+            for (const key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    return false;
+                }
             }
         }
         return true;
     }
-
 
     trackKey(index: number, item: any) {
         return item.key;

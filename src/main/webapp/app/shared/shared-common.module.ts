@@ -1,13 +1,13 @@
 import { NgModule, Sanitizer } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { TranslateService } from 'ng2-translate';
 import { AlertService } from 'ng-jhipster';
+import { TranslateService } from 'ng2-translate';
 import {
-    ManagementPortalSharedLibsModule,
-    JhiLanguageHelper,
     FindLanguageFromKeyPipe,
     JhiAlertComponent,
-    JhiAlertErrorComponent
+    JhiAlertErrorComponent,
+    JhiLanguageHelper,
+    ManagementPortalSharedLibsModule,
 } from './';
 
 export function alertServiceProvider(sanitizer: Sanitizer, translateService: TranslateService) {
@@ -18,27 +18,28 @@ export function alertServiceProvider(sanitizer: Sanitizer, translateService: Tra
 
 @NgModule({
     imports: [
-        ManagementPortalSharedLibsModule
+        ManagementPortalSharedLibsModule,
     ],
     declarations: [
         FindLanguageFromKeyPipe,
         JhiAlertComponent,
-        JhiAlertErrorComponent
+        JhiAlertErrorComponent,
     ],
     providers: [
         JhiLanguageHelper,
         {
             provide: AlertService,
             useFactory: alertServiceProvider,
-            deps: [Sanitizer, TranslateService]
+            deps: [Sanitizer, TranslateService],
         },
-        Title
+        Title,
     ],
     exports: [
         ManagementPortalSharedLibsModule,
         FindLanguageFromKeyPipe,
         JhiAlertComponent,
-        JhiAlertErrorComponent
-    ]
+        JhiAlertErrorComponent,
+    ],
 })
-export class ManagementPortalSharedCommonModule {}
+export class ManagementPortalSharedCommonModule {
+}

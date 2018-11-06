@@ -91,7 +91,10 @@ public class RadarJwtAccessTokenConverter extends JwtAccessTokenConverter {
      * @param keyPair key pair for signing/verifying.
      * @return algorithm or {@code null} if the key type is unknown.
      */
-    public static @Nullable JwtAlgorithm getJwtAlgorithm(KeyPair keyPair) {
+    public static @Nullable JwtAlgorithm getJwtAlgorithm(@Nullable KeyPair keyPair) {
+        if (keyPair == null) {
+            return null;
+        }
         PrivateKey privateKey = keyPair.getPrivate();
 
         if (privateKey instanceof ECPrivateKey) {

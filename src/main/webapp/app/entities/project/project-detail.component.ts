@@ -1,13 +1,10 @@
-import {
-    Component, OnInit, OnDestroy
-} from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { EventManager, JhiLanguageService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
-import { EventManager , JhiLanguageService  } from 'ng-jhipster';
+import { Source } from '../../shared/source/source.model';
 
-import { Project } from './project.model';
-import { ProjectService } from './project.service';
-import {Source} from "../../shared/source/source.model";
+import { Project, ProjectService } from '../../shared';
 
 @Component({
     selector: 'jhi-project-detail',
@@ -22,18 +19,19 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
     sources: Source[];
 
-    showSources : boolean;
-    showSubjects : boolean;
-    showSourceTypes : boolean;
-    showProjectAdmins : boolean;
-    showProjectAnalysts : boolean;
+    showSources: boolean;
+    showSubjects: boolean;
+    showSourceTypes: boolean;
+    showProjectAdmins: boolean;
+    showProjectAnalysts: boolean;
+
     constructor(
-        private eventManager: EventManager,
-        private jhiLanguageService: JhiLanguageService,
-        private projectService: ProjectService,
-        private route: ActivatedRoute
+            private eventManager: EventManager,
+            private jhiLanguageService: JhiLanguageService,
+            private projectService: ProjectService,
+            private route: ActivatedRoute,
     ) {
-        this.jhiLanguageService.setLocations(['project', 'projectStatus' , 'source' , 'subject']);
+        this.jhiLanguageService.setLocations(['project', 'projectStatus']);
     }
 
     ngOnInit() {
@@ -50,6 +48,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             this.project = project;
         });
     }
+
     previousState() {
         window.history.back();
     }
@@ -60,7 +59,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     }
 
     registerChangeInProjects() {
-        this.eventSubscriber = this.eventManager.subscribe('projectListModification', (response) => this.load(this.project.projectName));
+        this.eventSubscriber = this.eventManager.subscribe('projectListModification',
+                () => this.load(this.project.projectName));
     }
 
     viewSources() {
@@ -75,14 +75,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         this.showSources = false;
         this.showSubjects = true;
         this.showSourceTypes = false;
-        this.showProjectAdmins = false;
-        this.showProjectAnalysts = false;
-    }
-
-    viewSourceTypes() {
-        this.showSources = false;
-        this.showSubjects = false;
-        this.showSourceTypes = true;
         this.showProjectAdmins = false;
         this.showProjectAnalysts = false;
     }

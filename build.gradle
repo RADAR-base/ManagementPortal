@@ -32,7 +32,7 @@ plugins {
 allprojects {
     group 'org.radarcns'
 
-    version '0.5.1' // project version
+    version '0.5.2' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
@@ -348,9 +348,8 @@ task cleanResources(type: Delete) {
     delete 'build/resources'
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion '4.4'
-    distributionType 'all'
+wrapper {
+    gradleVersion '4.10.2'
 }
 
 task stage(dependsOn: 'bootRepackage') {

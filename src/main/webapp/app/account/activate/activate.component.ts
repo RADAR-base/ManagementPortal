@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ActivatedRoute } from '@angular/router';
+import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { JhiLanguageService } from 'ng-jhipster';
+import { LoginModalService } from '../../shared';
 
 import { Activate } from './activate.service';
-import { LoginModalService } from '../../shared';
 
 @Component({
     selector: 'jhi-activate',
-    templateUrl: './activate.component.html'
+    templateUrl: './activate.component.html',
 })
 export class ActivateComponent implements OnInit {
     error: string;
@@ -16,10 +16,10 @@ export class ActivateComponent implements OnInit {
     modalRef: NgbModalRef;
 
     constructor(
-        private jhiLanguageService: JhiLanguageService,
-        private activate: Activate,
-        private loginModalService: LoginModalService,
-        private route: ActivatedRoute
+            private jhiLanguageService: JhiLanguageService,
+            private activate: Activate,
+            private loginModalService: LoginModalService,
+            private route: ActivatedRoute,
     ) {
         this.jhiLanguageService.setLocations(['activate']);
     }

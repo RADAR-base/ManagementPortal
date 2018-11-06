@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
+import { AlertService, EventManager } from 'ng-jhipster';
 import { TranslateService } from 'ng2-translate';
-import { EventManager, AlertService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
 
 @Component({
@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs/Rx';
             <div *ngFor="let alert of alerts"  [ngClass]="{\'alert.position\': true, \'toast\': alert.toast}">
                 <ngb-alert type="{{alert.type}}" close="alert.close(alerts)"><pre [innerHTML]="alert.msg"></pre></ngb-alert>
             </div>
-        </div>`
+        </div>`,
 })
 export class JhiAlertErrorComponent implements OnDestroy {
 
@@ -24,7 +24,7 @@ export class JhiAlertErrorComponent implements OnDestroy {
             let i;
             const httpResponse = response.content;
             switch (httpResponse.status) {
-                // connection refused, server not reachable
+                    // connection refused, server not reachable
                 case 0:
                     this.addErrorAlert('Server not reachable', 'error.server.not.reachable');
                     break;
@@ -46,7 +46,7 @@ export class JhiAlertErrorComponent implements OnDestroy {
                     }
                     if (errorHeader) {
                         const entityName = translateService.instant('global.menu.entities.' + entityKey);
-                        this.addErrorAlert(errorHeader, errorHeader, { entityName });
+                        this.addErrorAlert(errorHeader, errorHeader, {entityName});
                     } else if (httpResponse.text() !== '' && httpResponse.json() && httpResponse.json().fieldErrors) {
                         const fieldErrors = httpResponse.json().fieldErrors;
                         for (i = 0; i < fieldErrors.length; i++) {
@@ -54,9 +54,9 @@ export class JhiAlertErrorComponent implements OnDestroy {
                             // convert 'something[14].other[4].id' to 'something[].other[].id' so translations can be written to it
                             const convertedField = fieldError.field.replace(/\[\d*\]/g, '[]');
                             const fieldName = translateService.instant('managementPortalApp.' +
-                                fieldError.objectName + '.' + convertedField);
+                                    fieldError.objectName + '.' + convertedField);
                             this.addErrorAlert(
-                                'Field ' + fieldName + ' cannot be empty', 'error.' + fieldError.message, { fieldName });
+                                    'Field ' + fieldName + ' cannot be empty', 'error.' + fieldError.message, {fieldName});
                         }
                     } else if (httpResponse.text() !== '' && httpResponse.json() && httpResponse.json().message) {
                         this.addErrorAlert(httpResponse.json().message, httpResponse.json().message, httpResponse.json().params);
@@ -89,17 +89,17 @@ export class JhiAlertErrorComponent implements OnDestroy {
     addErrorAlert(message, key?, data?) {
         key = key && key !== null ? key : message;
         this.alerts.push(
-            this.alertService.addAlert(
-                {
-                    type: 'danger',
-                    msg: key,
-                    params: data,
-                    timeout: 5000,
-                    toast: this.alertService.isToast(),
-                    scoped: true
-                },
-                this.alerts
-            )
+                this.alertService.addAlert(
+                        {
+                            type: 'danger',
+                            msg: key,
+                            params: data,
+                            timeout: 5000,
+                            toast: this.alertService.isToast(),
+                            scoped: true,
+                        },
+                        this.alerts,
+                ),
         );
     }
 }

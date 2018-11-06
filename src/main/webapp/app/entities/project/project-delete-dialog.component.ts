@@ -1,28 +1,28 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, JhiLanguageService } from 'ng-jhipster';
-
-import { Project } from './project.model';
 import { ProjectPopupService } from './project-popup.service';
-import { ProjectService } from './project.service';
+
+import { Project, ProjectService } from '../../shared';
 
 @Component({
     selector: 'jhi-project-delete-dialog',
-    templateUrl: './project-delete-dialog.component.html'
+    templateUrl: './project-delete-dialog.component.html',
 })
 export class ProjectDeleteDialogComponent {
 
     project: Project;
 
     constructor(
-        private jhiLanguageService: JhiLanguageService,
-        private projectService: ProjectService,
-        public activeModal: NgbActiveModal,
-        private eventManager: EventManager
+            private jhiLanguageService: JhiLanguageService,
+            private projectService: ProjectService,
+            public activeModal: NgbActiveModal,
+            private eventManager: EventManager,
     ) {
-        this.jhiLanguageService.setLocations(['project', 'projectStatus']);
+        this.jhiLanguageService.addLocation('project');
+        this.jhiLanguageService.addLocation('projectStatus');
     }
 
     clear() {
@@ -33,7 +33,7 @@ export class ProjectDeleteDialogComponent {
         this.projectService.delete(projectName).subscribe((response) => {
             this.eventManager.broadcast({
                 name: 'projectListModification',
-                content: 'Deleted an project'
+                content: 'Deleted an project',
             });
             this.activeModal.dismiss(true);
         });
@@ -42,7 +42,7 @@ export class ProjectDeleteDialogComponent {
 
 @Component({
     selector: 'jhi-project-delete-popup',
-    template: ''
+    template: '',
 })
 export class ProjectDeletePopupComponent implements OnInit, OnDestroy {
 
@@ -50,14 +50,15 @@ export class ProjectDeletePopupComponent implements OnInit, OnDestroy {
     routeSub: any;
 
     constructor(
-        private route: ActivatedRoute,
-        private projectPopupService: ProjectPopupService
-    ) {}
+            private route: ActivatedRoute,
+            private projectPopupService: ProjectPopupService,
+    ) {
+    }
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
             this.modalRef = this.projectPopupService
-                .open(ProjectDeleteDialogComponent, params['projectName']);
+                    .open(ProjectDeleteDialogComponent, params['projectName']);
         });
     }
 

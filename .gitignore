@@ -6,14 +6,15 @@
 /src/test/javascript/coverage/
 /src/test/javascript/PhantomJS*/
 keystore.jks
+keystore.p12
 /src/main/docker/etc/smtp.env
 ######################
 # Patch files
 ######################
 *.patch
 
-# don't ignore .jks keystores in test folders
-!**/test/resources/**/keystore.jks
+# don't ignore keystores in test folders
+!**/test/resources/**/keystore.*
 
 ######################
 # Node

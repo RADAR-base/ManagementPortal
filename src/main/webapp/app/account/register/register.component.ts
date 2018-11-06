@@ -1,13 +1,13 @@
-import { Component, OnInit, AfterViewInit, Renderer, ElementRef } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, Renderer } from '@angular/core';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { JhiLanguageService } from 'ng-jhipster';
+import { LoginModalService } from '../../shared';
 
 import { Register } from './register.service';
-import { LoginModalService } from '../../shared';
 
 @Component({
     selector: 'jhi-register',
-    templateUrl: './register.component.html'
+    templateUrl: './register.component.html',
 })
 export class RegisterComponent implements OnInit, AfterViewInit {
 
@@ -21,11 +21,11 @@ export class RegisterComponent implements OnInit, AfterViewInit {
     modalRef: NgbModalRef;
 
     constructor(
-        private languageService: JhiLanguageService,
-        private loginModalService: LoginModalService,
-        private registerService: Register,
-        private elementRef: ElementRef,
-        private renderer: Renderer
+            private languageService: JhiLanguageService,
+            private loginModalService: LoginModalService,
+            private registerService: Register,
+            private elementRef: ElementRef,
+            private renderer: Renderer,
     ) {
         this.languageService.setLocations(['register']);
     }
@@ -36,7 +36,8 @@ export class RegisterComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit() {
-        this.renderer.invokeElementMethod(this.elementRef.nativeElement.querySelector('#login'), 'focus', []);
+        const loginElement = this.elementRef.nativeElement.querySelector('#login');
+        this.renderer.invokeElementMethod(loginElement, 'focus', []);
     }
 
     register() {

@@ -1,4 +1,4 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { ManagementPortalSharedModule } from '../shared';
@@ -6,36 +6,36 @@ import { ManagementPortalSharedModule } from '../shared';
 import {
     adminState,
     AuditsComponent,
-    UserMgmtComponent,
-    UserDialogComponent,
+    AuditsService,
+    JhiConfigurationComponent,
+    JhiConfigurationService,
+    JhiDocsComponent,
+    JhiHealthCheckComponent,
+    JhiHealthModalComponent,
+    JhiHealthService,
+    JhiMetricsMonitoringComponent,
+    JhiMetricsMonitoringModalComponent,
+    JhiMetricsService,
+    LogsComponent,
+    LogsService,
     UserDeleteDialogComponent,
+    UserDialogComponent,
+    UserMgmtComponent,
+    UserMgmtDeleteDialogComponent,
     UserMgmtDetailComponent,
     UserMgmtDialogComponent,
-    UserMgmtDeleteDialogComponent,
-    LogsComponent,
-    JhiMetricsMonitoringModalComponent,
-    JhiMetricsMonitoringComponent,
-    JhiHealthModalComponent,
-    JhiHealthCheckComponent,
-    JhiConfigurationComponent,
-    JhiDocsComponent,
-    AuditsService,
-    JhiConfigurationService,
-    JhiHealthService,
-    JhiMetricsService,
-    LogsService,
-    UserResolvePagingParams,
-    UserResolve,
     UserModalService,
+    UserResolve,
+    UserResolvePagingParams,
     UserSendActivationLinkComponent,
-    UserSendActivationLinkDialogComponent
+    UserSendActivationLinkDialogComponent,
 } from './';
-import {RoleComponent} from "./user-management/role.component";
+import { RoleComponent } from './user-management/role.component';
 
 @NgModule({
     imports: [
         ManagementPortalSharedModule,
-        RouterModule.forRoot(adminState, { useHash: true })
+        RouterModule.forRoot(adminState, {useHash: true}),
     ],
     declarations: [
         AuditsComponent,
@@ -54,7 +54,7 @@ import {RoleComponent} from "./user-management/role.component";
         JhiMetricsMonitoringModalComponent,
         RoleComponent,
         UserSendActivationLinkComponent,
-        UserSendActivationLinkDialogComponent
+        UserSendActivationLinkDialogComponent,
     ],
     entryComponents: [
         UserMgmtDialogComponent,
@@ -73,6 +73,7 @@ import {RoleComponent} from "./user-management/role.component";
         UserResolve,
         UserModalService,
     ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ManagementPortalAdminModule {}
+export class ManagementPortalAdminModule {
+}

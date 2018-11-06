@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
-import { Http, Response, URLSearchParams, BaseRequestOptions } from '@angular/http';
+import { BaseRequestOptions, Http, Response, URLSearchParams } from '@angular/http';
+import { DateUtils } from 'ng-jhipster';
 import { Observable } from 'rxjs/Rx';
 
 import { Project } from './project.model';
-import { DateUtils } from 'ng-jhipster';
+
 @Injectable()
 export class ProjectService {
 
     private resourceUrl = 'api/projects';
 
-    constructor(private http: Http, private dateUtils: DateUtils) { }
+    constructor(private http: Http, private dateUtils: DateUtils) {
+    }
 
     create(project: Project): Observable<Project> {
         const copy: Project = Object.assign({}, project);
@@ -35,9 +37,9 @@ export class ProjectService {
         return this.http.get(`${this.resourceUrl}/${encodeURIComponent(projectName)}`).map((res: Response) => {
             const jsonResponse = res.json();
             jsonResponse.startDate = this.dateUtils
-                .convertDateTimeFromServer(jsonResponse.startDate);
+            .convertDateTimeFromServer(jsonResponse.startDate);
             jsonResponse.endDate = this.dateUtils
-                .convertDateTimeFromServer(jsonResponse.endDate);
+            .convertDateTimeFromServer(jsonResponse.endDate);
             return jsonResponse;
         });
     }
@@ -45,15 +47,15 @@ export class ProjectService {
     query(req?: any): Observable<Response> {
         const options = this.createRequestOption(req);
         return this.http.get(this.resourceUrl, options)
-            .map((res: any) => this.convertResponse(res))
-        ;
+        .map((res: any) => this.convertResponse(res))
+                ;
     }
 
     findAll(fetchMinimal: boolean): Observable<Response> {
 
         return this.http.get(`${this.resourceUrl}?minimized=${fetchMinimal}`)
         .map((res: any) => this.convertResponse(res))
-            ;
+                ;
     }
 
     findSourceTypesByName(projectName: string): Observable<Response> {
@@ -68,9 +70,9 @@ export class ProjectService {
         const jsonResponse = res.json();
         for (let i = 0; i < jsonResponse.length; i++) {
             jsonResponse[i].startDate = this.dateUtils
-                .convertDateTimeFromServer(jsonResponse[i].startDate);
+            .convertDateTimeFromServer(jsonResponse[i].startDate);
             jsonResponse[i].endDate = this.dateUtils
-                .convertDateTimeFromServer(jsonResponse[i].endDate);
+            .convertDateTimeFromServer(jsonResponse[i].endDate);
         }
         res._body = jsonResponse;
         return res;

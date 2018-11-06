@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Http, Response, URLSearchParams, BaseRequestOptions } from '@angular/http';
+import { BaseRequestOptions, Http, Response, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
-import {Role} from "../../admin/user-management/role.model";
+import { Role } from '../../admin/user-management/role.model';
 
 @Injectable()
 export class RoleService {
 
     private resourceUrl = 'api/roles';
 
-    constructor(private http: Http) { }
+    constructor(private http: Http) {
+    }
 
     create(role: Role): Observable<Role> {
         const copy: Role = Object.assign({}, role);
@@ -33,7 +34,7 @@ export class RoleService {
     query(req?: any): Observable<Response> {
         const options = this.createRequestOption(req);
         return this.http.get(this.resourceUrl, options)
-        ;
+                ;
     }
 
     findAdminRoles(): Observable<Response> {
@@ -43,6 +44,7 @@ export class RoleService {
     delete(projectName: string, authorityName: string): Observable<Response> {
         return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(projectName)}/${encodeURIComponent(authorityName)}`);
     }
+
     private createRequestOption(req?: any): BaseRequestOptions {
         const options: BaseRequestOptions = new BaseRequestOptions();
         if (req) {

@@ -1,16 +1,15 @@
-import {Component, OnInit} from '@angular/core';
-import {NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {EventManager, JhiLanguageService} from 'ng-jhipster';
+import { Component, OnInit } from '@angular/core';
+import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { EventManager, JhiLanguageService } from 'ng-jhipster';
 
-import {Account, LoginModalService, Principal, UserService} from '../shared';
-import {Project} from "../entities/project";
+import { Account, LoginModalService, Principal, Project, UserService } from '../shared';
 
 @Component({
     selector: 'jhi-home',
     templateUrl: './home.component.html',
     styleUrls: [
-        'home.scss'
-    ]
+        'home.scss',
+    ],
 
 })
 export class HomeComponent implements OnInit {
@@ -19,11 +18,11 @@ export class HomeComponent implements OnInit {
     projects: Project[];
 
     constructor(
-        private jhiLanguageService: JhiLanguageService,
-        private principal: Principal,
-        private loginModalService: LoginModalService,
-        private eventManager: EventManager,
-        private userService: UserService
+            private jhiLanguageService: JhiLanguageService,
+            private principal: Principal,
+            private loginModalService: LoginModalService,
+            private eventManager: EventManager,
+            private userService: UserService,
     ) {
         this.jhiLanguageService.setLocations(['home']);
     }
@@ -33,28 +32,27 @@ export class HomeComponent implements OnInit {
         this.registerAuthenticationSuccess();
     }
 
-    loadRelevantProjects() {
+    private loadRelevantProjects() {
         this.principal.identity().then((account) => {
             this.account = account;
             if (this.account) {
-                this.userService.findProject(this.account.login).subscribe(res => {
-                    this.projects = res.json();
-                });
+                this.userService.findProject(this.account.login)
+                        .subscribe(res => this.projects = res.json());
             }
         });
     }
 
-    trackId(index: number, item: Project) {
-        return item.projectName;
-    }
-
-    registerAuthenticationSuccess() {
-        this.eventManager.subscribe('authenticationSuccess', (message) => {
+    private registerAuthenticationSuccess() {
+        this.eventManager.subscribe('authenticationSuccess', () => {
             this.principal.identity().then((account) => {
                 this.account = account;
                 this.loadRelevantProjects();
             });
         });
+    }
+
+    trackId(index: number, item: Project) {
+        return item.projectName;
     }
 
     isAuthenticated() {

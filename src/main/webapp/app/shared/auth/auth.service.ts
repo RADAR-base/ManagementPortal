@@ -9,18 +9,15 @@ import { StateStorageService } from './state-storage.service';
 export class AuthService {
 
     constructor(
-        private principal: Principal,
-        private stateStorageService: StateStorageService,
-        private loginModalService: LoginModalService,
-        private router: Router
-    ) {}
+            private principal: Principal,
+            private stateStorageService: StateStorageService,
+            private loginModalService: LoginModalService,
+            private router: Router,
+    ) {
+    }
 
     authorize(force) {
-        const authReturn = this.principal.identity(force).then(authThen.bind(this));
-
-        return authReturn;
-
-        function authThen() {
+        return this.principal.identity(force).then(() => {
             const isAuthenticated = this.principal.isAuthenticated();
             const toStateInfo = this.stateStorageService.getDestinationState().destination;
 
@@ -35,7 +32,7 @@ export class AuthService {
             const previousState = this.stateStorageService.getPreviousState();
             if (isAuthenticated && !fromStateInfo.name && previousState) {
                 this.stateStorageService.resetPreviousState();
-                this.router.navigate([previousState.name], { queryParams:  previousState.params  });
+                this.router.navigate([previousState.name], {queryParams: previousState.params});
                 return false;
             }
 
@@ -60,6 +57,6 @@ export class AuthService {
                 });
             }
             return true;
-        }
+        });
     }
 }

@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
-import { Http, Response, URLSearchParams, BaseRequestOptions } from '@angular/http';
+import { BaseRequestOptions, Http, Response, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
+import { Subject } from '../../shared/subject';
 
 import { OAuthClient } from './oauth-client.model';
-import {Subject} from "../../shared/subject/subject.model";
+
 @Injectable()
 export class OAuthClientPairInfoService {
 
-private resourceUrl = 'api/oauth-clients/pair';
+    private resourceUrl = 'api/oauth-clients/pair';
 
-constructor(private http: Http) { }
+    constructor(private http: Http) {
+    }
 
     get(client: OAuthClient, subject: Subject): Observable<Response> {
         const options = this.createRequestOption(client.clientId, subject.login);
@@ -21,7 +23,7 @@ constructor(private http: Http) { }
         const params: URLSearchParams = new URLSearchParams();
         params.set('clientId', clientId);
         params.set('login', subjectLogin);
-        options.search = params;
+        options.params = params;
         return options;
     }
 }

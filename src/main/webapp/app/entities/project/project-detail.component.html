@@ -98,10 +98,10 @@
                 </tr>
                 </tbody>
             </table>
-            <subjects *ngIf="showSubjects" [project]='project' [isProjectSpecific]="true"></subjects>
-            <sources *ngIf="showSources" [project]='project' [isProjectSpecific]="true"></sources>
-            <common-user-mgmt *ngIf="showProjectAdmins" [project]='project' [authority]="'ROLE_PROJECT_ADMIN'"></common-user-mgmt>
-            <common-user-mgmt *ngIf="showProjectAnalysts" [project]='project' [authority]="'ROLE_PROJECT_ANALYST'"></common-user-mgmt>
+            <jhi-subjects *ngIf="showSubjects" [project]='project' [isProjectSpecific]="true"></jhi-subjects>
+            <jhi-sources *ngIf="showSources" [project]='project' [isProjectSpecific]="true"></jhi-sources>
+            <jhi-common-user-mgmt *ngIf="showProjectAdmins" [project]='project' [authority]="'ROLE_PROJECT_ADMIN'"></jhi-common-user-mgmt>
+            <jhi-common-user-mgmt *ngIf="showProjectAnalysts" [project]='project' [authority]="'ROLE_PROJECT_ANALYST'"></jhi-common-user-mgmt>
 
 
         </div>

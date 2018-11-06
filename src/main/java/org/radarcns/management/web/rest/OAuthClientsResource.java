@@ -1,6 +1,5 @@
 package org.radarcns.management.web.rest;
 
-import static org.hibernate.id.IdentifierGenerator.ENTITY_NAME;
 import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_CREATE;
 import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_DELETE;
 import static org.radarcns.auth.authorization.Permission.OAUTHCLIENTS_READ;
@@ -10,6 +9,7 @@ import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
 import static org.radarcns.management.security.SecurityUtils.getJWT;
 import static org.radarcns.management.service.OAuthClientService.checkProtected;
+import static org.radarcns.management.web.rest.errors.EntityName.OAUTH_CLIENT;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -133,7 +133,7 @@ public class OAuthClientsResource {
 
         ClientDetails updated = oAuthClientService.updateOauthClient(clientDetailsDto);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME,
+                .headers(HeaderUtil.createEntityUpdateAlert(OAUTH_CLIENT,
                         clientDetailsDto.getClientId()))
                 .body(clientDetailsMapper.clientDetailsToClientDetailsDTO(updated));
     }
@@ -154,7 +154,7 @@ public class OAuthClientsResource {
         // getOAuthClient checks if the id exists
         checkProtected(oAuthClientService.findOneByClientId(id));
         oAuthClientService.deleteClientDetails(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id))
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(OAUTH_CLIENT, id))
                 .build();
     }
 
@@ -174,7 +174,7 @@ public class OAuthClientsResource {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_CREATE);
         ClientDetails created = oAuthClientService.createClientDetail(clientDetailsDto);
         return ResponseEntity.created(ResourceUriService.getUri(clientDetailsDto))
-                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, created.getClientId()))
+                .headers(HeaderUtil.createEntityCreationAlert(OAUTH_CLIENT, created.getClientId()))
                 .body(clientDetailsMapper.clientDetailsToClientDetailsDTO(created));
     }
 

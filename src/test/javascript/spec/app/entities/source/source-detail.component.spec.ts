@@ -32,11 +32,7 @@ describe('Component Tests', () => {
                     SourceService,
                     EventManager
                 ]
-            }).overrideComponent(SourceDetailComponent, {
-                set: {
-                    template: ''
-                }
-            }).compileComponents();
+            }).overrideTemplate(SourceDetailComponent, '').compileComponents();
         }));
 
         beforeEach(() => {
@@ -44,7 +40,6 @@ describe('Component Tests', () => {
             comp = fixture.componentInstance;
             service = fixture.debugElement.injector.get(SourceService);
         });
-
 
         describe('OnInit', () => {
             it('Should call load all on init', () => {

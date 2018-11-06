@@ -1,17 +1,19 @@
-import { Injectable, Component } from '@angular/core';
+import { Component, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import {SourceService} from "../../shared/source/source.service";
-import {Source} from "../../shared/source/source.model";
+import { Source } from '../../shared/source/source.model';
+import { SourceService } from '../../shared/source/source.service';
+
 @Injectable()
 export class GeneralSourcePopupService {
     private isOpen = false;
-    constructor(
-        private modalService: NgbModal,
-        private router: Router,
-        private sourceService: SourceService
 
-    ) {}
+    constructor(
+            private modalService: NgbModal,
+            private router: Router,
+            private sourceService: SourceService,
+    ) {
+    }
 
     open(component: Component, sourceName?: string): NgbModalRef {
         if (this.isOpen) {
@@ -29,13 +31,13 @@ export class GeneralSourcePopupService {
     }
 
     sourceModalRef(component: Component, source: Source): NgbModalRef {
-        const modalRef = this.modalService.open(component, { size: 'lg', backdrop: 'static'});
+        const modalRef = this.modalService.open(component, {size: 'lg', backdrop: 'static'});
         modalRef.componentInstance.source = source;
         modalRef.result.then((result) => {
-            this.router.navigate([{ outlets: { popup: null }}], { replaceUrl: true });
+            this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;
         }, (reason) => {
-            this.router.navigate([{ outlets: { popup: null }}], { replaceUrl: true });
+            this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;
         });
         return modalRef;

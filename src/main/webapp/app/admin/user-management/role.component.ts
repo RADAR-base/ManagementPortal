@@ -1,28 +1,19 @@
-import {Component, OnInit, OnDestroy, EventEmitter, Output, Input,} from '@angular/core';
-import {
-    EventManager,
-    PaginationUtil,
-    ParseLinks,
-    AlertService,
-    JhiLanguageService
-} from 'ng-jhipster';
+import { Component, Input, OnInit } from '@angular/core';
+import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
+import { Subscription } from 'rxjs/Subscription';
+import { AuthorityService, Principal, Project, ProjectService } from '../../shared';
 
-import {Role} from './role.model';
-import {ITEMS_PER_PAGE, Principal} from '../../shared';
-import {Subscription} from "rxjs/Subscription";
-import {Project} from "../../entities/project/project.model";
-import {AuthorityService} from "../../shared/user/authority.service";
-import {ProjectService} from "../../entities/project/project.service";
+import { Role } from './role.model';
 
 @Component({
-    selector: 'user-role',
-    templateUrl: './role.component.html'
+    selector: 'jhi-user-role',
+    templateUrl: './role.component.html',
 })
 export class RoleComponent implements OnInit {
-    @Input() roles: Role[] ;
+    @Input() roles: Role[];
     currentAccount: any;
     eventSubscriber: Subscription;
-    authorities: any[];
+    authorities: string[];
     projects: Project[];
 
     selectedAuthority: any;
@@ -34,52 +25,36 @@ export class RoleComponent implements OnInit {
                 private alertService: AlertService,
                 private eventManager: EventManager,
                 private principal: Principal) {
-        this.jhiLanguageService.setLocations(['role']);
+        this.jhiLanguageService.addLocation('role');
     }
 
-    loadAll() {
+    ngOnInit() {
+        if (this.roles === null) {
+            this.roles = [];
+        }
         this.authorityService.findAll().subscribe(res => {
             this.authorities = res.json();
         });
         this.projectService.query().subscribe((res) => {
             this.projects = res.json();
         });
-    }
-
-    ngOnInit() {
-        if(this.roles ==null) {
-            this.roles = new Array();
-        }
-        this.loadAll();
         this.principal.identity().then((account) => {
             this.currentAccount = account;
         });
     }
 
-    registerChangeInRoles() {
-        this.eventManager.subscribe('roleEditListModification', (response ) => {
-            this.roles = response.content ;
-        });
-    }
-
-
     trackId(index: number, item: Role) {
         return item.id;
     }
 
-    private onError(error) {
-        this.alertService.error(error.message, null, null);
-    }
-
     addRole() {
-        let newRole = new Role();
+        const newRole = new Role();
         newRole.authorityName = this.selectedAuthority;
         newRole.projectId = this.selectedProject.id;
         newRole.projectName = this.selectedProject.projectName;
         if (this.hasRole(newRole)) {
             this.alertService.error('userManagement.role.error.alreadyExist', null, null);
-        }
-        else {
+        } else {
             this.roles.push(newRole);
         }
         this.eventManager.broadcast({name: 'roleListModification', content: this.roles});
@@ -87,11 +62,11 @@ export class RoleComponent implements OnInit {
 
     hasRole(role: Role): boolean {
         return this.roles.some(v => v.projectId === role.projectId &&
-        v.authorityName === role.authorityName)
+                v.authorityName === role.authorityName);
     }
 
     removeRole(role: Role) {
-        this.roles.splice(this.roles.indexOf(v => v.projectId === role.projectId && v.authorityName === role.authorityName), 1);
+        this.roles.splice(this.roles.findIndex(v => v.projectId === role.projectId && v.authorityName === role.authorityName), 1);
         this.eventManager.broadcast({name: 'roleListModification', content: this.roles});
     }
 

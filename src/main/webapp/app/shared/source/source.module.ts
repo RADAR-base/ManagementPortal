@@ -1,18 +1,18 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { ManagementPortalSharedModule } from '../../shared';
 import {
-    SourceService,
-    SourcePopupService,
     SourceComponent,
+    SourceDeleteDialogComponent,
+    SourceDeletePopupComponent,
     SourceDetailComponent,
     SourceDialogComponent,
     SourcePopupComponent,
-    SourceDeletePopupComponent,
-    SourceDeleteDialogComponent,
-    sourceRoute,
     sourcePopupRoute,
+    SourcePopupService,
+    sourceRoute,
+    SourceService,
 } from './';
 
 const ENTITY_STATES = [
@@ -23,7 +23,7 @@ const ENTITY_STATES = [
 @NgModule({
     imports: [
         ManagementPortalSharedModule,
-        RouterModule.forRoot(ENTITY_STATES, { useHash: true })
+        RouterModule.forRoot(ENTITY_STATES, {useHash: true}),
     ],
     declarations: [
         SourceComponent,
@@ -46,7 +46,8 @@ const ENTITY_STATES = [
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [
-        SourceComponent
+        SourceComponent,
     ],
 })
-export class ManagementPortalSharedSourceModule {}
+export class ManagementPortalSharedSourceModule {
+}

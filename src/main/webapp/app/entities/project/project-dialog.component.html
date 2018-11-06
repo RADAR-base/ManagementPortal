@@ -99,8 +99,8 @@
                 <option [ngValue]="getSelected(project.sourceTypes, sourceTypeOption)" *ngFor="let sourceTypeOption of sourceTypes; trackBy: trackSourceTypeById">{{sourceTypeOption.producer+"_"+sourceTypeOption.model+"_"+sourceTypeOption.catalogVersion}}</option>
             </select>
         </div>
-        <dictionary-mapper [attributes]='project.attributes' [options]="options"
-                           [eventPrefix]='attributeComponentEventPrefix'></dictionary-mapper>
+        <jhi-dictionary-mapper [attributes]='project.attributes' [options]="options"
+                               [eventPrefix]='attributeComponentEventPrefix'></jhi-dictionary-mapper>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
