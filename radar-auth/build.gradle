@@ -9,7 +9,7 @@ plugins {
 sourceCompatibility = 1.8
 
 ext {
-    jacksonVersion = '2.9.3'
+    jacksonVersion = '2.9.7'
 
     moduleDescription = 'Library for authentication and authorization of JWT tokens issued by the RADAR platform'
 }
