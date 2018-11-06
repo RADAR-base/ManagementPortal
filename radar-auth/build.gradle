@@ -8,9 +8,11 @@ plugins {
 
 sourceCompatibility = 1.8
 
-ext.jacksonVersion='2.9.3'
+ext {
+    jacksonVersion = '2.9.3'
 
-ext.description = 'Library for authentication and authorization of JWT tokens issued by the RADAR platform'
+    moduleDescription = 'Library for authentication and authorization of JWT tokens issued by the RADAR platform'
+}
 
 repositories {
     jcenter()
@@ -52,42 +54,36 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     manifest.from sharedManifest
 }
 
-// add javadoc/source jar tasks as artifacts
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
-
 publishing {
     publications {
         RadarAuthPublication(MavenPublication) {
             from components.java
             artifact sourcesJar
             artifact javadocJar
-            groupId project.group
-            artifactId project.name
-            version project.version
+
+            pom {
+                description = moduleDescription
+                name = project.name
+                url = githubUrl
+            }
+
             pom.withXml {
-                def root = asNode()
-                root.appendNode('description', description)
-                root.appendNode('name', project.name)
-                root.appendNode('url', githubUrl)
-                root.children().last() + pomConfig
+                asNode().children().last() + pomConfig
             }
         }
     }
 }
 
 bintray {
-    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-    override = false
-    publications = ['RadarAuthPublication']
+    user project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    key project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    override false
+    publications 'RadarAuthPublication'
     pkg {
         repo = project.group
         name = project.name
         userOrg = 'radar-cns'
-        desc = description
+        desc = moduleDescription
         licenses = ['Apache-2.0']
         websiteUrl = website
         issueTrackerUrl = issueUrl
@@ -96,26 +92,13 @@ bintray {
         githubReleaseNotesFile = 'README.md'
         version {
             name = project.version
-            desc = description
+            desc = moduleDescription
             vcsTag = System.getenv('TRAVIS_TAG')
             released = new Date()
         }
     }
 }
 
-
-artifactory {
-    contextUrl = 'https://oss.jfrog.org/artifactory'
-    publish {
-        repository {
-            repoKey = 'oss-snapshot-local'
-            username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-            password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-            maven = true
-        }
-    }
-}
-
 artifactoryPublish {
-    publications('RadarAuthPublication')
+    publications 'RadarAuthPublication'
 }

@@ -20,13 +20,10 @@ buildscript {
         classpath "com.moowork.gradle:gradle-node-plugin:1.1.1"
         classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
         classpath "io.swagger:swagger-codegen:2.2.3"
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.8.1"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
         //jhipster-needle-gradle-buildscript-dependency - JHipster will add additional gradle build script plugins here
     }
-}
-
-plugins {
-    id 'com.jfrog.bintray' version '1.8.4'
-    id 'com.jfrog.artifactory' version '4.8.1'
 }
 
 allprojects {
@@ -47,52 +44,55 @@ allprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
     apply plugin: 'com.jfrog.artifactory'
-    ext.githubRepoName = 'RADAR-base/ManagementPortal'
+
+    ext {
+        githubRepoName = 'RADAR-base/ManagementPortal'
 
 
-    ext.githubUrl = 'https://github.com/' + githubRepoName + '.git'
-    ext.issueUrl = 'https://github.com/' + githubRepoName + '/issues'
-    ext.website = 'http://radar-cns.org'
+        githubUrl = 'https://github.com/' + githubRepoName + '.git'
+        issueUrl = 'https://github.com/' + githubRepoName + '/issues'
+        website = 'http://radar-cns.org'
 
-    ext.pomConfig = {
-        licenses {
-            license {
-                name 'The Apache Software License, Version 2.0'
-                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                distribution 'repo'
+        pomConfig = {
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
             }
-        }
-        developers {
-            developer {
-                id 'dennyverbeeck'
-                name 'Denny Verbeeck'
-                email 'dverbeec@its.jnj.com'
-                organization 'Janssen R&D'
+            developers {
+                developer {
+                    id 'dennyverbeeck'
+                    name 'Denny Verbeeck'
+                    email 'dverbeec@its.jnj.com'
+                    organization 'Janssen R&D'
+                }
+                developer {
+                    id 'nivemaham'
+                    name 'Nivethika Mahasivam'
+                    email 'nivethika@thehyve.nl'
+                    organization 'The Hyve'
+                }
+                developer {
+                    id 'blootsvoets'
+                    name 'Joris Borgdorff'
+                    email 'joris@thehyve.nl'
+                    organization 'The Hyve'
+                }
             }
-            developer {
-                id 'nivemaham'
-                name 'Nivethika Mahasivam'
-                email 'nivethika@thehyve.nl'
-                organization 'The Hyve'
+            issueManagement {
+                system 'GitHub'
+                url githubUrl + '/issues'
             }
-            developer {
-                id 'blootsvoets'
-                name 'Joris Borgdorff'
-                email 'joris@thehyve.nl'
-                organization 'The Hyve'
+            organization {
+                name 'RADAR-CNS'
+                url website
             }
-        }
-        issueManagement {
-            system 'GitHub'
-            url githubUrl + '/issues'
-        }
-        organization {
-            name 'RADAR-CNS'
-            url website
-        }
-        scm {
-            connection 'scm:git:' + githubUrl
-            url githubUrl
+            scm {
+                connection 'scm:git:' + githubUrl
+                url githubUrl
+            }
         }
     }
 
@@ -128,6 +128,22 @@ allprojects {
         ruleSetFiles = rootProject.files("config/pmd/test_ruleset.xml")
     }
 
+    artifactory {
+        contextUrl = 'https://oss.jfrog.org/artifactory'
+        publish {
+            repository {
+                repoKey = 'oss-snapshot-local'
+                username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+                password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+                maven = true
+            }
+            defaults {
+                publishArtifacts = true
+                publishPom = true
+                properties = ['qa.level': 'basic']
+            }
+        }
+    }
 }
 
 sourceCompatibility = '1.8'
@@ -238,9 +254,10 @@ if (project.hasProperty('graphite')) {
     apply from: 'gradle/graphite.gradle'
 }
 
-ext.codacyVersion = '4.0.3'
-ext.moduleDescription = ''
-
+ext {
+    codacyVersion = '4.0.3'
+    moduleDescription = ''
+}
 
 repositories {
     mavenCentral()
@@ -335,7 +352,7 @@ dependencies {
     testCompile "org.mockito:mockito-core"
     testCompile "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     testCompile "org.hamcrest:hamcrest-library"
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:${spring_boot_version}"
+    optional "org.springframework.boot:spring-boot-configuration-processor:${spring_boot_version}"
     //jhipster-needle-gradle-dependency - JHipster will add additional dependencies here
 }
 
@@ -438,6 +455,7 @@ jacocoTestReport {
         csv.enabled false
         html.enabled true
     }
+    dependsOn test
 }
 
 task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
@@ -517,25 +535,10 @@ bintray {
 
 bintrayUpload.dependsOn 'assembleRelease'
 
-artifactory {
-    contextUrl = 'https://oss.jfrog.org/artifactory'
-    publish {
-        repository {
-            repoKey = 'oss-snapshot-local'
-            username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-            password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-            maven = true
-        }
-        defaults {
-           publications ('ManagementPortalPublication')
-           publishArtifacts = true
-           publishPom = true
-           properties = ['qa.level': 'basic']
-        }
-    }
+artifactoryPublish {
+    publications 'ManagementPortalPublication'
+    dependsOn 'assemble'
 }
-
-artifactoryPublish.dependsOn 'assemble'
 
 task downloadDependencies {
     description "Pre-downloads dependencies"
