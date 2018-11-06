@@ -535,7 +535,7 @@ artifactory {
     }
 }
 
-artifactoryPublish.dependsOn 'assembleRelease'
+artifactoryPublish.dependsOn 'assemble'
 
 task downloadDependencies {
     description "Pre-downloads dependencies"
