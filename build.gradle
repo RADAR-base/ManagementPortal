@@ -86,7 +86,7 @@ allprojects {
                 url githubUrl + '/issues'
             }
             organization {
-                name 'RADAR-CNS'
+                name 'RADAR-base'
                 url website
             }
             scm {
