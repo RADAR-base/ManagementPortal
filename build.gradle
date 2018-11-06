@@ -20,13 +20,10 @@ buildscript {
         classpath "com.moowork.gradle:gradle-node-plugin:1.1.1"
         classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
         classpath "io.swagger:swagger-codegen:2.2.3"
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.8.1"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
         //jhipster-needle-gradle-buildscript-dependency - JHipster will add additional gradle build script plugins here
     }
-}
-
-plugins {
-    id 'com.jfrog.bintray' version '1.8.0'
-    id 'com.jfrog.artifactory' version '4.5.4'
 }
 
 allprojects {
@@ -47,52 +44,55 @@ allprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
     apply plugin: 'com.jfrog.artifactory'
-    ext.githubRepoName = 'RADAR-base/ManagementPortal'
+
+    ext {
+        githubRepoName = 'RADAR-base/ManagementPortal'
 
 
-    ext.githubUrl = 'https://github.com/' + githubRepoName + '.git'
-    ext.issueUrl = 'https://github.com/' + githubRepoName + '/issues'
-    ext.website = 'http://radar-cns.org'
+        githubUrl = 'https://github.com/' + githubRepoName + '.git'
+        issueUrl = 'https://github.com/' + githubRepoName + '/issues'
+        website = 'http://radar-base.org'
 
-    ext.pomConfig = {
-        licenses {
-            license {
-                name 'The Apache Software License, Version 2.0'
-                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                distribution 'repo'
+        pomConfig = {
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
             }
-        }
-        developers {
-            developer {
-                id 'dennyverbeeck'
-                name 'Denny Verbeeck'
-                email 'dverbeec@its.jnj.com'
-                organization 'Janssen R&D'
+            developers {
+                developer {
+                    id 'dennyverbeeck'
+                    name 'Denny Verbeeck'
+                    email 'dverbeec@its.jnj.com'
+                    organization 'Janssen R&D'
+                }
+                developer {
+                    id 'nivemaham'
+                    name 'Nivethika Mahasivam'
+                    email 'nivethika@thehyve.nl'
+                    organization 'The Hyve'
+                }
+                developer {
+                    id 'blootsvoets'
+                    name 'Joris Borgdorff'
+                    email 'joris@thehyve.nl'
+                    organization 'The Hyve'
+                }
             }
-            developer {
-                id 'nivemaham'
-                name 'Nivethika Mahasivam'
-                email 'nivethika@thehyve.nl'
-                organization 'The Hyve'
+            issueManagement {
+                system 'GitHub'
+                url githubUrl + '/issues'
             }
-            developer {
-                id 'blootsvoets'
-                name 'Joris Borgdorff'
-                email 'joris@thehyve.nl'
-                organization 'The Hyve'
+            organization {
+                name 'RADAR-base'
+                url website
             }
-        }
-        issueManagement {
-            system 'GitHub'
-            url githubUrl + '/issues'
-        }
-        organization {
-            name 'RADAR-CNS'
-            url website
-        }
-        scm {
-            connection 'scm:git:' + githubUrl
-            url githubUrl
+            scm {
+                connection 'scm:git:' + githubUrl
+                url githubUrl
+            }
         }
     }
 
@@ -128,6 +128,22 @@ allprojects {
         ruleSetFiles = rootProject.files("config/pmd/test_ruleset.xml")
     }
 
+    artifactory {
+        contextUrl = 'https://oss.jfrog.org/artifactory'
+        publish {
+            repository {
+                repoKey = 'oss-snapshot-local'
+                username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+                password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+                maven = true
+            }
+            defaults {
+                publishArtifacts = true
+                publishPom = true
+                properties = ['qa.level': 'basic']
+            }
+        }
+    }
 }
 
 sourceCompatibility = '1.8'
@@ -238,10 +254,10 @@ if (project.hasProperty('graphite')) {
     apply from: 'gradle/graphite.gradle'
 }
 
-ext.codacyVersion = '2.0.1'
-
-description = ''
-
+ext {
+    codacyVersion = '4.0.3'
+    moduleDescription = ''
+}
 
 repositories {
     mavenCentral()
@@ -379,22 +395,24 @@ task generateOpenApiSpec(dependsOn: 'classes', group: 'Swagger',
         swaggerFile.getParentFile().mkdirs();
 
         def generated = false
-        def tries = 0
-        def MAX_TRIES = 20
 
         println()
-        while (!generated) {
+        for (def i = 0; i < 20; i++) {
             ProcessBuilder curlPb = new ProcessBuilder("curl", apiDocsEndpoint, "-o",
                     swaggerFileLocation, "--connect-timeout", "1")
             curlPb.directory(projectDir)
             Process curlProcess = curlPb.start()
             curlProcess.waitFor()
             generated = curlProcess.exitValue() == 0
-            if (!generated) {
-                System.out.print("#")
-                System.out.flush()
-                sleep(5000)
+            if (generated) {
+                break
             }
+            System.out.print("#")
+            System.out.flush()
+            sleep(5000)
+        }
+        if (!generated) {
+            throw new GradleException('Swagger file could not be generated')
         }
         println()
         println("Swagger file generated at " + swaggerFileLocation)
@@ -422,7 +440,7 @@ task generateJavaClient(dependsOn: 'generateOpenApiSpec', group: 'Swagger',
                 'apiPackage'    : 'org.radarcns.management.client.api',
                 'modelPackage'  : 'org.radarcns.management.client.model',
                 'appName'       : rootProject.name,
-                'appDescription': description,
+                'appDescription': moduleDescription,
                 'licenceUrl'    : 'http://apache.org/licenses/LICENSE-2.0.html'
         ])
         new DefaultGenerator().opts(config.toClientOptInput()).generate()
@@ -437,12 +455,13 @@ jacocoTestReport {
         csv.enabled false
         html.enabled true
     }
+    dependsOn test
 }
 
 task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
     main = 'com.codacy.CodacyCoverageReporter'
     classpath = configurations.codacy
-    args = ['-l', 'Java', '-r', "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"]
+    args = ['report', '-l', 'Java', '-r', "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"]
 }
 
 ext.sharedManifest = manifest {
@@ -466,43 +485,36 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     manifest.from sharedManifest
 }
 
-// add javadoc/source jar tasks as artifacts
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
-
-
 publishing {
     publications {
         ManagementPortalPublication(MavenPublication) {
             from components.java
             artifact sourcesJar
             artifact javadocJar
-            groupId project.group
-            artifactId project.name
-            version project.version
+
+            pom {
+                description = moduleDescription
+                name = project.name
+                url = githubUrl
+            }
+
             pom.withXml {
-                def root = asNode()
-                root.appendNode('description', description)
-                root.appendNode('name', project.name)
-                root.appendNode('url', githubUrl)
-                root.children().last() + pomConfig
+                asNode().children().last() + pomConfig
             }
         }
     }
 }
 
 bintray {
-    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-    override = false
-    publications = ['ManagementPortalPublication']
+    user project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    key project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    override false
+    publications 'ManagementPortalPublication'
     pkg {
         repo = project.group
         name = project.name
         userOrg = 'radar-cns'
-        desc = description
+        desc = moduleDescription
         licenses = ['Apache-2.0']
         websiteUrl = website
         issueTrackerUrl = issueUrl
@@ -511,28 +523,21 @@ bintray {
         githubReleaseNotesFile = 'README.md'
         version {
             name = project.version
-            desc = description
+            desc = moduleDescription
             vcsTag = System.getenv('TRAVIS_TAG')
             released = new Date()
+            gpg {
+                sign = true //Determines whether to GPG sign the files. The default is false
+            }
         }
     }
 }
 
-
-artifactory {
-    contextUrl = 'https://oss.jfrog.org/artifactory'
-    publish {
-        repository {
-            repoKey = 'oss-snapshot-local'
-            username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-            password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-            maven = true
-        }
-    }
-}
+bintrayUpload.dependsOn 'assembleRelease'
 
 artifactoryPublish {
-    publications('ManagementPortalPublication')
+    publications 'ManagementPortalPublication'
+    dependsOn 'assemble'
 }
 
 task downloadDependencies {
