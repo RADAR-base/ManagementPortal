@@ -51,7 +51,7 @@ allprojects {
 
         githubUrl = 'https://github.com/' + githubRepoName + '.git'
         issueUrl = 'https://github.com/' + githubRepoName + '/issues'
-        website = 'http://radar-cns.org'
+        website = 'http://radar-base.org'
 
         pomConfig = {
             licenses {
