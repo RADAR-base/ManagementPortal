@@ -10,9 +10,9 @@ plugins {
 sourceCompatibility = 1.8
 
 ext {
-    okhttpVersion = '3.9.1'
+    okhttpVersion = '3.11.0'
     junitVersion = '4.12'
-    jacksonVersion = '2.9.3'
+    jacksonVersion = '2.9.7'
 
     moduleDescription = 'This library can be used by client applications that want to use the client_credentials OAuth2 flow. It will manage getting the token and renewing it when necessary.'
 }
