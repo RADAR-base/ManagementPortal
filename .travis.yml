@@ -13,17 +13,25 @@ node_js:
 jdk:
   - oraclejdk8
 sudo: false
+
 cache:
   directories:
     - node
     - node_modules
+    - $HOME/.gradle/caches/jars-1
+    - $HOME/.gradle/caches/jars-2
+    - $HOME/.gradle/caches/jars-3
+    - $HOME/.gradle/caches/modules-2/files-2.1/
+    - $HOME/.gradle/native
     - $HOME/.gradle
     - $HOME/.yarn-cache
+
 env:
   global:
     - NODE_VERSION=6.10.0
     - SPRING_OUTPUT_ANSI_ENABLED=ALWAYS
     - SPRING_JPA_SHOW_SQL=false
+
 before_install:
   - jdk_switcher use oraclejdk8
   - java -version
@@ -32,14 +40,17 @@ before_install:
   # Repo for Yarn
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH=$HOME/.yarn/bin:$PATH
+
 install:
   - yarn install
+
 before_script:
   - cp src/test/resources/config/keystore.p12 src/main/resources/config/keystore.p12  # we need the keystore to run our app, and we need our app to run e2e tests
   - chmod +x src/test/bash/*.sh
   - chmod +x util/*.sh
   # Startup the application in the background and continue with the tests
   - ./gradlew bootRun 1> /dev/null &
+
 script:
   # Make sure we wait for the application to be up, this also ensures the build is finished etc
   - ./util/wait-for-app.sh
@@ -51,8 +62,10 @@ script:
   - killall java # stop running MP instance
   - ./src/test/bash/run-prod-e2e.sh
   - echo "include 'managementportal-client'" >> settings.gradle # make this a sub-project so we can build artifacts and javadoc easily
+
 after_script:
   - ./gradlew sendCoverageToCodacy
+
 deploy:
   - provider: releases
     api_key: ${GH_TOKEN}

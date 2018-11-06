@@ -4,7 +4,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d6945ebd1eba4a3fbb55882cda33655e)](https://www.codacy.com/app/RADAR-base/ManagementPortal?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RADAR-base/ManagementPortal&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/d6945ebd1eba4a3fbb55882cda33655e)](https://www.codacy.com/app/RADAR-base/ManagementPortal?utm_source=github.com&utm_medium=referral&utm_content=RADAR-base/ManagementPortal&utm_campaign=Badge_Coverage)
 
-ManagementPortal is an application which is used to manage pilot studies for [RADAR-CNS](http://www.radar-cns.org/).
+ManagementPortal is an application which is used to manage pilot studies for [RADAR-base](http://www.radar-base.org/).
 
 ## Table of contents
 
