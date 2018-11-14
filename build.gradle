@@ -533,7 +533,7 @@ bintray {
     }
 }
 
-bintrayUpload.dependsOn 'assembleRelease'
+bintrayUpload.dependsOn 'assemble'
 
 artifactoryPublish {
     publications 'ManagementPortalPublication'
