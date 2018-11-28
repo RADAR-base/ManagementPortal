@@ -50,6 +50,8 @@ public class ManagementPortalProperties {
 
         private String adminPassword = "";
 
+        private Integer activationKeyTimeoutInSeconds = 24 * 60 * 60; // 1 day
+
         public String getBaseUrl() {
             return baseUrl;
         }
@@ -80,6 +82,14 @@ public class ManagementPortalProperties {
 
         public void setManagementPortalBaseUrl(String managementPortalBaseUrl) {
             this.managementPortalBaseUrl = managementPortalBaseUrl;
+        }
+
+        public Integer getActivationKeyTimeoutInSeconds() {
+            return activationKeyTimeoutInSeconds;
+        }
+
+        public void setActivationKeyTimeoutInSeconds(Integer activationKeyTimeoutInSeconds) {
+            this.activationKeyTimeoutInSeconds = activationKeyTimeoutInSeconds;
         }
     }
 

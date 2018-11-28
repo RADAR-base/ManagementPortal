@@ -2,6 +2,7 @@ package org.radarcns.management.service;
 
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.config.Constants;
+import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
@@ -75,6 +76,9 @@ public class UserService {
     @Autowired
     private RevisionService revisionService;
 
+    @Autowired
+    private ManagementPortalProperties managementPortalProperties;
+
     /**
      * Activate a user with the given activation key.
      * @param key the activation key
@@ -105,7 +109,9 @@ public class UserService {
 
         return userRepository.findOneByResetKey(key)
                 .filter(user -> {
-                    ZonedDateTime oneDayAgo = ZonedDateTime.now().minusHours(24);
+                    ZonedDateTime oneDayAgo = ZonedDateTime.now()
+                            .minusSeconds(managementPortalProperties.getCommon()
+                                    .getActivationKeyTimeoutInSeconds());
                     return user.getResetDate().isAfter(oneDayAgo);
                 })
                 .map(user -> {

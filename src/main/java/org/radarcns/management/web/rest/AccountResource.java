@@ -5,6 +5,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
+import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.SecurityUtils;
@@ -48,6 +49,9 @@ public class AccountResource {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private ManagementPortalProperties managementPortalProperties;
 
     /**
      * GET  /activate : activate the registered user.
@@ -153,7 +157,8 @@ public class AccountResource {
         return userService.requestActivationReset(login)
             .map(user -> {
                 // this will be the similar email with newly set reset-key
-                mailService.sendCreationEmail(user);
+                mailService.sendCreationEmail(user, managementPortalProperties.getCommon()
+                        .getActivationKeyTimeoutInSeconds());
                 return new ResponseEntity<>("Activation email was sent", HttpStatus.OK);
             }).orElse(new ResponseEntity<>("Cannot find a deactivated user with login " + login,
                 HttpStatus.BAD_REQUEST));

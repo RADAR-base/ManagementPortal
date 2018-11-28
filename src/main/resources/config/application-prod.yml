@@ -96,6 +96,7 @@ managementportal:
         managementPortalBaseUrl: http://my-server-url-to-change-here/
         privacyPolicyUrl: http://info.thehyve.nl/radar-cns-privacy-policy
         adminPassword:
+        activationKeyTimeoutInSeconds: 86400
     mail: # specific JHipster mail property, for standard properties see MailProperties
         from: ManagementPortal@localhost
     frontend:
