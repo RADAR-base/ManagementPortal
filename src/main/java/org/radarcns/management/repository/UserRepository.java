@@ -6,8 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.RepositoryDefinition;
 import org.springframework.data.repository.history.RevisionRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +24,13 @@ public interface UserRepository extends JpaRepository<User, Long>,
     Optional<User> findOneByActivationKey(String activationKey);
 
     List<User> findAllByActivated(boolean activated);
+
+    @Query("select user from User user "
+            + "left join fetch user.roles roles where "
+            + "roles.authority.name not in :authorities "
+            + "and user.activated= :activated")
+    List<User> findAllByActivatedAndAuthoritiesNot(@Param("activated") boolean activated,
+            @Param("authorities") List<String> authorities);
 
     Optional<User> findOneByResetKey(String resetKey);
 

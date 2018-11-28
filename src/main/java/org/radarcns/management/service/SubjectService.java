@@ -486,27 +486,4 @@ public class SubjectService {
         }
     }
 
-    /**
-     * Not activated users should be automatically deleted after 3 days. <p> This is scheduled to
-     * get fired everyday, at midnight. Preferably we do this scan before
-     * {@link UserService#removeNotActivatedUsers()}, since this will remove the not activated
-     * user tied to the subject as well.</p>
-     */
-    @Scheduled(cron = "0 0 0 * * ?")
-    public void removeNotActivatedSubjects() {
-        log.info("Scheduled scan for expired subject accounts starting now");
-        ZonedDateTime cutoff = ZonedDateTime.now().minus(Period.ofDays(3));
-
-        // first delete non-activated users related to subjects
-        userRepository.findAllByActivated(false).stream()
-                .filter(user -> revisionService.getAuditInfo(user).getCreatedAt().isBefore(cutoff))
-                .map(User::getLogin)
-                .map(subjectRepository::findOneWithEagerBySubjectLogin)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .forEach(subject -> {
-                    log.info("Deleting not activated subject after 3 days: {}", subject);
-                    subjectRepository.delete(subject);
-                });
-    }
 }
