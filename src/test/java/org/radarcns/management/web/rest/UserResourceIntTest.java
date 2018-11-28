@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.ManagementPortalTestApp;
+import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
@@ -69,6 +70,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UserResourceIntTest {
 
     @Autowired
+    private ManagementPortalProperties managementPortalProperties;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -105,6 +109,8 @@ public class UserResourceIntTest {
         ReflectionTestUtils.setField(userResource, "userRepository", userRepository);
         ReflectionTestUtils.setField(userResource, "subjectRepository", subjectRepository);
         ReflectionTestUtils.setField(userResource, "servletRequest", servletRequest);
+        ReflectionTestUtils.setField(userResource,
+                "managementPortalProperties", managementPortalProperties);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());

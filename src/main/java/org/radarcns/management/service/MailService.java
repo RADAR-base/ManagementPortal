@@ -1,5 +1,6 @@
 package org.radarcns.management.service;
 
+import java.time.Duration;
 import java.util.Locale;
 import javax.mail.internet.MimeMessage;
 
@@ -28,6 +29,8 @@ public class MailService {
     private static final String USER = "user";
 
     private static final String BASE_URL = "baseUrl";
+
+    private static final String EXPIRY = "expiry";
 
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
@@ -94,13 +97,14 @@ public class MailService {
      * @param user the user
      */
     @Async
-    public void sendCreationEmail(User user) {
+    public void sendCreationEmail(User user, long duration) {
         log.debug("Sending creation email to '{}'", user.getEmail());
         Locale locale = Locale.forLanguageTag(user.getLangKey());
         Context context = new Context(locale);
         context.setVariable(USER, user);
         context.setVariable(BASE_URL,
                 managementPortalProperties.getCommon().getManagementPortalBaseUrl());
+        context.setVariable(EXPIRY, Duration.ofSeconds(duration).toHours() + " Hours");
         String content = templateEngine.process("creationEmail", context);
         String subject = messageSource.getMessage("email.activation.title", null, locale);
         sendEmail(user.getEmail(), subject, content, false, true);

@@ -108,6 +108,7 @@ for other options on overriding the default configuration.
 | `MANAGEMENTPORTAL_COMMON_MANAGEMENT_PORTAL_BASE_URL`       | None                                                | Resolvable baseUrl of this managementportal  instance                                                  |
 | `MANAGEMENTPORTAL_COMMON_PRIVACY_POLICY_URL`               | None                                                | Resolvable URL to the common privacy policy url                                                        |
 | `MANAGEMENTPORTAL_COMMON_ADMIN_PASSWORD`                   | None                                                | Admin password                                                                                         |
+| `MANAGEMENTPORTAL_COMMON_ACTIVATION_KEY_TIMEOUT_IN_SECONDS`                   | 86400                                                | Account activation/reset timeout in seconds                                                                                      |
 | `JHIPSTER_SLEEP`                                           | `10`                                                | Time in seconds that the application should wait at bootup. Used to allow the database to become ready |
 | `JAVA_OPTS`                                                | `-Xmx512m`                                          | Options to pass on the JVM                                                                             |
 

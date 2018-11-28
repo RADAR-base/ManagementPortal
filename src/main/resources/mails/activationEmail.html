@@ -9,14 +9,23 @@
             Dear
         </p>
         <p th:text="#{email.activation.text1}">
-            Your JHipster account has been created, please click on the URL below to activate it:
+            Your JHipster account has been created by RADAR-base team.
+        </p>
+        <p th:text="#{email.activation.loginIntro(${user.login})}">
+            Your user name is
+        </p>
+
+        <p th:text="#{email.activation.text2}">
+            Please click on this link below to activate your account by resetting your password.
         </p>
         <p>
             <a th:href="@{|${baseUrl}/#/activate?key=${user.activationKey}|}"
-               th:text="|${user.login}|">Activation Link</a>
+               th:text="@{|${baseUrl}/#/activate?key=${user.activationKey}|}">Activation Link</a>
+        </p>
+        <p th:text="#{email.activation.expiry(${user.expiry})}">
         </p>
         <p>
-            <span th:text="#{email.activation.text2}">Regards, </span>
+            <span th:text="#{email.activation.regards}">Regards, </span>
             <br/>
             <em th:text="#{email.signature}">JHipster.</em>
         </p>
