@@ -358,7 +358,7 @@ public class UserService {
      * get fired everyday, at 01:00 (am). This is aimed at users, not subjects. So filter our
      * users with *PARTICIPANT role and perform the action.</p>
      */
-    @Scheduled(cron = "0 0 18 30 * ?")
+    @Scheduled(cron = "0 0 1 * * ?")
     public void removeNotActivatedUsers() {
         log.info("Scheduled scan for expired user accounts starting now");
         ZonedDateTime cutoff = ZonedDateTime.now().minus(Period.ofDays(3));
