@@ -1,5 +1,20 @@
 package org.radarcns.management.service;
 
+import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
+import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarcns.management.web.rest.errors.EntityName.USER;
+
+import java.time.Period;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.config.ManagementPortalProperties;
@@ -30,22 +45,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Period;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
-import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
-import static org.radarcns.management.web.rest.errors.EntityName.USER;
 
 /**
  * Service class for managing users.
@@ -364,19 +363,17 @@ public class UserService {
         log.info("Scheduled scan for expired user accounts starting now");
         ZonedDateTime cutoff = ZonedDateTime.now().minus(Period.ofDays(3));
 
-        List<User> users = userRepository.findAllByActivatedAndAuthoritiesNot(false,
+        userRepository.findAllByActivatedAndAuthoritiesNot(false,
                 Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT)).stream()
                 .filter(user -> revisionService.getAuditInfo(user).getCreatedAt().isBefore(cutoff))
-                .collect(Collectors.toList());
-
-        users.forEach(user -> {
-            try {
-                userRepository.delete(user);
-                log.info("Deleted not activated user after 3 days: {}", user.getLogin());
-            } catch (DataIntegrityViolationException ex) {
-                log.error("Could not delete user with login " +  user.getLogin(), ex);
-            }
-        });
+                .forEach(user -> {
+                    try {
+                        userRepository.delete(user);
+                        log.info("Deleted not activated user after 3 days: {}", user.getLogin());
+                    } catch (DataIntegrityViolationException ex) {
+                        log.error("Could not delete user with login " + user.getLogin(), ex);
+                    }
+                });
     }
 
     public Page<UserDTO> findUsers(UserFilter userFilter, Pageable pageable) {
