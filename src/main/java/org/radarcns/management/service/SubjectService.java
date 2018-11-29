@@ -12,7 +12,6 @@ import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_SUBJECT
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,7 +37,6 @@ import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
-import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
@@ -57,7 +55,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.Revisions;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,9 +97,6 @@ public class SubjectService {
 
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
-
-    @Autowired
-    private UserRepository userRepository;
 
     /**
      * Create a new subject.
