@@ -28,6 +28,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -76,6 +77,10 @@ public class Subject extends AbstractEntity implements Serializable {
     @CollectionTable(name = "subject_metadata", joinColumns = @JoinColumn(name = "id"))
     @Cascade(CascadeType.ALL)
     private Map<String, String> attributes = new HashMap<>();
+
+    @OneToMany(mappedBy = "subject", orphanRemoval = true)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Set<MetaToken> metaTokens = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -156,6 +161,10 @@ public class Subject extends AbstractEntity implements Serializable {
 
     public void setAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
+    }
+
+    public Set<MetaToken> getMetaTokens() {
+        return metaTokens;
     }
 
     /**
