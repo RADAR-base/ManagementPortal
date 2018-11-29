@@ -28,7 +28,6 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -80,7 +79,7 @@ public class Subject extends AbstractEntity implements Serializable {
 
     @OneToMany(mappedBy = "subject", orphanRemoval = true)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    private Set<MetaToken> metaTokens = new HashSet<>();
+    private final Set<MetaToken> metaTokens = new HashSet<>();
 
     public Long getId() {
         return id;

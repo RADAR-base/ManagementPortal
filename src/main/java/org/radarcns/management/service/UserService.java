@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
@@ -363,17 +364,19 @@ public class UserService {
         log.info("Scheduled scan for expired user accounts starting now");
         ZonedDateTime cutoff = ZonedDateTime.now().minus(Period.ofDays(3));
 
-        userRepository.findAllByActivatedAndAuthoritiesNot(false,
+        List<User> users = userRepository.findAllByActivatedAndAuthoritiesNot(false,
                 Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT)).stream()
                 .filter(user -> revisionService.getAuditInfo(user).getCreatedAt().isBefore(cutoff))
-                .forEach(user -> {
-                    try {
-                        userRepository.delete(user);
-                        log.info("Deleted not activated user after 3 days: {}", user.getLogin());
-                    } catch (DataIntegrityViolationException ex) {
-                        log.error("Could not delete user with login " +  user.getLogin(), ex);
-                    }
-                });
+                .collect(Collectors.toList());
+
+        users.forEach(user -> {
+            try {
+                userRepository.delete(user);
+                log.info("Deleted not activated user after 3 days: {}", user.getLogin());
+            } catch (DataIntegrityViolationException ex) {
+                log.error("Could not delete user with login " +  user.getLogin(), ex);
+            }
+        });
     }
 
     public Page<UserDTO> findUsers(UserFilter userFilter, Pageable pageable) {
