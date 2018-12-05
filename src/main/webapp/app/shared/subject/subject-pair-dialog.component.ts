@@ -58,6 +58,8 @@ export class SubjectPairDialogComponent implements OnInit {
                     (res) => {
                         this.oauthClientPairInfo = res.json();
                         this.showQRCode = true;
+                        this.alertService.info('managementPortalApp.subject.tokenTimeoutMessage',
+                                {time: this.oauthClientPairInfo.timeout}, null);
                     });
         } else {
             this.showQRCode = false;

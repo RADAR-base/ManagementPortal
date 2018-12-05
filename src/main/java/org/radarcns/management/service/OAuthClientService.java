@@ -205,7 +205,7 @@ public class OAuthClientService {
             String tokenUrl = baseUrl + ResourceUriService.getUri(metaToken).getPath();
             // create response
             return new ClientPairInfoDTO(new URL(baseUrl), metaToken.getTokenName(),
-                    new URL(tokenUrl));
+                    new URL(tokenUrl), getMetaTokenTimeout());
         } else {
             throw new InvalidStateException("Could not create a valid token", OAUTH_CLIENT,
                 "error.couldNotCreateToken");

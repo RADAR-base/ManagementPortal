@@ -65,7 +65,8 @@
             "showTokenUrl" : "Show token data",
             "hideTokenUrl" : "Hide token data",
             "baseUrl" : "Base Url",
-            "tokenName" : "Token Name"
+            "tokenName" : "Token Name",
+            "tokenTimeoutMessage": "Please note that this QR code content will expire in {{time}} hour(s). <br>Please refresh to renew the QR code."
         }
     },
     "error": {
