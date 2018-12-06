@@ -66,7 +66,7 @@
             "hideTokenUrl" : "Gegevens token verbergen",
             "baseUrl" : "Base Url",
             "tokenName" : "Token naam",
-            "tokenTimeoutMessage": "Houd er rekening mee dat deze QR-code-inhoud vervalt over {{time}} uur (uren). <br>Vernieuwen om de QR-code te vernieuwen."
+            "tokenTimeoutMessage": "Houd er rekening mee dat de inhoud van deze QR-code vervalt om {{at}} (in {{time}} uur (uren). <br>Vernieuwen om de QR-code te vernieuwen."
         }
     },
     "error": {

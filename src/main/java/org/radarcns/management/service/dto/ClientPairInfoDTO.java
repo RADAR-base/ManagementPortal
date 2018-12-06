@@ -2,6 +2,7 @@ package org.radarcns.management.service.dto;
 
 import java.net.URL;
 import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
@@ -19,6 +20,8 @@ public class ClientPairInfoDTO {
 
     private final String timeout;
 
+    private final ZonedDateTime timesOutAt;
+
 
     /**
      * Initialize with the given refresh token.
@@ -35,6 +38,7 @@ public class ClientPairInfoDTO {
         this.tokenUrl = tokenUrl;
         this.timeout = DurationFormatUtils
                 .formatDuration(timeout.toMillis(), "HH:mm", true);
+        this.timesOutAt = ZonedDateTime.now().plus(timeout);
     }
 
     public String getTokenName() {
@@ -53,6 +57,10 @@ public class ClientPairInfoDTO {
         return timeout;
     }
 
+    public ZonedDateTime getTimesOutAt() {
+        return timesOutAt;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -65,13 +73,14 @@ public class ClientPairInfoDTO {
         return Objects.equals(tokenName, that.tokenName)
                 && Objects.equals(tokenUrl, that.tokenUrl)
                 && Objects.equals(baseUrl, that.baseUrl)
-                && Objects.equals(timeout, that.timeout);
+                && Objects.equals(timeout, that.timeout)
+                && Objects.equals(timesOutAt, that.timesOutAt);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(baseUrl, tokenName, tokenUrl, timeout);
+        return Objects.hash(baseUrl, tokenName, tokenUrl, timeout, timesOutAt);
     }
 
     @Override
@@ -80,6 +89,7 @@ public class ClientPairInfoDTO {
                 + "tokenName='" + tokenName + '\''
                 + ", tokenUrl=" + tokenUrl + '\''
                 + ", timeout=" + timeout + '\''
+                + ", timesOutAt=" + timesOutAt + '\''
                 + ", baseUrl=" + baseUrl + '}';
     }
 }
