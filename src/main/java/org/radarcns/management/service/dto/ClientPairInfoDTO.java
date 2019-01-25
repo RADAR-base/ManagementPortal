@@ -2,7 +2,7 @@ package org.radarcns.management.service.dto;
 
 import java.net.URL;
 import java.time.Duration;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.Objects;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
@@ -20,7 +20,7 @@ public class ClientPairInfoDTO {
 
     private final String timeout;
 
-    private final ZonedDateTime timesOutAt;
+    private final Instant timesOutAt;
 
 
     /**
@@ -38,7 +38,7 @@ public class ClientPairInfoDTO {
         this.tokenUrl = tokenUrl;
         this.timeout = DurationFormatUtils
                 .formatDuration(timeout.toMillis(), "HH:mm", true);
-        this.timesOutAt = ZonedDateTime.now().plus(timeout);
+        this.timesOutAt = Instant.now().plus(timeout);
     }
 
     public String getTokenName() {
@@ -57,7 +57,7 @@ public class ClientPairInfoDTO {
         return timeout;
     }
 
-    public ZonedDateTime getTimesOutAt() {
+    public Instant getTimesOutAt() {
         return timesOutAt;
     }
 
