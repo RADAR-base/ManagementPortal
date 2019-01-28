@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    api group: 'com.auth0', name: 'java-jwt', version: '3.2.0'
+    api group: 'com.auth0', name: 'java-jwt', version: '3.6.0'
 
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
     implementation group: 'com.fasterxml.jackson.core' , name: 'jackson-databind' , version: jacksonVersion
