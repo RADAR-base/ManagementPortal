@@ -8,6 +8,7 @@ import { OAuthClientPairInfoService } from '../../entities/oauth-client/oauth-cl
 
 import { SubjectPopupService } from './subject-popup.service';
 import { Subject } from './subject.model';
+import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'jhi-subject-pair-dialog',
@@ -28,7 +29,8 @@ export class SubjectPairDialogComponent implements OnInit {
                 private jhiLanguageService: JhiLanguageService,
                 private alertService: AlertService,
                 private oauthClientService: OAuthClientService,
-                private oauthClientPairInfoService: OAuthClientPairInfoService) {
+                private oauthClientPairInfoService: OAuthClientPairInfoService,
+                private datePipe: DatePipe) {
         this.jhiLanguageService.addLocation('subject');
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
     }
@@ -58,6 +60,10 @@ export class SubjectPairDialogComponent implements OnInit {
                     (res) => {
                         this.oauthClientPairInfo = res.json();
                         this.showQRCode = true;
+                        const timesOutAt  = this.datePipe
+                                .transform(this.oauthClientPairInfo.timesOutAt, 'dd/MM/yy HH:mm');
+                        this.alertService.info('managementPortalApp.subject.tokenTimeoutMessage',
+                                {at: timesOutAt, time: this.oauthClientPairInfo.timeout}, null);
                     });
         } else {
             this.showQRCode = false;

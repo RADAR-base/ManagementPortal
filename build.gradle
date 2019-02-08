@@ -17,7 +17,7 @@ buildscript {
         classpath "net.ltgt.gradle:gradle-apt-plugin:0.9"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${spring_boot_version}"
         classpath "org.springframework.build.gradle:propdeps-plugin:0.0.7"
-        classpath "com.moowork.gradle:gradle-node-plugin:1.1.1"
+        classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
         classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
         classpath "io.swagger:swagger-codegen:2.2.3"
         classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.9.0"
@@ -29,7 +29,7 @@ buildscript {
 allprojects {
     group 'org.radarcns'
 
-    version '0.5.2' // project version
+    version '0.5.3' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
@@ -533,7 +533,7 @@ bintray {
     }
 }
 
-bintrayUpload.dependsOn 'assembleRelease'
+bintrayUpload.dependsOn 'assemble'
 
 artifactoryPublish {
     publications 'ManagementPortalPublication'

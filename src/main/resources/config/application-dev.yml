@@ -100,6 +100,7 @@ managementportal:
         managementPortalBaseUrl: http://localhost:9000
         privacyPolicyUrl: http://info.thehyve.nl/radar-cns-privacy-policy
         adminPassword: admin
+        activationKeyTimeoutInSeconds: 86400 # 1 day
     mail: # specific ManagementPortal mail property, for standard properties see MailProperties
         from: ManagementPortal@localhost
     frontend:

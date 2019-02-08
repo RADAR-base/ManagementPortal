@@ -8,7 +8,7 @@
             "messages": {
                 "info": "Geef het emailadres dat u gebruikte om te registreren",
                 "success": "Controleer uw emails voor meer informatie over hoe u uw wachtwoord kan resetten.",
-                "notfound": "<strong>Emailadres is niet geregistreerd!</strong> Gelieve het te controleren en opnieuw te proberen"
+                "notfound": "<strong>Geen geactiveerd account gevonden met deze e-mail!</strong> Controleer en probeer het opnieuw of neem contact op met systeembeheerder"
             }
         },
         "finish" : {

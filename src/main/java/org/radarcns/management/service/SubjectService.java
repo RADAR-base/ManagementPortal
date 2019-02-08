@@ -12,7 +12,6 @@ import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_SUBJECT
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,7 +37,6 @@ import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
-import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
@@ -57,7 +55,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.Revisions;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,9 +97,6 @@ public class SubjectService {
 
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
-
-    @Autowired
-    private UserRepository userRepository;
 
     /**
      * Create a new subject.
@@ -486,27 +480,4 @@ public class SubjectService {
         }
     }
 
-    /**
-     * Not activated users should be automatically deleted after 3 days. <p> This is scheduled to
-     * get fired everyday, at midnight. Preferably we do this scan before
-     * {@link UserService#removeNotActivatedUsers()}, since this will remove the not activated
-     * user tied to the subject as well.</p>
-     */
-    @Scheduled(cron = "0 0 0 * * ?")
-    public void removeNotActivatedSubjects() {
-        log.info("Scheduled scan for expired subject accounts starting now");
-        ZonedDateTime cutoff = ZonedDateTime.now().minus(Period.ofDays(3));
-
-        // first delete non-activated users related to subjects
-        userRepository.findAllByActivated(false).stream()
-                .filter(user -> revisionService.getAuditInfo(user).getCreatedAt().isBefore(cutoff))
-                .map(User::getLogin)
-                .map(subjectRepository::findOneWithEagerBySubjectLogin)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .forEach(subject -> {
-                    log.info("Deleting not activated subject after 3 days: {}", subject);
-                    subjectRepository.delete(subject);
-                });
-    }
 }

@@ -5,6 +5,7 @@ import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
+import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
@@ -95,6 +96,9 @@ public class UserResource {
     @Autowired
     private HttpServletRequest servletRequest;
 
+    @Autowired
+    private ManagementPortalProperties managementPortalProperties;
+
     /**
      * POST  /users  : Creates a new user. <p> Creates a new user if the login and email are not
      * already used, and sends an mail with an activation link. The user needs to be activated on
@@ -137,7 +141,8 @@ public class UserResource {
                     .body(null);
         } else {
             User newUser = userService.createUser(managedUserVm);
-            mailService.sendCreationEmail(newUser);
+            mailService.sendCreationEmail(newUser, managementPortalProperties.getCommon()
+                    .getActivationKeyTimeoutInSeconds());
             return ResponseEntity.created(ResourceUriService.getUri(newUser))
                     .headers(HeaderUtil.createAlert("userManagement.created", newUser.getLogin()))
                     .body(newUser);

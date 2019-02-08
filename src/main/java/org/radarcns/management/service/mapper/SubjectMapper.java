@@ -34,10 +34,12 @@ public interface SubjectMapper {
     @Mapping(target = "user.activated", ignore = true)
     @Mapping(target = "removed", ignore = true)
     @Mapping(source = "roles" , target = "user.roles")
+    @Mapping(target = "metaTokens", ignore = true)
     Subject subjectDTOToSubject(SubjectDTO subjectDto);
 
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "removed", ignore = true)
+    @Mapping(target = "metaTokens", ignore = true)
     Subject safeUpdateSubjectFromDTO(SubjectDTO subjectDto, @MappingTarget Subject subject);
 
     List<Subject> subjectDTOsToSubjects(List<SubjectDTO> subjectDtos);

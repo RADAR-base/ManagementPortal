@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.ManagementPortalTestApp;
+import org.radarcns.management.domain.Authority;
+import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.domain.audit.CustomRevisionEntity;
 import org.radarcns.management.repository.CustomRevisionEntityRepository;
@@ -28,11 +30,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import java.time.Period;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.radarcns.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
 import static org.radarcns.management.web.rest.TestUtil.commitTransactionAndStartNew;
 
 /**
@@ -239,11 +243,18 @@ public class UserServiceIntTest {
      * @return the saved object
      */
     public static User addExpiredUser(UserRepository userRepository) {
+
+        Role adminRole = new Role();
+        adminRole.setId(1L);
+        adminRole.setAuthority(new Authority(SYS_ADMIN));
+        adminRole.setProject(null);
+
         User user = new User();
         user.setLogin("expired");
         user.setEmail("expired@expired");
         user.setFirstName("ex");
         user.setLastName("pired");
+        user.setRoles(Collections.singleton(adminRole));
         user.setActivated(false);
         user.setPassword(RandomStringUtils.random(60));
         return userRepository.save(user);

@@ -2,7 +2,6 @@ package org.radarcns.management.web.rest;
 
 import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
-import static org.radarcns.auth.authorization.Permission.SOURCE_UPDATE;
 import static org.radarcns.auth.authorization.Permission.SUBJECT_CREATE;
 import static org.radarcns.auth.authorization.Permission.SUBJECT_DELETE;
 import static org.radarcns.auth.authorization.Permission.SUBJECT_READ;
@@ -515,7 +514,9 @@ public class SubjectResource {
      * <p>The request body is a {@link Map} of strings. This request allows
      * update of attributes only. Attributes will be merged and if a new value is
      * provided for an existing key, the new value will be updated. The request will be validated
-     * for SOURCE.UPDATE permission and
+     * for SUBJECT.UPDATE permission. SUBJECT.UPDATE is expected to keep the permissions aligned
+     * with permissions from dynamic source registration and update instead of checking for
+     * SOURCE_UPDATE.
      * </p>
      *
      * @param attributes The {@link Map} specification
@@ -542,7 +543,7 @@ public class SubjectResource {
         }
         // check the permission to update source
         SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject.get());
-        checkPermissionOnSubject(getJWT(servletRequest), SOURCE_UPDATE,
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
                 subjectDto.getProject().getProjectName(), subjectDto.getLogin());
 
         // find source under subject
