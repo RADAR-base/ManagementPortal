@@ -70,7 +70,7 @@
     "karma-sourcemap-loader": "0.3.7",
     "karma-webpack": "2.0.3",
     "lazypipe": "1.0.1",
-    "lodash": "4.17.4",
+    "lodash": "4.17.11",
     "map-stream": "0.0.7",
     "node-sass": "^4.5.0",
     "phantomjs-prebuilt": "2.1.14",
