@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,8 +61,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class SourceTypeResource {
 
     private final Logger log = LoggerFactory.getLogger(SourceTypeResource.class);
-
-
 
     @Autowired
     private SourceTypeService sourceTypeService;
@@ -145,7 +144,8 @@ public class SourceTypeResource {
      */
     @GetMapping("/source-types")
     @Timed
-    public ResponseEntity<List<SourceTypeDTO>> getAllSourceTypes(@ApiParam Pageable pageable)
+    public ResponseEntity<List<SourceTypeDTO>> getAllSourceTypes(
+            @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable)
             throws NotAuthorizedException {
         checkPermission(getJWT(servletRequest), SOURCETYPE_READ);
         Page<SourceTypeDTO> page = sourceTypeService.findAll(pageable);

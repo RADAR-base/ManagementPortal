@@ -33,9 +33,11 @@ export class SourceTypeService {
     }
 
     query(req?: any): Observable<Response> {
-        const options = this.createRequestOption(req);
-        return this.http.get(this.resourceUrl, options)
-                ;
+        let options = null;
+        if(req) {
+            options = this.createRequestOption(req);
+        }
+        return this.http.get(this.resourceUrl, options);
     }
 
     delete(producer: string, model: string, version: string): Observable<Response> {

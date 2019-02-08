@@ -32,7 +32,8 @@ export class ProjectDialogComponent implements OnInit {
             private sourceTypeService: SourceTypeService,
             private eventManager: EventManager,
     ) {
-        this.jhiLanguageService.setLocations(['project', 'projectStatus']);
+        this.jhiLanguageService.addLocation('projectStatus');
+        this.jhiLanguageService.addLocation('project')
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN'];
         this.options = ['Work-package', 'Phase', 'External-project-url', 'External-project-id', 'Privacy-policy-url'];
