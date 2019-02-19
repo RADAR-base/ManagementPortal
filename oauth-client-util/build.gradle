@@ -42,7 +42,7 @@ dependencies {
     testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.5.1'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.8.47'
     testCompile 'org.glassfish.jersey.core:jersey-common:2.22.2'
-    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
+    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.26'
 }
 
 ext.sharedManifest = manifest {
