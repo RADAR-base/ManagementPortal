@@ -1,7 +1,6 @@
 package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import io.swagger.annotations.ApiParam;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.service.RevisionService;
 import org.radarcns.management.service.dto.RevisionInfoDTO;
