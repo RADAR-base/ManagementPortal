@@ -19,7 +19,7 @@ buildscript {
         classpath "org.springframework.build.gradle:propdeps-plugin:0.0.7"
         classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
         classpath "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE"
-        classpath "io.swagger:swagger-codegen:2.2.3"
+        classpath "io.swagger:swagger-codegen:2.4.2"
         classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.8.1"
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
         //jhipster-needle-gradle-buildscript-dependency - JHipster will add additional gradle build script plugins here
