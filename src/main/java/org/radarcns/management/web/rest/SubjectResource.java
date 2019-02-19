@@ -66,6 +66,7 @@ import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -239,7 +240,8 @@ public class SubjectResource {
      */
     @GetMapping("/subjects")
     @Timed
-    public ResponseEntity<List<SubjectDTO>> getAllSubjects(@ApiParam Pageable pageable,
+    public ResponseEntity<List<SubjectDTO>> getAllSubjects(
+            @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable,
             @RequestParam(value = "projectName", required = false) String projectName,
             @RequestParam(value = "externalId", required = false) String externalId,
             @RequestParam(value = "withInactiveParticipants", required = false)

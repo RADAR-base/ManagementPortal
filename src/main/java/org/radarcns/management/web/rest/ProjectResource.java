@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -155,7 +156,8 @@ public class ProjectResource {
      */
     @GetMapping("/projects")
     @Timed
-    public ResponseEntity getAllProjects(@ApiParam Pageable pageable,
+    public ResponseEntity getAllProjects(
+            @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable,
             @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
                     minimized) throws NotAuthorizedException {
         log.debug("REST request to get Projects");
