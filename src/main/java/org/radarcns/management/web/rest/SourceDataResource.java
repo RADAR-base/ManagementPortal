@@ -2,7 +2,6 @@ package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
-import io.swagger.annotations.ApiParam;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.service.ResourceUriService;
@@ -16,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -120,7 +120,8 @@ public class SourceDataResource {
      */
     @GetMapping("/source-data")
     @Timed
-    public ResponseEntity<List<SourceDataDTO>> getAllSourceData(@ApiParam Pageable pageable)
+    public ResponseEntity<List<SourceDataDTO>> getAllSourceData(
+            @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable)
             throws NotAuthorizedException {
         log.debug("REST request to get all SourceData");
         checkPermission(getJWT(servletRequest), SOURCEDATA_READ);
