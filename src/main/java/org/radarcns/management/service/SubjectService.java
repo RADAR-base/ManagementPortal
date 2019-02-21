@@ -109,8 +109,16 @@ public class SubjectService {
         Subject subject = subjectMapper.subjectDTOToSubject(subjectDto);
         //assign roles
         User user = subject.getUser();
-        user.getRoles().add(getProjectParticipantRole(
-                projectMapper.projectDTOToProject(subjectDto.getProject()), PARTICIPANT));
+        Role currentSubjectRole = getProjectParticipantRole(
+                projectMapper.projectDTOToProject(subjectDto.getProject()), PARTICIPANT);
+
+        // a subject can only have one active participant role and when we create a subject
+        // a subject should not have any other role
+        if (user.getRoles() == null) {
+            user.setRoles(Collections.singleton(currentSubjectRole));
+        } else if (user.getRoles().isEmpty()) {
+            user.getRoles().add(currentSubjectRole);
+        }
 
         // set password and reset keys
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
