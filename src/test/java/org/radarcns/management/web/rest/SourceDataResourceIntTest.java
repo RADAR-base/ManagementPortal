@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
-import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
@@ -93,9 +92,6 @@ public class SourceDataResourceIntTest {
     private ExceptionTranslator exceptionTranslator;
 
     @Autowired
-    private EntityManager em;
-
-    @Autowired
     private HttpServletRequest servletRequest;
 
     private MockMvc restSourceDataMockMvc;
@@ -126,7 +122,7 @@ public class SourceDataResourceIntTest {
      * <p>This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.</p>
      */
-    public static SourceData createEntity(EntityManager em) {
+    public static SourceData createEntity() {
         SourceData sourceData = new SourceData()
                 .sourceDataType(DEFAULT_SOURCE_DATA_TYPE)
                 .sourceDataName(DEFAULT_SOURCE_DATA_NAME)
@@ -142,7 +138,7 @@ public class SourceDataResourceIntTest {
 
     @Before
     public void initTest() {
-        sourceData = createEntity(em);
+        sourceData = createEntity();
     }
 
     @Test

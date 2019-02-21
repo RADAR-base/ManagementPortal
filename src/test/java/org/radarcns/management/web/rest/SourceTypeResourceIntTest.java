@@ -12,7 +12,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Collections;
 import java.util.List;
-import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
@@ -93,9 +92,6 @@ public class SourceTypeResourceIntTest {
     private ExceptionTranslator exceptionTranslator;
 
     @Autowired
-    private EntityManager em;
-
-    @Autowired
     private HttpServletRequest servletRequest;
 
     private MockMvc restSourceTypeMockMvc;
@@ -107,7 +103,7 @@ public class SourceTypeResourceIntTest {
         MockitoAnnotations.initMocks(this);
         SourceTypeResource sourceTypeResource = new SourceTypeResource();
         ReflectionTestUtils.setField(sourceTypeResource, "sourceTypeService" , sourceTypeService);
-        ReflectionTestUtils.setField(sourceTypeResource, "sourceTypeRepository" , 
+        ReflectionTestUtils.setField(sourceTypeResource, "sourceTypeRepository" ,
                 sourceTypeRepository);
         ReflectionTestUtils.setField(sourceTypeResource, "servletRequest", servletRequest);
 
@@ -128,7 +124,7 @@ public class SourceTypeResourceIntTest {
      * <p>This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.</p>
      */
-    public static SourceType createEntity(EntityManager em) {
+    public static SourceType createEntity() {
         SourceType sourceType = new SourceType()
                 .producer(DEFAULT_PRODUCER)
                 .model(DEFAULT_MODEL)
@@ -139,7 +135,7 @@ public class SourceTypeResourceIntTest {
 
     @Before
     public void initTest() {
-        sourceType = createEntity(em);
+        sourceType = createEntity();
     }
 
     @Test
@@ -150,8 +146,8 @@ public class SourceTypeResourceIntTest {
         // Create the SourceType
         SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
         SourceDataDTO sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(
-                SourceDataResourceIntTest.createEntity(em));
-        sourceTypeDto.getSourceData().add(sourceDataDto);
+                SourceDataResourceIntTest.createEntity());
+        sourceTypeDto.setSourceData(Collections.singleton(sourceDataDto));
         restSourceTypeMockMvc.perform(post("/api/source-types")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
@@ -397,7 +393,7 @@ public class SourceTypeResourceIntTest {
         final int databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size();
         final int sensorsSizeBeforeUpdate = sourceDataRepository.findAll().size();
 
-        sourceType.setSourceData(Collections.singleton(SourceDataResourceIntTest.createEntity(em)));
+        sourceType.setSourceData(Collections.singleton(SourceDataResourceIntTest.createEntity()));
         // Create the SourceType
         SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
 

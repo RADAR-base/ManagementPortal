@@ -18,6 +18,7 @@ public interface SourceTypeMapper {
     List<SourceTypeDTO> sourceTypesToSourceTypeDTOs(List<SourceType> sourceTypes);
 
     @Mapping(target = "projects", ignore = true)
+    @Mapping(target = "removeSourceData", ignore = true)
     SourceType sourceTypeDTOToSourceType(SourceTypeDTO sourceTypeDto);
 
     List<SourceType> sourceTypeDTOsToSourceTypes(List<SourceTypeDTO> sourceTypeDtos);
