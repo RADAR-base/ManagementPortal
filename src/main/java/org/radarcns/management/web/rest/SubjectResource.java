@@ -129,13 +129,13 @@ public class SubjectResource {
     public ResponseEntity<SubjectDTO> createSubject(@RequestBody SubjectDTO subjectDto)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Subject : {}", subjectDto);
-        if (subjectDto.getProject() == null || subjectDto.getProject().getId() == null) {
+        if (subjectDto.getProjectName() == null || subjectDto.getProjectName().isEmpty()) {
             return ResponseEntity.badRequest().headers(HeaderUtil
                     .createFailureAlert(SUBJECT, "projectrequired",
                             "A subject should be assigned to a project")).build();
         }
         checkPermissionOnProject(getJWT(servletRequest), SUBJECT_CREATE,
-                subjectDto.getProject().getProjectName());
+                subjectDto.getProjectName());
 
         if (subjectDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil
@@ -149,8 +149,8 @@ public class SubjectResource {
                     .build();
         }
         if (subjectDto.getExternalId() != null && !subjectDto.getExternalId().isEmpty()
-                && subjectRepository.findOneByProjectNameAndExternalId(subjectDto.getProject()
-                .getProjectName(), subjectDto.getExternalId()).isPresent()) {
+                && subjectRepository.findOneByProjectNameAndExternalId(subjectDto.getProjectName(),
+                subjectDto.getExternalId()).isPresent()) {
             return ResponseEntity.badRequest().headers(HeaderUtil
                     .createFailureAlert(SUBJECT, "subjectExists",
                             "A subject with given project-id and external-id already exists"))
@@ -177,7 +177,7 @@ public class SubjectResource {
     public ResponseEntity<SubjectDTO> updateSubject(@RequestBody SubjectDTO subjectDto)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to update Subject : {}", subjectDto);
-        if (subjectDto.getProject() == null || subjectDto.getProject().getId() == null) {
+        if (subjectDto.getProjectName() == null || subjectDto.getProjectName().isEmpty()) {
             return ResponseEntity.badRequest().headers(HeaderUtil
                     .createFailureAlert(SUBJECT, "projectrequired",
                             "A subject should be assigned to a project")).body(null);
@@ -186,7 +186,7 @@ public class SubjectResource {
             return createSubject(subjectDto);
         }
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
-                subjectDto.getProject().getProjectName(), subjectDto.getLogin());
+                subjectDto.getProjectName(), subjectDto.getLogin());
         SubjectDTO result = subjectService.updateSubject(subjectDto);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(SUBJECT, subjectDto.getLogin()))
@@ -214,13 +214,13 @@ public class SubjectResource {
                     .body(null);
         }
 
-        if (subjectDto.getProject() == null || subjectDto.getProject().getId() == null) {
+        if (subjectDto.getProjectName() == null || subjectDto.getProjectName().isEmpty()) {
             return ResponseEntity.badRequest().headers(HeaderUtil
                     .createFailureAlert(SUBJECT, "projectrequired",
                             "A subject should be assigned to a project")).body(null);
         }
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
-                subjectDto.getProject().getProjectName(), subjectDto.getLogin());
+                subjectDto.getProjectName(), subjectDto.getLogin());
 
         // In principle this is already captured by the PostUpdate event listener, adding this
         // event just makes it more clear a subject was discontinued.
@@ -301,8 +301,8 @@ public class SubjectResource {
         log.debug("REST request to get Subject : {}", login);
         Subject subject = subjectService.findOneByLogin(login);
         SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject);
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, subjectDto.getProject()
-                .getProjectName(), subjectDto.getLogin());
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ,
+                subjectDto.getProjectName(), subjectDto.getLogin());
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(subjectDto));
     }
 
@@ -326,7 +326,7 @@ public class SubjectResource {
         // iterate the revisions, if we don't have read permission for the subject in a given
         // revision, swap the subject with a 'blank' subject so no information gets leaked
         page = page.map(rev -> token.hasPermissionOnSubject(SUBJECT_READ,
-                ((SubjectDTO) rev.getEntity()).getProject().getProjectName(),
+                ((SubjectDTO) rev.getEntity()).getProjectName(),
                 ((SubjectDTO) rev.getEntity()).getLogin())
                 ? rev : rev.setEntity(blank));
         // This stream returns true if all values are equal to blank. To prevent people with no
@@ -355,8 +355,8 @@ public class SubjectResource {
             @PathVariable Integer revisionNb) throws NotAuthorizedException {
         log.debug("REST request to get Subject : {}, for revisionNb: {}", login, revisionNb);
         SubjectDTO subjectDto = subjectService.findRevision(login, revisionNb);
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, subjectDto.getProject()
-                .getProjectName(), subjectDto.getLogin());
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ,
+                subjectDto.getProjectName(), subjectDto.getLogin());
         return ResponseEntity.ok(subjectDto);
     }
 
@@ -374,8 +374,8 @@ public class SubjectResource {
         Subject subject = subjectService.findOneByLogin(login);
 
         SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject);
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_DELETE, subjectDto.getProject()
-                .getProjectName(), subjectDto.getLogin());
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_DELETE,
+                subjectDto.getProjectName(), subjectDto.getLogin());
         subjectService.deleteSubject(login);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityDeletionAlert(SUBJECT, login)).build();
@@ -496,8 +496,8 @@ public class SubjectResource {
         }
 
         SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject.get());
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, subjectDto.getProject()
-                .getProjectName(), subjectDto.getLogin());
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ,
+                subjectDto.getProjectName(), subjectDto.getLogin());
 
         if (withInactiveSources) {
             return ResponseEntity.ok()
@@ -546,7 +546,7 @@ public class SubjectResource {
         // check the permission to update source
         SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject.get());
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
-                subjectDto.getProject().getProjectName(), subjectDto.getLogin());
+                subjectDto.getProjectName(), subjectDto.getLogin());
 
         // find source under subject
         List<Source> sources = subject.get().getSources().stream()

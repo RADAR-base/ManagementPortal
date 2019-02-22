@@ -36,6 +36,7 @@ public interface SourceTypeMapper {
     @Mapping(target = "assessmentType", ignore = true)
     @Mapping(target = "projects", ignore = true)
     @Mapping(target = "appProvider", ignore = true)
+    @Mapping(target = "removeSourceData", ignore = true)
     SourceType minimalDTOToSourceType(MinimalSourceTypeDTO minimalSourceTypeDetailsDto);
 
     List<SourceType> minimalDTOsToSourceTypes(List<MinimalSourceTypeDTO> minimalProjectDetailsDtos);

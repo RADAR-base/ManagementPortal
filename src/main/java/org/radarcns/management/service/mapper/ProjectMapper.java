@@ -22,6 +22,7 @@ public interface ProjectMapper {
     List<ProjectDTO> projectsToProjectDTOs(List<Project> projects);
 
     @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "removeSourceType", ignore = true)
     Project projectDTOToProject(ProjectDTO projectDto);
 
     List<Project> projectDTOsToProjects(List<ProjectDTO> projectDtos);
@@ -39,6 +40,7 @@ public interface ProjectMapper {
     @Mapping(target = "projectStatus", ignore = true)
     @Mapping(target = "sourceTypes", ignore = true)
     @Mapping(target = "attributes", ignore = true)
+    @Mapping(target = "removeSourceType", ignore = true)
     Project descriptiveDTOToProject(MinimalProjectDetailsDTO minimalProjectDetailsDto);
 
     List<Project> descriptiveDTOsToProjects(

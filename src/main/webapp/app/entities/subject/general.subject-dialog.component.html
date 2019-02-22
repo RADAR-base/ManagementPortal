@@ -29,9 +29,9 @@
         <div class="form-group">
 
             <label jhiTranslate="managementPortalApp.subject.project" for="field_project">Project</label>
-            <select class="form-control" id="field_project" name="project" [(ngModel)]="subject.project" required>
+            <select class="form-control" id="field_project" name="project" [(ngModel)]="subject.projectName" required>
                 <option [ngValue]="null"></option>
-                <option [ngValue]="projectOption.id === subject.project?.id ? subject.project : projectOption" *ngFor="let projectOption of projects; trackBy: trackProjectById">{{projectOption.projectName}}</option>
+                <option [ngValue]="projectOption.projectName === subject.projectName ? subject.projectName : projectOption.projectName" *ngFor="let projectOption of projects; trackBy: trackProjectById">{{projectOption.projectName}}</option>
             </select>
             <div [hidden]="!(editForm.controls.project?.dirty && editForm.controls.project?.invalid)">
                 <small class="form-text text-danger"

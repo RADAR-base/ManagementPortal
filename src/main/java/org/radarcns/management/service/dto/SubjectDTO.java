@@ -45,7 +45,7 @@ public class SubjectDTO implements Serializable {
 
     private ZonedDateTime lastModifiedDate;
 
-    private ProjectDTO project;
+    private String projectName;
 
     private List<RoleDTO> roles;
 
@@ -70,12 +70,12 @@ public class SubjectDTO implements Serializable {
         this.createdBy = createdBy;
     }
 
-    public ProjectDTO getProject() {
-        return project;
+    public String getProjectName() {
+        return projectName;
     }
 
-    public void setProject(ProjectDTO project) {
-        this.project = project;
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 
     public Long getId() {
@@ -197,7 +197,7 @@ public class SubjectDTO implements Serializable {
                 + ", externalLink='" + externalLink + '\''
                 + ", externalId='" + externalId + '\''
                 + ", status=" + status
-                + ", project=" + (project == null ? "null" : project.getProjectName())
+                + ", projectName=" + (projectName == null ? "null" : projectName)
                 + ", attributes=" + attributes + '}';
     }
 }

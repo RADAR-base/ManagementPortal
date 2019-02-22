@@ -29,11 +29,9 @@ export class SubjectPopupService {
                 this.subjectModalRef(component, subject, isDelete);
             });
         } else if (projectName) {
-            this.projectService.find(projectName).subscribe((project) => {
-                const subject = new Subject();
-                subject.project = project;
-                return this.subjectModalRef(component, subject, isDelete);
-            });
+            const subject = new Subject();
+            subject.projectName = projectName;
+            return this.subjectModalRef(component, subject, isDelete);
         }
     }
 

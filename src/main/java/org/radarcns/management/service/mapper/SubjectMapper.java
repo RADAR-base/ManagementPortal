@@ -19,7 +19,7 @@ public interface SubjectMapper {
 
     @Mapping(source = "user.login", target = "login")
     @Mapping(target = "status", ignore = true)
-    @Mapping(target = "project", ignore = true)
+    @Mapping(target = "projectName", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "lastModifiedBy", ignore = true)

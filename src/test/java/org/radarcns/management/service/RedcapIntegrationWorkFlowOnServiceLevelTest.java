@@ -94,7 +94,7 @@ public class RedcapIntegrationWorkFlowOnServiceLevelTest {
         // create a new Subject
         SubjectDTO newSubject = new SubjectDTO();
         newSubject.setLogin("53d8a54a"); // will be removed
-        newSubject.setProject(retrievedById); // set retrieved project
+        newSubject.setProjectName(retrievedById.getProjectName()); // set retrieved project
         newSubject.setExternalId(redcapRecordId); // set redcap-record-id
 
         // create human-readable-id

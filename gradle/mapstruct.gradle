@@ -1,4 +1,6 @@
 
 dependencies {
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct_version}"
+    testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct_version}"
+    cucumberTestAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct_version}"
 }

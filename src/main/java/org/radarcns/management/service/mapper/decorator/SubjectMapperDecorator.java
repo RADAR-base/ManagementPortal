@@ -9,7 +9,6 @@ import org.radarcns.management.domain.audit.EntityAuditInfo;
 import org.radarcns.management.service.RevisionService;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.SubjectDTO.SubjectStatus;
-import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,9 +23,6 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
     private SubjectMapper delegate;
 
     @Autowired
-    private ProjectMapper projectMapper;
-
-    @Autowired
     private RevisionService revisionService;
 
     @Override
@@ -38,7 +34,7 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
         dto.setStatus(getSubjectStatus(subject));
         subject.getActiveProject()
                 .ifPresent(
-                    project -> dto.setProject(projectMapper.projectToProjectDTO(project)));
+                    project -> dto.setProjectName(project.getProjectName()));
 
         EntityAuditInfo auditInfo = revisionService.getAuditInfo(subject);
         dto.setCreatedDate(auditInfo.getCreatedAt());

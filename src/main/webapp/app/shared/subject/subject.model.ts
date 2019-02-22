@@ -1,5 +1,4 @@
 import { Role } from '../../admin/user-management/role.model';
-import { Project } from '../project/project.model';
 import { Dictionary } from '../dictionary-mapper/dictionary-mapper.model';
 import { MinimalSource } from '../source/source.model';
 
@@ -13,7 +12,7 @@ export class Subject {
     public lastModifiedBy?: string;
     public lastModifiedDate?: Date;
     public password?: string;
-    public project?: Project;
+    public projectName?: string;
     public sources?: MinimalSource[];
     public attributes: Dictionary;
     public status: SubjectStatus;
@@ -30,7 +29,7 @@ export class Subject {
             lastModifiedBy?: string,
             lastModifiedDate?: Date,
             password?: string,
-            project?: Project,
+            projectName?: string,
             sources?: MinimalSource[],
             roles?: Role[],
     ) {
@@ -43,7 +42,7 @@ export class Subject {
         this.lastModifiedBy = lastModifiedBy ? lastModifiedBy : null;
         this.lastModifiedDate = lastModifiedDate ? lastModifiedDate : null;
         this.password = password ? password : null;
-        this.project = project ? project : null;
+        this.projectName = projectName ? projectName : null;
         this.sources = sources ? sources : [];
         this.status = status ? status : SubjectStatus.DEACTIVATED;
         this.roles = roles;

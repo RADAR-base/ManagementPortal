@@ -27,7 +27,7 @@ public class SubjectServiceTest {
     public static final String DEFAULT_EXTERNAL_LINK = "AAAAAAAAAA";
     public static final String UPDATED_EXTERNAL_LINK = "BBBBBBBBBB";
 
-    public static final String DEFAULT_ENTERNAL_ID = "AAAAAAAAAA";
+    public static final String DEFAULT_ENTERNAL_ID = "SUB_";
     public static final String UPDATED_ENTERNAL_ID = "BBBBBBBBBB";
 
     public static final Boolean DEFAULT_REMOVED = false;
@@ -57,16 +57,9 @@ public class SubjectServiceTest {
     public static SubjectDTO createEntityDTO() {
         SubjectDTO subject = new SubjectDTO();
         subject.setExternalLink(DEFAULT_EXTERNAL_LINK);
-        subject.setExternalId(DEFAULT_ENTERNAL_ID);
         subject.setStatus(ACTIVATED);
-        ProjectDTO projectDto = new ProjectDTO();
-        projectDto.setId(1L);
-        projectDto.setProjectName("Radar");
-        projectDto.setLocation("SOMEWHERE");
-        projectDto.setDescription("test");
-        projectDto.setAttributes(Collections.singletonMap(PRIVACY_POLICY_URL,
-                DEFAULT_PROJECT_PRIVACY_POLICY_URL));
-        subject.setProject(projectDto);
+
+        subject.setProjectName("radar");
 
         return subject;
     }
@@ -75,8 +68,18 @@ public class SubjectServiceTest {
     @Transactional
     public void testGetPrivacyPolicyUrl() {
 
-        projectService.save(createEntityDTO().getProject());
-        SubjectDTO created = subjectService.createSubject(createEntityDTO());
+        ProjectDTO projectDto = new ProjectDTO();
+        projectDto.setId(3L);
+        projectDto.setProjectName("Radar");
+        projectDto.setLocation("SOMEWHERE");
+        projectDto.setDescription("test");
+        projectDto.setAttributes(Collections.singletonMap(PRIVACY_POLICY_URL,
+                DEFAULT_PROJECT_PRIVACY_POLICY_URL));
+        projectService.save(projectDto);
+
+        SubjectDTO subjectWithNewProject = createEntityDTO();
+        subjectWithNewProject.setProjectName("Radar");
+        SubjectDTO created = subjectService.createSubject(subjectWithNewProject);
         assertNotNull(created.getId());
 
         Subject subject = subjectService.findOneByLogin(created.getLogin());

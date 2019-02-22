@@ -206,7 +206,7 @@ public class OAuthClientsResource {
 
         // Users who can update a subject can also generate a refresh token for that subject
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
-                subjectDto.getProject().getProjectName(), subjectDto.getLogin());
+                subjectDto.getProjectName(), subjectDto.getLogin());
 
         ClientPairInfoDTO cpi = oAuthClientService.createRefreshToken(subject, clientId);
         // generate audit event

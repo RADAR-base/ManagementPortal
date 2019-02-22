@@ -34,13 +34,13 @@ import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.AuthorityRepository;
+import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
-import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.service.mapper.SourceMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.service.util.RandomUtil;
@@ -72,9 +72,6 @@ public class SubjectService {
     private SubjectMapper subjectMapper;
 
     @Autowired
-    private ProjectMapper projectMapper;
-
-    @Autowired
     private SubjectRepository subjectRepository;
 
     @Autowired
@@ -96,6 +93,9 @@ public class SubjectService {
     private RevisionService revisionService;
 
     @Autowired
+    private ProjectRepository projectRepository;
+
+    @Autowired
     private ManagementPortalProperties managementPortalProperties;
 
     /**
@@ -109,8 +109,13 @@ public class SubjectService {
         Subject subject = subjectMapper.subjectDTOToSubject(subjectDto);
         //assign roles
         User user = subject.getUser();
-        Role currentSubjectRole = getProjectParticipantRole(
-                projectMapper.projectDTOToProject(subjectDto.getProject()), PARTICIPANT);
+
+        Project projectOfSubject = projectRepository
+                .findOneWithEagerRelationshipsByName(subjectDto.getProjectName())
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Cannot create a subject without " + "projectName"));
+
+        Role currentSubjectRole = getProjectParticipantRole(projectOfSubject, PARTICIPANT);
 
         // a subject can only have one active participant role and when we create a subject
         // a subject should not have any other role
@@ -134,7 +139,8 @@ public class SubjectService {
             subject.getSources().forEach(s -> s.assigned(true).subject(subject));
         }
         sourceRepository.save(subject.getSources());
-        return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subject));
+        Subject subjectSaved = subjectRepository.save(subject);
+        return subjectMapper.subjectToSubjectDTO(subjectSaved);
     }
 
     /**
@@ -190,14 +196,18 @@ public class SubjectService {
                 // make participant inactive in projects that do not match the new project
                 .map(role -> PARTICIPANT.equals(role.getAuthority().getName())
                             && !role.getProject().getProjectName().equals(
-                                    subjectDto.getProject().getProjectName())
+                                    subjectDto.getProjectName())
                             ? getProjectParticipantRole(role.getProject(), INACTIVE_PARTICIPANT)
                             : role)
                 .collect(Collectors.toSet());
         // add participant role for current project, if the project did not change, then the set
         // will not change since the role being added here already exists in the set
-        managedRoles.add(getProjectParticipantRole(projectMapper.projectDTOToProject(subjectDto
-                .getProject()), PARTICIPANT));
+        Project projectOfSubject = projectRepository
+                .findOneWithEagerRelationshipsByName(subjectDto.getProjectName())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Cannot create a subject without " + "projectName"));
+
+        managedRoles.add(getProjectParticipantRole(projectOfSubject, PARTICIPANT));
         return managedRoles;
     }
 

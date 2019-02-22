@@ -40,7 +40,7 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
         if (this.subject.id !== null) {
             this.sourceService.findAvailable(
                     {
-                        projectName: this.subject.project.projectName,
+                        projectName: this.subject.projectName,
                         assigned: false,
                     }).subscribe(
                     (res: Response) => {

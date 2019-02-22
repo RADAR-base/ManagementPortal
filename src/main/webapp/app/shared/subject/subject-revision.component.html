@@ -27,8 +27,8 @@
         </dd>
         <dt><span jhiTranslate="managementPortalApp.subject.project">Project</span></dt>
         <dd>
-            <span *ngIf="subject.project">
-                  <a [routerLink]="['/project', subject.project?.projectName ]" >{{subject.project?.projectName}}</a>
+            <span *ngIf="subject.projectName">
+                  <a [routerLink]="['/project', subject.projectName ]" >{{subject.projectName}}</a>
             </span>
         </dd>
         <dt><span jhiTranslate="managementPortalApp.subject.sources">Sources</span></dt>
