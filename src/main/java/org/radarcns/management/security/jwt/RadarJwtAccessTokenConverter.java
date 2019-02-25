@@ -1,8 +1,5 @@
 package org.radarcns.management.security.jwt;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTCreator;
-import com.auth0.jwt.algorithms.Algorithm;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.interfaces.ECPrivateKey;
@@ -12,9 +9,19 @@ import java.util.Date;
 import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTCreator;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.jwt.Jwt;
+import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
+import org.springframework.security.oauth2.common.util.JsonParser;
+import org.springframework.security.oauth2.common.util.JsonParserFactory;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
@@ -26,10 +33,13 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
  * are significantly smaller than RSA signatures.</p>
  */
 public class RadarJwtAccessTokenConverter extends JwtAccessTokenConverter {
+    private final JsonParser objectMapper = JsonParserFactory.create();
+
     private static final Logger logger = LoggerFactory
             .getLogger(RadarJwtAccessTokenConverter.class);
 
     private Algorithm algorithm;
+    private JWTVerifier verifier;
 
     /**
      * Default constructor.
@@ -50,9 +60,28 @@ public class RadarJwtAccessTokenConverter extends JwtAccessTokenConverter {
                     + keyPair.getPrivate().getAlgorithm() + " is unknown.");
         }
         algorithm = alg.getAlgorithm();
+        verifier = JWT.require(algorithm).build();
         setSigner(alg.getSigner());
         setVerifier(alg.getVerifier());
-        setVerifierKey(alg.getEncodedString());
+        setVerifierKey(alg.getVerifierKeyEncodedString());
+    }
+
+    @Override
+    protected Map<String, Object> decode(String token) {
+        try {
+            verifier.verify(token);
+            Jwt jwt = JwtHelper.decode(token);
+            String claimsStr = jwt.getClaims();
+            Map<String, Object> claims = objectMapper.parseMap(claimsStr);
+            if (claims.containsKey(EXP) && claims.get(EXP) instanceof Integer) {
+                Integer intValue = (Integer) claims.get(EXP);
+                claims.put(EXP, new Long(intValue));
+            }
+            this.getJwtClaimsSetVerifier().verify(claims);
+            return claims;
+        } catch (Exception e) {
+            throw new InvalidTokenException("Cannot convert access token to JSON", e);
+        }
     }
 
     @Override

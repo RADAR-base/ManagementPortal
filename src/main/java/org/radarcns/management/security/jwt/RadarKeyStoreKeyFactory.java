@@ -110,6 +110,7 @@ public class RadarKeyStoreKeyFactory {
                         loadedResource, alias);
                 return null;
             }
+
             return new KeyPair(publicKey, key);
         } catch (NoSuchAlgorithmException ex) {
             logger.warn(

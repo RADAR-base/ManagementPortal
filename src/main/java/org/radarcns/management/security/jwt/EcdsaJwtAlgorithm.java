@@ -1,6 +1,7 @@
 package org.radarcns.management.security.jwt;
 
 import com.auth0.jwt.algorithms.Algorithm;
+
 import java.security.KeyPair;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;

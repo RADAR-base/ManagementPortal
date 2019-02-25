@@ -11,7 +11,7 @@ public class RsaJwtAlgorithm extends AssymmetricJwtAlgorithm {
         super(keyPair, "SHA256withRSA");
         if (!(keyPair.getPrivate() instanceof RSAPrivateKey)) {
             throw new IllegalArgumentException(
-                    "Cannot make EcdsaJwtAlgorithm with " + keyPair.getPrivate().getClass());
+                    "Cannot make RsaJwtAlgorithm with " + keyPair.getPrivate().getClass());
         }
     }
 

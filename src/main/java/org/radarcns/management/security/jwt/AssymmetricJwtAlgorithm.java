@@ -1,6 +1,7 @@
 package org.radarcns.management.security.jwt;
 
 import java.security.KeyPair;
+
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.jwt.crypto.sign.SignatureVerifier;
 import org.springframework.security.jwt.crypto.sign.Signer;
@@ -31,7 +32,7 @@ public abstract class AssymmetricJwtAlgorithm implements JwtAlgorithm {
     protected abstract String getEncodedStringFooter();
 
     @Override
-    public String getEncodedString() {
+    public String getVerifierKeyEncodedString() {
         return getEncodedStringHeader() + '\n'
                 + new String(Base64.encode(keyPair.getPublic().getEncoded()))
                 + '\n' + getEncodedStringFooter();

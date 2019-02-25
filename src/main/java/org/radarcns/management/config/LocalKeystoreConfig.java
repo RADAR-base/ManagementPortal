@@ -38,7 +38,7 @@ public class LocalKeystoreConfig implements ServerConfig {
                 .map(keyFactory::getKeyPair)
                 .map(RadarJwtAccessTokenConverter::getJwtAlgorithm)
                 .filter(Objects::nonNull)
-                .map(JwtAlgorithm::getEncodedString)
+                .map(JwtAlgorithm::getVerifierKeyEncodedString)
                 .collect(Collectors.toList());
     }
 

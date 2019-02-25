@@ -26,5 +26,5 @@ public interface JwtAlgorithm {
     /**
      * Encoded public key for storage or transmission.
      */
-    String getEncodedString();
+    String getVerifierKeyEncodedString();
 }
