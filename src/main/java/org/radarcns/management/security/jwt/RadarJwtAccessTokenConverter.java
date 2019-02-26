@@ -2,7 +2,7 @@ package org.radarcns.management.security.jwt;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -87,7 +87,8 @@ public class RadarJwtAccessTokenConverter implements JwtAccessTokenConverter {
     }
 
     @Override
-    public Map<String, ?> convertAccessToken(OAuth2AccessToken token, OAuth2Authentication authentication) {
+    public Map<String, ?> convertAccessToken(OAuth2AccessToken token,
+            OAuth2Authentication authentication) {
         return tokenConverter.convertAccessToken(token, authentication);
     }
 
@@ -107,48 +108,78 @@ public class RadarJwtAccessTokenConverter implements JwtAccessTokenConverter {
     }
 
 
+    /**
+     * Simplified the existing enhancing logic of
+     * {@link JwtAccessTokenConverter#enhance(OAuth2AccessToken, OAuth2Authentication)}.
+     * Keeping the same logic.
+     *
+     * It mainly adds token-id for access token and access-token-id and token-id for refresh
+     * token to the additional information.
+     *
+     * @param accessToken accessToken to enhance.
+     * @param authentication current authentication of the token.
+     * @return enhancedToken.
+     */
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
-        DefaultOAuth2AccessToken result = new DefaultOAuth2AccessToken(accessToken);
-        Map<String, Object> info = result.getAdditionalInformation();
-        String tokenId = result.getValue();
-        if (!info.containsKey(TOKEN_ID)) {
-            info.put(TOKEN_ID, tokenId);
+
+        // set additional information for access token
+        Map<String, Object> additionalInfoAccessToken =
+                new HashMap<>(accessToken.getAdditionalInformation());
+
+        // add token id if not available
+        String accessTokenId = accessToken.getValue();
+
+        if (!additionalInfoAccessToken.containsKey(TOKEN_ID)) {
+            additionalInfoAccessToken.put(TOKEN_ID, accessTokenId);
         }
-        else {
-            tokenId = (String) info.get(TOKEN_ID);
-        }
-        result.setAdditionalInformation(info);
-        result.setValue(encode(result, authentication));
-        OAuth2RefreshToken refreshToken = result.getRefreshToken();
+
+        ((DefaultOAuth2AccessToken) accessToken)
+                .setAdditionalInformation(additionalInfoAccessToken);
+
+        ((DefaultOAuth2AccessToken) accessToken).setValue(encode(accessToken, authentication));
+
+        // add additional information for refresh-token
+        OAuth2RefreshToken refreshToken = accessToken.getRefreshToken();
         if (refreshToken != null) {
-            DefaultOAuth2AccessToken encodedRefreshToken = new DefaultOAuth2AccessToken(accessToken);
-            encodedRefreshToken.setValue(refreshToken.getValue());
+
+            DefaultOAuth2AccessToken refreshTokenToEnhance = new DefaultOAuth2AccessToken
+                    (refreshToken.getValue());
             // Refresh tokens do not expire unless explicitly of the right type
-            encodedRefreshToken.setExpiration(null);
+            refreshTokenToEnhance.setExpiration(null);
+
+            // I don't really get what is the point of doing this.
             try {
                 Map<String, Object> claims = objectMapper
                         .parseMap(JwtHelper.decode(refreshToken.getValue()).getClaims());
                 if (claims.containsKey(TOKEN_ID)) {
-                    encodedRefreshToken.setValue(claims.get(TOKEN_ID).toString());
+                    refreshTokenToEnhance.setValue(claims.get(TOKEN_ID).toString());
                 }
+            } catch (IllegalArgumentException e) {
+                logger.error("Could not decode refresh token ", e);
             }
-            catch (IllegalArgumentException e) {
-            }
-            Map<String, Object> refreshTokenInfo = new LinkedHashMap<String, Object>(
+            // set info of access token to refresh-token and add token-id and access-token-id for
+            // reference.
+
+            Map<String, Object> refreshTokenInfo = new HashMap<>(
                     accessToken.getAdditionalInformation());
-            refreshTokenInfo.put(TOKEN_ID, encodedRefreshToken.getValue());
-            refreshTokenInfo.put(ACCESS_TOKEN_ID, tokenId);
-            encodedRefreshToken.setAdditionalInformation(refreshTokenInfo);
-            DefaultOAuth2RefreshToken token = new DefaultOAuth2RefreshToken(
-                    encode(encodedRefreshToken, authentication));
+            refreshTokenInfo.put(TOKEN_ID, refreshToken.getValue());
+            refreshTokenInfo.put(ACCESS_TOKEN_ID, accessTokenId);
+            refreshTokenToEnhance.setAdditionalInformation(refreshTokenInfo);
+
+            DefaultOAuth2RefreshToken encodedRefreshToken;
             if (refreshToken instanceof ExpiringOAuth2RefreshToken) {
                 Date expiration = ((ExpiringOAuth2RefreshToken) refreshToken).getExpiration();
-                encodedRefreshToken.setExpiration(expiration);
-                token = new DefaultExpiringOAuth2RefreshToken(encode(encodedRefreshToken, authentication), expiration);
+                refreshTokenToEnhance.setExpiration(expiration);
+
+                encodedRefreshToken = new DefaultExpiringOAuth2RefreshToken(
+                        encode(refreshTokenToEnhance, authentication), expiration);
+            } else {
+                encodedRefreshToken = new DefaultOAuth2RefreshToken(
+                        encode(refreshTokenToEnhance, authentication));
             }
-            result.setRefreshToken(token);
+            ((DefaultOAuth2AccessToken)accessToken).setRefreshToken(encodedRefreshToken);
         }
-        return result;
+        return accessToken;
     }
 
     @Override
