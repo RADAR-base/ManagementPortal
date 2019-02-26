@@ -1,5 +1,7 @@
 package org.radarcns.management.config;
 
+import static org.radarcns.management.security.jwt.RadarJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL;
+
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,7 +10,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import org.radarcns.auth.config.ServerConfig;
 import org.radarcns.management.security.jwt.JwtAlgorithm;
-import org.radarcns.management.security.jwt.RadarJwtAccessTokenConverter;
+import org.radarcns.management.security.jwt.KeyStoreUtil;
 import org.radarcns.management.security.jwt.RadarKeyStoreKeyFactory;
 import org.springframework.core.io.ClassPathResource;
 
@@ -18,7 +20,7 @@ import org.springframework.core.io.ClassPathResource;
  */
 public class LocalKeystoreConfig implements ServerConfig {
 
-    public static final String RES_MANAGEMENT_PORTAL = "res_ManagementPortal";
+
     private final List<String> publicKeys;
 
     /**
@@ -36,7 +38,7 @@ public class LocalKeystoreConfig implements ServerConfig {
         // well.
         publicKeys = checkingKeyAliases.stream()
                 .map(keyFactory::getKeyPair)
-                .map(RadarJwtAccessTokenConverter::getJwtAlgorithm)
+                .map(KeyStoreUtil::getJwtAlgorithm)
                 .filter(Objects::nonNull)
                 .map(JwtAlgorithm::getVerifierKeyEncodedString)
                 .collect(Collectors.toList());
