@@ -58,10 +58,11 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
      * {@link DefaultAccessTokenConverter} as the accessTokenConverter with explicitly including
      * grant_type claim.
      */
-    public ManagementPortalJwtAccessTokenConverter() {
+    public ManagementPortalJwtAccessTokenConverter(Algorithm algorithm) {
         DefaultAccessTokenConverter accessToken = new DefaultAccessTokenConverter();
         accessToken.setIncludeGrantType(true);
         this.tokenConverter = accessToken;
+        setAlgorithm(algorithm);
     }
 
     /**

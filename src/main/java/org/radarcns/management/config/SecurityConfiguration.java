@@ -1,15 +1,13 @@
 package org.radarcns.management.config;
 
 
-import io.github.jhipster.security.AjaxLogoutSuccessHandler;
-import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
-import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.servlet.Filter;
-import org.radarcns.auth.authentication.TokenValidator;
-import org.radarcns.management.config.ManagementPortalProperties.Oauth;
+
+import io.github.jhipster.security.AjaxLogoutSuccessHandler;
+import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
 import org.radarcns.management.security.JwtAuthenticationFilter;
+import org.radarcns.management.security.jwt.RadarKeyStoreKeyFactory;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -146,13 +144,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
      * @return the JwtAuthenticationFilter
      */
     public Filter jwtAuthenticationFilter() {
-        Oauth oauth = managementPortalProperties.getOauth();
-        List<String> publicKeyAliases = new ArrayList<>();
-        publicKeyAliases.add(oauth.getSigningKeyAlias());
-        if (oauth.getCheckingKeyAliases() != null) {
-            publicKeyAliases.addAll(oauth.getCheckingKeyAliases());
-        }
-        return new JwtAuthenticationFilter(new TokenValidator(
-                new LocalKeystoreConfig(oauth.getKeyStorePassword(), publicKeyAliases)));
+        RadarKeyStoreKeyFactory keyStoreKeyFactory =
+                RadarKeyStoreKeyFactory.build(managementPortalProperties);
+        return new JwtAuthenticationFilter(keyStoreKeyFactory.getTokenValidator());
     }
 }

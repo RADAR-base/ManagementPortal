@@ -2,18 +2,16 @@ package org.radarcns.management.config;
 
 import static org.springframework.orm.jpa.vendor.Database.POSTGRESQL;
 
-import io.github.jhipster.security.AjaxLogoutSuccessHandler;
-import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
-import java.security.KeyPair;
 import java.util.Arrays;
 import javax.sql.DataSource;
+
+import io.github.jhipster.security.AjaxLogoutSuccessHandler;
+import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
-import org.radarcns.management.config.ManagementPortalProperties.Oauth;
 import org.radarcns.management.security.ClaimsTokenEnhancer;
 import org.radarcns.management.security.PostgresApprovalStore;
-import org.radarcns.management.security.jwt.KeyStoreUtil;
-import org.radarcns.management.security.jwt.ManagementPortalJwtTokenStore;
 import org.radarcns.management.security.jwt.ManagementPortalJwtAccessTokenConverter;
+import org.radarcns.management.security.jwt.ManagementPortalJwtTokenStore;
 import org.radarcns.management.security.jwt.RadarKeyStoreKeyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +22,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
@@ -209,28 +206,10 @@ public class OAuth2ServerConfiguration {
 
         @Bean
         public ManagementPortalJwtAccessTokenConverter accessTokenConverter() {
-            ManagementPortalJwtAccessTokenConverter
-                    converter = new ManagementPortalJwtAccessTokenConverter();
-
-            Oauth oauthConfig = managementPortalProperties.getOauth();
-
-            // set the keypair for signing
-            RadarKeyStoreKeyFactory keyFactory = new RadarKeyStoreKeyFactory(
-                    Arrays.asList(
-                            new ClassPathResource("/config/keystore.p12"),
-                            new ClassPathResource("/config/keystore.jks")),
-                    oauthConfig.getKeyStorePassword().toCharArray());
-            String signKey = oauthConfig.getSigningKeyAlias();
-            logger.debug("Using JWT signing key {}", signKey);
-            KeyPair keyPair = keyFactory.getKeyPair(signKey);
-            if (keyPair == null) {
-                throw new IllegalArgumentException("Cannot load JWT signing key " + signKey
-                        + " from JWT key store.");
-            }
-
-            converter.setAlgorithm(KeyStoreUtil.getAlgorithmFromKeyPair(keyPair));
-
-            return converter;
+            logger.debug("loading token converter from keystore configurations");
+            RadarKeyStoreKeyFactory keyFactory =
+                    RadarKeyStoreKeyFactory.build(managementPortalProperties);
+            return new ManagementPortalJwtAccessTokenConverter(keyFactory.getAlgorithmForSigning());
         }
 
         @Bean

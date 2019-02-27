@@ -14,7 +14,7 @@ public class ManagementPortalProperties {
 
     private final Frontend frontend = new Frontend();
 
-    private final Oauth oauth = new Oauth();
+    private Oauth oauth = new Oauth();
 
     private final Common common = new Common();
 
@@ -30,6 +30,10 @@ public class ManagementPortalProperties {
 
     public ManagementPortalProperties.Oauth getOauth() {
         return oauth;
+    }
+
+    public void setOauth(ManagementPortalProperties.Oauth oauth) {
+        this.oauth = oauth;
     }
 
     public CatalogueServer getCatalogueServer() {
