@@ -38,7 +38,8 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
  */
 public class ManagementPortalJwtTokenStore implements TokenStore {
 
-    private static final Logger logger = LoggerFactory.getLogger(ManagementPortalJwtTokenStore.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(ManagementPortalJwtTokenStore.class);
 
     private final JwtAccessTokenConverter jwtAccessTokenConverter;
 

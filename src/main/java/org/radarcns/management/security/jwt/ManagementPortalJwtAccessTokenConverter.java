@@ -54,8 +54,9 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
 
     /**
      * Default constructor.
-     * Creates {@link ManagementPortalJwtAccessTokenConverter} with {@link DefaultAccessTokenConverter} as
-     * the accessTokenConverter with explicitly including grant_type claim.
+     * Creates {@link ManagementPortalJwtAccessTokenConverter} with
+     * {@link DefaultAccessTokenConverter} as the accessTokenConverter with explicitly including
+     * grant_type claim.
      */
     public ManagementPortalJwtAccessTokenConverter() {
         DefaultAccessTokenConverter accessToken = new DefaultAccessTokenConverter();
@@ -65,6 +66,7 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
 
     /**
      * Returns JwtClaimsSetVerifier.
+     *
      * @return the {@link JwtClaimsSetVerifier} used to verify the claim(s) in the JWT Claims Set
      */
     public JwtClaimsSetVerifier getJwtClaimsSetVerifier() {
@@ -73,6 +75,7 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
 
     /**
      * Sets JwtClaimsSetVerifier instance.
+     *
      * @param jwtClaimsSetVerifier the {@link JwtClaimsSetVerifier} used to verify the claim(s)
      *                             in the JWT Claims Set
      */
