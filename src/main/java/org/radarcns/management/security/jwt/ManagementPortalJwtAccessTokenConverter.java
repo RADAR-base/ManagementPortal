@@ -30,24 +30,23 @@ import org.springframework.security.oauth2.provider.token.store.JwtClaimsSetVeri
 import org.springframework.util.Assert;
 
 /**
- *  Implementation of {@link JwtAccessTokenConverter} for the RADAR-base ManagementPortal platform.
+ * Implementation of {@link JwtAccessTokenConverter} for the RADAR-base ManagementPortal platform.
  *
  * <p>This class can accept an EC keypair as well as an RSA keypair for signing. EC signatures
  * are significantly smaller than RSA signatures.</p>
  */
-public class RadarJwtAccessTokenConverter implements JwtAccessTokenConverter {
+public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenConverter {
 
     public static final String RES_MANAGEMENT_PORTAL = "res_ManagementPortal";
 
     private final JsonParser objectMapper = JsonParserFactory.create();
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(RadarJwtAccessTokenConverter.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(ManagementPortalJwtAccessTokenConverter.class);
 
-    private AccessTokenConverter tokenConverter;
+    private final AccessTokenConverter tokenConverter;
 
-    private JwtClaimsSetVerifier
-            jwtClaimsSetVerifier = new NoOpJwtClaimsSetVerifier();
+    private JwtClaimsSetVerifier jwtClaimsSetVerifier;
 
     private Algorithm algorithm;
     private JWTVerifier verifier;
@@ -55,23 +54,17 @@ public class RadarJwtAccessTokenConverter implements JwtAccessTokenConverter {
 
     /**
      * Default constructor.
-     * Creates {@link RadarJwtAccessTokenConverter} with {@link DefaultAccessTokenConverter} as
+     * Creates {@link ManagementPortalJwtAccessTokenConverter} with {@link DefaultAccessTokenConverter} as
      * the accessTokenConverter with explicitly including grant_type claim.
      */
-    public RadarJwtAccessTokenConverter() {
+    public ManagementPortalJwtAccessTokenConverter() {
         DefaultAccessTokenConverter accessToken = new DefaultAccessTokenConverter();
-        accessToken .setIncludeGrantType(true);
+        accessToken.setIncludeGrantType(true);
         this.tokenConverter = accessToken;
     }
 
     /**
-     * @return the tokenConverter in use
-     */
-    public AccessTokenConverter getAccessTokenConverter() {
-        return tokenConverter;
-    }
-
-    /**
+     * Returns JwtClaimsSetVerifier.
      * @return the {@link JwtClaimsSetVerifier} used to verify the claim(s) in the JWT Claims Set
      */
     public JwtClaimsSetVerifier getJwtClaimsSetVerifier() {
@@ -79,7 +72,9 @@ public class RadarJwtAccessTokenConverter implements JwtAccessTokenConverter {
     }
 
     /**
-     * @param jwtClaimsSetVerifier the {@link JwtClaimsSetVerifier} used to verify the claim(s) in the JWT Claims Set
+     * Sets JwtClaimsSetVerifier instance.
+     * @param jwtClaimsSetVerifier the {@link JwtClaimsSetVerifier} used to verify the claim(s)
+     *                             in the JWT Claims Set
      */
     public void setJwtClaimsSetVerifier(JwtClaimsSetVerifier jwtClaimsSetVerifier) {
         Assert.notNull(jwtClaimsSetVerifier, "jwtClaimsSetVerifier cannot be null");
@@ -113,14 +108,17 @@ public class RadarJwtAccessTokenConverter implements JwtAccessTokenConverter {
      * {@link JwtAccessTokenConverter#enhance(OAuth2AccessToken, OAuth2Authentication)}.
      * Keeping the same logic.
      *
+     * <p>
      * It mainly adds token-id for access token and access-token-id and token-id for refresh
      * token to the additional information.
+     * </p>
      *
-     * @param accessToken accessToken to enhance.
+     * @param accessToken    accessToken to enhance.
      * @param authentication current authentication of the token.
      * @return enhancedToken.
      */
-    public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
+    public OAuth2AccessToken enhance(OAuth2AccessToken accessToken,
+            OAuth2Authentication authentication) {
 
         // set additional information for access token
         Map<String, Object> additionalInfoAccessToken =
@@ -142,8 +140,8 @@ public class RadarJwtAccessTokenConverter implements JwtAccessTokenConverter {
         OAuth2RefreshToken refreshToken = accessToken.getRefreshToken();
         if (refreshToken != null) {
 
-            DefaultOAuth2AccessToken refreshTokenToEnhance = new DefaultOAuth2AccessToken
-                    (refreshToken.getValue());
+            DefaultOAuth2AccessToken refreshTokenToEnhance =
+                    new DefaultOAuth2AccessToken(refreshToken.getValue());
             // Refresh tokens do not expire unless explicitly of the right type
             refreshTokenToEnhance.setExpiration(null);
 
@@ -160,8 +158,8 @@ public class RadarJwtAccessTokenConverter implements JwtAccessTokenConverter {
             // set info of access token to refresh-token and add token-id and access-token-id for
             // reference.
 
-            Map<String, Object> refreshTokenInfo = new HashMap<>(
-                    accessToken.getAdditionalInformation());
+            Map<String, Object> refreshTokenInfo =
+                    new HashMap<>(accessToken.getAdditionalInformation());
             refreshTokenInfo.put(TOKEN_ID, refreshToken.getValue());
             refreshTokenInfo.put(ACCESS_TOKEN_ID, accessTokenId);
             refreshTokenToEnhance.setAdditionalInformation(refreshTokenInfo);
@@ -177,7 +175,7 @@ public class RadarJwtAccessTokenConverter implements JwtAccessTokenConverter {
                 encodedRefreshToken = new DefaultOAuth2RefreshToken(
                         encode(refreshTokenToEnhance, authentication));
             }
-            ((DefaultOAuth2AccessToken)accessToken).setRefreshToken(encodedRefreshToken);
+            ((DefaultOAuth2AccessToken) accessToken).setRefreshToken(encodedRefreshToken);
         }
         return accessToken;
     }
@@ -197,8 +195,7 @@ public class RadarJwtAccessTokenConverter implements JwtAccessTokenConverter {
         JWTCreator.Builder builder = JWT.create();
 
         // add the string array claims
-        Stream.of("aud", "sources", "roles", "authorities", "scope")
-                .filter(claims::containsKey)
+        Stream.of("aud", "sources", "roles", "authorities", "scope").filter(claims::containsKey)
                 .forEach(claim -> builder.withArrayClaim(claim,
                         ((Collection<String>) claims.get(claim)).toArray(new String[0])));
 
@@ -208,10 +205,8 @@ public class RadarJwtAccessTokenConverter implements JwtAccessTokenConverter {
                 .forEach(claim -> builder.withClaim(claim, (String) claims.get(claim)));
 
         // add the date claims, they are in seconds since epoch, we need milliseconds
-        Stream.of("exp", "iat")
-                .filter(claims::containsKey)
-                .forEach(claim -> builder.withClaim(claim, new Date(
-                        ((Long) claims.get(claim)) * 1000)));
+        Stream.of("exp", "iat").filter(claims::containsKey).forEach(
+                claim -> builder.withClaim(claim, new Date(((Long) claims.get(claim)) * 1000)));
 
         return builder.sign(algorithm);
     }
@@ -227,7 +222,11 @@ public class RadarJwtAccessTokenConverter implements JwtAccessTokenConverter {
                 Integer intValue = (Integer) claims.get(EXP);
                 claims.put(EXP, new Long(intValue));
             }
-            this.getJwtClaimsSetVerifier().verify(claims);
+
+            if (this.getJwtClaimsSetVerifier() != null) {
+                this.getJwtClaimsSetVerifier().verify(claims);
+            }
+
             return claims;
         } catch (Exception e) {
             logger.debug("Cannot convert access token ", e);
@@ -235,18 +234,4 @@ public class RadarJwtAccessTokenConverter implements JwtAccessTokenConverter {
         }
     }
 
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-
-    }
-
-
-
-
-    private class NoOpJwtClaimsSetVerifier implements JwtClaimsSetVerifier {
-        @Override
-        public void verify(Map<String, Object> claims) throws InvalidTokenException {
-        }
-    }
 }

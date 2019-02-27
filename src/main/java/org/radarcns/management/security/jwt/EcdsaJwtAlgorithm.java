@@ -6,10 +6,10 @@ import java.security.KeyPair;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 
-public class EcdsaJwtAlgorithm extends AssymmetricJwtAlgorithm {
+public class EcdsaJwtAlgorithm extends AsymmetricalJwtAlgorithm {
     /** ECDSA JWT algorithm. */
     public EcdsaJwtAlgorithm(KeyPair keyPair) {
-        super(keyPair, "SHA256withECDSA");
+        super(keyPair);
         if (!(keyPair.getPrivate() instanceof ECPrivateKey)) {
             throw new IllegalArgumentException(
                     "Cannot make EcdsaJwtAlgorithm with " + keyPair.getPrivate().getClass());

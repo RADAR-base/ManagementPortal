@@ -1,6 +1,6 @@
 package org.radarcns.management.config;
 
-import static org.radarcns.management.security.jwt.RadarJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL;
+import static org.radarcns.management.security.jwt.ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL;
 
 import java.net.URI;
 import java.util.Arrays;

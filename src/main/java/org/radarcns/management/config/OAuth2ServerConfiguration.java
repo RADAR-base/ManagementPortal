@@ -12,8 +12,8 @@ import org.radarcns.management.config.ManagementPortalProperties.Oauth;
 import org.radarcns.management.security.ClaimsTokenEnhancer;
 import org.radarcns.management.security.PostgresApprovalStore;
 import org.radarcns.management.security.jwt.KeyStoreUtil;
-import org.radarcns.management.security.jwt.RadarBaseJwtTokenStore;
-import org.radarcns.management.security.jwt.RadarJwtAccessTokenConverter;
+import org.radarcns.management.security.jwt.ManagementPortalJwtTokenStore;
+import org.radarcns.management.security.jwt.ManagementPortalJwtAccessTokenConverter;
 import org.radarcns.management.security.jwt.RadarKeyStoreKeyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -204,12 +204,13 @@ public class OAuth2ServerConfiguration {
 
         @Bean
         public TokenStore tokenStore() {
-            return new RadarBaseJwtTokenStore(accessTokenConverter(), approvalStore());
+            return new ManagementPortalJwtTokenStore(accessTokenConverter(), approvalStore());
         }
 
         @Bean
-        public RadarJwtAccessTokenConverter accessTokenConverter() {
-            RadarJwtAccessTokenConverter converter = new RadarJwtAccessTokenConverter();
+        public ManagementPortalJwtAccessTokenConverter accessTokenConverter() {
+            ManagementPortalJwtAccessTokenConverter
+                    converter = new ManagementPortalJwtAccessTokenConverter();
 
             Oauth oauthConfig = managementPortalProperties.getOauth();
 
@@ -228,41 +229,6 @@ public class OAuth2ServerConfiguration {
             }
 
             converter.setAlgorithm(KeyStoreUtil.getAlgorithmFromKeyPair(keyPair));
-
-//            // if a list of checking keys is defined, use that for checking
-//            List<String> checkingAliases = oauthConfig.getCheckingKeyAliases();
-//
-//            if (checkingAliases == null || checkingAliases.isEmpty()) {
-//                logger.debug("Using JWT verification key {}", signKey);
-//            } else {
-//                List<SignatureVerifier> verifiers = Stream
-//                        .concat(checkingAliases.stream(), Stream.of(signKey))
-//                        .distinct()
-//                        .map(alias -> {
-//                            KeyPair pair = keyFactory.getKeyPair(alias);
-//                            JwtAlgorithm alg = RadarJwtAccessTokenConverter.getJwtAlgorithm(pair);
-//                            if (alg != null) {
-//                                logger.debug("Using JWT verification key {}", alias);
-//                            }
-//                            return alg;
-//                        })
-//                        .filter(Objects::nonNull)
-//                        .map(JwtAlgorithm::getVerifier)
-//                        .collect(Collectors.toList());
-//
-//                if (verifiers.size() > 1) {
-//                    // get all public keys for verifying and set the converter's verifier
-//                    // to a MultiVerifier
-//                    converter.setVerifier(new MultiVerifier(verifiers));
-//                } else if (verifiers.size() == 1) {
-//                    // only has one verifier, use it directly
-//                    converter.setVerifier(verifiers.get(0));
-//                } else {
-//                    // else, use the signing key verifier.
-//                    logger.warn("Using JWT signing key {} for verification: none of the provided"
-//                            + " verification keys were valid.", signKey);
-//                }
-//            }
 
             return converter;
         }

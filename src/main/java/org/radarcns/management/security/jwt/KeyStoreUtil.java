@@ -15,6 +15,11 @@ public class KeyStoreUtil {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(KeyStoreUtil.class);
 
+    /**
+     * Returns extracted {@link Algorithm} from the KeyPair.
+     * @param keyPair to find algorithm.
+     * @return extracted algorithm.
+     */
     public static Algorithm getAlgorithmFromKeyPair(KeyPair keyPair) {
         JwtAlgorithm alg = getJwtAlgorithm(keyPair);
         if (alg == null) {
@@ -29,8 +34,8 @@ public class KeyStoreUtil {
      * @param keyPair key pair for signing/verifying.
      * @return algorithm or {@code null} if the key type is unknown.
      */
-    public static @Nullable
-    JwtAlgorithm getJwtAlgorithm(@Nullable KeyPair keyPair) {
+    public static @Nullable JwtAlgorithm getJwtAlgorithm(@Nullable KeyPair keyPair) {
+
         if (keyPair == null) {
             return null;
         }

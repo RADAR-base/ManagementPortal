@@ -23,6 +23,7 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
  * Adapted version of {@link org.springframework.security.oauth2.provider.token.store.JwtTokenStore}
  * which uses interface {@link JwtAccessTokenConverter} instead of tied instance.
  *
+ * <p>
  * A {@link TokenStore} implementation that just reads data from the tokens themselves.
  * Not really a store since it never persists anything, and methods like
  * {@link #getAccessToken(OAuth2Authentication)} always return null. But
@@ -30,41 +31,41 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
  * from authentications. Use this wherever a{@link TokenStore} is needed,
  * but remember to use the same {@link JwtAccessTokenConverter}
  * instance (or one with the same verifier) as was used when the tokens were minted.
+ * </p>
  *
  * @author Dave Syer
- *
  * @author nivethika
  */
-public class RadarBaseJwtTokenStore implements TokenStore {
+public class ManagementPortalJwtTokenStore implements TokenStore {
 
-    private static final Logger logger = LoggerFactory.getLogger(RadarBaseJwtTokenStore.class);
+    private static final Logger logger = LoggerFactory.getLogger(ManagementPortalJwtTokenStore.class);
 
-    private JwtAccessTokenConverter jwtAccessTokenConverter;
+    private final JwtAccessTokenConverter jwtAccessTokenConverter;
 
     private ApprovalStore approvalStore;
 
     /**
-     * Create a RadarBaseJwtTokenStore with this token converter
+     * Create a ManagementPortalJwtTokenStore with this token converter
      * (should be shared with the DefaultTokenServices if used).
      *
-     * @param jwtAccessTokenConverter
+     * @param jwtAccessTokenConverter JwtAccessTokenConverter used in the application.
      */
-    public RadarBaseJwtTokenStore(JwtAccessTokenConverter jwtAccessTokenConverter) {
+    public ManagementPortalJwtTokenStore(JwtAccessTokenConverter jwtAccessTokenConverter) {
         this.jwtAccessTokenConverter = jwtAccessTokenConverter;
     }
 
     /**
-     * Create a RadarBaseJwtTokenStore with this token converter
+     * Create a ManagementPortalJwtTokenStore with this token converter
      * (should be shared with the DefaultTokenServices if used).
      *
-     * @param jwtAccessTokenConverter
+     * @param jwtAccessTokenConverter JwtAccessTokenConverter used in the application.
+     * @param approvalStore           TokenApprovalStore used in the application.
      */
-    public RadarBaseJwtTokenStore(JwtAccessTokenConverter jwtAccessTokenConverter,
+    public ManagementPortalJwtTokenStore(JwtAccessTokenConverter jwtAccessTokenConverter,
             ApprovalStore approvalStore) {
         this.jwtAccessTokenConverter = jwtAccessTokenConverter;
         this.approvalStore = approvalStore;
     }
-
 
     /**
      * ApprovalStore to be used to validate and restrict refresh tokens.
@@ -88,7 +89,7 @@ public class RadarBaseJwtTokenStore implements TokenStore {
 
     @Override
     public void storeAccessToken(OAuth2AccessToken token, OAuth2Authentication authentication) {
-
+        // this is not really a store where we persist
     }
 
     @Override
@@ -104,18 +105,19 @@ public class RadarBaseJwtTokenStore implements TokenStore {
     }
 
     private OAuth2AccessToken convertAccessToken(String tokenValue) {
-        return jwtAccessTokenConverter.extractAccessToken(tokenValue, jwtAccessTokenConverter.decode(tokenValue));
+        return jwtAccessTokenConverter
+                .extractAccessToken(tokenValue, jwtAccessTokenConverter.decode(tokenValue));
     }
 
     @Override
     public void removeAccessToken(OAuth2AccessToken token) {
-
+        // this is not really store where we persist
     }
 
     @Override
     public void storeRefreshToken(OAuth2RefreshToken refreshToken,
             OAuth2Authentication authentication) {
-
+        // this is not really store where we persist
     }
 
     @Override
@@ -128,7 +130,7 @@ public class RadarBaseJwtTokenStore implements TokenStore {
                 String userId = authentication.getUserAuthentication().getName();
                 String clientId = authentication.getOAuth2Request().getClientId();
                 Collection<Approval> approvals = approvalStore.getApprovals(userId, clientId);
-                Collection<String> approvedScopes = new HashSet<String>();
+                Collection<String> approvedScopes = new HashSet<>();
                 for (Approval approval : approvals) {
                     if (approval.isApproved()) {
                         approvedScopes.add(approval.getScope());
@@ -146,7 +148,7 @@ public class RadarBaseJwtTokenStore implements TokenStore {
         if (!jwtAccessTokenConverter.isRefreshToken(encodedRefreshToken)) {
             throw new InvalidTokenException("Encoded token is not a refresh token");
         }
-        if (encodedRefreshToken.getExpiration()!=null) {
+        if (encodedRefreshToken.getExpiration() != null) {
             return new DefaultExpiringOAuth2RefreshToken(encodedRefreshToken.getValue(),
                     encodedRefreshToken.getExpiration());
         }
@@ -169,9 +171,10 @@ public class RadarBaseJwtTokenStore implements TokenStore {
             String clientId = auth.getOAuth2Request().getClientId();
             Authentication user = auth.getUserAuthentication();
             if (user != null) {
-                Collection<Approval> approvals = new ArrayList<Approval>();
+                Collection<Approval> approvals = new ArrayList<>();
                 for (String scope : auth.getOAuth2Request().getScope()) {
-                    approvals.add(new Approval(user.getName(), clientId, scope, new Date(), Approval.ApprovalStatus.APPROVED));
+                    approvals.add(new Approval(user.getName(), clientId, scope, new Date(),
+                            Approval.ApprovalStatus.APPROVED));
                 }
                 approvalStore.revokeApprovals(approvals);
             }
@@ -180,16 +183,19 @@ public class RadarBaseJwtTokenStore implements TokenStore {
 
     @Override
     public void removeAccessTokenUsingRefreshToken(OAuth2RefreshToken refreshToken) {
-
+        // this is not really store where we persist
     }
 
     @Override
     public OAuth2AccessToken getAccessToken(OAuth2Authentication authentication) {
+        // We don't want to accidentally issue a token, and we have no way to reconstruct
+        // the refresh token
         return null;
     }
 
     @Override
-    public Collection<OAuth2AccessToken> findTokensByClientIdAndUserName(String clientId, String userName) {
+    public Collection<OAuth2AccessToken> findTokensByClientIdAndUserName(String clientId,
+            String userName) {
         return Collections.emptySet();
     }
 
