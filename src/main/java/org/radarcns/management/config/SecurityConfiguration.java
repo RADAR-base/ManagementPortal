@@ -7,7 +7,7 @@ import javax.servlet.Filter;
 import io.github.jhipster.security.AjaxLogoutSuccessHandler;
 import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
 import org.radarcns.management.security.JwtAuthenticationFilter;
-import org.radarcns.management.security.jwt.RadarKeyStoreKeyFactory;
+import org.radarcns.management.security.jwt.ManagementPortalOauthKeyStoreHandler;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -144,8 +144,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
      * @return the JwtAuthenticationFilter
      */
     public Filter jwtAuthenticationFilter() {
-        RadarKeyStoreKeyFactory keyStoreKeyFactory =
-                RadarKeyStoreKeyFactory.build(managementPortalProperties);
+        ManagementPortalOauthKeyStoreHandler keyStoreKeyFactory =
+                ManagementPortalOauthKeyStoreHandler.build(managementPortalProperties);
         return new JwtAuthenticationFilter(keyStoreKeyFactory.getTokenValidator());
     }
 }

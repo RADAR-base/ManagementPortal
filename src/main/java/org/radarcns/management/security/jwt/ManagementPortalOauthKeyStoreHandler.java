@@ -44,9 +44,10 @@ import org.springframework.stereotype.Component;
  * this class does not assume a specific key type, while the Spring factory assumes RSA keys.
  */
 @Component
-public class RadarKeyStoreKeyFactory {
+public class ManagementPortalOauthKeyStoreHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(RadarKeyStoreKeyFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(
+            ManagementPortalOauthKeyStoreHandler.class);
 
     private final char[] password;
 
@@ -70,7 +71,8 @@ public class RadarKeyStoreKeyFactory {
      * @throws IllegalArgumentException if none of the provided resources can be used to load a
      *                                  keystore.
      */
-    private RadarKeyStoreKeyFactory(ManagementPortalProperties managementPortalProperties) {
+    private ManagementPortalOauthKeyStoreHandler(
+            ManagementPortalProperties managementPortalProperties) {
 
         validateOauthConfig(managementPortalProperties);
 
@@ -83,13 +85,13 @@ public class RadarKeyStoreKeyFactory {
     }
 
     /**
-     * Creates a {@link RadarKeyStoreKeyFactory} instance from provided configs.
+     * Creates a {@link ManagementPortalOauthKeyStoreHandler} instance from provided configs.
      * @param managementPortalProperties configs from management portal.
-     * @return instance of {@link RadarKeyStoreKeyFactory}.
+     * @return instance of {@link ManagementPortalOauthKeyStoreHandler}.
      */
-    public static RadarKeyStoreKeyFactory build(
+    public static ManagementPortalOauthKeyStoreHandler build(
             ManagementPortalProperties managementPortalProperties) {
-        return new RadarKeyStoreKeyFactory(managementPortalProperties);
+        return new ManagementPortalOauthKeyStoreHandler(managementPortalProperties);
     }
 
     private static void validateOauthConfig(ManagementPortalProperties managementPortalProperties) {
@@ -151,7 +153,7 @@ public class RadarKeyStoreKeyFactory {
     private List<String> loadVerifyingPublicKeys() {
         return this.verifierPublicKeyAliasList.stream()
                 .map(this::getKeyPair)
-                .map(RadarKeyStoreKeyFactory::getJwtAlgorithm)
+                .map(ManagementPortalOauthKeyStoreHandler::getJwtAlgorithm)
                 .filter(Objects::nonNull)
                 .map(JwtAlgorithm::getVerifierKeyEncodedString)
                 .collect(Collectors.toList());

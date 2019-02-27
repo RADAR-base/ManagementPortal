@@ -12,7 +12,7 @@ import org.radarcns.management.security.ClaimsTokenEnhancer;
 import org.radarcns.management.security.PostgresApprovalStore;
 import org.radarcns.management.security.jwt.ManagementPortalJwtAccessTokenConverter;
 import org.radarcns.management.security.jwt.ManagementPortalJwtTokenStore;
-import org.radarcns.management.security.jwt.RadarKeyStoreKeyFactory;
+import org.radarcns.management.security.jwt.ManagementPortalOauthKeyStoreHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -207,8 +207,8 @@ public class OAuth2ServerConfiguration {
         @Bean
         public ManagementPortalJwtAccessTokenConverter accessTokenConverter() {
             logger.debug("loading token converter from keystore configurations");
-            RadarKeyStoreKeyFactory keyFactory =
-                    RadarKeyStoreKeyFactory.build(managementPortalProperties);
+            ManagementPortalOauthKeyStoreHandler keyFactory =
+                    ManagementPortalOauthKeyStoreHandler.build(managementPortalProperties);
             return new ManagementPortalJwtAccessTokenConverter(keyFactory.getAlgorithmForSigning());
         }
 

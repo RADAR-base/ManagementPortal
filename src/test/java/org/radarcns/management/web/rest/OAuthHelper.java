@@ -1,14 +1,5 @@
 package org.radarcns.management.web.rest;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import org.radarcns.auth.authorization.Permission;
-import org.radarcns.management.config.ManagementPortalProperties;
-import org.radarcns.management.security.JwtAuthenticationFilter;
-import org.radarcns.management.security.jwt.RadarKeyStoreKeyFactory;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
-
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
@@ -20,6 +11,15 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.stream.Collectors;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import org.radarcns.auth.authorization.Permission;
+import org.radarcns.management.config.ManagementPortalProperties;
+import org.radarcns.management.security.JwtAuthenticationFilter;
+import org.radarcns.management.security.jwt.ManagementPortalOauthKeyStoreHandler;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 /**
  * Created by dverbeec on 29/06/2017.
@@ -116,7 +116,8 @@ public class OAuthHelper {
         ManagementPortalProperties properties = new ManagementPortalProperties();
         properties.setOauth(oauthConfig);
 
-        RadarKeyStoreKeyFactory keyStoreKeyFactory = RadarKeyStoreKeyFactory.build(properties);
+        ManagementPortalOauthKeyStoreHandler keyStoreKeyFactory =
+                ManagementPortalOauthKeyStoreHandler.build(properties);
         return new JwtAuthenticationFilter(keyStoreKeyFactory.getTokenValidator());
     }
 
