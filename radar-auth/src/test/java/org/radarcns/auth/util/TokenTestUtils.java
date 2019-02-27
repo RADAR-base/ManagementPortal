@@ -4,7 +4,6 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.interfaces.RSAPrivateKey;
@@ -104,12 +103,7 @@ public class TokenTestUtils {
     }
 
     private static void initIncorrectAlgorithmToken(Instant exp, Instant iat) {
-        Algorithm psk = null;
-        try {
-            psk = Algorithm.HMAC256("super-secret-stuff");
-        } catch (UnsupportedEncodingException ex) {
-            ex.printStackTrace();
-        }
+        Algorithm psk = Algorithm.HMAC256("super-secret-stuff");
         // token signed with a pre-shared key
         INCORRECT_ALGORITHM_TOKEN = JWT.create()
             .withIssuer(ISS)

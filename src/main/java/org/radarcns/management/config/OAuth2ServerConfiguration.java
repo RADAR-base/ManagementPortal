@@ -2,23 +2,17 @@ package org.radarcns.management.config;
 
 import static org.springframework.orm.jpa.vendor.Database.POSTGRESQL;
 
+import java.util.Arrays;
+import javax.sql.DataSource;
+
 import io.github.jhipster.security.AjaxLogoutSuccessHandler;
 import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
-import java.security.KeyPair;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.sql.DataSource;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
-import org.radarcns.management.config.ManagementPortalProperties.Oauth;
 import org.radarcns.management.security.ClaimsTokenEnhancer;
 import org.radarcns.management.security.PostgresApprovalStore;
-import org.radarcns.management.security.jwt.JwtAlgorithm;
-import org.radarcns.management.security.jwt.MultiVerifier;
-import org.radarcns.management.security.jwt.RadarJwtAccessTokenConverter;
-import org.radarcns.management.security.jwt.RadarKeyStoreKeyFactory;
+import org.radarcns.management.security.jwt.ManagementPortalJwtAccessTokenConverter;
+import org.radarcns.management.security.jwt.ManagementPortalJwtTokenStore;
+import org.radarcns.management.security.jwt.ManagementPortalOauthKeyStoreHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +22,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
@@ -38,7 +31,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.jwt.crypto.sign.SignatureVerifier;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -56,8 +48,6 @@ import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
-import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 
@@ -211,66 +201,15 @@ public class OAuth2ServerConfiguration {
 
         @Bean
         public TokenStore tokenStore() {
-            return new JwtTokenStore(accessTokenConverter());
+            return new ManagementPortalJwtTokenStore(accessTokenConverter(), approvalStore());
         }
 
         @Bean
-        public JwtAccessTokenConverter accessTokenConverter() {
-            RadarJwtAccessTokenConverter converter = new RadarJwtAccessTokenConverter();
-
-            Oauth oauthConfig = managementPortalProperties.getOauth();
-
-            // set the keypair for signing
-            RadarKeyStoreKeyFactory keyFactory = new RadarKeyStoreKeyFactory(
-                    Arrays.asList(
-                            new ClassPathResource("/config/keystore.p12"),
-                            new ClassPathResource("/config/keystore.jks")),
-                    oauthConfig.getKeyStorePassword().toCharArray());
-            String signKey = oauthConfig.getSigningKeyAlias();
-            logger.debug("Using JWT signing key {}", signKey);
-            KeyPair keyPair = keyFactory.getKeyPair(signKey);
-            if (keyPair == null) {
-                throw new IllegalArgumentException("Cannot load JWT signing key " + signKey
-                        + " from JWT key store.");
-            }
-            converter.setKeyPair(keyPair);
-
-            // if a list of checking keys is defined, use that for checking
-            List<String> checkingAliases = oauthConfig.getCheckingKeyAliases();
-
-            if (checkingAliases == null || checkingAliases.isEmpty()) {
-                logger.debug("Using JWT verification key {}", signKey);
-            } else {
-                List<SignatureVerifier> verifiers = Stream
-                        .concat(checkingAliases.stream(), Stream.of(signKey))
-                        .distinct()
-                        .map(alias -> {
-                            KeyPair pair = keyFactory.getKeyPair(alias);
-                            JwtAlgorithm alg = RadarJwtAccessTokenConverter.getJwtAlgorithm(pair);
-                            if (alg != null) {
-                                logger.debug("Using JWT verification key {}", alias);
-                            }
-                            return alg;
-                        })
-                        .filter(Objects::nonNull)
-                        .map(JwtAlgorithm::getVerifier)
-                        .collect(Collectors.toList());
-
-                if (verifiers.size() > 1) {
-                    // get all public keys for verifying and set the converter's verifier
-                    // to a MultiVerifier
-                    converter.setVerifier(new MultiVerifier(verifiers));
-                } else if (verifiers.size() == 1) {
-                    // only has one verifier, use it directly
-                    converter.setVerifier(verifiers.get(0));
-                } else {
-                    // else, use the signing key verifier.
-                    logger.warn("Using JWT signing key {} for verification: none of the provided"
-                            + " verification keys were valid.", signKey);
-                }
-            }
-
-            return converter;
+        public ManagementPortalJwtAccessTokenConverter accessTokenConverter() {
+            logger.debug("loading token converter from keystore configurations");
+            ManagementPortalOauthKeyStoreHandler keyFactory =
+                    ManagementPortalOauthKeyStoreHandler.build(managementPortalProperties);
+            return new ManagementPortalJwtAccessTokenConverter(keyFactory.getAlgorithmForSigning());
         }
 
         @Bean

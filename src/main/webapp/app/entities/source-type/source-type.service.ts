@@ -34,7 +34,7 @@ export class SourceTypeService {
 
     query(req?: any): Observable<Response> {
         let options = null;
-        if(req) {
+        if (req) {
             options = this.createRequestOption(req);
         }
         return this.http.get(this.resourceUrl, options);
