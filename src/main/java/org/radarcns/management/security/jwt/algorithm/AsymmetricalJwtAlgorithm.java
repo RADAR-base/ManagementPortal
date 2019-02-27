@@ -1,4 +1,4 @@
-package org.radarcns.management.security.jwt;
+package org.radarcns.management.security.jwt.algorithm;
 
 import java.security.KeyPair;
 

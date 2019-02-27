@@ -100,6 +100,7 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
         return tokenConverter.extractAuthentication(map);
     }
 
+    @Override
     public void setAlgorithm(Algorithm algorithm) {
         this.algorithm = algorithm;
         verifier = JWT.require(algorithm).build();
@@ -120,6 +121,7 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
      * @param authentication current authentication of the token.
      * @return enhancedToken.
      */
+    @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken,
             OAuth2Authentication authentication) {
 

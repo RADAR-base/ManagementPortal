@@ -1,6 +1,7 @@
-package org.radarcns.management.security.jwt;
+package org.radarcns.management.security.jwt.algorithm;
 
 import com.auth0.jwt.algorithms.Algorithm;
+
 import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;

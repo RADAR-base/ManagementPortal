@@ -2,6 +2,7 @@ package org.radarcns.management.security.jwt;
 
 import java.util.Map;
 
+import com.auth0.jwt.algorithms.Algorithm;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
@@ -43,5 +44,11 @@ public interface JwtAccessTokenConverter extends TokenEnhancer, AccessTokenConve
      * refresh token.
      */
     boolean isRefreshToken(OAuth2AccessToken token);
+
+    /**
+     * Algorithm to sign and verify the token.
+     * @param algorithm to sign the JWT token
+     */
+    void setAlgorithm(Algorithm algorithm);
 
 }

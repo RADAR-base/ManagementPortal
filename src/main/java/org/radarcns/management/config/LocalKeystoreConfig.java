@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.radarcns.auth.config.ServerConfig;
-import org.radarcns.management.security.jwt.JwtAlgorithm;
+import org.radarcns.management.security.jwt.algorithm.JwtAlgorithm;
 import org.radarcns.management.security.jwt.KeyStoreUtil;
 import org.radarcns.management.security.jwt.RadarKeyStoreKeyFactory;
 import org.springframework.core.io.ClassPathResource;

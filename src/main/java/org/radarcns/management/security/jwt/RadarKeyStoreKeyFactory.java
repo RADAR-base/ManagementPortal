@@ -48,7 +48,7 @@ public class RadarKeyStoreKeyFactory {
     private @Nonnull KeyStore loadStore(List<Resource> resources) {
         for (Resource resource : resources) {
             if (!resource.exists()) {
-                logger.trace("Ignoring non-existant JWT key store {}", resource);
+                logger.trace("JWT key store {} does not exist. Ignoring this resource", resource);
                 continue;
             }
             try {

@@ -8,6 +8,9 @@ import java.security.interfaces.RSAPrivateKey;
 import javax.annotation.Nullable;
 
 import com.auth0.jwt.algorithms.Algorithm;
+import org.radarcns.management.security.jwt.algorithm.EcdsaJwtAlgorithm;
+import org.radarcns.management.security.jwt.algorithm.JwtAlgorithm;
+import org.radarcns.management.security.jwt.algorithm.RsaJwtAlgorithm;
 import org.slf4j.LoggerFactory;
 
 
