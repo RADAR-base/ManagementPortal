@@ -10,6 +10,7 @@ import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission
 import static org.radarcns.management.security.SecurityUtils.getJWT;
 import static org.radarcns.management.service.OAuthClientService.checkProtected;
 import static org.radarcns.management.web.rest.errors.EntityName.OAUTH_CLIENT;
+import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_OAUTH_CLIENT_ALREADY_EXISTS;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -31,6 +32,7 @@ import org.radarcns.management.service.dto.ClientPairInfoDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.ClientDetailsMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
+import org.radarcns.management.web.rest.errors.ConflictException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,6 +174,10 @@ public class OAuthClientsResource {
     public ResponseEntity<ClientDetailsDTO> createOAuthClient(@Valid @RequestBody ClientDetailsDTO
             clientDetailsDto) throws URISyntaxException, NotAuthorizedException {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_CREATE);
+        if (oAuthClientService.findOneByClientId(clientDetailsDto.getClientId()) != null) {
+            throw new ConflictException("A Client already exists with client-id " +
+                    clientDetailsDto.getClientId(), OAUTH_CLIENT, ERR_OAUTH_CLIENT_ALREADY_EXISTS);
+        }
         ClientDetails created = oAuthClientService.createClientDetail(clientDetailsDto);
         return ResponseEntity.created(ResourceUriService.getUri(clientDetailsDto))
                 .headers(HeaderUtil.createEntityCreationAlert(OAUTH_CLIENT, created.getClientId()))
