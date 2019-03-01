@@ -175,8 +175,9 @@ public class OAuthClientsResource {
             clientDetailsDto) throws URISyntaxException, NotAuthorizedException {
         checkPermission(getJWT(servletRequest), OAUTHCLIENTS_CREATE);
         if (oAuthClientService.findOneByClientId(clientDetailsDto.getClientId()) != null) {
-            throw new ConflictException("A Client already exists with client-id " +
-                    clientDetailsDto.getClientId(), OAUTH_CLIENT, ERR_OAUTH_CLIENT_ALREADY_EXISTS);
+            throw new ConflictException(
+                    "A Client already exists with client-id " + clientDetailsDto.getClientId(),
+                    OAUTH_CLIENT, ERR_OAUTH_CLIENT_ALREADY_EXISTS);
         }
         ClientDetails created = oAuthClientService.createClientDetail(clientDetailsDto);
         return ResponseEntity.created(ResourceUriService.getUri(clientDetailsDto))
