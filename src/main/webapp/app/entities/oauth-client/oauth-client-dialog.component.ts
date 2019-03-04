@@ -23,6 +23,7 @@ export class OAuthClientDialogComponent implements OnInit {
     resourcesList: string;
     autoApproveScopeList: string;
     dynamicRegistration: boolean;
+    emptySecret: boolean;
     dynamicRegistrationKey: string;
     newClient: boolean;
     protectedClient: boolean;
@@ -83,6 +84,11 @@ export class OAuthClientDialogComponent implements OnInit {
         } else {
             delete this.client.additionalInformation[this.dynamicRegistrationKey];
         }
+
+        if (this.emptySecret) {
+            this.client.clientSecret = '';
+        }
+
         if (!this.newClient) {
             this.oauthClientSerivce.update(this.client)
             .subscribe((res: OAuthClient) =>
