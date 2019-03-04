@@ -108,7 +108,6 @@ public class SourceResourceIntTest {
         ReflectionTestUtils.setField(sourceResource, "servletRequest", servletRequest);
         ReflectionTestUtils.setField(sourceResource, "sourceService", sourceService);
         ReflectionTestUtils.setField(sourceResource, "sourceRepository", sourceRepository);
-        ReflectionTestUtils.setField(sourceResource, "projectRepository", projectRepository);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());

@@ -29,6 +29,8 @@ public class SourceDTO implements Serializable {
     @NotNull
     private SourceTypeDTO sourceType;
 
+    private String subjectLogin;
+
     private MinimalProjectDetailsDTO project;
 
     private Map<String, String> attributes;
@@ -97,6 +99,14 @@ public class SourceDTO implements Serializable {
         this.expectedSourceName = expectedSourceName;
     }
 
+    public String getSubjectLogin() {
+        return subjectLogin;
+    }
+
+    public void setSubjectLogin(String subjectLogin) {
+        this.subjectLogin = subjectLogin;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -105,16 +115,23 @@ public class SourceDTO implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        SourceDTO sourceDto = (SourceDTO) o;
-
-        return Objects.equals(sourceId, sourceDto.sourceId)
-                && Objects.equals(sourceName, sourceDto.sourceName);
+        SourceDTO source = (SourceDTO) o;
+        return Objects.equals(id, source.id)
+                && Objects.equals(sourceId, source.sourceId)
+                && Objects.equals(sourceName, source.sourceName)
+                && Objects.equals(expectedSourceName, source.expectedSourceName)
+                && Objects.equals(assigned, source.assigned)
+                && Objects.equals(sourceType, source.sourceType)
+                && Objects.equals(subjectLogin, source.subjectLogin)
+                && Objects.equals(project, source.project)
+                && Objects.equals(attributes, source.attributes);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(sourceId, sourceName);
+
+        return Objects.hash(id, sourceId, sourceName, expectedSourceName, assigned, sourceType,
+                subjectLogin, project, attributes);
     }
 
     @Override
@@ -126,6 +143,7 @@ public class SourceDTO implements Serializable {
                 + ", assigned=" + assigned
                 + ", sourceType=" + sourceType
                 + ", project=" + project
+                + ", subjectLogin=" + subjectLogin
                 + '}';
     }
 }

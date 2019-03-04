@@ -1,7 +1,7 @@
 package org.radarcns.management.service;
 
 
-
+import static org.hibernate.id.IdentifierGenerator.ENTITY_NAME;
 import static org.radarcns.management.web.rest.errors.EntityName.SOURCE;
 
 import java.util.HashMap;
@@ -10,11 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import org.radarcns.management.domain.Source;
+import org.radarcns.management.domain.SourceType;
+import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.service.mapper.SourceMapper;
+import org.radarcns.management.service.mapper.SourceTypeMapper;
 import org.radarcns.management.web.rest.errors.InvalidRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +45,12 @@ public class SourceService {
     @Autowired
     private SourceMapper sourceMapper;
 
+    @Autowired
+    private ProjectRepository projectRepository;
+
+    @Autowired
+    private SourceTypeMapper sourceTypeMapper;
+
     /**
      * Save a Source.
      *
@@ -61,7 +71,8 @@ public class SourceService {
      */
     @Transactional(readOnly = true)
     public List<SourceDTO> findAll() {
-        return sourceRepository.findAll()
+        return sourceRepository
+                .findAll()
                 .stream()
                 .map(sourceMapper::sourceToSourceDTO)
                 .collect(Collectors.toCollection(LinkedList::new));
@@ -75,7 +86,8 @@ public class SourceService {
     @Transactional(readOnly = true)
     public Page<SourceDTO> findAll(Pageable pageable) {
         log.debug("Request to get SourceData with pagination");
-        return sourceRepository.findAll(pageable)
+        return sourceRepository
+                .findAll(pageable)
                 .map(sourceMapper::sourceToSourceDTO);
     }
 
@@ -123,9 +135,8 @@ public class SourceService {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Cannot delete source with sourceId ");
             errorParams.put("id", Long.toString(id));
-            throw new InvalidRequestException("Cannot delete a source that was once "
-                + "assigned.",  SOURCE, "error.usedSourceDeletion",
-                errorParams);
+            throw new InvalidRequestException("Cannot delete a source that was once assigned.",
+                    SOURCE, "error.usedSourceDeletion", errorParams);
         }
     }
 
@@ -163,7 +174,9 @@ public class SourceService {
      */
     public List<MinimalSourceDetailsDTO> findAllMinimalSourceDetailsByProjectAndAssigned(
             Long projectId, boolean assigned) {
-        return sourceRepository.findAllSourcesByProjectIdAndAssigned(projectId, assigned).stream()
+        return sourceRepository
+                .findAllSourcesByProjectIdAndAssigned(projectId, assigned)
+                .stream()
                 .map(sourceMapper::sourceToMinimalSourceDetailsDTO)
                 .collect(Collectors.toList());
     }
@@ -171,8 +184,9 @@ public class SourceService {
     /**
      * This method does a safe update of source assigned to a subject. It will allow updates of
      * attributes only.
+     *
      * @param sourceToUpdate source fetched from database
-     * @param attributes value to update
+     * @param attributes     value to update
      * @return Updated {@link MinimalSourceDetailsDTO} of source
      */
     public MinimalSourceDetailsDTO safeUpdateOfAttributes(Source sourceToUpdate,
@@ -186,5 +200,42 @@ public class SourceService {
         sourceToUpdate.setAttributes(updatedAttributes);
         // rest of the properties should not be updated from this request.
         return sourceMapper.sourceToMinimalSourceDetailsDTO(sourceRepository.save(sourceToUpdate));
+    }
+
+    /**
+     * Updates a source.
+     * Does not allow to transfer a source, if it is currently assigned.
+     * Does not allow to transfer if new project does not have valid source-type.
+     *
+     * @param sourceDto source details to update.
+     * @return updated source.
+     */
+    @Transactional
+    public SourceDTO updateSource(SourceDTO sourceDto) {
+        Source existingSource = sourceRepository.findOne(sourceDto.getId());
+        // if the source is being transferred to another project.
+        if (!existingSource.getProject().getId().equals(sourceDto.getProject().getId())) {
+            if (existingSource.isAssigned()) {
+                throw new InvalidRequestException("Cannot transfer an assigned source", SOURCE,
+                        "error.sourceIsAssigned");
+            }
+            // check whether source-type of the device is assigned to the new project
+            // to be transferred.
+            Optional<SourceType> sourceType = projectRepository
+                    .findSourceTypeByProjectIdAndSourceTypeId(sourceDto.getProject().getId(),
+                            existingSource.getSourceType().getId());
+            if (!sourceType.isPresent()) {
+                throw new InvalidRequestException(
+                        "Cannot transfer a source to a project which doesn't have compatible "
+                                + "source-type", ENTITY_NAME, "error.invalidTransfer");
+            }
+            // set old source-type, ensures compatibility
+            sourceDto.setSourceType(
+                    sourceTypeMapper.sourceTypeToSourceTypeDTO(existingSource.getSourceType()));
+
+        }
+
+        return save(sourceDto);
+
     }
 }
