@@ -29,12 +29,10 @@ public class UserFilter implements Specification<User> {
         if (StringUtils.isNotBlank(login)) {
             predicates
                 .add(cb.like(cb.lower(root.get("login")), "%" + login.trim().toLowerCase() + "%"));
-            query.distinct(true);
         }
         if (StringUtils.isNotBlank(email)) {
             predicates
                 .add(cb.like(cb.lower(root.get("email")), "%" + email.trim().toLowerCase() + "%"));
-            query.distinct(true);
         }
 
         if (StringUtils.isNotBlank(projectName)) {
@@ -42,17 +40,20 @@ public class UserFilter implements Specification<User> {
             Join<Role, Project> projectJoin = roleJoin.join("project");
             predicates.add(cb.like(cb.lower(projectJoin.get("projectName")),
                     "%" + projectName.trim().toLowerCase() + "%"));
-            query.distinct(true);
         }
         if (StringUtils.isNotBlank(authority)) {
             Join<User, Role> roleJoin = root.join("roles");
             Join<Role, Authority> authorityJoin = roleJoin.join("authority");
             predicates.add(cb.like(cb.lower(authorityJoin.get("name")),
                     "%" + authority.trim().toLowerCase() + "%"));
-            query.distinct(true);
         }
-        return predicates.isEmpty() ? null
-                : cb.and(predicates.toArray(new Predicate[predicates.size()]));
+
+        if (predicates.isEmpty()) {
+            return null;
+        } else {
+            query.distinct(true);
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+        }
     }
 
     public String getLogin() {
