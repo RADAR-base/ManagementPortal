@@ -52,7 +52,7 @@ public class UserFilter implements Specification<User> {
             return null;
         } else {
             query.distinct(true);
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+            return cb.and(predicates.toArray(new Predicate[0]));
         }
     }
 
