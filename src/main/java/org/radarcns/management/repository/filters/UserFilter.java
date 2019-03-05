@@ -47,8 +47,13 @@ public class UserFilter implements Specification<User> {
             predicates.add(cb.like(cb.lower(authorityJoin.get("name")),
                     "%" + authority.trim().toLowerCase() + "%"));
         }
-        return predicates.isEmpty() ? null
-                : cb.and(predicates.toArray(new Predicate[predicates.size()]));
+
+        if (predicates.isEmpty()) {
+            return null;
+        } else {
+            query.distinct(true);
+            return cb.and(predicates.toArray(new Predicate[0]));
+        }
     }
 
     public String getLogin() {
