@@ -150,7 +150,7 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
                     new DefaultOAuth2AccessToken(refreshToken.getValue());
             // Refresh tokens do not expire unless explicitly of the right type
             refreshTokenToEnhance.setExpiration(null);
-
+            refreshTokenToEnhance.setScope(accessToken.getScope());
             // set info of access token to refresh-token and add token-id and access-token-id for
             // reference.
 
@@ -158,6 +158,7 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
                     new HashMap<>(accessToken.getAdditionalInformation());
             refreshTokenInfo.put(TOKEN_ID, refreshToken.getValue());
             refreshTokenInfo.put(ACCESS_TOKEN_ID, accessTokenId);
+
             refreshTokenToEnhance.setAdditionalInformation(refreshTokenInfo);
 
             DefaultOAuth2RefreshToken encodedRefreshToken;
@@ -191,7 +192,8 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
         JWTCreator.Builder builder = JWT.create();
 
         // add the string array claims
-        Stream.of("aud", "sources", "roles", "authorities", "scope").filter(claims::containsKey)
+        Stream.of("aud", "sources", "roles", "authorities", "scope")
+                .filter(claims::containsKey)
                 .forEach(claim -> builder.withArrayClaim(claim,
                         ((Collection<String>) claims.get(claim)).toArray(new String[0])));
 
