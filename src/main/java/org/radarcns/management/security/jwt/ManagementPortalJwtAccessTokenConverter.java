@@ -151,16 +151,6 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
             // Refresh tokens do not expire unless explicitly of the right type
             refreshTokenToEnhance.setExpiration(null);
 
-            // I don't really get what is the point of doing this.
-            try {
-                Map<String, Object> claims = objectMapper
-                        .parseMap(JwtHelper.decode(refreshToken.getValue()).getClaims());
-                if (claims.containsKey(TOKEN_ID)) {
-                    refreshTokenToEnhance.setValue(claims.get(TOKEN_ID).toString());
-                }
-            } catch (IllegalArgumentException e) {
-                logger.error("Could not decode refresh token ", e);
-            }
             // set info of access token to refresh-token and add token-id and access-token-id for
             // reference.
 
