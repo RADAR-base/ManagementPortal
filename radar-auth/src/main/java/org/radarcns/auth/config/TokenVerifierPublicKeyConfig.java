@@ -19,24 +19,31 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by dverbeec on 14/06/2017.
  */
-public class YamlServerConfig implements ServerConfig {
+public class TokenVerifierPublicKeyConfig implements TokenValidatorConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(TokenVerifierPublicKeyConfig.class);
+
     public static final String LOCATION_ENV = "RADAR_IS_CONFIG_LOCATION";
-    public static final String CONFIG_FILE_NAME = "radar-is.yml";
+
+    private static final String CONFIG_FILE_NAME = "radar-is.yml";
+
     private List<URI> publicKeyEndpoints = new LinkedList<>();
+
     private String resourceName;
+
     private List<String> publicKeys = new LinkedList<>();
 
-    private static final Logger log = LoggerFactory.getLogger(YamlServerConfig.class);
 
     /**
      * Read the configuration from file. This method will first check if the environment variable
      * <code>RADAR_IS_CONFIG_LOCATION</code> is set. If not set, it will look for a file called
      * <code>radar_is.yml</code> on the classpath. The configuration will be kept in a static field,
      * so subsequent calls to this method will return the same object.
+     *
      * @return The initialized configuration object based on the contents of the configuration file
      * @throws ConfigurationException If there is any problem loading the configuration
      */
-    public static YamlServerConfig readFromFileOrClasspath() {
+    public static TokenVerifierPublicKeyConfig readFromFileOrClasspath() {
         String customLocation = System.getenv(LOCATION_ENV);
         URL configFile;
         if (customLocation != null) {
@@ -51,23 +58,23 @@ public class YamlServerConfig implements ServerConfig {
             // if config location not defined, look for it on the classpath
             log.info(LOCATION_ENV
                     + " environment variable not set, looking for it on the classpath");
-            configFile = YamlServerConfig.class.getClassLoader().getResource(CONFIG_FILE_NAME);
+            configFile = TokenVerifierPublicKeyConfig.class.getClassLoader()
+                    .getResource(CONFIG_FILE_NAME);
 
             if (configFile == null) {
-                throw new ConfigurationException("Cannot find " + CONFIG_FILE_NAME
-                        + " file in classpath. ");
+                throw new ConfigurationException(
+                        "Cannot find " + CONFIG_FILE_NAME + " file in classpath. ");
             }
         }
         log.info("Config file found at {}", configFile.getPath());
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try (InputStream stream = configFile.openStream()) {
-            return mapper.readValue(stream, YamlServerConfig.class);
+            return mapper.readValue(stream, TokenVerifierPublicKeyConfig.class);
         } catch (IOException ex) {
             throw new ConfigurationException(ex);
         }
     }
-
 
 
     public List<URI> getPublicKeyEndpoints() {
@@ -96,6 +103,7 @@ public class YamlServerConfig implements ServerConfig {
     /**
      * Set the public keys. This method will detect the public key type (EC or RSA) and parse
      * accordingly.
+     *
      * @param publicKeys The public keys to parse
      */
     public void setPublicKeys(List<String> publicKeys) {
@@ -107,10 +115,10 @@ public class YamlServerConfig implements ServerConfig {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof YamlServerConfig)) {
+        if (!(o instanceof TokenVerifierPublicKeyConfig)) {
             return false;
         }
-        YamlServerConfig that = (YamlServerConfig) o;
+        TokenVerifierPublicKeyConfig that = (TokenVerifierPublicKeyConfig) o;
         return Objects.equals(publicKeyEndpoints, that.publicKeyEndpoints)
                 && Objects.equals(resourceName, that.resourceName)
                 && Objects.equals(publicKeys, that.publicKeys);

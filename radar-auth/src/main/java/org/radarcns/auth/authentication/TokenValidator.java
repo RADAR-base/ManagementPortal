@@ -7,12 +7,12 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collection;
 import java.util.stream.Stream;
-import org.radarcns.auth.config.ServerConfig;
-import org.radarcns.auth.config.YamlServerConfig;
+import org.radarcns.auth.config.TokenValidatorConfig;
+import org.radarcns.auth.config.TokenVerifierPublicKeyConfig;
 import org.radarcns.auth.exception.TokenValidationException;
 import org.radarcns.auth.token.JwtRadarToken;
 import org.radarcns.auth.token.RadarToken;
@@ -42,8 +42,8 @@ import java.util.stream.Collectors;
  */
 public class TokenValidator {
 
-    protected static final Logger log = LoggerFactory.getLogger(TokenValidator.class);
-    private final ServerConfig config;
+    private static final Logger LOGGER = LoggerFactory.getLogger(TokenValidator.class);
+    private final TokenValidatorConfig config;
     private List<JWTVerifier> verifiers = new LinkedList<>();
     private final List<TokenValidationAlgorithm> algorithmList = Arrays.asList(
             new ECTokenValidationAlgorithm(), new RSATokenValidationAlgorithm());
@@ -62,38 +62,38 @@ public class TokenValidator {
      * identity server for checking token signatures.
      */
     public TokenValidator() {
-        this(YamlServerConfig.readFromFileOrClasspath(), FETCH_TIMEOUT_DEFAULT);
+        this(TokenVerifierPublicKeyConfig.readFromFileOrClasspath(), FETCH_TIMEOUT_DEFAULT);
     }
 
     /**
-     * Constructor where ServerConfig can be passed instead of it being loaded from file.
+     * Constructor where TokenValidatorConfig can be passed instead of it being loaded from file.
      *
      * @param config The identity server configuration
      */
-    public TokenValidator(ServerConfig config) {
+    public TokenValidator(TokenValidatorConfig config) {
         this(config, FETCH_TIMEOUT_DEFAULT);
     }
 
     /**
-     * Constructor where ServerConfig can be passed instead of it being loaded from file.
+     * Constructor where TokenValidatorConfig can be passed instead of it being loaded from file.
      *
      * @param config The identity server configuration
      * @param fetchTimeout timeout for retrying the public RSA key
      */
-    public TokenValidator(ServerConfig config, Duration fetchTimeout) {
+    private TokenValidator(TokenValidatorConfig config, Duration fetchTimeout) {
         this.fetchTimeout = fetchTimeout;
         this.config = config;
     }
 
     /**
-     * Constructor where ServerConfig can be passed instead of it being loaded from file.
+     * Constructor where TokenValidatorConfig can be passed instead of it being loaded from file.
      *
      * @param config The identity server configuration
      * @param fetchTimeout timeout for retrying the public RSA key in seconds
-     * @deprecated Prefer {@link #TokenValidator(ServerConfig, Duration)} instead.
+     * @deprecated Prefer {@link #TokenValidator(TokenValidatorConfig, Duration)} instead.
      */
     @Deprecated
-    public TokenValidator(ServerConfig config, long fetchTimeout) {
+    public TokenValidator(TokenValidatorConfig config, long fetchTimeout) {
         this(config, Duration.ofSeconds(fetchTimeout));
     }
 
@@ -118,7 +118,7 @@ public class TokenValidator {
 
                 Map<String, Claim> claims = jwt.getClaims();
 
-                log.debug("JWT claims from token {} are {}", token, claims);
+                LOGGER.debug("JWT claims from token {} are {}", token, claims);
 
                 // check for scope claim
                 if (!claims.containsKey(JwtRadarToken.SCOPE_CLAIM)) {
@@ -127,12 +127,12 @@ public class TokenValidator {
                 }
                 return new JwtRadarToken(jwt);
             } catch (SignatureVerificationException sve) {
-                log.warn("Client presented a token with an incorrect signature, fetching public "
+                LOGGER.warn("Client presented a token with an incorrect signature, fetching public "
                         + "keys again. Token: {}", token);
                 refresh();
                 return validateAccessToken(token);
             } catch (JWTVerificationException ex) {
-                log.debug("Verifier {} with implementation {} did not accept token {}",
+                LOGGER.debug("Verifier {} with implementation {} did not accept token {}",
                         verifier.toString(), verifier.getClass().toString(), token);
             }
         }
@@ -170,7 +170,7 @@ public class TokenValidator {
             // whether successful or not, do not request the key more than once per minute
             if (Instant.now().isBefore(lastFetch.plus(fetchTimeout))) {
                 // it hasn't been long enough ago to fetch the key again, we deny access
-                log.warn("Fetched public key less than {} ago, denied access.", fetchTimeout);
+                LOGGER.warn("Fetched public key less than {} ago, denied access.", fetchTimeout);
                 throw new TokenValidationException("Not fetching public key more than once every "
                     + fetchTimeout);
             }
@@ -178,7 +178,8 @@ public class TokenValidator {
         }
 
         Stream<Algorithm> endpointKeys = streamEmptyIfNull(config.getPublicKeyEndpoints())
-                .map(this::algorithmFromServerPublicKey);
+                .map(this::algorithmFromServerPublicKey)
+                .flatMap(List::stream);
 
         Stream<Algorithm> stringKeys = streamEmptyIfNull(config.getPublicKeys())
                 .map(this::algorithmFromString);
@@ -191,25 +192,23 @@ public class TokenValidator {
                 .collect(Collectors.toList());
     }
 
-    private Algorithm algorithmFromServerPublicKey(URI serverUri) throws TokenValidationException {
-        log.info("Getting the JWT public key at " + serverUri);
+    private List<Algorithm> algorithmFromServerPublicKey(URI serverUri) throws
+            TokenValidationException {
+        LOGGER.info("Getting the JWT public key at " + serverUri);
         try {
             URLConnection connection =  serverUri.toURL().openConnection();
             connection.setRequestProperty("Accept", "application/json");
             try (InputStream inputStream = connection.getInputStream()) {
                 ObjectMapper mapper = new ObjectMapper();
-                JsonNode publicKeyInfo = mapper.readTree(inputStream);
-                // We deny to trust the public key if the reported algorithm is unknown to us
-                // https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
-                String alg = publicKeyInfo.get("alg").asText();
-                String pk = publicKeyInfo.get("value").asText();
-                return algorithmList.stream()
-                        .filter(algorithm -> algorithm.getJwtAlgorithm().equals(alg)
-                                && pk.startsWith(algorithm.getKeyHeader()))
-                        .findFirst()
-                        .orElseThrow(() -> new TokenValidationException("The identity server "
-                                + "reported an unsupported signing algorithm: " + alg))
-                        .getAlgorithm(pk);
+                List<String> publicKeyInfo = mapper.readValue(inputStream,
+                        new TypeReference<List<String>>(){});
+
+                LOGGER.debug("Processing {} public keys from public-key endpoint {}", publicKeyInfo
+                        .size(), serverUri.toURL());
+                return publicKeyInfo
+                        .stream()
+                        .map(this::algorithmFromString)
+                        .collect(Collectors.toList());
             }
         } catch (Exception ex) {
             throw new TokenValidationException(ex);
@@ -217,6 +216,8 @@ public class TokenValidator {
     }
 
     private Algorithm algorithmFromString(String publicKey) {
+        // We deny to trust the public key if the reported algorithm is unknown to us
+        // https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
         return algorithmList.stream()
                 .filter(algorithm -> publicKey.startsWith(algorithm.getKeyHeader()))
                 .findFirst()

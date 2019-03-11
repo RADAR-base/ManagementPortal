@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import org.radarcns.auth.authentication.TokenValidator;
-import org.radarcns.auth.config.ServerConfig;
+import org.radarcns.auth.config.TokenValidatorConfig;
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.security.jwt.algorithm.EcdsaJwtAlgorithm;
 import org.radarcns.management.security.jwt.algorithm.JwtAlgorithm;
@@ -150,7 +150,11 @@ public class ManagementPortalOauthKeyStoreHandler {
         return publicKeyAliases;
     }
 
-    private List<String> loadVerifyingPublicKeys() {
+    /**
+     * Returns configured public keys of token verifiers.
+     * @return List of public keys for token verification.
+     */
+    public List<String> loadVerifyingPublicKeys() {
         return this.verifierPublicKeyAliasList.stream()
                 .map(this::getKeyPair)
                 .map(ManagementPortalOauthKeyStoreHandler::getJwtAlgorithm)
@@ -270,8 +274,8 @@ public class ManagementPortalOauthKeyStoreHandler {
         return new TokenValidator(getKeystoreConfigsForVerifiers());
     }
 
-    private ServerConfig getKeystoreConfigsForVerifiers() {
-        return new ServerConfig() {
+    private TokenValidatorConfig getKeystoreConfigsForVerifiers() {
+        return new TokenValidatorConfig() {
             @Override
             public List<URI> getPublicKeyEndpoints() {
                 return Collections.emptyList();

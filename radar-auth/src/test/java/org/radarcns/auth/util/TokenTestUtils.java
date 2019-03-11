@@ -63,11 +63,9 @@ public class TokenTestUtils {
     }
 
     private static void initVars(String publicKey, Algorithm algorithm) {
-        PUBLIC_KEY_BODY = "{\n"
-            + "  \"alg\" : \"SHA256withRSA\",\n"
-            + "  \"value\" : \"-----BEGIN PUBLIC KEY-----\\n" + publicKey + "\\n-----END PUBLIC "
-            + "KEY-----\"\n"
-            + "}";
+        PUBLIC_KEY_BODY = "[\n"
+            + " \"-----BEGIN PUBLIC KEY-----\\n" + publicKey + "\\n-----END PUBLIC KEY-----\"\n"
+            + "]";
 
         Instant exp = Instant.now().plusSeconds(30 * 60);
         Instant iat = Instant.now();

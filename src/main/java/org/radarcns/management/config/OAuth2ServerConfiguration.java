@@ -201,7 +201,7 @@ public class OAuth2ServerConfiguration {
 
         @Bean
         public TokenStore tokenStore() {
-            return new ManagementPortalJwtTokenStore(accessTokenConverter(), approvalStore());
+            return new ManagementPortalJwtTokenStore(accessTokenConverter());
         }
 
         @Bean
