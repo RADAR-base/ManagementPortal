@@ -9,7 +9,8 @@ plugins {
 sourceCompatibility = 1.8
 
 ext {
-    jacksonVersion = '2.9.7'
+    jacksonVersion = '2.9.8'
+    okhttpVersion = '3.13.1'
 
     moduleDescription = 'Library for authentication and authorization of JWT tokens issued by the RADAR platform'
 }
@@ -21,6 +22,7 @@ repositories {
 
 dependencies {
     api group: 'com.auth0', name: 'java-jwt', version: '3.7.0'
+    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion
 
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.26'
     implementation group: 'com.fasterxml.jackson.core' , name: 'jackson-databind' , version: jacksonVersion

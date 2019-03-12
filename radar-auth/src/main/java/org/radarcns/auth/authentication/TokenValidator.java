@@ -10,10 +10,17 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.radarcns.auth.config.TokenValidatorConfig;
 import org.radarcns.auth.config.TokenVerifierPublicKeyConfig;
 import org.radarcns.auth.exception.TokenValidationException;
+import org.radarcns.auth.security.jwk.JavaWebKey;
+import org.radarcns.auth.security.jwk.JavaWebKeySet;
 import org.radarcns.auth.token.JwtRadarToken;
 import org.radarcns.auth.token.RadarToken;
 import org.radarcns.auth.token.validation.ECTokenValidationAlgorithm;
@@ -22,9 +29,7 @@ import org.radarcns.auth.token.validation.TokenValidationAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
 import java.net.URI;
-import java.net.URLConnection;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -54,6 +59,15 @@ public class TokenValidator {
     private static final Duration FETCH_TIMEOUT_DEFAULT = Duration.ofMinutes(1);
     private final Duration fetchTimeout;
     private Instant lastFetch = Instant.MIN;
+
+    private static final long DEFAULT_TIMEOUT = 30;
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+            .readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+            .writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+            .build();
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
     /**
      * Default constructor. Will load the identity server configuration from a file called
@@ -196,20 +210,28 @@ public class TokenValidator {
             TokenValidationException {
         LOGGER.info("Getting the JWT public key at " + serverUri);
         try {
-            URLConnection connection =  serverUri.toURL().openConnection();
-            connection.setRequestProperty("Accept", "application/json");
-            try (InputStream inputStream = connection.getInputStream()) {
-                ObjectMapper mapper = new ObjectMapper();
-                List<String> publicKeyInfo = mapper.readValue(inputStream,
-                        new TypeReference<List<String>>(){});
-
+            Request request = new Request.Builder()
+                    .url(serverUri.toURL())
+                    .header("Accept", "application/json")
+                    .build();
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful() && response.body() != null) {
+                JavaWebKeySet publicKeyInfo = mapper.readValue(response.body().string(),
+                        JavaWebKeySet.class);
+                response.close();
                 LOGGER.debug("Processing {} public keys from public-key endpoint {}", publicKeyInfo
-                        .size(), serverUri.toURL());
+                        .getKeys().size(), serverUri.toURL());
                 return publicKeyInfo
+                        .getKeys()
                         .stream()
+                        .map(JavaWebKey::getValue)
                         .map(this::algorithmFromString)
                         .collect(Collectors.toList());
+            } else {
+                throw new TokenValidationException("Invalid token signature. Could load load "
+                        + "newer public keys");
             }
+
         } catch (Exception ex) {
             throw new TokenValidationException(ex);
         }

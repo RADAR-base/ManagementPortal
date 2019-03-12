@@ -1,11 +1,11 @@
 package org.radarcns.management.web.rest;
 
 import java.security.Principal;
-import java.util.List;
 import javax.annotation.PostConstruct;
 
 import com.codahale.metrics.annotation.Timed;
 import org.radarcns.auth.exception.NotAuthorizedException;
+import org.radarcns.auth.security.jwk.JavaWebKeySet;
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.security.jwt.ManagementPortalOauthKeyStoreHandler;
 import org.slf4j.Logger;
@@ -41,13 +41,13 @@ public class TokenKeyEndpoint {
      */
     @GetMapping("/oauth/token_key")
     @Timed
-    public List<String> getKey(Principal principal) throws NotAuthorizedException {
+    public JavaWebKeySet getKey(Principal principal) throws NotAuthorizedException {
         logger.debug("Requesting verifier public keys...");
         if ((principal == null || principal instanceof AnonymousAuthenticationToken)) {
             throw new NotAuthorizedException("You need to authenticate to see a shared key");
         }
 
-        return managementPortalOauthKeyStoreHandler.loadVerifyingPublicKeys();
+        return managementPortalOauthKeyStoreHandler.loadJwks();
     }
 
 }

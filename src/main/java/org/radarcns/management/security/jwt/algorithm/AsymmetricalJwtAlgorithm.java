@@ -2,6 +2,7 @@ package org.radarcns.management.security.jwt.algorithm;
 
 import java.security.KeyPair;
 
+import org.radarcns.auth.security.jwk.JavaWebKey;
 import org.springframework.security.crypto.codec.Base64;
 
 public abstract class AsymmetricalJwtAlgorithm implements JwtAlgorithm {
@@ -23,5 +24,12 @@ public abstract class AsymmetricalJwtAlgorithm implements JwtAlgorithm {
         return getEncodedStringHeader() + '\n'
                 + new String(Base64.encode(keyPair.getPublic().getEncoded()))
                 + '\n' + getEncodedStringFooter();
+    }
+
+    @Override
+    public JavaWebKey getJwk() {
+        return new JavaWebKey()
+                .alg(this.getAlgorithm().getName())
+                .value(this.getVerifierKeyEncodedString());
     }
 }
