@@ -4,7 +4,7 @@ import java.util.List;
 
 public class JavaWebKeySet {
 
-    private List<JavaWebKey> keys;
+    private final List<JavaWebKey> keys;
 
     public JavaWebKeySet(List<JavaWebKey> keys) {
         this.keys = keys;
