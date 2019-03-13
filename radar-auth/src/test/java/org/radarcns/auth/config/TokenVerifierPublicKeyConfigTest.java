@@ -1,46 +1,47 @@
 package org.radarcns.auth.config;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
-import org.radarcns.auth.token.validation.ECTokenValidationAlgorithm;
-import org.radarcns.auth.token.validation.RSATokenValidationAlgorithm;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
+import org.radarcns.auth.token.validation.ECTokenValidationAlgorithm;
+import org.radarcns.auth.token.validation.RSATokenValidationAlgorithm;
 
 
 /**
  * Created by dverbeec on 19/06/2017.
  */
-public class YamlServerConfigTest {
+public class TokenVerifierPublicKeyConfigTest {
 
     @Rule
     public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
     @Test
     public void testLoadYamlFileFromClasspath() throws URISyntaxException {
-        ServerConfig config = YamlServerConfig.readFromFileOrClasspath();
+        TokenValidatorConfig config = TokenVerifierPublicKeyConfig.readFromFileOrClasspath();
         checkConfig(config);
     }
 
     @Test
     public void testLoadYamlFileFromEnv() throws URISyntaxException {
         ClassLoader loader = getClass().getClassLoader();
-        File configFile = new File(loader.getResource(YamlServerConfig.CONFIG_FILE_NAME).toURI());
-        environmentVariables.set(YamlServerConfig.LOCATION_ENV, configFile.getAbsolutePath());
-        ServerConfig config = YamlServerConfig.readFromFileOrClasspath();
+        File configFile = new File(loader.getResource("radar-is.yml").toURI());
+        environmentVariables
+                .set(TokenVerifierPublicKeyConfig.LOCATION_ENV, configFile.getAbsolutePath());
+        TokenValidatorConfig config = TokenVerifierPublicKeyConfig.readFromFileOrClasspath();
         checkConfig(config);
     }
 
-    private void checkConfig(ServerConfig config) throws URISyntaxException {
+    private void checkConfig(TokenValidatorConfig config) throws URISyntaxException {
         List<URI> uris = config.getPublicKeyEndpoints();
         assertThat(uris, hasItems(new URI("http://localhost:8089/oauth/token_key"),
                 new URI("http://localhost:8089/oauth/token_key")));
