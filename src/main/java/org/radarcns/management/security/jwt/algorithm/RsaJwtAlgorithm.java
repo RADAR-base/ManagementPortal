@@ -32,4 +32,9 @@ public class RsaJwtAlgorithm extends AsymmetricalJwtAlgorithm {
     public String getEncodedStringFooter() {
         return "-----END PUBLIC KEY-----";
     }
+
+    @Override
+    public String getKeyType() {
+        return "RSA";
+    }
 }

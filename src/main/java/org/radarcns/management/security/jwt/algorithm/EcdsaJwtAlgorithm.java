@@ -32,4 +32,10 @@ public class EcdsaJwtAlgorithm extends AsymmetricalJwtAlgorithm {
     public String getEncodedStringFooter() {
         return "-----END EC PUBLIC KEY-----";
     }
+
+    @Override
+    public String getKeyType() {
+        return "EC";
+    }
+
 }

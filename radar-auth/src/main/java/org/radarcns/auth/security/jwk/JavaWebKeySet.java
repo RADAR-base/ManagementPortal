@@ -1,10 +1,14 @@
 package org.radarcns.auth.security.jwk;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class JavaWebKeySet {
 
-    private final List<JavaWebKey> keys;
+    private List<JavaWebKey> keys = new ArrayList<>();
+
+    public JavaWebKeySet() {
+    }
 
     public JavaWebKeySet(List<JavaWebKey> keys) {
         this.keys = keys;

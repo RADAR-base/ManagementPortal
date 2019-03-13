@@ -19,6 +19,9 @@ public abstract class AsymmetricalJwtAlgorithm implements JwtAlgorithm {
     /** Footer used for encoding public keys. */
     protected abstract String getEncodedStringFooter();
 
+    /** The family of cryptographic algorithms used with the key. */
+    protected abstract String getKeyType();
+
     @Override
     public String getVerifierKeyEncodedString() {
         return getEncodedStringHeader() + '\n'
@@ -30,6 +33,7 @@ public abstract class AsymmetricalJwtAlgorithm implements JwtAlgorithm {
     public JavaWebKey getJwk() {
         return new JavaWebKey()
                 .alg(this.getAlgorithm().getName())
+                .kty(this.getKeyType())
                 .value(this.getVerifierKeyEncodedString());
     }
 }

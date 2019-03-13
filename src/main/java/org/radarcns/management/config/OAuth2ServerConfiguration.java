@@ -241,7 +241,7 @@ public class OAuth2ServerConfiguration {
         public void configure(AuthorizationServerSecurityConfigurer oauthServer) {
             oauthServer.allowFormAuthenticationForClients()
                     .checkTokenAccess("isAuthenticated()")
-                    .tokenKeyAccess("isAnonymous() || isAuthenticated()")
+                    .tokenKeyAccess("permitAll()")
                     .passwordEncoder(new BCryptPasswordEncoder());
         }
 
