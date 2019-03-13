@@ -2,11 +2,8 @@ package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
-import io.swagger.annotations.ApiParam;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
-import org.radarcns.management.domain.SourceType;
-import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.SourceService;
@@ -18,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,9 +60,6 @@ public class SourceResource {
 
     @Autowired
     private HttpServletRequest servletRequest;
-
-    @Autowired
-    private ProjectRepository projectRepository;
 
     /**
      * POST  /sources : Create a new source.
@@ -120,42 +115,10 @@ public class SourceResource {
             return createSource(sourceDto);
         }
         checkPermission(getJWT(servletRequest), SOURCE_UPDATE);
-        Optional<SourceDTO> sourceToUpdateDto = sourceService
-                .findOneById(sourceDto.getId());
-
-        if (!sourceToUpdateDto.isPresent()) {
-            return ResponseEntity.notFound().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
-                "sourceNotFound",
-                "Cannot find a source by sourceName " + sourceDto.getSourceName())).build();
-        }
-        SourceDTO sourceToUpdate = sourceToUpdateDto.get();
-
-        // if the source is being transferred to another project.
-        if (!sourceToUpdate.getProject().getId().equals(sourceDto.getProject().getId())) {
-            if (sourceToUpdate.getAssigned()) {
-                return ResponseEntity.badRequest().headers(
-                    HeaderUtil.createFailureAlert(ENTITY_NAME, "sourceIsAssigned",
-                        "Cannot transfer an assigned source")).build();
-            }
-            // check whether source-type of the device is assigned to the new project
-            // to be transferred.
-            Optional<SourceType> sourceType = projectRepository
-                    .findSourceTypeByProjectIdAndSourceTypeId(sourceDto.getProject().getId(),
-                    sourceToUpdate.getSourceType().getId());
-            if  (!sourceType.isPresent()) {
-                return ResponseEntity.badRequest().headers(HeaderUtil
-                    .createFailureAlert(ENTITY_NAME,
-                    "invalidTransfer", "Cannot transfer a source to a project which doesn't "
-                        + "have compatible source-type")).build();
-            }
-            // set old source-type, ensures compatibility
-            sourceDto.setSourceType(sourceToUpdate.getSourceType());
-
-        }
-        SourceDTO result = sourceService.save(sourceDto);
+        SourceDTO updatedSource = sourceService.updateSource(sourceDto);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceDto.getSourceName()))
-                .body(result);
+                .body(updatedSource);
     }
 
     /**
@@ -165,7 +128,8 @@ public class SourceResource {
      */
     @GetMapping("/sources")
     @Timed
-    public ResponseEntity<List<SourceDTO>> getAllSources(@ApiParam Pageable pageable) {
+    public ResponseEntity<List<SourceDTO>> getAllSources(
+            @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable) {
         log.debug("REST request to get all Sources");
         Page<SourceDTO> page = sourceService.findAll(pageable);
         HttpHeaders headers = PaginationUtil

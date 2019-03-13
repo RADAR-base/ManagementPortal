@@ -27,8 +27,19 @@
         </div>
         <div class="form-group">
             <label class="form-control-label" for="secret" jhiTranslate="managementPortalApp.oauthClient.clientSecret">Client Secret</label>
+
+            <div class="form-group">
+                <label class="form-control-label" for="dynamicRegistration" jhiTranslate="managementPortalApp.oauthClient.additionalInformation">Additional Information</label>
+                <div class="form-check">
+                    <label class="form-check-label">
+                        <input type="checkbox" id="emptySecret" class="form-check-input" name="emptySecret" [checked]="emptySecret" (change)="emptySecret = !emptySecret" [disabled]="protectedClient" /> Empty secret for Public Client
+                    </label>
+                </div>
+                <small id="emptySecretHelp" class="form-text text-muted">Enable it to set empty client secret. Public clients do not need a secret.</small>
+            </div>
+            <div id="secretInputBox" [hidden]="emptySecret">
             <div class="input-group">
-                <input type="text" class="form-control" id="secret" name="clientSecret" [(ngModel)]="client.clientSecret" [disabled]="protectedClient" [required]="newClient" />
+                <input type="text" class="form-control" id="secret" name="clientSecret" [(ngModel)]="client.clientSecret" [disabled]="protectedClient" [required]="newClient && !emptySecret" />
                 <span class="input-group-btn"><button class="btn btn-secondary" type="button" (click)="generateRandomSecret()"><span class="fa fa-magic">&nbsp;</span>Randomize</button></span>
             </div>
             <div [hidden]="!newClient || (newClient && !(editForm.controls.clientSecret?.dirty && editForm.controls.clientSecret?.invalid))">
@@ -38,6 +49,7 @@
                 </small>
             </div>
             <small id="secretHelp" class="form-text text-muted" *ngIf="!newClient">If this field is left empty the secret will not be modified.</small>
+            </div>
         </div>
         <div class="form-group">
             <label class="form-control-label" for="scope" jhiTranslate="managementPortalApp.oauthClient.scope">Scope</label>

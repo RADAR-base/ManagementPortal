@@ -11,6 +11,7 @@ public final class ErrorConstants {
     public static final String ERR_SOURCE_TYPE_EXISTS = "error.sourceTypeExists";
     public static final String ERR_CLIENT_ID_EXISTS = "error.clientIdExists";
     public static final String ERR_OAUTH_CLIENT_PROTECTED = "error.oAuthClientProtected";
+    public static final String ERR_OAUTH_CLIENT_ALREADY_EXISTS = "error.oAuthClientExists";
     public static final String ERR_OAUTH_CLIENT_ID_NOT_FOUND = "error.oAuthClientIdNotFound";
     public static final String ERR_SUBJECT_NOT_FOUND = "error.subjectNotFound";
     public static final String ERR_SOURCE_NAME_EXISTS = "error.sourceNameExists";

@@ -17,6 +17,7 @@ import java.util.List;
 @DecoratedWith(SourceMapperDecorator.class)
 public interface SourceMapper {
 
+    @Mapping(source = "source.subject.user.login", target = "subjectLogin")
     SourceDTO sourceToSourceDTO(Source source);
 
     @Mapping(source = "sourceType.id", target = "sourceTypeId")
@@ -37,6 +38,4 @@ public interface SourceMapper {
 
     @Mapping(target = "subject", ignore = true)
     Source sourceDTOToSource(SourceDTO sourceDto);
-
-    List<Source> sourceDTOsToSources(List<SourceDTO> sourceDtos);
 }

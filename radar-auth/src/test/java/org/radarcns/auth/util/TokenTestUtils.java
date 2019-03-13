@@ -1,10 +1,6 @@
 package org.radarcns.auth.util;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.interfaces.RSAPrivateKey;
@@ -12,6 +8,10 @@ import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 import java.util.Date;
 import java.util.stream.Collectors;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.apache.commons.codec.binary.Base64;
 import org.radarcns.auth.authorization.Permission;
 
@@ -64,11 +64,11 @@ public class TokenTestUtils {
     }
 
     private static void initVars(String publicKey, Algorithm algorithm) {
-        PUBLIC_KEY_BODY = "{\n"
-            + "  \"alg\" : \"SHA256withRSA\",\n"
-            + "  \"value\" : \"-----BEGIN PUBLIC KEY-----\\n" + publicKey + "\\n-----END PUBLIC "
-            + "KEY-----\"\n"
-            + "}";
+        PUBLIC_KEY_BODY =
+                "{\n" + " \"keys\" : [ {\n" + "  \"alg\" : \"" + algorithm.getName() + "\",\n"
+                        + "  \"alg\" : \"" + "RSA" + "\",\n"
+                        + "  \"value\" : \"-----BEGIN PUBLIC KEY-----\\n" + publicKey
+                        + "\\n-----END PUBLIC " + "KEY-----\"\n" + "} ]\n" + "}";
 
         Instant exp = Instant.now().plusSeconds(30 * 60);
         Instant iat = Instant.now();
@@ -104,12 +104,7 @@ public class TokenTestUtils {
     }
 
     private static void initIncorrectAlgorithmToken(Instant exp, Instant iat) {
-        Algorithm psk = null;
-        try {
-            psk = Algorithm.HMAC256("super-secret-stuff");
-        } catch (UnsupportedEncodingException ex) {
-            ex.printStackTrace();
-        }
+        Algorithm psk = Algorithm.HMAC256("super-secret-stuff");
         // token signed with a pre-shared key
         INCORRECT_ALGORITHM_TOKEN = JWT.create()
             .withIssuer(ISS)

@@ -22,13 +22,14 @@
             "refreshTokenValidity": "Refresh Token Validity",
             "authorities": "Authorities",
             "additionalInformation": "Additional Information",
-            "actions": "Actions",
-            "error": {
-                "validation": "Validatie fout, controleer de ingevoerde waarden.",
-                "oAuthClientProtected": "{{ param0 }} is een beschermde OAuth client en kan niet gewijzigd worden",
-                "oAuthClientIdNotFound": "De client id kon niet gevonden worden",
-                "subjectNotFound": "De deelnemer login kon niet gevonden worden"
-            }
+            "actions": "Actions"
         }
+    },
+    "error": {
+        "validation": "Validatie fout, controleer de ingevoerde waarden.",
+        "oAuthClientProtected": "{{ param0 }} is een beschermde OAuth client en kan niet gewijzigd worden",
+        "oAuthClientIdNotFound": "De client id kon niet gevonden worden",
+        "subjectNotFound": "De deelnemer login kon niet gevonden worden",
+        "oAuthClientExists": "Er bestaat al een OAuth-client met dezelfde client-ID"
     }
 }

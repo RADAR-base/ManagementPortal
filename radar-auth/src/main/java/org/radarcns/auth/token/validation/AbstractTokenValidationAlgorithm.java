@@ -1,15 +1,13 @@
 package org.radarcns.auth.token.validation;
 
-import org.bouncycastle.util.io.pem.PemReader;
 import org.radarcns.auth.exception.ConfigurationException;
 
-import java.io.StringReader;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 public abstract class AbstractTokenValidationAlgorithm implements TokenValidationAlgorithm {
-
     /**
      * The key factory type for keys that this algorithm can parse.
      * @return the key factory type
@@ -22,10 +20,13 @@ public abstract class AbstractTokenValidationAlgorithm implements TokenValidatio
      * @return a PublicKey object representing the supplied public key
      */
     protected PublicKey parseKey(String publicKey) {
-        try (PemReader pemReader = new PemReader(new StringReader(publicKey))) {
-            byte[] keyBytes = pemReader.readPemObject().getContent();
-            pemReader.close();
-            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+        String trimmedKey = publicKey.replaceAll("-----BEGIN ([A-Z]+ )?PUBLIC KEY-----", "");
+        trimmedKey = trimmedKey.replaceAll("-----END ([A-Z]+ )?PUBLIC KEY-----", "");
+        trimmedKey = trimmedKey.trim();
+
+        try {
+            byte[] decodedPublicKey = Base64.getDecoder().decode(trimmedKey);
+            X509EncodedKeySpec spec = new X509EncodedKeySpec(decodedPublicKey);
             KeyFactory kf = KeyFactory.getInstance(getKeyFactoryType());
             return kf.generatePublic(spec);
         } catch (Exception ex) {

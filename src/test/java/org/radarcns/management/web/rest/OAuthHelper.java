@@ -1,14 +1,5 @@
 package org.radarcns.management.web.rest;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import org.radarcns.auth.authentication.TokenValidator;
-import org.radarcns.auth.authorization.Permission;
-import org.radarcns.management.config.LocalKeystoreConfig;
-import org.radarcns.management.security.JwtAuthenticationFilter;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
-
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
@@ -17,9 +8,18 @@ import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.stream.Collectors;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import org.radarcns.auth.authorization.Permission;
+import org.radarcns.management.config.ManagementPortalProperties;
+import org.radarcns.management.security.JwtAuthenticationFilter;
+import org.radarcns.management.security.jwt.ManagementPortalOauthKeyStoreHandler;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 /**
  * Created by dverbeec on 29/06/2017.
@@ -107,10 +107,21 @@ public class OAuthHelper {
      * @return an initialized JwtAuthenticationFilter
      */
     public static JwtAuthenticationFilter createAuthenticationFilter() {
-        return new JwtAuthenticationFilter(new TokenValidator(
-                new LocalKeystoreConfig(TEST_KEYSTORE_PASSWORD, Arrays.asList(TEST_SIGNKEY_ALIAS,
-                        TEST_CHECKKEY_ALIAS))));
+
+        ManagementPortalProperties.Oauth oauthConfig = new ManagementPortalProperties.Oauth();
+        oauthConfig.setKeyStorePassword(TEST_KEYSTORE_PASSWORD);
+        oauthConfig.setSigningKeyAlias(TEST_SIGNKEY_ALIAS);
+        oauthConfig.setCheckingKeyAliases(Collections.singletonList(TEST_CHECKKEY_ALIAS));
+
+        ManagementPortalProperties properties = new ManagementPortalProperties();
+        properties.setOauth(oauthConfig);
+
+        ManagementPortalOauthKeyStoreHandler keyStoreKeyFactory =
+                ManagementPortalOauthKeyStoreHandler.build(properties);
+        return new JwtAuthenticationFilter(keyStoreKeyFactory.getTokenValidator());
     }
+
+
 
     private static String createValidToken(Algorithm algorithm) {
         Instant exp = Instant.now().plusSeconds(30 * 60);

@@ -18,9 +18,9 @@ buildscript {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${spring_boot_version}"
         classpath "org.springframework.build.gradle:propdeps-plugin:0.0.7"
         classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
-        classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
-        classpath "io.swagger:swagger-codegen:2.2.3"
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.9.0"
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE"
+        classpath "io.swagger:swagger-codegen:2.4.2"
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.9.1"
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
         //jhipster-needle-gradle-buildscript-dependency - JHipster will add additional gradle build script plugins here
     }
@@ -29,7 +29,7 @@ buildscript {
 allprojects {
     group 'org.radarcns'
 
-    version '0.5.3' // project version
+    version '0.5.4' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh

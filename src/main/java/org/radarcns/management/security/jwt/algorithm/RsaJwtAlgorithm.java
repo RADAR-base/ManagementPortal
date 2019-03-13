@@ -1,17 +1,18 @@
-package org.radarcns.management.security.jwt;
+package org.radarcns.management.security.jwt.algorithm;
 
 import com.auth0.jwt.algorithms.Algorithm;
+
 import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
-public class RsaJwtAlgorithm extends AssymmetricJwtAlgorithm {
+public class RsaJwtAlgorithm extends AsymmetricalJwtAlgorithm {
     /** RSA JWT algorithm. */
     public RsaJwtAlgorithm(KeyPair keyPair) {
-        super(keyPair, "SHA256withRSA");
+        super(keyPair);
         if (!(keyPair.getPrivate() instanceof RSAPrivateKey)) {
             throw new IllegalArgumentException(
-                    "Cannot make EcdsaJwtAlgorithm with " + keyPair.getPrivate().getClass());
+                    "Cannot make RsaJwtAlgorithm with " + keyPair.getPrivate().getClass());
         }
     }
 
@@ -30,5 +31,10 @@ public class RsaJwtAlgorithm extends AssymmetricJwtAlgorithm {
     @Override
     public String getEncodedStringFooter() {
         return "-----END PUBLIC KEY-----";
+    }
+
+    @Override
+    public String getKeyType() {
+        return "RSA";
     }
 }
