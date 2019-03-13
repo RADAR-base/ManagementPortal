@@ -12,6 +12,7 @@ org.radarcns.management.repository
 org.radarcns.management.repository.filters
 org.radarcns.management.security
 org.radarcns.management.security.jwt
+org.radarcns.management.security.jwt.algorithm
 org.radarcns.management.service
 org.radarcns.management.service.catalog
 org.radarcns.management.service.dto
