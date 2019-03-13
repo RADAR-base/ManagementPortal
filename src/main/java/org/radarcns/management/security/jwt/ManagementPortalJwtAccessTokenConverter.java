@@ -1,5 +1,6 @@
 package org.radarcns.management.security.jwt;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -217,8 +218,10 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
                 .forEach(claim -> builder.withClaim(claim, (String) claims.get(claim)));
 
         // add the date claims, they are in seconds since epoch, we need milliseconds
-        Stream.of("exp", "iat").filter(claims::containsKey).forEach(
-                claim -> builder.withClaim(claim, new Date(((Long) claims.get(claim)) * 1000)));
+        Stream.of("exp", "iat")
+                .filter(claims::containsKey)
+                .forEach(claim -> builder.withClaim(claim,
+                        Date.from(Instant.ofEpochSecond((Long)claims.get(claim)))));
 
         return builder.sign(algorithm);
     }
@@ -232,7 +235,7 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
             Map<String, Object> claims = objectMapper.parseMap(claimsStr);
             if (claims.containsKey(EXP) && claims.get(EXP) instanceof Integer) {
                 Integer intValue = (Integer) claims.get(EXP);
-                claims.put(EXP, new Long(intValue));
+                claims.put(EXP, Long.valueOf(intValue));
             }
 
             if (this.getJwtClaimsSetVerifier() != null) {
