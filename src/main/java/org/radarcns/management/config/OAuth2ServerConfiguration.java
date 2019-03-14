@@ -201,7 +201,7 @@ public class OAuth2ServerConfiguration {
 
         @Bean
         public TokenStore tokenStore() {
-            return new ManagementPortalJwtTokenStore(accessTokenConverter(), approvalStore());
+            return new ManagementPortalJwtTokenStore(accessTokenConverter());
         }
 
         @Bean
@@ -241,7 +241,7 @@ public class OAuth2ServerConfiguration {
         public void configure(AuthorizationServerSecurityConfigurer oauthServer) {
             oauthServer.allowFormAuthenticationForClients()
                     .checkTokenAccess("isAuthenticated()")
-                    .tokenKeyAccess("isAnonymous() || isAuthenticated()")
+                    .tokenKeyAccess("permitAll()")
                     .passwordEncoder(new BCryptPasswordEncoder());
         }
 

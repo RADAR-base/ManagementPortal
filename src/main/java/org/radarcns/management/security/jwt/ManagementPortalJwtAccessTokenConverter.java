@@ -1,5 +1,6 @@
 package org.radarcns.management.security.jwt;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -125,7 +126,8 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken,
             OAuth2Authentication authentication) {
-
+        // create new instance of token to enhance
+        DefaultOAuth2AccessToken resultAccessToken = new DefaultOAuth2AccessToken(accessToken);
         // set additional information for access token
         Map<String, Object> additionalInfoAccessToken =
                 new HashMap<>(accessToken.getAdditionalInformation());
@@ -135,23 +137,28 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
 
         if (!additionalInfoAccessToken.containsKey(TOKEN_ID)) {
             additionalInfoAccessToken.put(TOKEN_ID, accessTokenId);
+        } else {
+            accessTokenId = (String) additionalInfoAccessToken.get(TOKEN_ID);
         }
 
-        ((DefaultOAuth2AccessToken) accessToken)
+        resultAccessToken
                 .setAdditionalInformation(additionalInfoAccessToken);
 
-        ((DefaultOAuth2AccessToken) accessToken).setValue(encode(accessToken, authentication));
+        resultAccessToken.setValue(encode(accessToken, authentication));
 
         // add additional information for refresh-token
         OAuth2RefreshToken refreshToken = accessToken.getRefreshToken();
         if (refreshToken != null) {
 
             DefaultOAuth2AccessToken refreshTokenToEnhance =
-                    new DefaultOAuth2AccessToken(refreshToken.getValue());
+                    new DefaultOAuth2AccessToken(accessToken);
+            refreshTokenToEnhance.setValue(refreshToken.getValue());
             // Refresh tokens do not expire unless explicitly of the right type
             refreshTokenToEnhance.setExpiration(null);
+            refreshTokenToEnhance.setScope(accessToken.getScope());
+            // set info of access token to refresh-token and add token-id and access-token-id for
+            // reference.
 
-            // I don't really get what is the point of doing this.
             try {
                 Map<String, Object> claims = objectMapper
                         .parseMap(JwtHelper.decode(refreshToken.getValue()).getClaims());
@@ -159,15 +166,14 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
                     refreshTokenToEnhance.setValue(claims.get(TOKEN_ID).toString());
                 }
             } catch (IllegalArgumentException e) {
-                logger.error("Could not decode refresh token ", e);
+                logger.debug("Could not decode refresh token ", e);
             }
-            // set info of access token to refresh-token and add token-id and access-token-id for
-            // reference.
 
             Map<String, Object> refreshTokenInfo =
                     new HashMap<>(accessToken.getAdditionalInformation());
-            refreshTokenInfo.put(TOKEN_ID, refreshToken.getValue());
+            refreshTokenInfo.put(TOKEN_ID, refreshTokenToEnhance.getValue());
             refreshTokenInfo.put(ACCESS_TOKEN_ID, accessTokenId);
+
             refreshTokenToEnhance.setAdditionalInformation(refreshTokenInfo);
 
             DefaultOAuth2RefreshToken encodedRefreshToken;
@@ -181,9 +187,9 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
                 encodedRefreshToken = new DefaultOAuth2RefreshToken(
                         encode(refreshTokenToEnhance, authentication));
             }
-            ((DefaultOAuth2AccessToken) accessToken).setRefreshToken(encodedRefreshToken);
+            resultAccessToken.setRefreshToken(encodedRefreshToken);
         }
-        return accessToken;
+        return resultAccessToken;
     }
 
     @Override
@@ -201,7 +207,8 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
         JWTCreator.Builder builder = JWT.create();
 
         // add the string array claims
-        Stream.of("aud", "sources", "roles", "authorities", "scope").filter(claims::containsKey)
+        Stream.of("aud", "sources", "roles", "authorities", "scope")
+                .filter(claims::containsKey)
                 .forEach(claim -> builder.withArrayClaim(claim,
                         ((Collection<String>) claims.get(claim)).toArray(new String[0])));
 
@@ -211,8 +218,10 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
                 .forEach(claim -> builder.withClaim(claim, (String) claims.get(claim)));
 
         // add the date claims, they are in seconds since epoch, we need milliseconds
-        Stream.of("exp", "iat").filter(claims::containsKey).forEach(
-                claim -> builder.withClaim(claim, new Date(((Long) claims.get(claim)) * 1000)));
+        Stream.of("exp", "iat")
+                .filter(claims::containsKey)
+                .forEach(claim -> builder.withClaim(claim,
+                        Date.from(Instant.ofEpochSecond((Long)claims.get(claim)))));
 
         return builder.sign(algorithm);
     }
@@ -226,7 +235,7 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
             Map<String, Object> claims = objectMapper.parseMap(claimsStr);
             if (claims.containsKey(EXP) && claims.get(EXP) instanceof Integer) {
                 Integer intValue = (Integer) claims.get(EXP);
-                claims.put(EXP, new Long(intValue));
+                claims.put(EXP, Long.valueOf(intValue));
             }
 
             if (this.getJwtClaimsSetVerifier() != null) {

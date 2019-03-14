@@ -3,7 +3,7 @@ package org.radarcns.auth.config;
 import java.net.URI;
 import java.util.List;
 
-public interface ServerConfig {
+public interface TokenValidatorConfig {
 
     /**
      * Get the public key endpoint as a URI.

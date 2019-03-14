@@ -27,7 +27,8 @@ import javax.annotation.Nullable;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import org.radarcns.auth.authentication.TokenValidator;
-import org.radarcns.auth.config.ServerConfig;
+import org.radarcns.auth.config.TokenValidatorConfig;
+import org.radarcns.auth.security.jwk.JavaWebKeySet;
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.security.jwt.algorithm.EcdsaJwtAlgorithm;
 import org.radarcns.management.security.jwt.algorithm.JwtAlgorithm;
@@ -150,6 +151,10 @@ public class ManagementPortalOauthKeyStoreHandler {
         return publicKeyAliases;
     }
 
+    /**
+     * Returns configured public keys of token verifiers.
+     * @return List of public keys for token verification.
+     */
     private List<String> loadVerifyingPublicKeys() {
         return this.verifierPublicKeyAliasList.stream()
                 .map(this::getKeyPair)
@@ -158,6 +163,21 @@ public class ManagementPortalOauthKeyStoreHandler {
                 .map(JwtAlgorithm::getVerifierKeyEncodedString)
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Returns configured public keys of token verifiers.
+     * @return List of public keys for token verification.
+     */
+    public JavaWebKeySet loadJwks() {
+        return new JavaWebKeySet(this.verifierPublicKeyAliasList.stream()
+                .map(this::getKeyPair)
+                .map(ManagementPortalOauthKeyStoreHandler::getJwtAlgorithm)
+                .filter(Objects::nonNull)
+                .map(JwtAlgorithm::getJwk)
+                .collect(Collectors.toList()));
+    }
+
+
 
     /**
      * Returns the signing algorithm extracted based on signing alias configured from keystore.
@@ -270,8 +290,8 @@ public class ManagementPortalOauthKeyStoreHandler {
         return new TokenValidator(getKeystoreConfigsForVerifiers());
     }
 
-    private ServerConfig getKeystoreConfigsForVerifiers() {
-        return new ServerConfig() {
+    private TokenValidatorConfig getKeystoreConfigsForVerifiers() {
+        return new TokenValidatorConfig() {
             @Override
             public List<URI> getPublicKeyEndpoints() {
                 return Collections.emptyList();

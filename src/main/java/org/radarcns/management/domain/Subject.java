@@ -65,7 +65,7 @@ public class Subject extends AbstractEntity implements Serializable {
     @Cascade(CascadeType.ALL)
     private User user;
 
-    @OneToMany(mappedBy = "subject", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "subject")
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @Cascade(CascadeType.SAVE_UPDATE)
     private Set<Source> sources = new HashSet<>();
