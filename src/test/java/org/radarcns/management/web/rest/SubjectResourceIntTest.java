@@ -40,6 +40,8 @@ import org.radarcns.management.ManagementPortalTestApp;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
+import org.radarcns.management.repository.search.SourceSearchRepository;
+import org.radarcns.management.repository.search.SubjectSearchRepository;
 import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.SourceTypeService;
@@ -105,6 +107,12 @@ public class SubjectResourceIntTest {
     @Autowired
     private HttpServletRequest servletRequest;
 
+    @Autowired
+    private SubjectSearchRepository subjectSearchRepository;
+
+    @Autowired
+    private SourceSearchRepository sourceSearchRepository;
+
     private MockMvc restSubjectMockMvc;
 
     @Before
@@ -129,6 +137,8 @@ public class SubjectResourceIntTest {
                 .addFilter(filter)
                 // add the oauth token by default to all requests for this mockMvc
                 .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
+
+        subjectSearchRepository.deleteAll();
     }
 
 
@@ -170,6 +180,10 @@ public class SubjectResourceIntTest {
         // Validate the Alice in the database
         List<Subject> subjectList = subjectRepository.findAll();
         assertThat(subjectList).hasSize(databaseSizeBeforeCreate);
+
+        //validate the subject in Elasticsearch
+        Subject subjectEs = subjectSearchRepository.findOne(subjectDto.getId());
+        assertThat(subjectEs.getId()).isEqualToIgnoringGivenFields(subjectDto.getId());
     }
 
     @Test
@@ -277,6 +291,10 @@ public class SubjectResourceIntTest {
         assertThat(testSubject.getExternalId()).isEqualTo(UPDATED_ENTERNAL_ID);
         assertThat(testSubject.isRemoved()).isEqualTo(UPDATED_REMOVED);
         assertThat(testSubject.getUser().getRoles().size()).isEqualTo(2);
+
+        //validate the subject in Elasticsearch
+        Subject subjectEs = subjectSearchRepository.findOne(subjectDto.getId());
+        assertThat(subjectEs.getId()).isEqualToIgnoringGivenFields(subjectDto.getId());
     }
 
     @Test
@@ -309,6 +327,10 @@ public class SubjectResourceIntTest {
         restSubjectMockMvc.perform(delete("/api/subjects/{login}", subjectDto.getLogin())
                 .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
+
+        // Validate Elasticsearch is empty
+        boolean subjectExistsInEs = subjectSearchRepository.exists(subjectDto.getId());
+        assertThat(subjectExistsInEs).isFalse();
 
         // Validate the database is empty
         List<Subject> subjectList = subjectRepository.findAll();
@@ -357,6 +379,7 @@ public class SubjectResourceIntTest {
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto)))
                 .andExpect(status().is4xxClientError());
+
     }
 
     @Test
@@ -460,6 +483,14 @@ public class SubjectResourceIntTest {
                 .andExpect(jsonPath("$.[0].id").value(createdSource.getId().intValue()))
                 .andExpect(
                         jsonPath("$.[0].sourceId").value(createdSource.getSourceId().toString()));
+
+        //validate the subject and it's sources in Elasticsearch
+        Subject subjectEs = subjectSearchRepository.findOne(createdSubject.getId());
+        assertThat(subjectEs.getId()).isEqualToIgnoringGivenFields(createdSubject.getId());
+
+        for(MinimalSourceDetailsDTO sourceDetailsDTO : createdSubject.getSources()) {
+            assertThat(sourceSearchRepository.findOne(sourceDetailsDTO.getId())).isEqualToComparingOnlyGivenFields(sourceDetailsDTO.getId());
+        }
     }
 
     @Test
@@ -489,6 +520,15 @@ public class SubjectResourceIntTest {
                 .andExpect(jsonPath("$.[*].id").value(createdSource.getId().intValue()))
                 .andExpect(
                         jsonPath("$.[*].sourceId").value(createdSource.getSourceId().toString()));
+
+        //validate the subject and it's sources in Elasticsearch
+        Subject subjectEs = subjectSearchRepository.findOne(createdSubject.getId());
+        assertThat(subjectEs.getId()).isEqualToIgnoringGivenFields(createdSubject.getId());
+
+        for(MinimalSourceDetailsDTO sourceDetailsDTO : createdSubject.getSources()) {
+            sourceSearchRepository.findOne(sourceDetailsDTO.getId());
+            assertThat(sourceSearchRepository.findOne(sourceDetailsDTO.getId())).isEqualToComparingOnlyGivenFields(sourceDetailsDTO.getId());
+        }
     }
 
     @Test
@@ -531,6 +571,16 @@ public class SubjectResourceIntTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andReturn();
+
+        //validate the subject and it's sources in Elasticsearch
+        Subject subjectEs = subjectSearchRepository.findOne(updatedSubject.getId());
+        assertThat(subjectEs.getId()).isEqualToIgnoringGivenFields(updatedSubject.getId());
+
+        for(MinimalSourceDetailsDTO sourceDetailsDTO : createdSubject.getSources()) {
+            sourceSearchRepository.findOne(sourceDetailsDTO.getId());
+            assertThat(sourceSearchRepository.findOne(sourceDetailsDTO.getId()))
+                    .isEqualToIgnoringGivenFields(sourceDetailsDTO.getId());
+        }
     }
 
     private SourceDTO createSource() {
@@ -634,4 +684,5 @@ public class SubjectResourceIntTest {
                 .andExpect(jsonPath("$.attributes").isNotEmpty());
 
     }
+
 }

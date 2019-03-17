@@ -15,6 +15,7 @@ import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SourceRepository;
+import org.radarcns.management.repository.search.SourceSearchRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SourceDTO;
 import org.radarcns.management.service.mapper.SourceMapper;
@@ -43,6 +44,9 @@ public class SourceService {
     private SourceRepository sourceRepository;
 
     @Autowired
+    private SourceSearchRepository sourceSearchRepository;
+
+    @Autowired
     private SourceMapper sourceMapper;
 
     @Autowired
@@ -61,6 +65,7 @@ public class SourceService {
         log.debug("Request to save Source : {}", sourceDto);
         Source source = sourceMapper.sourceDTOToSource(sourceDto);
         source = sourceRepository.save(source);
+        sourceSearchRepository.save(source);
         return sourceMapper.sourceToSourceDTO(source);
     }
 
@@ -131,6 +136,7 @@ public class SourceService {
                 .filter(Source::isAssigned).collect(Collectors.toList());
         if (sources.isEmpty()) {
             sourceRepository.delete(id);
+            sourceSearchRepository.delete(id);
         } else {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Cannot delete source with sourceId ");

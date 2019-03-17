@@ -37,6 +37,8 @@ import org.radarcns.management.repository.AuthorityRepository;
 import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
+import org.radarcns.management.repository.search.SourceSearchRepository;
+import org.radarcns.management.repository.search.SubjectSearchRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
@@ -98,6 +100,12 @@ public class SubjectService {
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
 
+    @Autowired
+    private SubjectSearchRepository subjectSearchRepository;
+
+    @Autowired
+    private SourceSearchRepository sourceSearchRepository;
+
     /**
      * Create a new subject.
      *
@@ -124,9 +132,13 @@ public class SubjectService {
         //set if any devices are set as assigned
         if (subject.getSources() != null && !subject.getSources().isEmpty()) {
             subject.getSources().forEach(s -> s.assigned(true).subject(subject));
+            List<Source> sources = sourceRepository.save(subject.getSources());
+            sourceSearchRepository.save(sources);
         }
-        sourceRepository.save(subject.getSources());
-        return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subject));
+
+        Subject savedSubject = subjectRepository.save(subject);
+        subjectSearchRepository.save(savedSubject);
+        return subjectMapper.subjectToSubjectDTO(savedSubject);
     }
 
     /**
@@ -172,6 +184,9 @@ public class SubjectService {
         sourcesToUpdate.addAll(subjectFromDb.getSources());
         subjectFromDb.getSources().forEach(s -> s.subject(subjectFromDb).assigned(true));
         sourceRepository.save(sourcesToUpdate);
+        if(!sourcesToUpdate.isEmpty()) {
+            sourceSearchRepository.save(sourcesToUpdate);
+        }
         // update participant role
         subjectFromDb.getUser().setRoles(updateParticipantRoles(subjectFromDb, newSubjectDto));
         return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subjectFromDb));
@@ -367,6 +382,7 @@ public class SubjectService {
         subjectRepository.findOneWithEagerBySubjectLogin(login).ifPresent(subject -> {
             unassignAllSources(subject);
             subjectRepository.delete(subject);
+            subjectSearchRepository.delete(subject);
             log.debug("Deleted Subject: {}", subject);
         });
     }
