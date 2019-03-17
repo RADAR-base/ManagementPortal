@@ -5,7 +5,8 @@
                 "title": "Subjects",
                 "createLabel": "Maak een nieuwe Subject",
                 "createOrEditLabel": "Maak of wijzig een Subject",
-                "pairAppLabel": "Koppel een app"
+                "pairAppLabel": "Koppel een app",
+                "search": "Zoeken naar Subject"
             },
             "created": "A new Subject is created with identifier {{ param }}",
             "updated": "A Subject is updated with identifier {{ param }}",

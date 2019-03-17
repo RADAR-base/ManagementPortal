@@ -3,12 +3,14 @@ import { BaseRequestOptions, Http, Response, URLSearchParams } from '@angular/ht
 import { Observable } from 'rxjs/Rx';
 
 import { Subject } from './subject.model';
+import { ResponseWrapper, createRequestOption } from '..';
 
 @Injectable()
 export class SubjectService {
 
     private resourceUrl = 'api/subjects';
     private projectResourceUrl = 'api/projects';
+    private resourceSearchUrl = 'api/_search/subjects';
 
     constructor(private http: Http) {
     }
@@ -89,5 +91,28 @@ export class SubjectService {
             search: params,
         };
         return this.http.get(`${this.projectResourceUrl}/${req.projectName}/subjects`, options);
+    }
+
+    search(req?: any): Observable<ResponseWrapper> {
+        const options = createRequestOption(req);
+        return this.http.get(this.resourceSearchUrl, options)
+                .map((res: any) => this.convertResponse(res));
+    }
+
+    private convertResponse(res: Response): ResponseWrapper {
+        const jsonResponse = res.json();
+        const result = [];
+        for (let i = 0; i < jsonResponse.length; i++) {
+            result.push(this.convertItemFromServer(jsonResponse[i]));
+        }
+        return new ResponseWrapper(res.headers, result, res.status);
+    }
+
+    /**
+     * Convert a returned JSON object to Subject.
+     */
+    private convertItemFromServer(json: any): Subject {
+        const entity: Subject = Object.assign(new Subject(), json);
+        return entity;
     }
 }

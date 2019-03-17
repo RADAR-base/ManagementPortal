@@ -11,7 +11,7 @@ import { Response } from '@angular/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
-import { ITEMS_PER_PAGE, Principal, Project } from '..';
+import { ITEMS_PER_PAGE, Principal, Project, ResponseWrapper } from '..';
 
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
@@ -34,6 +34,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     totalItems: number;
     routeData: any;
     previousPage: any;
+    currentSearch: string;
 
     @Input() isProjectSpecific: boolean;
 
@@ -63,6 +64,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             }
         });
         this.jhiLanguageService.addLocation('subject');
+        this.currentSearch = this.activatedRoute.snapshot && this.activatedRoute.snapshot.params['search'] ?
+                this.activatedRoute.snapshot.params['search'] : '';
     }
 
     loadSubjects() {
@@ -74,7 +77,17 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     loadAll() {
-        this.subjectService.query(
+        if (this.currentSearch) {
+            this.subjectService.search({
+                page: this.page - 1,
+                query: this.currentSearch,
+                size: this.itemsPerPage,
+                sort: this.sort()}).subscribe(
+                    (res: ResponseWrapper) => this.onSuccess(res.json, res.headers),
+                    (res: ResponseWrapper) => this.onError(res.json)
+            );
+            return;
+        }this.subjectService.query(
                 {
                     page: this.page - 1,
                     size: this.itemsPerPage,
@@ -166,6 +179,30 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             });
         }
         this.loadSubjects();
+    }
+
+    clear() {
+        this.page = 0;
+        this.currentSearch = '';
+        this.router.navigate(['/subject', {
+            page: this.page,
+            sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc')
+        }]);
+        this.loadAll();
+    }
+
+    search(query) {
+        if (!query) {
+            return this.clear();
+        }
+        this.page = 0;
+        this.currentSearch = query;
+        this.router.navigate(['/subject', {
+            search: this.currentSearch,
+            page: this.page,
+            sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc')
+        }]);
+        this.loadAll();
     }
 
 }
