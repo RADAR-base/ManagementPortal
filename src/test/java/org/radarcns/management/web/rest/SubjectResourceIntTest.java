@@ -37,6 +37,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.radarcns.management.ManagementPortalTestApp;
+import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
@@ -685,4 +686,16 @@ public class SubjectResourceIntTest {
 
     }
 
+    @Test
+    @Transactional
+    public void searchSubject() throws Exception {
+        // Initialize the database
+        SubjectDTO subjectDto =  subjectService.createSubject(createEntityDTO());
+
+        // Search the subject
+        restSubjectMockMvc.perform(get("/api/_search/subjects?query=id:" + subjectDto.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(subjectDto.getId().intValue())));
+    }
 }

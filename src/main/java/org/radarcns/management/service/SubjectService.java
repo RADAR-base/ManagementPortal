@@ -1,5 +1,6 @@
 package org.radarcns.management.service;
 
+import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarcns.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
@@ -494,6 +495,20 @@ public class SubjectService {
                     OAUTH_CLIENT, ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED,
                     params);
         }
+    }
+
+    /**
+     * Search for the subject corresponding to the query.
+     *
+     *  @param query the query of the search
+     *  @param pageable the pagination information
+     *  @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<SubjectDTO> search(String query, Pageable pageable) {
+        log.debug("Request to search for a page of Subjects for query {}", query);
+        Page<Subject> result = subjectSearchRepository.search(queryStringQuery(query), pageable);
+        return result.map(subjectMapper::subjectToSubjectDTO);
     }
 
 }

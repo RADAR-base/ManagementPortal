@@ -1,5 +1,6 @@
 package org.radarcns.management.web.rest;
 
+import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarcns.auth.authorization.Permission.SUBJECT_CREATE;
@@ -43,6 +44,7 @@ import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.repository.SubjectRepository;
+import org.radarcns.management.repository.search.SubjectSearchRepository;
 import org.radarcns.management.security.SecurityUtils;
 import org.radarcns.management.service.ResourceUriService;
 import org.radarcns.management.service.RevisionService;
@@ -115,6 +117,9 @@ public class SubjectResource {
 
     @Autowired
     private SourceService sourceService;
+
+    @Autowired
+    private SubjectSearchRepository subjectSearchRepository;
 
     /**
      * POST  /subjects : Create a new subject.
@@ -565,5 +570,22 @@ public class SubjectResource {
         // there should be only one source under a source-name.
         return ResponseEntity.ok().body(sourceService.safeUpdateOfAttributes(sources.get(0),
                 attributes));
+    }
+
+    /**
+     * SEARCH  /_search/subjects?query=:query : search for the subject corresponding
+     * to the query.
+     *
+     * @param query the query of the subject search
+     * @param pageable the pagination information
+     * @return the result of the search
+     */
+    @GetMapping("/_search/subjects")
+    @Timed
+    public ResponseEntity<List<SubjectDTO>> searchSubjects(@RequestParam String query, @ApiParam Pageable pageable) {
+        log.debug("REST request to search for a page of Subjects for query {}", query);
+        Page<SubjectDTO> page = subjectService.search(query, pageable);
+        HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(query, page, "/api/_search/subjects");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 }
