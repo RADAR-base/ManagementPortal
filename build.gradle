@@ -313,6 +313,10 @@ dependencies {
     compile ("org.springframework.boot:spring-boot-starter-data-jpa") {
         exclude group: 'org.hibernate', module: 'hibernate-entitymanager'
     }
+
+    compile group: "org.springframework.boot", name: "spring-boot-starter-data-elasticsearch"
+    compile group: "net.java.dev.jna", name: "jna"
+
     compile "org.springframework.boot:spring-boot-starter-security"
     compile "org.springframework.cloud:spring-cloud-starter-zuul:${zuul_proxy_version}"
     compile("org.springframework.boot:spring-boot-starter-web") {
