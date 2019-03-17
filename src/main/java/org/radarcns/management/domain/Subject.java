@@ -8,6 +8,7 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.envers.Audited;
 import org.radarcns.management.domain.support.AbstractEntityListener;
+import org.springframework.data.elasticsearch.annotations.Document;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -41,6 +42,7 @@ import java.util.Set;
 @Table(name = "subject")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EntityListeners({AbstractEntityListener.class})
+@Document(indexName = "subject")
 public class Subject extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
