@@ -1,7 +1,7 @@
 version: '2'
 services:
     managementportal-app:
-        image: radarcns/management-portal:0.5.4
+        image: radarcns/management-portal
         environment:
             - SPRING_PROFILES_ACTIVE=prod,swagger
             - SPRING_DATASOURCE_URL=jdbc:postgresql://managementportal-postgresql:5432/managementportal
@@ -18,3 +18,7 @@ services:
         extends:
             file: postgresql.yml
             service: managementportal-postgresql
+    managementportal-elasticsearch:
+        extends:
+            file: elasticsearch.yml
+            service: managementportal-elasticsearch

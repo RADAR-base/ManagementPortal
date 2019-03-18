@@ -18,3 +18,7 @@ services:
         extends:
             file: postgresql.yml
             service: managementportal-postgresql
+    managementportal-elasticsearch:
+        extends:
+            file: elasticsearch.yml
+            service: managementportal-elasticsearch
