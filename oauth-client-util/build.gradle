@@ -2,8 +2,6 @@ plugins {
     // Apply the java plugin to add support for Java
     id 'java-library'
     id 'idea'
-    id 'pmd'
-    id 'checkstyle'
     id 'maven-publish'
 }
 
@@ -114,3 +112,5 @@ bintray {
 artifactoryPublish {
     publications 'RadarOAuthClientPublication'
 }
+
+apply from: '../gradle/style.gradle'

@@ -18,7 +18,7 @@ buildscript {
         classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
         classpath "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE"
         classpath "io.swagger:swagger-codegen:2.4.2"
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.9.1"
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.9.3"
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
     }
 }
@@ -35,12 +35,11 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'idea'
-    apply plugin: 'checkstyle'
-    apply plugin: 'pmd'
     apply plugin: 'com.jfrog.bintray'
     apply plugin: 'maven-publish'
-    apply plugin: 'jacoco'
     apply plugin: 'com.jfrog.artifactory'
+
+    ext.codacyVersion = '4.0.5'
 
     ext {
         githubRepoName = 'RADAR-base/ManagementPortal'
@@ -99,31 +98,6 @@ allprojects {
         }
     }
 
-    //---------------------------------------------------------------------------//
-    // Style checking                                                            //
-    //---------------------------------------------------------------------------//
-
-    checkstyle {
-        toolVersion = '8.7'
-        ignoreFailures = false
-        maxWarnings = 0
-
-        configFile = rootProject.file('config/checkstyle/checkstyle.xml')
-    }
-
-    pmd {
-        toolVersion = '5.8.1'
-        ignoreFailures = false
-
-        consoleOutput = true
-
-        ruleSets = []
-        ruleSetFiles = rootProject.files("config/pmd/ruleset.xml")
-    }
-
-    pmdTest {
-        ruleSetFiles = rootProject.files("config/pmd/test_ruleset.xml")
-    }
 
     artifactory {
         contextUrl = 'https://oss.jfrog.org/artifactory'
@@ -153,7 +127,6 @@ apply plugin: 'io.spring.dependency-management'
 defaultTasks 'bootRun'
 
 configurations {
-    codacy
     providedRuntime
     compile.exclude module: "spring-boot-starter-tomcat"
     cucumberTestCompile.extendsFrom testCompile
@@ -234,12 +207,11 @@ task testReport(type: TestReport) {
 
 cucumberTest.finalizedBy(testReport)
 
-//apply from: 'gradle/sonar.gradle'
 apply from: 'gradle/liquibase.gradle'
 apply from: 'gradle/gatling.gradle'
 apply from: 'gradle/mapstruct.gradle'
 apply from: 'gradle/docker.gradle'
-//jhipster-needle-gradle-apply-from - JHipster will add additional gradle scripts to be applied here
+apply from: 'gradle/style.gradle'
 
 if (project.hasProperty('prod')) {
     apply from: 'gradle/profile_prod.gradle'
@@ -252,8 +224,7 @@ if (project.hasProperty('graphite')) {
 }
 
 ext {
-    codacyVersion = '4.0.3'
-    moduleDescription = ''
+    moduleDescription = 'Management Portal application'
 }
 
 repositories {
@@ -332,9 +303,7 @@ dependencies {
     compile "com.h2database:h2"
     compile project(":radar-auth")
     compile "org.springframework.data:spring-data-envers:${spring_data_envers_version}"
-
-    codacy group: 'com.codacy', name: 'codacy-coverage-reporter', version: codacyVersion
-
+    
     testCompile "org.awaitility:awaitility:${awaitility_version}"
     testCompile "com.jayway.jsonpath:json-path"
     testCompile "info.cukes:cucumber-junit:${cucumber_version}"
@@ -441,21 +410,6 @@ task generateJavaClient(dependsOn: 'generateOpenApiSpec', group: 'Swagger',
         file("managementportal-client/build.gradle") << file("mp-client-publishing.txt").text
         println("Client generated at " + swaggerTargetFolder)
     }
-}
-
-jacocoTestReport {
-    reports {
-        xml.enabled true
-        csv.enabled false
-        html.enabled true
-    }
-    dependsOn test
-}
-
-task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
-    main = 'com.codacy.CodacyCoverageReporter'
-    classpath = configurations.codacy
-    args = ['report', '-l', 'Java', '-r', "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"]
 }
 
 ext.sharedManifest = manifest {
