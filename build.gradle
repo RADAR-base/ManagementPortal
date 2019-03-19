@@ -13,9 +13,9 @@ buildscript {
 plugins {
     id 'org.springframework.boot' version '1.5.9.RELEASE'
     id "com.moowork.node" version "1.2.0"
-    id "io.spring.dependency-management" version "1.0.6.RELEASE"
+    id "io.spring.dependency-management" version "1.0.7.RELEASE"
     id 'com.jfrog.bintray' version '1.8.4' apply false
-    id 'com.jfrog.artifactory' version '4.9.3' apply false
+    id 'com.jfrog.artifactory' version '4.9.1' apply false
 }
 
 allprojects {
@@ -30,95 +30,28 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'idea'
-    apply plugin: 'com.jfrog.bintray'
-    apply plugin: 'maven-publish'
-    apply plugin: 'com.jfrog.artifactory'
 
     ext.codacyVersion = '4.0.5'
-
-    ext {
-        githubRepoName = 'RADAR-base/ManagementPortal'
-
-
-        githubUrl = 'https://github.com/' + githubRepoName + '.git'
-        issueUrl = 'https://github.com/' + githubRepoName + '/issues'
-        website = 'http://radar-base.org'
-
-        pomConfig = {
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    distribution 'repo'
-                }
-            }
-            developers {
-                developer {
-                    id 'dennyverbeeck'
-                    name 'Denny Verbeeck'
-                    email 'dverbeec@its.jnj.com'
-                    organization 'Janssen R&D'
-                }
-                developer {
-                    id 'nivemaham'
-                    name 'Nivethika Mahasivam'
-                    email 'nivethika@thehyve.nl'
-                    organization 'The Hyve'
-                }
-                developer {
-                    id 'blootsvoets'
-                    name 'Joris Borgdorff'
-                    email 'joris@thehyve.nl'
-                    organization 'The Hyve'
-                }
-            }
-            issueManagement {
-                system 'GitHub'
-                url githubUrl + '/issues'
-            }
-            organization {
-                name 'RADAR-base'
-                url website
-            }
-            scm {
-                connection 'scm:git:' + githubUrl
-                url githubUrl
-            }
-        }
-    }
+    ext.githubRepoName = 'RADAR-base/ManagementPortal'
+    ext.githubUrl = 'https://github.com/RADAR-base/ManagementPortal'
+    ext.issueUrl = "https://github.com/$githubRepoName/issues"
+    ext.website = 'http://radar-base.org'
 
     idea {
         module {
             downloadSources = true
         }
     }
-
-
-    artifactory {
-        contextUrl = 'https://oss.jfrog.org/artifactory'
-        publish {
-            repository {
-                repoKey = 'oss-snapshot-local'
-                username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-                password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-                maven = true
-            }
-            defaults {
-                publishArtifacts = true
-                publishPom = true
-                properties = ['qa.level': 'basic']
-            }
-        }
-    }
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
 }
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+
 apply plugin: 'org.springframework.boot'
 apply plugin: 'war'
-//apply plugin: 'propdeps'
 apply plugin: 'com.moowork.node'
 apply plugin: 'io.spring.dependency-management'
+
 defaultTasks 'bootRun'
 
 configurations {
@@ -206,6 +139,7 @@ apply from: 'gradle/gatling.gradle'
 apply from: 'gradle/mapstruct.gradle'
 apply from: 'gradle/docker.gradle'
 apply from: 'gradle/style.gradle'
+apply from: 'gradle/publishing.gradle'
 
 if (project.hasProperty('prod')) {
     apply from: 'gradle/profile_prod.gradle'
@@ -217,9 +151,7 @@ if (project.hasProperty('graphite')) {
     apply from: 'gradle/graphite.gradle'
 }
 
-ext {
-    moduleDescription = 'Management Portal application'
-}
+ext.moduleDescription = 'Management Portal application'
 
 repositories {
     mavenCentral()
@@ -341,7 +273,6 @@ compileJava.dependsOn processResources
 processResources.dependsOn cleanResources, bootBuildInfo
 bootBuildInfo.mustRunAfter cleanResources
 
-idea.module.downloadSources = true
 
 task generateOpenApiSpec(dependsOn: 'classes', group: 'Swagger',
         description: 'Fetch the OpenAPI spec from the Swagger endpoint. The application needs to be running at http://localhost:8080/.') {
@@ -404,82 +335,6 @@ task generateJavaClient(dependsOn: 'generateOpenApiSpec', group: 'Swagger',
         file("managementportal-client/build.gradle") << file("mp-client-publishing.txt").text
         println("Client generated at " + swaggerTargetFolder)
     }
-}
-
-ext.sharedManifest = manifest {
-    attributes("Implementation-Title": project.name,
-            "Implementation-Version": version)
-}
-
-jar {
-    manifest.from sharedManifest
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-    manifest.from sharedManifest
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-    manifest.from sharedManifest
-}
-
-publishing {
-    publications {
-        ManagementPortalPublication(MavenPublication) {
-            from components.java
-            artifact sourcesJar
-            artifact javadocJar
-
-            pom {
-                description = moduleDescription
-                name = project.name
-                url = githubUrl
-            }
-
-            pom.withXml {
-                asNode().children().last() + pomConfig
-            }
-        }
-    }
-}
-
-bintray {
-    user project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-    override false
-    publications 'ManagementPortalPublication'
-    pkg {
-        repo = project.group
-        name = project.name
-        userOrg = 'radar-cns'
-        desc = moduleDescription
-        licenses = ['Apache-2.0']
-        websiteUrl = website
-        issueTrackerUrl = issueUrl
-        vcsUrl = githubUrl
-        githubRepo = githubRepoName
-        githubReleaseNotesFile = 'README.md'
-        version {
-            name = project.version
-            desc = moduleDescription
-            vcsTag = System.getenv('TRAVIS_TAG')
-            released = new Date()
-            gpg {
-                sign = true //Determines whether to GPG sign the files. The default is false
-            }
-        }
-    }
-}
-
-bintrayUpload.dependsOn 'assemble'
-
-artifactoryPublish {
-    publications 'ManagementPortalPublication'
-    dependsOn 'assemble'
 }
 
 task downloadDependencies {

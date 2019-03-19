@@ -1,17 +1,6 @@
-plugins {
-    // Apply the java plugin to add support for Java
-    id 'java-library'
-    id 'maven-publish'
-}
-
-sourceCompatibility = 1.8
-
-ext {
-    jacksonVersion = '2.9.8'
-    okhttpVersion = '3.13.1'
-
-    moduleDescription = 'Library for authentication and authorization of JWT tokens issued by the RADAR platform'
-}
+ext.jacksonVersion = '2.9.8'
+ext.okhttpVersion = '3.13.1'
+ext.moduleDescription = 'Library for authentication and authorization of JWT tokens issued by the RADAR platform'
 
 repositories {
     jcenter()
@@ -34,74 +23,5 @@ dependencies {
     testRuntimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 }
 
-ext.sharedManifest = manifest {
-    attributes("Implementation-Title": project.name,
-            "Implementation-Version": version)
-}
-
-jar {
-    manifest.from sharedManifest
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-    manifest.from sharedManifest
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-    manifest.from sharedManifest
-}
-
-publishing {
-    publications {
-        RadarAuthPublication(MavenPublication) {
-            from components.java
-            artifact sourcesJar
-            artifact javadocJar
-
-            pom {
-                description = moduleDescription
-                name = project.name
-                url = githubUrl
-            }
-
-            pom.withXml {
-                asNode().children().last() + pomConfig
-            }
-        }
-    }
-}
-
-bintray {
-    user project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-    override false
-    publications 'RadarAuthPublication'
-    pkg {
-        repo = project.group
-        name = project.name
-        userOrg = 'radar-cns'
-        desc = moduleDescription
-        licenses = ['Apache-2.0']
-        websiteUrl = website
-        issueTrackerUrl = issueUrl
-        vcsUrl = githubUrl
-        githubRepo = githubRepoName
-        githubReleaseNotesFile = 'README.md'
-        version {
-            name = project.version
-            desc = moduleDescription
-            vcsTag = System.getenv('TRAVIS_TAG')
-            released = new Date()
-        }
-    }
-}
-
-artifactoryPublish {
-    publications 'RadarAuthPublication'
-}
-
 apply from: '../gradle/style.gradle'
+apply from: '../gradle/publishing.gradle'
