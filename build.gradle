@@ -16,7 +16,7 @@ buildscript {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${spring_boot_version}"
         classpath "org.springframework.build.gradle:propdeps-plugin:0.0.7"
         classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
-        classpath "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE"
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.7.RELEASE"
         classpath "io.swagger:swagger-codegen:2.4.2"
         classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.9.1"
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
