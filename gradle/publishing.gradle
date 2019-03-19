@@ -2,8 +2,6 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.jfrog.artifactory'
 
-
-
 def sharedManifest = manifest {
     attributes("Implementation-Title": project.name,
             "Implementation-Version": version)
@@ -28,9 +26,9 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 // add javadoc/source jar tasks as artifacts
-//artifacts {
-//    archives sourcesJar, javadocJar
-//}
+artifacts {
+    archives sourcesJar, javadocJar
+}
 
 publishing {
     publications {
@@ -84,9 +82,6 @@ publishing {
                 }
             }
 
-            pom.withXml {
-                asNode().children().last() + pomConfig
-            }
         }
     }
 }

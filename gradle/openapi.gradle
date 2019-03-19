@@ -1,0 +1,81 @@
+import io.swagger.codegen.DefaultGenerator
+import io.swagger.codegen.config.CodegenConfigurator
+
+import java.nio.file.Paths
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "io.swagger:swagger-codegen:2.4.2"
+    }
+}
+
+
+ext.apiDocsEndpoint = 'http://localhost:8080/v2/api-docs'
+ext.swaggerFileLocation = 'build/swagger-spec/swagger.json'
+ext.swaggerTargetFolder = 'managementportal-client'
+
+task generateOpenApiSpec(dependsOn: 'classes', group: 'Swagger',
+        description: 'Fetch the OpenAPI spec from the Swagger endpoint. The application needs to be running at http://localhost:8080/.') {
+    outputs.file(swaggerFileLocation)
+    doLast {
+        // Create parent dir to swagger file
+        File swaggerFile = new File(swaggerFileLocation);
+        swaggerFile.getParentFile().mkdirs();
+
+        def generated = false
+
+        println()
+        for (def i = 0; i < 20; i++) {
+            ProcessBuilder curlPb = new ProcessBuilder("curl", apiDocsEndpoint, "-o",
+                    swaggerFileLocation, "--connect-timeout", "1")
+            curlPb.directory(projectDir)
+            Process curlProcess = curlPb.start()
+            curlProcess.waitFor()
+            generated = curlProcess.exitValue() == 0
+            if (generated) {
+                break
+            }
+            System.out.print("#")
+            System.out.flush()
+            sleep(5000)
+        }
+        if (!generated) {
+            throw new GradleException('Swagger file could not be generated')
+        }
+        println()
+        println("Swagger file generated at " + swaggerFileLocation)
+    }
+}
+
+task generateJavaClient(dependsOn: 'generateOpenApiSpec', group: 'Swagger',
+        description: 'Generate a Java client library for ManagementPortal') {
+    inputs.file(swaggerFileLocation)
+    outputs.dir(swaggerTargetFolder)
+    doLast {
+        // if gradle determined this task is out of date, first delete the directory
+        File targetFolder = new File(projectDir.absolutePath, swaggerTargetFolder)
+        if (targetFolder.exists()) {
+            targetFolder.deleteDir()
+        }
+        def config = new CodegenConfigurator()
+        config.setInputSpec(Paths.get(projectDir.absolutePath, swaggerFileLocation).toString())
+        config.setOutputDir(Paths.get(projectDir.absolutePath, swaggerTargetFolder).toString())
+        config.setLang("java")
+        config.setArtifactId("managementportal-client")
+        config.setGroupId("org.radarcns")
+        config.setArtifactVersion(version)
+        config.setAdditionalProperties([
+                'apiPackage'    : 'org.radarcns.management.client.api',
+                'modelPackage'  : 'org.radarcns.management.client.model',
+                'appName'       : rootProject.name,
+                'appDescription': moduleDescription,
+                'licenceUrl'    : 'http://apache.org/licenses/LICENSE-2.0.html'
+        ])
+        new DefaultGenerator().opts(config.toClientOptInput()).generate()
+        file("managementportal-client/build.gradle") << file("mp-client-publishing.txt").text
+        println("Client generated at " + swaggerTargetFolder)
+    }
+}
