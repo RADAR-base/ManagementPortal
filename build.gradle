@@ -13,8 +13,6 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-//        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.1"
-        classpath "net.ltgt.gradle:gradle-apt-plugin:0.9"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${spring_boot_version}"
         classpath "org.springframework.build.gradle:propdeps-plugin:0.0.7"
         classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
@@ -22,7 +20,6 @@ buildscript {
         classpath "io.swagger:swagger-codegen:2.4.2"
         classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.9.1"
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
-        //jhipster-needle-gradle-buildscript-dependency - JHipster will add additional gradle build script plugins here
     }
 }
 
@@ -331,10 +328,8 @@ dependencies {
         exclude module: 'mapstruct'
     }
     compile "io.springfox:springfox-bean-validators:${springfox_version}"
-//    compile "mysql:mysql-connector-java"
     compile "org.postgresql:postgresql"
     compile "com.h2database:h2"
-    compile "org.mapstruct:mapstruct-jdk8:${mapstruct_version}"
     compile project(":radar-auth")
     compile "org.springframework.data:spring-data-envers:${spring_data_envers_version}"
 
@@ -352,8 +347,7 @@ dependencies {
     testCompile "org.mockito:mockito-core"
     testCompile "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     testCompile "org.hamcrest:hamcrest-library"
-    optional "org.springframework.boot:spring-boot-configuration-processor:${spring_boot_version}"
-    //jhipster-needle-gradle-dependency - JHipster will add additional dependencies here
+    annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
 }
 
 clean {
