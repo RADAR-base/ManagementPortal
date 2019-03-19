@@ -8803,9 +8803,10 @@ tsickle@^0.21.0:
     source-map "^0.5.6"
     source-map-support "^0.4.2"
 
-tslint-loader@3.5.2:
-  version "3.5.2"
-  resolved "https://registry.yarnpkg.com/tslint-loader/-/tslint-loader-3.5.2.tgz#ef2f512c05a96fb1a22d94c32d22fb7975ef9917"
+tslint-loader@3.5.4:
+  version "3.5.4"
+  resolved "https://registry.yarnpkg.com/tslint-loader/-/tslint-loader-3.5.4.tgz#052af7f0772434451ea1b247bb55407f878a4c40"
+  integrity sha512-jBHNNppXut6SgZ7CsTBh+6oMwVum9n8azbmcYSeMlsABhWWoHwjq631vIFXef3VSd75cCdX3rc6kstsB7rSVVw==
   dependencies:
     loader-utils "^1.0.2"
     mkdirp "^0.5.1"
