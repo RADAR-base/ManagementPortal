@@ -79,7 +79,7 @@
     "protractor-jasmine2-screenshot-reporter": "0.3.5",
     "proxy-middleware": "0.15.0",
     "rimraf": "2.6.1",
-    "run-sequence": "1.2.2",
+    "run-sequence": "2.2.1",
     "sass-loader": "5.0.1",
     "sourcemap-istanbul-instrumenter-loader": "0.2.0",
     "string-replace-webpack-plugin": "0.1.3",
