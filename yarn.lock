@@ -5784,9 +5784,10 @@ ng2-translate@4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/ng2-translate/-/ng2-translate-4.2.0.tgz#83bc8feca329b5fc56a636e36073241c6280c659"
 
-ng2-webstorage@1.6.2:
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/ng2-webstorage/-/ng2-webstorage-1.6.2.tgz#b363fedf56796a9ad8566cd79c2e5c7ad3473668"
+ng2-webstorage@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ng2-webstorage/-/ng2-webstorage-2.0.0.tgz#0bdf0584555c0c9d47da1413e0c80e1786ebec17"
+  integrity sha512-TW9Hr1Yk035X2KiLw6C/hd4C6CAudjzHO+ETjGCUJXFXCUeH+n+RaJOqMTfmnWfclnIYZAOC7ml+0E/vFEPndw==
 
 no-case@^2.2.0:
   version "2.3.2"
