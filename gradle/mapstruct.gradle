@@ -1,6 +1,5 @@
 
 dependencies {
     compile group: 'org.mapstruct', name: 'mapstruct-jdk8', version: mapstruct_version
-    compileOnly group: 'org.mapstruct', name: 'mapstruct-processor', version: mapstruct_version
     annotationProcessor group: 'org.mapstruct', name: 'mapstruct-processor', version: mapstruct_version
 }
