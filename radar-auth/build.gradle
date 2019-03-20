@@ -1,3 +1,7 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '5.0.0'
+}
+
 ext.jacksonVersion = '2.9.8'
 ext.okhttpVersion = '3.14.0'
 ext.oauthJwtVersion = '3.7.0'
@@ -10,6 +14,7 @@ repositories {
 }
 
 dependencies {
+    shadow project(path: ':radar-auth:deprecated-auth0', configuration: 'shadow')
     api group: 'com.auth0', name: 'java-jwt', version: oauthJwtVersion
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion
 
@@ -24,6 +29,11 @@ dependencies {
 
     testRuntimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 }
+
+shadowJar {
+    configurations = [project.configurations.shadow]
+}
+
 
 apply from: '../gradle/style.gradle'
 apply from: '../gradle/publishing.gradle'

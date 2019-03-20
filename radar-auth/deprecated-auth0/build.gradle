@@ -1,0 +1,18 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' 
+}
+
+
+repositories {
+    jcenter()
+    mavenLocal()
+}
+
+dependencies {
+    shadow group: 'com.auth0', name: 'java-jwt', version: '3.2.0'
+}
+
+shadowJar {
+    configurations = [project.configurations.shadow]
+    relocate 'com.auth0.jwt', 'shadow.auth0.jwt'
+}
