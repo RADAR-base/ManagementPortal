@@ -1,5 +1,3 @@
 rootProject.name = 'management-portal'
 include 'oauth-client-util'
 include 'radar-auth'
-
-enableFeaturePreview('STABLE_PUBLISHING')
