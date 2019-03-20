@@ -2,6 +2,7 @@ package org.radarcns.management.domain;
 
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
@@ -79,6 +80,7 @@ public class Subject extends AbstractEntity implements Serializable {
 
     @OneToMany(mappedBy = "subject", orphanRemoval = true)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @JsonIgnore
     private final Set<MetaToken> metaTokens = new HashSet<>();
 
     public Long getId() {
