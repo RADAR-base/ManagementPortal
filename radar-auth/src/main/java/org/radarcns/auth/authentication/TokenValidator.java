@@ -125,7 +125,6 @@ public class TokenValidator {
      * @throws TokenValidationException If the token can not be validated.
      */
     public RadarToken validateAccessToken(String token) throws TokenValidationException {
-        shadow.auth0.jwt.JWTVerifier verifier2;
         for (JWTVerifier verifier : getVerifiers()) {
             try {
                 DecodedJWT jwt = verifier.verify(token);

@@ -2,6 +2,8 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '5.0.0'
 }
 
+apply plugin: 'maven-publish'
+
 ext.jacksonVersion = '2.9.8'
 ext.okhttpVersion = '3.14.0'
 ext.oauthJwtVersion = '3.7.0'
@@ -34,6 +36,13 @@ shadowJar {
     configurations = [project.configurations.shadow]
 }
 
+publishing {
+    publications {
+        shadow(MavenPublication) {
+            publication -> project.shadow.component(publication)
+        }
+    }
+}
 
 apply from: '../gradle/style.gradle'
 apply from: '../gradle/publishing.gradle'
