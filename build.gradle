@@ -36,6 +36,7 @@ allprojects {
     targetCompatibility = '1.8'
 }
 
+description = 'MangementPortal application to manage studies and participants'
 
 apply plugin: 'org.springframework.boot'
 apply plugin: 'war'

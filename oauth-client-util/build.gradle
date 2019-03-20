@@ -1,7 +1,8 @@
-ext.okhttpVersion = '3.11.0'
-ext.junitVersion = '4.12'
-ext.jacksonVersion = '2.9.7'
-ext.moduleDescription = 'This library can be used by client applications that want to use the client_credentials OAuth2 flow. It will manage getting the token and renewing it when necessary.'
+ext.jacksonVersion = '2.9.8'
+ext.okhttpVersion = '3.14.0'
+ext.junitVersion ='4.12'
+
+description = 'This library can be used by client applications that want to use the client_credentials OAuth2 flow. It will manage getting the token and renewing it when necessary.'
 
 repositories {
     jcenter()
