@@ -71,7 +71,7 @@ task generateJavaClient(dependsOn: 'generateOpenApiSpec', group: 'Swagger',
                 'apiPackage'    : 'org.radarcns.management.client.api',
                 'modelPackage'  : 'org.radarcns.management.client.model',
                 'appName'       : rootProject.name,
-                'appDescription': moduleDescription,
+                'appDescription': description,
                 'licenceUrl'    : 'http://apache.org/licenses/LICENSE-2.0.html'
         ])
         new DefaultGenerator().opts(config.toClientOptInput()).generate()
