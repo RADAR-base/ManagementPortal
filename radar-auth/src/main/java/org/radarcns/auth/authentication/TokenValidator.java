@@ -1,5 +1,17 @@
 package org.radarcns.auth.authentication;
 
+import java.net.URI;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -8,10 +20,6 @@ import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Collection;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
-
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -29,15 +37,6 @@ import org.radarcns.auth.token.validation.deprecated.DeprecatedEcTokenValidation
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 /**
  * Validates JWT token signed by the Management Portal. It is synchronized and may be used from
  * multiple threads. If the status of the public key should be checked immediately, call
@@ -52,7 +51,9 @@ public class TokenValidator {
     private List<JWTVerifier> verifiers = new LinkedList<>();
     private final List<TokenValidationAlgorithm> algorithmList = Arrays.asList(
             new ECTokenValidationAlgorithm(),
-            new RSATokenValidationAlgorithm(),
+            new RSATokenValidationAlgorithm());
+    private final List<TokenValidationAlgorithm> supportedAlgorithmsForPublicKeys = Arrays.asList(
+            new ECTokenValidationAlgorithm(),
             new DeprecatedEcTokenValidationAlgorithm());
 
     // If a client presents a token with an invalid signature, it might be the keypair was changed.
@@ -198,7 +199,7 @@ public class TokenValidator {
                 .flatMap(List::stream);
 
         Stream<Algorithm> stringKeys = streamEmptyIfNull(config.getPublicKeys())
-                .map(this::algorithmFromString);
+                .map(this::loadDeprecatedAlgorithmFromPublicKey);
 
         // Create a verifier for each signature verification algorithm we created
         return Stream.concat(endpointKeys, stringKeys)
@@ -242,11 +243,22 @@ public class TokenValidator {
     private Algorithm algorithmFromString(String publicKey) {
         // We deny to trust the public key if the reported algorithm is unknown to us
         // https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
-        return algorithmList.stream()
-                .filter(algorithm -> publicKey.startsWith(algorithm.getKeyHeader()))
-                .findFirst()
-                .orElseThrow(() -> new TokenValidationException("Unsupported public key: "
-                        + publicKey))
+        return loadAlgorithmFromPublicKey(algorithmList, publicKey);
+    }
+
+    private Algorithm loadDeprecatedAlgorithmFromPublicKey(String publicKey) {
+        // We deny to trust the public key if the reported algorithm is unknown to us
+        // https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
+        return loadAlgorithmFromPublicKey(supportedAlgorithmsForPublicKeys, publicKey);
+    }
+
+    private Algorithm loadAlgorithmFromPublicKey(
+            List<TokenValidationAlgorithm> supportedAlgorithms, String publicKey) {
+        return supportedAlgorithms
+                .stream()
+                .filter(algorithm -> publicKey.startsWith(algorithm.getKeyHeader())).findFirst()
+                .orElseThrow(
+                        () -> new TokenValidationException("Unsupported public key: " + publicKey))
                 .getAlgorithm(publicKey);
     }
 
