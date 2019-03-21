@@ -25,6 +25,7 @@ import org.radarcns.auth.token.RadarToken;
 import org.radarcns.auth.token.validation.ECTokenValidationAlgorithm;
 import org.radarcns.auth.token.validation.RSATokenValidationAlgorithm;
 import org.radarcns.auth.token.validation.TokenValidationAlgorithm;
+import org.radarcns.auth.token.validation.deprecated.DeprecatedEcTokenValidationAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,9 @@ public class TokenValidator {
     private final TokenValidatorConfig config;
     private List<JWTVerifier> verifiers = new LinkedList<>();
     private final List<TokenValidationAlgorithm> algorithmList = Arrays.asList(
-            new ECTokenValidationAlgorithm(), new RSATokenValidationAlgorithm());
+            new ECTokenValidationAlgorithm(),
+            new RSATokenValidationAlgorithm(),
+            new DeprecatedEcTokenValidationAlgorithm());
 
     // If a client presents a token with an invalid signature, it might be the keypair was changed.
     // In that case we need to fetch it again, but we don't want a malicious client to be able to

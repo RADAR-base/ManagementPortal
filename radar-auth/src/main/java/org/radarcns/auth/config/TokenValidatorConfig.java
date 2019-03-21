@@ -20,8 +20,10 @@ public interface TokenValidatorConfig {
 
     /**
      * Get the public keys set in the config file. They should be in PEM format.
-     * @return The public keys, or <code>null</code> if not defined
+     * @return The public keys, or <code>null</code> if not defined.
+     * @deprecated Use the {@link #getPublicKeyEndpoints()} instead to get public-keys.
      */
+    @Deprecated
     List<String> getPublicKeys();
 
 }

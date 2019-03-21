@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    shadow project(path: ':radar-auth:deprecated-auth0', configuration: 'shadow')
+    implementation project(path: ':radar-auth:deprecated-auth0', configuration: 'shadow')
     api group: 'com.auth0', name: 'java-jwt', version: oauthJwtVersion
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion
 
@@ -38,7 +38,7 @@ shadowJar {
 
 publishing {
     publications {
-        shadow(MavenPublication) {
+        mavenJar(MavenPublication) {
             publication -> project.shadow.component(publication)
         }
     }

@@ -2,7 +2,6 @@ plugins {
     id 'com.github.johnrengelman.shadow' 
 }
 
-
 repositories {
     jcenter()
     mavenLocal()
