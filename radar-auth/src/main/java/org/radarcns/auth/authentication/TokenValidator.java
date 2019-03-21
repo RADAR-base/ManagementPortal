@@ -61,7 +61,7 @@ public class TokenValidator {
     // make us DOS our own identity server. Fetching it at maximum once per minute mitigates this.
     private static final Duration FETCH_TIMEOUT_DEFAULT = Duration.ofMinutes(1);
     private final Duration fetchTimeout;
-    private Instant lastFetch = Instant.MIN;
+    private Instant lastFetch;
 
     private static final long DEFAULT_TIMEOUT = 30;
     private final OkHttpClient client = new OkHttpClient.Builder()
@@ -185,7 +185,7 @@ public class TokenValidator {
     private List<JWTVerifier> loadVerifiers() throws TokenValidationException {
         synchronized (this) {
             // whether successful or not, do not request the key more than once per minute
-            if (Instant.now().isBefore(lastFetch.plus(fetchTimeout))) {
+            if (lastFetch != null && Instant.now().isBefore(lastFetch.plus(fetchTimeout))) {
                 // it hasn't been long enough ago to fetch the key again, we deny access
                 LOGGER.warn("Fetched public key less than {} ago, denied access.", fetchTimeout);
                 throw new TokenValidationException("Not fetching public key more than once every "

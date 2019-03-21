@@ -4,6 +4,7 @@ import static org.radarcns.management.security.jwt.ManagementPortalJwtAccessToke
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -66,6 +67,8 @@ public class ManagementPortalOauthKeyStoreHandler {
 
     private final List<String> verifierPublicKeys;
 
+    private final String managementPortalBaseUrl;
+
     /**
      * Keystore factory. This tries to load the first valid keystore listed in resources.
      *
@@ -82,6 +85,8 @@ public class ManagementPortalOauthKeyStoreHandler {
         this.store = loadStore();
         this.verifierPublicKeyAliasList = loadVerifiersPublicKeyAliasList();
         this.verifierPublicKeys = loadVerifyingPublicKeys();
+        this.managementPortalBaseUrl =
+                managementPortalProperties.getCommon().getManagementPortalBaseUrl();
 
     }
 
@@ -294,7 +299,13 @@ public class ManagementPortalOauthKeyStoreHandler {
         return new TokenValidatorConfig() {
             @Override
             public List<URI> getPublicKeyEndpoints() {
-                return Collections.emptyList();
+                try {
+                    URI managementPortalURL = new URI(managementPortalBaseUrl + "/oauth/token_key");
+                    return Collections.singletonList(managementPortalURL);
+                } catch (URISyntaxException e) {
+                    logger.error("Could not create publicKey end point URI");
+                    return Collections.emptyList();
+                }
             }
 
             @Override
@@ -304,7 +315,7 @@ public class ManagementPortalOauthKeyStoreHandler {
 
             @Override
             public List<String> getPublicKeys() {
-                return verifierPublicKeys;
+                return Collections.emptyList();
             }
         };
     }
