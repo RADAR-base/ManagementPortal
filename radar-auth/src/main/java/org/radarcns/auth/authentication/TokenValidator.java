@@ -53,8 +53,8 @@ public class TokenValidator {
             new ECTokenValidationAlgorithm(),
             new RSATokenValidationAlgorithm());
     private final List<TokenValidationAlgorithm> supportedAlgorithmsForPublicKeys = Arrays.asList(
-            new ECTokenValidationAlgorithm(),
-            new DeprecatedEcTokenValidationAlgorithm());
+            new DeprecatedEcTokenValidationAlgorithm(),
+            new RSATokenValidationAlgorithm());
 
     // If a client presents a token with an invalid signature, it might be the keypair was changed.
     // In that case we need to fetch it again, but we don't want a malicious client to be able to
