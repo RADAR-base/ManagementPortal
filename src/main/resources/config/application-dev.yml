@@ -97,7 +97,7 @@ server:
 managementportal:
     common:
         baseUrl: http://localhost:9000 # Modify according to your server's URL
-        managementPortalBaseUrl: http://localhost:9000
+        managementPortalBaseUrl: http://localhost:8080/
         privacyPolicyUrl: http://info.thehyve.nl/radar-cns-privacy-policy
         adminPassword: admin
         activationKeyTimeoutInSeconds: 86400 # 1 day

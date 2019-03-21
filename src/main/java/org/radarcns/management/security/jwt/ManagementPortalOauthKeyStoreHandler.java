@@ -65,9 +65,7 @@ public class ManagementPortalOauthKeyStoreHandler {
 
     private final List<String> verifierPublicKeyAliasList;
 
-    private final List<String> verifierPublicKeys;
-
-    private final String managementPortalBaseUrl;
+    private String managementPortalBaseUrl;
 
     /**
      * Keystore factory. This tries to load the first valid keystore listed in resources.
@@ -84,10 +82,23 @@ public class ManagementPortalOauthKeyStoreHandler {
         this.password = oauthConfig.getKeyStorePassword().toCharArray();
         this.store = loadStore();
         this.verifierPublicKeyAliasList = loadVerifiersPublicKeyAliasList();
-        this.verifierPublicKeys = loadVerifyingPublicKeys();
+
+        configureBaseUrl(managementPortalProperties);
+
+    }
+
+    private void configureBaseUrl(ManagementPortalProperties managementPortalProperties) {
+        String baseUrl = managementPortalProperties.getCommon().getBaseUrl();
+        if (baseUrl == null || baseUrl.isEmpty()) {
+            // this will be the production url when MP is running
+            this.managementPortalBaseUrl = "http://localhost:8080/managementportal";
+            logger.warn("managementportal.common.managementPortalBaseUrl is not configured. Using"
+                    + " default value {}", this.managementPortalBaseUrl);
+        }
+
         this.managementPortalBaseUrl =
                 managementPortalProperties.getCommon().getManagementPortalBaseUrl();
-
+        logger.info("Using Management Portal base-url {}", this.managementPortalBaseUrl);
     }
 
     /**
@@ -154,19 +165,6 @@ public class ManagementPortalOauthKeyStoreHandler {
             publicKeyAliases.addAll(oauthConfig.getCheckingKeyAliases());
         }
         return publicKeyAliases;
-    }
-
-    /**
-     * Returns configured public keys of token verifiers.
-     * @return List of public keys for token verification.
-     */
-    private List<String> loadVerifyingPublicKeys() {
-        return this.verifierPublicKeyAliasList.stream()
-                .map(this::getKeyPair)
-                .map(ManagementPortalOauthKeyStoreHandler::getJwtAlgorithm)
-                .filter(Objects::nonNull)
-                .map(JwtAlgorithm::getVerifierKeyEncodedString)
-                .collect(Collectors.toList());
     }
 
     /**
@@ -300,8 +298,8 @@ public class ManagementPortalOauthKeyStoreHandler {
             @Override
             public List<URI> getPublicKeyEndpoints() {
                 try {
-                    URI managementPortalURL = new URI(managementPortalBaseUrl + "/oauth/token_key");
-                    return Collections.singletonList(managementPortalURL);
+                    URI managementPortalUrl = new URI(managementPortalBaseUrl + "/oauth/token_key");
+                    return Collections.singletonList(managementPortalUrl);
                 } catch (URISyntaxException e) {
                     logger.error("Could not create publicKey end point URI");
                     return Collections.emptyList();
