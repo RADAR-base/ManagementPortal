@@ -20,7 +20,8 @@ public class AlgorithmLoader {
     private static final List<TokenValidationAlgorithm> algorithmList = Arrays.asList(
             new ECTokenValidationAlgorithm(),
             new RSATokenValidationAlgorithm());
-    private static final List<TokenValidationAlgorithm> supportedAlgorithmsForPublicKeys = Arrays.asList(
+    private static final List<TokenValidationAlgorithm> supportedAlgorithmsForPublicKeys =
+            Arrays.asList(
             new DeprecatedEcTokenValidationAlgorithm(),
             new RSATokenValidationAlgorithm());
 
@@ -41,12 +42,22 @@ public class AlgorithmLoader {
                 .getAlgorithm(publicKey);
     }
 
+    /**
+     * Loads algorithms using deprecated method.
+     * @param publicKey publicKeys to load algorithms.
+     * @return instance of {@link Algorithm}.
+     */
     public static Algorithm loadDeprecatedAlgorithmFromPublicKey(String publicKey) {
         // We deny to trust the public key if the reported algorithm is unknown to us
         // https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
         return loadAlgorithmFromPublicKey(supportedAlgorithmsForPublicKeys, publicKey);
     }
 
+    /**
+     * Loads Algorithms from {@link JavaWebKeySet}.
+     * @param publicKeyInfo java web key set to load algorithm.
+     * @return List of {@link Algorithm}.
+     */
     public static List<Algorithm> loadAlgorithmsFromJavaWebKeys(JavaWebKeySet publicKeyInfo) {
         return publicKeyInfo
                 .getKeys()
@@ -56,6 +67,12 @@ public class AlgorithmLoader {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Creates in {@link JWTVerifier} using Algorithms and audience.
+     * @param algorithm instance of {@link Algorithm} to create verifier from.
+     * @param audience to which audience.
+     * @return instance of {@link JWTVerifier}.
+     */
     public static JWTVerifier buildVerifier(Algorithm algorithm, String audience) {
         return JWT.require(algorithm)
                 .withAudience(audience)
