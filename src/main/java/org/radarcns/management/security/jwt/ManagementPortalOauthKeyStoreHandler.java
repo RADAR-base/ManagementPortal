@@ -70,7 +70,7 @@ public class ManagementPortalOauthKeyStoreHandler {
 
     private String managementPortalBaseUrl;
 
-    private Boolean enableAdditionalPublicKeyVerifiers = false;
+    private final Boolean enableAdditionalPublicKeyVerifiers;
     
     private TokenValidatorConfig deprecatedValidatedConfig;
 
