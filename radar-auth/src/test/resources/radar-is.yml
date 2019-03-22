@@ -1,7 +1,6 @@
 resourceName: unit_test
 publicKeyEndpoints:
   - http://localhost:8089/oauth/token_key
-  - http://localhost:8089/oauth/token_key # in our tests we only have one wiremock port open, so we have two times the same uri
 publicKeys:
   - |-
     -----BEGIN PUBLIC KEY-----

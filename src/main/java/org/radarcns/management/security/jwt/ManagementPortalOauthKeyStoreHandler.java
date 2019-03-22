@@ -29,6 +29,7 @@ import javax.annotation.Nullable;
 import com.auth0.jwt.algorithms.Algorithm;
 import org.radarcns.auth.authentication.TokenValidator;
 import org.radarcns.auth.config.TokenValidatorConfig;
+import org.radarcns.auth.config.TokenVerifierPublicKeyConfig;
 import org.radarcns.auth.security.jwk.JavaWebKeySet;
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.security.jwt.algorithm.EcdsaJwtAlgorithm;
@@ -67,6 +68,8 @@ public class ManagementPortalOauthKeyStoreHandler {
 
     private String managementPortalBaseUrl;
 
+    private final Boolean enableAdditionalPublicKeyVerifiers;
+
     /**
      * Keystore factory. This tries to load the first valid keystore listed in resources.
      *
@@ -82,7 +85,8 @@ public class ManagementPortalOauthKeyStoreHandler {
         this.password = oauthConfig.getKeyStorePassword().toCharArray();
         this.store = loadStore();
         this.verifierPublicKeyAliasList = loadVerifiersPublicKeyAliasList();
-
+        this.enableAdditionalPublicKeyVerifiers =
+                managementPortalProperties.getOauth().getEnablePublicKeyVerifiers();
         configureBaseUrl(managementPortalProperties);
 
     }
@@ -295,6 +299,7 @@ public class ManagementPortalOauthKeyStoreHandler {
 
     private TokenValidatorConfig getKeystoreConfigsForVerifiers() {
         return new TokenValidatorConfig() {
+
             @Override
             public List<URI> getPublicKeyEndpoints() {
                 try {
@@ -311,9 +316,17 @@ public class ManagementPortalOauthKeyStoreHandler {
                 return RES_MANAGEMENT_PORTAL;
             }
 
+            // management-portal should support old verifiers to verify refresh-tokens, if
+            // configured. otherwise, use the token_key endpoint only.
             @Override
             public List<String> getPublicKeys() {
-                return Collections.emptyList();
+                if (enableAdditionalPublicKeyVerifiers) {
+                        TokenValidatorConfig deprecatedConfig =
+                                TokenVerifierPublicKeyConfig.readFromFileOrClasspath();
+                        return deprecatedConfig.getPublicKeys();
+                } else {
+                    return Collections.emptyList();
+                }
             }
         };
     }
