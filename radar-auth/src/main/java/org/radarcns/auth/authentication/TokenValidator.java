@@ -271,8 +271,8 @@ public class TokenValidator {
                 .stream()
                 .filter(algorithm -> publicKey.startsWith(algorithm.getKeyHeader()))
                 .findFirst()
-                .orElseThrow(
-                        () -> new TokenValidationException("Unsupported public key: " + publicKey))
+                .orElseThrow(() ->
+                        new TokenValidationException("Unsupported public key: " + publicKey))
                 .getAlgorithm(publicKey);
     }
 

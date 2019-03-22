@@ -145,8 +145,7 @@ public class DeprecatedEcTokenValidationAlgorithm extends AbstractTokenValidatio
                 Map<String, com.auth0.jwt.interfaces.Claim> claims = jwt.getClaims();
                 return claims.entrySet()
                         .stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey,
-                                e -> wrap(e.getValue())));
+                        .collect(Collectors.toMap(Map.Entry::getKey, e -> wrap(e.getValue())));
             }
         };
     }
