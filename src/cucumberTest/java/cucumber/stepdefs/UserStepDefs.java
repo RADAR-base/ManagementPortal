@@ -9,8 +9,9 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import javax.servlet.ServletException;
+
+import org.radarcns.auth.authentication.OAuthHelper;
 import org.radarcns.management.security.JwtAuthenticationFilter;
-import org.radarcns.management.web.rest.OAuthHelper;
 import org.radarcns.management.web.rest.UserResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

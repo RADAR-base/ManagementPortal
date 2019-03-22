@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.radarcns.management.ManagementPortalTestApp;
 import org.radarcns.management.service.ProjectService;
-import org.radarcns.management.web.rest.OAuthHelper;
+import org.radarcns.auth.authentication.OAuthHelper;
 import org.radarcns.management.web.rest.ProjectResource;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,7 @@
-package org.radarcns.management.web.rest;
+package org.radarcns.auth.authentication;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.interfaces.ECPrivateKey;
@@ -8,17 +9,20 @@ import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.radarcns.auth.authorization.Permission;
+import org.radarcns.auth.config.TokenValidatorConfig;
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.security.JwtAuthenticationFilter;
-import org.radarcns.management.security.jwt.ManagementPortalOauthKeyStoreHandler;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 /**
@@ -40,6 +44,7 @@ public class OAuthHelper {
     public static final String USER = "admin";
     public static final String ISS = "RADAR";
     public static final String JTI = "some-jwt-id";
+    private static List<JWTVerifier> verifiers;
 
     static {
         try {
@@ -89,7 +94,8 @@ public class OAuthHelper {
         Certificate cert = ks.getCertificate(TEST_SIGNKEY_ALIAS);
         ECPublicKey publicKey = (ECPublicKey) cert.getPublicKey();
 
-        validEcToken = createValidToken(Algorithm.ECDSA256(publicKey, privateKey));
+        Algorithm ecdsa = Algorithm.ECDSA256(publicKey, privateKey);
+        validEcToken = createValidToken(ecdsa);
         superUserToken = JWT.decode(validEcToken);
 
         // also get an RSA keypair to test accepting multiple keys
@@ -97,8 +103,14 @@ public class OAuthHelper {
                 TEST_KEYSTORE_PASSWORD.toCharArray());
         RSAPublicKey rsaPublicKey = (RSAPublicKey) ks.getCertificate(TEST_CHECKKEY_ALIAS)
                 .getPublicKey();
-        validRsaToken = createValidToken(Algorithm.RSA256(rsaPublicKey, rsaPrivateKey));
+        Algorithm rsa = Algorithm.RSA256(rsaPublicKey, rsaPrivateKey);
+        validRsaToken = createValidToken(rsa);
         keyStream.close();
+
+        verifiers = Arrays.asList(ecdsa, rsa)
+                .stream()
+                .map(alg -> JWT.require(alg).withIssuer(ISS).build())
+                .collect(Collectors.toList());
     }
 
     /**
@@ -116,11 +128,30 @@ public class OAuthHelper {
         ManagementPortalProperties properties = new ManagementPortalProperties();
         properties.setOauth(oauthConfig);
 
-        ManagementPortalOauthKeyStoreHandler keyStoreKeyFactory =
-                ManagementPortalOauthKeyStoreHandler.build(properties);
-        return new JwtAuthenticationFilter(keyStoreKeyFactory.getTokenValidator());
+        // Use tokenValidator with known JWTVerifier which signs.
+        return new JwtAuthenticationFilter(
+                new TokenValidator(verifiers, getDummyValidatorConfig()));
     }
 
+    private static TokenValidatorConfig getDummyValidatorConfig() {
+        return new TokenValidatorConfig() {
+
+            @Override
+            public List<URI> getPublicKeyEndpoints() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public String getResourceName() {
+                return "ISS";
+            }
+
+            @Override
+            public List<String> getPublicKeys() {
+                return Collections.emptyList();
+            }
+        };
+    }
 
 
     private static String createValidToken(Algorithm algorithm) {

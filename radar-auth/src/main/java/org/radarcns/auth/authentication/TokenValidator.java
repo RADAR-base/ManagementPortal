@@ -61,7 +61,7 @@ public class TokenValidator {
     // make us DOS our own identity server. Fetching it at maximum once per minute mitigates this.
     private static final Duration FETCH_TIMEOUT_DEFAULT = Duration.ofMinutes(1);
     private final Duration fetchTimeout;
-    private Instant lastFetch;
+    private Instant lastFetch = Instant.MIN;
 
     private static final long DEFAULT_TIMEOUT = 30;
     private final OkHttpClient client = new OkHttpClient.Builder()
@@ -112,6 +112,19 @@ public class TokenValidator {
     @Deprecated
     public TokenValidator(TokenValidatorConfig config, long fetchTimeout) {
         this(config, Duration.ofSeconds(fetchTimeout));
+    }
+
+
+    /**
+     * Added for testing verifications with known verifiers.
+     * @param verifiers knows verifiers that have signed the tokens for testing.
+     * @param config instance of {@link TokenValidatorConfig} for testing.
+     */
+    @Deprecated
+    protected TokenValidator(List<JWTVerifier> verifiers, TokenValidatorConfig config) {
+        this.config = config;
+        this.verifiers = verifiers;
+        this.fetchTimeout = Duration.ofHours(1);
     }
 
     /**
@@ -185,7 +198,7 @@ public class TokenValidator {
     private List<JWTVerifier> loadVerifiers() throws TokenValidationException {
         synchronized (this) {
             // whether successful or not, do not request the key more than once per minute
-            if (lastFetch != null && Instant.now().isBefore(lastFetch.plus(fetchTimeout))) {
+            if (Instant.now().isBefore(lastFetch.plus(fetchTimeout))) {
                 // it hasn't been long enough ago to fetch the key again, we deny access
                 LOGGER.warn("Fetched public key less than {} ago, denied access.", fetchTimeout);
                 throw new TokenValidationException("Not fetching public key more than once every "
@@ -256,7 +269,8 @@ public class TokenValidator {
             List<TokenValidationAlgorithm> supportedAlgorithms, String publicKey) {
         return supportedAlgorithms
                 .stream()
-                .filter(algorithm -> publicKey.startsWith(algorithm.getKeyHeader())).findFirst()
+                .filter(algorithm -> publicKey.startsWith(algorithm.getKeyHeader()))
+                .findFirst()
                 .orElseThrow(
                         () -> new TokenValidationException("Unsupported public key: " + publicKey))
                 .getAlgorithm(publicKey);
