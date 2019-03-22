@@ -1,6 +1,10 @@
 package org.radarcns.auth.token.validation.deprecated;
 
+import java.io.StringReader;
+import java.security.KeyFactory;
+import java.security.PublicKey;
 import java.security.interfaces.ECPublicKey;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +14,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.SignatureGenerationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.bouncycastle.util.io.pem.PemReader;
+import org.radarcns.auth.exception.ConfigurationException;
 import org.radarcns.auth.token.validation.AbstractTokenValidationAlgorithm;
 import shadow.auth0.jwt.exceptions.JWTDecodeException;
 import shadow.auth0.jwt.interfaces.Claim;
@@ -30,6 +36,24 @@ public class DeprecatedEcTokenValidationAlgorithm extends AbstractTokenValidatio
     @Override
     public String getKeyHeader() {
         return "-----BEGIN EC PUBLIC KEY-----";
+    }
+
+    @Override
+    /**
+     * Parse a public key in PEM format.
+     * @param publicKey the public key to parse
+     * @return a PublicKey object representing the supplied public key
+     */
+    protected PublicKey parseKey(String publicKey) {
+        try (PemReader pemReader = new PemReader(new StringReader(publicKey))) {
+            byte[] keyBytes = pemReader.readPemObject().getContent();
+            pemReader.close();
+            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+            KeyFactory kf = KeyFactory.getInstance(getKeyFactoryType());
+            return kf.generatePublic(spec);
+        } catch (Exception ex) {
+            throw new ConfigurationException(ex);
+        }
     }
 
     @Override

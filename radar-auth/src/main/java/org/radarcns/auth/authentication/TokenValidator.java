@@ -3,7 +3,6 @@ package org.radarcns.auth.authentication;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
@@ -26,14 +24,9 @@ import okhttp3.Response;
 import org.radarcns.auth.config.TokenValidatorConfig;
 import org.radarcns.auth.config.TokenVerifierPublicKeyConfig;
 import org.radarcns.auth.exception.TokenValidationException;
-import org.radarcns.auth.security.jwk.JavaWebKey;
 import org.radarcns.auth.security.jwk.JavaWebKeySet;
 import org.radarcns.auth.token.JwtRadarToken;
 import org.radarcns.auth.token.RadarToken;
-import org.radarcns.auth.token.validation.ECTokenValidationAlgorithm;
-import org.radarcns.auth.token.validation.RSATokenValidationAlgorithm;
-import org.radarcns.auth.token.validation.TokenValidationAlgorithm;
-import org.radarcns.auth.token.validation.deprecated.DeprecatedEcTokenValidationAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,12 +42,7 @@ public class TokenValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenValidator.class);
     private final TokenValidatorConfig config;
     private List<JWTVerifier> verifiers = new LinkedList<>();
-    private final List<TokenValidationAlgorithm> algorithmList = Arrays.asList(
-            new ECTokenValidationAlgorithm(),
-            new RSATokenValidationAlgorithm());
-    private final List<TokenValidationAlgorithm> supportedAlgorithmsForPublicKeys = Arrays.asList(
-            new DeprecatedEcTokenValidationAlgorithm(),
-            new RSATokenValidationAlgorithm());
+
 
     // If a client presents a token with an invalid signature, it might be the keypair was changed.
     // In that case we need to fetch it again, but we don't want a malicious client to be able to
@@ -208,21 +196,19 @@ public class TokenValidator {
         }
 
         Stream<Algorithm> endpointKeys = streamEmptyIfNull(config.getPublicKeyEndpoints())
-                .map(this::algorithmFromServerPublicKey)
+                .map(this::algorithmFromServerPublicKeyEndpoint)
                 .flatMap(List::stream);
 
         Stream<Algorithm> stringKeys = streamEmptyIfNull(config.getPublicKeys())
-                .map(this::loadDeprecatedAlgorithmFromPublicKey);
+                .map(AlgorithmLoader::loadDeprecatedAlgorithmFromPublicKey);
 
         // Create a verifier for each signature verification algorithm we created
         return Stream.concat(endpointKeys, stringKeys)
-                .map(alg -> JWT.require(alg)
-                        .withAudience(config.getResourceName())
-                        .build())
+                .map(alg -> AlgorithmLoader.buildVerifier(alg, config.getResourceName()))
                 .collect(Collectors.toList());
     }
 
-    private List<Algorithm> algorithmFromServerPublicKey(URI serverUri) throws
+    private List<Algorithm> algorithmFromServerPublicKeyEndpoint(URI serverUri) throws
             TokenValidationException {
         LOGGER.info("Getting the JWT public key at " + serverUri);
         try {
@@ -237,12 +223,7 @@ public class TokenValidator {
                 response.close();
                 LOGGER.debug("Processing {} public keys from public-key endpoint {}", publicKeyInfo
                         .getKeys().size(), serverUri.toURL());
-                return publicKeyInfo
-                        .getKeys()
-                        .stream()
-                        .map(JavaWebKey::getValue)
-                        .map(this::algorithmFromString)
-                        .collect(Collectors.toList());
+                return AlgorithmLoader.loadAlgorithmsFromJavaWebKeys(publicKeyInfo);
             } else {
                 throw new TokenValidationException("Invalid token signature. Could load load "
                         + "newer public keys");
@@ -251,29 +232,6 @@ public class TokenValidator {
         } catch (Exception ex) {
             throw new TokenValidationException(ex);
         }
-    }
-
-    private Algorithm algorithmFromString(String publicKey) {
-        // We deny to trust the public key if the reported algorithm is unknown to us
-        // https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
-        return loadAlgorithmFromPublicKey(algorithmList, publicKey);
-    }
-
-    private Algorithm loadDeprecatedAlgorithmFromPublicKey(String publicKey) {
-        // We deny to trust the public key if the reported algorithm is unknown to us
-        // https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
-        return loadAlgorithmFromPublicKey(supportedAlgorithmsForPublicKeys, publicKey);
-    }
-
-    private Algorithm loadAlgorithmFromPublicKey(
-            List<TokenValidationAlgorithm> supportedAlgorithms, String publicKey) {
-        return supportedAlgorithms
-                .stream()
-                .filter(algorithm -> publicKey.startsWith(algorithm.getKeyHeader()))
-                .findFirst()
-                .orElseThrow(() ->
-                        new TokenValidationException("Unsupported public key: " + publicKey))
-                .getAlgorithm(publicKey);
     }
 
     private static <T> Stream<T> streamEmptyIfNull(Collection<T> collection) {

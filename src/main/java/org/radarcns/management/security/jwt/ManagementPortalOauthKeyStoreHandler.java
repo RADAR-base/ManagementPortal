@@ -26,7 +26,9 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import org.radarcns.auth.authentication.AlgorithmLoader;
 import org.radarcns.auth.authentication.TokenValidator;
 import org.radarcns.auth.config.TokenValidatorConfig;
 import org.radarcns.auth.config.TokenVerifierPublicKeyConfig;
@@ -68,7 +70,12 @@ public class ManagementPortalOauthKeyStoreHandler {
 
     private String managementPortalBaseUrl;
 
-    private final Boolean enableAdditionalPublicKeyVerifiers;
+    private Boolean enableAdditionalPublicKeyVerifiers = false;
+    
+    private TokenValidatorConfig deprecatedValidatedConfig;
+
+    private final List<JWTVerifier> verifiers = new ArrayList<>();
+
 
     /**
      * Keystore factory. This tries to load the first valid keystore listed in resources.
@@ -88,6 +95,27 @@ public class ManagementPortalOauthKeyStoreHandler {
         this.enableAdditionalPublicKeyVerifiers =
                 managementPortalProperties.getOauth().getEnablePublicKeyVerifiers();
         configureBaseUrl(managementPortalProperties);
+
+        //load verifiers
+        loadVerifiersFromAlias();
+        loadDeprecatedVerifiers();
+    }
+
+    /**
+     * Load deprecated verifiers if configured to load.
+     */
+    private void loadDeprecatedVerifiers() {
+        if (enableAdditionalPublicKeyVerifiers) {
+            deprecatedValidatedConfig = TokenVerifierPublicKeyConfig.readFromFileOrClasspath();
+            if (deprecatedValidatedConfig != null) {
+                this.verifiers.addAll(deprecatedValidatedConfig.getPublicKeys()
+                        .stream()
+                        .map(AlgorithmLoader::loadDeprecatedAlgorithmFromPublicKey)
+                        .filter(Objects::nonNull)
+                        .map(algo -> AlgorithmLoader.buildVerifier(algo, RES_MANAGEMENT_PORTAL))
+                        .collect(Collectors.toList()));
+            }
+        }
 
     }
 
@@ -184,6 +212,24 @@ public class ManagementPortalOauthKeyStoreHandler {
                 .collect(Collectors.toList()));
     }
 
+    /**
+     * Load default verifiers from configured keystore and aliases.
+     */
+    private void loadVerifiersFromAlias() {
+        List<JWTVerifier> verifiersFromKey = this.verifierPublicKeyAliasList.stream()
+                .map(this::getKeyPair)
+                .map(ManagementPortalOauthKeyStoreHandler::getJwtAlgorithm)
+                .filter(Objects::nonNull)
+                .map(JwtAlgorithm::getAlgorithm)
+                .filter(Objects::nonNull)
+                .map(algo -> AlgorithmLoader.buildVerifier(algo, RES_MANAGEMENT_PORTAL))
+                .collect(Collectors.toList());
+        this.verifiers.addAll(verifiersFromKey);
+    }
+
+    public List<JWTVerifier> getVerifiers() {
+        return this.verifiers;
+    }
 
 
     /**
@@ -321,9 +367,7 @@ public class ManagementPortalOauthKeyStoreHandler {
             @Override
             public List<String> getPublicKeys() {
                 if (enableAdditionalPublicKeyVerifiers) {
-                        TokenValidatorConfig deprecatedConfig =
-                                TokenVerifierPublicKeyConfig.readFromFileOrClasspath();
-                        return deprecatedConfig.getPublicKeys();
+                    return deprecatedValidatedConfig.getPublicKeys();
                 } else {
                     return Collections.emptyList();
                 }

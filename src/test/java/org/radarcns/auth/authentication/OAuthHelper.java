@@ -1,5 +1,7 @@
 package org.radarcns.auth.authentication;
 
+import static org.radarcns.management.security.jwt.ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL;
+
 import java.io.InputStream;
 import java.net.URI;
 import java.security.KeyStore;
@@ -40,6 +42,7 @@ public class OAuthHelper {
     public static final String[] AUTHORITIES = {"ROLE_SYS_ADMIN"};
     public static final String[] ROLES = {};
     public static final String[] SOURCES = {};
+    public static final String[] AUD = {RES_MANAGEMENT_PORTAL};
     public static final String CLIENT = "unit_test";
     public static final String USER = "admin";
     public static final String ISS = "RADAR";
@@ -167,6 +170,7 @@ public class OAuthHelper {
                 .withArrayClaim("authorities", AUTHORITIES)
                 .withArrayClaim("roles", ROLES)
                 .withArrayClaim("sources", SOURCES)
+                .withArrayClaim("aud", AUD)
                 .withClaim("client_id", CLIENT)
                 .withClaim("user_name", USER)
                 .withClaim("jti", JTI)
