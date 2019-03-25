@@ -225,7 +225,7 @@ public class TokenValidator {
                         .getKeys().size(), serverUri.toURL());
                 return AlgorithmLoader.loadAlgorithmsFromJavaWebKeys(publicKeyInfo);
             } else {
-                throw new TokenValidationException("Invalid token signature. Could load load "
+                throw new TokenValidationException("Invalid token signature. Could not load "
                         + "newer public keys");
             }
 
