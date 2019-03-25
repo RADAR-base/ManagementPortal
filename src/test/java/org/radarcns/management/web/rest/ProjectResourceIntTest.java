@@ -31,6 +31,7 @@ import org.radarcns.management.service.ProjectService;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
+import org.radarcns.auth.authentication.OAuthHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;

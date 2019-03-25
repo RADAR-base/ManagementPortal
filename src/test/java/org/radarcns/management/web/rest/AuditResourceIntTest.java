@@ -10,6 +10,7 @@ import org.radarcns.management.domain.PersistentAuditEvent;
 import org.radarcns.management.repository.PersistenceAuditEventRepository;
 import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.radarcns.management.service.AuditEventService;
+import org.radarcns.auth.authentication.OAuthHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;

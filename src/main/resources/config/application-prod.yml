@@ -93,7 +93,7 @@ server:
 managementportal:
     common:
         baseUrl: http://my-server-url-to-change-here # Modify according to your server's URL
-        managementPortalBaseUrl: http://my-server-url-to-change-here/
+        managementPortalBaseUrl: http://localhost:8080/managementportal
         privacyPolicyUrl: http://info.thehyve.nl/radar-cns-privacy-policy
         adminPassword:
         activationKeyTimeoutInSeconds: 86400

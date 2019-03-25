@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -11,6 +12,9 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import org.radarcns.auth.authentication.AlgorithmLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.jwt.Jwt;
@@ -50,7 +54,8 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
     private JwtClaimsSetVerifier jwtClaimsSetVerifier;
 
     private Algorithm algorithm;
-    private JWTVerifier verifier;
+
+    private final List<JWTVerifier> verifiers;
 
 
     /**
@@ -59,10 +64,12 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
      * {@link DefaultAccessTokenConverter} as the accessTokenConverter with explicitly including
      * grant_type claim.
      */
-    public ManagementPortalJwtAccessTokenConverter(Algorithm algorithm) {
+    public ManagementPortalJwtAccessTokenConverter(Algorithm algorithm,
+            List<JWTVerifier> verifiers) {
         DefaultAccessTokenConverter accessToken = new DefaultAccessTokenConverter();
         accessToken.setIncludeGrantType(true);
         this.tokenConverter = accessToken;
+        this.verifiers = verifiers;
         setAlgorithm(algorithm);
     }
 
@@ -105,7 +112,9 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
     @Override
     public void setAlgorithm(Algorithm algorithm) {
         this.algorithm = algorithm;
-        verifier = JWT.require(algorithm).build();
+        if (verifiers.isEmpty()) {
+            this.verifiers.add(AlgorithmLoader.buildVerifier(algorithm, RES_MANAGEMENT_PORTAL));
+        }
     }
 
 
@@ -228,25 +237,33 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
 
     @Override
     public Map<String, Object> decode(String token) {
-        try {
-            verifier.verify(token);
-            Jwt jwt = JwtHelper.decode(token);
-            String claimsStr = jwt.getClaims();
-            Map<String, Object> claims = objectMapper.parseMap(claimsStr);
-            if (claims.containsKey(EXP) && claims.get(EXP) instanceof Integer) {
-                Integer intValue = (Integer) claims.get(EXP);
-                claims.put(EXP, Long.valueOf(intValue));
-            }
 
-            if (this.getJwtClaimsSetVerifier() != null) {
-                this.getJwtClaimsSetVerifier().verify(claims);
-            }
+        for (JWTVerifier verifier : this.verifiers) {
+            try {
+                verifier.verify(token);
 
-            return claims;
-        } catch (Exception e) {
-            logger.debug("Cannot convert access token ", e);
-            throw new InvalidTokenException("Cannot convert access token to JSON", e);
+                Jwt jwt = JwtHelper.decode(token);
+                String claimsStr = jwt.getClaims();
+                Map<String, Object> claims = objectMapper.parseMap(claimsStr);
+                if (claims.containsKey(EXP) && claims.get(EXP) instanceof Integer) {
+                    Integer intValue = (Integer) claims.get(EXP);
+                    claims.put(EXP, Long.valueOf(intValue));
+                }
+
+                if (this.getJwtClaimsSetVerifier() != null) {
+                    this.getJwtClaimsSetVerifier().verify(claims);
+                }
+
+                return claims;
+            } catch (SignatureVerificationException sve) {
+                logger.warn("Client presented a token with an incorrect signature");
+            } catch (JWTVerificationException ex) {
+                logger.debug("Verifier {} with implementation {} did not accept token {}",
+                        verifier.toString(), verifier.getClass().toString(), token);
+            }
         }
+
+        throw new InvalidTokenException("No registered validator could authenticate this token");
     }
 
 }

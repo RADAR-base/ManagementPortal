@@ -71,7 +71,7 @@ memory database and ManagementPortal.
 
 
 
-The docker image can be pulled by running `docker pull radarbase/management-portal:0.3.8`.
+The docker image can be pulled by running `docker pull radarbase/management-portal:0.5.4`.
 
 ## Configuration
 
@@ -102,13 +102,15 @@ for other options on overriding the default configuration.
 | `MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE`                      | `/mp-includes/config/oauth_client_details.csv`      | Location of the OAuth clients file                                                                     |
 | `MANAGEMENTPORTAL_OAUTH_KEY_STORE_PASSWORD`                | `radarbase`                                         | Password for the JWT keystore                                                                          |
 | `MANAGEMENTPORTAL_OAUTH_SIGNING_KEY_ALIAS`                 | `radarbase-managementportal-ec`                     | Alias in the keystore of the keypair to use for signing                                                |
-| `MANAGEMENTPORTAL_CATALOGUE_SERVER_ENABLE_AUTO_IMPORT`     | `false`                                             | Wether to enable or disable auto import of sources from the catalogue server                           |
+| `MANAGEMENTPORTAL_OAUTH_ENABLE_PUBLIC_KEY_VERIFIERS`       | `false`                                             | Whether to use additional verifiers using public-keys and deprecated verifier implementation. If you set this to `true`, also set `RADAR_IS_CONFIG_LOCATION` and provide yaml file with public keys. Read more at radar-auth documentation.         |
+| `MANAGEMENTPORTAL_CATALOGUE_SERVER_ENABLE_AUTO_IMPORT`     | `false`                                             | Whether to enable or disable auto import of sources from the catalogue server                          |
 | `MANAGEMENTPORTAL_CATALOGUE_SERVER_SERVER_URL`             | None                                                | URL to the catalogue server                                                                            |
 | `MANAGEMENTPORTAL_COMMON_BASE_URL`                         | None                                                | Resolvable baseUrl of the hosted platform                                                              |
 | `MANAGEMENTPORTAL_COMMON_MANAGEMENT_PORTAL_BASE_URL`       | None                                                | Resolvable baseUrl of this managementportal  instance                                                  |
 | `MANAGEMENTPORTAL_COMMON_PRIVACY_POLICY_URL`               | None                                                | Resolvable URL to the common privacy policy url                                                        |
 | `MANAGEMENTPORTAL_COMMON_ADMIN_PASSWORD`                   | None                                                | Admin password                                                                                         |
-| `MANAGEMENTPORTAL_COMMON_ACTIVATION_KEY_TIMEOUT_IN_SECONDS`                   | 86400                                                | Account activation/reset timeout in seconds                                                                                      |
+| `MANAGEMENTPORTAL_COMMON_ACTIVATION_KEY_TIMEOUT_IN_SECONDS`                   | 86400                            | Account activation/reset timeout in seconds                                                                                      |
+| `RADAR_IS_CONFIG_LOCATION`                                 | `radar-is.yml` from class path                      | Location of additional public-key configuration file.                                                                                   |
 | `JHIPSTER_SLEEP`                                           | `10`                                                | Time in seconds that the application should wait at bootup. Used to allow the database to become ready |
 | `JAVA_OPTS`                                                | `-Xmx512m`                                          | Options to pass on the JVM                                                                             |
 

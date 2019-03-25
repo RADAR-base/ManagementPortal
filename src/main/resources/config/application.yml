@@ -101,6 +101,7 @@ managementportal:
     oauth:
         keyStorePassword: radarbase
         signingKeyAlias: radarbase-managementportal-ec
+        enablePublicKeyVerifiers: false
 
 # ===================================================================
 # JHipster specific properties
