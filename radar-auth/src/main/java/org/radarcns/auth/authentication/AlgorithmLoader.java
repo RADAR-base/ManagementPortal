@@ -18,21 +18,21 @@ import org.radarcns.auth.token.validation.deprecated.DeprecatedEcTokenValidation
 public class AlgorithmLoader {
 
     private final List<TokenValidationAlgorithm> supportedAlgorithmsForWebKeySets;
-    private final List<TokenValidationAlgorithm> supportedAlgorithmsForPublicKeys;
+    private final List<TokenValidationAlgorithm> supportedAlgorithmsForPublicKeysInConfig;
 
     /**
      * Creates an instance of {@link AlgorithmLoader} with lists of
      * {@link TokenValidationAlgorithm} provided.
-     * @param algorithmsForWebKeys default support. Algorithms to be supported for
+     * @param supportedAlgorithmsForWebKeySets default support. Algorithms to be supported for
      *                             public keys shared from public key endpoints as
      *                             {@link JavaWebKeySet}.
-     * @param algorithmsForLocalPublicKeys deprecated support. Algorithms to be supported for
-     *                                     public keys configured in config file.
+     * @param supportedAlgorithmsForPublicKeysInConfig deprecated support. Algorithms to be
+     *                                      supported for public keys configured in config file.
      */
-    public AlgorithmLoader(List<TokenValidationAlgorithm> algorithmsForWebKeys,
-            List<TokenValidationAlgorithm> algorithmsForLocalPublicKeys) {
-        this.supportedAlgorithmsForWebKeySets = algorithmsForWebKeys;
-        this.supportedAlgorithmsForPublicKeys = algorithmsForLocalPublicKeys;
+    public AlgorithmLoader(List<TokenValidationAlgorithm> supportedAlgorithmsForWebKeySets,
+            List<TokenValidationAlgorithm> supportedAlgorithmsForPublicKeysInConfig) {
+        this.supportedAlgorithmsForWebKeySets = supportedAlgorithmsForWebKeySets;
+        this.supportedAlgorithmsForPublicKeysInConfig = supportedAlgorithmsForPublicKeysInConfig;
     }
 
     /**
@@ -72,7 +72,7 @@ public class AlgorithmLoader {
     public Algorithm loadDeprecatedAlgorithmFromPublicKey(String publicKey) {
         // We deny to trust the public key if the reported algorithm is unknown to us
         // https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
-        return loadAlgorithmFromPublicKey(supportedAlgorithmsForPublicKeys, publicKey);
+        return loadAlgorithmFromPublicKey(supportedAlgorithmsForPublicKeysInConfig, publicKey);
     }
 
     /**
