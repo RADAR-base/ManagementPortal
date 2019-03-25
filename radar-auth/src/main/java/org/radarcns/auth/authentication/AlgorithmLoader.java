@@ -17,18 +17,40 @@ import org.radarcns.auth.token.validation.deprecated.DeprecatedEcTokenValidation
 
 public class AlgorithmLoader {
 
-    private static final List<TokenValidationAlgorithm> algorithmList = Arrays.asList(
-            new ECTokenValidationAlgorithm(),
-            new RSATokenValidationAlgorithm());
-    private static final List<TokenValidationAlgorithm> supportedAlgorithmsForPublicKeys =
-            Arrays.asList(
-            new DeprecatedEcTokenValidationAlgorithm(),
-            new RSATokenValidationAlgorithm());
+    private final List<TokenValidationAlgorithm> supportedAlgorithmsForWebKeySets;
+    private final List<TokenValidationAlgorithm> supportedAlgorithmsForPublicKeys;
 
-    private static Algorithm algorithmFromPublicKey(String publicKey) {
+    /**
+     * Creates an instance of {@link AlgorithmLoader} with lists of
+     * {@link TokenValidationAlgorithm} provided.
+     * @param algorithmsForWebKeys default support. Algorithms to be supported for
+     *                             public keys shared from public key endpoints as
+     *                             {@link JavaWebKeySet}.
+     * @param algorithmsForLocalPublicKeys deprecated support. Algorithms to be supported for
+     *                                     public keys configured in config file.
+     */
+    public AlgorithmLoader(List<TokenValidationAlgorithm> algorithmsForWebKeys,
+            List<TokenValidationAlgorithm> algorithmsForLocalPublicKeys) {
+        this.supportedAlgorithmsForWebKeySets = algorithmsForWebKeys;
+        this.supportedAlgorithmsForPublicKeys = algorithmsForLocalPublicKeys;
+    }
+
+    /**
+     * Creates algorithm loader with default algorithms.
+     */
+    public AlgorithmLoader() {
+        this(Arrays.asList(
+                new ECTokenValidationAlgorithm(),
+                new RSATokenValidationAlgorithm()),
+                Arrays.asList(
+                new DeprecatedEcTokenValidationAlgorithm(),
+                new RSATokenValidationAlgorithm()));
+    }
+
+    private Algorithm algorithmFromPublicKey(String publicKey) {
         // We deny to trust the public key if the reported algorithm is unknown to us
         // https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
-        return loadAlgorithmFromPublicKey(algorithmList, publicKey);
+        return loadAlgorithmFromPublicKey(supportedAlgorithmsForWebKeySets, publicKey);
     }
 
     private static Algorithm loadAlgorithmFromPublicKey(
@@ -47,7 +69,7 @@ public class AlgorithmLoader {
      * @param publicKey publicKeys to load algorithms.
      * @return instance of {@link Algorithm}.
      */
-    public static Algorithm loadDeprecatedAlgorithmFromPublicKey(String publicKey) {
+    public Algorithm loadDeprecatedAlgorithmFromPublicKey(String publicKey) {
         // We deny to trust the public key if the reported algorithm is unknown to us
         // https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
         return loadAlgorithmFromPublicKey(supportedAlgorithmsForPublicKeys, publicKey);
@@ -58,12 +80,12 @@ public class AlgorithmLoader {
      * @param publicKeyInfo java web key set to load algorithm.
      * @return List of {@link Algorithm}.
      */
-    public static List<Algorithm> loadAlgorithmsFromJavaWebKeys(JavaWebKeySet publicKeyInfo) {
+    public List<Algorithm> loadAlgorithmsFromJavaWebKeys(JavaWebKeySet publicKeyInfo) {
         return publicKeyInfo
                 .getKeys()
                 .stream()
                 .map(JavaWebKey::getValue)
-                .map(AlgorithmLoader::algorithmFromPublicKey)
+                .map(this::algorithmFromPublicKey)
                 .collect(Collectors.toList());
     }
 

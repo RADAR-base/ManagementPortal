@@ -76,6 +76,8 @@ public class ManagementPortalOauthKeyStoreHandler {
 
     private final List<JWTVerifier> verifiers = new ArrayList<>();
 
+    private final AlgorithmLoader algorithmLoader = new AlgorithmLoader();
+
 
     /**
      * Keystore factory. This tries to load the first valid keystore listed in resources.
@@ -110,7 +112,7 @@ public class ManagementPortalOauthKeyStoreHandler {
             if (deprecatedValidatedConfig != null) {
                 this.verifiers.addAll(deprecatedValidatedConfig.getPublicKeys()
                         .stream()
-                        .map(AlgorithmLoader::loadDeprecatedAlgorithmFromPublicKey)
+                        .map(algorithmLoader::loadDeprecatedAlgorithmFromPublicKey)
                         .filter(Objects::nonNull)
                         .map(algo -> AlgorithmLoader.buildVerifier(algo, RES_MANAGEMENT_PORTAL))
                         .collect(Collectors.toList()));

@@ -60,6 +60,8 @@ public class TokenValidator {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
+    private final AlgorithmLoader algorithmLoader = new AlgorithmLoader();
+
     /**
      * Default constructor. Will load the identity server configuration from a file called
      * radar-is.yml that should be on the classpath, or its location defined in the
@@ -200,7 +202,7 @@ public class TokenValidator {
                 .flatMap(List::stream);
 
         Stream<Algorithm> stringKeys = streamEmptyIfNull(config.getPublicKeys())
-                .map(AlgorithmLoader::loadDeprecatedAlgorithmFromPublicKey);
+                .map(algorithmLoader::loadDeprecatedAlgorithmFromPublicKey);
 
         // Create a verifier for each signature verification algorithm we created
         return Stream.concat(endpointKeys, stringKeys)
@@ -223,7 +225,7 @@ public class TokenValidator {
                 response.close();
                 LOGGER.debug("Processing {} public keys from public-key endpoint {}", publicKeyInfo
                         .getKeys().size(), serverUri.toURL());
-                return AlgorithmLoader.loadAlgorithmsFromJavaWebKeys(publicKeyInfo);
+                return algorithmLoader.loadAlgorithmsFromJavaWebKeys(publicKeyInfo);
             } else {
                 throw new TokenValidationException("Invalid token signature. Could not load "
                         + "newer public keys");
