@@ -1,7 +1,7 @@
 version: '2'
 services:
     managementportal-app:
-        image: radarcns/management-portal:0.5.5
+        image: radarbase/management-portal:0.5.5
         environment:
             - SPRING_PROFILES_ACTIVE=prod,swagger
             - SPRING_DATASOURCE_URL=jdbc:postgresql://managementportal-postgresql:5432/managementportal
