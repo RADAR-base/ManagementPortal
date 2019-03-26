@@ -16,6 +16,7 @@ RUN ./gradlew --version
 COPY gradle gradle
 COPY build.gradle gradle.properties settings.gradle /app/
 COPY radar-auth/build.gradle radar-auth/
+COPY radar-auth/deprecated-auth0/build.gradle radar-auth/deprecated-auth0
 COPY oauth-client-util/build.gradle oauth-client-util/
 RUN ./gradlew downloadDependencies
 
