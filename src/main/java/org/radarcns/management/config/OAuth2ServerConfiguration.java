@@ -209,7 +209,8 @@ public class OAuth2ServerConfiguration {
             logger.debug("loading token converter from keystore configurations");
             ManagementPortalOauthKeyStoreHandler keyFactory =
                     ManagementPortalOauthKeyStoreHandler.build(managementPortalProperties);
-            return new ManagementPortalJwtAccessTokenConverter(keyFactory.getAlgorithmForSigning());
+            return new ManagementPortalJwtAccessTokenConverter(keyFactory.getAlgorithmForSigning(),
+                    keyFactory.getVerifiers());
         }
 
         @Bean

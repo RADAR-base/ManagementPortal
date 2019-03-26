@@ -1,5 +1,5 @@
-apply plugin: "net.ltgt.apt"
 
 dependencies {
-    apt "org.mapstruct:mapstruct-processor:${mapstruct_version}"
+    compile group: 'org.mapstruct', name: 'mapstruct-jdk8', version: mapstruct_version
+    annotationProcessor group: 'org.mapstruct', name: 'mapstruct-processor', version: mapstruct_version
 }

@@ -4,6 +4,7 @@ import static org.radarcns.management.security.jwt.ManagementPortalJwtAccessToke
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -25,9 +26,12 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import org.radarcns.auth.authentication.AlgorithmLoader;
 import org.radarcns.auth.authentication.TokenValidator;
 import org.radarcns.auth.config.TokenValidatorConfig;
+import org.radarcns.auth.config.TokenVerifierPublicKeyConfig;
 import org.radarcns.auth.security.jwk.JavaWebKeySet;
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.security.jwt.algorithm.EcdsaJwtAlgorithm;
@@ -64,7 +68,16 @@ public class ManagementPortalOauthKeyStoreHandler {
 
     private final List<String> verifierPublicKeyAliasList;
 
-    private final List<String> verifierPublicKeys;
+    private String managementPortalBaseUrl;
+
+    private final Boolean enableAdditionalPublicKeyVerifiers;
+    
+    private TokenValidatorConfig deprecatedValidatedConfig;
+
+    private final List<JWTVerifier> verifiers = new ArrayList<>();
+
+    private final AlgorithmLoader algorithmLoader = new AlgorithmLoader();
+
 
     /**
      * Keystore factory. This tries to load the first valid keystore listed in resources.
@@ -81,8 +94,45 @@ public class ManagementPortalOauthKeyStoreHandler {
         this.password = oauthConfig.getKeyStorePassword().toCharArray();
         this.store = loadStore();
         this.verifierPublicKeyAliasList = loadVerifiersPublicKeyAliasList();
-        this.verifierPublicKeys = loadVerifyingPublicKeys();
+        this.enableAdditionalPublicKeyVerifiers =
+                managementPortalProperties.getOauth().getEnablePublicKeyVerifiers();
+        configureBaseUrl(managementPortalProperties);
 
+        //load verifiers
+        loadVerifiersFromAlias();
+        loadDeprecatedVerifiers();
+    }
+
+    /**
+     * Load deprecated verifiers if configured to load.
+     */
+    private void loadDeprecatedVerifiers() {
+        if (enableAdditionalPublicKeyVerifiers) {
+            deprecatedValidatedConfig = TokenVerifierPublicKeyConfig.readFromFileOrClasspath();
+            if (deprecatedValidatedConfig != null) {
+                this.verifiers.addAll(deprecatedValidatedConfig.getPublicKeys()
+                        .stream()
+                        .map(algorithmLoader::loadDeprecatedAlgorithmFromPublicKey)
+                        .filter(Objects::nonNull)
+                        .map(algo -> AlgorithmLoader.buildVerifier(algo, RES_MANAGEMENT_PORTAL))
+                        .collect(Collectors.toList()));
+            }
+        }
+
+    }
+
+    private void configureBaseUrl(ManagementPortalProperties managementPortalProperties) {
+        String baseUrl = managementPortalProperties.getCommon().getBaseUrl();
+        if (baseUrl == null || baseUrl.isEmpty()) {
+            // this will be the production url when MP is running
+            this.managementPortalBaseUrl = "http://localhost:8080/managementportal";
+            logger.warn("managementportal.common.managementPortalBaseUrl is not configured. Using"
+                    + " default value {}", this.managementPortalBaseUrl);
+        }
+
+        this.managementPortalBaseUrl =
+                managementPortalProperties.getCommon().getManagementPortalBaseUrl();
+        logger.info("Using Management Portal base-url {}", this.managementPortalBaseUrl);
     }
 
     /**
@@ -155,19 +205,6 @@ public class ManagementPortalOauthKeyStoreHandler {
      * Returns configured public keys of token verifiers.
      * @return List of public keys for token verification.
      */
-    private List<String> loadVerifyingPublicKeys() {
-        return this.verifierPublicKeyAliasList.stream()
-                .map(this::getKeyPair)
-                .map(ManagementPortalOauthKeyStoreHandler::getJwtAlgorithm)
-                .filter(Objects::nonNull)
-                .map(JwtAlgorithm::getVerifierKeyEncodedString)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Returns configured public keys of token verifiers.
-     * @return List of public keys for token verification.
-     */
     public JavaWebKeySet loadJwks() {
         return new JavaWebKeySet(this.verifierPublicKeyAliasList.stream()
                 .map(this::getKeyPair)
@@ -177,6 +214,24 @@ public class ManagementPortalOauthKeyStoreHandler {
                 .collect(Collectors.toList()));
     }
 
+    /**
+     * Load default verifiers from configured keystore and aliases.
+     */
+    private void loadVerifiersFromAlias() {
+        List<JWTVerifier> verifiersFromKey = this.verifierPublicKeyAliasList.stream()
+                .map(this::getKeyPair)
+                .map(ManagementPortalOauthKeyStoreHandler::getJwtAlgorithm)
+                .filter(Objects::nonNull)
+                .map(JwtAlgorithm::getAlgorithm)
+                .filter(Objects::nonNull)
+                .map(algo -> AlgorithmLoader.buildVerifier(algo, RES_MANAGEMENT_PORTAL))
+                .collect(Collectors.toList());
+        this.verifiers.addAll(verifiersFromKey);
+    }
+
+    public List<JWTVerifier> getVerifiers() {
+        return this.verifiers;
+    }
 
 
     /**
@@ -292,9 +347,16 @@ public class ManagementPortalOauthKeyStoreHandler {
 
     private TokenValidatorConfig getKeystoreConfigsForVerifiers() {
         return new TokenValidatorConfig() {
+
             @Override
             public List<URI> getPublicKeyEndpoints() {
-                return Collections.emptyList();
+                try {
+                    URI managementPortalUrl = new URI(managementPortalBaseUrl + "/oauth/token_key");
+                    return Collections.singletonList(managementPortalUrl);
+                } catch (URISyntaxException e) {
+                    logger.error("Could not create publicKey end point URI");
+                    return Collections.emptyList();
+                }
             }
 
             @Override
@@ -302,9 +364,15 @@ public class ManagementPortalOauthKeyStoreHandler {
                 return RES_MANAGEMENT_PORTAL;
             }
 
+            // management-portal should support old verifiers to verify refresh-tokens, if
+            // configured. otherwise, use the token_key endpoint only.
             @Override
             public List<String> getPublicKeys() {
-                return verifierPublicKeys;
+                if (enableAdditionalPublicKeyVerifiers) {
+                    return deprecatedValidatedConfig.getPublicKeys();
+                } else {
+                    return Collections.emptyList();
+                }
             }
         };
     }

@@ -1,35 +1,17 @@
 import org.gradle.internal.os.OperatingSystem
-import io.swagger.codegen.config.CodegenConfigurator
-import io.swagger.codegen.DefaultGenerator
 
-import java.nio.file.Paths
-
-buildscript {
-    repositories {
-        mavenCentral()
-        jcenter()
-        maven { url "http://repo.spring.io/plugins-release" }
-        maven { url "http://repo.spring.io/milestone" }
-        maven { url "https://plugins.gradle.org/m2/" }
-    }
-    dependencies {
-//        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.1"
-        classpath "net.ltgt.gradle:gradle-apt-plugin:0.9"
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:${spring_boot_version}"
-        classpath "org.springframework.build.gradle:propdeps-plugin:0.0.7"
-        classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
-        classpath "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE"
-        classpath "io.swagger:swagger-codegen:2.4.2"
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.9.1"
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
-        //jhipster-needle-gradle-buildscript-dependency - JHipster will add additional gradle build script plugins here
-    }
+plugins {
+    id 'org.springframework.boot' version '1.5.9.RELEASE'
+    id "com.moowork.node" version "1.2.0"
+    id "io.spring.dependency-management" version "1.0.7.RELEASE"
+    id 'com.jfrog.bintray' version '1.8.4' apply false
+    id 'com.jfrog.artifactory' version '4.9.3' apply false
 }
 
 allprojects {
     group 'org.radarcns'
 
-    version '0.5.4' // project version
+    version '0.5.5' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
@@ -38,126 +20,32 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'idea'
-    apply plugin: 'checkstyle'
-    apply plugin: 'pmd'
-    apply plugin: 'com.jfrog.bintray'
-    apply plugin: 'maven-publish'
-    apply plugin: 'jacoco'
-    apply plugin: 'com.jfrog.artifactory'
 
-    ext {
-        githubRepoName = 'RADAR-base/ManagementPortal'
-
-
-        githubUrl = 'https://github.com/' + githubRepoName + '.git'
-        issueUrl = 'https://github.com/' + githubRepoName + '/issues'
-        website = 'http://radar-base.org'
-
-        pomConfig = {
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    distribution 'repo'
-                }
-            }
-            developers {
-                developer {
-                    id 'dennyverbeeck'
-                    name 'Denny Verbeeck'
-                    email 'dverbeec@its.jnj.com'
-                    organization 'Janssen R&D'
-                }
-                developer {
-                    id 'nivemaham'
-                    name 'Nivethika Mahasivam'
-                    email 'nivethika@thehyve.nl'
-                    organization 'The Hyve'
-                }
-                developer {
-                    id 'blootsvoets'
-                    name 'Joris Borgdorff'
-                    email 'joris@thehyve.nl'
-                    organization 'The Hyve'
-                }
-            }
-            issueManagement {
-                system 'GitHub'
-                url githubUrl + '/issues'
-            }
-            organization {
-                name 'RADAR-base'
-                url website
-            }
-            scm {
-                connection 'scm:git:' + githubUrl
-                url githubUrl
-            }
-        }
-    }
+    ext.codacyVersion = '4.0.5'
+    ext.githubRepoName = 'RADAR-base/ManagementPortal'
+    ext.githubUrl = 'https://github.com/RADAR-base/ManagementPortal'
+    ext.issueUrl = "https://github.com/$githubRepoName/issues"
+    ext.website = 'http://radar-base.org'
 
     idea {
         module {
             downloadSources = true
         }
     }
-
-    //---------------------------------------------------------------------------//
-    // Style checking                                                            //
-    //---------------------------------------------------------------------------//
-
-    checkstyle {
-        toolVersion = '8.7'
-        ignoreFailures = false
-        maxWarnings = 0
-
-        configFile = rootProject.file('config/checkstyle/checkstyle.xml')
-    }
-
-    pmd {
-        toolVersion = '5.8.1'
-        ignoreFailures = false
-
-        consoleOutput = true
-
-        ruleSets = []
-        ruleSetFiles = rootProject.files("config/pmd/ruleset.xml")
-    }
-
-    pmdTest {
-        ruleSetFiles = rootProject.files("config/pmd/test_ruleset.xml")
-    }
-
-    artifactory {
-        contextUrl = 'https://oss.jfrog.org/artifactory'
-        publish {
-            repository {
-                repoKey = 'oss-snapshot-local'
-                username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-                password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-                maven = true
-            }
-            defaults {
-                publishArtifacts = true
-                publishPom = true
-                properties = ['qa.level': 'basic']
-            }
-        }
-    }
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
 }
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+description = 'MangementPortal application to manage studies and participants'
+
 apply plugin: 'org.springframework.boot'
 apply plugin: 'war'
-apply plugin: 'propdeps'
 apply plugin: 'com.moowork.node'
 apply plugin: 'io.spring.dependency-management'
+
 defaultTasks 'bootRun'
 
 configurations {
-    codacy
-    providedRuntime
     compile.exclude module: "spring-boot-starter-tomcat"
     cucumberTestCompile.extendsFrom testCompile
     cucumberTestRuntime.extendsFrom testRuntime
@@ -237,12 +125,13 @@ task testReport(type: TestReport) {
 
 cucumberTest.finalizedBy(testReport)
 
-//apply from: 'gradle/sonar.gradle'
 apply from: 'gradle/liquibase.gradle'
 apply from: 'gradle/gatling.gradle'
 apply from: 'gradle/mapstruct.gradle'
 apply from: 'gradle/docker.gradle'
-//jhipster-needle-gradle-apply-from - JHipster will add additional gradle scripts to be applied here
+apply from: 'gradle/style.gradle'
+apply from: 'gradle/publishing.gradle'
+apply from: 'gradle/openapi.gradle'
 
 if (project.hasProperty('prod')) {
     apply from: 'gradle/profile_prod.gradle'
@@ -254,10 +143,8 @@ if (project.hasProperty('graphite')) {
     apply from: 'gradle/graphite.gradle'
 }
 
-ext {
-    codacyVersion = '4.0.3'
-    moduleDescription = ''
-}
+//ext.moduleDescription = 'Management Portal application'
+ext.findbugAnnotationVersion = '3.0.2'
 
 repositories {
     mavenCentral()
@@ -300,6 +187,8 @@ dependencies {
     compile "org.apache.commons:commons-lang3:${commons_lang_version}"
     compile "commons-io:commons-io:${commons_io_version}"
     compile "javax.transaction:javax.transaction-api"
+    compile group: 'javax.ws.rs', name: 'jsr311-api', version: '1.1.1'
+    compile group: 'com.google.code.findbugs', name: 'jsr305', version: findbugAnnotationVersion
     compile "org.hibernate:hibernate-envers:${hibernate_version}"
     compile "org.hibernate:hibernate-validator"
     compile("org.liquibase:liquibase-core")
@@ -331,14 +220,10 @@ dependencies {
         exclude module: 'mapstruct'
     }
     compile "io.springfox:springfox-bean-validators:${springfox_version}"
-//    compile "mysql:mysql-connector-java"
     compile "org.postgresql:postgresql"
     compile "com.h2database:h2"
-    compile "org.mapstruct:mapstruct-jdk8:${mapstruct_version}"
     compile project(":radar-auth")
     compile "org.springframework.data:spring-data-envers:${spring_data_envers_version}"
-
-    codacy group: 'com.codacy', name: 'codacy-coverage-reporter', version: codacyVersion
 
     testCompile "org.awaitility:awaitility:${awaitility_version}"
     testCompile "com.jayway.jsonpath:json-path"
@@ -352,8 +237,7 @@ dependencies {
     testCompile "org.mockito:mockito-core"
     testCompile "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     testCompile "org.hamcrest:hamcrest-library"
-    optional "org.springframework.boot:spring-boot-configuration-processor:${spring_boot_version}"
-    //jhipster-needle-gradle-dependency - JHipster will add additional dependencies here
+    annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
 }
 
 clean {
@@ -383,162 +267,6 @@ if (project.hasProperty('nodeInstall')) {
 compileJava.dependsOn processResources
 processResources.dependsOn cleanResources, bootBuildInfo
 bootBuildInfo.mustRunAfter cleanResources
-
-idea.module.downloadSources = true
-
-task generateOpenApiSpec(dependsOn: 'classes', group: 'Swagger',
-        description: 'Fetch the OpenAPI spec from the Swagger endpoint. The application needs to be running at http://localhost:8080/.') {
-    outputs.file(swaggerFileLocation)
-    doLast {
-        // Create parent dir to swagger file
-        File swaggerFile = new File(swaggerFileLocation);
-        swaggerFile.getParentFile().mkdirs();
-
-        def generated = false
-
-        println()
-        for (def i = 0; i < 20; i++) {
-            ProcessBuilder curlPb = new ProcessBuilder("curl", apiDocsEndpoint, "-o",
-                    swaggerFileLocation, "--connect-timeout", "1")
-            curlPb.directory(projectDir)
-            Process curlProcess = curlPb.start()
-            curlProcess.waitFor()
-            generated = curlProcess.exitValue() == 0
-            if (generated) {
-                break
-            }
-            System.out.print("#")
-            System.out.flush()
-            sleep(5000)
-        }
-        if (!generated) {
-            throw new GradleException('Swagger file could not be generated')
-        }
-        println()
-        println("Swagger file generated at " + swaggerFileLocation)
-    }
-}
-
-task generateJavaClient(dependsOn: 'generateOpenApiSpec', group: 'Swagger',
-        description: 'Generate a Java client library for ManagementPortal') {
-    inputs.file(swaggerFileLocation)
-    outputs.dir(swaggerTargetFolder)
-    doLast {
-        // if gradle determined this task is out of date, first delete the directory
-        File targetFolder = new File(projectDir.absolutePath, swaggerTargetFolder)
-        if (targetFolder.exists()) {
-            targetFolder.deleteDir()
-        }
-        def config = new CodegenConfigurator()
-        config.setInputSpec(Paths.get(projectDir.absolutePath, swaggerFileLocation).toString())
-        config.setOutputDir(Paths.get(projectDir.absolutePath, swaggerTargetFolder).toString())
-        config.setLang("java")
-        config.setArtifactId("managementportal-client")
-        config.setGroupId("org.radarcns")
-        config.setArtifactVersion(version)
-        config.setAdditionalProperties([
-                'apiPackage'    : 'org.radarcns.management.client.api',
-                'modelPackage'  : 'org.radarcns.management.client.model',
-                'appName'       : rootProject.name,
-                'appDescription': moduleDescription,
-                'licenceUrl'    : 'http://apache.org/licenses/LICENSE-2.0.html'
-        ])
-        new DefaultGenerator().opts(config.toClientOptInput()).generate()
-        file("managementportal-client/build.gradle") << file("mp-client-publishing.txt").text
-        println("Client generated at " + swaggerTargetFolder)
-    }
-}
-
-jacocoTestReport {
-    reports {
-        xml.enabled true
-        csv.enabled false
-        html.enabled true
-    }
-    dependsOn test
-}
-
-task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
-    main = 'com.codacy.CodacyCoverageReporter'
-    classpath = configurations.codacy
-    args = ['report', '-l', 'Java', '-r', "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"]
-}
-
-ext.sharedManifest = manifest {
-    attributes("Implementation-Title": project.name,
-            "Implementation-Version": version)
-}
-
-jar {
-    manifest.from sharedManifest
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-    manifest.from sharedManifest
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-    manifest.from sharedManifest
-}
-
-publishing {
-    publications {
-        ManagementPortalPublication(MavenPublication) {
-            from components.java
-            artifact sourcesJar
-            artifact javadocJar
-
-            pom {
-                description = moduleDescription
-                name = project.name
-                url = githubUrl
-            }
-
-            pom.withXml {
-                asNode().children().last() + pomConfig
-            }
-        }
-    }
-}
-
-bintray {
-    user project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-    override false
-    publications 'ManagementPortalPublication'
-    pkg {
-        repo = project.group
-        name = project.name
-        userOrg = 'radar-cns'
-        desc = moduleDescription
-        licenses = ['Apache-2.0']
-        websiteUrl = website
-        issueTrackerUrl = issueUrl
-        vcsUrl = githubUrl
-        githubRepo = githubRepoName
-        githubReleaseNotesFile = 'README.md'
-        version {
-            name = project.version
-            desc = moduleDescription
-            vcsTag = System.getenv('TRAVIS_TAG')
-            released = new Date()
-            gpg {
-                sign = true //Determines whether to GPG sign the files. The default is false
-            }
-        }
-    }
-}
-
-bintrayUpload.dependsOn 'assemble'
-
-artifactoryPublish {
-    publications 'ManagementPortalPublication'
-    dependsOn 'assemble'
-}
 
 task downloadDependencies {
     description "Pre-downloads dependencies"

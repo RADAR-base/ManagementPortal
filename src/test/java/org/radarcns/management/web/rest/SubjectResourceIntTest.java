@@ -51,6 +51,7 @@ import org.radarcns.management.service.dto.SourceTypeDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
+import org.radarcns.auth.authentication.OAuthHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;

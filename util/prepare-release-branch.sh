@@ -18,8 +18,8 @@ git branch release-$VERSION
 git checkout release-$VERSION
 
 sed -i 's#  \"version\": \".*\",#  "version": "'"$VERSION"'",#' package.json
-sed -i 's#radarcns/management-portal:.*#radarcns/management-portal:'"$VERSION"'#' src/main/docker/management-portal.yml
-sed -i 's#radarcns/management-portal:.*#radarcns/management-portal:'"$VERSION"'#' README.md
+sed -i 's#radarcns/management-portal:.*#radarbase/management-portal:'"$VERSION"'#' src/main/docker/management-portal.yml
+sed -i 's#radarcns/management-portal:.*#radarbase/management-portal:'"$VERSION"'#' README.md
 sed -i "s#compile group: 'org.radarcns', name: 'oauth-client-util', version: '.*'#compile group: 'org.radarcns', name: 'oauth-client-util', version: '$VERSION'#" oauth-client-util/README.md
 sed -i "s#compile group: 'org.radarcns', name: 'radar-auth', version: '.*'#compile group: 'org.radarcns', name: 'radar-auth', version: '$VERSION'#" radar-auth/README.md
 sed -i "s#version '.*' // project version#version '$VERSION' // project version#" build.gradle

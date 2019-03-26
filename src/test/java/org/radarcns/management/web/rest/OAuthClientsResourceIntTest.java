@@ -27,6 +27,7 @@ import org.radarcns.management.service.dto.ClientDetailsDTO;
 import org.radarcns.management.service.mapper.ClientDetailsMapper;
 import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
+import org.radarcns.auth.authentication.OAuthHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -81,7 +82,7 @@ public class OAuthClientsResourceIntTest {
     @Autowired
     private HttpServletRequest servletRequest;
 
-    private MockMvc restProjectMockMvc;
+    private MockMvc restOauthClientMvc;
 
     private ClientDetailsDTO details;
 
@@ -109,7 +110,7 @@ public class OAuthClientsResourceIntTest {
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
 
-        this.restProjectMockMvc = MockMvcBuilders.standaloneSetup(oauthClientsResource)
+        this.restOauthClientMvc = MockMvcBuilders.standaloneSetup(oauthClientsResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
             .setMessageConverters(jacksonMessageConverter)
@@ -120,7 +121,7 @@ public class OAuthClientsResourceIntTest {
 
         // Create the OAuth Client
         details = createClient();
-        restProjectMockMvc.perform(post("/api/oauth-clients")
+        restOauthClientMvc.perform(post("/api/oauth-clients")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
                 .andExpect(status().isCreated());
@@ -134,7 +135,7 @@ public class OAuthClientsResourceIntTest {
     @Transactional
     public void createAndFetchOAuthClient() throws Exception {
         // fetch the created oauth client and check the json result
-        restProjectMockMvc.perform(get("/api/oauth-clients/" + details.getClientId())
+        restOauthClientMvc.perform(get("/api/oauth-clients/" + details.getClientId())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.clientId").value(equalTo(details.getClientId())))
@@ -175,7 +176,7 @@ public class OAuthClientsResourceIntTest {
     @Test
     @Transactional
     public void dupliceOAuthClient() throws Exception {
-        restProjectMockMvc.perform(post("/api/oauth-clients")
+        restOauthClientMvc.perform(post("/api/oauth-clients")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
                 .andExpect(status().isConflict());
@@ -186,7 +187,7 @@ public class OAuthClientsResourceIntTest {
     public void updateOAuthClient() throws Exception {
         // update the client
         details.setRefreshTokenValiditySeconds(20L);
-        restProjectMockMvc.perform(put("/api/oauth-clients")
+        restOauthClientMvc.perform(put("/api/oauth-clients")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
                 .andExpect(status().isOk());
@@ -202,7 +203,7 @@ public class OAuthClientsResourceIntTest {
     @Test
     @Transactional
     public void deleteOAuthClient() throws Exception {
-        restProjectMockMvc.perform(delete("/api/oauth-clients/" + details.getClientId())
+        restOauthClientMvc.perform(delete("/api/oauth-clients/" + details.getClientId())
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
                 .andExpect(status().isOk());
@@ -215,20 +216,20 @@ public class OAuthClientsResourceIntTest {
     public void cannotModifyProtected() throws Exception {
         // first change our test client to be protected
         details.getAdditionalInformation().put("protected", "true");
-        restProjectMockMvc.perform(put("/api/oauth-clients")
+        restOauthClientMvc.perform(put("/api/oauth-clients")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
                 .andExpect(status().isOk());
 
         // expect we can not delete it now
-        restProjectMockMvc.perform(delete("/api/oauth-clients/" + details.getClientId())
+        restOauthClientMvc.perform(delete("/api/oauth-clients/" + details.getClientId())
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
                 .andExpect(status().isForbidden());
 
         // expect we can not update it now
         details.setRefreshTokenValiditySeconds(20L);
-        restProjectMockMvc.perform(put("/api/oauth-clients")
+        restOauthClientMvc.perform(put("/api/oauth-clients")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
                 .andExpect(status().isForbidden());

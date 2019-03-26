@@ -1,14 +1,10 @@
 apply plugin: 'org.springframework.boot'
 apply plugin: 'com.moowork.node'
 
-ext {
-    logbackLoglevel = "INFO"
-    apiDocsEndpoint = "http://localhost:8080/v2/api-docs"
-    swaggerFileLocation = "build/swagger-spec/swagger.json"
-    swaggerTargetFolder = "managementportal-client"
-}
+ext.logbackLoglevel = 'INFO'
 
 def profiles = 'prod'
+
 if (project.hasProperty('no-liquibase')) {
     profiles += ',no-liquibase'
 }
