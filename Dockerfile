@@ -16,7 +16,11 @@ RUN ./gradlew --version
 COPY gradle gradle
 COPY build.gradle gradle.properties settings.gradle /app/
 COPY radar-auth/build.gradle radar-auth/
+COPY radar-auth/deprecated-auth0/build.gradle radar-auth/deprecated-auth0
 COPY oauth-client-util/build.gradle oauth-client-util/
+COPY radar-auth radar-auth
+RUN ./gradlew radar-auth:shadowJar
+
 RUN ./gradlew downloadDependencies
 
 COPY package.json postcss.config.js proxy.conf.json tsconfig-aot.json tsconfig.json tslint.json yarn.lock /app/

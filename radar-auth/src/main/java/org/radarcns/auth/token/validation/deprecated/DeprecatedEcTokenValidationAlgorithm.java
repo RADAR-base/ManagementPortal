@@ -65,7 +65,11 @@ public class DeprecatedEcTokenValidationAlgorithm extends AbstractTokenValidatio
         return new Algorithm(deprecatedEcVerifier.getName(), getJwtAlgorithm()) {
             @Override
             public void verify(DecodedJWT jwt) throws SignatureVerificationException {
-                deprecatedEcVerifier.verify(wrap(jwt));
+                try {
+                    deprecatedEcVerifier.verify(wrap(jwt));
+                } catch (shadow.auth0.jwt.exceptions.SignatureVerificationException exe) {
+                    throw new SignatureVerificationException(this, exe);
+                }
             }
 
             @Override
