@@ -12,142 +12,16 @@ repositories {
 }
 
 dependencies {
-    shadow group: 'com.auth0', name: 'java-jwt', version: '3.2.0'
+    implementation(group: 'com.auth0', name: 'java-jwt', version: '3.2.0') {
+        // declare dependencies in superpackage
+        transitive = false
+    }
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.55'
+
+
 }
 
 shadowJar {
-    configurations = [project.configurations.shadow]
-    relocate 'com.auth0.jwt', 'shadow.auth0.jwt'
-}
-
-def sharedManifest = manifest {
-    attributes("Implementation-Title": project.name,
-            "Implementation-Version": version)
-}
-
-jar {
-//    archiveBaseName.set(project.name)
-    manifest.from sharedManifest
-}
-
-// custom tasks for creating source/javadoc jars
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-    manifest.from sharedManifest
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-    manifest.from sharedManifest
-}
-
-// add javadoc/source jar tasks as artifacts
-artifacts {
-    archives sourcesJar, javadocJar
-}
-
-publishing {
-    publications {
-        mavenJar(MavenPublication) {
-            publication -> project.shadow.component(publication)
-                artifact sourcesJar
-                artifact javadocJar
-
-                pom {
-                    name = project.name
-                    description = project.description
-                    url = githubUrl
-                    licenses {
-                        license {
-                            name = 'The Apache Software License, Version 2.0'
-                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                            distribution = 'repo'
-                        }
-                    }
-                    developers {
-                        developer {
-                            id = 'dennyverbeeck'
-                            name = 'Denny Verbeeck'
-                            email = 'dverbeec@its.jnj.com'
-                            organization = 'Janssen R&D'
-                        }
-                        developer {
-                            id = 'blootsvoets'
-                            name = 'Joris Borgdorff'
-                            email = 'joris@thehyve.nl'
-                            organization = 'The Hyve'
-                        }
-                        developer {
-                            id = 'nivemaham'
-                            name = 'Nivethika Mahasivam'
-                            email = 'nivethika@thehyve.nl'
-                            organization = 'The Hyve'
-                        }
-                    }
-                    issueManagement {
-                        system = 'GitHub'
-                        url = githubUrl + '/issues'
-                    }
-                    organization {
-                        name = 'RADAR-base'
-                        url = website
-                    }
-                    scm {
-                        connection = 'scm:git:' + githubUrl
-                        url = githubUrl
-                    }
-                }
-
-        }
-    }
-}
-
-bintray {
-    user project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-    override false
-    publications 'mavenJar'
-    pkg {
-        repo = project.group
-        name = project.name
-        userOrg = 'radar-cns'
-        desc = project.description
-        licenses = ['Apache-2.0']
-        websiteUrl = website
-        issueTrackerUrl = issueUrl
-        vcsUrl = githubUrl
-        githubRepo = githubRepoName
-        githubReleaseNotesFile = 'README.md'
-        version {
-            name = project.version
-            desc = project.description
-            vcsTag = System.getenv('TRAVIS_TAG')
-            released = new Date()
-        }
-    }
-}
-
-
-artifactory {
-    contextUrl = 'https://oss.jfrog.org/artifactory'
-    publish {
-        repository {
-            repoKey = 'oss-snapshot-local'
-            username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-            password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-            maven = true
-        }
-        defaults {
-            publishArtifacts = true
-            publishPom = true
-            properties = ['qa.level': 'basic']
-        }
-    }
-}
-
-artifactoryPublish {
-    publications('mavenJar')
-    dependsOn 'assemble'
+    relocate 'com', 'shadow.com'
+    relocate 'org', 'shadow.org'
 }

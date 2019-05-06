@@ -7,8 +7,8 @@ apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.jfrog.artifactory'
 
 ext.jacksonVersion = '2.9.8'
-ext.okhttpVersion = '3.14.0'
-ext.oauthJwtVersion = '3.7.0'
+ext.okhttpVersion = '3.14.1'
+ext.oauthJwtVersion = '3.8.0'
 
 description = 'Library for authentication and authorization of JWT tokens issued by the RADAR platform'
 
@@ -19,23 +19,24 @@ repositories {
 
 dependencies {
     implementation project(path: ':radar-auth:deprecated-auth0', configuration: 'shadow')
-    api group: 'com.auth0', name: 'java-jwt', version: oauthJwtVersion
-    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion
+    shadow 'commons-codec:commons-codec:1.10'
 
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.26'
-    implementation group: 'com.fasterxml.jackson.core' , name: 'jackson-databind' , version: jacksonVersion
-    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jacksonVersion
+    shadow group: 'com.auth0', name: 'java-jwt', version: oauthJwtVersion
+    shadow group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion
+
+    shadow group: 'org.slf4j', name: 'slf4j-api', version: '1.7.26'
+    shadow group: 'com.fasterxml.jackson.core' , name: 'jackson-databind' , version: jacksonVersion
+    shadow group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jacksonVersion
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.21.0'
     testCompile group: 'com.github.stefanbirkner', name: 'system-rules', version: '1.19.0'
 
-
     testRuntimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 }
 
 shadowJar {
-    configurations = [project.configurations.shadow]
+    archiveClassifier.set(null)
 }
 
 
@@ -45,19 +46,18 @@ def sharedManifest = manifest {
 }
 
 jar {
-//    archiveBaseName.set(project.name)
     manifest.from sharedManifest
 }
 
 // custom tasks for creating source/javadoc jars
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
     manifest.from sharedManifest
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set('javadoc')
     from javadoc.destinationDir
     manifest.from sharedManifest
 }
@@ -73,7 +73,6 @@ publishing {
             publication -> project.shadow.component(publication)
             artifact sourcesJar
             artifact javadocJar
-
             pom {
                 name = project.name
                 description = project.description
@@ -118,7 +117,11 @@ publishing {
                     url = githubUrl
                 }
             }
-
+            pom.withXml {
+                asNode().dependencies.'*'.findAll() {
+                    it.scope.text() == 'runtime' && it.artifactId.text() == 'java-jwt'
+                }.each { it.scope*.value = 'compile'}
+            }
         }
     }
 }
