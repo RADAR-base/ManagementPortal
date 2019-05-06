@@ -60,8 +60,8 @@ public class DeprecatedEcTokenValidationAlgorithm extends AbstractTokenValidatio
     public Algorithm getAlgorithm(String publicKey) {
 
         shadow.com.auth0.jwt.algorithms.Algorithm deprecatedEcVerifier =
-                shadow.com.auth0.jwt.algorithms.Algorithm.ECDSA256((ECPublicKey) parseKey(publicKey),
-                null);
+                shadow.com.auth0.jwt.algorithms.Algorithm.ECDSA256(
+                        (ECPublicKey) parseKey(publicKey), null);
         return new Algorithm(deprecatedEcVerifier.getName(), getJwtAlgorithm()) {
             @Override
             public void verify(DecodedJWT jwt) throws SignatureVerificationException {
