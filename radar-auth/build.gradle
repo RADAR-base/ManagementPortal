@@ -55,6 +55,7 @@ def sharedManifest = manifest {
 
 jar {
     manifest.from sharedManifest
+    enabled = false
 }
 
 // custom tasks for creating source/javadoc jars
@@ -170,7 +171,7 @@ artifactory {
             maven = true
         }
         defaults {
-            publishArtifacts = true
+            publishArtifacts = false
             publishPom = true
             properties = ['qa.level': 'basic']
         }
