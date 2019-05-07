@@ -38,6 +38,7 @@ public class AlgorithmLoader {
     /**
      * Creates algorithm loader with default algorithms.
      */
+    @SuppressWarnings("deprecation") // still use deprecated ec tokens
     public AlgorithmLoader() {
         this(Arrays.asList(
                 new ECTokenValidationAlgorithm(),
