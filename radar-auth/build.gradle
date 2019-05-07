@@ -41,6 +41,11 @@ dependencies {
 
 shadowJar {
     archiveClassifier.set(null)
+    conventionMapping.with {
+        map('classifier') {
+            null
+        }
+    }
 }
 
 def sharedManifest = manifest {
