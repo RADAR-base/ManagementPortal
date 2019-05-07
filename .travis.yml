@@ -18,13 +18,13 @@ cache:
   directories:
     - node
     - node_modules
+    - $HOME/.yarn-cache
     - $HOME/.gradle/caches/jars-1
     - $HOME/.gradle/caches/jars-2
     - $HOME/.gradle/caches/jars-3
     - $HOME/.gradle/caches/modules-2/files-2.1/
     - $HOME/.gradle/native
-    - $HOME/.gradle
-    - $HOME/.yarn-cache
+    - $HOME/.gradle/wrapper
 
 env:
   global:
