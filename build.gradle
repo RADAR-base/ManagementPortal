@@ -222,7 +222,7 @@ dependencies {
     compile "io.springfox:springfox-bean-validators:${springfox_version}"
     compile "org.postgresql:postgresql"
     compile "com.h2database:h2"
-    compile project(":radar-auth")
+    compile project(path: ':radar-auth', configuration: 'shadow')
     compile "org.springframework.data:spring-data-envers:${spring_data_envers_version}"
 
     testCompile "org.awaitility:awaitility:${awaitility_version}"
