@@ -17,6 +17,10 @@ repositories {
     mavenLocal()
 }
 
+configurations {
+    testCompile.extendsFrom shadow
+}
+
 dependencies {
     implementation project(path: ':radar-auth:deprecated-auth0', configuration: 'shadow')
     shadow 'commons-codec:commons-codec:1.10'
@@ -38,7 +42,6 @@ dependencies {
 shadowJar {
     archiveClassifier.set(null)
 }
-
 
 def sharedManifest = manifest {
     attributes("Implementation-Title": project.name,
