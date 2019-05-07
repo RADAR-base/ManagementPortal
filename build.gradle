@@ -11,7 +11,7 @@ plugins {
 allprojects {
     group 'org.radarcns'
 
-    version '0.5.5' // project version
+    version '0.5.6' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
@@ -82,7 +82,7 @@ if (OperatingSystem.current().isWindows()) {
         doFirst {
             manifest {
                 attributes 'Class-Path': configurations.runtime.files.collect {
-                    it.toURL().toString().replaceFirst(/file:\/+/, '/').replaceAll(' ', '%20')
+                    it.toURI().toURL().toString().replaceFirst(/file:\/+/, '/').replaceAll(' ', '%20')
                 }.join(' ')
             }
         }
@@ -130,7 +130,6 @@ apply from: 'gradle/gatling.gradle'
 apply from: 'gradle/mapstruct.gradle'
 apply from: 'gradle/docker.gradle'
 apply from: 'gradle/style.gradle'
-apply from: 'gradle/publishing.gradle'
 apply from: 'gradle/openapi.gradle'
 
 if (project.hasProperty('prod')) {
@@ -222,7 +221,7 @@ dependencies {
     compile "io.springfox:springfox-bean-validators:${springfox_version}"
     compile "org.postgresql:postgresql"
     compile "com.h2database:h2"
-    compile project(":radar-auth")
+    compile project(path: ':radar-auth', configuration: 'shadow')
     compile "org.springframework.data:spring-data-envers:${spring_data_envers_version}"
 
     testCompile "org.awaitility:awaitility:${awaitility_version}"
@@ -273,3 +272,5 @@ task downloadDependencies {
     configurations.compileClasspath.files
     configurations.runtimeClasspath.files
 }
+
+apply from: 'gradle/publishing.gradle'

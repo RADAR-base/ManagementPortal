@@ -10,7 +10,7 @@ Add the dependency to your project.
 
 Gradle:
 ```groovy
-compile group: 'org.radarcns', name: 'radar-auth', version: '0.5.5'
+compile group: 'org.radarcns', name: 'radar-auth', version: '0.5.6'
 ```
 
 The library expects the identity server configuration in a file called `radar-is.yml`. Either set 
@@ -51,7 +51,7 @@ publicKeys:
 ```
 
 
-We have deprecated the use of public key configurations in radar-is.yml for token validation from radar-auth:0.5.5.
+We have deprecated the use of public key configurations in radar-is.yml for token validation from radar-auth:0.5.6.
 We recommend you to fetch public keys from Management Portal, instead of locally configuring public-keys. 
 We have upgraded to java-jwt:0.3.7 from radar-auth:0.5.4, which have refactored support for ECDSA algorithms.
 If you have used management-portal:0.5.3 or earlier versions, you can use deprecated public-key configurations to keep validating old signatures. 

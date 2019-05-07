@@ -14,11 +14,11 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.SignatureGenerationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.bouncycastle.util.io.pem.PemReader;
+import shadow.org.bouncycastle.util.io.pem.PemReader;
 import org.radarcns.auth.exception.ConfigurationException;
 import org.radarcns.auth.token.validation.AbstractTokenValidationAlgorithm;
-import shadow.auth0.jwt.exceptions.JWTDecodeException;
-import shadow.auth0.jwt.interfaces.Claim;
+import shadow.com.auth0.jwt.exceptions.JWTDecodeException;
+import shadow.com.auth0.jwt.interfaces.Claim;
 
 /**
  * This is a deprecated algorithm to validate old tokens.
@@ -59,15 +59,15 @@ public class DeprecatedEcTokenValidationAlgorithm extends AbstractTokenValidatio
     @Override
     public Algorithm getAlgorithm(String publicKey) {
 
-        shadow.auth0.jwt.algorithms.Algorithm deprecatedEcVerifier =
-                shadow.auth0.jwt.algorithms.Algorithm.ECDSA256((ECPublicKey) parseKey(publicKey),
-                null);
+        shadow.com.auth0.jwt.algorithms.Algorithm deprecatedEcVerifier =
+                shadow.com.auth0.jwt.algorithms.Algorithm.ECDSA256(
+                        (ECPublicKey) parseKey(publicKey), null);
         return new Algorithm(deprecatedEcVerifier.getName(), getJwtAlgorithm()) {
             @Override
             public void verify(DecodedJWT jwt) throws SignatureVerificationException {
                 try {
                     deprecatedEcVerifier.verify(wrap(jwt));
-                } catch (shadow.auth0.jwt.exceptions.SignatureVerificationException exe) {
+                } catch (shadow.com.auth0.jwt.exceptions.SignatureVerificationException exe) {
                     throw new SignatureVerificationException(this, exe);
                 }
             }
@@ -79,8 +79,8 @@ public class DeprecatedEcTokenValidationAlgorithm extends AbstractTokenValidatio
         };
     }
 
-    private shadow.auth0.jwt.interfaces.DecodedJWT wrap(DecodedJWT jwt) {
-        return new shadow.auth0.jwt.interfaces.DecodedJWT() {
+    private shadow.com.auth0.jwt.interfaces.DecodedJWT wrap(DecodedJWT jwt) {
+        return new shadow.com.auth0.jwt.interfaces.DecodedJWT() {
             @Override
             public String getToken() {
                 return jwt.getToken();
