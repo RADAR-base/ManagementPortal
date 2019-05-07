@@ -82,7 +82,7 @@ if (OperatingSystem.current().isWindows()) {
         doFirst {
             manifest {
                 attributes 'Class-Path': configurations.runtime.files.collect {
-                    it.toURL().toString().replaceFirst(/file:\/+/, '/').replaceAll(' ', '%20')
+                    it.toURI().toURL().toString().replaceFirst(/file:\/+/, '/').replaceAll(' ', '%20')
                 }.join(' ')
             }
         }
@@ -130,7 +130,6 @@ apply from: 'gradle/gatling.gradle'
 apply from: 'gradle/mapstruct.gradle'
 apply from: 'gradle/docker.gradle'
 apply from: 'gradle/style.gradle'
-apply from: 'gradle/publishing.gradle'
 apply from: 'gradle/openapi.gradle'
 
 if (project.hasProperty('prod')) {
@@ -273,3 +272,5 @@ task downloadDependencies {
     configurations.compileClasspath.files
     configurations.runtimeClasspath.files
 }
+
+apply from: 'gradle/publishing.gradle'
