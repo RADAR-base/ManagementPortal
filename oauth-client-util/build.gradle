@@ -1,4 +1,4 @@
-ext.jacksonVersion = '2.9.8'
+ext.jacksonVersion = '2.9.9'
 ext.okhttpVersion = '3.14.0'
 ext.junitVersion ='4.12'
 
