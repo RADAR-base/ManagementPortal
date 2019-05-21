@@ -47,22 +47,8 @@ defaultTasks 'bootRun'
 
 configurations {
     compile.exclude module: "spring-boot-starter-tomcat"
-    cucumberTestCompile.extendsFrom testCompile
-    cucumberTestRuntime.extendsFrom testRuntime
 }
 
-sourceSets {
-    cucumberTest {
-        java {
-            compileClasspath += main.output + test.output + test.compileClasspath
-            runtimeClasspath += main.output + test.output + test.compileClasspath
-            srcDir file('src/cucumberTest/java')
-        }
-        resources {
-            srcDir 'src/cucumberTest/resources'
-        }
-    }
-}
 
 bootRepackage {
     mainClass = 'org.radarcns.management.ManagementPortalApp'
@@ -101,29 +87,12 @@ if (OperatingSystem.current().isWindows()) {
     }
 }
 
-task cucumberTest(type: Test) {
-    testClassesDirs = sourceSets.cucumberTest.output.classesDirs
-    classpath = sourceSets.cucumberTest.runtimeClasspath
-
-    testLogging {
-        events "skipped", "failed", "passed"
-    }
-
-    // uncomment if the tests reports are not generated
-    // see https://github.com/jhipster/generator-jhipster/pull/2771 and https://github.com/jhipster/generator-jhipster/pull/4484
-    // ignoreFailures true
-    reports.html.enabled = true
-}
-
-test.finalizedBy(cucumberTest)
 
 task testReport(type: TestReport) {
     destinationDir = file("$buildDir/reports/tests")
     reportOn test
-    reportOn cucumberTest
 }
 
-cucumberTest.finalizedBy(testReport)
 
 apply from: 'gradle/liquibase.gradle'
 apply from: 'gradle/gatling.gradle'
@@ -226,8 +195,6 @@ dependencies {
 
     testCompile "org.awaitility:awaitility:${awaitility_version}"
     testCompile "com.jayway.jsonpath:json-path"
-    testCompile "info.cukes:cucumber-junit:${cucumber_version}"
-    testCompile "info.cukes:cucumber-spring:${cucumber_version}"
     testCompile "org.springframework.boot:spring-boot-starter-test"
     testCompile "org.springframework.security:spring-security-test"
     testCompile "org.springframework.boot:spring-boot-test"
