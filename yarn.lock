@@ -284,9 +284,9 @@ angular2-cookie@1.2.6:
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/angular2-cookie/-/angular2-cookie-1.2.6.tgz#8fa845531e777adb042fe2f339c0040f6ddbf09d"
 
-angular2-infinite-scroll@0.3.4:
-  version "0.3.4"
-  resolved "https://registry.yarnpkg.com/angular2-infinite-scroll/-/angular2-infinite-scroll-0.3.4.tgz#d011ab7dc7a85a2ca908540166b679a68d396f53"
+angular2-infinite-scroll@0.3.5:
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/angular2-infinite-scroll/-/angular2-infinite-scroll-0.3.5.tgz#c2943511c75b76ffc448f60ec39505d027c14d9f"
 
 angular2-qrcode@2.0.1:
   version "2.0.1"
