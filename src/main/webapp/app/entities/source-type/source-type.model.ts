@@ -2,7 +2,7 @@
 const enum SourceTypeScope {
     'ACTIVE',
     'PASSIVE'
-};
+}
 
 export class SourceType {
     constructor(
