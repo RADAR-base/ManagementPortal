@@ -27,7 +27,6 @@
     "applicationType": "monolith",
     "testFrameworks": [
       "gatling",
-      "cucumber",
       "protractor"
     ],
     "jhiPrefix": "jhi",

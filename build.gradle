@@ -47,22 +47,8 @@ defaultTasks 'bootRun'
 
 configurations {
     compile.exclude module: "spring-boot-starter-tomcat"
-    cucumberTestCompile.extendsFrom testCompile
-    cucumberTestRuntime.extendsFrom testRuntime
 }
 
-sourceSets {
-    cucumberTest {
-        java {
-            compileClasspath += main.output + test.output + test.compileClasspath
-            runtimeClasspath += main.output + test.output + test.compileClasspath
-            srcDir file('src/cucumberTest/java')
-        }
-        resources {
-            srcDir 'src/cucumberTest/resources'
-        }
-    }
-}
 
 bootRepackage {
     mainClass = 'org.radarcns.management.ManagementPortalApp'
@@ -101,29 +87,12 @@ if (OperatingSystem.current().isWindows()) {
     }
 }
 
-task cucumberTest(type: Test) {
-    testClassesDirs = sourceSets.cucumberTest.output.classesDirs
-    classpath = sourceSets.cucumberTest.runtimeClasspath
-
-    testLogging {
-        events "skipped", "failed", "passed"
-    }
-
-    // uncomment if the tests reports are not generated
-    // see https://github.com/jhipster/generator-jhipster/pull/2771 and https://github.com/jhipster/generator-jhipster/pull/4484
-    // ignoreFailures true
-    reports.html.enabled = true
-}
-
-test.finalizedBy(cucumberTest)
 
 task testReport(type: TestReport) {
     destinationDir = file("$buildDir/reports/tests")
     reportOn test
-    reportOn cucumberTest
 }
 
-cucumberTest.finalizedBy(testReport)
 
 apply from: 'gradle/liquibase.gradle'
 apply from: 'gradle/gatling.gradle'
@@ -150,12 +119,6 @@ repositories {
     jcenter()
     maven { url 'https://oss.jfrog.org/artifactory/libs-snapshot/' }
     maven { url 'https://dl.bintray.com/radar-cns/org.radarcns' }
-    maven { url 'http://repo.spring.io/milestone' }
-    maven { url 'http://repo.spring.io/snapshot' }
-    maven { url 'https://repository.jboss.org/nexus/content/repositories/releases' }
-    maven { url 'https://oss.sonatype.org/content/repositories/releases' }
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-    maven { url 'http://repo.maven.apache.org/maven2' }
 }
 
 dependencies {
@@ -169,13 +132,13 @@ dependencies {
     compile("net.logstash.logback:logstash-logback-encoder:${logstash_logback_encoder_version}") {
         exclude(group: 'ch.qos.logback')
     }
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-json-org"
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-hppc"
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5"
-    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-csv"
-    compile "com.fasterxml.jackson.core:jackson-annotations"
-    compile "com.fasterxml.jackson.core:jackson-databind"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-json-org:${jackson_version}"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-hppc:${jackson_version}"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_version}"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${jackson_version}"
+    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:${jackson_version}"
+    compile "com.fasterxml.jackson.core:jackson-annotations:${jackson_version}"
+    compile "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
     compile("com.ryantenney.metrics:metrics-spring:${metrics_spring_version}")
     compile "com.hazelcast:hazelcast"
     compile "com.hazelcast:hazelcast-hibernate52:${hazelcast_hibernate52_version}"
@@ -208,11 +171,12 @@ dependencies {
     }
     compile "org.springframework.boot:spring-boot-starter-undertow"
     compile "org.springframework.boot:spring-boot-starter-thymeleaf"
-    compile "org.springframework.boot:spring-boot-starter-cloud-connectors"
     compile("org.springframework:spring-context-support")
     compile "org.springframework.security:spring-security-config"
     compile "org.springframework.security:spring-security-data"
-    compile "org.springframework.security:spring-security-web"
+    compile ("org.springframework.security:spring-security-web"){
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+    }
     compile "org.springframework.security:spring-security-jwt"
     compile "org.springframework.security.oauth:spring-security-oauth2:${spring_security_oauth2_version}"
     compile("io.springfox:springfox-swagger2:${springfox_version}") {
@@ -226,8 +190,6 @@ dependencies {
 
     testCompile "org.awaitility:awaitility:${awaitility_version}"
     testCompile "com.jayway.jsonpath:json-path"
-    testCompile "info.cukes:cucumber-junit:${cucumber_version}"
-    testCompile "info.cukes:cucumber-spring:${cucumber_version}"
     testCompile "org.springframework.boot:spring-boot-starter-test"
     testCompile "org.springframework.security:spring-security-test"
     testCompile "org.springframework.boot:spring-boot-test"
@@ -248,7 +210,7 @@ task cleanResources(type: Delete) {
 }
 
 wrapper {
-    gradleVersion '4.10.2'
+    gradleVersion '5.4.1'
 }
 
 task stage(dependsOn: 'bootRepackage') {

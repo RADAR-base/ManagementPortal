@@ -51,7 +51,7 @@ export class PasswordStrengthBarComponent {
         force = (passedMatches === 3) ? Math.min(force, 40) : force;
 
         return force;
-    };
+    }
 
     getColor(s: number): any {
         let idx = 0;
@@ -67,7 +67,7 @@ export class PasswordStrengthBarComponent {
             idx = 4;
         }
         return {idx: idx + 1, col: this.colors[idx]};
-    };
+    }
 
     @Input()
     set passwordToCheck(password: string) {
