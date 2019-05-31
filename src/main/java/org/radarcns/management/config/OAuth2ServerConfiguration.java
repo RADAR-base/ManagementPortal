@@ -131,6 +131,7 @@ public class OAuth2ServerConfiguration {
                     .antMatchers("/api/register").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
                     .antMatchers("/api/profile-info").permitAll()
                     .antMatchers("/api/**").authenticated()
+                    .antMatchers("/management/health").permitAll()
                     .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
                     .antMatchers("/v2/api-docs/**").permitAll()
                     .antMatchers("/swagger-resources/configuration/ui").permitAll()

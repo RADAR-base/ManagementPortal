@@ -38,6 +38,13 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             chain.doFilter(request, response);
             return;
         }
+
+        if(((HttpServletRequest) request).getRequestURI().contains("management/health")) {
+            log.debug("Skipping JWT check for Health check request");
+            chain.doFilter(request, response);
+            return;
+        }
+
         try {
             request.setAttribute(TOKEN_ATTRIBUTE,
                     validator.validateAccessToken(getToken(request, response)));
@@ -48,7 +55,12 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             HttpServletResponse res = (HttpServletResponse) response;
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             res.setHeader(HttpHeaders.WWW_AUTHENTICATE, OAuth2AccessToken.BEARER_TYPE);
-            res.getOutputStream().println("{\"error\": \"" + ex.getMessage() + "\"}");
+            res.getOutputStream().println(
+                    "{\"error\": \"" + "Unauthorized" +",\n"
+                            + "\"status\": \"" +HttpServletResponse.SC_UNAUTHORIZED +",\n"
+                            + "\"message\": \"" + ex.getMessage() +",\n"
+                            + "\"path\": \"" + ((HttpServletRequest) request).getRequestURI() +"\n"
+                            + "\"}");
         }
     }
 
