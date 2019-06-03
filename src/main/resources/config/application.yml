@@ -42,6 +42,8 @@ management:
         enabled: false
     context-path: /management
     health:
+        diskspace:
+            enabled: false
         mail:
             enabled: false # When using the MailService, configure an SMTP server and set this to true
         db:
