@@ -6,7 +6,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.jfrog.artifactory'
 
-ext.jacksonVersion = '2.9.8'
+ext.jacksonVersion = '2.9.9'
 ext.okhttpVersion = '3.14.1'
 ext.oauthJwtVersion = '3.8.0'
 
