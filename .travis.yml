@@ -9,7 +9,7 @@ addons:
       - docker-ce # necessary for testing the Dockerfile, which is a multi-stage build see: https://github.com/travis-ci/travis-ci/issues/8181
 language: node_js
 node_js:
-  - "6.10.0"
+  - "11.2.0"
 jdk:
   - oraclejdk8
 sudo: false
@@ -28,7 +28,7 @@ cache:
 
 env:
   global:
-    - NODE_VERSION=6.10.0
+    - NODE_VERSION=11.2.0
     - SPRING_OUTPUT_ANSI_ENABLED=ALWAYS
     - SPRING_JPA_SHOW_SQL=false
 
