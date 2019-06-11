@@ -200,9 +200,11 @@ public class OAuthClientService {
 
         if (metaToken.getId() != null && metaToken.getTokenName() != null) {
             // get base url from settings
-            String baseUrl = managementPortalProperties.getCommon().getManagementPortalBaseUrl();
+            String baseUrl = managementPortalProperties.getCommon().getBaseUrl();
             // create complete uri string
-            String tokenUrl = baseUrl + ResourceUriService.getUri(metaToken).getPath();
+            String tokenUrl = managementPortalProperties.getCommon().getManagementPortalBaseUrl()
+                    + ResourceUriService.getUri(metaToken).getPath();
+
             // create response
             return new ClientPairInfoDTO(new URL(baseUrl), metaToken.getTokenName(),
                     new URL(tokenUrl), getMetaTokenTimeout());
