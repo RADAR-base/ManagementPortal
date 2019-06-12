@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -9,10 +9,12 @@ import { OAuthClientPairInfoService } from '../../entities/oauth-client/oauth-cl
 import { SubjectPopupService } from './subject-popup.service';
 import { Subject } from './subject.model';
 import { DatePipe } from '@angular/common';
+import { DOCUMENT } from '@angular/platform-browser';
 
 @Component({
     selector: 'jhi-subject-pair-dialog',
     templateUrl: './subject-pair-dialog.component.html',
+    styleUrls: ['./subject-pair-dialog.component.scss'],
     providers: [OAuthClientService, OAuthClientPairInfoService],
 })
 export class SubjectPairDialogComponent implements OnInit {
@@ -30,12 +32,14 @@ export class SubjectPairDialogComponent implements OnInit {
                 private alertService: AlertService,
                 private oauthClientService: OAuthClientService,
                 private oauthClientPairInfoService: OAuthClientPairInfoService,
-                private datePipe: DatePipe) {
+                private datePipe: DatePipe,
+                @Inject(DOCUMENT) private doc) {
         this.jhiLanguageService.addLocation('subject');
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
     }
 
     ngOnInit() {
+        this.loadInconsolataFont();
         this.oauthClientService.query().subscribe(
                 (res) => {
                     // only keep clients that have the dynamic_registration key in additionalInformation
@@ -44,6 +48,17 @@ export class SubjectPairDialogComponent implements OnInit {
                     .filter((c) => c.additionalInformation.dynamic_registration &&
                             c.additionalInformation.dynamic_registration.toLowerCase() === 'true');
                 });
+    }
+
+    private loadInconsolataFont() {
+        if (this.doc.getElementById('inconsolata-font-link') === null) {
+            const link: HTMLLinkElement = this.doc.createElement('link');
+            link.id = 'inconsolata-font-link';
+            link.setAttribute('rel', 'stylesheet');
+            link.setAttribute('type', 'text/css');
+            link.setAttribute('href', '//fonts.googleapis.com/css?family=Inconsolata');
+            this.doc.head.appendChild(link);
+        }
     }
 
     clear() {
