@@ -16,6 +16,7 @@ if (!fs.existsSync(ddlPath)) {
 }
 
 module.exports = webpackMerge(commonConfig({ env: ENV }), {
+    mode: 'development',
     devtool: 'inline-source-map',
     devServer: {
         contentBase: './build/www',

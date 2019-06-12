@@ -8,6 +8,7 @@ const path = require('path');
 const ENV = 'prod';
 
 module.exports = webpackMerge(commonConfig({ env: ENV }), {
+    mode: 'production',
     devtool: 'source-map',
     output: {
         path: path.resolve('./build/www'),

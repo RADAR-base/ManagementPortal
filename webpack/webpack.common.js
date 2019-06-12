@@ -1,5 +1,4 @@
 const webpack = require('webpack');
-const CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const StringReplacePlugin = require('string-replace-webpack-plugin');
@@ -80,9 +79,6 @@ module.exports = function (options) {
             ]
         },
         plugins: [
-            new CommonsChunkPlugin({
-                names: ['manifest', 'polyfills'].reverse()
-            }),
             new webpack.DllReferencePlugin({
                 context: './',
                 manifest: require(path.resolve('./build/www/vendor.json'))
@@ -108,6 +104,11 @@ module.exports = function (options) {
                 { filepath: path.resolve('./build/www/vendor.dll.js'), includeSourcemap: false }
             ]),
             new StringReplacePlugin()
-        ]
+        ],
+        optimization: {
+            splitChunks: {
+                chunks: ['all']
+            }
+        },
     };
 };
