@@ -16,7 +16,7 @@ export class ProjectPopupService {
     ) {
     }
 
-    open(component: Component, projectName?: string): NgbModalRef {
+    open(component: any, projectName?: string): NgbModalRef {
         if (this.isOpen) {
             return;
         }
@@ -35,7 +35,7 @@ export class ProjectPopupService {
         }
     }
 
-    projectModalRef(component: Component, project: Project): NgbModalRef {
+    projectModalRef(component: any, project: Project): NgbModalRef {
         const modalRef = this.modalService.open(component, {size: 'lg', backdrop: 'static'});
         modalRef.componentInstance.project = project;
         modalRef.result.then((result) => {

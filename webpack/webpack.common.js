@@ -29,7 +29,7 @@ module.exports = function (options) {
                         'angular2-template-loader',
                         'awesome-typescript-loader'
                     ],
-                    exclude: ['node_modules/generator-jhipster']
+                    exclude: [/node_modules\/generator-jhipster/]
                 },
                 {
                     test: /\.html$/,
@@ -41,7 +41,7 @@ module.exports = function (options) {
                         minifyJS:false,
                         minifyCSS:false
                     },
-                    exclude: ['./src/main/webapp/index.html']
+                    exclude: [/src\/main\/webapp\/index.html/]
                 },
                 {
                     test: /\.scss$/,
@@ -107,7 +107,7 @@ module.exports = function (options) {
         ],
         optimization: {
             splitChunks: {
-                chunks: ['all']
+                chunks: 'all'
             }
         },
     };

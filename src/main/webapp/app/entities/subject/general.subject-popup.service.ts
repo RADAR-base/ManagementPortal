@@ -14,7 +14,7 @@ export class GeneralSubjectPopupService {
     ) {
     }
 
-    open(component: Component, login?: string, isDelete?: boolean): NgbModalRef {
+    open(component: any, login?: string, isDelete?: boolean): NgbModalRef {
         if (this.isOpen) {
             return;
         }
@@ -29,7 +29,7 @@ export class GeneralSubjectPopupService {
         }
     }
 
-    subjectModalRef(component: Component, subject: Subject, isDelete?: boolean): NgbModalRef {
+    subjectModalRef(component: any, subject: Subject, isDelete?: boolean): NgbModalRef {
         const modalRef = this.modalService.open(component, {size: 'lg', backdrop: 'static'});
 
         modalRef.componentInstance.subject = subject;
