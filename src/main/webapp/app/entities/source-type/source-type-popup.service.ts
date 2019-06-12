@@ -15,7 +15,7 @@ export class SourceTypePopupService {
     ) {
     }
 
-    open(component: Component, producer?: string, model?: string, version?: string): NgbModalRef {
+    open(component: any, producer?: string, model?: string, version?: string): NgbModalRef {
         if (this.isOpen) {
             return;
         }
@@ -30,7 +30,7 @@ export class SourceTypePopupService {
         }
     }
 
-    sourceTypeModalRef(component: Component, sourceType: SourceType): NgbModalRef {
+    sourceTypeModalRef(component: any, sourceType: SourceType): NgbModalRef {
         const modalRef = this.modalService.open(component, {size: 'lg', backdrop: 'static'});
         modalRef.componentInstance.sourceType = sourceType;
         modalRef.result.then((result) => {

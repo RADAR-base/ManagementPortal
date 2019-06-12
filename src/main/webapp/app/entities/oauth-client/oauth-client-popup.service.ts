@@ -17,7 +17,7 @@ export class OAuthClientPopupService {
     ) {
     }
 
-    open(component: Component, clientId?: string): NgbModalRef {
+    open(component: any, clientId?: string): NgbModalRef {
         if (this.isOpen) {
             return;
         }
@@ -32,7 +32,7 @@ export class OAuthClientPopupService {
         }
     }
 
-    oauthClientModalRef(component: Component, client: OAuthClient): NgbModalRef {
+    oauthClientModalRef(component: any, client: OAuthClient): NgbModalRef {
         const modalRef = this.modalService.open(component, {size: 'lg', backdrop: 'static'});
         modalRef.componentInstance.client = client;
         modalRef.result.then((result) => {

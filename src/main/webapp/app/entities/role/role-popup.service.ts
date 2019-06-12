@@ -15,7 +15,7 @@ export class RolePopupService {
     ) {
     }
 
-    open(component: Component, projectName?: string, authorityName?: string): NgbModalRef {
+    open(component: any, projectName?: string, authorityName?: string): NgbModalRef {
         if (this.isOpen) {
             return;
         }
@@ -30,7 +30,7 @@ export class RolePopupService {
         }
     }
 
-    roleModalRef(component: Component, role: Role): NgbModalRef {
+    roleModalRef(component: any, role: Role): NgbModalRef {
         const modalRef = this.modalService.open(component, {size: 'lg', backdrop: 'static'});
         modalRef.componentInstance.role = role;
         modalRef.result.then((result) => {
