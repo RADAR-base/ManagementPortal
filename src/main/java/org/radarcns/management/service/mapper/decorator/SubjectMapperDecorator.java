@@ -4,8 +4,10 @@ import java.util.List;
 
 import java.util.stream.Collectors;
 import org.mapstruct.MappingTarget;
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.audit.EntityAuditInfo;
+import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.service.RevisionService;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.SubjectDTO.SubjectStatus;
@@ -29,20 +31,21 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
     @Autowired
     private RevisionService revisionService;
 
+    @Autowired
+    private ProjectRepository projectRepository;
+
     @Override
     public SubjectDTO subjectToSubjectDTO(Subject subject) {
         SubjectDTO dto = subjectToSubjectWithoutProjectDTO(subject);
         if (dto == null) {
             return null;
         }
-
-        subject.getActiveProject()
-                .ifPresent(project -> dto.setProject(
-                        projectMapper.projectToProjectDTO(project)));
-
+        Project project = subject.getActiveProject()
+                .flatMap(p ->  projectRepository.findOneWithEagerRelationships(p.getId()))
+                .orElse(null);
+        dto.setProject(projectMapper.projectToProjectDTO(project));
         return dto;
     }
-
 
     public SubjectDTO subjectToSubjectReducedProjectDTO(Subject subject) {
         SubjectDTO dto = subjectToSubjectWithoutProjectDTO(subject);
@@ -76,7 +79,6 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
 
     @Override
     public Subject subjectDTOToSubject(SubjectDTO subjectDto) {
-
         if (subjectDto == null) {
             return null;
         }
@@ -84,29 +86,6 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
         Subject subject = delegate.subjectDTOToSubject(subjectDto);
         setSubjectStatus(subjectDto, subject);
         return subject;
-    }
-
-    @Override
-    public List<SubjectDTO> subjectsToSubjectReducedProjectDTOs(List<Subject> subjects) {
-        if (subjects == null) {
-            return null;
-        }
-
-        return subjects.stream()
-                .map(this::subjectToSubjectReducedProjectDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Subject> subjectDTOsToSubjects(List<SubjectDTO> subjectDtos) {
-
-        if (subjectDtos == null) {
-            return null;
-        }
-
-        return subjectDtos.stream()
-                .map(this::subjectDTOToSubject)
-                .collect(Collectors.toList());
     }
 
     @Override

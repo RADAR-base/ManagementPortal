@@ -43,12 +43,12 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
         }
         ProjectDTO dto = delegate.projectToProjectDTOReduced(project);
         dto.setHumanReadableProjectName(project.getAttributes().get(HUMAN_READABLE_PROJECT_NAME));
+        dto.setSourceTypes(null);
         return dto;
     }
 
     @Override
     public Project projectDTOToProject(ProjectDTO projectDto) {
-
         if (projectDto == null) {
             return null;
         }
@@ -59,28 +59,6 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
             project.getAttributes().put(HUMAN_READABLE_PROJECT_NAME, projectName);
         }
         return project;
-    }
-
-    @Override
-    public List<ProjectDTO> projectsToProjectDTOs(List<Project> projects) {
-        if (projects == null) {
-            return null;
-        }
-
-        return projects.stream()
-                .map(this::projectToProjectDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Project> projectDTOsToProjects(List<ProjectDTO> projectDtos) {
-        if (projectDtos == null) {
-            return null;
-        }
-
-        return projectDtos.stream()
-                .map(this::projectDTOToProject)
-                .collect(Collectors.toList());
     }
 
     @Override

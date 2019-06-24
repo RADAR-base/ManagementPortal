@@ -44,8 +44,7 @@ public class SourceDataService {
         log.debug("Request to save SourceData : {}", sourceDataDto);
         SourceData sourceData = sourceDataMapper.sourceDataDTOToSourceData(sourceDataDto);
         sourceData = sourceDataRepository.save(sourceData);
-        SourceDataDTO result = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
-        return result;
+        return sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
     }
 
     /**
@@ -85,8 +84,7 @@ public class SourceDataService {
     public SourceDataDTO findOne(Long id) {
         log.debug("Request to get SourceData : {}", id);
         SourceData sourceData = sourceDataRepository.findOne(id);
-        SourceDataDTO sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
-        return sourceDataDto;
+        return sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
     }
 
     /**

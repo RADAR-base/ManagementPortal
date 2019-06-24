@@ -1,6 +1,8 @@
 package org.radarcns.management.service.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -45,6 +47,7 @@ public class SubjectDTO implements Serializable {
 
     private ZonedDateTime lastModifiedDate;
 
+    @JsonInclude(Include.NON_NULL)
     private ProjectDTO project;
 
     private List<RoleDTO> roles;

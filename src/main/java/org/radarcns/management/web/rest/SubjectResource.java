@@ -302,17 +302,17 @@ public class SubjectResource {
             throws NotAuthorizedException {
         log.debug("REST request to get Subject : {}", login);
         Subject subject = subjectService.findOneByLogin(login);
-        SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject);
-        if (subjectDto == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            ProjectDTO project = subjectDto.getProject();
-            String projectName = project == null ? null : project.getProjectName();
+        Project project = subject.getActiveProject()
+                .flatMap(p ->  projectRepository.findOneWithEagerRelationships(p.getId()))
+                .orElse(null);
 
-            checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, projectName,
-                    subjectDto.getLogin());
-            return ResponseEntity.ok(subjectDto);
-        }
+        String projectName = project == null ? null : project.getProjectName();
+
+        SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject);
+
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, projectName,
+                subjectDto.getLogin());
+        return ResponseEntity.ok(subjectDto);
     }
 
     /**

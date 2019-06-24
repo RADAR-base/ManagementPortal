@@ -1,12 +1,14 @@
 package org.radarcns.management.service.mapper;
 
 import java.util.List;
+import javax.ws.rs.core.Context;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.decorator.SubjectMapperDecorator;
@@ -65,8 +67,6 @@ public interface SubjectMapper {
     @Mapping(target = "removed", ignore = true)
     @Mapping(target = "metaTokens", ignore = true)
     Subject safeUpdateSubjectFromDTO(SubjectDTO subjectDto, @MappingTarget Subject subject);
-
-    List<Subject> subjectDTOsToSubjects(List<SubjectDTO> subjectDtos);
 
     /**
      * Generating the fromId for all mappers if the databaseType is sql, as the class has

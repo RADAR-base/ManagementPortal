@@ -1,6 +1,9 @@
 package org.radarcns.management.service.mapper;
 
+import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.radarcns.management.domain.SourceData;
 import org.radarcns.management.service.dto.SourceDataDTO;
 
@@ -12,8 +15,14 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = {SourceTypeMapper.class})
 public interface SourceDataMapper {
 
+    @Named("sourceDataDTO")
     SourceDataDTO sourceDataToSourceDataDTO(SourceData sourceData);
 
+    @Named("sourceDataReducedDTO")
+    @Mapping(target = "sourceType", ignore = true)
+    SourceDataDTO sourceDataToSourceDataDTOReduced(SourceData sourceData);
+
+    @IterableMapping(qualifiedByName = "sourceDataReducedDTO")
     List<SourceDataDTO> sourceDataToSourceDataDTOs(List<SourceData> sourceData);
 
     SourceData sourceDataDTOToSourceData(SourceDataDTO sourceDataDto);
