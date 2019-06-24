@@ -19,6 +19,10 @@ public interface ProjectMapper {
     @Mapping(target = "humanReadableProjectName", ignore = true)
     ProjectDTO projectToProjectDTO(Project project);
 
+    @Mapping(target = "humanReadableProjectName", ignore = true)
+    @Mapping(target = "sourceTypes", ignore = true)
+    ProjectDTO projectToProjectDTOWithoutSources(Project project);
+
     List<ProjectDTO> projectsToProjectDTOs(List<Project> projects);
 
     @Mapping(target = "roles", ignore = true)

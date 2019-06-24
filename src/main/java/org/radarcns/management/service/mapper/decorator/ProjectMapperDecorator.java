@@ -5,6 +5,7 @@ import static org.radarcns.management.service.dto.ProjectDTO.HUMAN_READABLE_PROJ
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.stream.Collectors;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.service.dto.MinimalProjectDetailsDTO;
@@ -35,6 +36,17 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
         return dto;
     }
 
+
+    @Override
+    public ProjectDTO projectToProjectDTOWithoutSources(Project project) {
+        if (project == null) {
+            return null;
+        }
+        ProjectDTO dto = delegate.projectToProjectDTOWithoutSources(project);
+        dto.setHumanReadableProjectName(project.getAttributes().get(HUMAN_READABLE_PROJECT_NAME));
+        return dto;
+    }
+
     @Override
     public Project projectDTOToProject(ProjectDTO projectDto) {
 
@@ -43,15 +55,9 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
         }
 
         Project project = delegate.projectDTOToProject(projectDto);
-        if (projectDto.getHumanReadableProjectName() != null && !projectDto
-                .getHumanReadableProjectName().isEmpty()) {
-            project.getAttributes().put(HUMAN_READABLE_PROJECT_NAME, projectDto
-                    .getHumanReadableProjectName());
-        }
-        if (projectDto.getHumanReadableProjectName() != null && !projectDto
-                .getHumanReadableProjectName().isEmpty()) {
-            project.getAttributes().put(HUMAN_READABLE_PROJECT_NAME, projectDto
-                    .getHumanReadableProjectName());
+        String projectName = projectDto.getHumanReadableProjectName();
+        if (projectName != null && !projectName.isEmpty()) {
+            project.getAttributes().put(HUMAN_READABLE_PROJECT_NAME, projectName);
         }
         return project;
     }
@@ -62,27 +68,20 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
             return null;
         }
 
-        List<ProjectDTO> list = new ArrayList<ProjectDTO>();
-        for (Project project : projects) {
-            list.add(this.projectToProjectDTO(project));
-        }
-
-        return list;
+        return projects.stream()
+                .map(this::projectToProjectDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<Project> projectDTOsToProjects(List<ProjectDTO> projectDtos) {
-
         if (projectDtos == null) {
             return null;
         }
 
-        List<Project> list = new ArrayList<Project>();
-        for (ProjectDTO projectDto : projectDtos) {
-            list.add(this.projectDTOToProject(projectDto));
-        }
-
-        return list;
+        return projectDtos.stream()
+                .map(this::projectDTOToProject)
+                .collect(Collectors.toList());
     }
 
     @Override

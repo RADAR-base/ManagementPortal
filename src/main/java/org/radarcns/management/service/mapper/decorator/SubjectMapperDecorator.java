@@ -31,14 +31,26 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
 
     @Override
     public SubjectDTO subjectToSubjectDTO(Subject subject) {
+        SubjectDTO dto = subjectToSubjectDTOWithoutProject(subject);
+        if (dto == null) {
+            return null;
+        }
+
+        subject.getActiveProject()
+                .ifPresent(project -> dto.setProject(
+                        projectMapper.projectToProjectDTOWithoutSources(project)));
+
+        return dto;
+    }
+
+
+    @Override
+    public SubjectDTO subjectToSubjectDTOWithoutProject(Subject subject) {
         if (subject == null) {
             return null;
         }
-        SubjectDTO dto = delegate.subjectToSubjectDTO(subject);
+        SubjectDTO dto = delegate.subjectToSubjectDTOWithoutProject(subject);
         dto.setStatus(getSubjectStatus(subject));
-        subject.getActiveProject()
-                .ifPresent(
-                    project -> dto.setProject(projectMapper.projectToProjectDTO(project)));
 
         EntityAuditInfo auditInfo = revisionService.getAuditInfo(subject);
         dto.setCreatedDate(auditInfo.getCreatedAt());

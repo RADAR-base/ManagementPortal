@@ -20,6 +20,7 @@ import javax.validation.Valid;
 import com.codahale.metrics.annotation.Timed;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.service.OAuthClientService;
@@ -202,11 +203,12 @@ public class OAuthClientsResource {
 
         // lookup the subject
         Subject subject = subjectService.findOneByLogin(login);
-        SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject);
+        String project = subject.getActiveProject()
+                .map(Project::getProjectName)
+                .orElse(null);
 
         // Users who can update a subject can also generate a refresh token for that subject
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
-                subjectDto.getProject().getProjectName(), subjectDto.getLogin());
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, project, login);
 
         ClientPairInfoDTO cpi = oAuthClientService.createRefreshToken(subject, clientId);
         // generate audit event
