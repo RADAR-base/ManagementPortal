@@ -6,7 +6,6 @@ import static org.radarcns.management.web.rest.errors.EntityName.USER;
 
 import java.time.Period;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;

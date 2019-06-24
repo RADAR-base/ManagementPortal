@@ -23,9 +23,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 
@@ -50,7 +50,6 @@ import org.radarcns.management.service.SourceService;
 import org.radarcns.management.service.SourceTypeService;
 import org.radarcns.management.service.SubjectService;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
-import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.dto.RevisionDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.SubjectMapper;
@@ -501,12 +500,8 @@ public class SubjectResource {
         boolean withInactiveSources = withInactiveSourcesParam == null ? false
                 : withInactiveSourcesParam;
         // check the subject id
-        Optional<Subject> subjectOptional = subjectRepository.findOneWithEagerBySubjectLogin(login);
-        if (!subjectOptional.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Subject subject = subjectOptional.get();
+        Subject subject = subjectRepository.findOneWithEagerBySubjectLogin(login)
+                .orElseThrow(NoSuchElementException::new);
 
         String projectName = subject.getActiveProject()
                 .map(Project::getProjectName)
@@ -566,21 +561,19 @@ public class SubjectResource {
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, projectName, login);
 
         // find source under subject
-        List<Source> sources = subject.getSources().stream()
+        Source source = subject.getSources().stream()
                 .filter(s -> s.getSourceName().equals(sourceName))
-                .collect(Collectors.toList());
-
-        // exception if source is not found under subject
-        if (sources.isEmpty()) {
-            Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("subjectLogin", login);
-            errorParams.put("sourceName", sourceName);
-            throw new NotFoundException("Source not found under assigned sources of "
-                + "subject", SUBJECT, ErrorConstants.ERR_SUBJECT_NOT_FOUND, errorParams);
-        }
+                .findAny()
+                .orElseThrow(() -> {
+                    Map<String, String> errorParams = new HashMap<>();
+                    errorParams.put("subjectLogin", login);
+                    errorParams.put("sourceName", sourceName);
+                    return new NotFoundException("Source not found under assigned sources of "
+                            + "subject", SUBJECT, ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                            errorParams);
+                });
 
         // there should be only one source under a source-name.
-        return ResponseEntity.ok(
-                sourceService.safeUpdateOfAttributes(sources.get(0), attributes));
+        return ResponseEntity.ok(sourceService.safeUpdateOfAttributes(source, attributes));
     }
 }

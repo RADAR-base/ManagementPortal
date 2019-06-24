@@ -1,25 +1,20 @@
 package org.radarcns.management.service.dto;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import javax.validation.constraints.NotNull;
 import org.radarcns.management.domain.enumeration.ProjectStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A DTO for the Project entity.
  */
 public class ProjectDTO implements Serializable {
-    private static final Logger logger = LoggerFactory.getLogger(ProjectDTO.class);
     private static final long serialVersionUID = 1L;
 
     public static final String EXTERNAL_PROJECT_URL_KEY = "External-project-url";
@@ -124,7 +119,6 @@ public class ProjectDTO implements Serializable {
     }
 
     public void setSourceTypes(Set<SourceTypeDTO> sourceTypes) {
-        logger.info("Set source types to {}", sourceTypes);
         this.sourceTypes = sourceTypes;
     }
 

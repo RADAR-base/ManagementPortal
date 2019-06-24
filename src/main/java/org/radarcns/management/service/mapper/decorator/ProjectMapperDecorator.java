@@ -2,9 +2,6 @@ package org.radarcns.management.service.mapper.decorator;
 
 import static org.radarcns.management.service.dto.ProjectDTO.HUMAN_READABLE_PROJECT_NAME;
 
-import java.util.List;
-
-import java.util.stream.Collectors;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.service.dto.MinimalProjectDetailsDTO;

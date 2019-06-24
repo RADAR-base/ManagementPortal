@@ -29,9 +29,7 @@ import org.radarcns.management.service.SubjectService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ClientDetailsDTO;
 import org.radarcns.management.service.dto.ClientPairInfoDTO;
-import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.ClientDetailsMapper;
-import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,9 +68,6 @@ public class OAuthClientsResource {
 
     @Autowired
     private SubjectService subjectService;
-
-    @Autowired
-    private SubjectMapper subjectMapper;
 
     @Autowired
     private UserService userService;

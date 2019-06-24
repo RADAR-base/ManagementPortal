@@ -15,7 +15,6 @@ import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -83,7 +82,7 @@ public class SourceType extends AbstractEntity implements Serializable {
     @Column(name = "dynamic_registration", nullable = false)
     private Boolean canRegisterDynamically = false;
 
-    @OneToMany(mappedBy = "sourceType", fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(mappedBy = "sourceType", orphanRemoval = true)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @Cascade({CascadeType.DELETE, CascadeType.SAVE_UPDATE})
     private Set<SourceData> sourceData;

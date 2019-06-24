@@ -54,6 +54,7 @@ public class Role extends AbstractEntity implements Serializable {
     private Set<User> users = new HashSet<>();
 
     @ManyToOne
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Project project;
 
     @JsonProperty()

@@ -1,8 +1,5 @@
 package org.radarcns.management.service.mapper.decorator;
 
-import java.util.List;
-
-import java.util.stream.Collectors;
 import org.mapstruct.MappingTarget;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Subject;
@@ -44,9 +41,11 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
                 .flatMap(p ->  projectRepository.findOneWithEagerRelationships(p.getId()))
                 .orElse(null);
         dto.setProject(projectMapper.projectToProjectDTO(project));
+
         return dto;
     }
 
+    @Override
     public SubjectDTO subjectToSubjectReducedProjectDTO(Subject subject) {
         SubjectDTO dto = subjectToSubjectWithoutProjectDTO(subject);
         if (dto == null) {
@@ -56,6 +55,12 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
         subject.getActiveProject()
                 .ifPresent(project -> dto.setProject(
                         projectMapper.projectToProjectDTOReduced(project)));
+
+        EntityAuditInfo auditInfo = revisionService.getAuditInfo(subject);
+        dto.setCreatedDate(auditInfo.getCreatedAt());
+        dto.setCreatedBy(auditInfo.getCreatedBy());
+        dto.setLastModifiedDate(auditInfo.getLastModifiedAt());
+        dto.setLastModifiedBy(auditInfo.getLastModifiedBy());
 
         return dto;
     }
@@ -67,12 +72,6 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
         }
         SubjectDTO dto = delegate.subjectToSubjectWithoutProjectDTO(subject);
         dto.setStatus(getSubjectStatus(subject));
-
-        EntityAuditInfo auditInfo = revisionService.getAuditInfo(subject);
-        dto.setCreatedDate(auditInfo.getCreatedAt());
-        dto.setCreatedBy(auditInfo.getCreatedBy());
-        dto.setLastModifiedDate(auditInfo.getLastModifiedAt());
-        dto.setLastModifiedBy(auditInfo.getLastModifiedBy());
 
         return dto;
     }
