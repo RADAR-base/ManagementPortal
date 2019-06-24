@@ -2,9 +2,11 @@ package org.radarcns.management.service.mapper;
 
 import java.util.List;
 import org.mapstruct.DecoratedWith;
+import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.mapper.decorator.SubjectMapperDecorator;
@@ -35,9 +37,21 @@ public interface SubjectMapper {
     @Mapping(target = "lastModifiedBy", ignore = true)
     @Mapping(target = "lastModifiedDate", ignore = true)
     @Mapping(source = "user.roles", target = "roles")
-    SubjectDTO subjectToSubjectDTOWithoutProject(Subject subject);
+    SubjectDTO subjectToSubjectReducedProjectDTO(Subject subject);
 
-    List<SubjectDTO> subjectsToSubjectDTOs(List<Subject> subjects);
+    @Named(value = "subjectReducedProjectDTO")
+    @Mapping(source = "user.login", target = "login")
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "project", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(source = "user.roles", target = "roles")
+    SubjectDTO subjectToSubjectWithoutProjectDTO(Subject subject);
+
+    @IterableMapping(qualifiedByName = "subjectReducedProjectDTO")
+    List<SubjectDTO> subjectsToSubjectReducedProjectDTOs(List<Subject> subjects);
 
     @Mapping(source = "login", target = "user.login")
     @Mapping(target = "user.email", ignore = true)

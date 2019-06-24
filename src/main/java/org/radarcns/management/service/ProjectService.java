@@ -64,7 +64,7 @@ public class ProjectService {
     public Page findAll(Boolean fetchMinimal, Pageable pageable) {
         Page<Project> projects = projectRepository.findAllWithEagerRelationships(pageable);
         if (!fetchMinimal) {
-            return projects.map(projectMapper::projectToProjectDTOWithoutSources);
+            return projects.map(projectMapper::projectToProjectDTOReduced);
         } else {
             return projects.map(projectMapper::projectToMinimalProjectDetailsDTO);
         }

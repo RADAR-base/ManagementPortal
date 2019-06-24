@@ -303,11 +303,11 @@ public class ProjectResource {
         if (includeInactiveParticipants) {
             page = subjectRepository.findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
                     Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT))
-                    .map(subjectMapper::subjectToSubjectDTOWithoutProject);
+                    .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
         } else {
             page = subjectRepository.findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
                     Collections.singletonList(PARTICIPANT))
-                    .map(subjectMapper::subjectToSubjectDTOWithoutProject);
+                    .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
         }
 
         HttpHeaders headers = PaginationUtil

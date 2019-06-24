@@ -2,8 +2,10 @@ package org.radarcns.management.service.mapper;
 
 import java.util.List;
 import org.mapstruct.DecoratedWith;
+import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.service.dto.MinimalProjectDetailsDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
@@ -19,10 +21,12 @@ public interface ProjectMapper {
     @Mapping(target = "humanReadableProjectName", ignore = true)
     ProjectDTO projectToProjectDTO(Project project);
 
+    @Named(value = "projectReducedDTO")
     @Mapping(target = "humanReadableProjectName", ignore = true)
     @Mapping(target = "sourceTypes", ignore = true)
-    ProjectDTO projectToProjectDTOWithoutSources(Project project);
+    ProjectDTO projectToProjectDTOReduced(Project project);
 
+    @IterableMapping(qualifiedByName = "projectReducedDTO")
     List<ProjectDTO> projectsToProjectDTOs(List<Project> projects);
 
     @Mapping(target = "roles", ignore = true)

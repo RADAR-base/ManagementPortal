@@ -1,8 +1,8 @@
 package org.radarcns.management.service.mapper.decorator;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import java.util.stream.Collectors;
 import org.mapstruct.MappingTarget;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.audit.EntityAuditInfo;
@@ -31,25 +31,38 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
 
     @Override
     public SubjectDTO subjectToSubjectDTO(Subject subject) {
-        SubjectDTO dto = subjectToSubjectDTOWithoutProject(subject);
+        SubjectDTO dto = subjectToSubjectWithoutProjectDTO(subject);
         if (dto == null) {
             return null;
         }
 
         subject.getActiveProject()
                 .ifPresent(project -> dto.setProject(
-                        projectMapper.projectToProjectDTOWithoutSources(project)));
+                        projectMapper.projectToProjectDTO(project)));
 
         return dto;
     }
 
 
+    public SubjectDTO subjectToSubjectReducedProjectDTO(Subject subject) {
+        SubjectDTO dto = subjectToSubjectWithoutProjectDTO(subject);
+        if (dto == null) {
+            return null;
+        }
+
+        subject.getActiveProject()
+                .ifPresent(project -> dto.setProject(
+                        projectMapper.projectToProjectDTOReduced(project)));
+
+        return dto;
+    }
+
     @Override
-    public SubjectDTO subjectToSubjectDTOWithoutProject(Subject subject) {
+    public SubjectDTO subjectToSubjectWithoutProjectDTO(Subject subject) {
         if (subject == null) {
             return null;
         }
-        SubjectDTO dto = delegate.subjectToSubjectDTOWithoutProject(subject);
+        SubjectDTO dto = delegate.subjectToSubjectWithoutProjectDTO(subject);
         dto.setStatus(getSubjectStatus(subject));
 
         EntityAuditInfo auditInfo = revisionService.getAuditInfo(subject);
@@ -74,17 +87,14 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
     }
 
     @Override
-    public List<SubjectDTO> subjectsToSubjectDTOs(List<Subject> subjects) {
+    public List<SubjectDTO> subjectsToSubjectReducedProjectDTOs(List<Subject> subjects) {
         if (subjects == null) {
             return null;
         }
 
-        List<SubjectDTO> list = new ArrayList<>();
-        for (Subject subject : subjects) {
-            list.add(this.subjectToSubjectDTO(subject));
-        }
-
-        return list;
+        return subjects.stream()
+                .map(this::subjectToSubjectReducedProjectDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -94,12 +104,9 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
             return null;
         }
 
-        List<Subject> list = new ArrayList<>();
-        for (SubjectDTO subjectDto : subjectDtos) {
-            list.add(this.subjectDTOToSubject(subjectDto));
-        }
-
-        return list;
+        return subjectDtos.stream()
+                .map(this::subjectDTOToSubject)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -120,7 +127,7 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
         return SubjectStatus.INVALID;
     }
 
-    private Subject setSubjectStatus(SubjectDTO subjectDto, Subject subject) {
+    private void setSubjectStatus(SubjectDTO subjectDto, Subject subject) {
         switch (subjectDto.getStatus()) {
             case DEACTIVATED:
                 subject.getUser().setActivated(false);
@@ -141,7 +148,6 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
             default:
                 break;
         }
-        return subject;
     }
 
 }

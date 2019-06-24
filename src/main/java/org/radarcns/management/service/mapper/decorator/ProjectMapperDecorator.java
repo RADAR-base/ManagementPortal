@@ -2,7 +2,6 @@ package org.radarcns.management.service.mapper.decorator;
 
 import static org.radarcns.management.service.dto.ProjectDTO.HUMAN_READABLE_PROJECT_NAME;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import java.util.stream.Collectors;
@@ -38,11 +37,11 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
 
 
     @Override
-    public ProjectDTO projectToProjectDTOWithoutSources(Project project) {
+    public ProjectDTO projectToProjectDTOReduced(Project project) {
         if (project == null) {
             return null;
         }
-        ProjectDTO dto = delegate.projectToProjectDTOWithoutSources(project);
+        ProjectDTO dto = delegate.projectToProjectDTOReduced(project);
         dto.setHumanReadableProjectName(project.getAttributes().get(HUMAN_READABLE_PROJECT_NAME));
         return dto;
     }
