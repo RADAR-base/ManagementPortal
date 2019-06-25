@@ -39,12 +39,16 @@ public class SubjectDTO implements Serializable {
 
     private SubjectStatus status = SubjectStatus.DEACTIVATED;
 
+    @JsonInclude(Include.NON_NULL)
     private String createdBy;
 
+    @JsonInclude(Include.NON_NULL)
     private ZonedDateTime createdDate;
 
+    @JsonInclude(Include.NON_NULL)
     private String lastModifiedBy;
 
+    @JsonInclude(Include.NON_NULL)
     private ZonedDateTime lastModifiedDate;
 
     @JsonInclude(Include.NON_NULL)

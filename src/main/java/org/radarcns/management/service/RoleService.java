@@ -1,5 +1,6 @@
 package org.radarcns.management.service;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -46,8 +47,7 @@ public class RoleService {
         log.debug("Request to save Role : {}", roleDto);
         Role role = roleMapper.roleDTOToRole(roleDto);
         role = roleRepository.save(role);
-        RoleDTO result = roleMapper.roleToRoleDTO(role);
-        return result;
+        return roleMapper.roleToRoleDTO(role);
     }
 
     /**
@@ -60,33 +60,32 @@ public class RoleService {
      */
     @Transactional(readOnly = true)
     public List<RoleDTO> findAll() {
-        List<RoleDTO> result = new LinkedList<>();
         User currentUser = userService.getUserWithAuthorities();
         if (currentUser == null) {
             // return an empty list if we do not have a current user (e.g. with client credentials
             // oauth2 grant)
-            return result;
+            return Collections.emptyList();
         }
         List<String> currentUserAuthorities = currentUser.getAuthorities().stream()
                 .map(Authority::getName).collect(Collectors.toList());
         if (currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN)) {
             log.debug("Request to get all Roles");
-            result = roleRepository.findAll().stream()
+            return roleRepository.findAll().stream()
                     .map(roleMapper::roleToRoleDTO)
-                    .collect(Collectors.toCollection(LinkedList::new));
+                    .collect(Collectors.toList());
         } else if (currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
             log.debug("Request to get project admin's project Projects");
-            result = currentUser.getRoles().stream()
+            return currentUser.getRoles().stream()
                     .filter(role -> AuthoritiesConstants.PROJECT_ADMIN
                             .equals(role.getAuthority().getName()))
-                    .map(Role::getProject)
-                    .map(Project::getProjectName)
+                    .map(r -> r.getProject().getProjectName())
                     .distinct()
                     .flatMap(name -> roleRepository.findAllRolesByProjectName(name).stream())
                     .map(roleMapper::roleToRoleDTO)
                     .collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
         }
-        return result;
     }
 
     /**
@@ -97,12 +96,11 @@ public class RoleService {
     @Transactional(readOnly = true)
     public List<RoleDTO> findSuperAdminRoles() {
         log.debug("Request to get admin Roles");
-        List<RoleDTO> result = roleRepository
+
+        return roleRepository
                 .findRolesByAuthorityName(AuthoritiesConstants.SYS_ADMIN).stream()
                 .map(roleMapper::roleToRoleDTO)
                 .collect(Collectors.toCollection(LinkedList::new));
-
-        return result;
     }
 
     /**
@@ -115,8 +113,7 @@ public class RoleService {
     public RoleDTO findOne(Long id) {
         log.debug("Request to get Role : {}", id);
         Role role = roleRepository.findOne(id);
-        RoleDTO roleDto = roleMapper.roleToRoleDTO(role);
-        return roleDto;
+        return roleMapper.roleToRoleDTO(role);
     }
 
     /**
@@ -136,11 +133,10 @@ public class RoleService {
      */
     public List<RoleDTO> getRolesByProject(String projectName) {
         log.debug("Request to get all Roles for projectName " + projectName);
-        List<RoleDTO> result = roleRepository.findAllRolesByProjectName(projectName).stream()
+
+        return roleRepository.findAllRolesByProjectName(projectName).stream()
                 .map(roleMapper::roleToRoleDTO)
                 .collect(Collectors.toCollection(LinkedList::new));
-
-        return result;
     }
 
     /**

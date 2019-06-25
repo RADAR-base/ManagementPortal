@@ -1,6 +1,7 @@
 package org.radarcns.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.persistence.FetchType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
@@ -82,12 +83,12 @@ public class SourceType extends AbstractEntity implements Serializable {
     @Column(name = "dynamic_registration", nullable = false)
     private Boolean canRegisterDynamically = false;
 
-    @OneToMany(mappedBy = "sourceType", orphanRemoval = true)
+    @OneToMany(mappedBy = "sourceType", orphanRemoval = true, fetch = FetchType.LAZY)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @Cascade({CascadeType.DELETE, CascadeType.SAVE_UPDATE})
     private Set<SourceData> sourceData;
 
-    @ManyToMany(mappedBy = "sourceTypes")
+    @ManyToMany(mappedBy = "sourceTypes", fetch = FetchType.LAZY)
     @JsonIgnore
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<Project> projects = new HashSet<>();

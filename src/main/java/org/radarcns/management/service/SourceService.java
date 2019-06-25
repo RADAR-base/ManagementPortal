@@ -147,7 +147,7 @@ public class SourceService {
      */
     public Page<SourceDTO> findAllByProjectId(Long projectId, Pageable pageable) {
         return sourceRepository.findAllSourcesByProjectId(pageable, projectId)
-                .map(sourceMapper::sourceToSourceDTO);
+                .map(sourceMapper::sourceToSourceWithoutProjectDTO);
     }
 
     /**

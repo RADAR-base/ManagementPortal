@@ -9,6 +9,7 @@ package org.radarcns.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import javax.persistence.FetchType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
@@ -47,18 +48,18 @@ public class Role extends AbstractEntity implements Serializable {
     @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
     private Long id;
 
-    @ManyToMany(mappedBy = "roles")
+    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
     @JsonIgnore
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Set<User> users = new HashSet<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Project project;
 
     @JsonProperty()
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JoinColumn(name = "authority_name", referencedColumnName = "name")
     private Authority authority;
