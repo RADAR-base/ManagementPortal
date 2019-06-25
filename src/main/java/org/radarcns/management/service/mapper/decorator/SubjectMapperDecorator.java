@@ -42,6 +42,8 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
                 .orElse(null);
         dto.setProject(projectMapper.projectToProjectDTO(project));
 
+        addAuditInfo(subject, dto);
+
         return dto;
     }
 
@@ -56,13 +58,17 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
                 .ifPresent(project -> dto.setProject(
                         projectMapper.projectToProjectDTOReduced(project)));
 
+        addAuditInfo(subject, dto);
+
+        return dto;
+    }
+
+    private void addAuditInfo(Subject subject, SubjectDTO dto) {
         EntityAuditInfo auditInfo = revisionService.getAuditInfo(subject);
         dto.setCreatedDate(auditInfo.getCreatedAt());
         dto.setCreatedBy(auditInfo.getCreatedBy());
         dto.setLastModifiedDate(auditInfo.getLastModifiedAt());
         dto.setLastModifiedBy(auditInfo.getLastModifiedBy());
-
-        return dto;
     }
 
     @Override
