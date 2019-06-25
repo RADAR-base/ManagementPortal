@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.domain.Authority;
-import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.RoleRepository;
