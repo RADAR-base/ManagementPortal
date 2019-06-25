@@ -33,10 +33,10 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
 
     @Override
     public SubjectDTO subjectToSubjectDTO(Subject subject) {
-        SubjectDTO dto = subjectToSubjectWithoutProjectDTO(subject);
-        if (dto == null) {
+        if (subject == null) {
             return null;
         }
+        SubjectDTO dto = subjectToSubjectWithoutProjectDTO(subject);
         Project project = subject.getActiveProject()
                 .flatMap(p ->  projectRepository.findOneWithEagerRelationships(p.getId()))
                 .orElse(null);
@@ -49,10 +49,10 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
 
     @Override
     public SubjectDTO subjectToSubjectReducedProjectDTO(Subject subject) {
-        SubjectDTO dto = subjectToSubjectWithoutProjectDTO(subject);
-        if (dto == null) {
+        if (subject == null) {
             return null;
         }
+        SubjectDTO dto = subjectToSubjectWithoutProjectDTO(subject);
 
         subject.getActiveProject()
                 .ifPresent(project -> dto.setProject(
