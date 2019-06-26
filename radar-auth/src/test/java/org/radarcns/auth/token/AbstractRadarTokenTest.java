@@ -17,11 +17,11 @@ import org.junit.Test;
 
 public class AbstractRadarTokenTest {
     static class MockToken extends AbstractRadarToken {
-        private Map<String, List<String>> roles = new HashMap<>();
-        private List<String> sources = new ArrayList<>();
-        private List<String> scopes = new ArrayList<>();
+        private final Map<String, List<String>> roles = new HashMap<>();
+        private final List<String> sources = new ArrayList<>();
+        private final List<String> scopes = new ArrayList<>();
         private String grantType = "refresh_token";
-        private List<String> authorities = new ArrayList<>();
+        private final List<String> authorities = new ArrayList<>();
         private String subject = null;
 
         @Override
