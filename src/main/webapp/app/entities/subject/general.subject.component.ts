@@ -8,7 +8,9 @@ import { JhiLanguageService } from 'ng-jhipster';
 export class GeneralSubjectComponent {
     isProjectSpecific = false;
 
-    constructor(private jhiLanguateService: JhiLanguageService) {
-        this.jhiLanguateService.setLocations([]);
+    constructor(
+            private jhiLanguateService: JhiLanguageService
+    ) {
+        this.jhiLanguateService.setLocations(['subject']);
     }
 }
