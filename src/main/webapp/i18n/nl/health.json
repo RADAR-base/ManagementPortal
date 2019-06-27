@@ -13,7 +13,9 @@
         "indicator": {
             "diskSpace": "Schijfruimte",
             "mail": "Email",
-            "db": "Databank"
+            "db": "Databank",
+            "refreshScope": "Refresh Scope",
+            "hystrix": "Hystrix"
         },
         "table": {
             "service": "Dienstnaam",
