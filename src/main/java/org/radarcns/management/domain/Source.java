@@ -63,16 +63,16 @@ public class Source extends AbstractEntity implements Serializable {
     @Column(name = "assigned", nullable = false)
     private Boolean assigned;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "subject_id")
     @JsonIgnore
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Subject subject;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private SourceType sourceType;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Project project;
 
     @ElementCollection(fetch = FetchType.EAGER)

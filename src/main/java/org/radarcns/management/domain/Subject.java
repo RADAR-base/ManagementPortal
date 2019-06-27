@@ -66,7 +66,7 @@ public class Subject extends AbstractEntity implements Serializable {
     @Cascade(CascadeType.ALL)
     private User user;
 
-    @OneToMany(mappedBy = "subject")
+    @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @Cascade(CascadeType.SAVE_UPDATE)
     private Set<Source> sources = new HashSet<>();
@@ -78,7 +78,7 @@ public class Subject extends AbstractEntity implements Serializable {
     @Cascade(CascadeType.ALL)
     private Map<String, String> attributes = new HashMap<>();
 
-    @OneToMany(mappedBy = "subject", orphanRemoval = true)
+    @OneToMany(mappedBy = "subject", orphanRemoval = true, fetch = FetchType.LAZY)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnore
     private final Set<MetaToken> metaTokens = new HashSet<>();

@@ -27,7 +27,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long>,
     Page<Project> findAllWithEagerRelationships(Pageable pageable);
 
     @Query("select project from Project project left join fetch "
-            + "project.sourceTypes where project.id =:id")
+            + "project.sourceTypes s left join fetch s.sourceData where project.id =:id")
     Optional<Project> findOneWithEagerRelationships(@Param("id") Long id);
 
     @Query("select project from Project project left join fetch "

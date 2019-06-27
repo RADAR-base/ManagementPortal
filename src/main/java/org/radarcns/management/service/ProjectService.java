@@ -52,8 +52,7 @@ public class ProjectService {
         log.debug("Request to save Project : {}", projectDto);
         Project project = projectMapper.projectDTOToProject(projectDto);
         project = projectRepository.save(project);
-        ProjectDTO result = projectMapper.projectToProjectDTO(project);
-        return result;
+        return projectMapper.projectToProjectDTO(project);
     }
 
     /**
@@ -65,7 +64,7 @@ public class ProjectService {
     public Page findAll(Boolean fetchMinimal, Pageable pageable) {
         Page<Project> projects = projectRepository.findAllWithEagerRelationships(pageable);
         if (!fetchMinimal) {
-            return projects.map(projectMapper::projectToProjectDTO);
+            return projects.map(projectMapper::projectToProjectDTOReduced);
         } else {
             return projects.map(projectMapper::projectToMinimalProjectDetailsDTO);
         }

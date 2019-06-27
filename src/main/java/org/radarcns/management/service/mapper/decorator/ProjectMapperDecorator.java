@@ -2,9 +2,6 @@ package org.radarcns.management.service.mapper.decorator;
 
 import static org.radarcns.management.service.dto.ProjectDTO.HUMAN_READABLE_PROJECT_NAME;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.service.dto.MinimalProjectDetailsDTO;
@@ -35,54 +32,30 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
         return dto;
     }
 
+
+    @Override
+    public ProjectDTO projectToProjectDTOReduced(Project project) {
+        if (project == null) {
+            return null;
+        }
+        ProjectDTO dto = delegate.projectToProjectDTOReduced(project);
+        dto.setHumanReadableProjectName(project.getAttributes().get(HUMAN_READABLE_PROJECT_NAME));
+        dto.setSourceTypes(null);
+        return dto;
+    }
+
     @Override
     public Project projectDTOToProject(ProjectDTO projectDto) {
-
         if (projectDto == null) {
             return null;
         }
 
         Project project = delegate.projectDTOToProject(projectDto);
-        if (projectDto.getHumanReadableProjectName() != null && !projectDto
-                .getHumanReadableProjectName().isEmpty()) {
-            project.getAttributes().put(HUMAN_READABLE_PROJECT_NAME, projectDto
-                    .getHumanReadableProjectName());
-        }
-        if (projectDto.getHumanReadableProjectName() != null && !projectDto
-                .getHumanReadableProjectName().isEmpty()) {
-            project.getAttributes().put(HUMAN_READABLE_PROJECT_NAME, projectDto
-                    .getHumanReadableProjectName());
+        String projectName = projectDto.getHumanReadableProjectName();
+        if (projectName != null && !projectName.isEmpty()) {
+            project.getAttributes().put(HUMAN_READABLE_PROJECT_NAME, projectName);
         }
         return project;
-    }
-
-    @Override
-    public List<ProjectDTO> projectsToProjectDTOs(List<Project> projects) {
-        if (projects == null) {
-            return null;
-        }
-
-        List<ProjectDTO> list = new ArrayList<ProjectDTO>();
-        for (Project project : projects) {
-            list.add(this.projectToProjectDTO(project));
-        }
-
-        return list;
-    }
-
-    @Override
-    public List<Project> projectDTOsToProjects(List<ProjectDTO> projectDtos) {
-
-        if (projectDtos == null) {
-            return null;
-        }
-
-        List<Project> list = new ArrayList<Project>();
-        for (ProjectDTO projectDto : projectDtos) {
-            list.add(this.projectDTOToProject(projectDto));
-        }
-
-        return list;
     }
 
     @Override
