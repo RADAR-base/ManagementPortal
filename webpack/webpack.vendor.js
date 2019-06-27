@@ -14,7 +14,6 @@ module.exports = {
             '@angular/router',
             '@ng-bootstrap/ng-bootstrap',
             'ngx-cookie-service',
-            'angular2-infinite-scroll',
             'jquery',
             'ng-jhipster',
             'ngx-webstorage',

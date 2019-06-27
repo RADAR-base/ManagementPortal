@@ -74,7 +74,7 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
         this.eventManager.subscribe('userListModification', () => this.loadAll());
     }
 
-    onChange() {
+    onChange(event: any) {
         this.userService.query({
             page: this.page - 1,
             size: this.itemsPerPage,

@@ -82,6 +82,10 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
         }
     }
 
+    trackDeviceById(index: number, item: MinimalSource) {
+        return item.id;
+    }
+
     hasSource(source: MinimalSource): boolean {
         return this.assignedSources.some(v => v.id === source.id);
     }
