@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Headers, Http, Response } from '@angular/http';
-import { CookieService } from 'angular2-cookie/core';
+import { CookieService } from 'ngx-cookie-service';
 import { Observable } from 'rxjs/Rx';
 import { AUTH_TOKEN_COOKIE } from '../constants/common.constants';
 
@@ -14,7 +14,7 @@ export class AuthServerProvider {
     }
 
     getToken() {
-        return this.cookieService.getObject(AUTH_TOKEN_COOKIE);
+        return this.cookieService.get(AUTH_TOKEN_COOKIE);
     }
 
     login(credentials): Observable<any> {
@@ -31,8 +31,8 @@ export class AuthServerProvider {
                     const expiredAt = new Date();
                     expiredAt.setSeconds(expiredAt.getSeconds() + data.expires_in);
                     data.expires_at = expiredAt.getTime();
-                    this.cookieService.remove(AUTH_TOKEN_COOKIE);
-                    this.cookieService.putObject(AUTH_TOKEN_COOKIE, data);
+                    this.cookieService.delete(AUTH_TOKEN_COOKIE);
+                    this.cookieService.set(AUTH_TOKEN_COOKIE, data);
                     return data;
                 });
     }
@@ -56,7 +56,7 @@ export class AuthServerProvider {
             });
             // remove other cookies
             this.http.delete('oauthserver/oauth/token', {headers});
-            this.cookieService.removeAll();
+            this.cookieService.deleteAll();
             observer.complete();
         });
     }

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { Ng2Webstorage } from 'ng2-webstorage';
+import {Ng2Webstorage} from 'ngx-webstorage';
 import { ManagementPortalAccountModule } from './account/account.module';
 import { ManagementPortalAdminModule } from './admin/admin.module';
 import { PaginationConfig } from './blocks/config/uib-pagination.config';

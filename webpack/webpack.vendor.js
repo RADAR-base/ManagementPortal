@@ -13,11 +13,11 @@ module.exports = {
             '@angular/platform-browser-dynamic',
             '@angular/router',
             '@ng-bootstrap/ng-bootstrap',
-            'angular2-cookie',
+            'ngx-cookie-service',
             'angular2-infinite-scroll',
             'jquery',
             'ng-jhipster',
-            'ng2-webstorage',
+            'ngx-webstorage',
             'rxjs'
         ]
     },
