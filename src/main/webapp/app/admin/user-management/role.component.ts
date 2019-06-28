@@ -33,7 +33,7 @@ export class RoleComponent implements OnInit {
             this.roles = [];
         }
         this.authorityService.findAll().subscribe(res => {
-            this.authorities = res.json();
+            this.authorities = res;
         });
         this.projectService.query().subscribe((res) => {
             this.projects = res.json();

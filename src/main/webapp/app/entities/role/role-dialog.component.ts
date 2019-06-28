@@ -38,7 +38,7 @@ export class RoleDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorityService.findAll().subscribe(res => {
-            this.authorities = res.json();
+            this.authorities = res;
         });
         this.projectService.query().subscribe(
                 (res) => {

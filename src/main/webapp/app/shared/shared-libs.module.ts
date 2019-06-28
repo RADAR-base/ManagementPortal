@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgJhipsterModule } from 'ng-jhipster';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
     imports: [
@@ -15,7 +15,7 @@ import { NgJhipsterModule } from 'ng-jhipster';
     ],
     exports: [
         FormsModule,
-        HttpModule,
+        HttpClientModule,
         CommonModule,
         NgbModule,
         NgJhipsterModule,
