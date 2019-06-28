@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Headers, Http, Response } from '@angular/http';
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { Observable } from 'rxjs/Rx';
@@ -19,7 +18,7 @@ export class AuthServerProvider {
     }
 
     login(credentials): Observable<any> {
-        const params = new HttpParams()
+        const body = new HttpParams()
                 .append('username', credentials.username)
                 .append('password',  credentials.password)
                 .append('grant_type', 'password');
@@ -27,7 +26,7 @@ export class AuthServerProvider {
                 .append('Content-Type', 'application/x-www-form-urlencoded')
                 .append('Accept', 'application/json');
 
-        const res = this.http.post('oauthserver/oauth/token', {params, headers});
+        const res = this.http.post('oauthserver/oauth/token', body, {headers} );
         res.subscribe((data: any) => {
             console.log('data ', data);
             const expiredAt = new Date();
@@ -40,11 +39,10 @@ export class AuthServerProvider {
         return res;
     }
 
-    sendRefreshTokenRequest(): Observable<Response> {
-        const headers = new Headers({
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/json',
-        });
+    sendRefreshTokenRequest(): Observable<any> {
+        const headers = new HttpHeaders()
+                .append('Content-Type', 'application/x-www-form-urlencoded')
+                .append('Accept', 'application/json');
         const params = 'grant_type=refresh_token';
         return this.http.post('oauthserver/oauth/token', params, {headers});
     }
@@ -53,10 +51,9 @@ export class AuthServerProvider {
         return new Observable(observer => {
             this.http.post('api/logout', {});
             // revoke rft token
-            const headers = new Headers({
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Accept': 'application/json',
-            });
+            const headers = new HttpHeaders()
+                    .append('Content-Type', 'application/x-www-form-urlencoded')
+                    .append('Accept', 'application/json');
             // remove other cookies
             this.http.delete('oauthserver/oauth/token', {headers});
             this.cookieService.deleteAll();
