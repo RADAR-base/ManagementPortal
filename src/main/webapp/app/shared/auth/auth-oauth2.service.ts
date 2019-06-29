@@ -26,9 +26,11 @@ export class AuthServerProvider {
                 .append('Content-Type', 'application/x-www-form-urlencoded')
                 .append('Accept', 'application/json');
 
-        const res = this.http.post('oauthserver/oauth/token', body, {headers} );
-        res.subscribe((data: any) => {
-            console.log('data ', data);
+        const res = this.http.post('oauthserver/oauth/token', body, {headers, observe: 'response'});
+
+        res.subscribe((resp: any) => {
+            console.log('data ', resp.body);
+            const data = resp.body;
             const expiredAt = new Date();
             expiredAt.setSeconds(expiredAt.getSeconds() + data.expires_in);
             data.expires_at = expiredAt.getTime();

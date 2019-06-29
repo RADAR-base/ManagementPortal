@@ -228,10 +228,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.0.8.tgz#551466be11b2adc3f3d47156758f610bd9f6b1d8"
   integrity sha512-b8bbUOTwzIY3V5vDTY1fIJ+ePKDUBqt2hC2woVGotdQQhG/2Sh62HOKHrT7ab+VerXAcPyAiTEipPu/FsreUtg==
 
-"@types/node@7.0.12":
-  version "7.0.12"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-7.0.12.tgz#ae5f67a19c15f752148004db07cbbb372e69efc9"
-  integrity sha1-rl9noZwV91IUgATbB8u7Ny5p78k=
+"@types/node@8.0.19":
+  version "8.0.19"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-8.0.19.tgz#e46e2b0243de7d03f15b26b45c59ebb84f657a4e"
+  integrity sha512-VRQB+Q0L3YZWs45uRdpN9oWr82meL/8TrJ6faoKT5tp0uub2l/aRMhtm5fo68h7kjYKH60f9/bay1nF7ZpTW5g==
 
 "@types/q@^0.0.32":
   version "0.0.32"
@@ -536,11 +536,6 @@ amdefine@>=0.0.4, amdefine@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
   integrity sha1-SlKCrBZHKek2Gbz9OtFR+BfOkfU=
-
-angular2-infinite-scroll@0.3.5:
-  version "0.3.5"
-  resolved "https://registry.yarnpkg.com/angular2-infinite-scroll/-/angular2-infinite-scroll-0.3.5.tgz#c2943511c75b76ffc448f60ec39505d027c14d9f"
-  integrity sha1-wpQ1Ecdbdv/ESPYOw5UF0CfBTZ8=
 
 angular2-template-loader@0.6.2:
   version "0.6.2"
@@ -7282,6 +7277,11 @@ ngx-cookie-service@^2.2.0:
   resolved "https://registry.yarnpkg.com/ngx-cookie-service/-/ngx-cookie-service-2.2.0.tgz#79fe67863b3b93ee226c9ea8d60e1542c7115a58"
   integrity sha512-2kaC1itlEMxiMAPJ320hOpcwU9vhvjbKQCZ1Go6bGhYjJtqG7eYvhNP7mM9IhFz1/afG2tBryJPySWmFUGhRpA==
 
+ngx-infinite-scroll@0.5.1:
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/ngx-infinite-scroll/-/ngx-infinite-scroll-0.5.1.tgz#dd9452c602ff7c3222f0ca168481aa14140286b7"
+  integrity sha1-3ZRSxgL/fDIi8MoWhIGqFBQChrc=
+
 ngx-webstorage@2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/ngx-webstorage/-/ngx-webstorage-2.0.1.tgz#232446262241e8fd0d794a03821c0b5e28459295"
@@ -11876,12 +11876,13 @@ write-file-atomic@^1.1.2:
     imurmurhash "^0.1.4"
     slide "^1.1.5"
 
-write-file-webpack-plugin@3.4.2:
-  version "3.4.2"
-  resolved "https://registry.yarnpkg.com/write-file-webpack-plugin/-/write-file-webpack-plugin-3.4.2.tgz#16f7a1bbadb781fa661a2960e31c499f0a61b9bb"
-  integrity sha1-Fvehu623gfpmGilg4xxJnwphubs=
+write-file-webpack-plugin@4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/write-file-webpack-plugin/-/write-file-webpack-plugin-4.1.0.tgz#ed6ae9b54b68719c4ef4899fba70ce7cbdad0154"
+  integrity sha512-KkFZtNeeuSjig5sACrd0n1ybrpd4CS8P5J2TGEklS7UGGlz+iISAxJf426XwaQ2TTlTAq1LTXRBWTTEYjy5e4A==
   dependencies:
     chalk "^1.1.1"
+    debug "^2.6.8"
     filesize "^3.2.1"
     lodash "^4.5.1"
     mkdirp "^0.5.1"

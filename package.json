@@ -18,7 +18,7 @@
     "@angular/platform-server": "^5.0.0",
     "@angular/router": "^5.0.0",
     "@ng-bootstrap/ng-bootstrap": "2.0.0",
-    "angular2-infinite-scroll": "0.3.5",
+    "ngx-infinite-scroll": "0.5.1",
     "angularx-qrcode": "1.5.3",
     "bootstrap": "4.0.0-alpha.6",
     "core-js": "2.4.1",
@@ -39,7 +39,7 @@
     "@angular/cli": "1.0.4",
     "@angular/compiler-cli": "^5.0.0",
     "@types/jasmine": "2.5.47",
-    "@types/node": "7.0.12",
+    "@types/node": "8.0.19",
     "@types/selenium-webdriver": "^3.0.0",
     "add-asset-html-webpack-plugin": "^3.0.0",
     "angular2-template-loader": "0.6.2",
@@ -98,7 +98,7 @@
     "webpack-merge": "4.1.0",
     "webpack-notifier": "1.5.0",
     "webpack-visualizer-plugin": "0.1.11",
-    "write-file-webpack-plugin": "3.4.2",
+    "write-file-webpack-plugin": "4.1.0",
     "yargs": "^13.2.4"
   },
   "engines": {
