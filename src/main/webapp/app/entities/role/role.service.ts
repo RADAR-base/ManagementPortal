@@ -1,63 +1,38 @@
 import { Injectable } from '@angular/core';
-import { BaseRequestOptions, Http, Response, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 import { Role } from '../../admin/user-management/role.model';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { createRequestOption } from '../../shared/model/request.utils';
 
 @Injectable()
 export class RoleService {
 
     private resourceUrl = 'api/roles';
 
-    constructor(private http: Http) {
+    constructor(private http: HttpClient) {
     }
 
     create(role: Role): Observable<Role> {
         const copy: Role = Object.assign({}, role);
-        return this.http.post(this.resourceUrl, copy).map((res: Response) => {
-            return res.json();
-        });
+        return this.http.post(this.resourceUrl, copy) as Observable<Role>;
     }
 
     update(role: Role): Observable<Role> {
         const copy: Role = Object.assign({}, role);
-        return this.http.put(this.resourceUrl, copy).map((res: Response) => {
-            return res.json();
-        });
+        return this.http.put(this.resourceUrl, copy) as Observable<Role>;
     }
 
     find(projectName: string, authorityName: string): Observable<Role> {
-        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(projectName)}/${encodeURIComponent(authorityName)}`).map((res: Response) => {
-            return res.json();
-        });
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(projectName)}/${encodeURIComponent(authorityName)}`) as Observable<Role>;
     }
 
-    query(req?: any): Observable<Response> {
-        const options = this.createRequestOption(req);
-        return this.http.get(this.resourceUrl, options)
-                ;
+    query(req?: any): Observable<HttpResponse<any>> {
+        const options = createRequestOption(req);
+        return this.http.get(this.resourceUrl, {params: options, observe: 'response'}) as Observable<HttpResponse<any>>;
     }
 
-    findAdminRoles(): Observable<Response> {
-        return this.http.get(`${this.resourceUrl}/admin`);
+    delete(projectName: string, authorityName: string): Observable<HttpResponse<any>> {
+        return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(projectName)}/${encodeURIComponent(authorityName)}`) as Observable<HttpResponse<any>>;
     }
 
-    delete(projectName: string, authorityName: string): Observable<Response> {
-        return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(projectName)}/${encodeURIComponent(authorityName)}`);
-    }
-
-    private createRequestOption(req?: any): BaseRequestOptions {
-        const options: BaseRequestOptions = new BaseRequestOptions();
-        if (req) {
-            const params: URLSearchParams = new URLSearchParams();
-            params.set('page', req.page);
-            params.set('size', req.size);
-            if (req.sort) {
-                params.paramsMap.set('sort', req.sort);
-            }
-            params.set('query', req.query);
-
-            options.search = params;
-        }
-        return options;
-    }
 }

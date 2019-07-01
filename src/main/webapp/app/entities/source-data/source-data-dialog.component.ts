@@ -9,6 +9,7 @@ import { SourceDataPopupService } from './source-data-popup.service';
 
 import { SourceData } from './source-data.model';
 import { SourceDataService } from './source-data.service';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-source-data-dialog',
@@ -38,9 +39,9 @@ export class SourceDataDialogComponent implements OnInit {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN'];
         this.sourceTypeService.query().subscribe(
-                (res: Response) => {
-                    this.sourceTypes = res.json();
-                }, (res: Response) => this.onError(res.json()));
+                (res: HttpResponse<SourceType[]>) => {
+                    this.sourceTypes = res.body;
+                }, (res: HttpErrorResponse) => this.onError(res));
     }
 
     clear() {

@@ -3,8 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EventManager, JhiLanguageService } from 'ng-jhipster';
-import { RoleService } from '../../entities/role';
-import { AuthorityService, JhiLanguageHelper, User, UserService } from '../../shared';
+import { JhiLanguageHelper, User, UserService } from '../../shared';
 import { Role } from './role.model';
 
 import { UserModalService } from './user-modal.service';
@@ -25,8 +24,6 @@ export class UserMgmtDialogComponent implements OnInit {
             private languageHelper: JhiLanguageHelper,
             private jhiLanguageService: JhiLanguageService,
             private userService: UserService,
-            private roleService: RoleService,
-            private authorityService: AuthorityService,
             private eventManager: EventManager,
     ) {
         this.jhiLanguageService.addLocation('user-management');

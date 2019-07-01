@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -10,7 +9,7 @@ import { SourceTypePopupService } from './source-type-popup.service';
 
 import { SourceType } from './source-type.model';
 import { SourceTypeService } from './source-type.service';
-import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-source-type-dialog',
@@ -54,11 +53,11 @@ export class SourceTypeDialogComponent implements OnInit {
         if (this.sourceType.id !== undefined) {
             this.sourceTypeService.update(this.sourceType)
                     .subscribe((res: SourceType) => this.onSaveSuccess(res),
-                            (res: Response) => this.onSaveError(res));
+                            (res: any) => this.onSaveError(res));
         } else {
             this.sourceTypeService.create(this.sourceType)
                     .subscribe((res: SourceType) => this.onSaveSuccess(res),
-                            (res: Response) => this.onSaveError(res));
+                            (res: any) => this.onSaveError(res));
         }
     }
 

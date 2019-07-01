@@ -8,7 +8,7 @@ import { AuthorityService, Principal, Project, ProjectService } from '../../shar
 
 import { RolePopupService } from './role-popup.service';
 import { RoleService } from './role.service';
-import { HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-role-dialog',
@@ -59,11 +59,11 @@ export class RoleDialogComponent implements OnInit {
         if (this.role.id !== undefined) {
             this.roleService.update(this.role)
             .subscribe((res: Role) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError(res));
         } else {
             this.roleService.create(this.role)
             .subscribe((res: Role) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError(res));
         }
     }
 
