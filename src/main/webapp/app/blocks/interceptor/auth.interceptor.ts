@@ -12,18 +12,21 @@ export class AuthInterceptor extends HttpInterceptor {
         super();
     }
 
-    requestIntercept(options?: RequestOptionsArgs): RequestOptionsArgs {
-        // retrieve token from cookie
-        const authServerProvider = this.injector.get(AuthServerProvider);
-        const token: any = authServerProvider.getToken();
-        if (token && token.expires_at && token.expires_at > new Date().getTime()) {
-            options.headers.append('Authorization', 'Bearer ' + token.access_token);
-        }
-        return options;
-    }
+    intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
-    responseIntercept(observable: Observable<Response>): Observable<Response> {
-        return observable; // by pass
+        const authServerProvider = this.injector.get(AuthServerProvider);
+        const tokenString : string = authServerProvider.getToken();
+        if (!!tokenString) {
+            const token: TokenData = JSON.parse(tokenString);
+            if (!!token && token.expires_at && token.expires_at > new Date().getTime()) {
+                request = request.clone({
+                    setHeaders: {
+                        Authorization: 'Bearer ' + token.access_token
+                    }
+                });
+            }
+        }
+        return next.handle(request);
     }
 
 }

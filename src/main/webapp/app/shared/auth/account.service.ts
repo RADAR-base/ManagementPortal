@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
+import {HttpClient} from "@angular/common/http";
 
 @Injectable()
 export class AccountService {
-    constructor(private http: Http) {
+    constructor(private http: HttpClient) {
     }
 
     get(): Observable<any> {
-        return this.http.get('api/account').map((res: Response) => res.json());
+        return this.http.get('api/account');
     }
 
-    save(account: any): Observable<Response> {
+    save(account: any): Observable<any> {
         return this.http.post('api/account', account);
     }
 }
