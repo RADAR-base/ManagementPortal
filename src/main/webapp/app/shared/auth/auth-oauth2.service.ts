@@ -30,12 +30,12 @@ export class AuthServerProvider {
 
         res.subscribe((resp: any) => {
             console.log('data ', resp.body);
-            const data = resp.body;
+            const data: TokenData = resp.body;
             const expiredAt = new Date();
             expiredAt.setSeconds(expiredAt.getSeconds() + data.expires_in);
             data.expires_at = expiredAt.getTime();
             this.cookieService.delete(AUTH_TOKEN_COOKIE);
-            this.cookieService.set(AUTH_TOKEN_COOKIE, data);
+            this.cookieService.set(AUTH_TOKEN_COOKIE, JSON.stringify(data));
             // return data;
         });
         return res;
@@ -62,4 +62,18 @@ export class AuthServerProvider {
             observer.complete();
         });
     }
+}
+
+export class TokenData {
+    access_token?: string;
+    token_type?: string;
+    expires_in?: number;
+    scope?: string[];
+    sub: string;
+    sources: string[];
+    grant_type: string[];
+    roles: string[];
+    iss: string[];
+    iat: number;
+    expires_at: number;
 }
