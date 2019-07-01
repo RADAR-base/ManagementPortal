@@ -10,6 +10,7 @@ import { SourceTypePopupService } from './source-type-popup.service';
 
 import { SourceType } from './source-type.model';
 import { SourceTypeService } from './source-type.service';
+import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
 
 @Component({
     selector: 'jhi-source-type-dialog',
@@ -40,8 +41,8 @@ export class SourceTypeDialogComponent implements OnInit {
 
     ngOnInit() {
         this.projectService.query().subscribe(
-                (res: Response) => this.projects = res.json(),
-                (res: Response) => this.onError(res.json()));
+                (res: HttpResponse<any>) => this.projects = res.body,
+                (res: HttpErrorResponse) => this.onError(res));
     }
 
     clear() {

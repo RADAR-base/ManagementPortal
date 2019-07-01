@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -9,6 +8,7 @@ import { Subject, SubjectService } from '../../shared/subject';
 
 import { Project, ProjectService } from '../../shared/project';
 import { GeneralSubjectPopupService } from './general.subject-popup.service';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-subject-dialog',
@@ -38,7 +38,7 @@ export class GeneralSubjectDialogComponent implements OnInit {
 
     ngOnInit() {
         this.projectService.query()
-                .subscribe((res) => this.projects = res.json());
+                .subscribe((res: HttpResponse<any>) => this.projects = res.body);
         this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification',
                 (response) => this.subject.attributes = response.content);
     }

@@ -12,7 +12,7 @@ export class AuthInterceptor implements HttpInterceptor {
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
         const authServerProvider = this.injector.get(AuthServerProvider);
-        const tokenString : string = authServerProvider.getToken();
+        const tokenString: string = authServerProvider.getToken();
         if (!!tokenString) {
             const token: TokenData = JSON.parse(tokenString);
             if (!!token && token.expires_at && token.expires_at > new Date().getTime()) {

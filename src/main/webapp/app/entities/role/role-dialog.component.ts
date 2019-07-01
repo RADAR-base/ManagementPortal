@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -9,6 +8,7 @@ import { AuthorityService, Principal, Project, ProjectService } from '../../shar
 
 import { RolePopupService } from './role-popup.service';
 import { RoleService } from './role.service';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-role-dialog',
@@ -40,10 +40,9 @@ export class RoleDialogComponent implements OnInit {
         this.authorityService.findAll().subscribe(res => {
             this.authorities = res;
         });
-        this.projectService.query().subscribe(
-                (res) => {
-                    this.projects = res.json();
-                });
+        this.projectService.query().subscribe((res: HttpResponse<any>) => {
+            this.projects = res.body;
+        });
 
     }
 

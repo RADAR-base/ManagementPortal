@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { AuthorityService, Principal, Project, ProjectService } from '../../shared';
 
 import { Role } from './role.model';
+import {HttpResponse} from '@angular/common/http';
 
 @Component({
     selector: 'jhi-user-role',
@@ -35,8 +36,8 @@ export class RoleComponent implements OnInit {
         this.authorityService.findAll().subscribe(res => {
             this.authorities = res;
         });
-        this.projectService.query().subscribe((res) => {
-            this.projects = res.json();
+        this.projectService.query().subscribe((res: HttpResponse<any>) => {
+            this.projects = res.body;
         });
         this.principal.identity().then((account) => {
             this.currentAccount = account;

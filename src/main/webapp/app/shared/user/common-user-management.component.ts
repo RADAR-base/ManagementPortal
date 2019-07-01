@@ -59,7 +59,7 @@ export class CommonUserMgmtComponent implements OnInit, OnChanges {
                         projectName: this.project.projectName,
                         authority: this.authority,
                     },
-            ).subscribe((res: Response) => this.users = res.json());
+            ).subscribe((res: any) => this.users = res);
         }
     }
 

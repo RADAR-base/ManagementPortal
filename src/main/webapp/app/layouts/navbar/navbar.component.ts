@@ -7,7 +7,8 @@ import { Subscription } from 'rxjs/Subscription';
 import { DEBUG_INFO_ENABLED, VERSION } from '../../app.constants';
 import { JhiLanguageHelper, LoginModalService, LoginService, Principal, Project, UserService } from '../../shared';
 
-import { ProfileService } from '../profiles/profile.service'; // FIXME barrel doesn't work here
+import { ProfileService } from '../profiles/profile.service';
+import { HttpResponse } from '@angular/common/http'; // FIXME barrel doesn't work here
 
 @Component({
     selector: 'jhi-navbar',
@@ -69,8 +70,8 @@ export class NavbarComponent implements OnInit {
         this.principal.identity().then((account) => {
             this.currentAccount = account;
             if (this.currentAccount) {
-                this.userService.findProject(this.currentAccount.login).subscribe(res => {
-                    this.projects = res.json();
+                this.userService.findProject(this.currentAccount.login).subscribe((res: HttpResponse<Project[]>) => {
+                    this.projects = res.body;
                 });
             }
         });

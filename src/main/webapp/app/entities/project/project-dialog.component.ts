@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -42,9 +41,9 @@ export class ProjectDialogComponent implements OnInit {
 
     ngOnInit() {
         this.sourceTypeService.query().subscribe(
-                (res: Response) => {
-                    this.sourceTypes = res.json();
-                }, (res: Response) => this.onError(res.json()));
+                (res: any) => {
+                    this.sourceTypes = res;
+                }, (res: any) => this.onError(res));
         this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
             this.project.attributes = response.content;
         });

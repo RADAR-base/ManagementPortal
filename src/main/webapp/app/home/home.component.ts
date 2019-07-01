@@ -37,7 +37,7 @@ export class HomeComponent implements OnInit {
             this.account = account;
             if (this.account) {
                 this.userService.findProject(this.account.login)
-                        .subscribe(res => this.projects = res.json());
+                        .subscribe(res => this.projects = res);
             }
         });
     }
