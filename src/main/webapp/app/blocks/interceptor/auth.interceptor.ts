@@ -1,16 +1,13 @@
-import { Injector } from '@angular/core';
-import { RequestOptionsArgs, Response } from '@angular/http';
-import { HttpInterceptor } from 'ng-jhipster';
-import { Observable } from 'rxjs/Observable';
-import { AuthServerProvider } from '../../shared/auth/auth-oauth2.service';
+import {Injector} from '@angular/core';
+import {Observable} from 'rxjs/Observable';
+import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
+import {AuthServerProvider, TokenData} from '../../shared';
 
-export class AuthInterceptor extends HttpInterceptor {
+export class AuthInterceptor implements HttpInterceptor {
 
     constructor(
             private injector: Injector,
-    ) {
-        super();
-    }
+    ) {}
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
@@ -28,5 +25,4 @@ export class AuthInterceptor extends HttpInterceptor {
         }
         return next.handle(request);
     }
-
 }
