@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { User } from './user.model';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { createRequestOption } from '../model/request.utils';
+import { Project } from '../project';
 
 @Injectable()
 export class UserService {
@@ -23,8 +24,8 @@ export class UserService {
         return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}`) as Observable<User>;
     }
 
-    findProject(login: string): Observable<any> {
-        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/projects`);
+    findProject(login: string): Observable<Project[]> {
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/projects`) as Observable<Project[]>;
     }
 
     query(req?: any): Observable<HttpResponse<User[]>> {
