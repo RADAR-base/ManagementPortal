@@ -1,11 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
 import { Principal } from '../../shared';
 
 import { OAuthClient } from './oauth-client.model';
 import { OAuthClientService } from './oauth-client.service';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-oauth-client',
@@ -36,10 +36,10 @@ export class OAuthClientComponent implements OnInit, OnDestroy {
 
     loadAll() {
         this.oauthClientService.query().subscribe(
-                (res: Response) => {
-                    this.oauthClients = res.json();
+                (res: HttpResponse<any>) => {
+                    this.oauthClients = res.body;
                 },
-                (res: Response) => this.onError(res.json()),
+                (res: HttpErrorResponse) => this.onError(res.message),
         );
     }
 

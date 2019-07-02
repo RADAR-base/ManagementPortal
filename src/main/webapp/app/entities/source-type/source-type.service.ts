@@ -27,7 +27,7 @@ export class SourceTypeService {
     }
 
     query(req?: any): Observable<HttpResponse<SourceType[]>> {
-        let params = createRequestOption(req);
+        const params = createRequestOption(req);
         return this.http.get(this.resourceUrl, {params, observe: 'response' }) as Observable<HttpResponse<SourceType[]>>;
     }
 

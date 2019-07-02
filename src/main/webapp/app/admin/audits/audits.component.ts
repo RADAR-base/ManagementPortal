@@ -6,6 +6,7 @@ import { ITEMS_PER_PAGE } from '../../shared';
 
 import { Audit } from './audit.model';
 import { AuditsService } from './audits.service';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-audit',
@@ -56,8 +57,8 @@ export class AuditsComponent implements OnInit {
         this.auditsService.query({
             page: this.page - 1, size: this.itemsPerPage,
             fromDate: this.fromDate, toDate: this.toDate,
-        }).subscribe((res) => {
-            this.audits = res.json();
+        }).subscribe((res: HttpResponse<any>) => {
+            this.audits = res.body;
             this.links = this.parseLinks.parse(res.headers.get('link'));
             this.totalItems = +res.headers.get('X-Total-Count');
         });

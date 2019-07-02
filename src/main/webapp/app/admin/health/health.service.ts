@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 
 @Injectable()
 export class JhiHealthService {
 
     separator: string;
 
-    constructor(private http: Http) {
+    constructor(private http: HttpClient) {
         this.separator = '.';
     }
 
     checkHealth(): Observable<any> {
-        return this.http.get('management/health').map((res: Response) => res.json());
+        return this.http.get('management/health', { observe: 'response'}).map((res: HttpResponse<any>) => res.body);
     }
 
     transformHealthData(data): any {

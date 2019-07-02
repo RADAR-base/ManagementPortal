@@ -53,7 +53,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
                 },
         ).subscribe(
                 (res: HttpResponse<Project[]>) => this.onSuccess(res.body, res.headers),
-                (res: HttpErrorResponse) => this.onError(res),
+                (res: HttpErrorResponse) => this.onError(res.message),
         );
     }
 

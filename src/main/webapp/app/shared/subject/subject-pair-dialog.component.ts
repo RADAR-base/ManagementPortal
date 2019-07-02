@@ -9,7 +9,8 @@ import { OAuthClientPairInfoService } from '../../entities/oauth-client/oauth-cl
 import { SubjectPopupService } from './subject-popup.service';
 import { Subject } from './subject.model';
 import { DatePipe } from '@angular/common';
-import { DOCUMENT } from '@angular/platform-browser';
+import { DOCUMENT } from '@angular/common';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-subject-pair-dialog',
@@ -41,10 +42,10 @@ export class SubjectPairDialogComponent implements OnInit {
     ngOnInit() {
         this.loadInconsolataFont();
         this.oauthClientService.query().subscribe(
-                (res) => {
+                (res: HttpResponse<any>) => {
                     // only keep clients that have the dynamic_registration key in additionalInformation
                     // and have set it to true
-                    this.oauthClients = res.json()
+                    this.oauthClients = res.body
                     .filter((c) => c.additionalInformation.dynamic_registration &&
                             c.additionalInformation.dynamic_registration.toLowerCase() === 'true');
                 });
