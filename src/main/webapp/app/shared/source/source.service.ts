@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { BaseRequestOptions, Http, Response, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 
-import { Source } from './source.model';
+import { MinimalSource, Source } from './source.model';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { createRequestOption } from '../model/request.utils';
 
 @Injectable()
 export class SourceService {
@@ -10,78 +11,39 @@ export class SourceService {
     private resourceUrl = 'api/sources';
     private projectResourceUrl = 'api/projects';
 
-    constructor(private http: Http) {
+    constructor(private http: HttpClient) {
     }
 
     create(source: Source): Observable<Source> {
         const copy: Source = Object.assign({}, source);
-        return this.http.post(this.resourceUrl, copy).map((res: Response) => {
-            return res.json();
-        });
+        return this.http.post(this.resourceUrl, copy) as Observable<Source>;
     }
 
     update(source: Source): Observable<Source> {
         const copy: Source = Object.assign({}, source);
-        return this.http.put(this.resourceUrl, copy).map((res: Response) => {
-            return res.json();
-        });
+        return this.http.put(this.resourceUrl, copy) as Observable<Source>;
     }
 
     find(name: string): Observable<Source> {
-        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(name)}`).map((res: Response) => {
-            return res.json();
-        });
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(name)}`) as Observable<Source>;
     }
 
-    query(req?: any): Observable<Response> {
-        const options = this.createRequestOption(req);
-        return this.http.get(this.resourceUrl, options)
-                ;
+    query(req?: any): Observable<HttpResponse<Source[]>> {
+        const params = createRequestOption(req);
+        return this.http.get(this.resourceUrl, {params, observe: 'response'}) as Observable<HttpResponse<Source[]>>;
     }
 
-    delete(sourceName: string): Observable<Response> {
-        return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(sourceName)}`);
+    delete(sourceName: string): Observable<HttpResponse<any>> {
+        return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(sourceName)}`) as Observable<HttpResponse<any>>;
     }
 
-    private createRequestOption(req?: any): BaseRequestOptions {
-        const options: BaseRequestOptions = new BaseRequestOptions();
-        if (req) {
-            const params: URLSearchParams = new URLSearchParams();
-            params.set('page', req.page);
-            params.set('size', req.size);
-            if (req.sort) {
-                params.paramsMap.set('sort', req.sort);
-            }
-            params.set('query', req.query);
-
-            options.search = params;
-        }
-        return options;
+    findAllByProject(req?: any): Observable<HttpResponse<Source[]>> {
+        const params = createRequestOption(req);
+        return this.http.get(`${this.projectResourceUrl}/${req.projectName}/sources`, {params, observe: 'response'}) as Observable<HttpResponse<Source[]>>;
     }
 
-    findAllByProject(req?: any): Observable<Response> {
-        const params: URLSearchParams = new URLSearchParams();
-        params.set('page', req.page);
-        params.set('size', req.size);
-        if (req.sort) {
-            params.paramsMap.set('sort', req.sort);
-        }
-        params.set('query', req.query);
-        const options = {
-            search: params,
-        };
-        return this.http.get(`${this.projectResourceUrl}/${req.projectName}/sources`, options);
-    }
-
-    findAvailable(req?: any): Observable<Response> {
-        const params: URLSearchParams = new URLSearchParams();
-        if (req) {
-            params.set('assigned', req.assigned);
-        }
-        params.set('minimized', 'true');
-        const options = {
-            search: params,
-        };
-        return this.http.get(`${this.projectResourceUrl}/${req.projectName}/sources`, options);
+    findAvailable(projectName: string, req?: any): Observable<HttpResponse<MinimalSource[]>> {
+        const params = createRequestOption(req);
+        return this.http.get(`${this.projectResourceUrl}/${projectName}/sources`, {params, observe: 'response'}) as Observable<HttpResponse<MinimalSource[]>>;
     }
 }

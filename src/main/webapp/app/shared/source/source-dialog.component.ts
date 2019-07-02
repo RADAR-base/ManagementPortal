@@ -71,11 +71,6 @@ export class SourceDialogComponent implements OnInit {
     }
 
     private onSaveError(error) {
-        try {
-            error.json();
-        } catch (exception) {
-            error.message = error.text();
-        }
         this.isSaving = false;
         this.onError(error);
     }

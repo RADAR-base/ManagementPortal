@@ -27,7 +27,7 @@ export class SourceDataService {
 
     query(req?: any): Observable<HttpResponse<SourceData[]>> {
         const params = createRequestOption(req);
-        return this.http.get(this.resourceUrl, {params, observe: 'response'}) as Observable<HttpResponse<SourceData[]>>
+        return this.http.get(this.resourceUrl, {params, observe: 'response'}) as Observable<HttpResponse<SourceData[]>>;
     }
 
     delete(sourceDataName: string): Observable<HttpResponse<any>> {

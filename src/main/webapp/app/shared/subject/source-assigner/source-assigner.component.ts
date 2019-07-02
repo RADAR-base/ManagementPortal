@@ -1,14 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute } from '@angular/router';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
 import { Principal } from '../..';
-import { MinimalSource, SourceService } from '../../source';
+import { MinimalSource, SourceService} from '../../source';
 import { SubjectPopupService } from '../subject-popup.service';
 
 import { Subject } from '../subject.model';
 import { SubjectService } from '../subject.service';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-source-assigner',
@@ -38,14 +38,14 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
 
     ngOnInit() {
         if (this.subject.id !== null) {
-            this.sourceService.findAvailable(
+            this.sourceService.findAvailable(this.subject.project.projectName,
                     {
-                        projectName: this.subject.project.projectName,
                         assigned: false,
+                        minimized: true
                     }).subscribe(
-                    (res: Response) => {
-                        this.assignableSources = res.json();
-                    }, (res: Response) => this.onError(res.json()));
+                    (res: HttpResponse<MinimalSource[]>) => {
+                        this.assignableSources = res.body;
+                    }, (res: HttpErrorResponse) => this.onError(res));
         }
         if (this.subject.id !== null) {
             this.assignedSources = this.subject.sources;
