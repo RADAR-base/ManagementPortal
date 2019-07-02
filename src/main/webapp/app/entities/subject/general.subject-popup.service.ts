@@ -1,4 +1,4 @@
-import { Component, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, SubjectService } from '../../shared/subject';
@@ -21,7 +21,7 @@ export class GeneralSubjectPopupService {
         this.isOpen = true;
 
         if (login) {
-            this.subjectService.find(login).subscribe((subject) => {
+            this.subjectService.find(login).subscribe((subject: Subject) => {
                 this.subjectModalRef(component, subject, isDelete);
             });
         } else {
@@ -34,10 +34,10 @@ export class GeneralSubjectPopupService {
 
         modalRef.componentInstance.subject = subject;
         modalRef.componentInstance.isDelete = isDelete;
-        modalRef.result.then((result) => {
+        modalRef.result.then(() => {
             this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;
-        }, (reason) => {
+        }, () => {
             this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;
         });

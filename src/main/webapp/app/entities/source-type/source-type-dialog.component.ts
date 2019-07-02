@@ -53,11 +53,11 @@ export class SourceTypeDialogComponent implements OnInit {
         if (this.sourceType.id !== undefined) {
             this.sourceTypeService.update(this.sourceType)
                     .subscribe((res: SourceType) => this.onSaveSuccess(res),
-                            (res: any) => this.onSaveError(res));
+                            (res: HttpErrorResponse) => this.onSaveError(res));
         } else {
             this.sourceTypeService.create(this.sourceType)
                     .subscribe((res: SourceType) => this.onSaveSuccess(res),
-                            (res: any) => this.onSaveError(res));
+                            (res: HttpErrorResponse) => this.onSaveError(res));
         }
     }
 
@@ -67,12 +67,7 @@ export class SourceTypeDialogComponent implements OnInit {
         this.activeModal.dismiss(result);
     }
 
-    private onSaveError(error) {
-        try {
-            error.json();
-        } catch (exception) {
-            error.message = error.text();
-        }
+    private onSaveError(error: HttpErrorResponse) {
         this.isSaving = false;
         this.onError(error);
     }
