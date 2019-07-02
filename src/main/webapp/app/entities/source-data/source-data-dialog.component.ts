@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -53,11 +52,11 @@ export class SourceDataDialogComponent implements OnInit {
         if (this.sourceData.id !== undefined) {
             this.sourceDataService.update(this.sourceData)
             .subscribe((res: SourceData) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError(res));
         } else {
             this.sourceDataService.create(this.sourceData)
             .subscribe((res: SourceData) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError(res));
         }
     }
 
@@ -68,11 +67,6 @@ export class SourceDataDialogComponent implements OnInit {
     }
 
     private onSaveError(error) {
-        try {
-            error.json();
-        } catch (exception) {
-            error.message = error.text();
-        }
         this.isSaving = false;
         this.onError(error);
     }

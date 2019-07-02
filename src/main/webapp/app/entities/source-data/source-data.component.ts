@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
 import { EventManager, ParseLinks, JhiLanguageService, AlertService } from 'ng-jhipster';
@@ -7,6 +6,7 @@ import { EventManager, ParseLinks, JhiLanguageService, AlertService } from 'ng-j
 import { SourceData } from './source-data.model';
 import { SourceDataService } from './source-data.service';
 import { ITEMS_PER_PAGE, Principal } from '../../shared';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-source-data',
@@ -54,8 +54,8 @@ export class SourceDataComponent implements OnInit, OnDestroy {
                 sort: this.sort()
             }
         ).subscribe(
-            (res: Response) => this.onSuccess(res.json(), res.headers),
-            (res: Response) => this.onError(res.json())
+            (res: HttpResponse<SourceData[]>) => this.onSuccess(res.body, res.headers),
+            (res: HttpErrorResponse) => this.onError(res)
         );
     }
     ngOnInit() {
@@ -75,7 +75,7 @@ export class SourceDataComponent implements OnInit, OnDestroy {
         return item.id;
     }
     registerChangeInSourceData() {
-        this.eventSubscriber = this.eventManager.subscribe('sourceDataListModification', (response) => this.loadAll());
+        this.eventSubscriber = this.eventManager.subscribe('sourceDataListModification', () => this.loadAll());
     }
 
     private onError(error) {
