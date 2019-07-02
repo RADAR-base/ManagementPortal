@@ -29,7 +29,6 @@ export class AuthServerProvider {
         const res = this.http.post('oauthserver/oauth/token', body, {headers, observe: 'response'});
 
         res.subscribe((resp: any) => {
-            console.log('data ', resp.body);
             const data: TokenData = resp.body;
             const expiredAt = new Date();
             expiredAt.setSeconds(expiredAt.getSeconds() + data.expires_in);

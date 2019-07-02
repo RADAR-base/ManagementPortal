@@ -1,4 +1,4 @@
-import { browser, element, by, $ } from 'protractor';
+import { browser, element, by } from 'protractor';
 
 describe('Generate QR code', () => {
 
@@ -41,7 +41,7 @@ describe('Generate QR code', () => {
 
     it('should be able to create a qr code', function () {
         element(by.name('pairForm')).element(by.cssContainingText('option', 'pRMT')).click().then(() => {
-            element.all(by.css('qr-code')).count().then(function(count) {
+            element.all(by.css('qrcode')).count().then(function(count) {
                 expect(count).toBe(1);
             });
             element(by.css('button.close')).click();

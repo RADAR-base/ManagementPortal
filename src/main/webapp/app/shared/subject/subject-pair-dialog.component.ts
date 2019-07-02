@@ -73,8 +73,8 @@ export class SubjectPairDialogComponent implements OnInit {
     updateQRCode() {
         if (this.selectedClient !== null) {
             this.oauthClientPairInfoService.get(this.selectedClient, this.subject).subscribe(
-                    (res) => {
-                        this.oauthClientPairInfo = res.json();
+                    (res: HttpResponse<any>) => {
+                        this.oauthClientPairInfo = res.body;
                         this.showQRCode = true;
                         const timesOutAt  = this.datePipe
                                 .transform(this.oauthClientPairInfo.timesOutAt, 'dd/MM/yy HH:mm');

@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -63,11 +62,11 @@ export class GeneralSourceDialogComponent implements OnInit {
         if (this.source.id !== undefined) {
             this.sourceService.update(this.source)
             .subscribe((res: Source) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError(res));
         } else {
             this.sourceService.create(this.source)
             .subscribe((res: Source) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError(res));
         }
     }
 
@@ -78,11 +77,6 @@ export class GeneralSourceDialogComponent implements OnInit {
     }
 
     private onSaveError(error) {
-        try {
-            error.json();
-        } catch (exception) {
-            error.message = error.text();
-        }
         this.isSaving = false;
         this.onError(error);
     }

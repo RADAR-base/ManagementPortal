@@ -1,5 +1,4 @@
 import { Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges } from '@angular/core';
-import { Response } from '@angular/http';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
 
 import { ITEMS_PER_PAGE, Project, User, UserService } from '..';
