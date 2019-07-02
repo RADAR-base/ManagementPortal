@@ -31,6 +31,7 @@ env:
     - NODE_VERSION=11.2.0
     - SPRING_OUTPUT_ANSI_ENABLED=ALWAYS
     - SPRING_JPA_SHOW_SQL=false
+    - YARN_VERSION=1.12.3
 
 before_install:
   - jdk_switcher use oraclejdk8
@@ -38,7 +39,7 @@ before_install:
   - sudo /etc/init.d/mysql stop
   - sudo /etc/init.d/postgresql stop
   # Repo for Yarn
-  - curl -o- -L https://yarnpkg.com/install.sh | bash
+  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version $YARN_VERSION
   - export PATH=$HOME/.yarn/bin:$PATH
 
 install:
