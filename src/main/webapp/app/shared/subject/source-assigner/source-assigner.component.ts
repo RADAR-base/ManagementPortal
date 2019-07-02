@@ -38,11 +38,7 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
 
     ngOnInit() {
         if (this.subject.id !== null) {
-            this.sourceService.findAvailable(this.subject.project.projectName,
-                    {
-                        assigned: false,
-                        minimized: true
-                    }).subscribe(
+            this.sourceService.findAvailable(this.subject.project.projectName).subscribe(
                     (res: HttpResponse<MinimalSource[]>) => {
                         this.assignableSources = res.body;
                     }, (res: HttpErrorResponse) => this.onError(res));

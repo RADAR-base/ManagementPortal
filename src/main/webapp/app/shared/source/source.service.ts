@@ -42,8 +42,11 @@ export class SourceService {
         return this.http.get(`${this.projectResourceUrl}/${req.projectName}/sources`, {params, observe: 'response'}) as Observable<HttpResponse<Source[]>>;
     }
 
-    findAvailable(projectName: string, req?: any): Observable<HttpResponse<MinimalSource[]>> {
-        const params = createRequestOption(req);
+    findAvailable(projectName: string): Observable<HttpResponse<MinimalSource[]>> {
+        const params: any = {
+            assigned: false,
+            minimized: true
+        };
         return this.http.get(`${this.projectResourceUrl}/${projectName}/sources`, {params, observe: 'response'}) as Observable<HttpResponse<MinimalSource[]>>;
     }
 }
