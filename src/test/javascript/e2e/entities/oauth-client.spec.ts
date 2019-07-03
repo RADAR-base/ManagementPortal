@@ -1,4 +1,4 @@
-import { browser, element, by } from 'protractor';
+import { browser, element, by, $ } from 'protractor';
 
 describe('OAuth Clients e2e test', () => {
 
@@ -10,13 +10,15 @@ describe('OAuth Clients e2e test', () => {
     const logout = element(by.id('logout'));
 
     beforeAll(() => {
-        return browser.get('#')
-                .then(() => accountMenu.click())
-                .then(() => login.click())
-                .then(() => username.sendKeys('admin'))
-                .then(() => password.sendKeys('admin'))
-                .then(() => element(by.css('button[type=submit]')).click())
-                .then(() => browser.waitForAngular())
+        browser.get('#');
+
+        accountMenu.click();
+        login.click();
+
+        username.sendKeys('admin');
+        password.sendKeys('admin');
+        element(by.css('button[type=submit]')).click();
+        browser.waitForAngular();
     });
 
     it('should load OAuth clients', () => {
