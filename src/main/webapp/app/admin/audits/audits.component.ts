@@ -23,19 +23,19 @@ export class AuditsComponent implements OnInit {
     toDate: string;
     totalItems: number;
     objectKeys = Object.keys;
+    datePipe: DatePipe;
 
     constructor(
             private jhiLanguageService: JhiLanguageService,
             private auditsService: AuditsService,
             private parseLinks: ParseLinks,
-            private paginationConfig: PaginationConfig,
-            private datePipe: DatePipe,
     ) {
         this.jhiLanguageService.setLocations(['audits']);
         this.itemsPerPage = ITEMS_PER_PAGE;
         this.page = 1;
         this.reverse = false;
         this.orderProp = 'timestamp';
+        this.datePipe = new DatePipe('en');
     }
 
     getAudits() {

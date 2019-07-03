@@ -1,12 +1,14 @@
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
-import { DatePipe } from '@angular/common';
 import { NgbPaginationConfig} from '@ng-bootstrap/ng-bootstrap';
 import { ParseLinks } from 'ng-jhipster';
 import { ManagementPortalTestModule } from '../../../test.module';
-import { PaginationConfig } from '../../../../../../main/webapp/app/blocks/config/uib-pagination.config'
 import { AuditsComponent } from '../../../../../../main/webapp/app/admin/audits/audits.component';
 import { AuditsService } from '../../../../../../main/webapp/app/admin/audits/audits.service';
 import { ITEMS_PER_PAGE } from '../../../../../../main/webapp/app/shared';
+
+function build2DigitsDatePart(datePart: number) {
+    return `0${datePart}`.slice(-2);
+}
 
 function getDate(isToday= true){
     let date: Date = new Date();
@@ -21,7 +23,10 @@ function getDate(isToday= true){
         date = new Date(date.getFullYear(), date.getMonth() - 1, date.getDate());
       }
     }
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+
+    const monthString = build2DigitsDatePart(date.getMonth() + 1);
+    const dateString = build2DigitsDatePart(date.getDate());
+    return `${date.getFullYear()}-${monthString}-${dateString}`;
 }
 
 describe('Component Tests', () => {
@@ -39,9 +44,7 @@ describe('Component Tests', () => {
                 providers: [
                     AuditsService,
                     NgbPaginationConfig,
-                    ParseLinks,
-                    PaginationConfig,
-                    DatePipe
+                    ParseLinks
                 ]
             })
             .overrideTemplate(AuditsComponent, '')
