@@ -11,13 +11,15 @@ describe('Discontinued subject should unassign sources', () => {
     const sourceName = 'test-source-2';
 
     beforeAll(() => {
-        return browser.get('#')
-                .then(() => accountMenu.click())
-                .then(() => login.click())
-                .then(() => username.sendKeys('admin'))
-                .then(() => password.sendKeys('admin'))
-                .then(() => element(by.css('button[type=submit]')).click())
-                .then(() => browser.waitForAngular())
+        browser.get('#');
+
+        accountMenu.click();
+        login.click();
+
+        username.sendKeys('admin');
+        password.sendKeys('admin');
+        element(by.css('button[type=submit]')).click();
+        browser.waitForAngular();
     });
 
     it('should load project view', function() {
