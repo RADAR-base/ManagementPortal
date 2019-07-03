@@ -1,6 +1,5 @@
 const HtmlScreenshotReporter = require("protractor-jasmine2-screenshot-reporter");
 const JasmineReporters = require('jasmine-reporters');
-const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
 
 exports.config = {
     allScriptsTimeout: 120000,
@@ -15,10 +14,7 @@ exports.config = {
     capabilities: {
         'browserName': 'chrome',
         'phantomjs.binary.path': require('phantomjs-prebuilt').path,
-        'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG'],
-        chromeOptions: {
-            args: [ "--headless", "--disable-gpu", "--window-size=1280x1024" ]
-        }
+        'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG']
     },
 
     directConnect: true,
@@ -29,8 +25,7 @@ exports.config = {
 
     jasmineNodeOpts: {
         showColors: true,
-        defaultTimeoutInterval: 120000,
-        print: function() {}
+        defaultTimeoutInterval: 600000
     },
 
     beforeLaunch: function() {
@@ -47,11 +42,6 @@ exports.config = {
         }));
         jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
             dest: "build/reports/e2e/screenshots"
-        }));
-        jasmine.getEnv().addReporter(new SpecReporter({
-            spec: {
-                displayStacktrace: true
-            }
         }));
     },
 
