@@ -83,6 +83,21 @@ public class AbstractRadarTokenTest {
         public String getType() {
             return null;
         }
+
+        @Override
+        public String getClientId() {
+            return null;
+        }
+
+        @Override
+        public String getClaimString(String name) {
+            return null;
+        }
+
+        @Override
+        public List<String> getClaimList(String name) {
+            return null;
+        }
     }
 
     @Test
