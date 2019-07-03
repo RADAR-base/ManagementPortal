@@ -55,8 +55,8 @@ before_script:
 script:
   # Make sure we wait for the application to be up, this also ensures the build is finished etc
   - ./util/wait-for-app.sh
-  - ./gradlew check
-  - yarn test
+#  - ./gradlew check
+#  - yarn test
   - ./src/test/bash/run-e2e.sh
   - ./gradlew generateOpenApiSpec
   - ./gradlew generateJavaClient
