@@ -22,18 +22,18 @@ describe('Discontinued subject should unassign sources', () => {
         browser.waitForAngular();
     });
 
-    it('should load project view', function () {
+    it('should load project view', function() {
         projectMenu.click();
         element.all(by.partialLinkText('radar')).first().click();
     });
 
-    it('should be able to create a subject', function () {
+    it('should be able to create a subject', function() {
         element(by.css('jhi-subjects h4 button.btn-primary')).click().then(() => {
             element(by.css('.modal-footer button.btn-primary')).click();
         });
     });
 
-    it('should be able to create a source', function () {
+    it('should be able to create a source', function() {
         element(by.cssContainingText('li', 'Sources')).click().then(() => {
             element(by.css('button.create-source')).click().then(() => {
                 element(by.id('field_sourceName')).sendKeys(sourceName);
@@ -51,7 +51,7 @@ describe('Discontinued subject should unassign sources', () => {
         });
     });
 
-    it('should be able to assign a source', function () {
+    it('should be able to assign a source', function() {
         element(by.cssContainingText('li', 'Subjects')).click().then(() => {
             // find a row which contains a uuid
             const row = element.all(by.xpath('//tr/td')).filter(el => el.getText().then((text) => text.match(/[a-z0-9\-]{36}/) !== null)).first()
@@ -90,18 +90,18 @@ describe('Discontinued subject should unassign sources', () => {
         });
     });
 
-    it('should show the source as assigned', function () {
+    it('should show the source as assigned', function() {
         element(by.cssContainingText('li', 'Sources')).click().then(() => {
             element.all(by.linkText(sourceName))
                 .all(by.xpath('ancestor::tr'))
                 .all(by.cssContainingText('.badge-success', 'Assigned'))
-                .count().then(function (count) {
+                .count().then(function(count) {
                     expect(count).toBe(1);
                 });
         });
     });
 
-    it('should be able to discontinue a subject', function () {
+    it('should be able to discontinue a subject', function() {
         element(by.cssContainingText('li', 'Subjects')).click().then(() => {
             // find a row which contains a uuid
             const row = element.all(by.xpath('//tr/td')).filter(el => el.getText().then((text) => text.match(/[a-z0-9\-]{36}/) !== null)).first()
@@ -113,18 +113,18 @@ describe('Discontinued subject should unassign sources', () => {
         });
     });
 
-    it('should show the source as unassigned', function () {
+    it('should show the source as unassigned', function() {
         element(by.cssContainingText('li', 'Sources')).click().then(() => {
             element.all(by.linkText(sourceName))
                 .all(by.xpath('ancestor::tr'))
                 .all(by.cssContainingText('.badge-danger', 'Unassigned'))
-                .count().then(function (count) {
+                .count().then(function(count) {
                     expect(count).toBe(1);
                 });
         });
     });
 
-    it('should be able to delete a subject', function () {
+    it('should be able to delete a subject', function() {
         element(by.cssContainingText('li', 'Subjects')).click().then(() => {
             // find a row which contains a uuid
             const row = element.all(by.xpath('//tr/td')).filter(el => el.getText().then((text) => text.match(/[a-z0-9\-]{36}/) !== null)).first()
@@ -136,7 +136,7 @@ describe('Discontinued subject should unassign sources', () => {
         });
     });
 
-    afterAll(function () {
+    afterAll(function() {
         accountMenu.click();
         logout.click();
     });

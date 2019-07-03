@@ -31,7 +31,7 @@ describe('SourceType e2e test', () => {
         });
     });
 
-    it('should load create SourceType dialog', function () {
+    it('should load create SourceType dialog', function() {
         element(by.css('button.create-source-type')).click().then(() => {
             const expectVal = /managementPortalApp.sourceType.home.createOrEditLabel/;
             element.all(by.css('h4.modal-title')).first().getAttribute('jhiTranslate').then((value) => {
@@ -42,19 +42,19 @@ describe('SourceType e2e test', () => {
         });
     });
 
-    it('should be able to create SourceType', function () {
+    it('should be able to create SourceType', function() {
         element(by.css('button.create-source-type')).click().then(() => {
             element(by.id('field_producer')).sendKeys('test-producer');
             element(by.id('field_model')).sendKeys('test-model');
             element(by.id('field_catalogVersion')).sendKeys('v1');
             // select first option in the source type scope dropdown
-            element(by.id('field_sourceTypeScope')).all(by.tagName('option')).then(function(options){
+            element(by.id('field_sourceTypeScope')).all(by.tagName('option')).then(function(options) {
               options[0].click();
             });
             element(by.css('jhi-source-type-dialog')).element(by.buttonText('Save')).click();
         });
     });
-    
+
     it('should be able to edit SourceType', () => {
         browser.waitForAngular();
         element(by.cssContainingText('td', 'test-producer')).element(by.xpath('ancestor::tr'))
@@ -72,7 +72,7 @@ describe('SourceType e2e test', () => {
         });
     });
 
-    afterAll(function () {
+    afterAll(function() {
         accountMenu.click();
         logout.click();
     });

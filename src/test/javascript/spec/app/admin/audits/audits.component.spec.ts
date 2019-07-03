@@ -10,14 +10,14 @@ function build2DigitsDatePart(datePart: number) {
     return `0${datePart}`.slice(-2);
 }
 
-function getDate(isToday= true){
+function getDate(isToday= true) {
     let date: Date = new Date();
     if (isToday) {
         // Today + 1 day - needed if the current day must be included
         date.setDate(date.getDate() + 1);
     } else {
       // get last month
-      if(date.getMonth() === 0) {
+      if (date.getMonth() === 0) {
         date = new Date(date.getFullYear() - 1, 11, date.getDate());
       } else {
         date = new Date(date.getFullYear(), date.getMonth() - 1, date.getDate());

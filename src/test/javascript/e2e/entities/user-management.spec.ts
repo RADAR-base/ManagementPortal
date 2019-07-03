@@ -122,7 +122,7 @@ describe('Create, edit, and delete user', () => {
         });
     });
 
-    afterAll(function () {
+    afterAll(function() {
         accountMenu.click();
         logout.click();
     });

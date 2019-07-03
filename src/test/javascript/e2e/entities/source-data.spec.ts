@@ -31,7 +31,7 @@ describe('SourceData e2e test', () => {
         });
     });
 
-    it('should load create SourceData dialog', function () {
+    it('should load create SourceData dialog', function() {
         element(by.css('button.create-source-data')).click().then(() => {
             const expectVal = /managementPortalApp.sourceData.home.createOrEditLabel/;
             element.all(by.css('h4.modal-title')).first().getAttribute('jhiTranslate').then((value) => {
@@ -42,14 +42,14 @@ describe('SourceData e2e test', () => {
         });
     });
 
-    it('should be able to create SourceData', function () {
+    it('should be able to create SourceData', function() {
         element(by.css('button.create-source-data')).click().then(() => {
             element(by.id('field_sourceDataType')).sendKeys('TEST-TYPE');
             element(by.id('field_sourceDataName')).sendKeys('TEST-SENSOR');
             element(by.css('jhi-source-data-dialog')).element(by.buttonText('Save')).click();
         });
     });
-    
+
     it('should be able to edit SourceData', () => {
         browser.waitForAngular();
         element(by.cssContainingText('td', 'TEST-SENSOR')).element(by.xpath('ancestor::tr'))
@@ -67,7 +67,7 @@ describe('SourceData e2e test', () => {
         });
     });
 
-    afterAll(function () {
+    afterAll(function() {
         accountMenu.click();
         logout.click();
     });

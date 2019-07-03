@@ -31,7 +31,7 @@ describe('Subject e2e test', () => {
         });
     });
 
-    it('should load create Subject dialog', function () {
+    it('should load create Subject dialog', function() {
         element(by.css('button.create-subject')).click().then(() => {
             const expectVal = /managementPortalApp.subject.home.createOrEditLabel/;
             element.all(by.css('h4.modal-title')).first().getAttribute('jhiTranslate').then((value) => {
@@ -87,7 +87,7 @@ describe('Subject e2e test', () => {
         });
     });
 
-    afterAll(function () {
+    afterAll(function() {
         accountMenu.click();
         logout.click();
     });

@@ -105,13 +105,15 @@
     "node": ">=6.9.0"
   },
   "scripts": {
-    "lint": "tslint 'src/main/webapp/app/**/*.ts' --force",
-    "lint:fix": "tslint 'src/main/webapp/app/**/*.ts' --fix --force",
+    "lint": "tslint --project tsconfig.json -e 'node_modules/**'",
+    "lint:fix": "yarn run lint -- --fix",
     "tsc": "tsc",
     "tsc:w": "tsc -w",
     "ngc": "ngc -p tsconfig-aot.json",
     "cleanup": "rimraf build/",
     "start": "yarn run webpack:dev",
+    "serve": "yarn run start",
+    "build": "yarn run webpack:prod",
     "webpack:build": "yarn run ngc && webpack --config webpack/webpack.vendor.js && webpack --config webpack/webpack.dev.js",
     "webpack:build:dev": "webpack --config webpack/webpack.dev.js",
     "webpack:build:vendor": "webpack --config webpack/webpack.vendor.js",

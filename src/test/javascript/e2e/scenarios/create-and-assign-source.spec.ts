@@ -22,7 +22,7 @@ describe('Create, assign, unassign and delete source', () => {
         browser.waitForAngular();
     });
 
-    it('should load project view', function () {
+    it('should load project view', function() {
         projectMenu.click();
         element.all(by.partialLinkText('radar')).first().click().then(() => {
             expect(element(by.className('status-header')).getText()).toMatch('RADAR');
@@ -33,7 +33,7 @@ describe('Create, assign, unassign and delete source', () => {
         });
     });
 
-    it('should be able to create a source', function () {
+    it('should be able to create a source', function() {
         element(by.cssContainingText('li', 'Sources')).click().then(() => {
             element(by.css('button.create-source')).click().then(() => {
                 element(by.id('field_sourceName')).sendKeys(sourceName);
@@ -51,7 +51,7 @@ describe('Create, assign, unassign and delete source', () => {
         });
     });
 
-    it('should be able to assign a source', function () {
+    it('should be able to assign a source', function() {
         element(by.cssContainingText('li', 'Subjects')).click().then(() => {
             element.all(by.cssContainingText('jhi-subjects tbody tr td', 'sub-2'))
                     .all(by.xpath('ancestor::tr'))
@@ -86,18 +86,18 @@ describe('Create, assign, unassign and delete source', () => {
         });
     });
 
-    it('should show the source as assigned', function () {
+    it('should show the source as assigned', function() {
         element(by.cssContainingText('li', 'Sources')).click().then(() => {
             element.all(by.linkText(sourceName))
                 .all(by.xpath('ancestor::tr'))
                 .all(by.cssContainingText('.badge-success', 'Assigned'))
-                .count().then(function (count) {
+                .count().then(function(count) {
                     expect(count).toBe(1);
                 });
         });
     });
 
-    it('should not be able to delete an assigned source', function () {
+    it('should not be able to delete an assigned source', function() {
         element.all(by.linkText(sourceName))
             .all(by.xpath('ancestor::tr'))
             .all(by.cssContainingText('button', 'Delete')).first()
@@ -110,7 +110,7 @@ describe('Create, assign, unassign and delete source', () => {
             });
     });
 
-    it('should be able to unassign a source', function () {
+    it('should be able to unassign a source', function() {
         element(by.cssContainingText('li', 'Subjects')).click().then(() => {
             element.all(by.cssContainingText('jhi-subjects td a', sourceName))
             .all(by.xpath('ancestor::tr'))
@@ -137,7 +137,7 @@ describe('Create, assign, unassign and delete source', () => {
         });
     });
 
-    it('should not be able to delete a source used by subject', function () {
+    it('should not be able to delete a source used by subject', function() {
         element(by.cssContainingText('li', 'Sources')).click().then(() => {
             element.all(by.linkText(sourceName))
                 .all(by.xpath('ancestor::tr'))
@@ -153,7 +153,7 @@ describe('Create, assign, unassign and delete source', () => {
         });
     });
 
-    afterAll(function () {
+    afterAll(function() {
         accountMenu.click();
         logout.click();
     });

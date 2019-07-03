@@ -51,7 +51,7 @@ describe('Component Tests', () => {
 
             // THEN
             expect(service.find).toHaveBeenCalledWith('testProject');
-            expect(comp.project).toEqual(jasmine.objectContaining({id:10}));
+            expect(comp.project).toEqual(jasmine.objectContaining({id: 10}));
             });
         });
     });

@@ -8,7 +8,7 @@ describe('account', () => {
     const login = element(by.id('login'));
     const logout = element(by.id('logout'));
 
-    var originalTimeOut;
+    let originalTimeOut;
 
     beforeAll(() => {
         browser.get('#');

@@ -70,7 +70,7 @@ describe('Project e2e test', () => {
         });
     });
 
-    afterAll(function () {
+    afterAll(function() {
         accountMenu.click();
         logout.click();
     });

@@ -21,7 +21,7 @@ describe('Generate QR code', () => {
         browser.waitForAngular();
     });
 
-    it('should load project view', function () {
+    it('should load project view', function() {
         projectMenu.click();
         element.all(by.partialLinkText('radar')).first().click().then(() => {
             expect(element(by.className('status-header')).getText()).toMatch('RADAR');
@@ -32,14 +32,14 @@ describe('Generate QR code', () => {
         });
     });
 
-    it('should open pair app dialog', function () {
+    it('should open pair app dialog', function() {
         element.all(by.buttonText('Pair App')).first().click().then(() => {
             expect(element.all(by.name('pairForm')).all(by.css('h4')).first().getAttribute('jhitranslate'))
                 .toMatch('managementPortalApp.subject.home.pairAppLabel');
         });
     });
 
-    it('should be able to create a qr code', function () {
+    it('should be able to create a qr code', function() {
         element(by.name('pairForm')).element(by.cssContainingText('option', 'pRMT')).click().then(() => {
             element.all(by.css('qrcode')).count().then(function(count) {
                 expect(count).toBe(1);
@@ -48,7 +48,7 @@ describe('Generate QR code', () => {
         });
     });
 
-    afterAll(function () {
+    afterAll(function() {
         accountMenu.click();
         logout.click();
     });

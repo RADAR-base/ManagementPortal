@@ -31,7 +31,7 @@ describe('Source e2e test', () => {
         });
     });
 
-    it('should load create Source dialog', function () {
+    it('should load create Source dialog', function() {
         element(by.css('button.create-source')).click().then(() => {
             const expectVal = /managementPortalApp.source.home.createOrEditLabel/;
             element.all(by.css('h4.modal-title')).first().getAttribute('jhiTranslate').then((value) => {
@@ -41,7 +41,6 @@ describe('Source e2e test', () => {
             element(by.css('button.close')).click();
         });
     });
-
 
     it('should be able to create new source', () => {
         element(by.cssContainingText('button.btn-primary', 'Create a new Source')).click().then(() => {
@@ -92,7 +91,7 @@ describe('Source e2e test', () => {
 
     // Source creation and deletion already covered in scenarios/create-and-assign-source.spec.ts
 
-    afterAll(function () {
+    afterAll(function() {
         accountMenu.click();
         logout.click();
     });
