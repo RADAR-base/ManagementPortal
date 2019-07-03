@@ -11,15 +11,13 @@ describe('Create, assign, unassign and delete source', () => {
     const sourceName = 'test-source-1';
 
     beforeAll(() => {
-        browser.get('#');
-
-        accountMenu.click();
-        login.click();
-
-        username.sendKeys('admin');
-        password.sendKeys('admin');
-        element(by.css('button[type=submit]')).click();
-        browser.waitForAngular();
+        return browser.get('#')
+                .then(() => accountMenu.click())
+                .then(() => login.click())
+                .then(() => username.sendKeys('admin'))
+                .then(() => password.sendKeys('admin'))
+                .then(() => element(by.css('button[type=submit]')).click())
+                .then(() => browser.waitForAngular())
     });
 
     it('should load project view', function() {
