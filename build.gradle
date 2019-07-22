@@ -132,12 +132,12 @@ dependencies {
     compile("net.logstash.logback:logstash-logback-encoder:${logstash_logback_encoder_version}") {
         exclude(group: 'ch.qos.logback')
     }
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-json-org:${jackson_version}"
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-hppc:${jackson_version}"
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_version}"
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${jackson_version}"
-    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:${jackson_version}"
-    compile "com.fasterxml.jackson.core:jackson-annotations:${jackson_version}"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-json-org:${jackson_dataformat_version}"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-hppc:${jackson_dataformat_version}"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_dataformat_version}"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${jackson_dataformat_version}"
+    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:${jackson_dataformat_version}"
+    compile "com.fasterxml.jackson.core:jackson-annotations:${jackson_dataformat_version}"
     compile "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
     compile("com.ryantenney.metrics:metrics-spring:${metrics_spring_version}")
     compile "com.hazelcast:hazelcast"
