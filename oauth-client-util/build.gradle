@@ -1,4 +1,5 @@
 ext.jacksonVersion = '2.9.9.1'
+ext.jacksonYamlVersion = '2.9.9'
 ext.okhttpVersion = '3.14.2'
 ext.junitVersion ='4.12'
 
@@ -12,7 +13,7 @@ repositories {
 dependencies {
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion
     implementation group: 'com.fasterxml.jackson.core' , name: 'jackson-databind' , version: jacksonVersion
-    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jacksonVersion
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jacksonYamlVersion
 
     testCompile group: 'junit', name: 'junit', version: junitVersion
     testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.21.0'
