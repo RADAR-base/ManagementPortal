@@ -17,14 +17,9 @@ import org.radarcns.auth.authorization.Permission.Entity
 /**
  * Parsed JWT for validating authorization of data contents.
  */
-class JwtAuth(project: String?, private val token: DecodedJWT, private val scopes: List<String>) : Auth {
-
-    private val claimProject = token.getClaim("project").asString()
-    override val clientId: String? = token.getClaim("client_id").asString() ?: "appconfig_frontend"
+class JwtAuth(project: String?, jwt: DecodedJWT) : Auth(jwt) {
+    private val claimProject = jwt.getClaim("project").asString()
     override val defaultProject = claimProject ?: project
-    override val userId: String? = token.subject?.takeUnless { it.isEmpty() }
-    override val isClientCredentials: Boolean
-        get() = "client_credentials" == token.getClaim("grant_type")?.asString()
 
     override fun hasPermissionOnProject(permission: Permission, projectId: String): Boolean {
         return hasPermission(permission) && (claimProject != null && projectId == claimProject)

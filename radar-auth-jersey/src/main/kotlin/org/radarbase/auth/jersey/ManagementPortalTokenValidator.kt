@@ -35,6 +35,7 @@ class ManagementPortalTokenValidator(@Context config: AuthConfig) : AuthValidato
         } catch (ex: Exception) {
             throw TokenValidationException("JWT cannot be decoded")
         }
-        return ManagementPortalAuth(jwt, tokenValidator.validateAccessToken(token))
+        tokenValidator.validateAccessToken(token)
+        return ManagementPortalAuth(jwt)
     }
 }

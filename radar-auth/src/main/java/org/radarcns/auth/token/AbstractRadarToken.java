@@ -50,7 +50,8 @@ public abstract class AbstractRadarToken implements RadarToken {
         return getScopes().contains(scope);
     }
 
-    protected boolean isClientCredentials() {
+    @Override
+    public boolean isClientCredentials() {
         return CLIENT_CREDENTIALS.equals(getGrantType());
     }
 

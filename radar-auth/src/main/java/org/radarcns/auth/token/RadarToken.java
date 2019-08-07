@@ -145,4 +145,9 @@ public interface RadarToken {
      */
     boolean hasPermissionOnSource(Permission permission, String projectName, String subjectName,
             String sourceId);
+
+    /**
+     * Whether the current credentials were obtained with a OAuth 2.0 client credentials flow.
+     */
+    boolean isClientCredentials();
 }
