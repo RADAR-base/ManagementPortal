@@ -3,7 +3,7 @@ const JasmineReporters = require('jasmine-reporters');
 const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
 
 exports.config = {
-    allScriptsTimeout: 120000,
+    allScriptsTimeout: 20000,
 
     specs: [
         './e2e/account/*.spec.ts',
@@ -16,9 +16,9 @@ exports.config = {
         'browserName': 'chrome',
         'phantomjs.binary.path': require('phantomjs-prebuilt').path,
         'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG'],
-        chromeOptions: {
-            args: [ "--headless", "--disable-gpu", "--window-size=1280x1024" ]
-        }
+        // chromeOptions: {
+        //     args: [ "--headless", "--disable-gpu", "--no-sandbox", "--window-size=1280x1024" ]
+        // }
     },
 
     directConnect: true,
@@ -29,7 +29,7 @@ exports.config = {
 
     jasmineNodeOpts: {
         showColors: true,
-        defaultTimeoutInterval: 180000,
+        defaultTimeoutInterval: 720000,
         print: function() {}
     },
 
