@@ -14,11 +14,11 @@ exports.config = {
 
     capabilities: {
         'browserName': 'chrome',
-        'phantomjs.binary.path': require('phantomjs-prebuilt').path,
-        'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG'],
-        // chromeOptions: {
-        //     args: [ "--headless", "--disable-gpu", "--no-sandbox", "--window-size=1280x1024" ]
-        // }
+        // 'phantomjs.binary.path': require('phantomjs-prebuilt').path,
+        // 'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG'],
+        chromeOptions: {
+            args: [ "--headless", "--disable-gpu", "--no-sandbox", "--window-size=1280x1024" ]
+        }
     },
 
     directConnect: true,
