@@ -13,6 +13,5 @@ import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 
 interface JerseyResourceEnhancer {
-    fun enhance(resources: ResourceConfig)
-    fun enhanceBinder(binder: AbstractBinder)
+    fun enhance(resources: ResourceConfig, binder: AbstractBinder)
 }

@@ -15,11 +15,7 @@ import javax.inject.Singleton
 
 /** This binder needs to register all non-Jersey classes, otherwise initialization fails. */
 class EcdsaResourceEnhancer : JerseyResourceEnhancer {
-    override fun enhance(resources: ResourceConfig) {
-        // none needed
-    }
-
-    override fun enhanceBinder(binder: AbstractBinder) {
+    override fun enhance(resources: ResourceConfig, binder: AbstractBinder) {
         binder.bind(EcdsaJwtTokenValidator::class.java)
                 .to(AuthValidator::class.java)
                 .`in`(Singleton::class.java)

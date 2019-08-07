@@ -39,16 +39,17 @@ These APIs can be activated by implementing the `ProjectService` that ensures th
 val resourceConfig = ResourceConfig()
 
 val authConfig = AuthConfig(managementPortalUrl = "http://...")
-val radarEnhancer = RadarJerseyResourceEnhancer(authConfig)
-val mpEnhancer = ManagementPortalResourceEnhancer()
-
-radarEnhancer.enhance(resourceConfig)
-mpEnhancer.enhance(resourceConfig)
 
 resourceConfig.register(object : AbstractBinder() {
     override fun configure() {
-        radarEnhancer.enhanceBinder(this)
-        mpEnhancer.enhanceBinder(this)
+        bind(MyProjectService::class.java)
+                .to(ProjectService::class.java)
+                .`in`(Singleton::class.java)
+
+        RadarJerseyResourceEnhancer(authConfig)
+                .enhance(resourceConfig, this)
+        ManagementPortalResourceEnhancer()
+                .enhance(resourceConfig, this)
     }
 })
 ```

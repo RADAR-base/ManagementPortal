@@ -15,13 +15,11 @@ import org.glassfish.jersey.server.ResourceConfig
 import org.radarbase.auth.jersey.impl.AuthFactory
 
 class RadarJerseyResourceEnhancer(private val config: AuthConfig): JerseyResourceEnhancer {
-    override fun enhance(resources: ResourceConfig) {
+    override fun enhance(resources: ResourceConfig, binder: AbstractBinder) {
         resources.apply {
             packages("org.radarbase.auth.jersey.inject")
         }
-    }
 
-    override fun enhanceBinder(binder: AbstractBinder) {
         binder.apply {
             bind(config)
                     .to(AuthConfig::class.java)
