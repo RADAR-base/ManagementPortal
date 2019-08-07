@@ -14,6 +14,10 @@ import org.glassfish.jersey.process.internal.RequestScoped
 import org.glassfish.jersey.server.ResourceConfig
 import org.radarbase.auth.jersey.impl.AuthFactory
 
+/**
+ * Add RADAR auth to a Jersey project. This requires a {@link ProjectService} implementation to be
+ * added to the Binder first.
+ */
 class RadarJerseyResourceEnhancer(private val config: AuthConfig): JerseyResourceEnhancer {
     override fun enhance(resources: ResourceConfig, binder: AbstractBinder) {
         resources.apply {

@@ -93,12 +93,7 @@ class EcdsaJwtTokenValidator constructor(@Context private val config: AuthConfig
             try {
                 val decodedJwt = verifier.verify(token)
 
-                val scopeClaim = decodedJwt.getClaim("scope")
-                val scopes: List<String> = (scopeClaim.asString()?.split(" ")
-                        ?: scopeClaim.asList(String::class.java))
-                        ?: emptyList()
-
-                return JwtAuth(project, decodedJwt, scopes)
+                return JwtAuth(project, decodedJwt)
             } catch (ex: SignatureVerificationException) {
                 // try next verifier
             } catch (ex: AlgorithmMismatchException) {

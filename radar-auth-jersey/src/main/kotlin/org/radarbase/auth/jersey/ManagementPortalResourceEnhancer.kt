@@ -13,7 +13,7 @@ import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import javax.inject.Singleton
 
-/** This binder needs to register all non-Jersey classes, otherwise initialization fails. */
+/** Registration for authorization against a ManagementPortal. */
 class ManagementPortalResourceEnhancer : JerseyResourceEnhancer {
     override fun enhance(resources: ResourceConfig, binder: AbstractBinder) {
         binder.bind(ManagementPortalTokenValidator::class.java)
