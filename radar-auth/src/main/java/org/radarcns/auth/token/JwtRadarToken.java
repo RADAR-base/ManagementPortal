@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import java.util.Collections;
 import java.util.Date;
@@ -22,6 +23,7 @@ public class JwtRadarToken extends AbstractRadarToken {
     public static final String SCOPE_CLAIM = "scope";
     public static final String SOURCES_CLAIM = "sources";
     public static final String GRANT_TYPE_CLAIM = "grant_type";
+    public static final String CLIENT_ID_CLAIM = "client_id";
 
     private final Map<String, List<String>> roles;
     private final List<String> authorities;
@@ -35,6 +37,8 @@ public class JwtRadarToken extends AbstractRadarToken {
     private final String token;
     private final String issuer;
     private final String type;
+    private final String clientId;
+    private final DecodedJWT jwt;
 
     /**
      * Initialize this {@code JwtRadarToken} based on the {@link DecodedJWT}. All relevant
@@ -44,6 +48,7 @@ public class JwtRadarToken extends AbstractRadarToken {
      * @param jwt the JWT token to use to initialize this object
      */
     public JwtRadarToken(DecodedJWT jwt) {
+        this.jwt = jwt;
         roles = parseRoles(jwt);
         authorities = emptyIfNull(jwt.getClaim(AUTHORITIES_CLAIM).asList(String.class));
         scopes = emptyIfNull(jwt.getClaim(SCOPE_CLAIM).asList(String.class));
@@ -56,6 +61,7 @@ public class JwtRadarToken extends AbstractRadarToken {
         token = emptyIfNull(jwt.getToken());
         issuer = emptyIfNull(jwt.getIssuer());
         type = emptyIfNull(jwt.getType());
+        clientId = jwt.getClaim(CLIENT_ID_CLAIM).asString();
     }
 
     @Override
@@ -116,6 +122,25 @@ public class JwtRadarToken extends AbstractRadarToken {
     @Override
     public String getType() {
         return type;
+    }
+
+    @Override
+    public String getClientId() {
+        return clientId;
+    }
+
+    @Override
+    public String getClaimString(String name) {
+        return jwt.getClaim(name).asString();
+    }
+
+    @Override
+    public List<String> getClaimList(String name) {
+        try {
+            return jwt.getClaim(name).asList(String.class);
+        } catch (JWTDecodeException ex) {
+            return null;
+        }
     }
 
     private Map<String, List<String>> parseRoles(DecodedJWT jwt) {

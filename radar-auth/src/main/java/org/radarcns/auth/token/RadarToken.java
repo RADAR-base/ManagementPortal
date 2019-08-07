@@ -85,6 +85,26 @@ public interface RadarToken {
     String getType();
 
     /**
+     * Client that the token is associated to.
+     * @return client ID if set or null if unknown.
+     */
+    String getClientId();
+
+    /**
+     * Get a token claim by name.
+     * @param name claim name.
+     * @return a claim value or null if none was found or the type was not a string.
+     */
+    String getClaimString(String name);
+
+    /**
+     * Get a token claim list by name.
+     * @param name claim name.
+     * @return a claim list of values or null if none was found or the type was not a string.
+     */
+    List<String> getClaimList(String name);
+
+    /**
      * Check if this token gives the given permission, not taking into account project affiliations.
      *
      * <p>This token <strong>must</strong> have the permission in its set of scopes. If it's a
