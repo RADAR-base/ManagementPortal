@@ -38,7 +38,9 @@ These APIs can be activated by implementing the `ProjectService` that ensures th
 ```kotlin
 val resourceConfig = ResourceConfig()
 
-val authConfig = AuthConfig(managementPortalUrl = "http://...")
+val authConfig = AuthConfig(
+        managementPortalUrl = "http://...",
+        jwtResourceName = "res_MyResource")
 
 resourceConfig.register(object : AbstractBinder() {
     override fun configure() {
