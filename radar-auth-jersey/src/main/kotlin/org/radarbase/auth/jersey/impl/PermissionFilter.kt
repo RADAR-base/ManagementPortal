@@ -55,9 +55,9 @@ class PermissionFilter : ContainerRequestFilter {
                 ?.firstOrNull()
 
         val isAuthenticated = when {
-            userId != null -> projectId != null && auth.hasPermissionOnSubject(permission, projectId, userId)
-            projectId != null -> auth.hasPermissionOnProject(permission, projectId)
-            else -> auth.hasPermission(permission)
+            userId != null -> projectId != null && auth.token.hasPermissionOnSubject(permission, projectId, userId)
+            projectId != null -> auth.token.hasPermissionOnProject(permission, projectId)
+            else -> auth.token.hasPermission(permission)
         }
 
         if (!isAuthenticated) {

@@ -15,7 +15,7 @@ class Users(@Context projectService: ProjectService) {
     @NeedsPermission(PROJECT, READ)
     fun getProjects(@Context auth: Auth): List<Project> {
         return projectService.read()
-            .filter { auth.hasPermissionOnProject(PROJECT_READ, it.name) }
+            .filter { auth.token.hasPermissionOnProject(PROJECT_READ, it.name) }
     } 
 
     @POST

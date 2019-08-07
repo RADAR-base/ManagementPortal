@@ -148,6 +148,8 @@ public interface RadarToken {
 
     /**
      * Whether the current credentials were obtained with a OAuth 2.0 client credentials flow.
+     *
+     * @return true if the client credentials flow was certainly used, false otherwise.
      */
     boolean isClientCredentials();
 }
