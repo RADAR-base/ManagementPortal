@@ -13,7 +13,6 @@ import com.auth0.jwt.interfaces.DecodedJWT
 import org.radarbase.auth.jersey.exception.HttpApplicationException
 import org.radarcns.auth.authorization.Permission
 import org.radarcns.auth.token.JwtRadarToken
-import org.radarcns.auth.token.RadarToken
 import javax.ws.rs.core.Response
 
 abstract class Auth(private val jwt: DecodedJWT): JwtRadarToken(jwt) {
