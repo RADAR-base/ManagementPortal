@@ -13,7 +13,11 @@ import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import javax.inject.Singleton
 
-/** Registration for authorization against a ManagementPortal. */
+/**
+ * Registration for authorization against a ManagementPortal.
+ *
+ * It requires managementPortalUrl and jwtResourceName to be set in the AuthConfig.
+ */
 class ManagementPortalResourceEnhancer : JerseyResourceEnhancer {
     override fun enhance(resources: ResourceConfig, binder: AbstractBinder) {
         binder.bind(ManagementPortalTokenValidator::class.java)
