@@ -10,11 +10,9 @@
 package org.radarbase.auth.jersey.impl
 
 import com.auth0.jwt.interfaces.DecodedJWT
-import org.radarbase.auth.exception.HttpApplicationException
 import org.radarbase.auth.jersey.Auth
 import org.radarcns.auth.authorization.Permission
-import org.radarcns.auth.authorization.Permission.*
-import javax.ws.rs.core.Response
+import org.radarcns.auth.authorization.Permission.Entity
 
 /**
  * Parsed JWT for validating authorization of data contents.
@@ -25,30 +23,16 @@ class JwtAuth(project: String?, private val token: DecodedJWT, private val scope
     override val clientId: String? = token.getClaim("client_id").asString() ?: "appconfig_frontend"
     override val defaultProject = claimProject ?: project
     override val userId: String? = token.subject?.takeUnless { it.isEmpty() }
-
-    override fun checkPermission(permission: Permission, projectId: String?, userId: String?, sourceId: String?) {
-        if (!hasPermission(permission)) {
-            throw HttpApplicationException(Response.Status.FORBIDDEN, "permission_mismatch", "No permission to create measurement " +
-                    "using token ${token.token}")
-        }
-
-        if (userId != null && this.userId != null && userId != this.userId) {
-            throw HttpApplicationException(Response.Status.FORBIDDEN, "permission_mismatch", "Actual user ID $userId does not match expected user ID ${this.userId} " +
-                    "using token ${token.token}")
-        }
-
-        if (projectId != null && claimProject != null && projectId != claimProject) {
-            throw HttpApplicationException(Response.Status.FORBIDDEN, "permission_mismatch", "Actual project ID $projectId does not match expected project ID ${this.claimProject} " +
-                    "using token ${token.token}")
-        }
-    }
+    override val isClientCredentials: Boolean
+        get() = "client_credentials" == token.getClaim("grant_type")?.asString()
 
     override fun hasPermissionOnProject(permission: Permission, projectId: String): Boolean {
         return hasPermission(permission) && (claimProject != null && projectId == claimProject)
     }
 
     override fun hasPermissionOnSubject(permission: Permission, projectId: String, userId: String): Boolean {
-        return hasPermissionOnProject(permission, projectId) && (userId == this.userId || hasPermission(PROJECT_READ))
+        return hasPermissionOnProject(permission, projectId)
+                && (userId == this.userId || hasPermission(Permission(Entity.PROJECT, permission.operation)))
     }
 
     override fun hasPermissionOnSource(permission: Permission, projectId: String, userId: String, sourceId: String): Boolean {

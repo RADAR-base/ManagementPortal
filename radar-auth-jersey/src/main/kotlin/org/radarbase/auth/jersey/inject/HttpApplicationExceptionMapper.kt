@@ -10,7 +10,7 @@
 package org.radarbase.auth.jersey.inject
 
 import com.fasterxml.jackson.core.util.BufferRecyclers
-import org.radarbase.auth.exception.HttpApplicationException
+import org.radarbase.auth.jersey.exception.HttpApplicationException
 import org.slf4j.LoggerFactory
 import javax.inject.Singleton
 import javax.ws.rs.core.Context

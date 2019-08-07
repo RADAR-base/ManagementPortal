@@ -7,7 +7,7 @@
  * See the file LICENSE in the root of this repository.
  */
 
-package org.radarbase.auth.exception
+package org.radarbase.auth.jersey.exception
 
 import java.lang.RuntimeException
 import javax.ws.rs.core.Response
