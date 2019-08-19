@@ -29,6 +29,9 @@ import org.springframework.web.util.HtmlUtils;
 @SessionAttributes("authorizationRequest")
 public class OAuth2LoginUiWebConfig {
 
+    private final String orignalRequestAttributeName = "org.springframework.security.oauth2"
+            + ".provider.endpoint.AuthorizationEndpoint.ORIGINAL_AUTHORIZATION_REQUEST";
+
     @Autowired
     private ClientDetailsService clientDetailsService;
 
@@ -70,6 +73,7 @@ public class OAuth2LoginUiWebConfig {
 
         TreeMap<String, Object> model = new TreeMap<>();
         model.put("authorizationRequest", authorizationRequest);
+        model.put(orignalRequestAttributeName, authorizationRequest);
         return new ModelAndView("authorize", model);
     }
 
