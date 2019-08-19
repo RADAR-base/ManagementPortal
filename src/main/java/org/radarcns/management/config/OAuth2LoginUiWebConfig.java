@@ -70,6 +70,7 @@ public class OAuth2LoginUiWebConfig {
 
         TreeMap<String, Object> model = new TreeMap<>();
         model.put("authorizationRequest", authorizationRequest);
+        model.put("org.springframework.security.oauth2.provider.endpoint.AuthorizationEndpoint.ORIGINAL_AUTHORIZATION_REQUEST", authorizationRequest);
         return new ModelAndView("authorize", model);
     }
 
