@@ -1,6 +1,7 @@
 package org.radarcns.management.config;
 
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,9 +29,6 @@ import org.springframework.web.util.HtmlUtils;
 @Controller
 @SessionAttributes("authorizationRequest")
 public class OAuth2LoginUiWebConfig {
-
-    private final String orignalRequestAttributeName = "org.springframework.security.oauth2"
-            + ".provider.endpoint.AuthorizationEndpoint.ORIGINAL_AUTHORIZATION_REQUEST";
 
     @Autowired
     private ClientDetailsService clientDetailsService;
@@ -71,9 +69,8 @@ public class OAuth2LoginUiWebConfig {
         AuthorizationRequest authorizationRequest = new DefaultOAuth2RequestFactory(
                 clientDetailsService).createAuthorizationRequest(authorizationParameters);
 
-        TreeMap<String, Object> model = new TreeMap<>();
-        model.put("authorizationRequest", authorizationRequest);
-        model.put(orignalRequestAttributeName, authorizationRequest);
+        Map<String, Object> model = Collections.singletonMap("authorizationRequest",
+                authorizationRequest);
         return new ModelAndView("authorize", model);
     }
 
