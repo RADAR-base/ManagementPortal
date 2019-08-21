@@ -15,6 +15,7 @@
             "clientId": "Client ID",
             "clientSecret": "Client Secret",
             "scope": "Scope",
+            "redirectUri": "Redirect URIs",
             "resourceIds": "Resources",
             "authorizedGrantTypes": "Grant Types",
             "autoApprove": "Auto Approve",

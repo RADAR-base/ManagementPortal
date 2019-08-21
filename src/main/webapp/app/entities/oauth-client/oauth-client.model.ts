@@ -10,6 +10,7 @@ export class OAuthClient {
     public refreshTokenValiditySeconds?: number;
     public authorities?: string[];
     public additionalInformation?: any;
+    public registeredRedirectUri?: string[];
 
     constructor(
             clientId?: string,
@@ -22,6 +23,7 @@ export class OAuthClient {
             refreshTokenValiditySeconds?: number,
             authorities?: string[],
             additionalInformation?: any,
+            registeredRedirectUri?: string[]
     ) {
         this.clientId = clientId ? clientId : '';
         this.clientSecret = clientSecret ? clientSecret : '';
@@ -33,5 +35,6 @@ export class OAuthClient {
         this.refreshTokenValiditySeconds = refreshTokenValiditySeconds ? refreshTokenValiditySeconds : 0;
         this.authorities = authorities ? authorities : [];
         this.additionalInformation = additionalInformation ? additionalInformation : {};
+        this.registeredRedirectUri = registeredRedirectUri ? registeredRedirectUri : [];
     }
 }

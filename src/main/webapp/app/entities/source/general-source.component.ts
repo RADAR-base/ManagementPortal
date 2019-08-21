@@ -11,6 +11,6 @@ export class GeneralSourceComponent {
     constructor(
             private jhiLanguageService: JhiLanguageService,
     ) {
-        jhiLanguageService.setLocations(['source'])
+        jhiLanguageService.setLocations(['source']);
     }
 }

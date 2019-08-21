@@ -20,6 +20,7 @@ export class OAuthClientDialogComponent implements OnInit {
     isSaving: boolean;
     grantTypes: any[];
     scopeList: string;
+    redirectUriList: string;
     resourcesList: string;
     autoApproveScopeList: string;
     dynamicRegistration: boolean;
@@ -51,6 +52,7 @@ export class OAuthClientDialogComponent implements OnInit {
         this.scopeList = this.client.scope.join(', ');
         // transform array of resources to a comma seperated string so we can bind a single text box to it
         this.resourcesList = this.client.resourceIds.join(', ');
+        this.redirectUriList = this.client.registeredRedirectUri ? this.client.registeredRedirectUri.join(', ') : '';
         // transform array of auto-approve scopes to a comma seperated string so we can bind a single text box to it
         this.autoApproveScopeList = this.client.autoApproveScopes ? this.client.autoApproveScopes.join(', ') : '';
         this.dynamicRegistrationKey = 'dynamic_registration';
@@ -79,6 +81,8 @@ export class OAuthClientDialogComponent implements OnInit {
         this.client.resourceIds = this.listStringToArray(this.resourcesList);
         // transform the auto approve scopes back to an array
         this.client.autoApproveScopes = this.listStringToArray(this.autoApproveScopeList);
+
+        this.client.registeredRedirectUri = this.listStringToArray(this.redirectUriList);
         if (this.dynamicRegistration) {
             this.client.additionalInformation[this.dynamicRegistrationKey] = true;
         } else {

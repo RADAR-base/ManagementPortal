@@ -153,17 +153,20 @@ Both tokens are valid for a limited time only. When the access token runs out, y
 perform another request like the one above, but you need to use the new `refresh_token`, since 
 refresh tokens are valid only once.
 
+### Authorization Code flow
 The code grant flow for OAuth2 clients can be the following:
-1. Ask user confirmation for your app:
+1. Register an oauth-client with grant_type `authorization_code` and add a valid `redirect_uri` to that client. (`e.g. https://my.example.com/oauth_redirect` in this example)
+2. Ask user authorization for your app:
      ```
-     GET /oauth/confirm_access?client_id=MyId&grant_type=code&redirect_uri=https://my.example.com/oauth_redirect
+     GET /oauth/authorize?client_id=MyId&response_type=code&redirect_uri=https://my.example.com/oauth_redirect
      ```
      where you replace `MyId` with your OAuth client id. This needs to be done from a interactive 
      web view, either a browser or a web window. If the user approves, this will redirect to 
      `https://my.example.com/oauth_redirect?code=abcdef`. In Android, with [https://appauth.io]
      (AppAuth library), the URL could be `com.example.my://oauth_redirect` for the `com.example.my`
       app.
-2. Request a token for your app by doing a POST, again with HTTP basic authentication with as 
+      You can add an optional parameter for `state`. If you add the state parameter, it will be returned with the `code`.
+3. Request a token for your app by doing a POST, again with HTTP basic authentication with as 
 username your OAuth client id, and leaving the password empty:
     ```
     POST /oauth/token

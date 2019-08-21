@@ -84,6 +84,11 @@
             </div>
         </div>
         <div class="form-group">
+            <label class="form-control-label" for="redirectUri" jhiTranslate="managementPortalApp.oauthClient.redirectUri">Redirect URI</label>
+            <input type="text" class="form-control" id="redirectUri" name="redirectUri" [(ngModel)]="redirectUriList" [disabled]="protectedClient" />
+            <small id="redirectUriHelp" class="form-text text-muted">Comma seperated list of resolvable redirect URIs. </small>
+        </div>
+        <div class="form-group">
             <label class="form-control-label" for="autoApprove" jhiTranslate="managementPortalApp.oauthClient.autoApprove">Auto Approve</label>
             <input type="text" class="form-control" id="autoApprove" name="autoApprove" [(ngModel)]="autoApproveScopeList" [disabled]="protectedClient" />
             <small id="autoApproveHelp" class="form-text text-muted">Comma seperated list of scopes that do not require explicit user approval in the authorization code grant.</small>
