@@ -1,6 +1,7 @@
 package org.radarcns.management.config;
 
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,8 +69,8 @@ public class OAuth2LoginUiWebConfig {
         AuthorizationRequest authorizationRequest = new DefaultOAuth2RequestFactory(
                 clientDetailsService).createAuthorizationRequest(authorizationParameters);
 
-        TreeMap<String, Object> model = new TreeMap<>();
-        model.put("authorizationRequest", authorizationRequest);
+        Map<String, Object> model = Collections.singletonMap("authorizationRequest",
+                authorizationRequest);
         return new ModelAndView("authorize", model);
     }
 

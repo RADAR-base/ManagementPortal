@@ -13,7 +13,9 @@
         "indicator": {
             "diskSpace": "Disk space",
             "mail": "Email",
-            "db": "Database"
+            "db": "Database",
+            "refreshScope": "Refresh Scope",
+            "hystrix": "Hystrix"
         },
         "table": {
             "service": "Service name",
