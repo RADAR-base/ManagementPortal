@@ -3,7 +3,7 @@ const JasmineReporters = require('jasmine-reporters');
 const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
 
 exports.config = {
-    allScriptsTimeout: 20000,
+    allScriptsTimeout: 120000,
 
     specs: [
         './e2e/account/*.spec.ts',
