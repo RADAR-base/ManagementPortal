@@ -21,6 +21,10 @@ describe('OAuth Clients e2e test', () => {
         browser.waitForAngular();
     });
 
+    beforeEach( () => {
+        browser.waitForAngular();
+    });
+
     it('should load OAuth clients', () => {
         adminMenu.click();
         element.all(by.css('[routerLink="oauth-client"]')).first().click().then(() => {

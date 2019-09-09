@@ -21,6 +21,10 @@ describe('Source e2e test', () => {
         browser.waitForAngular();
     });
 
+    beforeEach( () => {
+        browser.waitForAngular();
+    });
+
     it('should load Sources', () => {
         entityMenu.click();
         element.all(by.css('[routerLink="source"]')).first().click().then(() => {
