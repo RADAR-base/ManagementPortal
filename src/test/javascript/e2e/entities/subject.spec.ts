@@ -21,10 +21,6 @@ describe('Subject e2e test', () => {
         browser.waitForAngular();
     });
 
-    beforeEach( () => {
-        browser.waitForAngular();
-    });
-
     it('should load Subjects', () => {
         entityMenu.click();
         element.all(by.css('[routerLink="subject"]')).first().click().then(() => {

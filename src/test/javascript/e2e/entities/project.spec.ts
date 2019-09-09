@@ -22,10 +22,6 @@ describe('Project e2e test', () => {
         browser.waitForAngular();
     });
 
-    beforeEach( () => {
-        browser.waitForAngular();
-    });
-
     it('should load Projects', () => {
         adminMenu.click();
         element.all(by.css('[routerLink="project"]')).first().click().then(() => {

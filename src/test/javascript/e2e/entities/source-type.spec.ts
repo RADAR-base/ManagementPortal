@@ -14,13 +14,10 @@ describe('SourceType e2e test', () => {
 
         accountMenu.click();
         login.click();
+
         username.sendKeys('admin');
         password.sendKeys('admin');
         element(by.css('button[type=submit]')).click();
-        browser.waitForAngular();
-    });
-
-    beforeEach( () => {
         browser.waitForAngular();
     });
 

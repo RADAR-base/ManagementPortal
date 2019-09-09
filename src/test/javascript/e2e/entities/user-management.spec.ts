@@ -21,10 +21,6 @@ describe('Create, edit, and delete user', () => {
         browser.waitForAngular();
     });
 
-    beforeEach( () => {
-        browser.waitForAngular();
-    });
-
     it('should load user management view', () => {
         adminMenu.click();
         element(by.css('[routerLink="user-management"]')).click();
