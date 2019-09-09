@@ -238,7 +238,7 @@
   resolved "https://registry.yarnpkg.com/@types/q/-/q-0.0.32.tgz#bd284e57c84f1325da702babfc82a5328190c0c5"
   integrity sha1-vShOV8hPEyXacCur/IKlMoGQwMU=
 
-"@types/selenium-webdriver@^3.0.0":
+"@types/selenium-webdriver@^3.0.0", "@types/selenium-webdriver@^3.0.4":
   version "3.0.16"
   resolved "https://registry.yarnpkg.com/@types/selenium-webdriver/-/selenium-webdriver-3.0.16.tgz#50a4755f8e33edacd9c406729e9b930d2451902a"
   integrity sha512-lMC2G0ItF2xv4UCiwbJGbnJlIuUixHrioOhNGHSCsYCJ8l4t9hMCUimCytvFv7qy6AfSzRxhRHoGa+UqaqwyeA==
@@ -5829,10 +5829,10 @@ istextorbinary@^2.1.0:
     editions "^2.1.3"
     textextensions "^2.4.0"
 
-jasmine-core@2.5.2:
-  version "2.5.2"
-  resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-2.5.2.tgz#6f61bd79061e27f43e6f9355e44b3c6cab6ff297"
-  integrity sha1-b2G9eQYeJ/Q+b5NV5Es8bKtv8pc=
+jasmine-core@2.7.0:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-2.7.0.tgz#50ff8c4f92d8ef5c0b2c1b846dd263ed85152091"
+  integrity sha1-UP+MT5LY71wLLBuEbdJj7YUVIJE=
 
 jasmine-core@~2.8.0:
   version "2.8.0"

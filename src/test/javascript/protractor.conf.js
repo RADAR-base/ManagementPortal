@@ -1,6 +1,6 @@
 const HtmlScreenshotReporter = require("protractor-jasmine2-screenshot-reporter");
 const JasmineReporters = require('jasmine-reporters');
-// const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
+const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
 
 exports.config = {
     allScriptsTimeout: 120000,
@@ -14,8 +14,8 @@ exports.config = {
 
     capabilities: {
         'browserName': 'chrome',
-        // 'phantomjs.binary.path': require('phantomjs-prebuilt').path,
-        // 'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG'],
+        'phantomjs.binary.path': require('phantomjs-prebuilt').path,
+        'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG'],
         chromeOptions: {
             args: [ "--headless", "no-sandbox", "--disable-gpu", "--window-size=1280x1024" ]
         }
@@ -47,11 +47,11 @@ exports.config = {
         jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
             dest: "build/reports/e2e/screenshots"
         }));
-        // jasmine.getEnv().addReporter(new SpecReporter({
-        //     spec: {
-        //         displayStacktrace: true
-        //     }
-        // }));
+        jasmine.getEnv().addReporter(new SpecReporter({
+            spec: {
+                displayStacktrace: true
+            }
+        }));
     },
 
     useAllAngular2AppRoots: true
