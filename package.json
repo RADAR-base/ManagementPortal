@@ -79,6 +79,7 @@
     "phantomjs-prebuilt": "2.1.14",
     "postcss-loader": "^2.0.0",
     "protractor": "5.4.2",
+    "webdriver-manager": "12.1.4",
     "protractor-jasmine2-screenshot-reporter": "0.3.5",
     "proxy-middleware": "0.15.0",
     "rimraf": "2.6.1",
