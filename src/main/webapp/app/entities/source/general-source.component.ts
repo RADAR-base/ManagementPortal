@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { JhiLanguageService } from 'ng-jhipster';
 
 @Component({
     selector: 'jhi-source',
@@ -6,4 +7,10 @@ import { Component } from '@angular/core';
 })
 export class GeneralSourceComponent {
     isProjectSpecific = false;
+
+    constructor(
+            private jhiLanguageService: JhiLanguageService,
+    ) {
+        jhiLanguageService.setLocations(['source']);
+    }
 }

@@ -39,10 +39,15 @@ hystrix:
 management:
     security:
         roles: ROLE_SYS_ADMIN
+        enabled: false # disabling security check for health to allow kubernetes to detect the health of the service
     context-path: /management
     health:
+        diskspace:
+            enabled: false # disabling diskspace as the standard config, since we have removed security check for health endpoint
         mail:
             enabled: false # When using the MailService, configure an SMTP server and set this to true
+        db:
+            enabled: true
 spring:
     application:
         name: ManagementPortal

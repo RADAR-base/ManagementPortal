@@ -17,7 +17,7 @@ export class UserModalService {
     ) {
     }
 
-    open(component: Component, login?: string, admin?: boolean): NgbModalRef {
+    open(component: any, login?: string, admin?: boolean): NgbModalRef {
         if (this.isOpen) {
             return;
         }
@@ -45,7 +45,7 @@ export class UserModalService {
         }
     }
 
-    userModalRef(component: Component, user: User, isAdmin: boolean): NgbModalRef {
+    userModalRef(component: any, user: User, isAdmin: boolean): NgbModalRef {
         const modalRef = this.modalService.open(component, {size: 'lg', backdrop: 'static'});
         modalRef.componentInstance.user = user;
         modalRef.componentInstance.isAdmin = isAdmin;

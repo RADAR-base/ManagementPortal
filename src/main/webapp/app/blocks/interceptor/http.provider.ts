@@ -24,7 +24,7 @@ export function interceptableFactory(
                 new NotificationInterceptor(injector),
             ],
     );
-};
+}
 
 export function customHttpProvider() {
     return {
@@ -37,4 +37,4 @@ export function customHttpProvider() {
             EventManager,
         ],
     };
-};
+}

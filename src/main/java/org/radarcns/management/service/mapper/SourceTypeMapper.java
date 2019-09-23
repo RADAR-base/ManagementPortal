@@ -1,10 +1,14 @@
 package org.radarcns.management.service.mapper;
 
 import java.util.List;
+import java.util.Set;
+import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.radarcns.management.domain.SourceData;
 import org.radarcns.management.domain.SourceType;
 import org.radarcns.management.service.dto.MinimalSourceTypeDTO;
+import org.radarcns.management.service.dto.SourceDataDTO;
 import org.radarcns.management.service.dto.SourceTypeDTO;
 
 /**
@@ -26,6 +30,9 @@ public interface SourceTypeMapper {
 
     List<MinimalSourceTypeDTO> sourceTypesToMinimalSourceTypeDetailsDTOs(
             List<SourceType> sourceTypes);
+
+    @IterableMapping(qualifiedByName = "sourceDataReducedDTO")
+    Set<SourceDataDTO> map(Set<SourceData> sourceData);
 
     @Mapping(target = "sourceTypeScope", ignore = true)
     @Mapping(target = "sourceData", ignore = true)

@@ -19,12 +19,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import org.hibernate.envers.query.AuditEntity;
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.Project;
@@ -126,7 +128,7 @@ public class SubjectService {
             subject.getSources().forEach(s -> s.assigned(true).subject(subject));
         }
         sourceRepository.save(subject.getSources());
-        return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subject));
+        return subjectMapper.subjectToSubjectReducedProjectDTO(subjectRepository.save(subject));
     }
 
     /**
@@ -140,11 +142,8 @@ public class SubjectService {
         return roleRepository.findOneByProjectIdAndAuthorityName(project.getId(), authority)
                 .orElseGet(() -> {
                     Role subjectRole = new Role();
-                    // If we do not have the participant authority something is very wrong, and the
-                    // .get() will trigger a NoSuchElementException, which will be translated
-                    // into a 500 response.
-                    subjectRole.setAuthority(authorityRepository.findByAuthorityName(
-                            authority).get());
+                    subjectRole.setAuthority(authorityRepository.findByAuthorityName(authority)
+                            .orElseThrow(NoSuchElementException::new));
                     subjectRole.setProject(project);
                     roleRepository.save(subjectRole);
                     return subjectRole;
@@ -174,7 +173,8 @@ public class SubjectService {
         sourceRepository.save(sourcesToUpdate);
         // update participant role
         subjectFromDb.getUser().setRoles(updateParticipantRoles(subjectFromDb, newSubjectDto));
-        return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subjectFromDb));
+        return subjectMapper.subjectToSubjectReducedProjectDTO(
+                subjectRepository.save(subjectFromDb));
     }
 
     private Set<Role> updateParticipantRoles(Subject subject, SubjectDTO subjectDto) {
@@ -202,7 +202,7 @@ public class SubjectService {
      */
     public Page<SubjectDTO> findAll(Pageable pageable) {
         return subjectRepository.findAllWithEagerRelationships(pageable)
-                .map(subjectMapper::subjectToSubjectDTO);
+                .map(subjectMapper::subjectToSubjectReducedProjectDTO);
     }
 
     /**
@@ -223,7 +223,7 @@ public class SubjectService {
         // access token
         subject.setRemoved(true);
         subject.getUser().setActivated(false);
-        return subjectMapper.subjectToSubjectDTO(subjectRepository.save(subject));
+        return subjectMapper.subjectToSubjectReducedProjectDTO(subjectRepository.save(subject));
     }
 
     /**
@@ -288,30 +288,31 @@ public class SubjectService {
                 assignedSource = source;
                 subject.getSources().add(source);
             } else {
-                Map<String, String> errorParams = new HashMap<>();
-                errorParams.put("producer", sourceType.getProducer());
-                errorParams.put("model", sourceType.getModel());
-                errorParams.put("catalogVersion", sourceType.getCatalogVersion());
-                errorParams.put("subject-id", subject.getUser().getLogin());
                 throw new ConflictException(
                     "A Source of SourceType with the specified producer, model and version"
                         + " was already registered for subject login",
-                    SUBJECT, ErrorConstants.ERR_SOURCE_TYPE_EXISTS, errorParams);
+                    SUBJECT, ErrorConstants.ERR_SOURCE_TYPE_EXISTS,
+                        sourceTypeAttributes(sourceType, subject));
             }
         } else {
             // new source since sourceId == null, but canRegisterDynamically == false
-            Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("producer", sourceType.getProducer());
-            errorParams.put("model", sourceType.getModel());
-            errorParams.put("catalogVersion", sourceType.getCatalogVersion());
-            errorParams.put("subject-id", subject.getUser().getLogin());
             throw new BadRequestException("The source type is not eligible for dynamic "
                     + "registration", SOURCE_TYPE, "error.InvalidDynamicSourceRegistration",
-                    errorParams);
+                    sourceTypeAttributes(sourceType, subject));
         }
 
         subjectRepository.save(subject);
         return sourceMapper.sourceToMinimalSourceDetailsDTO(assignedSource);
+    }
+
+    private static Map<String, String> sourceTypeAttributes(SourceType sourceType,
+            Subject subject) {
+        Map<String, String> errorParams = new HashMap<>();
+        errorParams.put("producer", sourceType.getProducer());
+        errorParams.put("model", sourceType.getModel());
+        errorParams.put("catalogVersion", sourceType.getCatalogVersion());
+        errorParams.put("userId", subject.getUser().getLogin());
+        return errorParams;
     }
 
     /**
@@ -407,7 +408,7 @@ public class SubjectService {
             throw new NotFoundException("subject not found for given login and revision.", SUBJECT,
                 ERR_SUBJECT_NOT_FOUND, Collections.singletonMap("subjectLogin", login));
         }
-        return subjectMapper.subjectToSubjectDTO(sub);
+        return subjectMapper.subjectToSubjectReducedProjectDTO(sub);
     }
 
     /**
@@ -441,6 +442,7 @@ public class SubjectService {
      * @param login of subject to look for.
      * @return {@link Subject} loaded.
      */
+    @Nonnull
     public Subject findOneByLogin(String login) {
         Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         return subject.orElseThrow(() ->
@@ -464,7 +466,7 @@ public class SubjectService {
         // load default url from config
         String policyUrl = subject.getActiveProject()
                 .map(p -> p.getAttributes().get(PRIVACY_POLICY_URL))
-                .filter(u -> u != null && !u.isEmpty())
+                .filter(u -> !u.isEmpty())
                 .orElse(managementPortalProperties.getCommon().getPrivacyPolicyUrl());
 
         try {

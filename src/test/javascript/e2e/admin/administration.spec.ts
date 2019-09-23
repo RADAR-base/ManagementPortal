@@ -49,13 +49,13 @@ describe('administration', () => {
         });
     });
 
-    it('should load configuration', () => {
-        element(by.css('[routerLink="jhi-configuration"]')).click();
-        const expect1 = /configuration.title/;
-        element.all(by.css('h2')).first().getAttribute('jhiTranslate').then((value) => {
-            expect(value).toMatch(expect1);
-        });
-    });
+    // it('should load configuration', () => {
+    //     element(by.css('[routerLink="jhi-configuration"]')).click();
+    //     const expect1 = /configuration.title/;
+    //     element.all(by.css('h2')).first().getAttribute('jhiTranslate').then((value) => {
+    //         expect(value).toMatch(expect1);
+    //     });
+    // });
 
     it('should load audits', () => {
         element(by.css('[routerLink="audits"]')).click();

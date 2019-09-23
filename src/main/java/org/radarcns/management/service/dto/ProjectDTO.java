@@ -1,9 +1,10 @@
 package org.radarcns.management.service.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -14,7 +15,6 @@ import org.radarcns.management.domain.enumeration.ProjectStatus;
  * A DTO for the Project entity.
  */
 public class ProjectDTO implements Serializable {
-
     private static final long serialVersionUID = 1L;
 
     public static final String EXTERNAL_PROJECT_URL_KEY = "External-project-url";
@@ -45,7 +45,8 @@ public class ProjectDTO implements Serializable {
 
     private ZonedDateTime endDate;
 
-    private Set<SourceTypeDTO> sourceTypes = new HashSet<>();
+    @JsonInclude(Include.NON_NULL)
+    private Set<SourceTypeDTO> sourceTypes;
 
     private Map<String, String> attributes;
 

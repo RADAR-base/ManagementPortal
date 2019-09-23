@@ -1,5 +1,6 @@
 package org.radarcns.management.service.mapper.decorator;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.repository.SourceRepository;
@@ -47,8 +48,9 @@ public abstract class SourceMapperDecorator implements SourceMapper {
             if (sourceDto.getSubjectLogin() == null) {
                 source.setSubject(existingSource.getSubject());
             } else {
-                source.setSubject(subjectRepository.findOneWithEagerBySubjectLogin(sourceDto
-                        .getSubjectLogin()).get());
+                source.setSubject(subjectRepository
+                        .findOneWithEagerBySubjectLogin(sourceDto.getSubjectLogin())
+                        .orElseThrow(NoSuchElementException::new));
             }
         }
         return source;

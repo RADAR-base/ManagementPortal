@@ -47,7 +47,6 @@
         "no-switch-case-fall-through": true,
         "no-trailing-whitespace": true,
         "no-unused-expression": true,
-        "no-use-before-declare": true,
         "no-var-keyword": true,
         "object-literal-sort-keys": false,
         "one-line": [
@@ -100,14 +99,11 @@
         "use-input-property-decorator": true,
         "use-output-property-decorator": true,
         "use-host-property-decorator": true,
-        "no-input-rename": true,
-        "no-output-rename": true,
+        "no-input-rename": false,
+        "no-output-rename": false,
         "use-life-cycle-interface": true,
         "use-pipe-transform-interface": false,
-        "component-class-suffix": true,
-        "directive-class-suffix": true,
-        "no-access-missing-member": true,
-        "templates-use-public": true,
-        "invoke-injectable": true
+        "component-class-suffix": false,
+        "directive-class-suffix": false
     }
 }

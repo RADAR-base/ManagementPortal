@@ -1,11 +1,10 @@
 package org.radarcns.management.service.mapper.decorator;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.mapstruct.MappingTarget;
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.audit.EntityAuditInfo;
+import org.radarcns.management.repository.ProjectRepository;
 import org.radarcns.management.service.RevisionService;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.SubjectDTO.SubjectStatus;
@@ -29,29 +28,62 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
     @Autowired
     private RevisionService revisionService;
 
+    @Autowired
+    private ProjectRepository projectRepository;
+
     @Override
     public SubjectDTO subjectToSubjectDTO(Subject subject) {
         if (subject == null) {
             return null;
         }
-        SubjectDTO dto = delegate.subjectToSubjectDTO(subject);
-        dto.setStatus(getSubjectStatus(subject));
-        subject.getActiveProject()
-                .ifPresent(
-                    project -> dto.setProject(projectMapper.projectToProjectDTO(project)));
+        SubjectDTO dto = subjectToSubjectWithoutProjectDTO(subject);
+        Project project = subject.getActiveProject()
+                .flatMap(p ->  projectRepository.findOneWithEagerRelationships(p.getId()))
+                .orElse(null);
+        dto.setProject(projectMapper.projectToProjectDTO(project));
 
+        addAuditInfo(subject, dto);
+
+        return dto;
+    }
+
+    @Override
+    public SubjectDTO subjectToSubjectReducedProjectDTO(Subject subject) {
+        if (subject == null) {
+            return null;
+        }
+        SubjectDTO dto = subjectToSubjectWithoutProjectDTO(subject);
+
+        subject.getActiveProject()
+                .ifPresent(project -> dto.setProject(
+                        projectMapper.projectToProjectDTOReduced(project)));
+
+        addAuditInfo(subject, dto);
+
+        return dto;
+    }
+
+    private void addAuditInfo(Subject subject, SubjectDTO dto) {
         EntityAuditInfo auditInfo = revisionService.getAuditInfo(subject);
         dto.setCreatedDate(auditInfo.getCreatedAt());
         dto.setCreatedBy(auditInfo.getCreatedBy());
         dto.setLastModifiedDate(auditInfo.getLastModifiedAt());
         dto.setLastModifiedBy(auditInfo.getLastModifiedBy());
+    }
+
+    @Override
+    public SubjectDTO subjectToSubjectWithoutProjectDTO(Subject subject) {
+        if (subject == null) {
+            return null;
+        }
+        SubjectDTO dto = delegate.subjectToSubjectWithoutProjectDTO(subject);
+        dto.setStatus(getSubjectStatus(subject));
 
         return dto;
     }
 
     @Override
     public Subject subjectDTOToSubject(SubjectDTO subjectDto) {
-
         if (subjectDto == null) {
             return null;
         }
@@ -59,35 +91,6 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
         Subject subject = delegate.subjectDTOToSubject(subjectDto);
         setSubjectStatus(subjectDto, subject);
         return subject;
-    }
-
-    @Override
-    public List<SubjectDTO> subjectsToSubjectDTOs(List<Subject> subjects) {
-        if (subjects == null) {
-            return null;
-        }
-
-        List<SubjectDTO> list = new ArrayList<>();
-        for (Subject subject : subjects) {
-            list.add(this.subjectToSubjectDTO(subject));
-        }
-
-        return list;
-    }
-
-    @Override
-    public List<Subject> subjectDTOsToSubjects(List<SubjectDTO> subjectDtos) {
-
-        if (subjectDtos == null) {
-            return null;
-        }
-
-        List<Subject> list = new ArrayList<>();
-        for (SubjectDTO subjectDto : subjectDtos) {
-            list.add(this.subjectDTOToSubject(subjectDto));
-        }
-
-        return list;
     }
 
     @Override
@@ -108,7 +111,7 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
         return SubjectStatus.INVALID;
     }
 
-    private Subject setSubjectStatus(SubjectDTO subjectDto, Subject subject) {
+    private void setSubjectStatus(SubjectDTO subjectDto, Subject subject) {
         switch (subjectDto.getStatus()) {
             case DEACTIVATED:
                 subject.getUser().setActivated(false);
@@ -129,7 +132,6 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
             default:
                 break;
         }
-        return subject;
     }
 
 }

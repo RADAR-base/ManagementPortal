@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
+import org.radarcns.auth.authentication.OAuthHelper;
 import org.radarcns.management.ManagementPortalApp;
 import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.radarcns.management.service.OAuthClientService;
@@ -25,9 +26,7 @@ import org.radarcns.management.service.SubjectService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ClientDetailsDTO;
 import org.radarcns.management.service.mapper.ClientDetailsMapper;
-import org.radarcns.management.service.mapper.SubjectMapper;
 import org.radarcns.management.web.rest.errors.ExceptionTranslator;
-import org.radarcns.auth.authentication.OAuthHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -60,9 +59,6 @@ public class OAuthClientsResourceIntTest {
 
     @Autowired
     private SubjectService subjectService;
-
-    @Autowired
-    private SubjectMapper subjectMapper;
 
     @Autowired
     private UserService userService;
@@ -98,8 +94,6 @@ public class OAuthClientsResourceIntTest {
                 clientDetailsMapper);
         ReflectionTestUtils.setField(oauthClientsResource, "subjectService",
                 subjectService);
-        ReflectionTestUtils.setField(oauthClientsResource, "subjectMapper",
-                subjectMapper);
         ReflectionTestUtils.setField(oauthClientsResource, "userService",
                 userService);
         ReflectionTestUtils.setField(oauthClientsResource, "servletRequest",
@@ -160,7 +154,7 @@ public class OAuthClientsResourceIntTest {
                 details.getResourceIds());
         assertThat(testDetails.getAuthorizedGrantTypes()).containsExactlyElementsOf(
                 details.getAuthorizedGrantTypes());
-        details.getAutoApproveScopes().stream().forEach(scope ->
+        details.getAutoApproveScopes().forEach(scope ->
                 assertThat(testDetails.isAutoApprove(scope)).isTrue());
         assertThat(testDetails.getAccessTokenValiditySeconds()).isEqualTo(
                 details.getAccessTokenValiditySeconds().intValue());

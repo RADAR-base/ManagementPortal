@@ -14,7 +14,6 @@ import { UserModalService } from './user-modal.service';
     templateUrl: './user-management-dialog.component.html',
 })
 export class UserMgmtDialogComponent implements OnInit {
-
     user: User;
     isAdmin: boolean;
     languages: any[];

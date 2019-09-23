@@ -6,15 +6,16 @@ import static org.radarcns.management.web.rest.errors.EntityName.USER;
 
 import java.time.Period;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import java.util.stream.Collectors;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.management.config.ManagementPortalProperties;
@@ -327,18 +328,21 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public List<ProjectDTO> getProjectsAssignedToUser(String login) {
-        User userByLogin = userRepository.findOneWithRolesByLogin(login).get();
-        List<Project> projectsOfUser = new ArrayList<>();
-        for (Role role : userByLogin.getRoles()) {
-            // get all projects for admin
-            if (AuthoritiesConstants.SYS_ADMIN.equals(role.getAuthority().getName())) {
-                return projectMapper.projectsToProjectDTOs(projectRepository.findAll());
-            }
-            // get unique project from roles
-            if (!projectsOfUser.contains(role.getProject())) {
-                projectsOfUser.add(role.getProject());
-            }
+        User userByLogin = userRepository.findOneWithRolesByLogin(login)
+                .orElseThrow(NoSuchElementException::new);
+
+        List<Project> projectsOfUser;
+
+        if (userByLogin.getRoles().stream()
+                .anyMatch(r -> AuthoritiesConstants.SYS_ADMIN.equals(r.getAuthority().getName()))) {
+            projectsOfUser = projectRepository.findAll();
+        } else {
+            projectsOfUser = userByLogin.getRoles().stream()
+                    .map(Role::getProject)
+                    .distinct()
+                    .collect(Collectors.toList());
         }
+
         return projectMapper.projectsToProjectDTOs(projectsOfUser);
     }
 

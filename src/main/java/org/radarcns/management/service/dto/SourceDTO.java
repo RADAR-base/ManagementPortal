@@ -1,6 +1,8 @@
 package org.radarcns.management.service.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
@@ -31,6 +33,7 @@ public class SourceDTO implements Serializable {
 
     private String subjectLogin;
 
+    @JsonInclude(Include.NON_NULL)
     private MinimalProjectDetailsDTO project;
 
     private Map<String, String> attributes;

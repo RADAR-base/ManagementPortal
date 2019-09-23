@@ -18,7 +18,6 @@ import {
     StateStorageService,
     UserService,
 } from './';
-import { AttributeMapperComponent } from './attribute-mapper/attribute-mapper.component';
 import { DictionaryMapperComponent } from './dictionary-mapper/dictionary-mapper.component';
 import { ShowMoreComponent } from './show-more/show-more.component';
 import { AuthorityService } from './user/authority.service';
@@ -35,7 +34,6 @@ import { ProjectService } from './project/project.service';
     declarations: [
         JhiLoginModalComponent,
         HasAnyAuthorityDirective,
-        AttributeMapperComponent,
         DictionaryMapperComponent,
         CommonUserMgmtComponent,
         ShowMoreComponent,
@@ -61,7 +59,6 @@ import { ProjectService } from './project/project.service';
         ManagementPortalSharedCommonModule,
         JhiLoginModalComponent,
         HasAnyAuthorityDirective,
-        AttributeMapperComponent,
         DictionaryMapperComponent,
         CommonUserMgmtComponent,
         ShowMoreComponent,

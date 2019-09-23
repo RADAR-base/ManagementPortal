@@ -1,14 +1,9 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' 
+    id 'com.github.johnrengelman.shadow'
 }
-
-apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'com.jfrog.artifactory'
 
 repositories {
     jcenter()
-    mavenLocal()
 }
 
 dependencies {
@@ -17,8 +12,6 @@ dependencies {
         transitive = false
     }
     implementation 'org.bouncycastle:bcprov-jdk15on:1.55'
-
-
 }
 
 shadowJar {

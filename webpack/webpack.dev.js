@@ -5,7 +5,7 @@ const writeFilePlugin = require('write-file-webpack-plugin');
 const webpackMerge = require('webpack-merge');
 const plugin = require("base-href-webpack-plugin");// Or `import 'base-href-webpack-plugin';` if using typescript
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const ENV = 'dev';
 const execSync = require('child_process').execSync;
 const fs = require('fs');
@@ -16,6 +16,7 @@ if (!fs.existsSync(ddlPath)) {
 }
 
 module.exports = webpackMerge(commonConfig({ env: ENV }), {
+    mode: 'development',
     devtool: 'inline-source-map',
     devServer: {
         contentBase: './build/www',
@@ -44,7 +45,7 @@ module.exports = webpackMerge(commonConfig({ env: ENV }), {
             loaders: [
                 'tslint-loader'
             ],
-            exclude: ['node_modules', new RegExp('reflect-metadata\\' + path.sep + 'Reflect\\.ts')]
+            exclude: [/node_modules/, new RegExp('reflect-metadata\\' + path.sep + 'Reflect\\.ts')]
         }]
     },
     plugins: [
@@ -57,7 +58,11 @@ module.exports = webpackMerge(commonConfig({ env: ENV }), {
         }, {
             reload: false
         }),
-        new ExtractTextPlugin('styles.css'),
+        new MiniCssExtractPlugin({
+            // Options similar to the same options in webpackOptions.output
+            // both options are optional
+            filename: 'styles.css'
+        }),
         new webpack.NoEmitOnErrorsPlugin(),
         new webpack.NamedModulesPlugin(),
         new writeFilePlugin(),

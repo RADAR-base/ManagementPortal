@@ -23,9 +23,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 
@@ -264,17 +264,18 @@ public class SubjectResource {
             if (!subject.isPresent()) {
                 return ResponseEntity.notFound().build();
             }
-            SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject.get());
+            SubjectDTO subjectDto = subjectMapper.subjectToSubjectReducedProjectDTO(subject.get());
             return ResponseEntity.ok(Collections.singletonList(subjectDto));
         } else if (projectName == null && externalId != null) {
             List<Subject> subjects = subjectRepository
                     .findAllByExternalIdAndAuthoritiesIn(externalId, authoritiesToInclude);
-            return ResponseUtil
-                    .wrapOrNotFound(Optional.of(subjectMapper.subjectsToSubjectDTOs(subjects)));
+            return ResponseUtil.wrapOrNotFound(Optional.of(
+                    subjectMapper.subjectsToSubjectReducedProjectDTOs(subjects)));
         } else if (projectName != null) {
             Page<SubjectDTO> page = subjectRepository
                     .findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
-                            authoritiesToInclude).map(subjectMapper::subjectToSubjectDTO);
+                            authoritiesToInclude)
+                    .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
 
             HttpHeaders headers = PaginationUtil
                     .generatePaginationHttpHeaders(page, "/api/subjects");
@@ -300,10 +301,17 @@ public class SubjectResource {
             throws NotAuthorizedException {
         log.debug("REST request to get Subject : {}", login);
         Subject subject = subjectService.findOneByLogin(login);
+        Project project = subject.getActiveProject()
+                .flatMap(p ->  projectRepository.findOneWithEagerRelationships(p.getId()))
+                .orElse(null);
+
+        String projectName = project == null ? null : project.getProjectName();
+
         SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject);
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, subjectDto.getProject()
-                .getProjectName(), subjectDto.getLogin());
-        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(subjectDto));
+
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, projectName,
+                subjectDto.getLogin());
+        return ResponseEntity.ok(subjectDto);
     }
 
     /**
@@ -332,12 +340,15 @@ public class SubjectResource {
         // This stream returns true if all values are equal to blank. To prevent people with no
         // access to the requested subject in any of the subject history's projects from gaining
         // information on the subject history this way, we throw a NotAuthorized.
-        if (page.getContent().stream().map(blank::equals)
-                    .reduce(Boolean.TRUE, Boolean::logicalAnd)) {
+        if (page.getContent().stream()
+                .map(RevisionDTO::getEntity)
+                .allMatch(blank::equals)) {
             throw new NotAuthorizedException();
         }
-        return ResponseEntity.ok().headers(PaginationUtil.generatePaginationHttpHeaders(page,
-                HeaderUtil.buildPath("subjects", login, "revisions"))).body(page.getContent());
+        return ResponseEntity.ok()
+                .headers(PaginationUtil.generatePaginationHttpHeaders(page,
+                        HeaderUtil.buildPath("subjects", login, "revisions")))
+                .body(page.getContent());
     }
 
     /**
@@ -373,9 +384,8 @@ public class SubjectResource {
         log.debug("REST request to delete Subject : {}", login);
         Subject subject = subjectService.findOneByLogin(login);
 
-        SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject);
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_DELETE, subjectDto.getProject()
-                .getProjectName(), subjectDto.getLogin());
+        String projectName = subject.getActiveProject().map(Project::getProjectName).orElse(null);
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_DELETE, projectName, login);
         subjectService.deleteSubject(login);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityDeletionAlert(SUBJECT, login)).build();
@@ -490,23 +500,22 @@ public class SubjectResource {
         boolean withInactiveSources = withInactiveSourcesParam == null ? false
                 : withInactiveSourcesParam;
         // check the subject id
-        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
-        if (!subject.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
+        Subject subject = subjectRepository.findOneWithEagerBySubjectLogin(login)
+                .orElseThrow(NoSuchElementException::new);
 
-        SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject.get());
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, subjectDto.getProject()
-                .getProjectName(), subjectDto.getLogin());
+        String projectName = subject.getActiveProject()
+                .map(Project::getProjectName)
+                .orElse(null);
+
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, projectName, login);
 
         if (withInactiveSources) {
-            return ResponseEntity.ok()
-                    .body(subjectService.findSubjectSourcesFromRevisions(subject.get()));
+            return ResponseEntity.ok(subjectService.findSubjectSourcesFromRevisions(subject));
+        } else {
+            log.debug("REST request to get sources of Subject : {}", login);
+
+            return ResponseEntity.ok(subjectService.getSources(subject));
         }
-
-        log.debug("REST request to get sources of Subject : {}", login);
-
-        return ResponseEntity.ok().body(subjectService.getSources(subject.get()));
     }
 
 
@@ -538,32 +547,33 @@ public class SubjectResource {
             throws NotFoundException, NotAuthorizedException,
             URISyntaxException {
         // check the subject id
-        Optional<Subject> subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
-        if (!subject.isPresent()) {
+        Optional<Subject> subjectOptional = subjectRepository.findOneWithEagerBySubjectLogin(login);
+        if (!subjectOptional.isPresent()) {
             throw new NotFoundException("Subject ID not found", SUBJECT, ErrorConstants
                 .ERR_SUBJECT_NOT_FOUND, Collections.singletonMap("subjectLogin", login));
         }
         // check the permission to update source
-        SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject.get());
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
-                subjectDto.getProject().getProjectName(), subjectDto.getLogin());
+        Subject subject = subjectOptional.get();
+
+        String projectName = subject.getActiveProject()
+                .map(Project::getProjectName)
+                .orElse(null);
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, projectName, login);
 
         // find source under subject
-        List<Source> sources = subject.get().getSources().stream()
+        Source source = subject.getSources().stream()
                 .filter(s -> s.getSourceName().equals(sourceName))
-                .collect(Collectors.toList());
-
-        // exception if source is not found under subject
-        if (sources.isEmpty()) {
-            Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("subjectLogin", login);
-            errorParams.put("sourceName", sourceName);
-            throw new NotFoundException("Source not found under assigned sources of "
-                + "subject", SUBJECT, ErrorConstants.ERR_SUBJECT_NOT_FOUND, errorParams);
-        }
+                .findAny()
+                .orElseThrow(() -> {
+                    Map<String, String> errorParams = new HashMap<>();
+                    errorParams.put("subjectLogin", login);
+                    errorParams.put("sourceName", sourceName);
+                    return new NotFoundException("Source not found under assigned sources of "
+                            + "subject", SUBJECT, ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                            errorParams);
+                });
 
         // there should be only one source under a source-name.
-        return ResponseEntity.ok().body(sourceService.safeUpdateOfAttributes(sources.get(0),
-                attributes));
+        return ResponseEntity.ok(sourceService.safeUpdateOfAttributes(source, attributes));
     }
 }

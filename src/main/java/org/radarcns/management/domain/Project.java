@@ -81,11 +81,11 @@ public class Project extends AbstractEntity implements Serializable {
     private ZonedDateTime endDate;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private Set<Role> roles;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JoinTable(name = "project_source_type",
             joinColumns = @JoinColumn(name = "projects_id", referencedColumnName = "id"),
