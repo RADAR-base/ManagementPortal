@@ -40,8 +40,6 @@ before_install:
   # Repo for Yarn
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH=$HOME/.yarn/bin:$PATH
-  - curl https://chromedriver.storage.googleapis.com/75.0.3770.90/chromedriver_linux64.zip -O
-  - unzip chromedriver_linux64.zip -d ~/bin
 
 install:
   - yarn install
