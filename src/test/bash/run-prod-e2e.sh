@@ -20,6 +20,7 @@ then
   # wait for app to be up
   $TRAVIS_BUILD_DIR/util/wait-for-app.sh http://localhost:8080/managementportal/
   docker-compose -f src/main/docker/app.yml logs # show output of app startup
+  yarn webdriver-manager update --versions.chrome 77.0.3865.10
   yarn e2e # run e2e tests against production mode
   docker-compose -f src/main/docker/app.yml down -v # clean up containers and volumes
   git checkout src/test/javascript/protractor.conf.js
