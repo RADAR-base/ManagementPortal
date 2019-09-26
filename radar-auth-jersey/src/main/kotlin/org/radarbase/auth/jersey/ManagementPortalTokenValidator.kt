@@ -14,6 +14,7 @@ import org.radarbase.auth.jersey.impl.ManagementPortalAuth
 import org.radarcns.auth.authentication.TokenValidator
 import org.radarcns.auth.config.TokenVerifierPublicKeyConfig
 import org.radarcns.auth.exception.TokenValidationException
+import org.slf4j.LoggerFactory
 import java.net.URI
 import javax.ws.rs.container.ContainerRequestContext
 import javax.ws.rs.core.Context
@@ -23,10 +24,21 @@ class ManagementPortalTokenValidator(@Context config: AuthConfig) : AuthValidato
     private val tokenValidator: TokenValidator = try {
         TokenValidator()
     } catch (e: RuntimeException) {
-        val cfg = TokenVerifierPublicKeyConfig()
-        cfg.publicKeyEndpoints = listOf(URI("${config.managementPortalUrl}/oauth/token_key"))
-        cfg.resourceName = config.jwtResourceName
+        val cfg = TokenVerifierPublicKeyConfig().apply {
+            publicKeyEndpoints = listOf(URI("${config.managementPortalUrl}/oauth/token_key"))
+            resourceName = config.jwtResourceName
+        }
         TokenValidator(cfg)
+    }
+
+    init {
+        try {
+            this.tokenValidator.refresh()
+            logger.debug("Refreshed Token Validator keys")
+        } catch (ex: Exception) {
+            logger.error("Failed to immediately initialize token validator, will try again later: {}",
+                    ex.toString())
+        }
     }
 
     override fun verify(token: String, request: ContainerRequestContext): Auth? {
@@ -37,5 +49,9 @@ class ManagementPortalTokenValidator(@Context config: AuthConfig) : AuthValidato
         }
         tokenValidator.validateAccessToken(token)
         return ManagementPortalAuth(jwt)
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(ManagementPortalTokenValidator::class.java)
     }
 }
