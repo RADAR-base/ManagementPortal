@@ -55,3 +55,9 @@ resourceConfig.register(object : AbstractBinder() {
     }
 })
 ```
+
+## Error handling
+
+This package adds some error handling. Specifically, `org.radarbase.auth.jersey.exception.HttpApplicationException` can be used and extended to serve detailed error messages with customized logging and HTML templating. They can be thrown from any resource.
+
+To serve custom HTML error messages for error codes 400 to 599, add a Mustache template to the classpath in directory `org/radarbase/auth/jersey/exception/<code>.html`. You can use special cases `4xx.html` and `5xx.html` as a catch-all template. The templates can use variables `status` for the HTTP status code, `code` for short-hand code for the specific error, and an optional `detailedMessage` for a human-readable message.

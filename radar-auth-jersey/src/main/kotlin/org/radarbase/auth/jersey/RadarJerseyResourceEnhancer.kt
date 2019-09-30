@@ -10,8 +10,11 @@
 package org.radarbase.auth.jersey
 
 import org.glassfish.jersey.internal.inject.AbstractBinder
+import org.glassfish.jersey.internal.inject.PerThread
 import org.glassfish.jersey.process.internal.RequestScoped
 import org.glassfish.jersey.server.ResourceConfig
+import org.radarbase.auth.jersey.exception.DefaultExceptionHtmlRenderer
+import org.radarbase.auth.jersey.exception.ExceptionHtmlRenderer
 import org.radarbase.auth.jersey.impl.AuthFactory
 
 /**
@@ -34,6 +37,11 @@ class RadarJerseyResourceEnhancer(private val config: AuthConfig): JerseyResourc
                     .proxyForSameScope(false)
                     .to(Auth::class.java)
                     .`in`(RequestScoped::class.java)
+
+            bind(DefaultExceptionHtmlRenderer::class.java)
+                    .to(ExceptionHtmlRenderer::class.java)
+                    .`in`(PerThread::class.java)
+                    .ranked(10)
         }
     }
 }

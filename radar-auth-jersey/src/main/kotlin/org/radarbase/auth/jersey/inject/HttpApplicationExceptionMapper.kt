@@ -10,10 +10,13 @@
 package org.radarbase.auth.jersey.inject
 
 import com.fasterxml.jackson.core.util.BufferRecyclers
+import org.radarbase.auth.jersey.exception.ExceptionHtmlRenderer
 import org.radarbase.auth.jersey.exception.HttpApplicationException
 import org.slf4j.LoggerFactory
 import javax.inject.Singleton
+import javax.ws.rs.container.ContainerRequestContext
 import javax.ws.rs.core.Context
+import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.UriInfo
 import javax.ws.rs.ext.ExceptionMapper
@@ -26,18 +29,38 @@ class HttpApplicationExceptionMapper : ExceptionMapper<HttpApplicationException>
     @Context
     private lateinit var uriInfo: UriInfo
 
+    @Context lateinit var requestContext: ContainerRequestContext
+
+    @Context lateinit var htmlRenderer: ExceptionHtmlRenderer
+
     override fun toResponse(exception: HttpApplicationException): Response {
-        logger.error("[{}] {} - {}: {}", exception.status, uriInfo.absolutePath, exception.code, exception.detailedMessage)
+        var mediaType = requestContext.acceptableMediaTypes
+                .firstOrNull { type -> type in setOf(MediaType.WILDCARD_TYPE, MediaType.APPLICATION_JSON_TYPE, MediaType.TEXT_HTML_TYPE, MediaType.TEXT_PLAIN) }
+                ?: MediaType.TEXT_PLAIN_TYPE
 
-        val stringEncoder = BufferRecyclers.getJsonStringEncoder()
-        val quotedError = stringEncoder.quoteAsUTF8(exception.code).toString(UTF_8)
-        val quotedDescription = stringEncoder.quoteAsUTF8(exception.detailedMessage).toString(UTF_8)
-        return Response.status(exception.status)
-                .header("Content-Type", "application/json; charset=utf-8")
-                .entity("{\"error\":\"$quotedError\","
-                        + "\"error_description\":\"$quotedDescription\"}")
+        logger.error("[{}] {} <{}> - {}: {}", exception.status, uriInfo.absolutePath, mediaType, exception.code, exception.detailedMessage)
+
+        val responseBuilder = Response.status(exception.status)
+
+        val entity = when (mediaType) {
+            MediaType.APPLICATION_JSON_TYPE -> {
+                val stringEncoder = BufferRecyclers.getJsonStringEncoder()
+                val quotedError = stringEncoder.quoteAsUTF8(exception.code).toString(UTF_8)
+                val quotedDescription = stringEncoder.quoteAsUTF8(exception.detailedMessage).toString(UTF_8)
+
+                "{\"error\":\"$quotedError\",\"error_description\":\"$quotedDescription\"}"
+            }
+            MediaType.TEXT_HTML_TYPE -> htmlRenderer.render(exception)
+            else -> {
+                mediaType = MediaType.TEXT_PLAIN_TYPE
+                "[${exception.status}] ${exception.code}: ${exception.detailedMessage ?: "unknown reason"}"
+            }
+        }
+
+        return responseBuilder
+                .entity(entity)
+                .header("Content-Type", mediaType.withCharset("utf-8").toString())
                 .build()
-
     }
 
     companion object {

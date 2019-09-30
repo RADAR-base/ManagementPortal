@@ -69,6 +69,7 @@ local.properties
 *.ipr
 *.ids
 *.orig
+out/
 
 ######################
 # Visual Studio Code
