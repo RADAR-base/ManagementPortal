@@ -36,11 +36,16 @@ class Users(@Context projectService: ProjectService) {
 
 These APIs can be activated by implementing the `ProjectService` that ensures that a project exists and by running, during ResourceConfig setup:
 ```kotlin
-val resourceConfig = ResourceConfig()
-
 val authConfig = AuthConfig(
         managementPortalUrl = "http://...",
         jwtResourceName = "res_MyResource")
+
+val radarEnhancer = RadarJerseyResourceEnhancer(authConfig)
+val mpEnhancer = ManagementPortalResourceEnhancer()
+
+val resourceConfig = ResourceConfig()
+resourceConfig.packages(*radarEnhancer.packages)
+resourceConfig.packages(*mpEnhancer.packages)
 
 resourceConfig.register(object : AbstractBinder() {
     override fun configure() {
@@ -48,10 +53,8 @@ resourceConfig.register(object : AbstractBinder() {
                 .to(ProjectService::class.java)
                 .`in`(Singleton::class.java)
 
-        RadarJerseyResourceEnhancer(authConfig)
-                .enhance(resourceConfig, this)
-        ManagementPortalResourceEnhancer()
-                .enhance(resourceConfig, this)
+        radarEnhancer.enhance(this)
+        mpEnhancer.enhance(this)
     }
 })
 ```

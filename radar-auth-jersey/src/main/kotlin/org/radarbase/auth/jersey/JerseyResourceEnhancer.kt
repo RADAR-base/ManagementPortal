@@ -10,8 +10,9 @@
 package org.radarbase.auth.jersey
 
 import org.glassfish.jersey.internal.inject.AbstractBinder
-import org.glassfish.jersey.server.ResourceConfig
 
 interface JerseyResourceEnhancer {
-    fun enhance(resources: ResourceConfig, binder: AbstractBinder)
+    val packages: Array<String>
+        get() = arrayOf()
+    fun enhance(binder: AbstractBinder)
 }

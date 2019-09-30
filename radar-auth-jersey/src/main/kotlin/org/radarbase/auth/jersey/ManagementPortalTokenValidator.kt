@@ -20,17 +20,8 @@ import javax.ws.rs.container.ContainerRequestContext
 import javax.ws.rs.core.Context
 
 /** Creates a TokenValidator based on the current management portal configuration. */
-class ManagementPortalTokenValidator(@Context config: AuthConfig) : AuthValidator {
-    private val tokenValidator: TokenValidator = try {
-        TokenValidator()
-    } catch (e: RuntimeException) {
-        val cfg = TokenVerifierPublicKeyConfig().apply {
-            publicKeyEndpoints = listOf(URI("${config.managementPortalUrl}/oauth/token_key"))
-            resourceName = config.jwtResourceName
-        }
-        TokenValidator(cfg)
-    }
-
+class ManagementPortalTokenValidator(
+        @Context private val tokenValidator: TokenValidator) : AuthValidator {
     init {
         try {
             this.tokenValidator.refresh()

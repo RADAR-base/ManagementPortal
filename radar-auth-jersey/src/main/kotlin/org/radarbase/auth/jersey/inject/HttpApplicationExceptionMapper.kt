@@ -40,15 +40,15 @@ class HttpApplicationExceptionMapper : ExceptionMapper<HttpApplicationException>
 
         logger.error("[{}] {} <{}> - {}: {}", exception.status, uriInfo.absolutePath, mediaType, exception.code, exception.detailedMessage)
 
-        val responseBuilder = Response.status(exception.status)
-
         val entity = when (mediaType) {
             MediaType.APPLICATION_JSON_TYPE -> {
                 val stringEncoder = BufferRecyclers.getJsonStringEncoder()
                 val quotedError = stringEncoder.quoteAsUTF8(exception.code).toString(UTF_8)
-                val quotedDescription = stringEncoder.quoteAsUTF8(exception.detailedMessage).toString(UTF_8)
+                val quotedDescription = exception.detailedMessage?.let {
+                    '"' + stringEncoder.quoteAsUTF8(it).toString(UTF_8) + '"'
+                } ?: "null"
 
-                "{\"error\":\"$quotedError\",\"error_description\":\"$quotedDescription\"}"
+                "{\"error\":\"$quotedError\",\"error_description\":$quotedDescription}"
             }
             MediaType.TEXT_HTML_TYPE -> htmlRenderer.render(exception)
             else -> {
@@ -57,10 +57,15 @@ class HttpApplicationExceptionMapper : ExceptionMapper<HttpApplicationException>
             }
         }
 
-        return responseBuilder
+        val responseBuilder = Response.status(exception.status)
                 .entity(entity)
                 .header("Content-Type", mediaType.withCharset("utf-8").toString())
-                .build()
+
+        exception.additionalHeaders.forEach { (name, value) ->
+            responseBuilder.header(name, value)
+        }
+
+        return responseBuilder.build()
     }
 
     companion object {

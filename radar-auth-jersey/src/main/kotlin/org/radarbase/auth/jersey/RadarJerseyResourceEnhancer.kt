@@ -12,7 +12,6 @@ package org.radarbase.auth.jersey
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.internal.inject.PerThread
 import org.glassfish.jersey.process.internal.RequestScoped
-import org.glassfish.jersey.server.ResourceConfig
 import org.radarbase.auth.jersey.exception.DefaultExceptionHtmlRenderer
 import org.radarbase.auth.jersey.exception.ExceptionHtmlRenderer
 import org.radarbase.auth.jersey.impl.AuthFactory
@@ -22,11 +21,9 @@ import org.radarbase.auth.jersey.impl.AuthFactory
  * added to the Binder first.
  */
 class RadarJerseyResourceEnhancer(private val config: AuthConfig): JerseyResourceEnhancer {
-    override fun enhance(resources: ResourceConfig, binder: AbstractBinder) {
-        resources.apply {
-            packages("org.radarbase.auth.jersey.inject")
-        }
+    override val packages = arrayOf("org.radarbase.auth.jersey.inject")
 
+    override fun enhance(binder: AbstractBinder) {
         binder.apply {
             bind(config)
                     .to(AuthConfig::class.java)

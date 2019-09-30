@@ -11,6 +11,7 @@ package org.radarbase.auth.jersey.inject
 
 import org.radarbase.auth.jersey.NeedsPermission
 import org.radarbase.auth.jersey.impl.PermissionFilter
+import org.slf4j.LoggerFactory
 import javax.ws.rs.Priorities
 import javax.ws.rs.container.DynamicFeature
 import javax.ws.rs.container.ResourceInfo
@@ -25,5 +26,9 @@ class AuthorizationFeature : DynamicFeature {
         if (resourceMethod.isAnnotationPresent(NeedsPermission::class.java)) {
             context.register(PermissionFilter::class.java, Priorities.AUTHORIZATION)
         }
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(AuthorizationFeature::class.java)
     }
 }

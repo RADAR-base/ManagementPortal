@@ -7,7 +7,7 @@
  * See the file LICENSE in the root of this repository.
  */
 
-package org.radarbase.auth.jersey
+package org.radarbase.auth.jersey.exception
 
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsString

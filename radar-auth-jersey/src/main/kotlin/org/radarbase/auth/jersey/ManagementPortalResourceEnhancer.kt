@@ -11,6 +11,8 @@ package org.radarbase.auth.jersey
 
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
+import org.radarbase.auth.jersey.impl.TokenValidatorFactory
+import org.radarcns.auth.authentication.TokenValidator
 import javax.inject.Singleton
 
 /**
@@ -19,7 +21,11 @@ import javax.inject.Singleton
  * It requires managementPortalUrl and jwtResourceName to be set in the AuthConfig.
  */
 class ManagementPortalResourceEnhancer : JerseyResourceEnhancer {
-    override fun enhance(resources: ResourceConfig, binder: AbstractBinder) {
+    override fun enhance(binder: AbstractBinder) {
+        binder.bindFactory(TokenValidatorFactory::class.java)
+                .to(TokenValidator::class.java)
+                .`in`(Singleton::class.java)
+
         binder.bind(ManagementPortalTokenValidator::class.java)
                 .to(AuthValidator::class.java)
                 .`in`(Singleton::class.java)
