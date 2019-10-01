@@ -23,7 +23,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import java.util.stream.Stream;
 import org.radarcns.auth.authorization.Permission;
 import org.radarcns.auth.config.TokenValidatorConfig;
-import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
@@ -134,14 +133,6 @@ public class OAuthHelper {
      * @return configured TokenValidator
      */
     public static TokenValidator createTokenValidator() {
-        ManagementPortalProperties.Oauth oauthConfig = new ManagementPortalProperties.Oauth();
-        oauthConfig.setKeyStorePassword(TEST_KEYSTORE_PASSWORD);
-        oauthConfig.setSigningKeyAlias(TEST_SIGNKEY_ALIAS);
-        oauthConfig.setCheckingKeyAliases(Collections.singletonList(TEST_CHECKKEY_ALIAS));
-
-        ManagementPortalProperties properties = new ManagementPortalProperties();
-        properties.setOauth(oauthConfig);
-
         // Use tokenValidator with known JWTVerifier which signs.
         return new TokenValidator(verifiers, getDummyValidatorConfig());
     }
