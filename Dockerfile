@@ -1,5 +1,5 @@
 # Build stage
-FROM openjdk:8-jdk as builder
+FROM openjdk:11-jdk-stretch as builder
 
 # install node
 RUN curl -sL https://deb.nodesource.com/setup_11.x | bash - && \
@@ -33,7 +33,7 @@ COPY src src
 RUN ./gradlew -s bootRepackage
 
 # Run stage
-FROM openjdk:8-jre-alpine
+FROM openjdk:11-oraclelinux7
 
 ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
     JHIPSTER_SLEEP=0
