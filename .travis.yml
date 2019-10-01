@@ -36,6 +36,7 @@ before_install:
   - curl -o ~/install-jdk.sh -L https://raw.githubusercontent.com/sormuras/bach/master/install-jdk.sh
   - export JAVA_HOME=$HOME/openjdk11
   - bash -x ~/install-jdk.sh --target $JAVA_HOME --feature "11" --license "GPL" --cacerts
+  - export PATH=$JAVA_HOME/bin:$PATH
   - java -version
   - sudo /etc/init.d/mysql stop
   - sudo /etc/init.d/postgresql stop
