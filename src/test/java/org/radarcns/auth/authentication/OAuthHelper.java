@@ -129,6 +129,11 @@ public class OAuthHelper {
         return new JwtAuthenticationFilter(createTokenValidator());
     }
 
+    /**
+     * Helper method to initialize a token validator for use in test classes.
+     *
+     * @return configured TokenValidator
+     */
     public static TokenValidator createTokenValidator() {
         ManagementPortalProperties.Oauth oauthConfig = new ManagementPortalProperties.Oauth();
         oauthConfig.setKeyStorePassword(TEST_KEYSTORE_PASSWORD);
