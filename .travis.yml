@@ -33,7 +33,8 @@ env:
     - SPRING_JPA_SHOW_SQL=false
 
 before_install:
-  - jdk_switcher use openjdk11
+  - export JAVA_HOME=$HOME/openjdk11
+  - $TRAVIS_BUILD_DIR/install-jdk.sh --install openjdk11 --target $JAVA_HOME
   - java -version
   - sudo /etc/init.d/mysql stop
   - sudo /etc/init.d/postgresql stop
