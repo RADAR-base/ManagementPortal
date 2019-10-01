@@ -33,8 +33,9 @@ env:
     - SPRING_JPA_SHOW_SQL=false
 
 before_install:
+  - curl -o ~/install-jdk.sh -L https://raw.githubusercontent.com/sormuras/bach/master/install-jdk.sh
   - export JAVA_HOME=$HOME/openjdk11
-  - ~/bin/install-jdk.sh --install openjdk11 --target $JAVA_HOME
+  - bash -x ~/install-jdk.sh --target $JAVA_HOME --feature "11" --license "GPL" --cacerts
   - java -version
   - sudo /etc/init.d/mysql stop
   - sudo /etc/init.d/postgresql stop
