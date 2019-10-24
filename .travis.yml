@@ -33,7 +33,7 @@ env:
     - SPRING_JPA_SHOW_SQL=false
 
 before_install:
-  - jdk_switcher use oraclejdk8
+#  - jdk_switcher use oraclejdk8
   - java -version
   - sudo /etc/init.d/mysql stop
   - sudo /etc/init.d/postgresql stop
