@@ -8,10 +8,13 @@ addons:
     packages:
       - docker-ce # necessary for testing the Dockerfile, which is a multi-stage build see: https://github.com/travis-ci/travis-ci/issues/8181
 language: node_js
+
 node_js:
   - "11.2.0"
+
 jdk:
   - oraclejdk8
+
 sudo: false
 
 cache:
@@ -33,7 +36,7 @@ env:
     - SPRING_JPA_SHOW_SQL=false
 
 before_install:
-#  - jdk_switcher use oraclejdk8
+  - jdk_switcher use openjdk8
   - java -version
   - sudo /etc/init.d/mysql stop
   - sudo /etc/init.d/postgresql stop
