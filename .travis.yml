@@ -36,6 +36,7 @@ env:
     - SPRING_JPA_SHOW_SQL=false
 
 before_install:
+  - source ./util/jdk_switcher.sh
   - jdk_switcher use openjdk8
   - java -version
   - sudo /etc/init.d/mysql stop
