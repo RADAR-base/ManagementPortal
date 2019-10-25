@@ -19,8 +19,8 @@ public abstract class AbstractRadarToken implements RadarToken {
 
     @Override
     public boolean hasAuthority(String authority) {
-        return isClientCredentials() ||
-                getAuthorities().stream().anyMatch(authority::equals);
+        return isClientCredentials()
+                || getAuthorities().stream().anyMatch(authority::equals);
     }
 
 
