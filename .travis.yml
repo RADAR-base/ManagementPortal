@@ -12,9 +12,6 @@ language: node_js
 node_js:
   - "11.2.0"
 
-jdk:
-  - openjdk8
-
 sudo: false
 
 cache:
@@ -37,7 +34,7 @@ env:
 
 before_install:
   - source ./jdk_switcher.sh
-  - jdk_switcher use openjdk8
+  - jdk_switcher use oraclejdk8
   - java -version
   - sudo /etc/init.d/mysql stop
   - sudo /etc/init.d/postgresql stop
