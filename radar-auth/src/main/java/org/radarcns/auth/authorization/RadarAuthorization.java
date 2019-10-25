@@ -15,6 +15,42 @@ public class RadarAuthorization {
     private static final Logger log = LoggerFactory.getLogger(RadarAuthorization.class);
 
     /**
+     * Similar to {@link RadarToken#hasAuthority(String)} (Permission)}, but this method throws an
+     * exception rather than returning a boolean. Useful in combination with e.g. Spring's
+     * controllers and exception translators.
+     * @param token The token of the requester
+     * @param authority The authority to check
+     * @throws NotAuthorizedException if the supplied token does not have the authority
+     */
+    public static void checkAuthority(RadarToken token, String authority)
+            throws NotAuthorizedException {
+        log.debug("Checking authority {} for user {}", authority,
+                token.getSubject());
+        if (!token.hasAuthority(authority)) {
+            throw new NotAuthorizedException(String.format("Request Client %s does not have "
+                    + "authority %s", token.getSubject(), authority));
+        }
+    }
+
+
+    /**
+     * Similar to {@link RadarToken#hasAuthority(String)} (Permission)}, but this method throws an
+     * exception rather than returning a boolean. Useful in combination with e.g. Spring's
+     * controllers and exception translators.
+     * @param token The token of the requester
+     * @param authority The authority to check
+     * @throws NotAuthorizedException if the supplied token does not have the authority
+     */
+    public static void checkAuthorityAndPermission(RadarToken token, String authority,
+            Permission permission)
+            throws NotAuthorizedException {
+        log.debug("Checking authority {} and permission {} for user {}", authority, permission,
+                token.getSubject());
+        checkAuthority(token, authority);
+        checkPermission(token, permission);
+    }
+
+    /**
      * Similar to {@link RadarToken#hasPermission(Permission)}, but this method throws an
      * exception rather than returning a boolean. Useful in combination with e.g. Spring's
      * controllers and exception translators.
