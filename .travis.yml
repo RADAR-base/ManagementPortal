@@ -10,7 +10,7 @@ addons:
 language: java
 
 jdk:
-    - oracle8
+    - oraclejdk8
 
 node_js:
   - "11.2.0"
@@ -36,8 +36,8 @@ env:
     - SPRING_JPA_SHOW_SQL=false
 
 before_install:
-  - source ./jdk_switcher.sh
-  - jdk_switcher use oraclejdk8
+#  - source ./jdk_switcher.sh
+#  - jdk_switcher use oraclejdk8
   - java -version
   - sudo /etc/init.d/mysql stop
   - sudo /etc/init.d/postgresql stop
