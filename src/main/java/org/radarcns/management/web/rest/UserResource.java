@@ -41,11 +41,13 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
+import static org.radarcns.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
 import static org.radarcns.auth.authorization.Permission.PROJECT_READ;
 import static org.radarcns.auth.authorization.Permission.USER_CREATE;
 import static org.radarcns.auth.authorization.Permission.USER_DELETE;
 import static org.radarcns.auth.authorization.Permission.USER_READ;
 import static org.radarcns.auth.authorization.Permission.USER_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkAuthorityAndPermission;
 import static org.radarcns.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarcns.management.security.SecurityUtils.getJWT;
 import static org.radarcns.management.web.rest.errors.EntityName.USER;
@@ -114,7 +116,7 @@ public class UserResource {
     public ResponseEntity createUser(@RequestBody ManagedUserVM managedUserVm)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save User : {}", managedUserVm);
-        checkPermission(getJWT(servletRequest), USER_CREATE);
+        checkAuthorityAndPermission(getJWT(servletRequest), SYS_ADMIN, USER_CREATE);
         if (managedUserVm.getId() != null) {
             return ResponseEntity.badRequest()
                     .headers(HeaderUtil.createFailureAlert(USER, "idexists",
@@ -162,7 +164,7 @@ public class UserResource {
     public ResponseEntity<UserDTO> updateUser(@RequestBody ManagedUserVM managedUserVm)
             throws NotAuthorizedException {
         log.debug("REST request to update User : {}", managedUserVm);
-        checkPermission(getJWT(servletRequest), USER_UPDATE);
+        checkAuthorityAndPermission(getJWT(servletRequest), SYS_ADMIN, USER_UPDATE);
         Optional<User> existingUser = userRepository.findOneByEmail(managedUserVm.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getId()
                 .equals(managedUserVm.getId()))) {
@@ -215,7 +217,7 @@ public class UserResource {
             @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable,
             UserFilter userFilter)
             throws NotAuthorizedException {
-        checkPermission(getJWT(servletRequest), USER_READ);
+        checkAuthorityAndPermission(getJWT(servletRequest), SYS_ADMIN, USER_READ);
 
         Page<UserDTO> page = userService.findUsers(userFilter, pageable);
 

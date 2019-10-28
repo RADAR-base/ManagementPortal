@@ -16,6 +16,7 @@ import { UserDialogComponent } from './user-management-dialog.component';
 
 import { UserMgmtComponent } from './user-management.component';
 import { UserSendActivationLinkComponent } from './user-mgnt-send-activation.component';
+import { SYSTEM_ADMIN} from '../../shared/constants/common.constants';
 
 @Injectable()
 export class UserResolve implements CanActivate {
@@ -55,6 +56,7 @@ export const userMgmtRoute: Routes = [
         },
         data: {
             pageTitle: 'userManagement.home.title',
+            authorities: [SYSTEM_ADMIN],
         },
     },
     {

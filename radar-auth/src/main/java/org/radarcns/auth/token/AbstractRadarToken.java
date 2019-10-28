@@ -18,6 +18,13 @@ public abstract class AbstractRadarToken implements RadarToken {
     protected static final String CLIENT_CREDENTIALS = "client_credentials";
 
     @Override
+    public boolean hasAuthority(String authority) {
+        return isClientCredentials()
+                || getAuthorities().stream().anyMatch(authority::equals);
+    }
+
+
+    @Override
     public boolean hasPermission(Permission permission) {
         return hasScope(permission.scopeName())
                 && (isClientCredentials() || hasAuthorityForPermission(permission));
