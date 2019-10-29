@@ -8,7 +8,7 @@ apply plugin: 'com.jfrog.artifactory'
 
 ext.jacksonVersion = '2.9.9.1'
 ext.jacksonYamlVersion = '2.9.9'
-ext.okhttpVersion = '3.14.1'
+ext.okhttpVersion = '4.2.0'
 ext.oauthJwtVersion = '3.8.0'
 
 description = 'Library for authentication and authorization of JWT tokens issued by the RADAR platform'

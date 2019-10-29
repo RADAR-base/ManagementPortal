@@ -5,7 +5,9 @@ import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -51,7 +53,21 @@ public class JwtRadarToken extends AbstractRadarToken {
         this.jwt = jwt;
         roles = parseRoles(jwt);
         authorities = emptyIfNull(jwt.getClaim(AUTHORITIES_CLAIM).asList(String.class));
-        scopes = emptyIfNull(jwt.getClaim(SCOPE_CLAIM).asList(String.class));
+
+        Claim scopeClaim = jwt.getClaim(SCOPE_CLAIM);
+        String scopeClaimString = scopeClaim.asString();
+
+        if (scopeClaimString != null) {
+            scopes = Arrays.asList(scopeClaimString.split(" "));
+        } else {
+            List<String> scopeClaimList = scopeClaim.asList(String.class);
+            if (scopeClaimList != null) {
+                scopes = scopeClaimList;
+            } else {
+                scopes = Collections.emptyList();
+            }
+        }
+
         sources = emptyIfNull(jwt.getClaim(SOURCES_CLAIM).asList(String.class));
         grantType = emptyIfNull(jwt.getClaim(GRANT_TYPE_CLAIM).asString());
         subject = emptyIfNull(jwt.getSubject());
