@@ -132,7 +132,8 @@ public class TokenValidator {
      * @throws TokenValidationException If the token can not be validated.
      */
     public RadarToken validateAccessToken(String token) throws TokenValidationException {
-        for (JWTVerifier verifier : getVerifiers()) {
+        List<JWTVerifier> localVerifiers = getVerifiers();
+        for (JWTVerifier verifier : localVerifiers) {
             try {
                 DecodedJWT jwt = verifier.verify(token);
 
@@ -180,8 +181,10 @@ public class TokenValidator {
      */
     public void refresh() throws TokenValidationException {
         List<JWTVerifier> localVerifiers = loadVerifiers();
-        synchronized (this) {
-            this.verifiers = localVerifiers;
+        if (!localVerifiers.isEmpty()) {
+            synchronized (this) {
+                this.verifiers = localVerifiers;
+            }
         }
     }
 

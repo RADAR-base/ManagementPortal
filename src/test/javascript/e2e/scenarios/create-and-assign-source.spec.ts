@@ -1,6 +1,6 @@
 import { browser, element, by, $ } from 'protractor';
 
-describe('Create, assign, unassign and delete source', () => {
+describe('Project View: Create, assign, unassign and delete source', () => {
 
     const username = element(by.id('username'));
     const password = element(by.id('password'));

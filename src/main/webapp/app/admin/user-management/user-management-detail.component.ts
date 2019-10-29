@@ -37,4 +37,8 @@ export class UserMgmtDetailComponent implements OnInit, OnDestroy {
         this.subscription.unsubscribe();
     }
 
+    previousState() {
+        window.history.back();
+    }
+
 }

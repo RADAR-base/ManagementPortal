@@ -11,7 +11,6 @@ import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -21,9 +20,9 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import java.util.stream.Stream;
 import org.radarcns.auth.authorization.Permission;
 import org.radarcns.auth.config.TokenValidatorConfig;
-import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.security.JwtAuthenticationFilter;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
@@ -87,33 +86,36 @@ public class OAuthHelper {
      */
     public static void setUp() throws Exception {
         KeyStore ks = KeyStore.getInstance("PKCS12");
-        InputStream keyStream = OAuthHelper.class
-                .getClassLoader().getResourceAsStream("config/keystore.p12");
-        ks.load(keyStream, TEST_KEYSTORE_PASSWORD.toCharArray());
+        try (InputStream keyStream = OAuthHelper.class
+                .getClassLoader().getResourceAsStream("config/keystore.p12")) {
+            if (keyStream == null) {
+                throw new IllegalStateException("Cannot find keystore to set up OAuth");
+            }
 
-        // get the EC keypair for signing
-        ECPrivateKey privateKey = (ECPrivateKey) ks.getKey(TEST_SIGNKEY_ALIAS,
-                TEST_KEYSTORE_PASSWORD.toCharArray());
-        Certificate cert = ks.getCertificate(TEST_SIGNKEY_ALIAS);
-        ECPublicKey publicKey = (ECPublicKey) cert.getPublicKey();
+            ks.load(keyStream, TEST_KEYSTORE_PASSWORD.toCharArray());
 
-        Algorithm ecdsa = Algorithm.ECDSA256(publicKey, privateKey);
-        validEcToken = createValidToken(ecdsa);
-        superUserToken = JWT.decode(validEcToken);
+            // get the EC keypair for signing
+            ECPrivateKey privateKey = (ECPrivateKey) ks.getKey(TEST_SIGNKEY_ALIAS,
+                    TEST_KEYSTORE_PASSWORD.toCharArray());
+            Certificate cert = ks.getCertificate(TEST_SIGNKEY_ALIAS);
+            ECPublicKey publicKey = (ECPublicKey) cert.getPublicKey();
 
-        // also get an RSA keypair to test accepting multiple keys
-        RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) ks.getKey(TEST_CHECKKEY_ALIAS,
-                TEST_KEYSTORE_PASSWORD.toCharArray());
-        RSAPublicKey rsaPublicKey = (RSAPublicKey) ks.getCertificate(TEST_CHECKKEY_ALIAS)
-                .getPublicKey();
-        Algorithm rsa = Algorithm.RSA256(rsaPublicKey, rsaPrivateKey);
-        validRsaToken = createValidToken(rsa);
-        keyStream.close();
+            Algorithm ecdsa = Algorithm.ECDSA256(publicKey, privateKey);
+            validEcToken = createValidToken(ecdsa);
+            superUserToken = JWT.decode(validEcToken);
 
-        verifiers = Arrays.asList(ecdsa, rsa)
-                .stream()
-                .map(alg -> JWT.require(alg).withIssuer(ISS).build())
-                .collect(Collectors.toList());
+            // also get an RSA keypair to test accepting multiple keys
+            RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) ks.getKey(TEST_CHECKKEY_ALIAS,
+                    TEST_KEYSTORE_PASSWORD.toCharArray());
+            RSAPublicKey rsaPublicKey = (RSAPublicKey) ks.getCertificate(TEST_CHECKKEY_ALIAS)
+                    .getPublicKey();
+            Algorithm rsa = Algorithm.RSA256(rsaPublicKey, rsaPrivateKey);
+            validRsaToken = createValidToken(rsa);
+
+            verifiers = Stream.of(ecdsa, rsa)
+                    .map(alg -> JWT.require(alg).withIssuer(ISS).build())
+                    .collect(Collectors.toList());
+        }
     }
 
     /**
@@ -122,18 +124,17 @@ public class OAuthHelper {
      * @return an initialized JwtAuthenticationFilter
      */
     public static JwtAuthenticationFilter createAuthenticationFilter() {
+        return new JwtAuthenticationFilter(createTokenValidator());
+    }
 
-        ManagementPortalProperties.Oauth oauthConfig = new ManagementPortalProperties.Oauth();
-        oauthConfig.setKeyStorePassword(TEST_KEYSTORE_PASSWORD);
-        oauthConfig.setSigningKeyAlias(TEST_SIGNKEY_ALIAS);
-        oauthConfig.setCheckingKeyAliases(Collections.singletonList(TEST_CHECKKEY_ALIAS));
-
-        ManagementPortalProperties properties = new ManagementPortalProperties();
-        properties.setOauth(oauthConfig);
-
+    /**
+     * Helper method to initialize a token validator for use in test classes.
+     *
+     * @return configured TokenValidator
+     */
+    public static TokenValidator createTokenValidator() {
         // Use tokenValidator with known JWTVerifier which signs.
-        return new JwtAuthenticationFilter(
-                new TokenValidator(verifiers, getDummyValidatorConfig()));
+        return new TokenValidator(verifiers, getDummyValidatorConfig());
     }
 
     private static TokenValidatorConfig getDummyValidatorConfig() {

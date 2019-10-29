@@ -63,10 +63,10 @@ public class Permissions {
         // for all authorities except for SYS_ADMIN, the authority is scoped to a project, which
         // is checked elsewhere
         // Project Admin - has all currently defined permissions except creating new projects
-        // and writing data
+        // Note: from radar-auth:0.5.7 we allow PROJECT_ADMIN to create measurements.
+        // This can be done by uploading data through the web application.
         PERMISSION_MATRIX.entrySet().stream()
-            .filter(e -> !Arrays.asList(Permission.PROJECT_CREATE, Permission.MEASUREMENT_CREATE)
-                .contains(e.getKey()))
+            .filter(e -> e.getKey() != Permission.PROJECT_CREATE)
             .forEach(e -> e.getValue().add(PROJECT_ADMIN));
 
         /* Project Owner */

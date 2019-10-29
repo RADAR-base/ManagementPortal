@@ -1,6 +1,6 @@
 import { browser, element, by, $ } from 'protractor';
 
-describe('Generate QR code', () => {
+describe('Project view: Generate QR code', () => {
 
     const username = element(by.id('username'));
     const password = element(by.id('password'));

@@ -107,6 +107,17 @@ public interface RadarToken {
     /**
      * Check if this token gives the given permission, not taking into account project affiliations.
      *
+     * <p>This token <strong>must</strong> have the authority in its set of authorities. If it's a
+     * client credentials token, this is the only requirement, as a client credentials token is
+     * linked to an OAuth client and not to a user in the system.
+     * @param authority The permission to check
+     * @return {@code true} if this token has the permission, {@code false} otherwise
+     */
+    boolean hasAuthority(String authority);
+
+    /**
+     * Check if this token gives the given permission, not taking into account project affiliations.
+     *
      * <p>This token <strong>must</strong> have the permission in its set of scopes. If it's a
      * client credentials token, this is the only requirement, as a client credentials token is
      * linked to an OAuth client and not to a user in the system. If it's not a client
@@ -145,4 +156,11 @@ public interface RadarToken {
      */
     boolean hasPermissionOnSource(Permission permission, String projectName, String subjectName,
             String sourceId);
+
+    /**
+     * Whether the current credentials were obtained with a OAuth 2.0 client credentials flow.
+     *
+     * @return true if the client credentials flow was certainly used, false otherwise.
+     */
+    boolean isClientCredentials();
 }
