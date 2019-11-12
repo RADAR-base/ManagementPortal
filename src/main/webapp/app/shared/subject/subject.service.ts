@@ -48,7 +48,7 @@ export class SubjectService {
 
     findRevisions(login: string, req?: any): Observable<Response> {
         const options = this.createRequestOption(req);
-        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/revisions`);
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/revisions`, options);
     }
 
     query(req?: any): Observable<Response> {
