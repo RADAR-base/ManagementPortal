@@ -110,7 +110,7 @@ public class ManagementPortalOauthKeyStoreHandler {
         }
 
         this.managementPortalBaseUrl = "http://localhost:"
-                + environment.getProperty("local.server.port")
+                + environment.getProperty("server.port")
                 + servletContext.getContextPath();
         logger.info("Using Management Portal base-url {}", this.managementPortalBaseUrl);
 
