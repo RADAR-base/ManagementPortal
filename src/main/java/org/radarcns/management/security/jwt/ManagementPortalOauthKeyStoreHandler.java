@@ -16,11 +16,13 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.RSAPrivateKey;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -58,15 +60,15 @@ public class ManagementPortalOauthKeyStoreHandler {
     private static final Logger logger = LoggerFactory.getLogger(
             ManagementPortalOauthKeyStoreHandler.class);
 
-    private final char[] password;
-
-    private final KeyStore store;
-
     private static final List<Resource> keystorePaths = Arrays.asList(
             new ClassPathResource("/config/keystore.p12"),
             new ClassPathResource("/config/keystore.jks"));
 
-    private Resource loadedResource;
+    private final char[] password;
+
+    private final KeyStore store;
+
+    private final Resource loadedResource;
 
     private final ManagementPortalProperties.Oauth oauthConfig;
 
@@ -74,14 +76,11 @@ public class ManagementPortalOauthKeyStoreHandler {
 
     private final String managementPortalBaseUrl;
 
-    private final Boolean enableAdditionalPublicKeyVerifiers;
-
-    private TokenValidatorConfig deprecatedValidatedConfig;
+    private final TokenValidatorConfig deprecatedValidatedConfig;
 
     private final List<JWTVerifier> verifiers;
 
     private final AlgorithmLoader algorithmLoader = new AlgorithmLoader();
-
 
     /**
      * Keystore factory. This tries to load the first valid keystore listed in resources.
@@ -99,10 +98,17 @@ public class ManagementPortalOauthKeyStoreHandler {
 
         this.oauthConfig = managementPortalProperties.getOauth();
         this.password = oauthConfig.getKeyStorePassword().toCharArray();
-        this.store = loadStore();
+        Map.Entry<Resource, KeyStore> loadedStore = loadStore();
+        this.loadedResource = loadedStore.getKey();
+        this.store = loadedStore.getValue();
         this.verifierPublicKeyAliasList = loadVerifiersPublicKeyAliasList();
-        this.enableAdditionalPublicKeyVerifiers =
-                managementPortalProperties.getOauth().getEnablePublicKeyVerifiers();
+
+        if (managementPortalProperties.getOauth().getEnablePublicKeyVerifiers()) {
+            this.deprecatedValidatedConfig = TokenVerifierPublicKeyConfig.readFromFileOrClasspath();
+        } else {
+            this.deprecatedValidatedConfig = null;
+        }
+
         this.managementPortalBaseUrl = "http://localhost:"
                 + environment.getProperty("local.server.port")
                 + servletContext.getContextPath();
@@ -118,18 +124,15 @@ public class ManagementPortalOauthKeyStoreHandler {
      */
     @SuppressWarnings("deprecation")
     private Stream<JWTVerifier> loadDeprecatedVerifiers() {
-        if (enableAdditionalPublicKeyVerifiers) {
-            deprecatedValidatedConfig = TokenVerifierPublicKeyConfig.readFromFileOrClasspath();
-            if (deprecatedValidatedConfig != null) {
-                return deprecatedValidatedConfig.getPublicKeys()
-                        .stream()
-                        .map(algorithmLoader::loadDeprecatedAlgorithmFromPublicKey)
-                        .filter(Objects::nonNull)
-                        .map(algo -> AlgorithmLoader.buildVerifier(algo, RES_MANAGEMENT_PORTAL));
-            }
+        if (deprecatedValidatedConfig == null) {
+            return Stream.empty();
         }
 
-        return Stream.empty();
+        return deprecatedValidatedConfig.getPublicKeys()
+                .stream()
+                .map(algorithmLoader::loadDeprecatedAlgorithmFromPublicKey)
+                .filter(Objects::nonNull)
+                .map(algo -> AlgorithmLoader.buildVerifier(algo, RES_MANAGEMENT_PORTAL));
     }
 
     private static void checkOAuthConfig(ManagementPortalProperties managementPortalProperties) {
@@ -155,7 +158,8 @@ public class ManagementPortalOauthKeyStoreHandler {
 
     }
 
-    private @Nonnull KeyStore loadStore() {
+    @Nonnull
+    private Map.Entry<Resource, KeyStore> loadStore() {
         for (Resource resource : keystorePaths) {
             if (!resource.exists()) {
                 logger.debug("JWT key store {} does not exist. Ignoring this resource", resource);
@@ -168,8 +172,7 @@ public class ManagementPortalOauthKeyStoreHandler {
                 KeyStore localStore = KeyStore.getInstance(type);
                 localStore.load(resource.getInputStream(), this.password);
                 logger.debug("Loaded JWT key store {}", resource);
-                this.loadedResource = resource;
-                return localStore;
+                return new AbstractMap.SimpleImmutableEntry<>(resource, localStore);
             } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException
                     | IOException ex) {
                 logger.error("Cannot load JWT key store", ex);
@@ -354,11 +357,9 @@ public class ManagementPortalOauthKeyStoreHandler {
             @Override
             @SuppressWarnings("deprecation")
             public List<String> getPublicKeys() {
-                if (enableAdditionalPublicKeyVerifiers) {
-                    return deprecatedValidatedConfig.getPublicKeys();
-                } else {
-                    return Collections.emptyList();
-                }
+                return deprecatedValidatedConfig != null
+                        ? deprecatedValidatedConfig.getPublicKeys()
+                        : Collections.emptyList();
             }
         };
     }
