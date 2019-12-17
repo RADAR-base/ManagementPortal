@@ -23,11 +23,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import javax.servlet.ServletContext;
 import org.radarcns.auth.authentication.AlgorithmLoader;
 import org.radarcns.auth.authentication.TokenValidator;
 import org.radarcns.auth.config.TokenValidatorConfig;
@@ -39,6 +41,8 @@ import org.radarcns.management.security.jwt.algorithm.JwtAlgorithm;
 import org.radarcns.management.security.jwt.algorithm.RsaJwtAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -68,13 +72,13 @@ public class ManagementPortalOauthKeyStoreHandler {
 
     private final List<String> verifierPublicKeyAliasList;
 
-    private String managementPortalBaseUrl;
+    private final String managementPortalBaseUrl;
 
     private final Boolean enableAdditionalPublicKeyVerifiers;
-    
+
     private TokenValidatorConfig deprecatedValidatedConfig;
 
-    private final List<JWTVerifier> verifiers = new ArrayList<>();
+    private final List<JWTVerifier> verifiers;
 
     private final AlgorithmLoader algorithmLoader = new AlgorithmLoader();
 
@@ -85,10 +89,13 @@ public class ManagementPortalOauthKeyStoreHandler {
      * @throws IllegalArgumentException if none of the provided resources can be used to load a
      *                                  keystore.
      */
-    private ManagementPortalOauthKeyStoreHandler(
+    @Autowired
+    public ManagementPortalOauthKeyStoreHandler(
+            Environment environment,
+            ServletContext servletContext,
             ManagementPortalProperties managementPortalProperties) {
 
-        validateOauthConfig(managementPortalProperties);
+        checkOAuthConfig(managementPortalProperties);
 
         this.oauthConfig = managementPortalProperties.getOauth();
         this.password = oauthConfig.getKeyStorePassword().toCharArray();
@@ -96,56 +103,36 @@ public class ManagementPortalOauthKeyStoreHandler {
         this.verifierPublicKeyAliasList = loadVerifiersPublicKeyAliasList();
         this.enableAdditionalPublicKeyVerifiers =
                 managementPortalProperties.getOauth().getEnablePublicKeyVerifiers();
-        configureBaseUrl(managementPortalProperties);
+        this.managementPortalBaseUrl = "http://localhost:"
+                + environment.getProperty("local.server.port")
+                + servletContext.getContextPath();
+        logger.info("Using Management Portal base-url {}", this.managementPortalBaseUrl);
 
-        //load verifiers
-        loadVerifiersFromAlias();
-        loadDeprecatedVerifiers();
+        verifiers = Stream.concat(loadVerifiersFromAlias(), loadDeprecatedVerifiers())
+                .collect(Collectors.toList());
     }
 
     /**
-     * Load deprecated verifiers if configured to load.
+     * Load deprecated verifiers if configured to load. This may yield no results.
+     * @return deprecated verifiers in a stream.
      */
-    private void loadDeprecatedVerifiers() {
+    @SuppressWarnings("deprecation")
+    private Stream<JWTVerifier> loadDeprecatedVerifiers() {
         if (enableAdditionalPublicKeyVerifiers) {
             deprecatedValidatedConfig = TokenVerifierPublicKeyConfig.readFromFileOrClasspath();
             if (deprecatedValidatedConfig != null) {
-                this.verifiers.addAll(deprecatedValidatedConfig.getPublicKeys()
+                return deprecatedValidatedConfig.getPublicKeys()
                         .stream()
                         .map(algorithmLoader::loadDeprecatedAlgorithmFromPublicKey)
                         .filter(Objects::nonNull)
-                        .map(algo -> AlgorithmLoader.buildVerifier(algo, RES_MANAGEMENT_PORTAL))
-                        .collect(Collectors.toList()));
+                        .map(algo -> AlgorithmLoader.buildVerifier(algo, RES_MANAGEMENT_PORTAL));
             }
         }
 
+        return Stream.empty();
     }
 
-    private void configureBaseUrl(ManagementPortalProperties managementPortalProperties) {
-        String baseUrl = managementPortalProperties.getCommon().getBaseUrl();
-        if (baseUrl == null || baseUrl.isEmpty()) {
-            // this will be the production url when MP is running
-            this.managementPortalBaseUrl = "http://localhost:8080/managementportal";
-            logger.warn("managementportal.common.managementPortalBaseUrl is not configured. Using"
-                    + " default value {}", this.managementPortalBaseUrl);
-        }
-
-        this.managementPortalBaseUrl =
-                managementPortalProperties.getCommon().getManagementPortalBaseUrl();
-        logger.info("Using Management Portal base-url {}", this.managementPortalBaseUrl);
-    }
-
-    /**
-     * Creates a {@link ManagementPortalOauthKeyStoreHandler} instance from provided configs.
-     * @param managementPortalProperties configs from management portal.
-     * @return instance of {@link ManagementPortalOauthKeyStoreHandler}.
-     */
-    public static ManagementPortalOauthKeyStoreHandler build(
-            ManagementPortalProperties managementPortalProperties) {
-        return new ManagementPortalOauthKeyStoreHandler(managementPortalProperties);
-    }
-
-    private static void validateOauthConfig(ManagementPortalProperties managementPortalProperties) {
+    private static void checkOAuthConfig(ManagementPortalProperties managementPortalProperties) {
         ManagementPortalProperties.Oauth oauthConfig = managementPortalProperties.getOauth();
 
         if ( oauthConfig == null ) {
@@ -185,7 +172,7 @@ public class ManagementPortalOauthKeyStoreHandler {
                 return localStore;
             } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException
                     | IOException ex) {
-                logger.error("Cannot load JWT key store {}", ex);
+                logger.error("Cannot load JWT key store", ex);
             }
         }
         throw new IllegalArgumentException("Cannot load any of the given JWT key stores "
@@ -217,16 +204,14 @@ public class ManagementPortalOauthKeyStoreHandler {
     /**
      * Load default verifiers from configured keystore and aliases.
      */
-    private void loadVerifiersFromAlias() {
-        List<JWTVerifier> verifiersFromKey = this.verifierPublicKeyAliasList.stream()
+    private Stream<JWTVerifier> loadVerifiersFromAlias() {
+        return this.verifierPublicKeyAliasList.stream()
                 .map(this::getKeyPair)
                 .map(ManagementPortalOauthKeyStoreHandler::getJwtAlgorithm)
                 .filter(Objects::nonNull)
                 .map(JwtAlgorithm::getAlgorithm)
                 .filter(Objects::nonNull)
-                .map(algo -> AlgorithmLoader.buildVerifier(algo, RES_MANAGEMENT_PORTAL))
-                .collect(Collectors.toList());
-        this.verifiers.addAll(verifiersFromKey);
+                .map(algo -> AlgorithmLoader.buildVerifier(algo, RES_MANAGEMENT_PORTAL));
     }
 
     public List<JWTVerifier> getVerifiers() {
@@ -367,6 +352,7 @@ public class ManagementPortalOauthKeyStoreHandler {
             // management-portal should support old verifiers to verify refresh-tokens, if
             // configured. otherwise, use the token_key endpoint only.
             @Override
+            @SuppressWarnings("deprecation")
             public List<String> getPublicKeys() {
                 if (enableAdditionalPublicKeyVerifiers) {
                     return deprecatedValidatedConfig.getPublicKeys();
