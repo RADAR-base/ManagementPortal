@@ -180,7 +180,7 @@ public class OAuth2ServerConfiguration {
         private JdbcClientDetailsService jdbcClientDetailsService;
 
         @Autowired
-        private ManagementPortalProperties managementPortalProperties;
+        private ManagementPortalOauthKeyStoreHandler keyStoreHandler;
 
         @Bean
         protected AuthorizationCodeServices authorizationCodeServices() {
@@ -210,10 +210,9 @@ public class OAuth2ServerConfiguration {
         @Bean
         public ManagementPortalJwtAccessTokenConverter accessTokenConverter() {
             logger.debug("loading token converter from keystore configurations");
-            ManagementPortalOauthKeyStoreHandler keyFactory =
-                    ManagementPortalOauthKeyStoreHandler.build(managementPortalProperties);
-            return new ManagementPortalJwtAccessTokenConverter(keyFactory.getAlgorithmForSigning(),
-                    keyFactory.getVerifiers());
+            return new ManagementPortalJwtAccessTokenConverter(
+                    keyStoreHandler.getAlgorithmForSigning(),
+                    keyStoreHandler.getVerifiers());
         }
 
         @Bean

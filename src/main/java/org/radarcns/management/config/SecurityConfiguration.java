@@ -44,7 +44,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
-    private ManagementPortalProperties managementPortalProperties;
+    private ManagementPortalOauthKeyStoreHandler keyStoreHandler;
 
     @PostConstruct
     public void init() {
@@ -144,8 +144,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
      * @return the JwtAuthenticationFilter
      */
     public Filter jwtAuthenticationFilter() {
-        ManagementPortalOauthKeyStoreHandler keyStoreKeyFactory =
-                ManagementPortalOauthKeyStoreHandler.build(managementPortalProperties);
-        return new JwtAuthenticationFilter(keyStoreKeyFactory.getTokenValidator());
+        return new JwtAuthenticationFilter(keyStoreHandler.getTokenValidator());
     }
 }

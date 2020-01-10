@@ -9,7 +9,7 @@
 # postgres database instead of in-memory database.
 
 # only run on the release branch and master branch if it's not a tag build
-if [[ $TRAVIS_BRANCH == release-* ]] || ( [[ $TRAVIS_BRANCH == master ]] && [ -z $TRAVIS_TAG ] )
+if [[ $TRAVIS_BRANCH == release-* || ($TRAVIS_BRANCH == master && -z $TRAVIS_TAG) ]]
 then
   echo "Running production e2e tests"
   sed -i "s|new plugin.BaseHrefWebpackPlugin({ baseHref: '/' })|new plugin.BaseHrefWebpackPlugin({ baseHref: '/managementportal/' })|" webpack/webpack.dev.js
@@ -20,7 +20,7 @@ then
   # wait for app to be up
   $TRAVIS_BUILD_DIR/util/wait-for-app.sh http://localhost:8080/managementportal/
   docker-compose -f src/main/docker/app.yml logs # show output of app startup
-  yarn webdriver-manager update --versions.chrome 77.0.3865.10
+  yarn webdriver-manager update --versions.chrome "$(google-chrome --version | grep -iE "[0-9.]{10,20}")"
   yarn e2e # run e2e tests against production mode
   docker-compose -f src/main/docker/app.yml down -v # clean up containers and volumes
   git checkout src/test/javascript/protractor.conf.js
