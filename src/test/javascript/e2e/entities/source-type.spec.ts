@@ -1,4 +1,4 @@
-import { browser, element, by, $ } from 'protractor';
+import { $, browser, by, element } from 'protractor';
 
 describe('SourceType e2e test', () => {
 
@@ -9,71 +9,64 @@ describe('SourceType e2e test', () => {
     const login = element(by.id('login'));
     const logout = element(by.id('logout'));
 
-    beforeAll(() => {
-        browser.get('#');
+    beforeAll(async() => {
+        await browser.get('#');
 
-        accountMenu.click();
-        login.click();
+        await accountMenu.click();
+        await login.click();
 
-        username.sendKeys('admin');
-        password.sendKeys('admin');
-        element(by.css('button[type=submit]')).click();
-        browser.waitForAngular();
+        await username.sendKeys('admin');
+        await password.sendKeys('admin');
+        await element(by.css('button[type=submit]')).click();
+        await browser.waitForAngular();
     });
 
-    it('should load SourceTypes', () => {
-        entityMenu.click();
-        element.all(by.css('[routerLink="source-type"]')).first().click().then(() => {
-            const expectVal = /managementPortalApp.sourceType.home.title/;
-            element.all(by.css('h2 span')).first().getAttribute('jhiTranslate').then((value) => {
-                expect(value).toMatch(expectVal);
-            });
-        });
+    it('should load SourceTypes', async() => {
+        await entityMenu.click();
+        await element.all(by.css('[routerLink="source-type"]')).first().click();
+        const expectVal = /managementPortalApp.sourceType.home.title/;
+
+        const pageTitle = element.all(by.css('h2 span')).first();
+        expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
     });
 
-    it('should load create SourceType dialog', function() {
-        element(by.css('button.create-source-type')).click().then(() => {
-            const expectVal = /managementPortalApp.sourceType.home.createOrEditLabel/;
-            element.all(by.css('h4.modal-title')).first().getAttribute('jhiTranslate').then((value) => {
-                expect(value).toMatch(expectVal);
-            });
+    it('should load create SourceType dialog', async() => {
+        await element(by.css('button.create-source-type')).click();
 
-            element(by.css('button.close')).click();
-        });
+        const expectVal = /managementPortalApp.sourceType.home.createOrEditLabel/;
+        const modalTitle = element.all(by.css('h4.modal-title')).first();
+        expect((await modalTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
+
+        await element(by.css('button.close')).click();
     });
 
-    it('should be able to create SourceType', function() {
-        element(by.css('button.create-source-type')).click().then(() => {
-            element(by.id('field_producer')).sendKeys('test-producer');
-            element(by.id('field_model')).sendKeys('test-model');
-            element(by.id('field_catalogVersion')).sendKeys('v1');
-            // select first option in the source type scope dropdown
-            element(by.id('field_sourceTypeScope')).all(by.tagName('option')).then(function(options) {
-              options[0].click();
-            });
-            element(by.css('jhi-source-type-dialog')).element(by.buttonText('Save')).click();
-        });
+    it('should be able to create SourceType', async() => {
+        await element(by.css('button.create-source-type')).click();
+        await element(by.id('field_producer')).sendKeys('test-producer');
+        await element(by.id('field_model')).sendKeys('test-model');
+        await element(by.id('field_catalogVersion')).sendKeys('v1');
+        // select first option in the source type scope dropdown
+        await element(by.id('field_sourceTypeScope')).all(by.tagName('option')).first().click();
+        await element(by.css('jhi-source-type-dialog')).element(by.buttonText('Save')).click();
     });
 
-    it('should be able to edit SourceType', () => {
-        browser.waitForAngular();
-        element(by.cssContainingText('td', 'test-producer')).element(by.xpath('ancestor::tr'))
-                .element(by.cssContainingText('button', 'Edit')).click().then(() => {
-            browser.waitForAngular();
-            element(by.cssContainingText('button.btn-primary', 'Save')).click();
-        });
+    it('should be able to edit SourceType', async() => {
+        await browser.waitForAngular();
+        await element(by.cssContainingText('td', 'test-producer')).element(by.xpath('ancestor::tr'))
+            .element(by.cssContainingText('button', 'Edit')).click();
+        await browser.waitForAngular();
+        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
     });
 
-    it('should be able to delete SourceType', () => {
-        element(by.cssContainingText('td', 'test-producer')).element(by.xpath('ancestor::tr'))
-                .element(by.cssContainingText('button', 'Delete')).click().then(() => {
-            browser.waitForAngular();
-            element(by.cssContainingText('jhi-source-type-delete-dialog button.btn-danger', 'Delete')).click();
-        });
+    it('should be able to delete SourceType', async() => {
+        await element(by.cssContainingText('td', 'test-producer')).element(by.xpath('ancestor::tr'))
+            .element(by.cssContainingText('button', 'Delete')).click();
+        await browser.waitForAngular();
+        await element(by.cssContainingText('jhi-source-type-delete-dialog button.btn-danger', 'Delete')).click();
     });
 
-    afterAll(function() {
-        accountMenu.click();
-        logout.click();
+    afterAll(async() => {
+        await accountMenu.click();
+        await logout.click();
     });
 });

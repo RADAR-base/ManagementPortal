@@ -10,16 +10,16 @@ describe('account', () => {
 
     let originalTimeOut;
 
-    beforeAll(async () => {
+    beforeAll(async() => {
         await browser.get('#');
     });
 
-    beforeEach(async () => {
+    beforeEach(async() => {
         originalTimeOut = jasmine.DEFAULT_TIMEOUT_INTERVAL;
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 240000;
     });
 
-    it('should fail to login with bad password', async () => {
+    it('should fail to login with bad password', async() => {
         const expect1 = /home.title/;
         element.all(by.css('h1')).first().getAttribute('jhiTranslate').then((value) => {
             expect(value).toMatch(expect1);
@@ -36,7 +36,7 @@ describe('account', () => {
         expect((await alertMessage.getAttribute('jhiTranslate'))).toMatch(expect2);
     });
 
-    it('should login successfully with admin account', async () => {
+    it('should login successfully with admin account', async() => {
         const expect1 = /login.title/;
         const modalTitle = element.all(by.css('.modal-content h1')).first();
         expect((await modalTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
@@ -54,7 +54,7 @@ describe('account', () => {
         expect((await successMessage.getAttribute('jhiTranslate'))).toMatch(expect2);
     });
 
-    it('should be able to update settings', async () => {
+    it('should be able to update settings', async() => {
         await accountMenu.click();
         await element(by.css('[routerLink="settings"]')).click();
 
@@ -69,7 +69,7 @@ describe('account', () => {
         expect((await successMessage.getAttribute('jhiTranslate'))).toMatch(expect2);
     });
 
-    it('should be able to update password', async () => {
+    it('should be able to update password', async() => {
         await accountMenu.click();
         await element(by.css('[routerLink="password"]')).click();
 
@@ -111,7 +111,7 @@ describe('account', () => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeOut;
     });
 
-    afterAll(async () => {
+    afterAll(async() => {
         await accountMenu.click();
         await logout.click();
     });

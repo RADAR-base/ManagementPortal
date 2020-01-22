@@ -1,4 +1,4 @@
-import { browser, element, by } from 'protractor';
+import { browser, by, element } from 'protractor';
 
 describe('Project view: Generate QR code', () => {
 
@@ -9,47 +9,40 @@ describe('Project view: Generate QR code', () => {
     const login = element(by.id('login'));
     const logout = element(by.id('logout'));
 
-    beforeAll(() => {
-        browser.get('#');
+    beforeAll(async() => {
+        await browser.get('#');
 
-        accountMenu.click();
-        login.click();
+        await accountMenu.click();
+        await login.click();
 
-        username.sendKeys('admin');
-        password.sendKeys('admin');
-        element(by.css('button[type=submit]')).click();
-        browser.waitForAngular();
+        await username.sendKeys('admin');
+        await password.sendKeys('admin');
+        await element(by.css('button[type=submit]')).click();
+        await browser.waitForAngular();
     });
 
-    it('should load project view', function() {
-        projectMenu.click();
-        element.all(by.partialLinkText('radar')).first().click().then(() => {
-            expect(element(by.className('status-header')).getText()).toMatch('RADAR');
-            // expect 3 subjects in this table
-            element.all(by.css('jhi-subjects tbody tr')).count().then(function(count) {
-                expect(count).toEqual(3);
-            });
-        });
+    it('should load project view', async() => {
+        await projectMenu.click();
+        await element.all(by.partialLinkText('radar')).first().click();
+        expect(element(by.className('status-header')).getText()).toMatch('RADAR');
+        // expect 3 subjects in this table
+        expect((await element.all(by.css('jhi-subjects tbody tr')).count())).toEqual(3);
     });
 
-    it('should open pair app dialog', function() {
-        element.all(by.buttonText('Pair App')).first().click().then(() => {
-            expect(element.all(by.name('pairForm')).all(by.css('h4')).first().getAttribute('jhitranslate'))
-                .toMatch('managementPortalApp.subject.home.pairAppLabel');
-        });
+    it('should open pair app dialog', async() => {
+        await element.all(by.buttonText('Pair App')).first().click();
+        expect(element.all(by.name('pairForm')).all(by.css('h4')).first().getAttribute('jhitranslate'))
+            .toMatch('managementPortalApp.subject.home.pairAppLabel');
     });
 
-    it('should be able to create a qr code', function() {
-        element(by.name('pairForm')).element(by.cssContainingText('option', 'pRMT')).click().then(() => {
-            element.all(by.css('qrcode')).count().then(function(count) {
-                expect(count).toBe(1);
-            });
-            element(by.css('button.close')).click();
-        });
+    it('should be able to create a qr code', async() => {
+        await element(by.name('pairForm')).element(by.cssContainingText('option', 'pRMT')).click();
+        expect((await element.all(by.css('qrcode')).count())).toBe(1);
+        await element(by.css('button.close')).click();
     });
 
-    afterAll(function() {
-        accountMenu.click();
-        logout.click();
+    afterAll(async() => {
+        await accountMenu.click();
+        await logout.click();
     });
 });

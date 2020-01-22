@@ -1,4 +1,4 @@
-import { browser, element, by, $ } from 'protractor';
+import { $, browser, by, element } from 'protractor';
 
 describe('Source e2e test', () => {
 
@@ -9,90 +9,75 @@ describe('Source e2e test', () => {
     const login = element(by.id('login'));
     const logout = element(by.id('logout'));
 
-    beforeAll(() => {
-        browser.get('#');
+    beforeAll(async() => {
+        await browser.get('#');
 
-        accountMenu.click();
-        login.click();
+        await accountMenu.click();
+        await login.click();
 
-        username.sendKeys('admin');
-        password.sendKeys('admin');
-        element(by.css('button[type=submit]')).click();
-        browser.waitForAngular();
+        await username.sendKeys('admin');
+        await password.sendKeys('admin');
+        await element(by.css('button[type=submit]')).click();
+        await browser.waitForAngular();
     });
 
-    it('should load Sources', () => {
-        entityMenu.click();
-        element.all(by.css('[routerLink="source"]')).first().click().then(() => {
-            const expectVal = /managementPortalApp.source.home.title/;
-            element.all(by.css('h4 span')).first().getAttribute('jhiTranslate').then((value) => {
-                expect(value).toMatch(expectVal);
-            });
-        });
+    it('should load Sources', async() => {
+        await entityMenu.click();
+        await element.all(by.css('[routerLink="source"]')).first().click();
+
+        const expectVal = /managementPortalApp.source.home.title/;
+        const pageTitle = element.all(by.css('h4 span')).first();
+        expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
     });
 
-    it('should load create Source dialog', function() {
-        element(by.css('button.create-source')).click().then(() => {
-            const expectVal = /managementPortalApp.source.home.createOrEditLabel/;
-            element.all(by.css('h4.modal-title')).first().getAttribute('jhiTranslate').then((value) => {
-                expect(value).toMatch(expectVal);
-            });
+    it('should load create Source dialog', async() => {
+        await element(by.css('button.create-source')).click();
 
-            element(by.css('button.close')).click();
-        });
+        const expectVal = /managementPortalApp.source.home.createOrEditLabel/;
+        const modalTitle = element.all(by.css('h4.modal-title')).first();
+        expect((await modalTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
+
+        await element(by.css('button.close')).click();
     });
 
-    it('should be able to create new source', () => {
-        element(by.cssContainingText('button.btn-primary', 'Create a new Source')).click().then(() => {
-            element(by.name('sourceName')).sendKeys('test-source1');
-            element(by.name('expectedSourceName')).sendKeys('A007C');
-            element(by.name('project')).sendKeys('radar');
-            element(by.name('sourceType')).sendKeys('Empatica_E4_v1');
+    it('should be able to create new source', async() => {
+        await element(by.cssContainingText('button.btn-primary', 'Create a new Source')).click();
+        await element(by.name('sourceName')).sendKeys('test-source1');
+        await element(by.name('expectedSourceName')).sendKeys('A007C');
+        await element(by.name('project')).sendKeys('radar');
+        await element(by.name('sourceType')).sendKeys('Empatica_E4_v1');
 
-            element(by.cssContainingText('button.btn-primary', 'Save')).click().then(() => {
-                browser.waitForAngular();
-                element.all(by.css('jhi-source tbody tr')).count().then(function(count) {
-                    expect(count).toEqual(2);
-                });
-            });
-        });
+        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
+        await browser.waitForAngular();
+        expect((await element.all(by.css('jhi-source tbody tr')).count())).toEqual(2);
     });
 
-    it('should be able to edit a source', () => {
-        element.all(by.cssContainingText('jhi-source tbody tr td', 'test-source1'))
-                .all(by.xpath('ancestor::tr'))
-                .all(by.cssContainingText('jhi-source tbody tr button', 'Edit'))
-                .first().click().then(() => {
-            element(by.name('expectedSourceName')).sendKeys('A007C9');
-            element(by.cssContainingText('button.btn-primary', 'Save')).click().then(() => {
-                browser.waitForAngular();
-                element.all(by.css('jhi-source tbody tr')).count().then(function(count) {
-                    expect(count).toEqual(2);
-                });
-            });
-
-        });
+    it('should be able to edit a source', async() => {
+        await element.all(by.cssContainingText('jhi-source tbody tr td', 'test-source1'))
+            .all(by.xpath('ancestor::tr'))
+            .all(by.cssContainingText('jhi-source tbody tr button', 'Edit'))
+            .first().click();
+        await element(by.name('expectedSourceName')).sendKeys('A007C9');
+        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
+        await browser.waitForAngular();
+        expect((await element.all(by.css('jhi-source tbody tr')).count())).toEqual(2);
     });
 
-    it('should be able to delete an unassigned source', () => {
-        element(by.cssContainingText('jhi-source tbody tr td', 'test-source1'))
-                .element(by.xpath('ancestor::tr'))
-                .element(by.cssContainingText('button', 'Delete')).click().then(() => {
-            browser.waitForAngular();
-            element(by.cssContainingText('jhi-source-delete-dialog button.btn-danger', 'Delete'))
-                    .click().then(() => {
-                browser.waitForAngular();
-                element.all(by.css('jhi-source tbody tr')).count().then(function(count) {
-                    expect(count).toEqual(1);
-                });
-            });
-        });
+    it('should be able to delete an unassigned source', async() => {
+        await element(by.cssContainingText('jhi-source tbody tr td', 'test-source1'))
+            .element(by.xpath('ancestor::tr'))
+            .element(by.cssContainingText('button', 'Delete')).click();
+        await browser.waitForAngular();
+        await element(by.cssContainingText('jhi-source-delete-dialog button.btn-danger', 'Delete'))
+            .click();
+        await browser.waitForAngular();
+        expect((await element.all(by.css('jhi-source tbody tr')).count())).toEqual(1);
     });
 
     // Source creation and deletion already covered in scenarios/create-and-assign-source.spec.ts
 
-    afterAll(function() {
-        accountMenu.click();
-        logout.click();
+    afterAll(async() => {
+        await accountMenu.click();
+        await logout.click();
     });
 });
