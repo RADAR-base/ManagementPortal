@@ -1,9 +1,9 @@
-const HtmlScreenshotReporter = require("protractor-jasmine2-screenshot-reporter");
+const HtmlScreenshotReporter = require('protractor-jasmine2-screenshot-reporter');
 const JasmineReporters = require('jasmine-reporters');
 const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
 
 exports.config = {
-    allScriptsTimeout: 120000,
+    allScriptsTimeout: 20000,
 
     specs: [
         './e2e/account/*.spec.ts',
@@ -13,12 +13,17 @@ exports.config = {
     ],
 
     capabilities: {
-        'browserName': 'chrome',
+        'browserName': 'firefox',
+        'moz:firefoxOptions': {
+            args: [
+                '-headless'
+            ]
+        },
+        chromeOptions: {
+            args: ["--headless", "no-sandbox", "--disable-gpu"]
+        },
         'phantomjs.binary.path': require('phantomjs-prebuilt').path,
         'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG'],
-        chromeOptions: {
-            args: ["--headless", "no-sandbox", "--disable-gpu", "--window-size=1280x1024"]
-        }
     },
 
     directConnect: true,
@@ -31,7 +36,7 @@ exports.config = {
 
     jasmineNodeOpts: {
         showColors: true,
-        defaultTimeoutInterval: 180000
+        defaultTimeoutInterval: 720000
     },
 
     beforeLaunch: function () {
@@ -41,7 +46,10 @@ exports.config = {
     },
 
     onPrepare: function () {
-        browser.driver.manage().window().setSize(1280, 1024);
+        browser.driver.manage().window().setSize(1280, 10240);
+        // Disable animations
+        // @ts-ignore
+        browser.executeScript('document.body.className += " notransition";');
         jasmine.getEnv().addReporter(new JasmineReporters.JUnitXmlReporter({
             savePath: 'build/reports/e2e',
             consolidateAll: false
