@@ -11,13 +11,6 @@ describe('Project View: Create, assign, unassign and delete source', () => {
     beforeAll(async () => {
         await browser.get('/');
         navBarPage = new NavBarPage(true);
-
-        await navBarPage.clickOnAccountMenu();
-        await navBarPage.clickOnSignIn();
-
-        await username.sendKeys('admin');
-        await password.sendKeys('admin');
-        await element(by.css('button[type=submit]')).click();
         await browser.waitForAngular();
     });
 
@@ -121,12 +114,5 @@ describe('Project View: Create, assign, unassign and delete source', () => {
 
         await browser.waitForAngular();
         await element(by.buttonText('Cancel')).click();
-    });
-
-    afterAll(async () => {
-        await browser.waitForAngular();
-        await navBarPage.clickOnAccountMenu();
-        await navBarPage.clickOnSignOut();
-        browser.sleep(1000);
     });
 });

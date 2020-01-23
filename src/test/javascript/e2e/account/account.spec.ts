@@ -122,11 +122,4 @@ describe('account', () => {
     afterEach(() => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeOut;
     });
-
-    afterAll(async () => {
-        await browser.waitForAngular();
-        await navBarPage.clickOnAccountMenu();
-        await navBarPage.clickOnSignOut();
-        browser.sleep(1000);
-    });
 });

@@ -12,13 +12,6 @@ describe('Project view: Create a subject, assign sources, discontinue and delete
     beforeAll(async () => {
         await browser.get('/');
         navBarPage = new NavBarPage(true);
-
-        await navBarPage.clickOnAccountMenu();
-        await navBarPage.clickOnSignIn();
-
-        await username.sendKeys('admin');
-        await password.sendKeys('admin');
-        await element(by.css('button[type=submit]')).click();
         await browser.waitForAngular();
     });
 
@@ -124,12 +117,5 @@ describe('Project view: Create a subject, assign sources, discontinue and delete
 
         await browser.waitForAngular();
         expect((await element.all(by.css('jhi-subjects tbody tr')).count())).toEqual(3);
-    });
-
-    afterAll(async () => {
-        await browser.waitForAngular();
-        await navBarPage.clickOnAccountMenu();
-        await navBarPage.clickOnSignOut();
-        browser.sleep(1000);
     });
 });

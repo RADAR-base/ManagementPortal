@@ -10,13 +10,6 @@ describe('administration', () => {
     beforeAll(async () => {
         await browser.get('/');
         navBarPage = new NavBarPage(true);
-
-        await navBarPage.clickOnAccountMenu();
-        await navBarPage.clickOnSignIn();
-
-        await username.sendKeys('admin');
-        await password.sendKeys('admin');
-        await element(by.css('button[type=submit]')).click();
         await browser.waitForAngular();
     });
 
@@ -68,10 +61,4 @@ describe('administration', () => {
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
     });
 
-    afterAll(async () => {
-        await browser.waitForAngular();
-        await navBarPage.clickOnAccountMenu();
-        await navBarPage.clickOnSignOut();
-        browser.sleep(1000);
-    });
 });

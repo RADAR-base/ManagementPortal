@@ -10,13 +10,6 @@ describe('Project e2e test', () => {
     beforeAll(async () => {
         await browser.get('/');
         navBarPage = new NavBarPage(true);
-
-        await navBarPage.clickOnAccountMenu();
-        await navBarPage.clickOnSignIn();
-
-        await username.sendKeys('admin');
-        await password.sendKeys('admin');
-        await element(by.css('button[type=submit]')).click();
         await browser.waitForAngular();
     });
 
@@ -66,12 +59,5 @@ describe('Project e2e test', () => {
         await browser.waitForAngular();
         await element(by.cssContainingText('jhi-project-delete-dialog button.btn-danger', 'Delete')).click();
 
-    });
-
-    afterAll(async () => {
-        await browser.waitForAngular();
-        await navBarPage.clickOnAccountMenu();
-        await navBarPage.clickOnSignOut();
-        browser.sleep(1000);
     });
 });
