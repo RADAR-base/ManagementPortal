@@ -2,7 +2,6 @@ dist: trusty
 services:
   - docker
 addons:
-  firefox: latest
   chrome: stable
   apt:
     packages:

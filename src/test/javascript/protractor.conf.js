@@ -13,12 +13,7 @@ exports.config = {
     ],
 
     capabilities: {
-        'browserName': 'firefox',
-        'moz:firefoxOptions': {
-            args: [
-                '-headless'
-            ]
-        },
+        'browserName': 'chrome',
         chromeOptions: {
             args: ["--headless", "no-sandbox", "--disable-gpu"]
         },
@@ -46,10 +41,6 @@ exports.config = {
     },
 
     onPrepare: function () {
-        browser.driver.manage().window().setSize(1280, 10240);
-        // Disable animations
-        // @ts-ignore
-        browser.executeScript('document.body.className += " notransition";');
         jasmine.getEnv().addReporter(new JasmineReporters.JUnitXmlReporter({
             savePath: 'build/reports/e2e',
             consolidateAll: false
