@@ -3,7 +3,7 @@ const JasmineReporters = require('jasmine-reporters');
 const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
 
 exports.config = {
-    allScriptsTimeout: 20000,
+    allScriptsTimeout: 120000,
 
     specs: [
         './e2e/account/*.spec.ts',
@@ -41,7 +41,7 @@ exports.config = {
     },
 
     onPrepare: function () {
-        browser.driver.manage().window().setSize(1280, 1024);
+        browser.driver.manage().window().maximize();
         jasmine.getEnv().addReporter(new JasmineReporters.JUnitXmlReporter({
             savePath: 'build/reports/e2e',
             consolidateAll: false

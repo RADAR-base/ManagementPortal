@@ -14,8 +14,8 @@ describe('administration', () => {
     });
 
     beforeEach(async () => {
-        await navBarPage.clickOnAdminMenu();
         browser.sleep(1000);
+        await navBarPage.clickOnAdminMenu();
     });
 
     it('should load user management', async () => {
