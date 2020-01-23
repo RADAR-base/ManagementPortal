@@ -9,7 +9,7 @@ describe('SourceType e2e test', () => {
     const login = element(by.id('login'));
     const logout = element(by.id('logout'));
 
-    beforeAll(async() => {
+    beforeAll(async () => {
         await browser.get('#');
 
         await accountMenu.click();
@@ -21,7 +21,11 @@ describe('SourceType e2e test', () => {
         await browser.waitForAngular();
     });
 
-    it('should load SourceTypes', async() => {
+    beforeEach(async () => {
+        browser.sleep(1000);
+    });
+
+    it('should load SourceTypes', async () => {
         await entityMenu.click();
         await element.all(by.css('[routerLink="source-type"]')).first().click();
         const expectVal = /managementPortalApp.sourceType.home.title/;
@@ -30,7 +34,7 @@ describe('SourceType e2e test', () => {
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
     });
 
-    it('should load create SourceType dialog', async() => {
+    it('should load create SourceType dialog', async () => {
         await element(by.css('button.create-source-type')).click();
 
         const expectVal = /managementPortalApp.sourceType.home.createOrEditLabel/;
@@ -40,7 +44,7 @@ describe('SourceType e2e test', () => {
         await element(by.css('button.close')).click();
     });
 
-    it('should be able to create SourceType', async() => {
+    it('should be able to create SourceType', async () => {
         await element(by.css('button.create-source-type')).click();
         await element(by.id('field_producer')).sendKeys('test-producer');
         await element(by.id('field_model')).sendKeys('test-model');
@@ -50,7 +54,7 @@ describe('SourceType e2e test', () => {
         await element(by.css('jhi-source-type-dialog')).element(by.buttonText('Save')).click();
     });
 
-    it('should be able to edit SourceType', async() => {
+    it('should be able to edit SourceType', async () => {
         await browser.waitForAngular();
         await element(by.cssContainingText('td', 'test-producer')).element(by.xpath('ancestor::tr'))
             .element(by.cssContainingText('button', 'Edit')).click();
@@ -58,15 +62,16 @@ describe('SourceType e2e test', () => {
         await element(by.cssContainingText('button.btn-primary', 'Save')).click();
     });
 
-    it('should be able to delete SourceType', async() => {
+    it('should be able to delete SourceType', async () => {
         await element(by.cssContainingText('td', 'test-producer')).element(by.xpath('ancestor::tr'))
             .element(by.cssContainingText('button', 'Delete')).click();
         await browser.waitForAngular();
         await element(by.cssContainingText('jhi-source-type-delete-dialog button.btn-danger', 'Delete')).click();
     });
 
-    afterAll(async() => {
+    afterAll(async () => {
         await accountMenu.click();
         await logout.click();
+        browser.sleep(1000);
     });
 });

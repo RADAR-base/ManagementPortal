@@ -9,7 +9,7 @@ describe('administration', () => {
     const login = element(by.id('login'));
     const logout = element(by.id('logout'));
 
-    beforeAll(async() => {
+    beforeAll(async () => {
         await browser.get('#');
 
         await accountMenu.click();
@@ -21,25 +21,26 @@ describe('administration', () => {
         await browser.waitForAngular();
     });
 
-    beforeEach(async() => {
+    beforeEach(async () => {
         await adminMenu.click();
+        browser.sleep(1000);
     });
 
-    it('should load user management', async() => {
+    it('should load user management', async () => {
         await element(by.css('[routerLink="user-management"]')).click();
         const expect1 = /userManagement.home.title/;
         const pageTitle = element.all(by.css('h2 span')).first();
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
     });
 
-    it('should load metrics', async() => {
+    it('should load metrics', async () => {
         await element(by.css('[routerLink="jhi-metrics"]')).click();
         const expect1 = /metrics.title/;
         const pageTitle = element.all(by.css('h2 span')).first();
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
     });
 
-    it('should load health', async() => {
+    it('should load health', async () => {
         await element(by.css('[routerLink="jhi-health"]')).click();
         const expect1 = /health.title/;
         const pageTitle = element.all(by.css('h2 span')).first();
@@ -54,22 +55,23 @@ describe('administration', () => {
     //     });
     // });
 
-    it('should load audits', async() => {
+    it('should load audits', async () => {
         await element(by.css('[routerLink="audits"]')).click();
         const expect1 = /audits.title/;
         const pageTitle = element.all(by.css('h2')).first();
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
     });
 
-    it('should load logs', async() => {
+    it('should load logs', async () => {
         await element(by.css('[routerLink="logs"]')).click();
         const expect1 = /logs.title/;
         const pageTitle = element.all(by.css('h2')).first();
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
     });
 
-    afterAll(async() => {
+    afterAll(async () => {
         await accountMenu.click();
         await logout.click();
+        browser.sleep(1000);
     });
 });
