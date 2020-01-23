@@ -1,19 +1,18 @@
 import { browser, by, element } from 'protractor';
 
-describe('administration', () => {
+import { NavBarPage } from '../page-objects/jhi-page-objects';
 
+describe('administration', () => {
+    let navBarPage: NavBarPage;
     const username = element(by.id('username'));
     const password = element(by.id('password'));
-    const accountMenu = element(by.id('account-menu'));
-    const adminMenu = element(by.id('admin-menu'));
-    const login = element(by.id('login'));
-    const logout = element(by.id('logout'));
 
     beforeAll(async () => {
-        await browser.get('#');
+        await browser.get('/');
+        navBarPage = new NavBarPage(true);
 
-        await accountMenu.click();
-        await login.click();
+        await navBarPage.clickOnAccountMenu();
+        await navBarPage.clickOnSignIn();
 
         await username.sendKeys('admin');
         await password.sendKeys('admin');
@@ -22,26 +21,26 @@ describe('administration', () => {
     });
 
     beforeEach(async () => {
-        await adminMenu.click();
+        await navBarPage.clickOnAdminMenu();
         browser.sleep(1000);
     });
 
     it('should load user management', async () => {
-        await element(by.css('[routerLink="user-management"]')).click();
+        await navBarPage.clickOnEntity('user-management');
         const expect1 = /userManagement.home.title/;
         const pageTitle = element.all(by.css('h2 span')).first();
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
     });
 
     it('should load metrics', async () => {
-        await element(by.css('[routerLink="jhi-metrics"]')).click();
+        await navBarPage.clickOnEntity('jhi-metrics');
         const expect1 = /metrics.title/;
         const pageTitle = element.all(by.css('h2 span')).first();
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
     });
 
     it('should load health', async () => {
-        await element(by.css('[routerLink="jhi-health"]')).click();
+        await navBarPage.clickOnEntity('jhi-health');
         const expect1 = /health.title/;
         const pageTitle = element.all(by.css('h2 span')).first();
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
@@ -56,22 +55,23 @@ describe('administration', () => {
     // });
 
     it('should load audits', async () => {
-        await element(by.css('[routerLink="audits"]')).click();
+        await navBarPage.clickOnEntity('audits');
         const expect1 = /audits.title/;
         const pageTitle = element.all(by.css('h2')).first();
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
     });
 
     it('should load logs', async () => {
-        await element(by.css('[routerLink="logs"]')).click();
+        await navBarPage.clickOnEntity('logs');
         const expect1 = /logs.title/;
         const pageTitle = element.all(by.css('h2')).first();
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
     });
 
     afterAll(async () => {
-        await accountMenu.click();
-        await logout.click();
+        await browser.waitForAngular();
+        await navBarPage.clickOnAccountMenu();
+        await navBarPage.clickOnSignOut();
         browser.sleep(1000);
     });
 });

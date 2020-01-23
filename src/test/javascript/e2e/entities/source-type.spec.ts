@@ -1,19 +1,18 @@
 import { $, browser, by, element } from 'protractor';
 
-describe('SourceType e2e test', () => {
+import { NavBarPage } from '../page-objects/jhi-page-objects';
 
+describe('SourceType e2e test', () => {
+    let navBarPage: NavBarPage;
     const username = element(by.id('username'));
     const password = element(by.id('password'));
-    const entityMenu = element(by.id('entity-menu'));
-    const accountMenu = element(by.id('account-menu'));
-    const login = element(by.id('login'));
-    const logout = element(by.id('logout'));
 
     beforeAll(async () => {
-        await browser.get('#');
+        await browser.get('/');
+        navBarPage = new NavBarPage(true);
 
-        await accountMenu.click();
-        await login.click();
+        await navBarPage.clickOnAccountMenu();
+        await navBarPage.clickOnSignIn();
 
         await username.sendKeys('admin');
         await password.sendKeys('admin');
@@ -26,7 +25,7 @@ describe('SourceType e2e test', () => {
     });
 
     it('should load SourceTypes', async () => {
-        await entityMenu.click();
+        await navBarPage.clickOnEntityMenu();
         await element.all(by.css('[routerLink="source-type"]')).first().click();
         const expectVal = /managementPortalApp.sourceType.home.title/;
 
@@ -70,8 +69,9 @@ describe('SourceType e2e test', () => {
     });
 
     afterAll(async () => {
-        await accountMenu.click();
-        await logout.click();
+        await browser.waitForAngular();
+        await navBarPage.clickOnAccountMenu();
+        await navBarPage.clickOnSignOut();
         browser.sleep(1000);
     });
 });

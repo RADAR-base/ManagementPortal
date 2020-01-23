@@ -1,19 +1,18 @@
 import { browser, by, element } from 'protractor';
 
-describe('Project view: Generate QR code', () => {
+import { NavBarPage } from '../page-objects/jhi-page-objects';
 
+describe('Project view: Generate QR code', () => {
+    let navBarPage: NavBarPage;
     const username = element(by.id('username'));
     const password = element(by.id('password'));
-    const projectMenu = element(by.id('projects-menu'));
-    const accountMenu = element(by.id('account-menu'));
-    const login = element(by.id('login'));
-    const logout = element(by.id('logout'));
 
     beforeAll(async () => {
-        await browser.get('#');
+        await browser.get('/');
+        navBarPage = new NavBarPage(true);
 
-        await accountMenu.click();
-        await login.click();
+        await navBarPage.clickOnAccountMenu();
+        await navBarPage.clickOnSignIn();
 
         await username.sendKeys('admin');
         await password.sendKeys('admin');
@@ -26,7 +25,7 @@ describe('Project view: Generate QR code', () => {
     });
 
     it('should load project view', async () => {
-        await projectMenu.click();
+        await navBarPage.clickOnProjectMenu();
         await element.all(by.partialLinkText('radar')).first().click();
         expect(element(by.className('status-header')).getText()).toMatch('RADAR');
         // expect 3 subjects in this table
@@ -46,8 +45,9 @@ describe('Project view: Generate QR code', () => {
     });
 
     afterAll(async () => {
-        await accountMenu.click();
-        await logout.click();
+        await browser.waitForAngular();
+        await navBarPage.clickOnAccountMenu();
+        await navBarPage.clickOnSignOut();
         browser.sleep(1000);
     });
 });

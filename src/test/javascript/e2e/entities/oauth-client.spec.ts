@@ -1,19 +1,18 @@
 import { $, browser, by, element } from 'protractor';
 
-describe('OAuth Clients e2e test', () => {
+import { NavBarPage } from '../page-objects/jhi-page-objects';
 
+describe('OAuth Clients e2e test', () => {
+    let navBarPage: NavBarPage;
     const username = element(by.id('username'));
     const password = element(by.id('password'));
-    const adminMenu = element(by.id('admin-menu'));
-    const accountMenu = element(by.id('account-menu'));
-    const login = element(by.id('login'));
-    const logout = element(by.id('logout'));
 
     beforeAll(async () => {
-        await browser.get('#');
+        await browser.get('/');
+        navBarPage = new NavBarPage(true);
 
-        await accountMenu.click();
-        await login.click();
+        await navBarPage.clickOnAccountMenu();
+        await navBarPage.clickOnSignIn();
 
         await username.sendKeys('admin');
         await password.sendKeys('admin');
@@ -26,7 +25,7 @@ describe('OAuth Clients e2e test', () => {
     });
 
     it('should load OAuth clients', async () => {
-        await adminMenu.click();
+        await navBarPage.clickOnAdminMenu();
         await element.all(by.css('[routerLink="oauth-client"]')).first().click();
 
         const expectVal = /managementPortalApp.oauthClient.home.title/;
@@ -85,8 +84,9 @@ describe('OAuth Clients e2e test', () => {
     });
 
     afterAll(async () => {
-        await accountMenu.click();
-        await logout.click();
+        await browser.waitForAngular();
+        await navBarPage.clickOnAccountMenu();
+        await navBarPage.clickOnSignOut();
         browser.sleep(1000);
     });
 });

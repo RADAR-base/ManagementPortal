@@ -2,6 +2,7 @@ import { ElementFinder, by, element } from 'protractor';
 export class NavBarPage {
     entityMenu = element(by.id('entity-menu'));
     accountMenu = element(by.id('account-menu'));
+    projectMenu = element(by.id('projects-menu'));
     adminMenu: ElementFinder;
     signIn = element(by.id('login'));
     register = element(by.css('[routerLink="register"]'));
@@ -15,82 +16,97 @@ export class NavBarPage {
         }
     }
 
-    clickOnEntityMenu() {
+    async clickOnEntityMenu() {
+        await this.entityMenu.isPresent();
         return this.entityMenu.click();
     }
 
-    clickOnAccountMenu() {
+    async clickOnAccountMenu() {
+        await this.accountMenu.isPresent();
         return this.accountMenu.click();
     }
 
-    clickOnAdminMenu() {
+    async clickOnAdminMenu() {
+        await this.adminMenu.isPresent();
         return this.adminMenu.click();
     }
 
-    clickOnSignIn() {
+    async clickOnProjectMenu() {
+        await this.projectMenu.isPresent();
+        return this.projectMenu.click();
+    }
+
+    async clickOnSignIn() {
+        await this.signIn.isPresent();
         return this.signIn.click();
     }
 
-    clickOnRegister() {
+    async clickOnRegister() {
+        await this.signIn.isPresent();
         return this.signIn.click();
     }
 
-    clickOnSignOut() {
+    async clickOnSignOut() {
+        await this.signOut.isPresent();
         return this.signOut.click();
     }
 
-    clickOnPasswordMenu() {
+    async clickOnPasswordMenu() {
+        await this.passwordMenu.isPresent();
         return this.passwordMenu.click();
     }
 
-    clickOnSettingsMenu() {
+    async clickOnSettingsMenu() {
+        await this.settingsMenu.isPresent();
         return this.settingsMenu.click();
     }
 
-    clickOnEntity(entityName: string) {
+    async clickOnEntity(entityName: string) {
+        await element(by.css('[routerLink="' + entityName + '"]')).isPresent();
         return element(by.css('[routerLink="' + entityName + '"]')).click();
     }
 
-    clickOnAdmin(entityName: string) {
+    async clickOnAdmin(entityName: string) {
+        await element(by.css('[routerLink="' + entityName + '"]')).isPresent();
         return element(by.css('[routerLink="' + entityName + '"]')).click();
     }
 
-    getSignInPage() {
-        this.clickOnAccountMenu();
-        this.clickOnSignIn();
+    async getSignInPage() {
+        await this.clickOnAccountMenu();
+        await this.clickOnSignIn();
         return new SignInPage();
     }
 
-    getPasswordPage() {
-        this.clickOnAccountMenu();
-        this.clickOnPasswordMenu();
+    async getPasswordPage() {
+        await this.clickOnAccountMenu();
+        await this.clickOnPasswordMenu();
         return new PasswordPage();
     }
 
-    getSettingsPage() {
-        this.clickOnAccountMenu();
-        this.clickOnSettingsMenu();
+    async getSettingsPage() {
+        await this.clickOnAccountMenu();
+        await this.clickOnSettingsMenu();
         return new SettingsPage();
     }
 
-    goToEntity(entityName: string) {
-        this.clickOnEntityMenu();
+    async goToEntity(entityName: string) {
+        await this.clickOnEntityMenu();
         return this.clickOnEntity(entityName);
     }
 
-    goToSignInPage() {
-        this.clickOnAccountMenu();
-        this.clickOnSignIn();
+    async goToSignInPage() {
+        await this.clickOnAccountMenu();
+        await this.clickOnSignIn();
     }
 
-    goToPasswordMenu() {
-        this.clickOnAccountMenu();
-        this.clickOnPasswordMenu();
+    async goToPasswordMenu() {
+        await this.clickOnAccountMenu();
+        await this.clickOnPasswordMenu();
     }
 
-    autoSignOut() {
-        this.clickOnAccountMenu();
-        this.clickOnSignOut();
+    async autoSignOut() {
+        await this.clickOnAccountMenu();
+        await this.clickOnSignOut();
     }
 }
 
@@ -99,37 +115,44 @@ export class SignInPage {
     password = element(by.id('password'));
     loginButton = element(by.css('button[type=submit]'));
 
-    setUserName(username) {
+    async setUserName(username) {
+        await this.username.isPresent();
         this.username.sendKeys(username);
     }
 
-    getUserName() {
+    async getUserName() {
+        await this.username.isPresent();
         return this.username.getAttribute('value');
     }
 
-    clearUserName() {
+    async clearUserName() {
+        await this.username.isPresent();
         this.username.clear();
     }
 
-    setPassword(password) {
+    async setPassword(password) {
+        await this.password.isPresent();
         this.password.sendKeys(password);
     }
 
-    getPassword() {
+    async getPassword() {
+        await this.password.isPresent();
         return this.password.getAttribute('value');
     }
 
-    clearPassword() {
+    async clearPassword() {
+        await this.password.isPresent();
         this.password.clear();
     }
 
-    autoSignInUsing(username: string, password: string) {
-        this.setUserName(username);
-        this.setPassword(password);
+    async autoSignInUsing(username: string, password: string) {
+        await this.setUserName(username);
+        await this.setPassword(password);
         return this.login();
     }
 
-    login() {
+    async login() {
+        await this.loginButton.isPresent();
         return this.loginButton.click();
     }
 }
@@ -140,35 +163,43 @@ export class PasswordPage {
     saveButton = element(by.css('button[type=submit]'));
     title = element.all(by.css('h2')).first();
 
-    setPassword(password) {
+    async setPassword(password) {
+        await this.password.isPresent();
         this.password.sendKeys(password);
     }
 
-    getPassword() {
+    async getPassword() {
+        await this.password.isPresent();
         return this.password.getAttribute('value');
     }
 
-    clearPassword() {
+    async clearPassword() {
+        await this.password.isPresent();
         this.password.clear();
     }
 
-    setConfirmPassword(confirmPassword) {
+    async setConfirmPassword(confirmPassword) {
+        await this.confirmPassword.isPresent();
         this.confirmPassword.sendKeys(confirmPassword);
     }
 
-    getConfirmPassword() {
+    async getConfirmPassword() {
+        await this.confirmPassword.isPresent();
         return this.confirmPassword.getAttribute('value');
     }
 
-    clearConfirmPassword() {
+    async clearConfirmPassword() {
+        await this.confirmPassword.isPresent();
         this.confirmPassword.clear();
     }
 
-    getTitle() {
+    async getTitle() {
+        await this.title.isPresent();
         return this.title.getAttribute('jhiTranslate');
     }
 
-    save() {
+    async save() {
+        await this.saveButton.isPresent();
         return this.saveButton.click();
     }
 }
@@ -180,47 +211,58 @@ export class SettingsPage {
     saveButton = element(by.css('button[type=submit]'));
     title = element.all(by.css('h2')).first();
 
-    setFirstName(firstName) {
+    async setFirstName(firstName) {
+        await this.firstName.isPresent();
         this.firstName.sendKeys(firstName);
     }
 
-    getFirstName() {
+    async getFirstName() {
+        await this.firstName.isPresent();
         return this.firstName.getAttribute('value');
     }
 
-    clearFirstName() {
+    async clearFirstName() {
+        await this.firstName.isPresent();
         this.firstName.clear();
     }
 
-    setLastName(lastName) {
+    async setLastName(lastName) {
+        await this.lastName.isPresent();
         this.lastName.sendKeys(lastName);
     }
 
-    getLastName() {
+    async getLastName() {
+        await this.lastName.isPresent();
         return this.lastName.getAttribute('value');
     }
 
-    clearLastName() {
+    async clearLastName() {
+        await this.lastName.isPresent();
         this.lastName.clear();
     }
 
-    setEmail(email) {
+    async setEmail(email) {
+        await this.email.isPresent();
         this.email.sendKeys(email);
     }
 
-    getEmail() {
+    async getEmail() {
+        await this.email.isPresent();
         return this.email.getAttribute('value');
     }
 
-    clearEmail() {
+    async clearEmail() {
+        await this.email.isPresent();
         this.email.clear();
     }
 
-    getTitle() {
+    async getTitle() {
+        await this.title.isPresent();
         return this.title.getAttribute('jhiTranslate');
     }
 
-    save() {
+    async save() {
+        await this.saveButton.isPresent();
         return this.saveButton.click();
     }
 }

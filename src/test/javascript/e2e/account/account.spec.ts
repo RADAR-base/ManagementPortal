@@ -1,17 +1,17 @@
 import { browser, by, element } from 'protractor';
 
-describe('account', () => {
+import { NavBarPage } from '../page-objects/jhi-page-objects';
 
+describe('account', () => {
+    let navBarPage: NavBarPage;
     const username = element(by.id('username'));
     const password = element(by.id('password'));
-    const accountMenu = element(by.id('account-menu'));
-    const login = element(by.id('login'));
-    const logout = element(by.id('logout'));
 
     let originalTimeOut;
 
     beforeAll(async () => {
-        await browser.get('#');
+        await browser.get('/');
+        navBarPage = new NavBarPage(true);
     });
 
     beforeEach(async () => {
@@ -26,8 +26,8 @@ describe('account', () => {
         await header.isPresent();
         expect((await header.getAttribute('jhiTranslate'))).toMatch(expect1);
 
-        await accountMenu.click();
-        await login.click();
+        await navBarPage.clickOnAccountMenu();
+        await navBarPage.clickOnSignIn();
 
         await username.sendKeys('admin');
         await password.sendKeys('foo');
@@ -60,8 +60,9 @@ describe('account', () => {
     });
 
     it('should be able to update settings', async () => {
-        await accountMenu.click();
-        await element(by.css('[routerLink="settings"]')).isPresent();
+        await navBarPage.clickOnAccountMenu();
+        await
+            await element(by.css('[routerLink="settings"]')).isPresent();
         await element(by.css('[routerLink="settings"]')).click();
 
         const expect1 = /settings.title/;
@@ -78,9 +79,8 @@ describe('account', () => {
     });
 
     it('should be able to update password', async () => {
-        await accountMenu.click();
-        await element(by.css('[routerLink="password"]')).isPresent();
-        await element(by.css('[routerLink="password"]')).click();
+        await navBarPage.clickOnAccountMenu();
+        await navBarPage.clickOnPasswordMenu();
 
         const expect1 = /password.title/;
         const pageTitle = element.all(by.css('h2')).first();
@@ -96,11 +96,11 @@ describe('account', () => {
         await successMessage.isPresent();
         expect((await successMessage.getAttribute('jhiTranslate'))).toMatch(expect2);
 
-        await accountMenu.click();
-        await logout.click();
+        await navBarPage.clickOnAccountMenu();
+        await navBarPage.clickOnSignOut();
 
-        await accountMenu.click();
-        await login.click();
+        await navBarPage.clickOnAccountMenu();
+        await navBarPage.clickOnSignIn();
 
         await username.sendKeys('admin');
         await password.sendKeys('newpassword');
@@ -108,7 +108,7 @@ describe('account', () => {
 
         await browser.waitForAngular();
 
-        await accountMenu.click();
+        await navBarPage.clickOnAccountMenu();
         await await element(by.css('[routerLink="password"]')).isPresent();
         await element(by.css('[routerLink="password"]')).click();
         // change back to default
@@ -124,8 +124,9 @@ describe('account', () => {
     });
 
     afterAll(async () => {
-        await accountMenu.click();
-        await logout.click();
+        await browser.waitForAngular();
+        await navBarPage.clickOnAccountMenu();
+        await navBarPage.clickOnSignOut();
         browser.sleep(1000);
     });
 });
