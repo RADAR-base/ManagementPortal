@@ -15,7 +15,7 @@ exports.config = {
     capabilities: {
         'browserName': 'chrome',
         chromeOptions: {
-            args: ["--headless", "no-sandbox", "--disable-gpu"]
+            args: ["--headless", "--disable-gpu", "--window-size=1280x1024"]
         },
         'phantomjs.binary.path': require('phantomjs-prebuilt').path,
         'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG'],
@@ -41,6 +41,7 @@ exports.config = {
     },
 
     onPrepare: function () {
+        browser.driver.manage().window().setSize(1280, 1024);
         jasmine.getEnv().addReporter(new JasmineReporters.JUnitXmlReporter({
             savePath: 'build/reports/e2e',
             consolidateAll: false
