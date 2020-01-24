@@ -7,17 +7,17 @@ describe('Source e2e test', () => {
     const username = element(by.id('username'));
     const password = element(by.id('password'));
 
-    beforeAll(async () => {
+    beforeAll(async() => {
         await browser.get('/');
         navBarPage = new NavBarPage(true);
         await browser.waitForAngular();
     });
 
-    beforeEach(async () => {
+    beforeEach(async() => {
         browser.sleep(1000);
     });
 
-    it('should load Sources', async () => {
+    it('should load Sources', async() => {
         await navBarPage.clickOnEntityMenu();
         await element.all(by.css('[routerLink="source"]')).first().click();
 
@@ -26,7 +26,7 @@ describe('Source e2e test', () => {
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
     });
 
-    it('should load create Source dialog', async () => {
+    it('should load create Source dialog', async() => {
         await element(by.css('button.create-source')).click();
 
         const expectVal = /managementPortalApp.source.home.createOrEditLabel/;
@@ -36,7 +36,7 @@ describe('Source e2e test', () => {
         await element(by.css('button.close')).click();
     });
 
-    it('should be able to create new source', async () => {
+    it('should be able to create new source', async() => {
         await element(by.cssContainingText('button.btn-primary', 'Create a new Source')).click();
         await element(by.name('sourceName')).sendKeys('test-source1');
         await element(by.name('expectedSourceName')).sendKeys('A007C');
@@ -48,7 +48,7 @@ describe('Source e2e test', () => {
         expect((await element.all(by.css('jhi-source tbody tr')).count())).toEqual(2);
     });
 
-    it('should be able to edit a source', async () => {
+    it('should be able to edit a source', async() => {
         await element.all(by.cssContainingText('jhi-source tbody tr td', 'test-source1'))
             .all(by.xpath('ancestor::tr'))
             .all(by.cssContainingText('jhi-source tbody tr button', 'Edit'))
@@ -59,7 +59,7 @@ describe('Source e2e test', () => {
         expect((await element.all(by.css('jhi-source tbody tr')).count())).toEqual(2);
     });
 
-    it('should be able to delete an unassigned source', async () => {
+    it('should be able to delete an unassigned source', async() => {
         await element(by.cssContainingText('jhi-source tbody tr td', 'test-source1'))
             .element(by.xpath('ancestor::tr'))
             .element(by.cssContainingText('button', 'Delete')).click();

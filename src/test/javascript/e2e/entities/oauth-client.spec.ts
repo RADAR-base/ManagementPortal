@@ -7,17 +7,17 @@ describe('OAuth Clients e2e test', () => {
     const username = element(by.id('username'));
     const password = element(by.id('password'));
 
-    beforeAll(async () => {
+    beforeAll(async() => {
         await browser.get('/');
         navBarPage = new NavBarPage(true);
         await browser.waitForAngular();
     });
 
-    beforeEach(async () => {
+    beforeEach(async() => {
         browser.sleep(1000);
     });
 
-    it('should load OAuth clients', async () => {
+    it('should load OAuth clients', async() => {
         await navBarPage.clickOnAdminMenu();
         await element.all(by.css('[routerLink="oauth-client"]')).first().click();
 
@@ -26,7 +26,7 @@ describe('OAuth Clients e2e test', () => {
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
     });
 
-    it('should load create OAuth Client dialog', async () => {
+    it('should load create OAuth Client dialog', async() => {
         await element(by.css('jhi-oauth-client h4 button.btn-primary')).click();
         const expectVal = /managementPortalApp.oauthClient.home.createOrEditLabel/;
         const modalTitle = element.all(by.css('h4.modal-title')).first();
@@ -35,14 +35,14 @@ describe('OAuth Clients e2e test', () => {
         await element(by.css('button.close')).click();
     });
 
-    it('should disable edit and delete buttons for protected clients', async () => {
+    it('should disable edit and delete buttons for protected clients', async() => {
         // find the table row that contains the protected badge, and assert it contains zero enabled buttons
         expect((await element(by.cssContainingText('span.badge-info', 'protected: true')).element(by.xpath('ancestor::tr'))
             .all(by.css('button')).filter((button) => button.isEnabled()).count())).toEqual(2);
         // show more, show less buttons are enabled
     });
 
-    it('should be able to create OAuth Client', async () => {
+    it('should be able to create OAuth Client', async() => {
         await element(by.css('jhi-oauth-client h4 button.btn-primary')).click();
         await element(by.id('id')).sendKeys('test-client');
         await element(by.cssContainingText('button', 'Random')).click();
@@ -60,7 +60,7 @@ describe('OAuth Clients e2e test', () => {
         await element(by.cssContainingText('button.btn-primary', 'Save')).click();
     });
 
-    it('should be able to edit OAuth Client', async () => {
+    it('should be able to edit OAuth Client', async() => {
         await browser.waitForAngular();
         await element(by.cssContainingText('td', 'test-client')).element(by.xpath('ancestor::tr'))
             .element(by.cssContainingText('button', 'Edit')).click();
@@ -69,7 +69,7 @@ describe('OAuth Clients e2e test', () => {
 
     });
 
-    it('should be able to delete OAuth Client', async () => {
+    it('should be able to delete OAuth Client', async() => {
         await element(by.cssContainingText('td', 'test-client')).element(by.xpath('ancestor::tr'))
             .element(by.cssContainingText('button', 'Delete')).click();
         await browser.waitForAngular();

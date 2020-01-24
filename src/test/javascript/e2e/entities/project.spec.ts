@@ -7,17 +7,17 @@ describe('Project e2e test', () => {
     const username = element(by.id('username'));
     const password = element(by.id('password'));
 
-    beforeAll(async () => {
+    beforeAll(async() => {
         await browser.get('/');
         navBarPage = new NavBarPage(true);
         await browser.waitForAngular();
     });
 
-    beforeEach(async () => {
+    beforeEach(async() => {
         browser.sleep(1000);
     });
 
-    it('should load Projects', async () => {
+    it('should load Projects', async() => {
         await navBarPage.clickOnAdminMenu();
         await element.all(by.css('[routerLink="project"]')).first().click();
         const expectVal = /managementPortalApp.project.home.title/;
@@ -26,7 +26,7 @@ describe('Project e2e test', () => {
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
     });
 
-    it('should load create Project dialog', async () => {
+    it('should load create Project dialog', async() => {
         await element(by.css('button.create-project')).click();
 
         const expectVal = /managementPortalApp.project.home.createOrEditLabel/;
@@ -36,7 +36,7 @@ describe('Project e2e test', () => {
         await element(by.css('button.close')).click();
     });
 
-    it('should be able to create Project', async () => {
+    it('should be able to create Project', async() => {
         await element(by.css('button.create-project')).click();
         await element(by.id('field_projectName')).sendKeys('test-project');
         await element(by.id('field_humanReadableProjectName')).sendKeys('Test project');
@@ -45,7 +45,7 @@ describe('Project e2e test', () => {
         await element(by.cssContainingText('jhi-project-dialog button.btn-primary', 'Save')).click();
     });
 
-    it('should be able to edit Project', async () => {
+    it('should be able to edit Project', async() => {
         await browser.waitForAngular();
         await element(by.cssContainingText('td', 'test-project')).element(by.xpath('ancestor::tr'))
             .element(by.cssContainingText('button', 'Edit')).click();
@@ -53,7 +53,7 @@ describe('Project e2e test', () => {
         await element(by.cssContainingText('button.btn-primary', 'Save')).click();
     });
 
-    it('should be able to delete Project', async () => {
+    it('should be able to delete Project', async() => {
         await element(by.cssContainingText('td', 'test-project')).element(by.xpath('ancestor::tr'))
             .element(by.cssContainingText('button', 'Delete')).click();
         await browser.waitForAngular();

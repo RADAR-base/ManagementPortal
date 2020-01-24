@@ -7,17 +7,17 @@ describe('Create, edit, and delete user', () => {
     const username = element(by.id('username'));
     const password = element(by.id('password'));
 
-    beforeAll(async () => {
+    beforeAll(async() => {
         await browser.get('/');
         navBarPage = new NavBarPage(true);
         await browser.waitForAngular();
     });
 
-    beforeEach(async () => {
+    beforeEach(async() => {
         browser.sleep(1000);
     });
 
-    it('should load user management view', async () => {
+    it('should load user management view', async() => {
         await navBarPage.clickOnAdminMenu();
         await navBarPage.clickOnEntity('user-management');
 
@@ -26,7 +26,7 @@ describe('Create, edit, and delete user', () => {
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
     });
 
-    it('should load create a new user dialog', async () => {
+    it('should load create a new user dialog', async() => {
         await element(by.cssContainingText('button.btn-primary', 'Create a new user')).click();
         const expectVal = /userManagement.home.createOrEditLabel/;
 
@@ -36,7 +36,7 @@ describe('Create, edit, and delete user', () => {
         await element(by.css('button.close')).click();
     });
 
-    it('should be able to create new user with roles', async () => {
+    it('should be able to create new user with roles', async() => {
         await element(by.cssContainingText('button.btn-primary', 'Create a new user')).click();
         await element(by.name('login')).sendKeys('test-user-radar');
         await element(by.name('firstName')).sendKeys('Bob');
@@ -52,7 +52,7 @@ describe('Create, edit, and delete user', () => {
         expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(8);
     });
 
-    it('should be able to create new system admin user', async () => {
+    it('should be able to create new system admin user', async() => {
         await element(by.cssContainingText('button.btn-primary', 'Create an admin user')).click();
         await element(by.name('login')).sendKeys('test-sys-admin');
         await element(by.name('firstName')).sendKeys('Alice');
@@ -64,7 +64,7 @@ describe('Create, edit, and delete user', () => {
         expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(9);
     });
 
-    it('should be able to edit a user with roles', async () => {
+    it('should be able to edit a user with roles', async() => {
         await element.all(by.cssContainingText('jhi-user-mgmt tbody tr td', 'test-user-radar'))
             .all(by.xpath('ancestor::tr'))
             .all(by.cssContainingText('jhi-user-mgmt tbody tr button', 'Edit'))
@@ -76,7 +76,7 @@ describe('Create, edit, and delete user', () => {
         expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(9);
     });
 
-    it('should be able to delete a user with roles', async () => {
+    it('should be able to delete a user with roles', async() => {
         await element(by.cssContainingText('jhi-user-mgmt tbody tr td', 'test-user-radar'))
             .element(by.xpath('ancestor::tr'))
             .element(by.cssContainingText('button', 'Delete')).click();
@@ -88,7 +88,7 @@ describe('Create, edit, and delete user', () => {
         expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(8);
     });
 
-    it('should be able to delete a sys admin user', async () => {
+    it('should be able to delete a sys admin user', async() => {
         await element(by.cssContainingText('jhi-user-mgmt tbody tr td', 'test-sys-admin'))
             .element(by.xpath('ancestor::tr'))
             .element(by.cssContainingText('button', 'Delete')).click();

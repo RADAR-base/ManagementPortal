@@ -7,17 +7,17 @@ describe('Subject e2e test', () => {
     const username = element(by.id('username'));
     const password = element(by.id('password'));
 
-    beforeAll(async () => {
+    beforeAll(async() => {
         await browser.get('/');
         navBarPage = new NavBarPage(true);
         await browser.waitForAngular();
     });
 
-    beforeEach(async () => {
+    beforeEach(async() => {
         browser.sleep(1000);
     });
 
-    it('should load Subjects', async () => {
+    it('should load Subjects', async() => {
         await navBarPage.clickOnEntityMenu();
         await element.all(by.css('[routerLink="subject"]')).first().click();
 
@@ -26,7 +26,7 @@ describe('Subject e2e test', () => {
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
     });
 
-    it('should load create Subject dialog', async () => {
+    it('should load create Subject dialog', async() => {
         await element(by.css('button.create-subject')).click();
         const expectVal = /managementPortalApp.subject.home.createOrEditLabel/;
 
@@ -36,7 +36,7 @@ describe('Subject e2e test', () => {
         await element(by.css('button.close')).click();
     });
 
-    it('should be able to create new subject', async () => {
+    it('should be able to create new subject', async() => {
         await element(by.cssContainingText('button.btn-primary', 'Create a new Subject')).click();
 
         await element(by.name('externalId')).sendKeys('test-subject1');
@@ -47,7 +47,7 @@ describe('Subject e2e test', () => {
         expect((await element.all(by.css('jhi-subjects tbody tr')).count())).toEqual(5);
     });
 
-    it('should be able to edit a subject', async () => {
+    it('should be able to edit a subject', async() => {
         await element.all(by.cssContainingText('jhi-subjects tbody tr td', 'test-subject1'))
             .all(by.xpath('ancestor::tr'))
             .all(by.cssContainingText('jhi-subjects tbody tr button', 'Edit'))
@@ -59,7 +59,7 @@ describe('Subject e2e test', () => {
         expect((await element.all(by.css('jhi-subjects tbody tr')).count())).toEqual(5);
     });
 
-    it('should be able to delete a subject without source', async () => {
+    it('should be able to delete a subject without source', async() => {
         await element(by.cssContainingText('jhi-subjects tbody tr td', 'test-subject1'))
             .element(by.xpath('ancestor::tr'))
             .element(by.cssContainingText('button', 'Delete')).click();

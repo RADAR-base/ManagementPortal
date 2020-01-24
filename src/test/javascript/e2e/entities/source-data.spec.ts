@@ -7,17 +7,17 @@ describe('SourceData e2e test', () => {
     const username = element(by.id('username'));
     const password = element(by.id('password'));
 
-    beforeAll(async () => {
+    beforeAll(async() => {
         await browser.get('/');
         navBarPage = new NavBarPage(true);
         await browser.waitForAngular();
     });
 
-    beforeEach(async () => {
+    beforeEach(async() => {
         browser.sleep(1000);
     });
 
-    it('should load SourceData', async () => {
+    it('should load SourceData', async() => {
         await navBarPage.clickOnEntityMenu();
         await element.all(by.css('[routerLink="source-data"]')).first().click();
 
@@ -26,7 +26,7 @@ describe('SourceData e2e test', () => {
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
     });
 
-    it('should load create SourceData dialog', async () => {
+    it('should load create SourceData dialog', async() => {
         await element(by.css('button.create-source-data')).click();
 
         const expectVal = /managementPortalApp.sourceData.home.createOrEditLabel/;
@@ -37,7 +37,7 @@ describe('SourceData e2e test', () => {
 
     });
 
-    it('should be able to create SourceData', async () => {
+    it('should be able to create SourceData', async() => {
         await element(by.css('button.create-source-data')).click();
 
         await element(by.id('field_sourceDataType')).sendKeys('TEST-TYPE');
@@ -46,7 +46,7 @@ describe('SourceData e2e test', () => {
 
     });
 
-    it('should be able to edit SourceData', async () => {
+    it('should be able to edit SourceData', async() => {
         await browser.waitForAngular();
         await element(by.cssContainingText('td', 'TEST-SENSOR')).element(by.xpath('ancestor::tr'))
             .element(by.cssContainingText('button', 'Edit')).click();
@@ -55,7 +55,7 @@ describe('SourceData e2e test', () => {
         await element(by.cssContainingText('button.btn-primary', 'Save')).click();
     });
 
-    it('should be able to delete SourceData', async () => {
+    it('should be able to delete SourceData', async() => {
         await element(by.cssContainingText('td', 'TEST-SENSOR')).element(by.xpath('ancestor::tr'))
             .element(by.cssContainingText('button', 'Delete')).click();
 

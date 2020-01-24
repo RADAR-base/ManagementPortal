@@ -9,22 +9,22 @@ describe('Project view: Create a subject, assign sources, discontinue and delete
     const sourceName = 'test-source-2';
     const externalId = 'test-id';
 
-    beforeAll(async () => {
+    beforeAll(async() => {
         await browser.get('/');
         navBarPage = new NavBarPage(true);
         await browser.waitForAngular();
     });
 
-    beforeEach(async () => {
+    beforeEach(async() => {
         browser.sleep(1000);
     });
 
-    it('should load project view', async () => {
+    it('should load project view', async() => {
         await navBarPage.clickOnProjectMenu();
         await element.all(by.partialLinkText('radar')).first().click();
     });
 
-    it('should be able to create a subject', async () => {
+    it('should be able to create a subject', async() => {
         await element(by.cssContainingText('jhi-subjects h4 button.btn-primary', 'Create a new Subject')).click();
         await element(by.name('externalId')).sendKeys(externalId);
         await element(by.cssContainingText('button.btn-primary', 'Save')).click();
@@ -33,7 +33,7 @@ describe('Project view: Create a subject, assign sources, discontinue and delete
         expect((await element.all(by.css('jhi-subjects tbody tr')).count())).toEqual(4);
     });
 
-    it('should be able to create a source', async () => {
+    it('should be able to create a source', async() => {
         await element(by.cssContainingText('li', 'Sources')).click();
         await element(by.css('button.create-source')).click();
         await element(by.id('field_sourceName')).sendKeys(sourceName);
@@ -46,7 +46,7 @@ describe('Project view: Create a subject, assign sources, discontinue and delete
         expect((await element.all(by.css('jhi-sources tbody tr')).count())).toEqual(3);
     });
 
-    it('should be able to assign a source', async () => {
+    it('should be able to assign a source', async() => {
         await element(by.cssContainingText('li', 'Subjects')).click();
         // find a row which contains the external-id entered
         await element.all(by.cssContainingText('jhi-subjects tbody tr td', externalId))
@@ -74,7 +74,7 @@ describe('Project view: Create a subject, assign sources, discontinue and delete
 
     });
 
-    it('should show the source as assigned', async () => {
+    it('should show the source as assigned', async() => {
         await element(by.cssContainingText('li', 'Sources')).click();
         expect(await element.all(by.linkText(sourceName))
             .all(by.xpath('ancestor::tr'))
@@ -82,7 +82,7 @@ describe('Project view: Create a subject, assign sources, discontinue and delete
             .count()).toBe(1);
     });
 
-    it('should be able to discontinue a subject', async () => {
+    it('should be able to discontinue a subject', async() => {
         await element(by.cssContainingText('li', 'Subjects')).click();
         // find a row which contains a uuid
         await element.all(by.cssContainingText('jhi-subjects tbody tr td', externalId))
@@ -95,7 +95,7 @@ describe('Project view: Create a subject, assign sources, discontinue and delete
         await browser.waitForAngular();
     });
 
-    it('should show the source as unassigned', async () => {
+    it('should show the source as unassigned', async() => {
         await element(by.cssContainingText('li', 'Sources')).click();
         expect(await element.all(by.linkText(sourceName))
             .all(by.xpath('ancestor::tr'))
@@ -103,7 +103,7 @@ describe('Project view: Create a subject, assign sources, discontinue and delete
             .count()).toBe(1);
     });
 
-    it('should be able to delete a subject', async () => {
+    it('should be able to delete a subject', async() => {
         await element(by.cssContainingText('li', 'Subjects')).click();
         await element.all(by.cssContainingText('jhi-subjects tbody tr td', externalId))
             .all(by.xpath('ancestor::tr'))

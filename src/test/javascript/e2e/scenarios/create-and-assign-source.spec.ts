@@ -8,17 +8,17 @@ describe('Project View: Create, assign, unassign and delete source', () => {
     const password = element(by.id('password'));
     const sourceName = 'test-source-1';
 
-    beforeAll(async () => {
+    beforeAll(async() => {
         await browser.get('/');
         navBarPage = new NavBarPage(true);
         await browser.waitForAngular();
     });
 
-    beforeEach(async () => {
+    beforeEach(async() => {
         browser.sleep(1000);
     });
 
-    it('should load project view', async () => {
+    it('should load project view', async() => {
         await navBarPage.clickOnProjectMenu();
         await element.all(by.partialLinkText('radar')).first().click();
 
@@ -29,7 +29,7 @@ describe('Project View: Create, assign, unassign and delete source', () => {
         expect((await element.all(by.css('jhi-subjects tbody tr')).count())).toEqual(3);
     });
 
-    it('should be able to create a source', async () => {
+    it('should be able to create a source', async() => {
         await element(by.cssContainingText('li', 'Sources')).click();
         await element(by.css('button.create-source')).click();
         await element(by.id('field_sourceName')).sendKeys(sourceName);
@@ -41,7 +41,7 @@ describe('Project View: Create, assign, unassign and delete source', () => {
         expect((await element.all(by.css('jhi-sources tbody tr')).count())).toEqual(2);
     });
 
-    it('should be able to assign a source', async () => {
+    it('should be able to assign a source', async() => {
         await element(by.cssContainingText('li', 'Subjects')).click();
         await element.all(by.cssContainingText('jhi-subjects tbody tr td', 'sub-2'))
             .all(by.xpath('ancestor::tr'))
@@ -64,7 +64,7 @@ describe('Project View: Create, assign, unassign and delete source', () => {
         expect((await element.all(by.cssContainingText('jhi-subjects td', sourceName)).count())).toBe(1);
     });
 
-    it('should show the source as assigned', async () => {
+    it('should show the source as assigned', async() => {
         await element(by.cssContainingText('li', 'Sources')).click();
         expect((await element.all(by.linkText(sourceName))
             .all(by.xpath('ancestor::tr'))
@@ -72,7 +72,7 @@ describe('Project View: Create, assign, unassign and delete source', () => {
             .count())).toBe(1);
     });
 
-    it('should not be able to delete an assigned source', async () => {
+    it('should not be able to delete an assigned source', async() => {
         await element.all(by.linkText(sourceName))
             .all(by.xpath('ancestor::tr'))
             .all(by.cssContainingText('button', 'Delete')).first()
@@ -83,7 +83,7 @@ describe('Project View: Create, assign, unassign and delete source', () => {
         await element(by.buttonText('Cancel')).click();
     });
 
-    it('should be able to unassign a source', async () => {
+    it('should be able to unassign a source', async() => {
         await element(by.cssContainingText('li', 'Subjects')).click();
         await element.all(by.cssContainingText('jhi-subjects td a', sourceName))
             .all(by.xpath('ancestor::tr'))
@@ -102,7 +102,7 @@ describe('Project View: Create, assign, unassign and delete source', () => {
         expect((await element.all(by.cssContainingText('jhi-subjects td', sourceName)).count())).toBe(0);
     });
 
-    it('should not be able to delete a source used by subject', async () => {
+    it('should not be able to delete a source used by subject', async() => {
         await element(by.cssContainingText('li', 'Sources')).click();
         await element.all(by.linkText(sourceName))
             .all(by.xpath('ancestor::tr'))
