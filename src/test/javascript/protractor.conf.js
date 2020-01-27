@@ -1,4 +1,4 @@
-const HtmlScreenshotReporter = require("protractor-jasmine2-screenshot-reporter");
+const HtmlScreenshotReporter = require('protractor-jasmine2-screenshot-reporter');
 const JasmineReporters = require('jasmine-reporters');
 const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
 
@@ -14,11 +14,11 @@ exports.config = {
 
     capabilities: {
         'browserName': 'chrome',
+        chromeOptions: {
+            args: ["--headless", "--disable-gpu", "--window-size=1280x1024"]
+        },
         'phantomjs.binary.path': require('phantomjs-prebuilt').path,
         'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG'],
-        chromeOptions: {
-            args: [ "--headless", "no-sandbox", "--disable-gpu", "--window-size=1280x1024" ]
-        }
     },
 
     directConnect: true,
@@ -27,19 +27,21 @@ exports.config = {
 
     framework: 'jasmine2',
 
+    SELENIUM_PROMISE_MANAGER: false,
+
     jasmineNodeOpts: {
         showColors: true,
-        defaultTimeoutInterval: 180000
+        defaultTimeoutInterval: 720000
     },
 
-    beforeLaunch: function() {
+    beforeLaunch: function () {
         require('ts-node').register({
             project: ''
         });
     },
 
-    onPrepare: function() {
-        browser.driver.manage().window().setSize(1280, 1024);
+    onPrepare: function () {
+        browser.driver.manage().window().maximize();
         jasmine.getEnv().addReporter(new JasmineReporters.JUnitXmlReporter({
             savePath: 'build/reports/e2e',
             consolidateAll: false
