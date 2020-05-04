@@ -224,6 +224,7 @@ public class SourceService {
             Optional<SourceType> sourceType = projectRepository
                     .findSourceTypeByProjectIdAndSourceTypeId(sourceDto.getProject().getId(),
                             existingSource.getSourceType().getId());
+
             if (!sourceType.isPresent()) {
                 throw new InvalidRequestException(
                         "Cannot transfer a source to a project which doesn't have compatible "

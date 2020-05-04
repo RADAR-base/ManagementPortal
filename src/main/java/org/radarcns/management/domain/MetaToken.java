@@ -2,6 +2,7 @@ package org.radarcns.management.domain;
 
 import java.time.Instant;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -16,7 +17,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-import org.apache.commons.lang3.RandomStringUtils;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
@@ -29,13 +30,21 @@ import org.radarcns.management.domain.support.AbstractEntityListener;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EntityListeners({AbstractEntityListener.class})
 public class MetaToken extends AbstractEntity {
-
+    private static final char[] ID_CHARS = {
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
+            'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
+            'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            '-', '.'
+    };
 
     //https://math.stackexchange.com/questions/889538/
     // probability-of-collision-with-randomly-generated-id
     // Current length of tokenName is 12. If we think there might be collision we can increase
     // the length.
-    private static final int SHORT_ID_LENGTH = 12;
+    public static final int SHORT_ID_LENGTH = 8;
+    public static final int LONG_ID_LENGTH = 16;
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
@@ -46,9 +55,6 @@ public class MetaToken extends AbstractEntity {
     @Pattern(regexp = Constants.TOKEN_NAME_REGEX)
     @Column(name = "token_name", nullable = false, unique = true)
     private String tokenName;
-
-    @Column(name = "token", length = 2000)
-    private String token;
 
     @Column(name = "fetched", nullable = false)
     private Boolean fetched;
@@ -64,12 +70,24 @@ public class MetaToken extends AbstractEntity {
     @Column(name = "client_id", nullable = false)
     private String clientId;
 
+    @Column(name = "persistent", nullable = false)
+    private Boolean persistent;
+
     /**
      * Meta token constructor.
      * Must generate a random string as the tokenName.
      */
     public MetaToken() {
-        this.tokenName = RandomStringUtils.randomAlphanumeric(SHORT_ID_LENGTH);
+    }
+
+    public MetaToken generateName(int length) {
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        char[] tokenChars = new char[length];
+        for (int i = 0; i < length; i++) {
+            tokenChars[i] = ID_CHARS[random.nextInt(ID_CHARS.length)];
+        }
+        tokenName = String.valueOf(tokenChars);
+        return this;
     }
 
     public Long getId() {
@@ -86,15 +104,6 @@ public class MetaToken extends AbstractEntity {
 
     public MetaToken tokenName(String tokenName) {
         this.tokenName = tokenName;
-        return this;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public MetaToken token(String token) {
-        this.token = token;
         return this;
     }
 
@@ -134,6 +143,11 @@ public class MetaToken extends AbstractEntity {
         return this;
     }
 
+    @JsonIgnore
+    public boolean isValid() {
+        return (persistent || !fetched) && Instant.now().isBefore(expiryDate);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -144,28 +158,37 @@ public class MetaToken extends AbstractEntity {
         }
         MetaToken metaToken = (MetaToken) o;
         return Objects.equals(id, metaToken.id)
-            && Objects.equals(tokenName, metaToken.tokenName)
-            && Objects.equals(token, metaToken.token)
-            && Objects.equals(fetched, metaToken.fetched)
-            && Objects.equals(expiryDate, metaToken.expiryDate)
-            && Objects.equals(clientId, metaToken.clientId)
-            && Objects.equals(subject, metaToken.subject);
+                && Objects.equals(tokenName, metaToken.tokenName)
+                && Objects.equals(fetched, metaToken.fetched)
+                && Objects.equals(expiryDate, metaToken.expiryDate)
+                && Objects.equals(clientId, metaToken.clientId)
+                && Objects.equals(subject, metaToken.subject)
+                && Objects.equals(persistent, metaToken.persistent);
     }
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(id, tokenName, token, fetched, expiryDate, subject, clientId);
+        return Objects.hash(id, tokenName, fetched, expiryDate, subject, clientId, persistent);
     }
 
     @Override
     public String toString() {
         return "MetaToken{" + "id=" + id
                 + ", tokenName='" + tokenName
-                + ", token='" + token
                 + ", fetched=" + fetched
                 + ", expiryDate=" + expiryDate
                 + ", subject=" + subject
-                + ", clientId=" + clientId + '}';
+                + ", clientId=" + clientId
+                + ", persistent=" + persistent
+                + '}';
+    }
+
+    public boolean isPersistent() {
+        return persistent;
+    }
+
+    public MetaToken persistent(boolean persistent) {
+        this.persistent = persistent;
+        return this;
     }
 }

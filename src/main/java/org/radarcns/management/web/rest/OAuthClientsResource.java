@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import com.codahale.metrics.annotation.Timed;
+import javax.ws.rs.DefaultValue;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.Project;
@@ -188,7 +189,8 @@ public class OAuthClientsResource {
     @GetMapping("/oauth-clients/pair")
     @Timed
     public ResponseEntity<ClientPairInfoDTO> getRefreshToken(@RequestParam String login,
-            @RequestParam(value = "clientId") String clientId)
+            @RequestParam(value = "clientId") String clientId,
+            @RequestParam(value = "persistent") @DefaultValue("false") Boolean persistent)
             throws NotAuthorizedException, URISyntaxException, MalformedURLException {
         User currentUser = userService.getUserWithAuthorities();
         if (currentUser == null) {
@@ -205,7 +207,7 @@ public class OAuthClientsResource {
         // Users who can update a subject can also generate a refresh token for that subject
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, project, login);
 
-        ClientPairInfoDTO cpi = oAuthClientService.createRefreshToken(subject, clientId);
+        ClientPairInfoDTO cpi = oAuthClientService.createMetaToken(subject, clientId, persistent);
         // generate audit event
         eventRepository.add(new AuditEvent(currentUser.getLogin(), "PAIR_CLIENT_REQUEST",
                 "client_id=" + clientId, "subject_login=" + login));

@@ -20,8 +20,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.Optional;
 
+import static org.radarcns.management.domain.MetaToken.LONG_ID_LENGTH;
+import static org.radarcns.management.domain.MetaToken.SHORT_ID_LENGTH;
 import static org.radarcns.management.web.rest.errors.EntityName.META_TOKEN;
 
 /**
@@ -38,6 +39,9 @@ public class MetaTokenService {
 
     @Autowired
     private MetaTokenRepository metaTokenRepository;
+
+    @Autowired
+    private OAuthClientService oAuthClientService;
 
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
@@ -64,17 +68,25 @@ public class MetaTokenService {
      */
     public TokenDTO fetchToken(String tokenName) throws MalformedURLException {
         log.debug("Request to get Token : {}", tokenName);
-        MetaToken fetchedToken = getToken(tokenName);
+        MetaToken metaToken = getToken(tokenName);
         // process the response if the token is not fetched or not expired
-        if (!fetchedToken.isFetched() && Instant.now().isBefore(fetchedToken.getExpiryDate())) {
+        if (metaToken.isValid()) {
+            String refreshToken = oAuthClientService.createAccessToken(
+                    metaToken.getSubject(),
+                    metaToken.getClientId())
+                    .getRefreshToken()
+                    .getValue();
+
             // create response
-            TokenDTO result = new TokenDTO(fetchedToken.getToken(),
+            TokenDTO result = new TokenDTO(refreshToken,
                     new URL(managementPortalProperties.getCommon().getBaseUrl()),
-                    subjectService.getPrivacyPolicyUrl(fetchedToken.getSubject()));
+                    subjectService.getPrivacyPolicyUrl(metaToken.getSubject()));
 
             // change fetched status to true.
-            fetchedToken.fetched(true);
-            save(fetchedToken);
+            if (!metaToken.isPersistent()) {
+                metaToken.fetched(true);
+                save(metaToken);
+            }
             return result;
         } else {
             throw new RequestGoneException("Token already fetched or expired. ",
@@ -90,15 +102,11 @@ public class MetaTokenService {
      */
     @Transactional(readOnly = true)
     public MetaToken getToken(String tokenName) {
-        Optional<MetaToken> fetchedToken = metaTokenRepository.findOneByTokenName(tokenName);
-
-        if (fetchedToken.isPresent()) {
-            return fetchedToken.get();
-        } else {
-            throw new NotFoundException("Meta token not found with tokenName", META_TOKEN,
-                ErrorConstants.ERR_TOKEN_NOT_FOUND,
-                Collections.singletonMap("tokenName", tokenName));
-        }
+        return metaTokenRepository.findOneByTokenName(tokenName)
+                .orElseThrow(() -> new NotFoundException("Meta token not found with tokenName",
+                        META_TOKEN,
+                        ErrorConstants.ERR_TOKEN_NOT_FOUND,
+                        Collections.singletonMap("tokenName", tokenName)));
     }
 
     /**
@@ -106,20 +114,21 @@ public class MetaTokenService {
      * If a collision is detection, we try to save the token with a new tokenName
      * @return an unique token
      */
-    public MetaToken saveUniqueToken(Subject subject, String clientId, String token, Boolean
-            fetched, Instant expiryTime ) {
+    public MetaToken saveUniqueToken(Subject subject, String clientId, Boolean
+            fetched, Instant expiryTime, boolean persistent) {
         MetaToken metaToken = new MetaToken()
-                .token(token)
+                .generateName(persistent ? LONG_ID_LENGTH : SHORT_ID_LENGTH)
                 .fetched(fetched)
                 .expiryDate(expiryTime)
                 .subject(subject)
-                .clientId(clientId);
+                .clientId(clientId)
+                .persistent(persistent);
 
         try {
             return metaTokenRepository.save(metaToken);
         } catch (ConstraintViolationException e) {
             log.warn("Unique constraint violation catched... Trying to save with new tokenName");
-            return saveUniqueToken(subject, clientId, token, fetched, expiryTime);
+            return saveUniqueToken(subject, clientId, fetched, expiryTime, persistent);
         }
 
     }
@@ -132,7 +141,7 @@ public class MetaTokenService {
     public void removeStaleTokens() {
         log.info("Scheduled scan for expired and fetched meta-tokens starting now");
 
-        metaTokenRepository.findAllByFetchedOrExpired(true, Instant.now())
+        metaTokenRepository.findAllByFetchedOrExpired(Instant.now())
                 .forEach(metaToken -> {
                     log.info("Deleting deleting expired or fetched token {}",
                             metaToken.getTokenName());

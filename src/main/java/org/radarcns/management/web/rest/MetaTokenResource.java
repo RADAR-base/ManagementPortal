@@ -25,6 +25,7 @@ public class MetaTokenResource {
     private final Logger log = LoggerFactory.getLogger(OAuthClientsResource.class);
 
     public static final Duration DEFAULT_META_TOKEN_TIMEOUT = Duration.ofHours(1);
+    public static final Duration DEFAULT_PERSISTENT_META_TOKEN_TIMEOUT = Duration.ofDays(365);
 
     @Autowired
     private MetaTokenService metaTokenService;

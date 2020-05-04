@@ -105,13 +105,16 @@ public class AccountResource {
     @PostMapping("/account")
     @Timed
     public ResponseEntity saveAccount(@Valid @RequestBody UserDTO userDto) {
-        Optional<User> existingUser = userRepository.findOneByEmail(userDto.getEmail());
-        if (existingUser.isPresent() && (!existingUser.get().getLogin()
-                .equalsIgnoreCase(userDto.getLogin()))) {
+        boolean hasConflictingLogin = userRepository.findOneByEmail(userDto.getEmail())
+                .filter(u -> !u.getLogin().equalsIgnoreCase(userDto.getLogin()))
+                .isPresent();
+
+        if (hasConflictingLogin) {
             return ResponseEntity.badRequest().headers(HeaderUtil
                     .createFailureAlert("user-management", "emailexists", "Email already in use"))
                     .body(null);
         }
+
         return userRepository
                 .findOneByLogin(SecurityUtils.getCurrentUserLogin())
                 .map(u -> {

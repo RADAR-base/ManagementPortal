@@ -66,6 +66,7 @@ public class MetaTokenServiceTest {
     public void testSaveThenFetchMetaToken() throws MalformedURLException {
 
         MetaToken metaToken = new MetaToken()
+                .generateName(MetaToken.SHORT_ID_LENGTH)
                 .fetched(false)
                 .token("{\"access_token\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJhZG1pbi"
                 + "IsInNvdX"
@@ -121,6 +122,7 @@ public class MetaTokenServiceTest {
     @Test(expected = RadarWebApplicationException.class)
     public void testGetAFetchedMetaToken() throws MalformedURLException {
         MetaToken token = new MetaToken()
+                .generateName(MetaToken.SHORT_ID_LENGTH)
                 .fetched(true)
                 .tokenName("something")
                 .expiryDate(Instant.now().plus(Duration.ofHours(1)))
@@ -139,6 +141,7 @@ public class MetaTokenServiceTest {
     @Test(expected = RadarWebApplicationException.class)
     public void testGetAnExpiredMetaToken() throws MalformedURLException {
         MetaToken token = new MetaToken()
+                .generateName(MetaToken.SHORT_ID_LENGTH)
                 .fetched(false)
                 .tokenName("somethingelse")
                 .expiryDate(Instant.now().minus(Duration.ofHours(1)))
@@ -160,16 +163,19 @@ public class MetaTokenServiceTest {
     public void testRemovingExpiredMetaToken() {
 
         MetaToken tokenFetched = new MetaToken()
+                .generateName(MetaToken.SHORT_ID_LENGTH)
                 .fetched(true)
                 .tokenName("something")
                 .expiryDate(Instant.now().plus(Duration.ofHours(1)));
 
         MetaToken tokenExpired = new MetaToken()
+                .generateName(MetaToken.SHORT_ID_LENGTH)
                 .fetched(false)
                 .tokenName("somethingelse")
                 .expiryDate(Instant.now().minus(Duration.ofHours(1)));
 
         MetaToken tokenNew = new MetaToken()
+                .generateName(MetaToken.SHORT_ID_LENGTH)
                 .fetched(false)
                 .tokenName("somethingelseandelse")
                 .expiryDate(Instant.now().plus(Duration.ofHours(1)));

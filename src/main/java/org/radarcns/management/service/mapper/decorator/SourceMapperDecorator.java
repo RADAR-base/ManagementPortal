@@ -29,13 +29,10 @@ public abstract class SourceMapperDecorator implements SourceMapper {
 
     @Override
     public Source descriptiveDTOToSource(MinimalSourceDetailsDTO minimalSource) {
-        Optional<Source> sourceOpt = sourceRepository
-                .findOneBySourceId(minimalSource.getSourceId());
-        if (!sourceOpt.isPresent()) {
-            throw new IllegalArgumentException("Source ID " + minimalSource.getSourceId()
-                    + " not found");
-        }
-        Source source = sourceOpt.get();
+        Source source = sourceRepository
+                .findOneBySourceId(minimalSource.getSourceId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Source ID " + minimalSource.getSourceId() + " not found"));
         source.setAssigned(minimalSource.isAssigned());
         return source;
     }
