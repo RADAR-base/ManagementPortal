@@ -148,4 +148,8 @@ public class MetaTokenService {
                     metaTokenRepository.delete(metaToken);
                 });
     }
+
+    public void delete(MetaToken token) {
+        metaTokenRepository.delete(token);
+    }
 }

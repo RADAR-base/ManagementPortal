@@ -62,11 +62,16 @@
             },
             "discontinued": "Een onderwerp wordt beëindigd met een identificatiecode {{ param }}",
             "subjectId" : "Subject Id",
-            "showTokenUrl" : "Tokengegevens weergeven",
-            "hideTokenUrl" : "Gegevens token verbergen",
             "baseUrl" : "Base Url",
             "tokenName" : "Token naam",
-            "tokenTimeoutMessage": "Houd er rekening mee dat de inhoud van deze QR-code vervalt om {{at}} (in {{time}} uur (uren). <br>Vernieuwen om de QR-code te vernieuwen."
+            "tokenTimeoutMinutes": "{{minutes}} minuten",
+            "tokenTimeoutHour": "1 uur",
+            "tokenTimeoutHours": "{{hours}} uur",
+            "tokenTimeoutDays": "{{days}} dagen",
+            "validUntil": "Geldig tot",
+            "validity": "Geldigheidsduur",
+            "generateToken": "Genereer QR code",
+            "generatePersistentToken": "Genereer blijvende QR code"
         }
     },
     "error": {

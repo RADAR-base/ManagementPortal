@@ -62,11 +62,16 @@
             },
             "discontinued": "A Subject is discontinued with identifier {{ param }}",
             "subjectId" : "Subject Id",
-            "showTokenUrl" : "Show token data",
-            "hideTokenUrl" : "Hide token data",
             "baseUrl" : "Base Url",
             "tokenName" : "Token Name",
-            "tokenTimeoutMessage": "Please note that this QR code content will expire at {{at}} (in {{time}} hour(s)). <br>Please refresh to renew the QR code."
+            "tokenTimeoutHour": "1 hour",
+            "tokenTimeoutHours": "{{hours}} hours",
+            "tokenTimeoutDays": "{{days}} days",
+            "tokenTimeoutMinutes": "{{minutes}} minutes",
+            "validUntil": "Valid until",
+            "validity": "Validity",
+            "generateToken": "Generate QR code",
+            "generatePersistentToken": "Generate persistent QR code"
         }
     },
     "error": {

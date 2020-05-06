@@ -209,12 +209,19 @@ public class OAuthClientService {
      * @return meta-token timeout duration.
      */
     private Duration getMetaTokenTimeout(boolean persistent) {
-        String timeoutConfig = persistent
-                ? managementPortalProperties.getOauth().getPersistentMetaTokenTimeout()
-                : managementPortalProperties.getOauth().getMetaTokenTimeout();
+        String timeoutConfig;
+        Duration defaultTimeout;
 
-        if (timeoutConfig.isEmpty()) {
-            return persistent ? DEFAULT_PERSISTENT_META_TOKEN_TIMEOUT : DEFAULT_META_TOKEN_TIMEOUT;
+        if (persistent) {
+            timeoutConfig = managementPortalProperties.getOauth().getPersistentMetaTokenTimeout();
+            defaultTimeout = DEFAULT_PERSISTENT_META_TOKEN_TIMEOUT;
+        } else {
+            timeoutConfig = managementPortalProperties.getOauth().getMetaTokenTimeout();
+            defaultTimeout = DEFAULT_META_TOKEN_TIMEOUT;
+        }
+
+        if (timeoutConfig == null || timeoutConfig.isEmpty()) {
+            return defaultTimeout;
         }
 
         try {
@@ -222,10 +229,9 @@ public class OAuthClientService {
         } catch (DateTimeParseException e) {
             // if the token timeout cannot be read, log the error and use the default value.
             log.warn("Cannot parse meta-token timeout config. Using default value", e);
-            return persistent ? DEFAULT_PERSISTENT_META_TOKEN_TIMEOUT : DEFAULT_META_TOKEN_TIMEOUT;
+            return defaultTimeout;
         }
     }
-
 
     /**
      * Internally creates an {@link OAuth2AccessToken} token using authorization-code flow. This

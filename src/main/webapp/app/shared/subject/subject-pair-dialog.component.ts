@@ -2,7 +2,7 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { AlertService, JhiLanguageService } from 'ng-jhipster';
+import { JhiLanguageService } from 'ng-jhipster';
 import { OAuthClient, OAuthClientService } from '../../entities/oauth-client';
 import { OAuthClientPairInfoService } from '../../entities/oauth-client/oauth-client-pair-info.service';
 
@@ -10,11 +10,13 @@ import { SubjectPopupService } from './subject-popup.service';
 import { Subject } from './subject.model';
 import { DatePipe } from '@angular/common';
 import { DOCUMENT } from '@angular/platform-browser';
+import { TranslateService } from 'ng2-translate';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'jhi-subject-pair-dialog',
     templateUrl: './subject-pair-dialog.component.html',
-    styleUrls: ['./subject-pair-dialog.component.scss'],
+    styleUrls: ['subject-pair-dialog.component.scss'],
     providers: [OAuthClientService, OAuthClientPairInfoService],
 })
 export class SubjectPairDialogComponent implements OnInit {
@@ -22,16 +24,14 @@ export class SubjectPairDialogComponent implements OnInit {
 
     subject: Subject;
     oauthClients: OAuthClient[];
-    oauthClientPairInfo: any;
-    selectedClient: OAuthClient;
-    showQRCode = false;
-    showTokenUrl = false;
+    pairInfo: any = null;
+    selectedClient: OAuthClient = null;
 
     constructor(public activeModal: NgbActiveModal,
                 private jhiLanguageService: JhiLanguageService,
-                private alertService: AlertService,
+                private translate: TranslateService,
                 private oauthClientService: OAuthClientService,
-                private oauthClientPairInfoService: OAuthClientPairInfoService,
+                private pairInfoService: OAuthClientPairInfoService,
                 private datePipe: DatePipe,
                 @Inject(DOCUMENT) private doc) {
         this.jhiLanguageService.addLocation('subject');
@@ -69,31 +69,61 @@ export class SubjectPairDialogComponent implements OnInit {
         return item.clientId;
     }
 
-    updateQRCode() {
+    unsetPairing() {
+        this.pairInfo = null;
+    }
+
+    generateQRCode(persistent: boolean) {
         if (this.selectedClient !== null) {
-            this.oauthClientPairInfoService.get(this.selectedClient, this.subject).subscribe(
-                    (res) => {
-                        this.oauthClientPairInfo = res.json();
-                        this.showQRCode = true;
-                        const timesOutAt  = this.datePipe
-                                .transform(this.oauthClientPairInfo.timesOutAt, 'dd/MM/yy HH:mm');
-                        this.alertService.info('managementPortalApp.subject.tokenTimeoutMessage',
-                                {at: timesOutAt, time: this.oauthClientPairInfo.timeout}, null);
+            this.pairInfoService.get(this.selectedClient, this.subject, persistent)
+                    .subscribe((res) => {
+                        // delete old value
+                        if (this.pairInfo != null
+                                && this.pairInfo.tokenName != null) {
+                            this.pairInfoService.delete(this.pairInfo.tokenName)
+                                    .subscribe((deleteRes) => {
+                                        if (!deleteRes.ok) {
+                                            console.log('Failed to delete stale MetaToken: '
+                                                    + JSON.stringify(deleteRes.json()));
+                                        }
+                                    });
+                        }
+
+                        const result = res.json();
+
+                        result.timeOutDate = this.datePipe
+                                .transform(result.timesOutAt, 'medium');
+
+                        let timeoutTranslation: Observable<string>;
+
+                        const timeoutMins = result.timeout / 60000;
+                        if (timeoutMins < 180 && timeoutMins % 60 !== 0) {
+                            timeoutTranslation = this.translate.get(
+                                    'managementPortalApp.subject.tokenTimeoutMinutes',
+                                    {minutes: timeoutMins});
+                        } else {
+                            const timeoutHours = Math.floor(timeoutMins / 60);
+
+                                if (timeoutHours === 1) {
+                                    timeoutTranslation = this.translate.get(
+                                            'managementPortalApp.subject.tokenTimeoutHour');
+                                } else if (timeoutHours <= 48) {
+                                    timeoutTranslation = this.translate.get(
+                                            'managementPortalApp.subject.tokenTimeoutHours',
+                                            {hours: result.timeout});
+                                } else {
+                                    timeoutTranslation = this.translate.get(
+                                            'managementPortalApp.subject.tokenTimeoutDays',
+                                            {days: Math.floor(timeoutHours / 24)});
+                                }
+                        }
+                        timeoutTranslation.subscribe(t => result.timeoutString = t);
+                        this.pairInfo = result;
                     });
         } else {
-            this.showQRCode = false;
-            this.oauthClientPairInfo = {};
+            this.pairInfo = null;
         }
     }
-
-    unlockTokenUrl() {
-        this.showTokenUrl = true;
-    }
-
-    lockTokenUrl() {
-        this.showTokenUrl = false;
-    }
-
 }
 
 @Component({
