@@ -16,8 +16,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
@@ -144,7 +142,6 @@ public class MetaToken extends AbstractEntity {
         return this;
     }
 
-    @JsonIgnore
     public boolean isValid() {
         return (persistent || !fetched) && Instant.now().isBefore(expiryDate);
     }
