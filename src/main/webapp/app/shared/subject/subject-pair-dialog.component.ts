@@ -104,18 +104,18 @@ export class SubjectPairDialogComponent implements OnInit {
                         } else {
                             const timeoutHours = Math.floor(timeoutMins / 60);
 
-                                if (timeoutHours === 1) {
-                                    timeoutTranslation = this.translate.get(
-                                            'managementPortalApp.subject.tokenTimeoutHour');
-                                } else if (timeoutHours <= 48) {
-                                    timeoutTranslation = this.translate.get(
-                                            'managementPortalApp.subject.tokenTimeoutHours',
-                                            {hours: result.timeout});
-                                } else {
-                                    timeoutTranslation = this.translate.get(
-                                            'managementPortalApp.subject.tokenTimeoutDays',
-                                            {days: Math.floor(timeoutHours / 24)});
-                                }
+                            if (timeoutHours === 1) {
+                                timeoutTranslation = this.translate.get(
+                                        'managementPortalApp.subject.tokenTimeoutHour');
+                            } else if (timeoutHours <= 48) {
+                                timeoutTranslation = this.translate.get(
+                                        'managementPortalApp.subject.tokenTimeoutHours',
+                                        {hours: result.timeout});
+                            } else {
+                                timeoutTranslation = this.translate.get(
+                                        'managementPortalApp.subject.tokenTimeoutDays',
+                                        {days: Math.floor(timeoutHours / 24)});
+                            }
                         }
                         timeoutTranslation.subscribe(t => result.timeoutString = t);
                         this.pairInfo = result;
