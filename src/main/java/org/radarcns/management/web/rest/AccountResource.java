@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.radarcns.management.config.ManagementPortalProperties;
-import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.SecurityUtils;
 import org.radarcns.management.service.MailService;

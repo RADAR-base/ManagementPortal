@@ -74,12 +74,13 @@ public class MetaToken extends AbstractEntity {
     private Boolean persistent;
 
     /**
-     * Meta token constructor.
-     * Must generate a random string as the tokenName.
+     * Generates a alphanumeric with '.' and '-' token name. Suggested token name lengths are
+     * {@link #SHORT_ID_LENGTH} for short-living tokens and {@link #LONG_ID_LENGTH} for long-living
+     * meta tokens.
+     *
+     * @param length token length
+     * @return this
      */
-    public MetaToken() {
-    }
-
     public MetaToken generateName(int length) {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         char[] tokenChars = new char[length];

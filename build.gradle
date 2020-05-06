@@ -87,6 +87,11 @@ if (OperatingSystem.current().isWindows()) {
     }
 }
 
+test {
+    testLogging {
+        exceptionFormat = 'full'
+    }
+}
 
 task testReport(type: TestReport) {
     destinationDir = file("$buildDir/reports/tests")

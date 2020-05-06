@@ -10,5 +10,12 @@
             <column name="persistent" type="BOOLEAN" defaultValueBoolean="false" />
         </addColumn>
         <dropColumn tableName="radar_meta_token" columnName="token"/>
+
+        <addColumn tableName="radar_meta_token_aud">
+            <column name="persistent" type="BOOLEAN" defaultValueBoolean="false" />
+            <column name="persistent_mod" type="BOOLEAN" />
+        </addColumn>
+        <dropColumn tableName="radar_meta_token_aud" columnName="token"/>
+        <dropColumn tableName="radar_meta_token_aud" columnName="token_mod"/>
     </changeSet>
 </databaseChangeLog>
