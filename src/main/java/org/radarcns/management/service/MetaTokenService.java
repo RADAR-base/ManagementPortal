@@ -83,7 +83,7 @@ public class MetaTokenService {
                     subjectService.getPrivacyPolicyUrl(metaToken.getSubject()));
 
             // change fetched status to true.
-            if (!metaToken.isPersistent()) {
+            if (!metaToken.isFetched()) {
                 metaToken.fetched(true);
                 save(metaToken);
             }
