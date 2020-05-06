@@ -39,8 +39,8 @@ public class MetaToken extends AbstractEntity {
 
     //https://math.stackexchange.com/questions/889538/
     // probability-of-collision-with-randomly-generated-id
-    // Current length of tokenName is 12. If we think there might be collision we can increase
-    // the length.
+    // Current length of tokenName is 8 for short-lived tokens, and double that
+    // for persistent tokens.
     public static final int SHORT_ID_LENGTH = 8;
     public static final int LONG_ID_LENGTH = 16;
 
