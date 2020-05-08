@@ -1,92 +1,78 @@
-import { browser, element, by, $ } from 'protractor';
+import { $, browser, by, element } from 'protractor';
+
+import { NavBarPage } from '../page-objects/jhi-page-objects';
 
 describe('OAuth Clients e2e test', () => {
-
+    let navBarPage: NavBarPage;
     const username = element(by.id('username'));
     const password = element(by.id('password'));
-    const adminMenu = element(by.id('admin-menu'));
-    const accountMenu = element(by.id('account-menu'));
-    const login = element(by.id('login'));
-    const logout = element(by.id('logout'));
 
-    beforeAll(() => {
-        browser.get('#');
-
-        accountMenu.click();
-        login.click();
-
-        username.sendKeys('admin');
-        password.sendKeys('admin');
-        element(by.css('button[type=submit]')).click();
-        browser.waitForAngular();
+    beforeAll(async() => {
+        await browser.get('/');
+        navBarPage = new NavBarPage(true);
+        await browser.waitForAngular();
     });
 
-    it('should load OAuth clients', () => {
-        adminMenu.click();
-        element.all(by.css('[routerLink="oauth-client"]')).first().click().then(() => {
-            const expectVal = /managementPortalApp.oauthClient.home.title/;
-            element.all(by.css('h4 span')).first().getAttribute('jhiTranslate').then((value) => {
-                expect(value).toMatch(expectVal);
-            });
-        });
+    beforeEach(async() => {
+        browser.sleep(1000);
     });
 
-    it('should load create OAuth Client dialog', () => {
-        element(by.css('jhi-oauth-client h4 button.btn-primary')).click().then(() => {
-            const expectVal = /managementPortalApp.oauthClient.home.createOrEditLabel/;
-            element.all(by.css('h4.modal-title')).first().getAttribute('jhiTranslate').then((value) => {
-                expect(value).toMatch(expectVal);
-            });
+    it('should load OAuth clients', async() => {
+        await navBarPage.clickOnAdminMenu();
+        await element.all(by.css('[routerLink="oauth-client"]')).first().click();
 
-            element(by.css('button.close')).click();
-        });
+        const expectVal = /managementPortalApp.oauthClient.home.title/;
+        const pageTitle = element.all(by.css('h4 span')).first();
+        expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
     });
 
-    it('should disable edit and delete buttons for protected clients', () => {
+    it('should load create OAuth Client dialog', async() => {
+        await element(by.css('jhi-oauth-client h4 button.btn-primary')).click();
+        const expectVal = /managementPortalApp.oauthClient.home.createOrEditLabel/;
+        const modalTitle = element.all(by.css('h4.modal-title')).first();
+        expect((await modalTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
+
+        await element(by.css('button.close')).click();
+    });
+
+    it('should disable edit and delete buttons for protected clients', async() => {
         // find the table row that contains the protected badge, and assert it contains zero enabled buttons
-        element(by.cssContainingText('span.badge-info', 'protected: true')).element(by.xpath('ancestor::tr'))
-                .all(by.css('button')).filter((button) => button.isEnabled()).count().then((count) =>
-            expect(count).toEqual(2)); // show more, show less buttons are enabled
+        expect((await element(by.cssContainingText('span.badge-info', 'protected: true')).element(by.xpath('ancestor::tr'))
+            .all(by.css('button')).filter((button) => button.isEnabled()).count())).toEqual(2);
+        // show more, show less buttons are enabled
     });
 
-    it('should be able to create OAuth Client', () => {
-        element(by.css('jhi-oauth-client h4 button.btn-primary')).click().then(() => {
-            element(by.id('id')).sendKeys('test-client');
-            element(by.cssContainingText('button', 'Random')).click().then(() => {
-                // check if there is something put in the secret field
-                element(by.id('secret')).getAttribute('value').then((value) => expect(value.length).toBeGreaterThan(0));
-            });
-            element(by.id('scope')).sendKeys('SUBJECT.READ');
-            element(by.id('resourceIds')).sendKeys('res_ManagementPortal');
-            element(by.cssContainingText('label.form-check-label', 'refresh_token')).element(by.css('input')).click();
-            element(by.cssContainingText('label.form-check-label', 'password')).element(by.css('input')).click();
-            element(by.id('accessTokenValidity')).clear();
-            element(by.id('accessTokenValidity')).sendKeys('3600');
-            element(by.id('refreshTokenValidity')).clear();
-            element(by.id('refreshTokenValidity')).sendKeys('7200');
-            element(by.cssContainingText('button.btn-primary', 'Save')).click();
-        });
+    it('should be able to create OAuth Client', async() => {
+        await element(by.css('jhi-oauth-client h4 button.btn-primary')).click();
+        await element(by.id('id')).sendKeys('test-client');
+        await element(by.cssContainingText('button', 'Random')).click();
+
+        expect((await element(by.id('secret')).getAttribute('value')).length).toBeGreaterThan(0);
+
+        await element(by.id('scope')).sendKeys('SUBJECT.READ');
+        await element(by.id('resourceIds')).sendKeys('res_ManagementPortal');
+        await element(by.cssContainingText('label.form-check-label', 'refresh_token')).element(by.css('input')).click();
+        await element(by.cssContainingText('label.form-check-label', 'password')).element(by.css('input')).click();
+        await element(by.id('accessTokenValidity')).clear();
+        await element(by.id('accessTokenValidity')).sendKeys('3600');
+        await element(by.id('refreshTokenValidity')).clear();
+        await element(by.id('refreshTokenValidity')).sendKeys('7200');
+        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
     });
 
-    it('should be able to edit OAuth Client', () => {
-        browser.waitForAngular();
-        element(by.cssContainingText('td', 'test-client')).element(by.xpath('ancestor::tr'))
-                .element(by.cssContainingText('button', 'Edit')).click().then(() => {
-            browser.waitForAngular();
-            element(by.cssContainingText('button.btn-primary', 'Save')).click();
-        });
+    it('should be able to edit OAuth Client', async() => {
+        await browser.waitForAngular();
+        await element(by.cssContainingText('td', 'test-client')).element(by.xpath('ancestor::tr'))
+            .element(by.cssContainingText('button', 'Edit')).click();
+        await browser.waitForAngular();
+        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
+
     });
 
-    it('should be able to delete OAuth Client', () => {
-        element(by.cssContainingText('td', 'test-client')).element(by.xpath('ancestor::tr'))
-                .element(by.cssContainingText('button', 'Delete')).click().then(() => {
-            browser.waitForAngular();
-            element(by.cssContainingText('jhi-oauth-client-delete-dialog button.btn-danger', 'Delete')).click();
-        });
-    });
-
-    afterAll(function() {
-        accountMenu.click();
-        logout.click();
+    it('should be able to delete OAuth Client', async() => {
+        await element(by.cssContainingText('td', 'test-client')).element(by.xpath('ancestor::tr'))
+            .element(by.cssContainingText('button', 'Delete')).click();
+        await browser.waitForAngular();
+        await element(by.cssContainingText('jhi-oauth-client-delete-dialog button.btn-danger', 'Delete')).click();
     });
 });
