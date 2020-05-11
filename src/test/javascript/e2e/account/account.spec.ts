@@ -13,7 +13,7 @@ describe('account', () => {
     });
 
     beforeEach(async() => {
-        browser.sleep(1000);
+        browser.sleep(3000);
     });
 
     it('should fail to login with bad password', async() => {
@@ -40,15 +40,12 @@ describe('account', () => {
         const modalTitle = element.all(by.css('.modal-content h1')).first();
         expect((await modalTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
 
-        await navBarPage.clickOnAccountMenu();
-        await navBarPage.clickOnSignIn();
-
-
         await username.sendKeys('admin');
         await password.sendKeys('admin');
         await element(by.css('button[type=submit]')).click();
 
         await browser.waitForAngular();
+        browser.sleep(3000)
 
         const expect2 = /home.logged.message/;
         const successMessage = element.all(by.css('.alert-success span'));
