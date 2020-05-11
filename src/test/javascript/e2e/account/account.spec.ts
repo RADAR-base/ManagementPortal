@@ -45,7 +45,7 @@ describe('account', () => {
         await element(by.css('button[type=submit]')).click();
 
         await browser.waitForAngular();
-        browser.sleep(3000)
+        browser.sleep(3000);
 
         const expect2 = /home.logged.message/;
         const successMessage = element.all(by.css('.alert-success span'));
