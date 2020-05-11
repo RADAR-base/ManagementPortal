@@ -50,6 +50,8 @@ public class ProjectDTO implements Serializable {
 
     private Map<String, String> attributes;
 
+    private Long persistentTokenTimeout;
+
     public Long getId() {
         return id;
     }
@@ -136,6 +138,14 @@ public class ProjectDTO implements Serializable {
 
     public void setHumanReadableProjectName(String humanReadableProjectName) {
         this.humanReadableProjectName = humanReadableProjectName;
+    }
+
+    public Long getPersistentTokenTimeout() {
+        return persistentTokenTimeout;
+    }
+
+    public void setPersistentTokenTimeout(Long persistentTokenTimeout) {
+        this.persistentTokenTimeout = persistentTokenTimeout;
     }
 
     @Override

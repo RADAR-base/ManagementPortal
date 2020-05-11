@@ -4,9 +4,11 @@ import static org.radarcns.management.service.dto.ProjectDTO.HUMAN_READABLE_PROJ
 
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.repository.ProjectRepository;
+import org.radarcns.management.service.OAuthClientService;
 import org.radarcns.management.service.dto.MinimalProjectDetailsDTO;
 import org.radarcns.management.service.dto.ProjectDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
+import org.radarcns.management.web.rest.errors.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -22,13 +24,25 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
     @Autowired
     private ProjectRepository projectRepository;
 
+    @Autowired
+    private OAuthClientService oAuthClientService;
+
     @Override
     public ProjectDTO projectToProjectDTO(Project project) {
         if (project == null) {
             return null;
         }
         ProjectDTO dto = delegate.projectToProjectDTO(project);
+
         dto.setHumanReadableProjectName(project.getAttributes().get(HUMAN_READABLE_PROJECT_NAME));
+
+        try {
+            dto.setPersistentTokenTimeout(
+                    oAuthClientService.getMetaTokenTimeout(true, project).toMillis());
+        } catch (BadRequestException ex) {
+            dto.setPersistentTokenTimeout(null);
+        }
+
         return dto;
     }
 

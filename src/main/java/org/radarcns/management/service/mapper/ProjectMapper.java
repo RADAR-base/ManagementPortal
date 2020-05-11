@@ -19,11 +19,13 @@ import org.radarcns.management.service.mapper.decorator.ProjectMapperDecorator;
 public interface ProjectMapper {
 
     @Mapping(target = "humanReadableProjectName", ignore = true)
+    @Mapping(target = "persistentTokenTimeout", ignore = true)
     ProjectDTO projectToProjectDTO(Project project);
 
     @Named(value = "projectReducedDTO")
     @Mapping(target = "humanReadableProjectName", ignore = true)
     @Mapping(target = "sourceTypes", ignore = true)
+    @Mapping(target = "persistentTokenTimeout", ignore = true)
     ProjectDTO projectToProjectDTOReduced(Project project);
 
     @IterableMapping(qualifiedByName = "projectReducedDTO")

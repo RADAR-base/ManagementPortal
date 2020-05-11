@@ -112,7 +112,7 @@ managementportal:
         keyStorePassword: radarbase
         signingKeyAlias: radarbase-managementportal-ec
         metaTokenTimeout: PT1H
-        persistentMetaTokenTimeout: P365D
+        persistentMetaTokenTimeout: P31D
     common:
         baseUrl: http://localhost:8080
         managementPortalBaseUrl: http://localhost:8080

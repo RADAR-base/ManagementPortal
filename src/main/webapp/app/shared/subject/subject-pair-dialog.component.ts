@@ -26,6 +26,7 @@ export class SubjectPairDialogComponent implements OnInit {
     oauthClients: OAuthClient[];
     pairInfo: any = null;
     selectedClient: OAuthClient = null;
+    private allowPersistentToken = false;
 
     constructor(public activeModal: NgbActiveModal,
                 private jhiLanguageService: JhiLanguageService,
@@ -39,6 +40,9 @@ export class SubjectPairDialogComponent implements OnInit {
     }
 
     ngOnInit() {
+        if (this.subject.project && this.subject.project.persistentTokenTimeout) {
+            this.allowPersistentToken = true;
+        }
         this.loadInconsolataFont();
         this.oauthClientService.query().subscribe(
                 (res) => {
@@ -94,34 +98,37 @@ export class SubjectPairDialogComponent implements OnInit {
                         result.timeOutDate = this.datePipe
                                 .transform(result.timesOutAt, 'medium');
 
-                        let timeoutTranslation: Observable<string>;
+                        this.translateTimeout(result.timeout)
+                                .subscribe(t => result.timeoutString = t);
 
-                        const timeoutMins = result.timeout / 60000;
-                        if (timeoutMins < 180 && timeoutMins % 60 !== 0) {
-                            timeoutTranslation = this.translate.get(
-                                    'managementPortalApp.subject.tokenTimeoutMinutes',
-                                    {minutes: timeoutMins});
-                        } else {
-                            const timeoutHours = Math.floor(timeoutMins / 60);
-
-                            if (timeoutHours === 1) {
-                                timeoutTranslation = this.translate.get(
-                                        'managementPortalApp.subject.tokenTimeoutHour');
-                            } else if (timeoutHours <= 48) {
-                                timeoutTranslation = this.translate.get(
-                                        'managementPortalApp.subject.tokenTimeoutHours',
-                                        {hours: result.timeout});
-                            } else {
-                                timeoutTranslation = this.translate.get(
-                                        'managementPortalApp.subject.tokenTimeoutDays',
-                                        {days: Math.floor(timeoutHours / 24)});
-                            }
-                        }
-                        timeoutTranslation.subscribe(t => result.timeoutString = t);
                         this.pairInfo = result;
                     });
         } else {
             this.pairInfo = null;
+        }
+    }
+
+    private translateTimeout(timeout: number): Observable<string> {
+        const timeoutMins = timeout / 60000;
+        if (timeoutMins < 180 && timeoutMins % 60 !== 0) {
+            return this.translate.get(
+                    'managementPortalApp.subject.tokenTimeoutMinutes',
+                    {minutes: timeoutMins});
+        } else {
+            const timeoutHours = Math.floor(timeoutMins / 60);
+
+            if (timeoutHours === 1) {
+                return this.translate.get(
+                        'managementPortalApp.subject.tokenTimeoutHour');
+            } else if (timeoutHours <= 48) {
+                return this.translate.get(
+                        'managementPortalApp.subject.tokenTimeoutHours',
+                        {hours: timeoutHours});
+            } else {
+                return this.translate.get(
+                        'managementPortalApp.subject.tokenTimeoutDays',
+                        {days: Math.floor(timeoutHours / 24)});
+            }
         }
     }
 }
