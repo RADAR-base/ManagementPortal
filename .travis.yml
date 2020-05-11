@@ -2,7 +2,7 @@ dist: trusty
 services:
   - docker
 addons:
-  chrome: stable
+  firefox: latest
   apt:
     packages:
       - docker-ce # necessary for testing the Dockerfile, which is a multi-stage build see: https://github.com/travis-ci/travis-ci/issues/8181
@@ -19,6 +19,7 @@ sudo: false
 cache:
   directories:
     - node
+    - node_modules
     - $HOME/.yarn-cache
     - $HOME/.gradle/caches/jars-1
     - $HOME/.gradle/caches/jars-2
