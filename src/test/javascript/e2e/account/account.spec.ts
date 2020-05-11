@@ -31,6 +31,8 @@ describe('account', () => {
         const expect2 = /login.messages.error.authentication/;
         const alertMessage = element.all(by.css('.alert-danger')).first();
         expect((await alertMessage.getAttribute('jhiTranslate'))).toMatch(expect2);
+        await username.clear();
+        await password.clear();
     });
 
     it('should login successfully with admin account', async() => {
@@ -38,9 +40,11 @@ describe('account', () => {
         const modalTitle = element.all(by.css('.modal-content h1')).first();
         expect((await modalTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
 
-        await username.clear();
+        await navBarPage.clickOnAccountMenu();
+        await navBarPage.clickOnSignIn();
+
+
         await username.sendKeys('admin');
-        await password.clear();
         await password.sendKeys('admin');
         await element(by.css('button[type=submit]')).click();
 
