@@ -19,7 +19,6 @@ sudo: false
 cache:
   directories:
     - node
-    - node_modules
     - $HOME/.yarn-cache
     - $HOME/.gradle/caches/jars-1
     - $HOME/.gradle/caches/jars-2
@@ -49,6 +48,7 @@ install:
   - yarn install
 
 before_script:
+  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=8080 http://localhost &
   - cp src/test/resources/config/keystore.p12 src/main/resources/config/keystore.p12  # we need the keystore to run our app, and we need our app to run e2e tests
   - chmod +x src/test/bash/*.sh
   - chmod +x util/*.sh
