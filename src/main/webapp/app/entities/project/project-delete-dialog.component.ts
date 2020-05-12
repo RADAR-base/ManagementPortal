@@ -30,7 +30,7 @@ export class ProjectDeleteDialogComponent {
     }
 
     confirmDelete(projectName: string) {
-        this.projectService.delete(projectName).subscribe((response) => {
+        this.projectService.delete(projectName).subscribe(() => {
             this.eventManager.broadcast({
                 name: 'projectListModification',
                 content: 'Deleted an project',

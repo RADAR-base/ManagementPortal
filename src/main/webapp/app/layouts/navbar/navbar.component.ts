@@ -7,7 +7,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { DEBUG_INFO_ENABLED, VERSION } from '../../app.constants';
 import { JhiLanguageHelper, LoginModalService, LoginService, Principal, Project, UserService } from '../../shared';
 
-import { ProfileService } from '../profiles/profile.service'; // FIXME barrel doesn't work here
+import { ProfileService } from '../profiles/profile.service';
 
 @Component({
     selector: 'jhi-navbar',
@@ -51,7 +51,7 @@ export class NavbarComponent implements OnInit {
             this.languages = languages;
         });
 
-        this.profileService.getProfileInfo().subscribe((profileInfo) => {
+        this.profileService.getProfileInfo().then((profileInfo) => {
             this.inProduction = profileInfo.inProduction;
             this.swaggerEnabled = profileInfo.swaggerEnabled;
         });
@@ -60,7 +60,7 @@ export class NavbarComponent implements OnInit {
     }
 
     registerChangeInAuthentication() {
-        this.eventManager.subscribe('authenticationSuccess', (message) => {
+        this.eventManager.subscribe('authenticationSuccess', () => {
             this.loadRelevantProjects();
         });
     }
@@ -69,15 +69,15 @@ export class NavbarComponent implements OnInit {
         this.principal.identity().then((account) => {
             this.currentAccount = account;
             if (this.currentAccount) {
-                this.userService.findProject(this.currentAccount.login).subscribe(res => {
-                    this.projects = res.json();
+                this.userService.findProject(this.currentAccount.login).subscribe((res: Project[]) => {
+                    this.projects = res;
                 });
             }
         });
     }
 
     registerChangeInUsers() {
-        this.eventSubscriber = this.eventManager.subscribe('userListModification', (response) => this.loadRelevantProjects());
+        this.eventSubscriber = this.eventManager.subscribe('userListModification', () => this.loadRelevantProjects());
     }
 
     trackProjectName(index: number, item: Project) {

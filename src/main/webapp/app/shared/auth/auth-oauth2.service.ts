@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Headers, Http, Response } from '@angular/http';
-import { CookieService } from 'angular2-cookie/core';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import { CookieService } from 'ngx-cookie-service';
 import { Observable } from 'rxjs/Rx';
 import { AUTH_TOKEN_COOKIE } from '../constants/common.constants';
 
@@ -8,40 +8,42 @@ import { AUTH_TOKEN_COOKIE } from '../constants/common.constants';
 export class AuthServerProvider {
 
     constructor(
-            private http: Http,
+            private http: HttpClient,
             private cookieService: CookieService,
     ) {
     }
 
     getToken() {
-        return this.cookieService.getObject(AUTH_TOKEN_COOKIE);
+        return this.cookieService.get(AUTH_TOKEN_COOKIE);
     }
 
     login(credentials): Observable<any> {
-        const params = 'username=' + encodeURIComponent(credentials.username) + '&password=' +
-                encodeURIComponent(credentials.password) + '&grant_type=password';
-        const headers = new Headers({
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/json',
-        });
+        const body = new HttpParams()
+                .append('username', credentials.username)
+                .append('password',  credentials.password)
+                .append('grant_type', 'password');
+        const headers = new HttpHeaders()
+                .append('Content-Type', 'application/x-www-form-urlencoded')
+                .append('Accept', 'application/json');
 
-        return this.http.post('oauthserver/oauth/token', params, {headers})
-                .map((response) => {
-                    const data = response.json();
-                    const expiredAt = new Date();
-                    expiredAt.setSeconds(expiredAt.getSeconds() + data.expires_in);
-                    data.expires_at = expiredAt.getTime();
-                    this.cookieService.remove(AUTH_TOKEN_COOKIE);
-                    this.cookieService.putObject(AUTH_TOKEN_COOKIE, data);
-                    return data;
-                });
+        const res = this.http.post('oauthserver/oauth/token', body, {headers, observe: 'response'});
+
+        res.subscribe((resp: any) => {
+            const data: TokenData = resp.body;
+            const expiredAt = new Date();
+            expiredAt.setSeconds(expiredAt.getSeconds() + data.expires_in);
+            data.expires_at = expiredAt.getTime();
+            this.cookieService.delete(AUTH_TOKEN_COOKIE);
+            this.cookieService.set(AUTH_TOKEN_COOKIE, JSON.stringify(data));
+            // return data;
+        });
+        return res;
     }
 
-    sendRefreshTokenRequest(): Observable<Response> {
-        const headers = new Headers({
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/json',
-        });
+    sendRefreshTokenRequest(): Observable<any> {
+        const headers = new HttpHeaders()
+                .append('Content-Type', 'application/x-www-form-urlencoded')
+                .append('Accept', 'application/json');
         const params = 'grant_type=refresh_token';
         return this.http.post('oauthserver/oauth/token', params, {headers});
     }
@@ -50,14 +52,27 @@ export class AuthServerProvider {
         return new Observable(observer => {
             this.http.post('api/logout', {});
             // revoke rft token
-            const headers = new Headers({
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Accept': 'application/json',
-            });
+            const headers = new HttpHeaders()
+                    .append('Content-Type', 'application/x-www-form-urlencoded')
+                    .append('Accept', 'application/json');
             // remove other cookies
             this.http.delete('oauthserver/oauth/token', {headers});
-            this.cookieService.removeAll();
+            this.cookieService.deleteAll();
             observer.complete();
         });
     }
+}
+
+export class TokenData {
+    access_token?: string;
+    token_type?: string;
+    expires_in?: number;
+    scope?: string[];
+    sub: string;
+    sources: string[];
+    grant_type: string[];
+    roles: string[];
+    iss: string[];
+    iat: number;
+    expires_at: number;
 }

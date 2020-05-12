@@ -7,7 +7,6 @@ import {
     SimpleChange,
     SimpleChanges,
 } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
@@ -15,6 +14,8 @@ import { ITEMS_PER_PAGE, Principal, Project } from '..';
 
 import { Source } from './source.model';
 import { SourceService } from './source.service';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { SourceData } from '../../entities/source-data';
 
 @Component({
     selector: 'jhi-sources',
@@ -91,7 +92,7 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
 
     registerChangeInDevices() {
         this.eventSubscriber = this.eventManager.subscribe('sourceListModification',
-                (response) => this.loadSources());
+                () => this.loadSources());
     }
 
     private onError(error) {
@@ -106,8 +107,8 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
                     sort: this.sort(),
                 },
         ).subscribe(
-                (res: Response) => this.onSuccess(res.json(), res.headers),
-                (res: Response) => this.onError(res.json()),
+                (res: HttpResponse<SourceData[]>) => this.onSuccess(res.body, res.headers),
+                (res: HttpErrorResponse) => this.onError(res),
         );
     }
 
@@ -118,8 +119,8 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
             size: this.itemsPerPage,
             sort: this.sort(),
         }).subscribe(
-                (res: Response) => this.onSuccess(res.json(), res.headers),
-                (res: Response) => this.onError(res.json()),
+                (res: HttpResponse<Source[]>) => this.onSuccess(res.body, res.headers),
+                (res: HttpErrorResponse) => this.onError(res),
         );
     }
 

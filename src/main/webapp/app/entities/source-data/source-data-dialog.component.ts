@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -9,6 +8,7 @@ import { SourceDataPopupService } from './source-data-popup.service';
 
 import { SourceData } from './source-data.model';
 import { SourceDataService } from './source-data.service';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-source-data-dialog',
@@ -38,9 +38,9 @@ export class SourceDataDialogComponent implements OnInit {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN'];
         this.sourceTypeService.query().subscribe(
-                (res: Response) => {
-                    this.sourceTypes = res.json();
-                }, (res: Response) => this.onError(res.json()));
+                (res: HttpResponse<SourceType[]>) => {
+                    this.sourceTypes = res.body;
+                }, (res: HttpErrorResponse) => this.onError(res));
     }
 
     clear() {
@@ -52,11 +52,11 @@ export class SourceDataDialogComponent implements OnInit {
         if (this.sourceData.id !== undefined) {
             this.sourceDataService.update(this.sourceData)
             .subscribe((res: SourceData) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError(res));
         } else {
             this.sourceDataService.create(this.sourceData)
             .subscribe((res: SourceData) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError(res));
         }
     }
 
@@ -67,11 +67,6 @@ export class SourceDataDialogComponent implements OnInit {
     }
 
     private onSaveError(error) {
-        try {
-            error.json();
-        } catch (exception) {
-            error.message = error.text();
-        }
         this.isSaving = false;
         this.onError(error);
     }

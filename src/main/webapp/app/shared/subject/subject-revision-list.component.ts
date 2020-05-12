@@ -4,6 +4,7 @@ import { JhiLanguageService, ParseLinks } from 'ng-jhipster';
 import { ITEMS_PER_PAGE } from '..';
 import { EntityRevision } from '../../entities/revision/entity-revision.model';
 import { SubjectService } from './subject.service';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-subject-revision-list',
@@ -70,11 +71,11 @@ export class SubjectRevisionListComponent implements OnInit, OnDestroy {
             page: this.page - 1,
             size: this.itemsPerPage,
             sort: this.sort(),
-        }).subscribe((response) => {
+        }).subscribe((response: HttpResponse<any>) => {
             this.links = this.parseLinks.parse(response.headers.get('link'));
             this.totalItems = parseInt(response.headers.get('X-Total-Count'), 10);
             this.queryCount = this.totalItems;
-            this.revisions = response.json();
+            this.revisions = response.body();
         });
     }
 
@@ -98,8 +99,7 @@ export class SubjectRevisionListComponent implements OnInit, OnDestroy {
     }
 
     sort() {
-        const result = [this.predicate + ',' + (this.reverse ? 'asc' : 'desc')];
-        return result;
+        return [this.predicate + ',' + (this.reverse ? 'asc' : 'desc')];
     }
 
     ngOnDestroy() {

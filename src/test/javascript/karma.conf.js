@@ -68,7 +68,7 @@ module.exports = function (config) {
             plugins: [
                 new webpack.ContextReplacementPlugin(
                     // The (\\|\/) piece accounts for path separators in *nix and Windows
-                    /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
+                    /angular(\\|\/)core(\\|\/)(esm5(\\|\/)src|src)(\\|\/)linker/,
                     root('./src') // location of your src
                 ),
                 new LoaderOptionsPlugin({
@@ -120,6 +120,19 @@ module.exports = function (config) {
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
         browsers: ['PhantomJS'],
+        // browsers: ['Chrome'],
+        //
+        // customLaunchers: {
+        //     ChromeHeadlessCI: {
+        //         base: 'ChromeHeadless',
+        //         flags: ['--no-sandbox']
+        //     }
+        // },
+        //
+        // Ensure all browsers can run tests written in .ts files
+        mime: {
+            'text/x-typescript': ['ts','tsx']
+        },
 
         // Continuous Integration mode
         // if true, Karma captures browsers, runs the tests and exits

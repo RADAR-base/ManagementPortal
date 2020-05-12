@@ -4,6 +4,7 @@
 if [ -z "$TRAVIS_TAG" ]
 then
   echo "Running e2e tests"
+  yarn webdriver-manager update
   yarn e2e
 else
   echo "Skipping e2e tests on tag builds"

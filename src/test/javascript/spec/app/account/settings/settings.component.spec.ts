@@ -44,9 +44,9 @@ describe('Component Tests', () => {
             mockPrincipal = fixture.debugElement.injector.get(Principal);
         });
 
-        it('should send the current identity upon save', function () {
+        it('should send the current identity upon save', function() {
             // GIVEN
-            let accountValues = {
+            const accountValues = {
                 firstName: 'John',
                 lastName: 'Doe',
 
@@ -67,9 +67,9 @@ describe('Component Tests', () => {
             expect(comp.settingsAccount).toEqual(accountValues);
         });
 
-        it('should notify of success upon successful save', function () {
+        it('should notify of success upon successful save', function() {
             // GIVEN
-            let accountValues = {
+            const accountValues = {
                 firstName: 'John',
                 lastName: 'Doe'
             };
@@ -83,7 +83,7 @@ describe('Component Tests', () => {
             expect(comp.success).toBe('OK');
         });
 
-        it('should notify of error upon failed save', function () {
+        it('should notify of error upon failed save', function() {
             // GIVEN
             mockAuth.saveSpy.and.returnValue(Observable.throw('ERROR'));
 

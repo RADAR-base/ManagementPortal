@@ -1,7 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute } from '@angular/router';
-
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
 import { ProjectService } from '../project/project.service';
@@ -40,8 +38,8 @@ export class SourceDialogComponent implements OnInit {
 
     ngOnInit() {
         if (this.source.project) {
-            this.projectService.findSourceTypesByName(this.source.project.projectName).subscribe((res: Response) => {
-                this.sourceTypes = res.json();
+            this.projectService.findSourceTypesByName(this.source.project.projectName).subscribe((res: any) => {
+                this.sourceTypes = res;
             });
         }
         this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
@@ -58,11 +56,11 @@ export class SourceDialogComponent implements OnInit {
         if (this.source.id !== undefined) {
             this.sourceService.update(this.source)
             .subscribe((res: Source) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: any) => this.onSaveError(res));
         } else {
             this.sourceService.create(this.source)
             .subscribe((res: Source) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: any) => this.onSaveError(res));
         }
     }
 
@@ -73,11 +71,6 @@ export class SourceDialogComponent implements OnInit {
     }
 
     private onSaveError(error) {
-        try {
-            error.json();
-        } catch (exception) {
-            error.message = error.text();
-        }
         this.isSaving = false;
         this.onError(error);
     }

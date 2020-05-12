@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -8,6 +7,7 @@ import { SourceType, SourceTypeService } from '../source-type';
 import { ProjectPopupService } from './project-popup.service';
 
 import { Project, ProjectService } from '../../shared/project';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-project-dialog',
@@ -42,9 +42,9 @@ export class ProjectDialogComponent implements OnInit {
 
     ngOnInit() {
         this.sourceTypeService.query().subscribe(
-                (res: Response) => {
-                    this.sourceTypes = res.json();
-                }, (res: Response) => this.onError(res.json()));
+                (res: HttpResponse<SourceType[]>) => {
+                    this.sourceTypes = res.body;
+                }, (res: HttpErrorResponse) => this.onError(res));
         this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
             this.project.attributes = response.content;
         });

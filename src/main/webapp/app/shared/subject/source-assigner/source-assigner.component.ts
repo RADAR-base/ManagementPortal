@@ -1,14 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute } from '@angular/router';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
 import { Principal } from '../..';
-import { MinimalSource, SourceService } from '../../source';
+import { MinimalSource, SourceService} from '../../source';
 import { SubjectPopupService } from '../subject-popup.service';
 
 import { Subject } from '../subject.model';
 import { SubjectService } from '../subject.service';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-source-assigner',
@@ -38,14 +38,10 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
 
     ngOnInit() {
         if (this.subject.id !== null) {
-            this.sourceService.findAvailable(
-                    {
-                        projectName: this.subject.project.projectName,
-                        assigned: false,
-                    }).subscribe(
-                    (res: Response) => {
-                        this.assignableSources = res.json();
-                    }, (res: Response) => this.onError(res.json()));
+            this.sourceService.findAvailable(this.subject.project.projectName).subscribe(
+                    (res: HttpResponse<MinimalSource[]>) => {
+                        this.assignableSources = res.body;
+                    }, (res: HttpErrorResponse) => this.onError(res));
         }
         if (this.subject.id !== null) {
             this.assignedSources = this.subject.sources;
@@ -63,11 +59,11 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
             this.subject.sources = this.assignedSources;
             this.subjectService.update(this.subject)
                     .subscribe((res: Subject) => this.onSaveSuccess(res),
-                            (res: Response) => this.onSaveError(res));
+                            (res: any) => this.onSaveError(res));
         } else {
             this.subjectService.create(this.subject)
                     .subscribe((res: Subject) => this.onSaveSuccess(res),
-                            (res: Response) => this.onSaveError(res));
+                            (res: any) => this.onSaveError(res));
         }
     }
 
@@ -80,6 +76,10 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
                 this.assignableSources = this.assignableSources.filter(obj => obj !== selectedSource);
             }
         }
+    }
+
+    trackDeviceById(index: number, item: MinimalSource) {
+        return item.id;
     }
 
     hasSource(source: MinimalSource): boolean {
@@ -98,11 +98,6 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
     }
 
     private onSaveError(error) {
-        try {
-            error.json();
-        } catch (exception) {
-            error.message = error.text();
-        }
         this.isSaving = false;
         this.onError(error);
     }

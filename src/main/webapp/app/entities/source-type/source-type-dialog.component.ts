@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -10,6 +9,7 @@ import { SourceTypePopupService } from './source-type-popup.service';
 
 import { SourceType } from './source-type.model';
 import { SourceTypeService } from './source-type.service';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-source-type-dialog',
@@ -40,8 +40,8 @@ export class SourceTypeDialogComponent implements OnInit {
 
     ngOnInit() {
         this.projectService.query().subscribe(
-                (res: Response) => this.projects = res.json(),
-                (res: Response) => this.onError(res.json()));
+                (res: HttpResponse<any>) => this.projects = res.body,
+                (res: HttpErrorResponse) => this.onError(res));
     }
 
     clear() {
@@ -53,11 +53,11 @@ export class SourceTypeDialogComponent implements OnInit {
         if (this.sourceType.id !== undefined) {
             this.sourceTypeService.update(this.sourceType)
                     .subscribe((res: SourceType) => this.onSaveSuccess(res),
-                            (res: Response) => this.onSaveError(res));
+                            (res: HttpErrorResponse) => this.onSaveError(res));
         } else {
             this.sourceTypeService.create(this.sourceType)
                     .subscribe((res: SourceType) => this.onSaveSuccess(res),
-                            (res: Response) => this.onSaveError(res));
+                            (res: HttpErrorResponse) => this.onSaveError(res));
         }
     }
 
@@ -67,12 +67,7 @@ export class SourceTypeDialogComponent implements OnInit {
         this.activeModal.dismiss(result);
     }
 
-    private onSaveError(error) {
-        try {
-            error.json();
-        } catch (exception) {
-            error.message = error.text();
-        }
+    private onSaveError(error: HttpErrorResponse) {
         this.isSaving = false;
         this.onError(error);
     }

@@ -1,4 +1,4 @@
-import { Component, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ProjectService } from '../project/project.service';
@@ -25,7 +25,7 @@ export class SubjectPopupService {
         this.isOpen = true;
 
         if (login) {
-            this.subjectService.find(login).subscribe((subject) => {
+            this.subjectService.find(login).subscribe((subject: Subject) => {
                 this.subjectModalRef(component, subject, isDelete);
             });
         } else if (projectName) {

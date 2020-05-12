@@ -52,7 +52,7 @@ describe('Component Tests', () => {
 
             // THEN
             expect(service.find).toHaveBeenCalledWith('testSourceData');
-            expect(comp.sourceData).toEqual(jasmine.objectContaining({id:10}));
+            expect(comp.sourceData).toEqual(jasmine.objectContaining({id: 10}));
             });
         });
     });

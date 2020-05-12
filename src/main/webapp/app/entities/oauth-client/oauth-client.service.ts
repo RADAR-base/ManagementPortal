@@ -1,60 +1,37 @@
 import { Injectable } from '@angular/core';
-import { BaseRequestOptions, Http, Response, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
-
 import { OAuthClient } from './oauth-client.model';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { createRequestOption } from '../../shared/model/request.utils';
 
 @Injectable()
 export class OAuthClientService {
 
     private resourceUrl = 'api/oauth-clients';
 
-    constructor(private http: Http) {
+    constructor(private http: HttpClient) {
     }
 
     create(client: OAuthClient): Observable<OAuthClient> {
         const copy: OAuthClient = Object.assign({}, client);
-        return this.http.post(this.resourceUrl, copy).map((res: Response) => {
-            return res.json();
-        });
+        return this.http.post(this.resourceUrl, copy) as Observable<OAuthClient>;
     }
 
     update(client: OAuthClient): Observable<OAuthClient> {
         const copy: OAuthClient = Object.assign({}, client);
-        return this.http.put(this.resourceUrl, copy).map((res: Response) => {
-            return res.json();
-        });
+        return this.http.put(this.resourceUrl, copy) as Observable<OAuthClient>;
     }
 
     find(id: string): Observable<OAuthClient> {
-        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(id)}`).map((res: Response) => {
-            return res.json();
-        });
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(id)}`) as Observable<OAuthClient>;
     }
 
-    query(req?: any): Observable<Response> {
-        const options = this.createRequestOption(req);
-        return this.http.get(this.resourceUrl, options)
-                ;
+    query(req?: any): Observable<HttpResponse<any>> {
+        const params = createRequestOption(req);
+        return this.http.get(this.resourceUrl, {params, observe: 'response'});
     }
 
-    delete(id: string): Observable<Response> {
-        return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(id)}`);
-    }
-
-    private createRequestOption(req?: any): BaseRequestOptions {
-        const options: BaseRequestOptions = new BaseRequestOptions();
-        if (req) {
-            const params: URLSearchParams = new URLSearchParams();
-            params.set('page', req.page);
-            params.set('size', req.size);
-            if (req.sort) {
-                params.paramsMap.set('sort', req.sort);
-            }
-            params.set('query', req.query);
-
-            options.search = params;
-        }
-        return options;
+    delete(id: string): Observable<HttpResponse<any>> {
+        return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(id)}`) as Observable<HttpResponse<any>>;
     }
 }

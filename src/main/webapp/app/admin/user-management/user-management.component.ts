@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AlertService,
@@ -11,6 +10,7 @@ import {
 import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
 
 import { ITEMS_PER_PAGE, Principal, User, UserService } from '../../shared';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-user-mgmt',
@@ -74,7 +74,7 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
         this.eventManager.subscribe('userListModification', () => this.loadAll());
     }
 
-    onChange() {
+    onChange(event: any) {
         this.userService.query({
             page: this.page - 1,
             size: this.itemsPerPage,
@@ -84,8 +84,8 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
             projectName: this.byProject,
             sort: this.sort(),
         }).subscribe(
-                (res: Response) => this.onSuccess(res.json(), res.headers),
-                (res: Response) => this.onError(res.json()),
+                (res: HttpResponse<User[]>) => this.onSuccess(res.body, res.headers),
+                (res: HttpErrorResponse) => this.onError(res),
         );
 
     }
@@ -96,8 +96,8 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
             size: this.itemsPerPage,
             sort: this.sort(),
         }).subscribe(
-                (res: Response) => this.onSuccess(res.json(), res.headers),
-                (res: Response) => this.onError(res.json()),
+                (res: HttpResponse<User[]>) => this.onSuccess(res.body, res.headers),
+                (res: HttpErrorResponse) => this.onError(res),
         );
     }
 
