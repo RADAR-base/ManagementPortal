@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
@@ -7,6 +6,7 @@ import { ITEMS_PER_PAGE, Principal } from '../../shared';
 
 import { SourceType } from './source-type.model';
 import { SourceTypeService } from './source-type.service';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-source-type',
@@ -56,8 +56,8 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
                     sort: this.sort(),
                 },
         ).subscribe(
-                (res: Response) => this.onSuccess(res.json(), res.headers),
-                (res: Response) => this.onError(res.json()),
+                (res: HttpResponse<SourceType[]>) => this.onSuccess(res.body, res.headers),
+                (res: HttpErrorResponse) => this.onError(res),
         );
     }
 
@@ -79,7 +79,7 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
     }
 
     registerChangeInSourceTypes() {
-        this.eventSubscriber = this.eventManager.subscribe('sourceTypeListModification', (response) => this.loadAll());
+        this.eventSubscriber = this.eventManager.subscribe('sourceTypeListModification', () => this.loadAll());
     }
 
     private onError(error) {

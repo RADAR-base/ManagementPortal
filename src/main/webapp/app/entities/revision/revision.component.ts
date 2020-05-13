@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
@@ -7,6 +6,7 @@ import { ITEMS_PER_PAGE } from '../../shared';
 
 import { Revision } from './revision.model';
 import { RevisionService } from './revision.service';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-revisions',
@@ -68,8 +68,8 @@ export class RevisionComponent implements OnInit, OnDestroy {
             size: this.itemsPerPage,
             sort: this.sort(),
         }).subscribe(
-                (res: Response) => this.onSuccess(res.json(), res.headers),
-                (res: Response) => this.onError(res.json()),
+                (res: HttpResponse<any>) => this.onSuccess(res.body, res.headers),
+                (res: HttpErrorResponse) => this.onError(res.message),
         );
     }
 

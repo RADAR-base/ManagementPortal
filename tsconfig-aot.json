@@ -10,7 +10,7 @@
         "noImplicitAny": false,
         "suppressImplicitAnyIndexErrors": true,
         "outDir": "build/www/app",
-        "lib": ["es6", "dom"],
+        "lib": ["es6", "dom", "es2016"],
         "typeRoots": [
             "node_modules/@types"
         ]

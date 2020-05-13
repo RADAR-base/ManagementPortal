@@ -1,77 +1,63 @@
-import { browser, element, by, $ } from 'protractor';
+import { $, browser, by, element } from 'protractor';
+
+import { NavBarPage } from '../page-objects/jhi-page-objects';
 
 describe('Project e2e test', () => {
-
+    let navBarPage: NavBarPage;
     const username = element(by.id('username'));
     const password = element(by.id('password'));
-    const projectMenu = element(by.id('projects-menu'));
-    const adminMenu = element(by.id('admin-menu'));
-    const accountMenu = element(by.id('account-menu'));
-    const login = element(by.id('login'));
-    const logout = element(by.id('logout'));
 
-    beforeAll(() => {
-        browser.get('#');
-
-        accountMenu.click();
-        login.click();
-
-        username.sendKeys('admin');
-        password.sendKeys('admin');
-        element(by.css('button[type=submit]')).click();
-        browser.waitForAngular();
+    beforeAll(async() => {
+        await browser.get('/');
+        navBarPage = new NavBarPage(true);
+        await browser.waitForAngular();
     });
 
-    it('should load Projects', () => {
-        adminMenu.click();
-        element.all(by.css('[routerLink="project"]')).first().click().then(() => {
-            const expectVal = /managementPortalApp.project.home.title/;
-            element.all(by.css('h2 span')).first().getAttribute('jhiTranslate').then((value) => {
-                expect(value).toMatch(expectVal);
-            });
-        });
+    beforeEach(async() => {
+        browser.sleep(1000);
     });
 
-    it('should load create Project dialog', () => {
-        element(by.css('button.create-project')).click().then(() => {
-            const expectVal = /managementPortalApp.project.home.createOrEditLabel/;
-            element.all(by.css('h4.modal-title')).first().getAttribute('jhiTranslate').then((value) => {
-                expect(value).toMatch(expectVal);
-            });
+    it('should load Projects', async() => {
+        await navBarPage.clickOnAdminMenu();
+        await element.all(by.css('[routerLink="project"]')).first().click();
+        const expectVal = /managementPortalApp.project.home.title/;
 
-            element(by.css('button.close')).click();
-        });
+        const pageTitle = element.all(by.css('h2 span')).first();
+        expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
     });
 
-    it('should be able to create Project', () => {
-        element(by.css('button.create-project')).click().then(() => {
-            element(by.id('field_projectName')).sendKeys('test-project');
-            element(by.id('field_humanReadableProjectName')).sendKeys('Test project');
-            element(by.id('field_description')).sendKeys('Best test project in the world');
-            element(by.id('field_location')).sendKeys('in-memory');
-            element(by.cssContainingText('jhi-project-dialog button.btn-primary', 'Save')).click();
-        });
+    it('should load create Project dialog', async() => {
+        await element(by.css('button.create-project')).click();
+
+        const expectVal = /managementPortalApp.project.home.createOrEditLabel/;
+        const modalTitle = element.all(by.css('h4.modal-title')).first();
+        expect((await modalTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
+
+        await element(by.css('button.close')).click();
     });
 
-    it('should be able to edit Project', () => {
-        browser.waitForAngular();
-        element(by.cssContainingText('td', 'test-project')).element(by.xpath('ancestor::tr'))
-                .element(by.cssContainingText('button', 'Edit')).click().then(() => {
-            browser.waitForAngular();
-            element(by.cssContainingText('button.btn-primary', 'Save')).click();
-        });
+    it('should be able to create Project', async() => {
+        await element(by.css('button.create-project')).click();
+        await element(by.id('field_projectName')).sendKeys('test-project');
+        await element(by.id('field_humanReadableProjectName')).sendKeys('Test project');
+        await element(by.id('field_description')).sendKeys('Best test project in the world');
+        await element(by.id('field_location')).sendKeys('in-memory');
+        await element(by.cssContainingText('jhi-project-dialog button.btn-primary', 'Save')).click();
     });
 
-    it('should be able to delete Project', () => {
-        element(by.cssContainingText('td', 'test-project')).element(by.xpath('ancestor::tr'))
-                .element(by.cssContainingText('button', 'Delete')).click().then(() => {
-            browser.waitForAngular();
-            element(by.cssContainingText('jhi-project-delete-dialog button.btn-danger', 'Delete')).click();
-        });
+    it('should be able to edit Project', async() => {
+        await browser.waitForAngular();
+        await element(by.cssContainingText('td', 'test-project')).element(by.xpath('ancestor::tr'))
+            .element(by.cssContainingText('button', 'Edit')).click();
+        await browser.waitForAngular();
+        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
     });
 
-    afterAll(function () {
-        accountMenu.click();
-        logout.click();
+    it('should be able to delete Project', async() => {
+        await element(by.cssContainingText('td', 'test-project')).element(by.xpath('ancestor::tr'))
+            .element(by.cssContainingText('button', 'Delete')).click();
+        await browser.waitForAngular();
+        await element(by.cssContainingText('jhi-project-delete-dialog button.btn-danger', 'Delete')).click();
+
     });
 });

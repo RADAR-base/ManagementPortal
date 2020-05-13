@@ -8,10 +8,10 @@ import { OAuthClientPairInfoService } from '../../entities/oauth-client/oauth-cl
 
 import { SubjectPopupService } from './subject-popup.service';
 import { Subject } from './subject.model';
-import { DatePipe } from '@angular/common';
-import { DOCUMENT } from '@angular/platform-browser';
+import { DatePipe, DOCUMENT } from '@angular/common';
 import { TranslateService } from 'ng2-translate';
 import { Observable } from 'rxjs';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-subject-pair-dialog',
@@ -26,7 +26,7 @@ export class SubjectPairDialogComponent implements OnInit {
     oauthClients: OAuthClient[];
     pairInfo: any = null;
     selectedClient: OAuthClient = null;
-    private allowPersistentToken = false;
+    allowPersistentToken = false;
 
     constructor(public activeModal: NgbActiveModal,
                 private jhiLanguageService: JhiLanguageService,
@@ -45,10 +45,10 @@ export class SubjectPairDialogComponent implements OnInit {
         }
         this.loadInconsolataFont();
         this.oauthClientService.query().subscribe(
-                (res) => {
+                (res: HttpResponse<any>) => {
                     // only keep clients that have the dynamic_registration key in additionalInformation
                     // and have set it to true
-                    this.oauthClients = res.json()
+                    this.oauthClients = res.body
                     .filter((c) => c.additionalInformation.dynamic_registration &&
                             c.additionalInformation.dynamic_registration.toLowerCase() === 'true');
                 });
@@ -80,7 +80,7 @@ export class SubjectPairDialogComponent implements OnInit {
     generateQRCode(persistent: boolean) {
         if (this.selectedClient !== null) {
             this.pairInfoService.get(this.selectedClient, this.subject, persistent)
-                    .subscribe((res) => {
+                    .subscribe((res: HttpResponse<any>) => {
                         // delete old value
                         if (this.pairInfo != null
                                 && this.pairInfo.tokenName != null) {
@@ -93,7 +93,7 @@ export class SubjectPairDialogComponent implements OnInit {
                                     });
                         }
 
-                        const result = res.json();
+                        const result = res.body;
 
                         result.timeOutDate = this.datePipe
                                 .transform(result.timesOutAt, 'medium');

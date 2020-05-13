@@ -1,7 +1,6 @@
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { QRCodeModule } from 'angular2-qrcode';
-
+import { QRCodeModule } from 'angularx-qrcode';
 import { ManagementPortalSharedModule } from '../../shared';
 import { ManagementPortalSharedSubjectModule } from '../../shared/subject/subject.module';
 import {
