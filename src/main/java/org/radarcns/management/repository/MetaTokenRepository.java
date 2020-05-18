@@ -19,7 +19,7 @@ public interface MetaTokenRepository extends JpaRepository<MetaToken, Long>,
     Optional<MetaToken> findOneByTokenName(String tokenName);
 
     @Query("select metaToken from MetaToken metaToken "
-            + "where metaToken.fetched =:fetched or metaToken.expiryDate < :time")
-    List<MetaToken> findAllByFetchedOrExpired(@Param("fetched") Boolean fetched,
-            @Param("time")Instant time);
+            + "where (metaToken.fetched = true and metaToken.persistent = false)"
+            + " or metaToken.expiryDate < :time")
+    List<MetaToken> findAllByFetchedOrExpired(@Param("time")Instant time);
 }

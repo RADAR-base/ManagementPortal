@@ -4,13 +4,10 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.radarcns.auth.token.JwtRadarToken;
 import org.radarcns.management.domain.Source;
-import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.slf4j.Logger;
@@ -59,16 +56,15 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
             // add the 'sub' claim in accordance with JWT spec
             additionalInfo.put("sub", userName);
 
-            Optional<User> optUser = userRepository.findOneByLogin(userName);
-            if (optUser.isPresent()) {
-                List<String> roles = optUser.get().getRoles().stream()
-                        .filter(role -> Objects.nonNull(role.getProject()))
-                        .map(role -> role.getProject().getProjectName() + ":"
-                                + role.getAuthority().getName())
-                        .collect(Collectors.toList());
-                additionalInfo.put(JwtRadarToken.ROLES_CLAIM, roles);
-
-            }
+            userRepository.findOneByLogin(userName)
+                    .ifPresent(user -> {
+                        List<String> roles = user.getRoles().stream()
+                                .filter(role -> role.getProject() != null)
+                                .map(role -> role.getProject().getProjectName() + ":"
+                                        + role.getAuthority().getName())
+                                .collect(Collectors.toList());
+                        additionalInfo.put(JwtRadarToken.ROLES_CLAIM, roles);
+                    });
 
             List<Source> assignedSources = subjectRepository.findSourcesBySubjectLogin(userName);
 

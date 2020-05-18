@@ -14,8 +14,6 @@ jdk:
 node_js:
   - "11.2.0"
 
-sudo: false
-
 cache:
   directories:
     - node
@@ -72,27 +70,27 @@ after_script:
 
 deploy:
   - provider: releases
-    api_key: ${GH_TOKEN}
+    token: ${GH_TOKEN}
     file_glob: true
     file:
       - "build/libs/*.war"
       - "build/swagger-spec/*.json"
-    skip_cleanup: true
+    cleanup: false
     on:
       tags: true
   - provider: script
     script: ./util/update-gh-pages-docs.sh
-    skip_cleanup: true
+    cleanup: false
     on:
       tags: true
   - provider: script
     script: ./gradlew artifactoryPublish
-    skip_cleanup: true
+    cleanup: false
     on:
       branch: dev
   - provider: script
     script: ./gradlew bintrayUpload
-    skip_cleanup: true
+    cleanup: false
     on:
       tags: true
 notifications:

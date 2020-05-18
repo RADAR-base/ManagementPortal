@@ -33,6 +33,7 @@ describe('Project view: Generate QR code', () => {
 
     it('should be able to create a qr code', async() => {
         await element(by.name('pairForm')).element(by.cssContainingText('option', 'pRMT')).click();
+        await element(by.buttonText('Generate QR code')).click();
         expect((await element.all(by.css('qrcode')).count())).toBe(1);
         await element(by.css('button.close')).click();
     });

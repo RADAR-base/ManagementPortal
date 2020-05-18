@@ -112,6 +112,7 @@ managementportal:
     oauth:
         clientsFile: src/main/docker/etc/config/oauth_client_details.csv
         metaTokenTimeout: PT1H #timeout should be specified as the ISO-8601 duration format {@code PnDTnHnMn.nS}.
+        persistentMetaTokenTimeout: P31D #timeout should be specified as the ISO-8601 duration format {@code PnDTnHnMn.nS}.
     catalogueServer:
         enableAutoImport: false
         serverUrl:

@@ -19,6 +19,7 @@ export class Project {
             public attributes ?: any,
             public sourceTypes?: SourceType[],
             public humanReadableProjectName ?: string,
+            public persistentTokenTimeout?: number
     ) {
     }
 }
