@@ -2,7 +2,7 @@
 FROM openjdk:8-jdk as builder
 
 # install node
-RUN curl -sL https://deb.nodesource.com/setup_11.x | bash - && \
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
     apt-get install -yq nodejs build-essential && \
     npm install -g npm yarn
 
