@@ -21,7 +21,13 @@ import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
 
-@ComponentScan
+@ComponentScan({
+        "org.radarcns.management.config",
+        "org.radarcns.management.domain.support",
+        "org.radarcns.management.filters",
+        "org.radarcns.management.service",
+        "org.radarcns.management.security"
+})
 @EnableZuulProxy
 @EnableAutoConfiguration(exclude = {MetricFilterAutoConfiguration.class,
         MetricRepositoryAutoConfiguration.class})
