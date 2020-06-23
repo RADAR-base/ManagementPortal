@@ -26,7 +26,8 @@ import org.springframework.core.env.Environment;
         "org.radarcns.management.domain.support",
         "org.radarcns.management.filters",
         "org.radarcns.management.service",
-        "org.radarcns.management.security"
+        "org.radarcns.management.security",
+        "org.radarcns.management.web"
 })
 @EnableZuulProxy
 @EnableAutoConfiguration(exclude = {MetricFilterAutoConfiguration.class,
