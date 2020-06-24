@@ -46,7 +46,7 @@ before_install:
 install:
   - yarn install
   - yarn run install:webdriver
-  - yarn run webpack:prod
+  - yarn run webpack:build
 
 before_script:
   - cp src/test/resources/config/keystore.p12 src/main/resources/config/keystore.p12  # we need the keystore to run our app, and we need our app to run e2e tests
