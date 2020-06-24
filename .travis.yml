@@ -64,6 +64,7 @@ script:
   - ./gradlew generateOpenApiSpec
   - ./gradlew generateJavaClient
   - killall java # stop running MP instance
+  - yarn run webpack:prod
   - ./src/test/bash/run-prod-e2e.sh
   - echo "include 'managementportal-client'" >> settings.gradle # make this a sub-project so we can build artifacts and javadoc easily
 
