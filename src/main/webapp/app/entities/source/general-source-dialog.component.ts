@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -9,6 +8,7 @@ import { MinimalProject, ProjectService } from '../../shared';
 
 import { SourceType } from '../source-type';
 import { GeneralSourcePopupService } from './general-source-popup.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-source-dialog',
@@ -37,9 +37,9 @@ export class GeneralSourceDialogComponent implements OnInit {
 
     ngOnInit() {
         this.projectService.findAll(true).subscribe(
-                (res: Response) => {
-                    this.projects = res.json();
-                }, (res: Response) => this.onError(res.json()));
+                (res: MinimalProject[]) => {
+                    this.projects = res;
+                }, (res: HttpErrorResponse) => this.onError(res));
 
         this.onProjectChange(this.source.project);
     }
@@ -47,7 +47,7 @@ export class GeneralSourceDialogComponent implements OnInit {
     public onProjectChange(project: any) {
         if (project) {
             this.projectService.findSourceTypesByName(project.projectName)
-                    .subscribe((res: Response) => this.sourceTypes = res.json());
+                    .subscribe((res: SourceType[]) => this.sourceTypes = res);
         } else {
             this.sourceTypes = null;
         }
@@ -62,11 +62,11 @@ export class GeneralSourceDialogComponent implements OnInit {
         if (this.source.id !== undefined) {
             this.sourceService.update(this.source)
             .subscribe((res: Source) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError(res));
         } else {
             this.sourceService.create(this.source)
             .subscribe((res: Source) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError(res));
         }
     }
 
@@ -77,11 +77,6 @@ export class GeneralSourceDialogComponent implements OnInit {
     }
 
     private onSaveError(error) {
-        try {
-            error.json();
-        } catch (exception) {
-            error.message = error.text();
-        }
         this.isSaving = false;
         this.onError(error);
     }

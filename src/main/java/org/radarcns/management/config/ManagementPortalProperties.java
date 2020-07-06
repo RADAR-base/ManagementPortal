@@ -176,6 +176,8 @@ public class ManagementPortalProperties {
 
         private String metaTokenTimeout;
 
+        private String persistentMetaTokenTimeout;
+
         private Boolean enablePublicKeyVerifiers = false;
 
         public String getClientsFile() {
@@ -216,6 +218,14 @@ public class ManagementPortalProperties {
 
         public void setMetaTokenTimeout(String metaTokenTimeout) {
             this.metaTokenTimeout = metaTokenTimeout;
+        }
+
+        public String getPersistentMetaTokenTimeout() {
+            return persistentMetaTokenTimeout;
+        }
+
+        public void setPersistentMetaTokenTimeout(String persistentMetaTokenTimeout) {
+            this.persistentMetaTokenTimeout = persistentMetaTokenTimeout;
         }
 
         public Boolean getEnablePublicKeyVerifiers() {

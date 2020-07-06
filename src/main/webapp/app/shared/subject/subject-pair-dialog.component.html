@@ -6,44 +6,53 @@
                 (click)="clear()">&times;</button>
     </div>
     <div class="modal-body">
-        <jhi-alert></jhi-alert>
-        <div class="form-group" [hidden]="!subject.id">
-            <label for="id" jhiTranslate="global.field.id">ID</label>
-            <input type="text" class="form-control" id="id" name="id"
-                   [(ngModel)]="subject.id" readonly />
-        </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.subject.login">Login</label>
-            <input type="text" class="form-control" name="login" #loginInput="ngModel"
+            <label for="login" class="form-control-label" jhiTranslate="managementPortalApp.subject.login">Login</label>
+            <input id="login" type="text" class="form-control" name="login" #loginInput="ngModel"
                    [(ngModel)]="subject.login" required minlength=1 maxlength=50 pattern="^[_'.@A-Za-z0-9- ]*$" [disabled]="subject.id">
         </div>
 
         <div class="form-group">
             <label jhiTranslate="managementPortalApp.subject.clientApp" for="field_clientApp">Client app</label>
-            <select class="form-control" id="field_clientApp" name="client" [(ngModel)]="selectedClient" (change)="updateQRCode()" required>
-                <option [ngValue]="null"></option>
+            <select class="form-control" id="field_clientApp" name="client" [(ngModel)]="selectedClient" (change)="unsetPairing()" required>
+                <option [ngValue]="null" selected></option>
                 <option [ngValue]="clientOption" *ngFor="let clientOption of oauthClients; trackBy: trackOAuthClientById">{{clientOption.clientId}}</option>
             </select>
         </div>
 
-        <div class="form-group" *ngIf="showQRCode">
+        <div class="form-group">
+            <button type="button" class="btn btn-primary" (click)="generateQRCode(false)" [disabled]="selectedClient === null">
+                <span class="fa fa-hourglass-start"></span>&nbsp;<span jhiTranslate="managementPortalApp.subject.generateToken">Generate QR code</span>
+            </button>
+            <button *ngIf="allowPersistentToken" type="button" class="btn btn-default" (click)="generateQRCode(true)" [disabled]="selectedClient === null">
+                <span class="fa fa-save"></span> <span jhiTranslate="managementPortalApp.subject.generatePersistentToken">Generate persistent QR code</span>
+            </button>
+        </div>
+
+        <div class="form-group" *ngIf="pairInfo !== null">
             <div class="text-center">
-                <qr-code [value]="oauthClientPairInfo.tokenUrl" [size]="450"></qr-code>
+                <qrcode style="display: inline-block;" [qrdata]="pairInfo.tokenUrl" [size]="400"></qrcode>
             </div>
         </div>
 
-        <div class="form-group" *ngIf="subject.id && showTokenUrl">
+        <div class="form-group" *ngIf="pairInfo !== null">
             <table class="table table-striped">
-                <thead>
+                <tbody>
                 <tr >
                     <th><span jhiTranslate="managementPortalApp.subject.baseUrl">Base Url</span></th>
-                    <th><span jhiTranslate="managementPortalApp.subject.tokenName">Token Name</span></th>
+                    <td>{{pairInfo.baseUrl}}</td>
                 </tr>
-                </thead>
-                <tbody>
                 <tr>
-                    <td>{{oauthClientPairInfo.baseUrl}}</td>
-                    <td class="token">{{oauthClientPairInfo.tokenName}}</td>
+                    <th><span jhiTranslate="managementPortalApp.subject.tokenName">Token Name</span></th>
+                    <td class="token">{{pairInfo.tokenName}}</td>
+                </tr>
+                <tr>
+                    <th><span jhiTranslate="managementPortalApp.subject.validUntil">Valid until</span></th>
+                    <td>{{pairInfo.timeOutDate}}</td>
+                </tr>
+                <tr>
+                    <th><span jhiTranslate="managementPortalApp.subject.validity">Validity</span></th>
+                    <td>{{pairInfo.timeoutString}}</td>
                 </tr>
                 </tbody>
             </table>
@@ -52,21 +61,6 @@
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
             <span class="fa fa-ban"></span>&nbsp;<span jhiTranslate="entity.action.close">Close</span>
-        </button>
-        <button type="button" class="btn btn-warning"
-                *ngIf="showTokenUrl"
-                [disabled]="!showQRCode"
-                (click)="lockTokenUrl()">
-            <span class="fa fa-lock"></span>&nbsp;<span jhiTranslate="managementPortalApp.subject.hideTokenUrl">Hide Token Url</span>
-        </button>
-        <button type="button" class="btn btn-warning"
-                *ngIf="!showTokenUrl"
-                [disabled]="!showQRCode"
-                (click)="unlockTokenUrl()">
-            <span class="fa fa-unlock"></span>&nbsp;<span jhiTranslate="managementPortalApp.subject.showTokenUrl">Show Token Url</span>
-        </button>
-        <button type="button" class="btn btn-primary" [disabled]="!showQRCode" (click)="updateQRCode()">
-            <span class="fa fa-refresh"></span>&nbsp;<span jhiTranslate="entity.action.refresh">Refresh</span>
         </button>
     </div>
 </form>

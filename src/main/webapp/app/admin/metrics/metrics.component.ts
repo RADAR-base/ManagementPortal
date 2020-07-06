@@ -4,6 +4,7 @@ import { JhiLanguageService } from 'ng-jhipster';
 
 import { JhiMetricsMonitoringModalComponent } from './metrics-modal.component';
 import { JhiMetricsService } from './metrics.service';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-metrics',
@@ -31,20 +32,20 @@ export class JhiMetricsMonitoringComponent implements OnInit {
 
     refresh() {
         this.updatingMetrics = true;
-        this.metricsService.getMetrics().subscribe((metrics) => {
-            this.metrics = metrics;
+        this.metricsService.getMetrics().subscribe((response: HttpResponse<any>) => {
+            this.metrics = response.body;
             this.updatingMetrics = false;
             this.servicesStats = {};
             this.cachesStats = {};
-            Object.keys(metrics.timers).forEach((key) => {
-                const value = metrics.timers[key];
+            Object.keys(this.metrics.timers).forEach((key) => {
+                const value = this.metrics.timers[key];
                 if (key.indexOf('web.rest') !== -1 || key.indexOf('service') !== -1) {
                     this.servicesStats[key] = value;
                 }
             });
-            Object.keys(metrics.gauges).forEach((key) => {
+            Object.keys(this.metrics.gauges).forEach((key) => {
                 if (key.indexOf('jcache.statistics') !== -1) {
-                    const value = metrics.gauges[key].value;
+                    const value = this.metrics.gauges[key].value;
                     // remove gets or puts
                     const index = key.lastIndexOf('.');
                     const newKey = key.substr(0, index);

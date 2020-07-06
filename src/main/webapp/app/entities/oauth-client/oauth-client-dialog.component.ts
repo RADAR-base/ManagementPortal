@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -8,6 +7,7 @@ import { OAuthClientPopupService } from './oauth-client-popup.service';
 
 import { OAuthClient } from './oauth-client.model';
 import { OAuthClientService } from './oauth-client.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-oauth-client-dialog',
@@ -96,11 +96,11 @@ export class OAuthClientDialogComponent implements OnInit {
         if (!this.newClient) {
             this.oauthClientSerivce.update(this.client)
             .subscribe((res: OAuthClient) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onError(res.message));
         } else {
             this.oauthClientSerivce.create(this.client)
             .subscribe((res: OAuthClient) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onError(res.message));
         }
     }
 

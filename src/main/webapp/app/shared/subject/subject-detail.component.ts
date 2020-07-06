@@ -33,7 +33,7 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
     }
 
     load(id) {
-        this.subjectService.find(id).subscribe((subject) => {
+        this.subjectService.find(id).subscribe((subject: Subject) => {
             this.subject = subject;
         });
     }
@@ -48,6 +48,6 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
     }
 
     registerChangeInSubjects() {
-        this.eventSubscriber = this.eventManager.subscribe('subjectListModification', (response) => this.load(this.subject.login));
+        this.eventSubscriber = this.eventManager.subscribe('subjectListModification', () => this.load(this.subject.login));
     }
 }

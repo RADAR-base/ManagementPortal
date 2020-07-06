@@ -1,10 +1,7 @@
 package org.radarcns.management.web.rest;
 
-import javax.annotation.PostConstruct;
-
 import com.codahale.metrics.annotation.Timed;
 import org.radarcns.auth.security.jwk.JavaWebKeySet;
-import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.security.jwt.ManagementPortalOauthKeyStoreHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,18 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class TokenKeyEndpoint {
-
     private static final Logger logger = LoggerFactory.getLogger(TokenKeyEndpoint.class);
 
+    private final ManagementPortalOauthKeyStoreHandler keyStoreHandler;
+
     @Autowired
-    private ManagementPortalProperties managementPortalProperties;
-
-    private ManagementPortalOauthKeyStoreHandler managementPortalOauthKeyStoreHandler;
-
-    @PostConstruct
-    public void init() {
-        this.managementPortalOauthKeyStoreHandler =
-                ManagementPortalOauthKeyStoreHandler.build(managementPortalProperties);
+    public TokenKeyEndpoint(
+            ManagementPortalOauthKeyStoreHandler keyStoreHandler
+    ) {
+        this.keyStoreHandler = keyStoreHandler;
     }
 
     /**
@@ -38,7 +32,6 @@ public class TokenKeyEndpoint {
     @Timed
     public JavaWebKeySet getKey() {
         logger.debug("Requesting verifier public keys...");
-        return managementPortalOauthKeyStoreHandler.loadJwks();
+        return keyStoreHandler.loadJwks();
     }
-
 }

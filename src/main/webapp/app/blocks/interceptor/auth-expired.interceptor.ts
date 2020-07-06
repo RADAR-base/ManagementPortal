@@ -1,24 +1,21 @@
 import { Injector } from '@angular/core';
-import { RequestOptionsArgs, Response } from '@angular/http';
-import { HttpInterceptor } from 'ng-jhipster';
 import { Observable } from 'rxjs/Observable';
-import { AuthServerProvider } from '../../shared/auth/auth-oauth2.service';
-import { AuthService } from '../../shared/auth/auth.service';
-import { Principal } from '../../shared/auth/principal.service';
+import {
+    HttpHandler,
+    HttpRequest,
+    HttpInterceptor,
+    HttpEvent,
+    HttpErrorResponse
+} from '@angular/common/http';
+import {AuthServerProvider, AuthService, Principal} from '../../shared';
 
-export class AuthExpiredInterceptor extends HttpInterceptor {
+export class AuthExpiredInterceptor implements HttpInterceptor {
 
-    constructor(private injector: Injector) {
-        super();
-    }
+    constructor(private injector: Injector) {}
 
-    requestIntercept(options?: RequestOptionsArgs): RequestOptionsArgs {
-        return options;
-    }
-
-    responseIntercept(observable: Observable<Response>): Observable<Response> {
-        return <Observable<Response>> observable.catch((error, source) => {
-            if (error.status === 401) {
+    intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        return next.handle(request).do((event: HttpEvent<any>) => {}, (err: any) => {
+            if (err instanceof HttpErrorResponse) {
                 const principal: Principal = this.injector.get(Principal);
 
                 if (principal.isAuthenticated()) {
@@ -29,7 +26,6 @@ export class AuthExpiredInterceptor extends HttpInterceptor {
                     authServerProvider.logout();
                 }
             }
-            return Observable.throw(error);
         });
     }
 }

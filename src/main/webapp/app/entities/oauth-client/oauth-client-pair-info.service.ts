@@ -1,29 +1,30 @@
 import { Injectable } from '@angular/core';
-import { BaseRequestOptions, Http, Response, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 import { Subject } from '../../shared/subject';
 
 import { OAuthClient } from './oauth-client.model';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { createRequestOption } from '../../shared/model/request.utils';
 
 @Injectable()
 export class OAuthClientPairInfoService {
 
-    private resourceUrl = 'api/oauth-clients/pair';
+    private pairUrl = 'api/oauth-clients/pair';
+    private resourceUrl = 'api/meta-token';
 
-    constructor(private http: Http) {
+    constructor(private http: HttpClient) {
     }
 
-    get(client: OAuthClient, subject: Subject): Observable<Response> {
-        const options = this.createRequestOption(client.clientId, subject.login);
-        return this.http.get(this.resourceUrl, options);
+    get(client: OAuthClient, subject: Subject, persistent: boolean): Observable<HttpResponse<any>> {
+        const params = createRequestOption({
+            clientId: client.clientId,
+            login: subject.login,
+            persistent: persistent.toString(),
+        });
+        return this.http.get(this.pairUrl, {params, observe: 'response'});
     }
 
-    private createRequestOption(clientId: string, subjectLogin: string): BaseRequestOptions {
-        const options: BaseRequestOptions = new BaseRequestOptions();
-        const params: URLSearchParams = new URLSearchParams();
-        params.set('clientId', clientId);
-        params.set('login', subjectLogin);
-        options.params = params;
-        return options;
+    delete(tokenName: string): Observable<any> {
+        return this.http.delete(this.resourceUrl + '/' + tokenName);
     }
 }

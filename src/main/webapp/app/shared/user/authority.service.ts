@@ -1,24 +1,16 @@
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Rx';
-
-import { Authority } from './authority.model';
 
 @Injectable()
 export class AuthorityService {
     private resourceUrl = 'api/authorities';
 
-    constructor(private http: Http) {
+    constructor(private http: HttpClient) {
     }
 
-    findAll(): Observable<Response> {
-        return this.http.get(`${this.resourceUrl}/`);
-    }
-
-    findAllMap(): Observable<Authority[]> {
-        return this.http.get(`${this.resourceUrl}/`).map((res) => {
-            return res.json();
-        });
+    findAll(): Observable<string[]> {
+        return this.http.get<string[]>(`${this.resourceUrl}/`);
     }
 
 }

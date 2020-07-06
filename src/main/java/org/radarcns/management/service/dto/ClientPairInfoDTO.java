@@ -5,8 +5,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 
-import org.apache.commons.lang.time.DurationFormatUtils;
-
 /**
  * Created by dverbeec on 29/08/2017.
  */
@@ -18,7 +16,7 @@ public class ClientPairInfoDTO {
 
     private final URL baseUrl;
 
-    private final String timeout;
+    private final long timeout;
 
     private final Instant timesOutAt;
 
@@ -36,8 +34,7 @@ public class ClientPairInfoDTO {
         this.baseUrl = baseUrl;
         this.tokenName = tokenName;
         this.tokenUrl = tokenUrl;
-        this.timeout = DurationFormatUtils
-                .formatDuration(timeout.toMillis(), "HH:mm", true);
+        this.timeout = timeout.toMillis();
         this.timesOutAt = Instant.now().plus(timeout);
     }
 
@@ -53,7 +50,7 @@ public class ClientPairInfoDTO {
         return baseUrl;
     }
 
-    public String getTimeout() {
+    public long getTimeout() {
         return timeout;
     }
 

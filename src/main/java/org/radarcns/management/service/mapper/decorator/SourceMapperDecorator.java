@@ -1,7 +1,6 @@
 package org.radarcns.management.service.mapper.decorator;
 
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
@@ -29,13 +28,10 @@ public abstract class SourceMapperDecorator implements SourceMapper {
 
     @Override
     public Source descriptiveDTOToSource(MinimalSourceDetailsDTO minimalSource) {
-        Optional<Source> sourceOpt = sourceRepository
-                .findOneBySourceId(minimalSource.getSourceId());
-        if (!sourceOpt.isPresent()) {
-            throw new IllegalArgumentException("Source ID " + minimalSource.getSourceId()
-                    + " not found");
-        }
-        Source source = sourceOpt.get();
+        Source source = sourceRepository
+                .findOneBySourceId(minimalSource.getSourceId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Source ID " + minimalSource.getSourceId() + " not found"));
         source.setAssigned(minimalSource.isAssigned());
         return source;
     }

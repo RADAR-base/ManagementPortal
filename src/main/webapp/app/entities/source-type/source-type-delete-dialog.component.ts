@@ -30,7 +30,7 @@ export class SourceTypeDeleteDialogComponent {
     }
 
     confirmDelete(producer: string, model: string, version: string) {
-        this.sourceTypeService.delete(producer, model, version).subscribe((response) => {
+        this.sourceTypeService.delete(producer, model, version).subscribe(() => {
             this.eventManager.broadcast({
                 name: 'sourceTypeListModification',
                 content: 'Deleted an sourceType',

@@ -1,7 +1,10 @@
 package org.radarcns.management.service;
 
 import static org.radarcns.management.web.rest.MetaTokenResource.DEFAULT_META_TOKEN_TIMEOUT;
+import static org.radarcns.management.web.rest.MetaTokenResource.DEFAULT_PERSISTENT_META_TOKEN_TIMEOUT;
+import static org.radarcns.management.web.rest.errors.EntityName.META_TOKEN;
 import static org.radarcns.management.web.rest.errors.EntityName.OAUTH_CLIENT;
+import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_PERSISTENT_TOKEN_DISABLED;
 import static org.springframework.security.oauth2.common.util.OAuth2Utils.GRANT_TYPE;
 
 import java.net.MalformedURLException;
@@ -18,13 +21,16 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.domain.MetaToken;
+import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Subject;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.service.dto.ClientDetailsDTO;
 import org.radarcns.management.service.dto.ClientPairInfoDTO;
 import org.radarcns.management.service.mapper.ClientDetailsMapper;
+import org.radarcns.management.web.rest.errors.BadRequestException;
 import org.radarcns.management.web.rest.errors.ConflictException;
 import org.radarcns.management.web.rest.errors.ErrorConstants;
 import org.radarcns.management.web.rest.errors.InvalidRequestException;
@@ -34,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -43,7 +50,6 @@ import org.springframework.security.oauth2.provider.NoSuchClientException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
-import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.stereotype.Service;
 
 /**
@@ -171,32 +177,24 @@ public class OAuthClientService {
     }
 
     /**
-     * Creates refresh token for oauth-subject pair.
+     * Creates meta token for oauth-subject pair.
      * @param subject to create token for
      * @param clientId using which client id
+     * @param persistent whether to persist the token after it is has been fetched
      * @return {@link ClientPairInfoDTO} to return.
      * @throws URISyntaxException when token URI cannot be formed properly.
      * @throws MalformedURLException when token URL cannot be formed properly.
      */
-    public ClientPairInfoDTO createRefreshToken(Subject subject, String clientId)
-            throws URISyntaxException, MalformedURLException {
+    public ClientPairInfoDTO createMetaToken(Subject subject, String clientId, boolean persistent)
+            throws URISyntaxException, MalformedURLException, NotAuthorizedException {
+        Duration timeout = getMetaTokenTimeout(persistent, subject.getActiveProject()
+                .orElseThrow(() -> new NotAuthorizedException(
+                        "Cannot calculate meta-token duration without configured project")));
 
-        // add the user's authorities
-        User user = subject.getUser();
-        Set<GrantedAuthority> authorities =
-                user.getAuthorities().stream().map(a -> new SimpleGrantedAuthority(a.getName()))
-                .collect(Collectors.toSet());
-        // lookup the OAuth client
-        // getOAuthClient checks if the id exists
-        ClientDetails details = findOneByClientId(clientId);
-
-        OAuth2AccessToken token =
-                createAuthorizationCodeToken(clientId, user.getLogin(), authorities,
-                    details.getScope(), details.getResourceIds());
         // tokenName should be generated
         MetaToken metaToken = metaTokenService
-                .saveUniqueToken(subject, clientId, token.getRefreshToken().getValue(), false,
-                Instant.now().plus(getMetaTokenTimeout()));
+                .saveUniqueToken(subject, clientId, false,
+                Instant.now().plus(timeout), persistent);
 
         if (metaToken.getId() != null && metaToken.getTokenName() != null) {
             // get base url from settings
@@ -205,70 +203,84 @@ public class OAuthClientService {
             String tokenUrl = baseUrl + ResourceUriService.getUri(metaToken).getPath();
             // create response
             return new ClientPairInfoDTO(new URL(baseUrl), metaToken.getTokenName(),
-                    new URL(tokenUrl), getMetaTokenTimeout());
+                    new URL(tokenUrl), timeout);
         } else {
             throw new InvalidStateException("Could not create a valid token", OAUTH_CLIENT,
                 "error.couldNotCreateToken");
         }
     }
 
-
-
-
     /**
      * Gets the meta-token timeout from config file. If the config is not mentioned or in wrong
      * format, it will return default value.
      *
      * @return meta-token timeout duration.
+     * @throws BadRequestException if a persistent token is requested but it is not configured.
      */
-    private Duration getMetaTokenTimeout() {
+    public Duration getMetaTokenTimeout(boolean persistent, Project project) {
+        String timeoutConfig;
+        Duration defaultTimeout;
 
-        String timeoutConfig = managementPortalProperties.getOauth().getMetaTokenTimeout();
-
-        if (timeoutConfig.isEmpty()) {
-            return DEFAULT_META_TOKEN_TIMEOUT;
+        if (persistent) {
+            timeoutConfig = managementPortalProperties.getOauth().getPersistentMetaTokenTimeout();
+            if (timeoutConfig == null || timeoutConfig.isEmpty()) {
+                throw new BadRequestException(
+                        "Cannot create persistent token: not supported in configuration.",
+                        META_TOKEN, ERR_PERSISTENT_TOKEN_DISABLED);
+            }
+            defaultTimeout = DEFAULT_PERSISTENT_META_TOKEN_TIMEOUT;
+        } else {
+            timeoutConfig = managementPortalProperties.getOauth().getMetaTokenTimeout();
+            defaultTimeout = DEFAULT_META_TOKEN_TIMEOUT;
+            if (timeoutConfig == null || timeoutConfig.isEmpty()) {
+                return defaultTimeout;
+            }
         }
 
         try {
-            return Duration.parse(managementPortalProperties.getOauth().getMetaTokenTimeout());
+            return Duration.parse(timeoutConfig);
         } catch (DateTimeParseException e) {
             // if the token timeout cannot be read, log the error and use the default value.
-            log.warn("Cannot parse meta-token timeout config. Using default value", e);
-            return DEFAULT_META_TOKEN_TIMEOUT;
+            log.warn("Cannot parse meta-token timeout config. Using default value {}",
+                    defaultTimeout, e);
+            return defaultTimeout;
         }
     }
 
     /**
-     * Creates the actual {@link OAuth2AccessToken} token using authorization-code flow.
+     * Internally creates an {@link OAuth2AccessToken} token using authorization-code flow. This
+     * method bypasses the usual authorization code flow mechanism, so it should only be used where
+     * appropriate, e.g., for subject impersonation.
      *
      * @param clientId    oauth client id.
-     * @param login       subject-id of the token.
-     * @param authorities authorities to create token.
-     * @param scope       scopes of the token.
-     * @param resourceIds resource-ids of the token.
+     * @param subject     subject-id of the token.
      * @return Created {@link OAuth2AccessToken} instance.
      */
-    private OAuth2AccessToken createAuthorizationCodeToken(String clientId, String login,
-            Set<GrantedAuthority> authorities, Set<String> scope, Set<String> resourceIds) {
+    public OAuth2AccessToken createAccessToken(Subject subject, String clientId) {
+        // add the user's authorities
+        User user = subject.getUser();
 
-        Map<String, String> requestParameters = new HashMap<>();
-        requestParameters.put(GRANT_TYPE , "authorization_code");
+        Set<GrantedAuthority> authorities = user.getAuthorities().stream()
+                .map(a -> new SimpleGrantedAuthority(a.getName()))
+                .collect(Collectors.toSet());
+        // lookup the OAuth client
+        // getOAuthClient checks if the id exists
+        ClientDetails client = findOneByClientId(clientId);
 
+        Map<String, String> requestParameters = Collections.singletonMap(
+                GRANT_TYPE , "authorization_code");
 
         Set<String> responseTypes = Collections.singleton("code");
 
-        OAuth2Request oAuth2Request =
-                new OAuth2Request(requestParameters, clientId, authorities, true, scope,
-                    resourceIds, null, responseTypes, Collections.emptyMap());
+        OAuth2Request oAuth2Request = new OAuth2Request(
+                requestParameters, clientId, authorities, true, client.getScope(),
+                client.getResourceIds(), null, responseTypes, Collections.emptyMap());
 
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(login, null, authorities);
-        OAuth2Authentication auth = new OAuth2Authentication(oAuth2Request, authenticationToken);
+        Authentication authenticationToken = new UsernamePasswordAuthenticationToken(
+                user.getLogin(), null, authorities);
 
-        AuthorizationServerTokenServices tokenServices =
-                authorizationServerEndpointsConfiguration.getEndpointsConfigurer()
-                    .getTokenServices();
-
-        return tokenServices.createAccessToken(auth);
+        return authorizationServerEndpointsConfiguration.getEndpointsConfigurer()
+                .getTokenServices()
+                .createAccessToken(new OAuth2Authentication(oAuth2Request, authenticationToken));
     }
 }

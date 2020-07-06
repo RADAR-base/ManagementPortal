@@ -1,73 +1,48 @@
 import { Injectable } from '@angular/core';
-import { Http, Response, URLSearchParams } from '@angular/http';
-import { Observable } from 'rxjs/Rx';
-
+import { Observable } from 'rxjs';
 import { User } from './user.model';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { createRequestOption } from '../model/request.utils';
+import { Project } from '../project';
 
 @Injectable()
 export class UserService {
     private resourceUrl = 'api/users';
 
-    constructor(private http: Http) {
+    constructor(private http: HttpClient) {
     }
 
-    create(user: User): Observable<Response> {
+    create(user: User): Observable<any> {
         return this.http.post(this.resourceUrl, user);
     }
 
-    update(user: User): Observable<Response> {
+    update(user: User): Observable<any> {
         return this.http.put(this.resourceUrl, user);
     }
 
     find(login: string): Observable<User> {
-        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}`).map((res: Response) => res.json());
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}`) as Observable<User>;
     }
 
-    findProject(login: string): Observable<Response> {
-        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/projects`);
+    findProject(login: string): Observable<Project[]> {
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/projects`) as Observable<Project[]>;
     }
 
-    query(req?: any): Observable<Response> {
-        const params: URLSearchParams = new URLSearchParams();
-        if (req) {
-            params.set('page', req.page);
-            params.set('size', req.size);
-            if (req.sort) {
-                params.paramsMap.set('sort', req.sort);
-            }
-            if (req.authority) {
-                params.set('authority', req.authority);
-            }
-            if (req.projectName) {
-                params.set('projectName', req.projectName);
-            }
-            if (req.login) {
-                params.set('login', req.login);
-            }
-            if (req.email) {
-                params.set('email', req.email);
-            }
-        }
-
-        return this.http.get(this.resourceUrl, {params});
+    query(req?: any): Observable<HttpResponse<User[]>> {
+        const params = createRequestOption(req);
+        return this.http.get(this.resourceUrl, {params, observe: 'response'}) as Observable<HttpResponse<User[]>>;
     }
 
-    delete(login: string): Observable<Response> {
+    delete(login: string): Observable<any> {
         return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(login)}`);
     }
 
-    sendActivation(login: string): Observable<Response> {
+    sendActivation(login: string): Observable<any> {
         return this.http.post('api/account/reset-activation/init', login);
     }
 
-    findByProjectAndAuthority(req: any): Observable<Response> {
-        const params: URLSearchParams = new URLSearchParams();
-        if (req.authority) {
-            params.set('authority', req.authority);
-        }
-        if (req.projectName) {
-            params.set('projectName', req.projectName);
-        }
-        return this.http.get(this.resourceUrl, {params});
+    findByProjectAndAuthority(req: any): Observable<User[]> {
+        const params = createRequestOption(req);
+        return this.http.get(this.resourceUrl, {params}) as Observable<User[]>;
     }
 }

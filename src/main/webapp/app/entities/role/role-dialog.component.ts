@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -9,6 +8,7 @@ import { AuthorityService, Principal, Project, ProjectService } from '../../shar
 
 import { RolePopupService } from './role-popup.service';
 import { RoleService } from './role.service';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-role-dialog',
@@ -38,12 +38,11 @@ export class RoleDialogComponent implements OnInit {
     ngOnInit() {
         this.isSaving = false;
         this.authorityService.findAll().subscribe(res => {
-            this.authorities = res.json();
+            this.authorities = res;
         });
-        this.projectService.query().subscribe(
-                (res) => {
-                    this.projects = res.json();
-                });
+        this.projectService.query().subscribe((res: HttpResponse<any>) => {
+            this.projects = res.body;
+        });
 
     }
 
@@ -60,11 +59,11 @@ export class RoleDialogComponent implements OnInit {
         if (this.role.id !== undefined) {
             this.roleService.update(this.role)
             .subscribe((res: Role) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError(res));
         } else {
             this.roleService.create(this.role)
             .subscribe((res: Role) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError(res));
         }
     }
 

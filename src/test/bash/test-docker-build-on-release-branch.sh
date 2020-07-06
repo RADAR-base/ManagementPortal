@@ -5,7 +5,7 @@
 # statement.
 
 # only run on the release branch and master branch if it's not a tag build
-if [[ $TRAVIS_BRANCH == release-* ]] || ( [[ $TRAVIS_BRANCH == master ]] && [ -z $TRAVIS_TAG ] )
+if [[ $TRAVIS_BRANCH == release-* || ($TRAVIS_BRANCH == master && -z $TRAVIS_TAG) ]]
 then
   echo "Testing docker image build"
   docker build -t managementportal .

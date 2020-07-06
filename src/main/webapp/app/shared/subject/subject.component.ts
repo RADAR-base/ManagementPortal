@@ -7,7 +7,6 @@ import {
     SimpleChange,
     SimpleChanges,
 } from '@angular/core';
-import { Response } from '@angular/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
@@ -15,6 +14,7 @@ import { ITEMS_PER_PAGE, Principal, Project } from '..';
 
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-subjects',
@@ -81,8 +81,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
                     sort: this.sort(),
                 },
         ).subscribe(
-                (res: Response) => this.onSuccess(res.json(), res.headers),
-                (res: Response) => this.onError(res.json()),
+                (res: HttpResponse<Subject[]>) => this.onSuccess(res.body, res.headers),
+                (res: HttpErrorResponse) => this.onError(res),
         );
     }
 
@@ -108,7 +108,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     registerChangeInSubjects() {
-        this.eventSubscriber = this.eventManager.subscribe('subjectListModification', (response) => this.loadSubjects());
+        this.eventSubscriber = this.eventManager.subscribe('subjectListModification', () => this.loadSubjects());
     }
 
     private onError(error) {
@@ -124,16 +124,15 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     private loadAllFromProject() {
-        this.subjectService.findAllByProject({
-            projectName: this.project.projectName,
+        this.subjectService.findAllByProject(this.project.projectName, {
             page: this.page - 1,
             size: this.itemsPerPage,
             sort: this.sort(),
         }).subscribe(
-                (res: Response) => {
-                    this.onSuccess(res.json(), res.headers);
+                (res: HttpResponse<Subject[]>) => {
+                    this.onSuccess(res.body, res.headers);
                 },
-                (res: Response) => this.onError(res.json()),
+                (res: HttpErrorResponse) => this.onError(res),
         );
     }
 

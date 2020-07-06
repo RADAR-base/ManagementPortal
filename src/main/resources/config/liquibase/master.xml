@@ -32,5 +32,6 @@
     <include file="classpath:config/liquibase/changelog/20180813173100_add_subject_to_meta_token.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20180824131400_add_client_id_to_meta_token.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20180824131400_add_meta_token_mod_to_subject.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20200504145200_add_meta_token_persistence.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>
