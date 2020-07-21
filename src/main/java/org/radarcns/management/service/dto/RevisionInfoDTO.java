@@ -1,14 +1,11 @@
 package org.radarcns.management.service.dto;
 
-import java.util.ArrayList;
 import java.util.stream.Collectors;
 import org.hibernate.envers.RevisionType;
 import org.radarcns.management.domain.audit.CustomRevisionEntity;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

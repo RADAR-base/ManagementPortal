@@ -404,7 +404,8 @@ public class SubjectService {
         // directly by e.g. findOneByLogin
         SubjectDTO latest = getLatestRevision(login);
         SubjectDTO sub = revisionService
-                .findRevision(revision, latest.getId(), Subject.class, subjectMapper::subjectToSubjectReducedProjectDTO);
+                .findRevision(revision, latest.getId(), Subject.class,
+                        subjectMapper::subjectToSubjectReducedProjectDTO);
         if (sub == null) {
             throw new NotFoundException("subject not found for given login and revision.", SUBJECT,
                 ERR_SUBJECT_NOT_FOUND, Collections.singletonMap("subjectLogin", login));
