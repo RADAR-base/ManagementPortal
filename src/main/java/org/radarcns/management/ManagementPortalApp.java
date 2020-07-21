@@ -25,6 +25,7 @@ import org.springframework.core.env.Environment;
         "org.radarcns.management.config",
         "org.radarcns.management.domain.support",
         "org.radarcns.management.filters",
+        "org.radarcns.management.repository",
         "org.radarcns.management.service",
         "org.radarcns.management.security",
         "org.radarcns.management.web"
