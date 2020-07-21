@@ -1,18 +1,17 @@
 package org.radarcns.management.service;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 import static org.radarcns.management.web.rest.errors.EntityName.REVISION;
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_REVISIONS_NOT_FOUND;
+import static org.springframework.transaction.annotation.Isolation.REPEATABLE_READ;
 
-import java.io.Closeable;
 import java.lang.reflect.InvocationTargetException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -20,11 +19,10 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
-import java.util.stream.Stream;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
+import javax.persistence.PersistenceContext;
 import javax.validation.constraints.NotNull;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
@@ -32,7 +30,6 @@ import org.hibernate.envers.RevisionType;
 import org.hibernate.envers.exception.AuditException;
 import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.AuditQuery;
-import org.hibernate.envers.query.AuditQueryCreator;
 import org.hibernate.envers.query.criteria.AuditCriterion;
 import org.mapstruct.Mapper;
 import org.radarcns.management.domain.AbstractEntity;
@@ -48,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -57,22 +55,22 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.Revision;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(isolation = REPEATABLE_READ, readOnly = true)
 public class RevisionService implements ApplicationContextAware {
     private static final Logger log = LoggerFactory.getLogger(RevisionService.class);
     private static volatile ApplicationContext applicationContext;
 
-    private final EntityManagerFactory entityManagerFactory;
+    @PersistenceContext
+    private EntityManager entityManager;
     private final CustomRevisionEntityRepository revisionEntityRepository;
 
     private final ConcurrentMap<Class<?>, Function<Object, Object>> dtoMapperMap =
             new ConcurrentHashMap<>();
 
-    public RevisionService(
-            @Autowired EntityManagerFactory entityManagerFactory,
-            @Autowired CustomRevisionEntityRepository revisionEntityRepository) {
-        this.entityManagerFactory = entityManagerFactory;
+    public RevisionService(@Autowired CustomRevisionEntityRepository revisionEntityRepository) {
         this.revisionEntityRepository = revisionEntityRepository;
     }
 
@@ -85,8 +83,9 @@ public class RevisionService implements ApplicationContextAware {
      *         was not available.
      */
     public EntityAuditInfo getAuditInfo(AbstractEntity entity) {
-        // find first revision of the entity
-        try (AuditReaderWrapper auditReader = new AuditReaderWrapper()) {
+        AuditReader auditReader = getAuditReader();
+        try {
+            // find first revision of the entity
             Object[] firstRevision = (Object[]) auditReader.createQuery()
                     .forRevisionsOfEntity(entity.getClass(), false, true)
                     .add(AuditEntity.id().eq(entity.getId()))
@@ -95,6 +94,7 @@ public class RevisionService implements ApplicationContextAware {
                     .getSingleResult();
             CustomRevisionEntity first = (CustomRevisionEntity) firstRevision[1];
 
+            // find last revision of the entity
             Object[] lastRevision = (Object[]) auditReader.createQuery()
                     .forRevisionsOfEntity(entity.getClass(), false, true)
                     .add(AuditEntity.id().eq(entity.getId()))
@@ -139,14 +139,12 @@ public class RevisionService implements ApplicationContextAware {
             Class<T> clazz,
             Function<T, R> dtoMapper
     ) {
-        try (AuditReaderWrapper auditReader = new AuditReaderWrapper()) {
-            T value = (T) auditReader.createQuery()
-                    .forRevisionsOfEntity(clazz, true, true)
-                    .add(AuditEntity.id().eq(id))
-                    .add(AuditEntity.revisionNumber().eq(revisionNb))
-                    .getSingleResult();
-            return value != null ? dtoMapper.apply(value) : null;
-        }
+        T value = (T) getAuditReader().createQuery()
+                .forRevisionsOfEntity(clazz, true, true)
+                .add(AuditEntity.id().eq(id))
+                .add(AuditEntity.revisionNumber().eq(revisionNb))
+                .getSingleResult();
+        return value != null ? dtoMapper.apply(value) : null;
     }
 
     /**
@@ -156,8 +154,8 @@ public class RevisionService implements ApplicationContextAware {
      * @return the page of revisions {@link RevisionInfoDTO}
      */
     public Page<RevisionInfoDTO> getRevisions(Pageable pageable) {
-        return revisionEntityRepository.findAll(pageable).map(rev ->
-                RevisionInfoDTO.from(rev, getChangesForRevision(rev.getId())));
+        return revisionEntityRepository.findAll(pageable)
+                .map(rev -> RevisionInfoDTO.from(rev, getChangesForRevision(rev.getId())));
     }
 
     /**
@@ -168,45 +166,45 @@ public class RevisionService implements ApplicationContextAware {
      * @return the requested page of revisions for the given entity
      */
     public Page<RevisionDTO> getRevisionsForEntity(Pageable pageable, AbstractEntity entity) {
-        try (AuditReaderWrapper auditReader = new AuditReaderWrapper()) {
-            Number count = (Number) auditReader.createQuery()
-                    .forRevisionsOfEntity(entity.getClass(), false, true)
-                    .add(AuditEntity.id().eq(entity.getId()))
-                    .addProjection(AuditEntity.revisionNumber().count())
-                    .getSingleResult();
+        AuditReader auditReader = getAuditReader();
+        Number count = (Number) auditReader.createQuery()
+                .forRevisionsOfEntity(entity.getClass(), false, true)
+                .add(AuditEntity.id().eq(entity.getId()))
+                .addProjection(AuditEntity.revisionNumber().count())
+                .getSingleResult();
 
-            // find all revisions of the entity class that have the correct id
-            AuditQuery query = auditReader.createQuery()
-                    .forRevisionsOfEntity(entity.getClass(), false, true)
-                    .add(AuditEntity.id().eq(entity.getId()));
+        // find all revisions of the entity class that have the correct id
+        AuditQuery query = auditReader.createQuery()
+                .forRevisionsOfEntity(entity.getClass(), false, true)
+                .add(AuditEntity.id().eq(entity.getId()));
 
-            // add the page sorting information to the query
-            if (pageable.getSort() != null) {
-                pageable.getSort()
-                        .forEach(order -> query.addOrder(order.getDirection().isAscending()
-                                ? AuditEntity.property(order.getProperty()).asc()
-                                : AuditEntity.property(order.getProperty()).desc()));
-            }
-
-            // add the page constraints (offset and amount of results)
-            query.setFirstResult(pageable.getOffset())
-                    .setMaxResults(pageable.getPageSize());
-
-            Function<Object, Object> dtoMapper = getDtoMapper(entity.getClass());
-
-            @SuppressWarnings("unchecked")
-            List<Object[]> resultList = (List<Object[]>) query.getResultList();
-            List<RevisionDTO> revisionDtos = resultList.stream()
-                    .map(objArray -> new RevisionDTO(
-                            new Revision(
-                                    new CustomRevisionMetadata((CustomRevisionEntity) objArray[1]),
-                                    objArray[0]),
-                            (RevisionType) objArray[2],
-                            dtoMapper.apply(objArray[0])))
-                    .collect(toList());
-
-            return new PageImpl<>(revisionDtos, pageable, count.longValue());
+        // add the page sorting information to the query
+        if (pageable.getSort() != null) {
+            pageable.getSort()
+                    .forEach(order -> query.addOrder(order.getDirection().isAscending()
+                            ? AuditEntity.property(order.getProperty()).asc()
+                            : AuditEntity.property(order.getProperty()).desc()));
         }
+
+        // add the page constraints (offset and amount of results)
+        query.setFirstResult(pageable.getOffset())
+                .setMaxResults(pageable.getPageSize());
+
+        Function<Object, Object> dtoMapper = getDtoMapper(entity.getClass());
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> resultList = (List<Object[]>) query.getResultList();
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        List<RevisionDTO> revisionDtos = resultList.stream()
+                .map(objArray -> new RevisionDTO(
+                        new Revision(
+                                new CustomRevisionMetadata((CustomRevisionEntity) objArray[1]),
+                                objArray[0]),
+                        (RevisionType) objArray[2],
+                        dtoMapper.apply(objArray[0])))
+                .collect(toList());
+
+        return new PageImpl<>(revisionDtos, pageable, count.longValue());
     }
 
     /**
@@ -246,28 +244,33 @@ public class RevisionService implements ApplicationContextAware {
                     ERR_REVISIONS_NOT_FOUND,
                     Collections.singletonMap("revision-id", revision.toString()));
         }
-        try (AuditReaderWrapper auditReader = new AuditReaderWrapper()) {
-            return revisionEntity.getModifiedEntityNames().stream()
-                    .flatMap(entityName -> {
-                        Class<?> entityClass = classForEntityName(entityName);
-                        Function<Object, Object> dtoMapper = getDtoMapper(entityClass);
-                        //noinspection unchecked
-                        return Arrays.stream(RevisionType.values())
-                                .flatMap(revisionType -> (Stream<Map.Entry<RevisionType, ?>>)
-                                        auditReader.createQuery()
-                                                .forEntitiesModifiedAtRevision(
-                                                        entityClass,
-                                                        revision)
-                                                .add(AuditEntity.revisionType().eq(revisionType))
-                                                .getResultList()
-                                                .stream()
-                                                .filter(Objects::nonNull)
-                                                .map(o -> new AbstractMap.SimpleImmutableEntry<>(
-                                                        revisionType, dtoMapper.apply(o))));
-                    })
-                    .collect(groupingBy(Map.Entry::getKey,
-                            mapping(Map.Entry::getValue, toList())));
+        AuditReader auditReader = getAuditReader();
+
+        Map<RevisionType, List<Object>> result = new HashMap<>(5);
+
+        for (RevisionType revisionType : RevisionType.values()) {
+            result.put(revisionType, new ArrayList<>());
         }
+
+        for (String entityName : revisionEntity.getModifiedEntityNames()) {
+            Class<?> entityClass = classForEntityName(entityName);
+            Function<Object, Object> dtoMapper = getDtoMapper(entityClass);
+
+            for (RevisionType revisionType : RevisionType.values()) {
+                //noinspection unchecked
+                result.get(revisionType)
+                        .addAll((List<Object>)auditReader.createQuery()
+                                .forEntitiesModifiedAtRevision(entityClass, revision)
+                                .add(AuditEntity.revisionType().eq(revisionType))
+                                .getResultList()
+                                .stream()
+                                .map(dtoMapper)
+                                .filter(Objects::nonNull)
+                                .collect(toList()));
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -308,11 +311,12 @@ public class RevisionService implements ApplicationContextAware {
             Class<?> clazz,
             List<AuditCriterion> criteria
     ) throws AuditException, NonUniqueResultException {
-        try (AuditReaderWrapper auditReader = new AuditReaderWrapper()) {
-            AuditQuery query = auditReader.createQuery().forRevisionsOfEntity(clazz, true, true);
-            query.add(AuditEntity.revisionNumber().maximize()
-                    .computeAggregationInInstanceContext());
-            criteria.forEach(query::add);
+        AuditQuery query = getAuditReader().createQuery()
+                .forRevisionsOfEntity(clazz, true, true)
+                .add(AuditEntity.revisionNumber().maximize()
+                        .computeAggregationInInstanceContext());
+        criteria.forEach(query::add);
+        try {
             return Optional.ofNullable(toDto(query.getSingleResult()));
         } catch (NoResultException ex) {
             log.debug("No entity of type " + clazz.getName() + " found in the revision history "
@@ -327,19 +331,9 @@ public class RevisionService implements ApplicationContextAware {
                 ClassPathScanningCandidateComponentProvider(true);
         scanner.addIncludeFilter(new AnnotationTypeFilter(Mapper.class));
         // look only in the mapper package
-        return scanner.findCandidateComponents(
-                "org.radarcns.management.service.mapper").stream()
+        return scanner.findCandidateComponents("org.radarcns.management.service.mapper").stream()
                 .flatMap(bd -> {
-                    String className = bd.getBeanClassName();
-                    // get the bean for the given class
-                    final Object mapper;
-                    try {
-                        mapper = applicationContext.getBean(Class.forName(className));
-                    } catch (ClassNotFoundException ex) {
-                        // should not happen, we got the classname from the bean definition
-                        throw new InvalidStateException(
-                                ex.getMessage(), REVISION, "error.classNotFound");
-                    }
+                    final Object mapper = beanFromDefinition(bd);
                     // now we look for the correct method in the bean
                     return Arrays.stream(mapper.getClass().getMethods())
                             // look for methods that return our entity's DTO, and take exactly one
@@ -347,8 +341,8 @@ public class RevisionService implements ApplicationContextAware {
                             .filter(m ->
                                     m.getGenericReturnType().getTypeName().endsWith(
                                             clazz.getSimpleName() + "DTO")
-                                            && m.getGenericParameterTypes().length == 1
-                                            && m.getGenericParameterTypes()[0].getTypeName().equals(
+                                    && m.getGenericParameterTypes().length == 1
+                                    && m.getGenericParameterTypes()[0].getTypeName().equals(
                                             clazz.getTypeName()))
                             .<Function<Object, Object>>map(method -> obj -> {
                                 if (obj == null) {
@@ -366,6 +360,18 @@ public class RevisionService implements ApplicationContextAware {
                 .orElse(obj -> null);
     }
 
+    private Object beanFromDefinition(BeanDefinition beanDefinition) {
+        String className = beanDefinition.getBeanClassName();
+        // get the bean for the given class
+        try {
+            return applicationContext.getBean(Class.forName(className));
+        } catch (ClassNotFoundException ex) {
+            // should not happen, we got the classname from the bean definition
+            throw new InvalidStateException(
+                    ex.getMessage(), REVISION, "error.classNotFound");
+        }
+    }
+
     private Class<?> classForEntityName(String entityName) {
         try {
             return Class.forName(entityName);
@@ -376,27 +382,7 @@ public class RevisionService implements ApplicationContextAware {
         }
     }
 
-    public class AuditReaderWrapper implements Closeable {
-        private final EntityManager entityManager;
-        private final AuditReader auditReader;
-
-        public AuditReaderWrapper() {
-            entityManager = entityManagerFactory.createEntityManager();
-            auditReader = AuditReaderFactory.get(entityManager);
-        }
-
-        public AuditQueryCreator createQuery() {
-            return auditReader.createQuery();
-        }
-
-        public <T> T merge(T object) {
-            entityManager.joinTransaction();
-            return entityManager.merge(object);
-        }
-
-        @Override
-        public void close() {
-            entityManager.close();
-        }
+    private AuditReader getAuditReader() {
+        return AuditReaderFactory.get(entityManager);
     }
 }
