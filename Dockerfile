@@ -25,7 +25,7 @@ RUN ./gradlew downloadDependencies
 
 COPY package.json postcss.config.js proxy.conf.json tsconfig-aot.json tsconfig.json tslint.json yarn.lock /app/
 COPY webpack webpack
-RUN ./gradlew -s npmInstall
+RUN ./gradlew -s yarn_install
 
 # now we copy our application source code and build it
 COPY radar-auth radar-auth
