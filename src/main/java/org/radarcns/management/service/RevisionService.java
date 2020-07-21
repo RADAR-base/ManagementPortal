@@ -103,7 +103,6 @@ public class RevisionService implements ApplicationContextAware {
                     .getSingleResult();
             CustomRevisionEntity last = (CustomRevisionEntity) lastRevision[1];
 
-
             // now populate the result object and return it
             return new EntityAuditInfo()
                     .setCreatedAt(ZonedDateTime.ofInstant(first.getTimestamp().toInstant(),
@@ -377,17 +376,22 @@ public class RevisionService implements ApplicationContextAware {
         }
     }
 
-    private class AuditReaderWrapper implements Closeable {
+    public class AuditReaderWrapper implements Closeable {
         private final EntityManager entityManager;
         private final AuditReader auditReader;
 
-        private AuditReaderWrapper() {
+        public AuditReaderWrapper() {
             entityManager = entityManagerFactory.createEntityManager();
             auditReader = AuditReaderFactory.get(entityManager);
         }
 
-        private AuditQueryCreator createQuery() {
+        public AuditQueryCreator createQuery() {
             return auditReader.createQuery();
+        }
+
+        public <T> T merge(T object) {
+            entityManager.joinTransaction();
+            return entityManager.merge(object);
         }
 
         @Override

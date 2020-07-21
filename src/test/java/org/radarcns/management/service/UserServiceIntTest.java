@@ -1,7 +1,6 @@
 package org.radarcns.management.service;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.query.AuditEntity;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +14,7 @@ import org.radarcns.management.domain.audit.CustomRevisionEntity;
 import org.radarcns.management.repository.CustomRevisionEntityRepository;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.repository.filters.UserFilter;
+import org.radarcns.management.service.RevisionService.AuditReaderWrapper;
 import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.RandomUtil;
@@ -26,7 +26,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import java.time.Period;
 import java.time.ZonedDateTime;
@@ -195,21 +194,23 @@ public class UserServiceIntTest {
         User expiredUser = addExpiredUser(userRepository);
         commitTransactionAndStartNew();
 
-        AuditReader auditReader = ((AuditReader) ReflectionTestUtils
-                .getField(revisionService, "auditReader"));
-        Object[] firstRevision = (Object[]) auditReader.createQuery()
-                .forRevisionsOfEntity(expiredUser.getClass(), false, true)
-                .add(AuditEntity.id().eq(expiredUser.getId()))
-                .add(AuditEntity.revisionNumber().minimize()
-                        .computeAggregationInInstanceContext())
-                .getSingleResult();
-        CustomRevisionEntity first = (CustomRevisionEntity) firstRevision[1];
         // Update the timestamp of the revision so it appears to have been created 5 days ago
         ZonedDateTime expDateTime = ZonedDateTime.now().minus(Period.ofDays(5));
-        first.setTimestamp(Date.from(expDateTime.toInstant()));
-        EntityManager entityManager = ((EntityManager) ReflectionTestUtils
-                .getField(revisionService, "entityManager"));
-        entityManager.persist(first);
+
+        try (AuditReaderWrapper auditReader = revisionService.new AuditReaderWrapper()) {
+            Object[] firstRevision = (Object[]) auditReader.createQuery()
+                    .forRevisionsOfEntity(expiredUser.getClass(), false, true)
+                    .add(AuditEntity.id().eq(expiredUser.getId()))
+                    .add(AuditEntity.revisionNumber().minimize()
+                            .computeAggregationInInstanceContext())
+                    .getSingleResult();
+            CustomRevisionEntity first = (CustomRevisionEntity) firstRevision[1];
+            first.setTimestamp(Date.from(expDateTime.toInstant()));
+            CustomRevisionEntity updated = auditReader.merge(first);
+            commitTransactionAndStartNew();
+            assertThat(updated.getTimestamp()).isEqualTo(first.getTimestamp());
+            assertThat(updated.getTimestamp()).isEqualTo(Date.from(expDateTime.toInstant()));
+        }
 
         // make sure when we reload the expired user we have the new created date
         assertThat(revisionService.getAuditInfo(expiredUser).getCreatedAt()).isEqualTo(expDateTime);
