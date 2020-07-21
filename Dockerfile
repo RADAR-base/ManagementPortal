@@ -8,7 +8,13 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
 
 # installing the node packages before adding the src directory will allow us to re-use these image layers when only the souce code changes
 WORKDIR /app
+
 ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.project.prod=true"
+
+COPY package.json postcss.config.js proxy.conf.json tsconfig-aot.json tsconfig.json tslint.json yarn.lock /app/
+COPY webpack webpack
+RUN yarn install
+
 COPY gradlew /app/
 COPY gradle/wrapper gradle/wrapper
 RUN ./gradlew --version
@@ -23,9 +29,6 @@ RUN ./gradlew radar-auth:shadowJar
 
 RUN ./gradlew downloadDependencies
 
-COPY package.json postcss.config.js proxy.conf.json tsconfig-aot.json tsconfig.json tslint.json yarn.lock /app/
-COPY webpack webpack
-RUN ./gradlew -s yarn_install
 
 # now we copy our application source code and build it
 COPY radar-auth radar-auth
