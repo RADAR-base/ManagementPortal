@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -43,16 +44,10 @@ import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -177,6 +172,11 @@ public class RevisionService implements ApplicationContextAware {
      */
     public Page<RevisionInfoDTO> getRevisions(Pageable pageable) {
         return revisionEntityRepository.findAll(pageable).map(rev ->
+                RevisionInfoDTO.from(rev, getChangesForRevision(rev.getId())));
+    }
+
+    public Page<RevisionInfoDTO> findByDates(Date fromDate, Date toDate, Pageable pageable) {
+        return revisionEntityRepository.findAllByTimestampBetween(fromDate, toDate, pageable).map(rev ->
                 RevisionInfoDTO.from(rev, getChangesForRevision(rev.getId())));
     }
 
