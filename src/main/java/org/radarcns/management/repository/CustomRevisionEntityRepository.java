@@ -7,8 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Date;
 
-public interface CustomRevisionEntityRepository extends JpaRepository<CustomRevisionEntity,
-        Integer> {
+public interface CustomRevisionEntityRepository extends 
+                    JpaRepository<CustomRevisionEntity, Integer> {
 
-    Page<CustomRevisionEntity> findAllByTimestampBetween(Date fromDate, Date toDate, Pageable pageable);
+    Page<CustomRevisionEntity> findAllByTimestampBetween(Date fromDate, Date toDate, 
+                                Pageable pageable);
 }
