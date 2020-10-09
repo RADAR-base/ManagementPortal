@@ -45,7 +45,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.Map;
 import java.util.List;
 import java.util.Optional;
@@ -179,11 +178,6 @@ public class RevisionService implements ApplicationContextAware {
     public Page<RevisionInfoDTO> getRevisions(Pageable pageable) {
         return revisionEntityRepository.findAll(pageable).map(rev ->
                 RevisionInfoDTO.from(rev, getChangesForRevision(rev.getId())));
-    }
-
-    public Page<RevisionInfoDTO> findByDates(Date fromDate, Date toDate, Pageable pageable) {
-        return revisionEntityRepository.findAllByTimestampBetween(fromDate, toDate, pageable)
-                .map(rev -> RevisionInfoDTO.from(rev, getChangesForRevision(rev.getId())));
     }
 
     /**
