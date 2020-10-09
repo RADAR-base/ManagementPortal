@@ -28,7 +28,6 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
-import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 import com.codahale.metrics.annotation.Timed;
