@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Date;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -40,6 +41,7 @@ import org.radarcns.management.repository.RoleRepository;
 import org.radarcns.management.repository.SourceRepository;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.service.dto.MinimalSourceDetailsDTO;
+import org.radarcns.management.service.dto.RevisionInfoDTO;
 import org.radarcns.management.service.dto.SubjectDTO;
 import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.ProjectMapper;
@@ -55,8 +57,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.Revisions;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -203,6 +208,19 @@ public class SubjectService {
     public Page<SubjectDTO> findAll(Pageable pageable) {
         return subjectRepository.findAllWithEagerRelationships(pageable)
                 .map(subjectMapper::subjectToSubjectReducedProjectDTO);
+    }
+
+    /**
+     * Get all subjects created between dates specified.
+     *
+     * @param fromDate date created from
+     * @param toDate date created to
+     * @return the requested list of subjects
+     */
+    public List<SubjectDTO> findByDateCreated(ZonedDateTime fromDate, ZonedDateTime toDate) {
+        return this.findAll(new PageRequest(0,Integer.MAX_VALUE)).getContent().stream()
+                .filter(subject -> subject.getCreatedDate().isAfter(fromDate)
+                && subject.getCreatedDate().isBefore(toDate)).collect(Collectors.toList());
     }
 
     /**

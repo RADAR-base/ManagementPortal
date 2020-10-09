@@ -18,6 +18,7 @@ import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_SOURCE_
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
 
 import java.net.URISyntaxException;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,6 +28,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
+import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 import com.codahale.metrics.annotation.Timed;
@@ -67,6 +69,7 @@ import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -286,6 +289,27 @@ public class SubjectResource {
         HttpHeaders headers = PaginationUtil
                 .generatePaginationHttpHeaders(page, "/api/subjects");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
+     * API to get subjects by date created.
+     *
+     * @param fromDate date range beginning
+     * @param toDate date range ending
+     * @param pageable the page information
+     * @return the requested page of revisions
+     */
+    @GetMapping(value = "/subjects", params = { "fromDate", "toDate" })
+    public ResponseEntity<List<SubjectDTO>> getSubjectsByDateCreated(
+            @RequestParam(value = "fromDate")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime fromDate,
+            @RequestParam(value = "toDate")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime toDate,
+            @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable)
+            throws NotAuthorizedException {
+        log.debug("REST request to get subjects");
+        List<SubjectDTO> subjects = subjectService.findByDateCreated(fromDate, toDate);
+        return ResponseEntity.ok(subjects);
     }
 
     /**
