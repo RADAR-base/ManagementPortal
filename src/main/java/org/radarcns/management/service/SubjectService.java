@@ -403,12 +403,14 @@ public class SubjectService {
         // first get latest known version of the subject, if it's deleted we can't load the entity
         // directly by e.g. findOneByLogin
         SubjectDTO latest = getLatestRevision(login);
-        Subject sub = revisionService.findRevision(revision, latest.getId(), Subject.class);
+        SubjectDTO sub = revisionService
+                .findRevision(revision, latest.getId(), Subject.class,
+                        subjectMapper::subjectToSubjectReducedProjectDTO);
         if (sub == null) {
             throw new NotFoundException("subject not found for given login and revision.", SUBJECT,
                 ERR_SUBJECT_NOT_FOUND, Collections.singletonMap("subjectLogin", login));
         }
-        return subjectMapper.subjectToSubjectReducedProjectDTO(sub);
+        return sub;
     }
 
     /**
