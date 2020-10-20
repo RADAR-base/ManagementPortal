@@ -32,6 +32,12 @@
                 <a [routerLink]="['/project', source.project?.projectName]">{{source.project.projectName}}</a>
             </div>
         </dd>
+        <dt><span jhiTranslate="managementPortalApp.source.attributeData">Attributes</span></dt>
+        <dd>
+            <div *ngFor="let entry of source.attributes | keys; trackBy: trackKey">
+                <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
+            </div>
+        </dd>
     </dl>
 
     <button type="submit"
@@ -39,5 +45,13 @@
             class="btn btn-info">
         <span class="fa fa-arrow-left"></span>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
     </button>
+<!--    <button-->
+<!--            type="submit"-->
+<!--            [routerLink]="['/', { outlets: { popup: 'project-source/'+ project.projectName + '/' + source.sourceName + '/edit'} }]"-->
+<!--            replaceUrl="true"-->
+<!--            class="btn btn-primary btn-sm">-->
+<!--        <span class="fa fa-pencil"></span>-->
+<!--        <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>-->
+<!--    </button>-->
 
 </div>
