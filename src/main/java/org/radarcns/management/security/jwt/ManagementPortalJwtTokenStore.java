@@ -99,7 +99,6 @@ public class ManagementPortalJwtTokenStore implements TokenStore {
         OAuth2AccessToken accessToken = convertAccessToken(tokenValue);
 
         if (jwtAccessTokenConverter.isRefreshToken(accessToken)) {
-
             throw new InvalidTokenException("Encoded token is a refresh token");
         }
         return accessToken;

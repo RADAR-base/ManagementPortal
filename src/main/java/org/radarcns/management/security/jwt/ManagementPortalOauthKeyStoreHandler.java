@@ -2,6 +2,7 @@ package org.radarcns.management.security.jwt;
 
 import static org.radarcns.management.security.jwt.ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL;
 
+import com.auth0.jwt.JWT;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -79,6 +80,7 @@ public class ManagementPortalOauthKeyStoreHandler {
     private final TokenValidatorConfig deprecatedValidatedConfig;
 
     private final List<JWTVerifier> verifiers;
+    private final List<JWTVerifier> refreshTokenVerifiers;
 
     private final AlgorithmLoader algorithmLoader = new AlgorithmLoader();
 
@@ -114,7 +116,19 @@ public class ManagementPortalOauthKeyStoreHandler {
                 + servletContext.getContextPath();
         logger.info("Using Management Portal base-url {}", this.managementPortalBaseUrl);
 
-        verifiers = Stream.concat(loadVerifiersFromAlias(), loadDeprecatedVerifiers())
+        List<Algorithm> algorithms = Stream.concat(
+                loadAlgorithmsFromAlias(),
+                loadDeprecatedAlgorithms())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        verifiers = algorithms.stream()
+                .map(algo -> JWT.require(algo).withAudience(RES_MANAGEMENT_PORTAL).build())
+                .collect(Collectors.toList());
+        // No need to check audience with a refresh token: it can be used
+        // to refresh tokens intended for other resources.
+        refreshTokenVerifiers = algorithms.stream()
+                .map(algo -> JWT.require(algo).build())
                 .collect(Collectors.toList());
     }
 
@@ -123,16 +137,14 @@ public class ManagementPortalOauthKeyStoreHandler {
      * @return deprecated verifiers in a stream.
      */
     @SuppressWarnings("deprecation")
-    private Stream<JWTVerifier> loadDeprecatedVerifiers() {
+    private Stream<Algorithm> loadDeprecatedAlgorithms() {
         if (deprecatedValidatedConfig == null) {
             return Stream.empty();
         }
 
         return deprecatedValidatedConfig.getPublicKeys()
                 .stream()
-                .map(algorithmLoader::loadDeprecatedAlgorithmFromPublicKey)
-                .filter(Objects::nonNull)
-                .map(algo -> AlgorithmLoader.buildVerifier(algo, RES_MANAGEMENT_PORTAL));
+                .map(algorithmLoader::loadDeprecatedAlgorithmFromPublicKey);
     }
 
     private static void checkOAuthConfig(ManagementPortalProperties managementPortalProperties) {
@@ -207,14 +219,12 @@ public class ManagementPortalOauthKeyStoreHandler {
     /**
      * Load default verifiers from configured keystore and aliases.
      */
-    private Stream<JWTVerifier> loadVerifiersFromAlias() {
+    private Stream<Algorithm> loadAlgorithmsFromAlias() {
         return this.verifierPublicKeyAliasList.stream()
                 .map(this::getKeyPair)
                 .map(ManagementPortalOauthKeyStoreHandler::getJwtAlgorithm)
                 .filter(Objects::nonNull)
-                .map(JwtAlgorithm::getAlgorithm)
-                .filter(Objects::nonNull)
-                .map(algo -> AlgorithmLoader.buildVerifier(algo, RES_MANAGEMENT_PORTAL));
+                .map(JwtAlgorithm::getAlgorithm);
     }
 
     public List<JWTVerifier> getVerifiers() {
@@ -362,5 +372,9 @@ public class ManagementPortalOauthKeyStoreHandler {
                         : Collections.emptyList();
             }
         };
+    }
+
+    public List<JWTVerifier> getRefreshTokenVerifiers() {
+        return refreshTokenVerifiers;
     }
 }
