@@ -116,7 +116,9 @@ public class ManagementPortalOauthKeyStoreHandler {
                 + servletContext.getContextPath();
         logger.info("Using Management Portal base-url {}", this.managementPortalBaseUrl);
 
-        List<Algorithm> algorithms = Stream.concat(loadAlgorithmsFromAlias(), loadDeprecatedAlgorithms())
+        List<Algorithm> algorithms = Stream.concat(
+                loadAlgorithmsFromAlias(),
+                loadDeprecatedAlgorithms())
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
