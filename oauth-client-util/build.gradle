@@ -1,6 +1,6 @@
-ext.jacksonVersion = '2.9.9.1'
-ext.jacksonYamlVersion = '2.9.9'
-ext.okhttpVersion = '4.2.0'
+ext.jacksonVersion = '2.11.3'
+ext.jacksonYamlVersion = '2.11.3'
+ext.okhttpVersion = '4.9.0'
 ext.junitVersion ='4.12'
 
 description = 'This library can be used by client applications that want to use the client_credentials OAuth2 flow. It will manage getting the token and renewing it when necessary.'
