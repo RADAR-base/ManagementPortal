@@ -95,6 +95,7 @@ describe('account', () => {
         await browser.waitForAngular();
 
         await navBarPage.clickOnAccountMenu();
+        await browser.waitForAngular();
         await element(by.css('[routerLink="password"]')).click();
         // change back to default
         await password.clear();

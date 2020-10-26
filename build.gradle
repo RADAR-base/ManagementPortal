@@ -188,7 +188,7 @@ dependencies {
         exclude module: 'mapstruct'
     }
     compile "io.springfox:springfox-bean-validators:${springfox_version}"
-    compile "org.postgresql:postgresql"
+    compile "org.postgresql:postgresql:${postgresql_version}"
     compile "com.h2database:h2"
     compile project(path: ':radar-auth', configuration: 'shadow')
     compile "org.springframework.data:spring-data-envers:${spring_data_envers_version}"

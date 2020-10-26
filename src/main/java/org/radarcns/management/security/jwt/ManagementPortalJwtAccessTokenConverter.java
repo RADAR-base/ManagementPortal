@@ -44,7 +44,7 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
 
     public static final String RES_MANAGEMENT_PORTAL = "res_ManagementPortal";
 
-    private final JsonParser objectMapper = JsonParserFactory.create();
+    private final JsonParser jsonParser = JsonParserFactory.create();
 
     private static final Logger logger =
             LoggerFactory.getLogger(ManagementPortalJwtAccessTokenConverter.class);
@@ -57,6 +57,8 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
 
     private final List<JWTVerifier> verifiers;
 
+    private final List<JWTVerifier> refreshTokenVerifiers;
+
 
     /**
      * Default constructor.
@@ -64,8 +66,11 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
      * {@link DefaultAccessTokenConverter} as the accessTokenConverter with explicitly including
      * grant_type claim.
      */
-    public ManagementPortalJwtAccessTokenConverter(Algorithm algorithm,
-            List<JWTVerifier> verifiers) {
+    public ManagementPortalJwtAccessTokenConverter(
+            Algorithm algorithm,
+            List<JWTVerifier> verifiers,
+            List<JWTVerifier> refreshTokenVerifiers) {
+        this.refreshTokenVerifiers = refreshTokenVerifiers;
         DefaultAccessTokenConverter accessToken = new DefaultAccessTokenConverter();
         accessToken.setIncludeGrantType(true);
         this.tokenConverter = accessToken;
@@ -169,7 +174,7 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
             // reference.
 
             try {
-                Map<String, Object> claims = objectMapper
+                Map<String, Object> claims = jsonParser
                         .parseMap(JwtHelper.decode(refreshToken.getValue()).getClaims());
                 if (claims.containsKey(TOKEN_ID)) {
                     refreshTokenToEnhance.setValue(claims.get(TOKEN_ID).toString());
@@ -237,29 +242,29 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
 
     @Override
     public Map<String, Object> decode(String token) {
+        Jwt jwt = JwtHelper.decode(token);
+        String claimsStr = jwt.getClaims();
+        Map<String, Object> claims = jsonParser.parseMap(claimsStr);
+        if (claims.containsKey(EXP) && claims.get(EXP) instanceof Integer) {
+            Integer intValue = (Integer) claims.get(EXP);
+            claims.put(EXP, Long.valueOf(intValue));
+        }
+        if (this.getJwtClaimsSetVerifier() != null) {
+            this.getJwtClaimsSetVerifier().verify(claims);
+        }
 
-        for (JWTVerifier verifier : this.verifiers) {
+        List<JWTVerifier> verifierToUse = claims.get(ACCESS_TOKEN_ID) != null
+                ? refreshTokenVerifiers : verifiers;
+
+        for (JWTVerifier verifier : verifierToUse) {
             try {
                 verifier.verify(token);
-
-                Jwt jwt = JwtHelper.decode(token);
-                String claimsStr = jwt.getClaims();
-                Map<String, Object> claims = objectMapper.parseMap(claimsStr);
-                if (claims.containsKey(EXP) && claims.get(EXP) instanceof Integer) {
-                    Integer intValue = (Integer) claims.get(EXP);
-                    claims.put(EXP, Long.valueOf(intValue));
-                }
-
-                if (this.getJwtClaimsSetVerifier() != null) {
-                    this.getJwtClaimsSetVerifier().verify(claims);
-                }
-
                 return claims;
             } catch (SignatureVerificationException sve) {
                 logger.warn("Client presented a token with an incorrect signature");
             } catch (JWTVerificationException ex) {
-                logger.debug("Verifier {} with implementation {} did not accept token {}",
-                        verifier.toString(), verifier.getClass().toString(), token);
+                logger.debug("Verifier {} with implementation {} did not accept token: {}",
+                        verifier.toString(), verifier.getClass().toString(), ex.getMessage());
             }
         }
 

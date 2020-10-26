@@ -16,14 +16,6 @@
         <dd>
             <span>{{subject.externalId}}</span>
         </dd>
-        <dt><span jhiTranslate="managementPortalApp.subject.removed">Removed</span></dt>
-        <dd>
-            <span>{{subject.removed}}</span>
-        </dd>
-        <dt><span jhiTranslate="managementPortalApp.subject.activated">Activated</span></dt>
-        <dd>
-            <span>{{subject.activated}}</span>
-        </dd>
         <dt><span jhiTranslate="managementPortalApp.subject.project">Project</span></dt>
         <dd>
             <span *ngIf="subject.project">
@@ -36,6 +28,14 @@
                 <a [routerLink]="['/source', sources?.sourceName ]">{{sources.sourceTypeModel}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
             </span>
         </dd>
+
+        <dt><span jhiTranslate="managementPortalApp.subject.attributeData">Attributes</span></dt>
+        <dd>
+            <div *ngFor="let entry of subject.attributes | keys; trackBy: trackKey">
+                <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
+            </div>
+        </dd>
+
         <dt><span jhiTranslate="managementPortalApp.subject.createdBy">Created By</span></dt>
         <dd>{{subject.createdBy}}</dd>
         <dt><span jhiTranslate="managementPortalApp.subject.createdDate">Created Date</span></dt>
