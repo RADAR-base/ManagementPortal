@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 
@@ -307,7 +308,11 @@ public class SubjectResource {
             @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable)
             throws NotAuthorizedException {
         log.debug("REST request to get subjects");
-        List<SubjectDTO> subjects = subjectService.findByDateCreated(fromDate, toDate);
+        RadarToken token = getJWT(servletRequest);
+                List<SubjectDTO> subjects = subjectService.findByDateCreated(fromDate, toDate).stream()
+                                .filter(s -> token.hasPermissionOnSubject(SUBJECT_READ, s.getProject().getProjectName(),
+                                                s.getLogin()))
+                                .collect(Collectors.toList());
         return ResponseEntity.ok(subjects);
     }
 
