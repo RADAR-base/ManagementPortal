@@ -37,6 +37,8 @@ import org.radarcns.exception.TokenException;
 // using builder pattern.
 @SuppressWarnings("PMD.MissingStaticMethodInNonInstantiatableClass")
 public class OAuth2Client {
+    private static final Duration MINIMUM_VALIDITY = Duration.ofSeconds(10);
+
     private final URL tokenEndpoint;
     private final Set<String> scope;
     private final OkHttpClient httpClient;
@@ -77,7 +79,7 @@ public class OAuth2Client {
      * @throws TokenException if a new access token could not be fetched
      */
     public OAuth2AccessTokenDetails getValidToken() throws TokenException {
-        return getValidToken(Duration.ofSeconds(10));
+        return getValidToken(MINIMUM_VALIDITY);
     }
 
     /**
