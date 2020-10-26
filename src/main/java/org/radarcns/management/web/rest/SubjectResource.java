@@ -309,10 +309,11 @@ public class SubjectResource {
             throws NotAuthorizedException {
         log.debug("REST request to get subjects");
         RadarToken token = getJWT(servletRequest);
-                List<SubjectDTO> subjects = subjectService.findByDateCreated(fromDate, toDate).stream()
-                                .filter(s -> token.hasPermissionOnSubject(SUBJECT_READ, s.getProject().getProjectName(),
-                                                s.getLogin()))
-                                .collect(Collectors.toList());
+        List<SubjectDTO> subjects = subjectService.findByDateCreated(fromDate, toDate).stream()
+                .filter(s -> token.hasPermissionOnSubject(SUBJECT_READ, 
+                                s.getProject().getProjectName(),
+                                s.getLogin()))
+                .collect(Collectors.toList());
         return ResponseEntity.ok(subjects);
     }
 
