@@ -1,12 +1,11 @@
 package org.radarcns.management.service.dto;
 
+import java.util.stream.Collectors;
 import org.hibernate.envers.RevisionType;
 import org.radarcns.management.domain.audit.CustomRevisionEntity;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -76,16 +75,14 @@ public class RevisionInfoDTO implements Serializable {
         result.setAuthor(revisionEntity.getAuditor());
         result.setTimestamp(revisionEntity.getTimestamp());
         result.setId(revisionEntity.getId());
-        result.setChanges(new HashMap<>());
-        changes.forEach((type, objects) -> {
-            result.changes.putIfAbsent(type, new HashMap<>());
-            objects.stream().filter(Objects::nonNull).forEach(object -> {
-                // strip the DTO suffix and make the name lowercase (e.g. ProjectDTO -> project)
-                String key = object.getClass().getSimpleName().replaceAll("DTO$","").toLowerCase();
-                result.changes.get(type).putIfAbsent(key, new LinkedList<>());
-                result.changes.get(type).get(key).add(object);
-            });
-        });
+        result.setChanges(changes.entrySet().stream()
+                .filter(e -> e.getValue() != null)
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream()
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.groupingBy(obj -> obj.getClass()
+                                .getSimpleName()
+                                .replaceAll("DTO$","")
+                                .toLowerCase())))));
         return result;
     }
 }

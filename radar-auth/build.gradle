@@ -6,10 +6,14 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.jfrog.artifactory'
 
-ext.jacksonVersion = '2.9.9.1'
-ext.jacksonYamlVersion = '2.9.9'
-ext.okhttpVersion = '4.2.0'
-ext.oauthJwtVersion = '3.8.0'
+ext {
+    jacksonVersion = '2.11.3'
+    jacksonYamlVersion = '2.11.3'
+    okhttpVersion = '4.9.0'
+    oauthJwtVersion = '3.11.0'
+    commonsCodecVersion = '1.15'
+    slf4jVersion = '1.7.30'
+}
 
 description = 'Library for authentication and authorization of JWT tokens issued by the RADAR platform'
 
@@ -24,12 +28,12 @@ configurations {
 
 dependencies {
     implementation project(path: ':radar-auth:deprecated-auth0', configuration: 'shadow')
-    shadow 'commons-codec:commons-codec:1.10'
+    shadow "commons-codec:commons-codec:$commonsCodecVersion"
 
     shadow group: 'com.auth0', name: 'java-jwt', version: oauthJwtVersion
     shadow group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion
 
-    shadow group: 'org.slf4j', name: 'slf4j-api', version: '1.7.26'
+    shadow group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion
     shadow group: 'com.fasterxml.jackson.core' , name: 'jackson-databind' , version: jacksonVersion
     shadow group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jacksonYamlVersion
 

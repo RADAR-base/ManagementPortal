@@ -11,7 +11,7 @@ plugins {
 allprojects {
     group 'org.radarcns'
 
-    version '0.6.0' // project version
+    version '0.6.1' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
@@ -188,7 +188,7 @@ dependencies {
         exclude module: 'mapstruct'
     }
     compile "io.springfox:springfox-bean-validators:${springfox_version}"
-    compile "org.postgresql:postgresql"
+    compile "org.postgresql:postgresql:${postgresql_version}"
     compile "com.h2database:h2"
     compile project(path: ':radar-auth', configuration: 'shadow')
     compile "org.springframework.data:spring-data-envers:${spring_data_envers_version}"

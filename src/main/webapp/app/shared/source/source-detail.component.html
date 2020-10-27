@@ -32,6 +32,12 @@
                 <a [routerLink]="['/project', source.project?.projectName]">{{source.project.projectName}}</a>
             </div>
         </dd>
+        <dt><span jhiTranslate="managementPortalApp.source.attributeData">Attributes</span></dt>
+        <dd>
+            <div *ngFor="let entry of source.attributes | keys; trackBy: trackKey">
+                <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
+            </div>
+        </dd>
     </dl>
 
     <button type="submit"

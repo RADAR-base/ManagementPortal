@@ -28,10 +28,10 @@
         <table class="table table-striped">
             <thead>
             <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
-            <th jhiSortBy="user.login" ><span jhiTranslate="managementPortalApp.subject.subjectId">subjectId</span><span class="fa fa-sort"></span></th>
-            <th jhiSortBy="externalId" ><span jhiTranslate="managementPortalApp.subject.externalId">Enternal Id</span><span class="fa fa-sort"></span></th>
+            <th ><span jhiTranslate="managementPortalApp.subject.subjectId">subjectId</span></th>
+            <th ><span jhiTranslate="managementPortalApp.subject.externalId">Enternal Id</span></th>
             <th ><span jhiTranslate="managementPortalApp.subject.status.title">Status</span></th>
-            <th *ngIf="!isProjectSpecific"><span jhiTranslate="managementPortalApp.subject.project">Project</span> <span class="fa fa-sort"></span></th>
+            <th *ngIf="!isProjectSpecific"><span jhiTranslate="managementPortalApp.subject.project">Project</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.sources">Sources</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.attributeData">Attributes</span></th>
             <th class="text-center"><span jhiTranslate="managementPortalApp.subject.pairing">Pairing</span></th>
@@ -41,7 +41,10 @@
             <tbody>
             <tr *ngFor="let subject of subjects ;trackBy: trackLogin">
                 <td><a [routerLink]="['/subject', subject.login ]">{{subject.login}}</a></td>
-                <td><a target="_blank" [href]=subject.externalLink>{{subject.externalId}}</a></td>
+                <td>
+                    <a *ngIf="subject.externalLink" target="_blank" [href]=subject.externalLink>{{subject.externalId}}</a>
+                    <span *ngIf="!subject.externalLink">{{subject.externalId}}</span>
+                </td>
                 <td>
                     <span class="badge badge-danger" *ngIf="subject.status == 'DEACTIVATED'">DEACTIVATED</span>
                     <span class="badge badge-success" *ngIf="subject.status == 'ACTIVATED'">ACTIVATED</span>
