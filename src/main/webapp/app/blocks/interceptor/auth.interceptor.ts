@@ -16,11 +16,12 @@ export class AuthInterceptor implements HttpInterceptor {
         if (!!tokenString) {
             const token: TokenData = JSON.parse(tokenString);
             if (!!token && token.expires_at && token.expires_at > new Date().getTime()) {
-                request = request.clone({
+                const newReq = request.clone({
                     setHeaders: {
                         Authorization: 'Bearer ' + token.access_token
                     }
                 });
+                return next.handle(newReq);
             }
         }
         return next.handle(request);
