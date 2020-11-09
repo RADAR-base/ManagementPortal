@@ -35,12 +35,12 @@ public class UserFilter implements Specification<User> {
         predicates.add(filterParticipants);
 
         if (StringUtils.isNotBlank(login)) {
-            predicates.add(
-                    builder.like(builder.lower(root.get("login")), "%" + login.trim().toLowerCase() + "%"));
+            predicates.add(builder.like(
+                    builder.lower(root.get("login")), "%" + login.trim().toLowerCase() + "%"));
         }
         if (StringUtils.isNotBlank(email)) {
-            predicates.add(
-                    builder.like(builder.lower(root.get("email")), "%" + email.trim().toLowerCase() + "%"));
+            predicates.add(builder.like(
+                    builder.lower(root.get("email")), "%" + email.trim().toLowerCase() + "%"));
         }
 
         if (StringUtils.isNotBlank(projectName)) {
@@ -49,9 +49,8 @@ public class UserFilter implements Specification<User> {
                     "%" + projectName.trim().toLowerCase() + "%"));
         }
         if (StringUtils.isNotBlank(authority)) {
-            Predicate filterByAuthority = builder.and(
-                    builder.like(
-                            builder.lower(authorityJoin.get("name")), "%" + authority.trim().toLowerCase() + "%"),
+            Predicate filterByAuthority = builder.and(builder.like(
+                    builder.lower(authorityJoin.get("name")), "%" + authority.trim().toLowerCase() + "%"),
                     filterParticipants);
             predicates.add(filterByAuthority);
 
