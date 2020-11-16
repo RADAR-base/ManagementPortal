@@ -1,10 +1,10 @@
 package org.radarcns.management.repository.filters;
 
-import org.apache.commons.lang.StringUtils;
 import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
+import org.radarcns.management.web.rest.util.FilterUtil;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -34,21 +34,21 @@ public class UserFilter implements Specification<User> {
                 builder.not(authorityJoin.get("name").in(PARTICIPANT, INACTIVE_PARTICIPANT)));
         predicates.add(filterParticipants);
 
-        if (StringUtils.isNotBlank(login)) {
+        if (FilterUtil.isValid(login)) {
             predicates.add(builder.like(
                     builder.lower(root.get("login")), "%" + login.trim().toLowerCase() + "%"));
         }
-        if (StringUtils.isNotBlank(email)) {
+        if (FilterUtil.isValid(email)) {
             predicates.add(builder.like(
                     builder.lower(root.get("email")), "%" + email.trim().toLowerCase() + "%"));
         }
 
-        if (StringUtils.isNotBlank(projectName)) {
+        if (FilterUtil.isValid(projectName)) {
             Join<Role, Project> projectJoin = roleJoin.join("project");
             predicates.add(builder.like(builder.lower(projectJoin.get("projectName")),
                     "%" + projectName.trim().toLowerCase() + "%"));
         }
-        if (StringUtils.isNotBlank(authority)) {
+        if (FilterUtil.isValid(authority)) {
             Predicate filterByAuthority = builder.and(builder.like(
                     builder.lower(authorityJoin.get("name")), "%" + authority.trim().toLowerCase() + "%"),
                     filterParticipants);

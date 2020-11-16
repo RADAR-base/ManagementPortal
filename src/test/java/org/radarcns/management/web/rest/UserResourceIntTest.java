@@ -256,7 +256,6 @@ public class UserResourceIntTest {
         userWithRole.setLangKey(DEFAULT_LANGKEY);
         userWithRole.setRoles(Collections.singleton(adminRole));
         userRepository.saveAndFlush(userWithRole);
-        final int databaseSizeBeforeCreate = userRepository.findAll().size();
 
         // Get all the users
         restUserMockMvc.perform(get("/api/users?sort=id,desc")
