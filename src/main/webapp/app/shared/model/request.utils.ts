@@ -1,17 +1,18 @@
 import { HttpParams } from '@angular/common/http';
 
-export const createRequestOption = (req?: RequestOptions): HttpParams => {
+export const createRequestOption = (req?: any): HttpParams => {
     let options: HttpParams = new HttpParams();
     if (req) {
         Object.keys(req).forEach((key) => {
-            if (Array.isArray(req[key])) {
-                const values: [string] = req[key] as [string];
-                values.forEach(value => options.append(key, value));
-            } else {
-                const value = req[key] as string;
-                options = options.set(key, value);
+            if (key !== 'sort') {
+                options = options.set(key, req[key]);
             }
         });
+        if (req.sort) {
+            req.sort.forEach((val) => {
+                options = options.append('sort', val);
+            });
+        }
     }
     return options;
 };
