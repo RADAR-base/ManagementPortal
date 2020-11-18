@@ -28,9 +28,9 @@
         <table class="table table-striped">
             <thead>
             <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
-            <th ><span jhiTranslate="managementPortalApp.subject.subjectId">subjectId</span></th>
-            <th ><span jhiTranslate="managementPortalApp.subject.externalId">Enternal Id</span></th>
-            <th ><span jhiTranslate="managementPortalApp.subject.status.title">Status</span></th>
+            <th jhiSortBy="user.login" ><span jhiTranslate="managementPortalApp.subject.subjectId">subjectId</span><span class="fa fa-sort"></span></th>
+            <th jhiSortBy="externalId" ><span jhiTranslate="managementPortalApp.subject.externalId">Enternal Id</span><span class="fa fa-sort"></span></th>
+                <th jhiSortBy="user.activated"><span jhiTranslate="managementPortalApp.subject.status.title">Status</span><span class="fa fa-sort"></span></th>
             <th *ngIf="!isProjectSpecific"><span jhiTranslate="managementPortalApp.subject.project">Project</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.sources">Sources</span></th>
             <th><span jhiTranslate="managementPortalApp.subject.attributeData">Attributes</span></th>
