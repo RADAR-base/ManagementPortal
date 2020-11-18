@@ -7,7 +7,11 @@ import org.radarcns.management.domain.User;
 import org.radarcns.management.web.rest.util.FilterUtil;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +50,8 @@ public class UserFilter implements Specification<User> {
         }
         if (FilterUtil.isValid(authority)) {
             Predicate filterByAuthority = builder.and(builder.like(
-                    builder.lower(authorityJoin.get("name")), "%" + authority.trim().toLowerCase() + "%"),
+                    builder.lower(
+                            authorityJoin.get("name")), "%" + authority.trim().toLowerCase() + "%"),
                     filterParticipants);
             predicates.add(filterByAuthority);
 

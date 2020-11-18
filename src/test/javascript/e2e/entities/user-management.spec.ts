@@ -49,7 +49,7 @@ describe('Create, edit, and delete user', () => {
         await element(by.cssContainingText('button.btn-primary', 'Save')).click();
         await browser.waitForAngular();
 
-        expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(8);
+        expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(4);
     });
 
     it('should be able to create new system admin user', async() => {
@@ -61,7 +61,7 @@ describe('Create, edit, and delete user', () => {
 
         await element(by.cssContainingText('button.btn-primary', 'Save')).click();
         await browser.waitForAngular();
-        expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(9);
+        expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(5);
     });
 
     it('should be able to edit a user with roles', async() => {
@@ -73,7 +73,7 @@ describe('Create, edit, and delete user', () => {
         await element(by.cssContainingText('button.btn-primary', 'Save')).click();
 
         await browser.waitForAngular();
-        expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(9);
+        expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(5);
     });
 
     it('should be able to delete a user with roles', async() => {
@@ -85,7 +85,7 @@ describe('Create, edit, and delete user', () => {
             .click();
 
         await browser.waitForAngular();
-        expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(8);
+        expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(4);
     });
 
     it('should be able to delete a sys admin user', async() => {
@@ -97,6 +97,6 @@ describe('Create, edit, and delete user', () => {
             .click();
 
         await browser.waitForAngular();
-        expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(7);
+        expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(3);
     });
 });

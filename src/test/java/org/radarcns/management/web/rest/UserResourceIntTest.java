@@ -142,7 +142,7 @@ public class UserResourceIntTest {
         // Create the User
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(AuthoritiesConstants.SYS_ADMIN);
+        role.setAuthorityName(SYS_ADMIN);
         roles.add(role);
 
         ManagedUserVM managedUserVm = createDefaultUser(roles);
