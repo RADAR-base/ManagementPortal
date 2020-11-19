@@ -8,6 +8,8 @@ import org.mockito.MockitoAnnotations;
 import org.radarcns.auth.authorization.AuthoritiesConstants;
 import org.radarcns.management.ManagementPortalTestApp;
 import org.radarcns.management.config.ManagementPortalProperties;
+import org.radarcns.management.domain.Authority;
+import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
 import org.radarcns.management.repository.SubjectRepository;
 import org.radarcns.management.repository.UserRepository;
@@ -34,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -52,6 +55,7 @@ import static org.radarcns.management.service.UserServiceIntTest.UPDATED_LASTNAM
 import static org.radarcns.management.service.UserServiceIntTest.UPDATED_LOGIN;
 import static org.radarcns.management.service.UserServiceIntTest.UPDATED_PASSWORD;
 import static org.radarcns.management.service.UserServiceIntTest.createEntity;
+import static org.radarcns.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -125,7 +129,6 @@ public class UserResourceIntTest {
     }
 
 
-
     @Before
     public void initTest() {
         user = createEntity();
@@ -139,7 +142,7 @@ public class UserResourceIntTest {
         // Create the User
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(AuthoritiesConstants.SYS_ADMIN);
+        role.setAuthorityName(SYS_ADMIN);
         roles.add(role);
 
         ManagedUserVM managedUserVm = createDefaultUser(roles);
@@ -238,7 +241,21 @@ public class UserResourceIntTest {
     @Transactional
     public void getAllUsers() throws Exception {
         // Initialize the database
-        userRepository.saveAndFlush(user);
+        Role adminRole = new Role();
+        adminRole.setId(1L);
+        adminRole.setAuthority(new Authority(SYS_ADMIN));
+        adminRole.setProject(null);
+
+        User userWithRole = new User();
+        userWithRole.setLogin(DEFAULT_LOGIN);
+        userWithRole.setPassword(RandomStringUtils.random(60));
+        userWithRole.setActivated(true);
+        userWithRole.setEmail(DEFAULT_EMAIL);
+        userWithRole.setFirstName(DEFAULT_FIRSTNAME);
+        userWithRole.setLastName(DEFAULT_LASTNAME);
+        userWithRole.setLangKey(DEFAULT_LANGKEY);
+        userWithRole.setRoles(Collections.singleton(adminRole));
+        userRepository.saveAndFlush(userWithRole);
 
         // Get all the users
         restUserMockMvc.perform(get("/api/users?sort=id,desc")
