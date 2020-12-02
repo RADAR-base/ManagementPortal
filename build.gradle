@@ -11,7 +11,7 @@ plugins {
 allprojects {
     group 'org.radarcns'
 
-    version '0.6.1' // project version
+    version '0.6.2' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
@@ -195,7 +195,9 @@ dependencies {
 
     testCompile "org.awaitility:awaitility:${awaitility_version}"
     testCompile "com.jayway.jsonpath:json-path"
-    testCompile "org.springframework.boot:spring-boot-starter-test"
+    testCompile ("org.springframework.boot:spring-boot-starter-test") {
+        exclude group: "com.vaadin.external.google", module:"android-json"
+    }
     testCompile "org.springframework.security:spring-security-test"
     testCompile "org.springframework.boot:spring-boot-test"
     testCompile "org.assertj:assertj-core:${assertj_version}"
