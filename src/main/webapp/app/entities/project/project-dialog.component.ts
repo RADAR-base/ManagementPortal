@@ -1,7 +1,9 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Observable, Subject, merge } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
+import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModalRef, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
 import { SourceType, SourceTypeService } from '../source-type';
 import { ProjectPopupService } from './project-popup.service';
@@ -12,6 +14,8 @@ import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 @Component({
     selector: 'jhi-project-dialog',
     templateUrl: './project-dialog.component.html',
+    styleUrls: ['project-dialog.component.scss'],
+    encapsulation: ViewEncapsulation.None
 })
 export class ProjectDialogComponent implements OnInit {
     readonly authorities: any[];
@@ -22,7 +26,32 @@ export class ProjectDialogComponent implements OnInit {
     projectIdAsPrettyValue: boolean;
 
     sourceTypes: SourceType[];
+
+    sourceTypeInputText: string;
+    sourceTypeInputFocus$ = new Subject<string>();
+    get sourceTypeOptions() {
+        const selectedTypes = this.project.sourceTypes || [];
+        const selectedTypeIds = selectedTypes.map(t => t.id);
+        return this.sourceTypes.filter(t => !selectedTypeIds.includes(t.id));
+    }
+
     attributeComponentEventPrefix: 'projectAttributes';
+
+    getMatchingSourceTypes = (text$: Observable<string>) => {
+        const debouncedText$ = text$.pipe(debounceTime(200), distinctUntilChanged());
+        const inputFocus$ = this.sourceTypeInputFocus$;
+
+        return merge(debouncedText$, inputFocus$).pipe(map(term => {
+            const availableTypes = this.sourceTypeOptions;
+
+            term = term.trim().toLowerCase();
+            if (!term) {
+                return availableTypes;
+            }
+            const getTypeKey = t => this.formatSourceTypeOption(t).toLowerCase();
+            return availableTypes.filter(t => getTypeKey(t).includes(term));
+        }));
+    }
 
     constructor(
             public activeModal: NgbActiveModal,
@@ -87,16 +116,19 @@ export class ProjectDialogComponent implements OnInit {
         this.alertService.error(error.message, null, null);
     }
 
-    trackSourceTypeById(index: number, item: SourceType) {
-        return item.id;
+    addSourceType(event: NgbTypeaheadSelectItemEvent) {
+        const sourceType = event.item as SourceType;
+        this.project.sourceTypes.push(sourceType);
+        this.sourceTypeInputText = '';
+        event.preventDefault();
     }
 
-    getSelected(selectedVals: Array<any>, option: any) {
-        if (!selectedVals) {
-            return option;
-        }
-        const idx = selectedVals.findIndex(v => option.id === v.id);
-        return idx === -1 ? option : selectedVals[idx];
+    removeSourceType(id: number) {
+        this.project.sourceTypes = this.project.sourceTypes.filter(t => t.id !== id);
+    }
+
+    formatSourceTypeOption(t: SourceType) {
+        return `${t.producer}_${t.model}_${t.catalogVersion}`;
     }
 }
 
