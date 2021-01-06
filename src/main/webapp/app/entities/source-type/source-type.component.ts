@@ -7,6 +7,7 @@ import { ITEMS_PER_PAGE, Principal } from '../../shared';
 import { SourceType } from './source-type.model';
 import { SourceTypeService } from './source-type.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { PagingParams } from '../../shared/commons';
 
 @Component({
     selector: 'jhi-source-type',
@@ -22,7 +23,7 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
     page: any;
     predicate: any;
     queryCount: any;
-    reverse: any;
+    ascending: any;
     totalItems: number;
     routeData: any;
     previousPage: any;
@@ -39,11 +40,15 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
     ) {
         this.sourceTypes = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
-        this.routeData = this.activatedRoute.data.subscribe((data) => {
-            this.page = data['pagingParams'].page;
-            this.previousPage = data['pagingParams'].page;
-            this.reverse = data['pagingParams'].ascending;
-            this.predicate = data['pagingParams'].predicate;
+        const pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
+            const fallback = { page: 1, predicate: 'id', ascending: true };
+            return data['pagingParams'] || fallback;
+        });
+        this.routeData = pagingParams$.subscribe(params => {
+            this.page = params.page;
+            this.previousPage = params.page;
+            this.ascending = params.ascending;
+            this.predicate = params.predicate;
         });
         this.jhiLanguageService.setLocations(['sourceType', 'sourceTypeScope']);
     }
@@ -87,7 +92,7 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
     }
 
     sort() {
-        const result = [this.predicate + ',' + (this.reverse ? 'asc' : 'desc')];
+        const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
         if (this.predicate !== 'id') {
             result.push('id');
         }
@@ -109,11 +114,11 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
     }
 
     transition() {
-        this.router.navigate(['/source-types'], {
+        this.router.navigate(['/source-type'], {
             queryParams:
                     {
                         page: this.page,
-                        sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc'),
+                        sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
                     },
         });
         this.loadAll();
