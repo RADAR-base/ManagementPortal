@@ -15,6 +15,7 @@ import { ITEMS_PER_PAGE, Principal, Project } from '..';
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { PagingParams } from '../commons';
 
 @Component({
     selector: 'jhi-subjects',
@@ -30,7 +31,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     page: any;
     predicate: any;
     queryCount: any;
-    reverse: any;
+    ascending: any;
     totalItems: number;
     routeData: any;
     previousPage: any;
@@ -49,18 +50,15 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     ) {
         this.subjects = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
-        this.routeData = this.activatedRoute.data.subscribe((data) => {
-            if (data['pagingParams']) {
-                this.page = data['pagingParams'].page;
-                this.previousPage = data['pagingParams'].page;
-                this.reverse = data['pagingParams'].ascending;
-                this.predicate = data['pagingParams'].predicate;
-            } else {
-                this.page = 1;
-                this.previousPage = 1;
-                this.predicate = 'user.login';
-                this.reverse = true;
-            }
+        const pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
+            const fallback = { page: 1, predicate: 'user.login', ascending: true };
+            return data['pagingParams'] || fallback;
+        });
+        this.routeData = pagingParams$.subscribe(params => {
+            this.page = params.page;
+            this.previousPage = params.page;
+            this.ascending = params.ascending;
+            this.predicate = params.predicate;
         });
         this.jhiLanguageService.addLocation('subject');
     }
@@ -137,7 +135,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     sort() {
-        return [this.predicate + ',' + (this.reverse ? 'asc' : 'desc')];
+        return [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
     }
 
     private onSuccess(data, headers) {
@@ -160,7 +158,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
                 queryParams:
                         {
                             page: this.page,
-                            sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc'),
+                            sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
                         },
             });
         }
