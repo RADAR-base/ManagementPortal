@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
-import { Subscription } from 'rxjs/Rx';
+import { Observable, Subscription } from 'rxjs/Rx';
 import { ITEMS_PER_PAGE } from '../../shared';
 
 import { SourceType } from './source-type.model';
@@ -14,6 +14,7 @@ import { PagingParams } from '../../shared/commons';
     templateUrl: './source-type.component.html',
 })
 export class SourceTypeComponent implements OnInit, OnDestroy {
+    pagingParams$: Observable<PagingParams>;
 
     sourceTypes: SourceType[];
     eventSubscriber: Subscription;
@@ -38,11 +39,11 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
     ) {
         this.sourceTypes = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
-        const pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
+        this.pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
             const fallback = { page: 1, predicate: 'id', ascending: true };
             return data['pagingParams'] || fallback;
         });
-        this.routeData = pagingParams$.subscribe(params => {
+        this.routeData = this.pagingParams$.subscribe(params => {
             this.page = params.page;
             this.previousPage = params.page;
             this.ascending = params.ascending;
@@ -67,6 +68,10 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.loadAll();
         this.registerChangeInSourceTypes();
+
+        this.pagingParams$.subscribe(() => {
+            this.loadAll();
+        });
     }
 
     ngOnDestroy() {
