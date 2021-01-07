@@ -7,6 +7,7 @@ import { ITEMS_PER_PAGE } from '../../shared';
 import { Revision } from './revision.model';
 import { RevisionService } from './revision.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { PagingParams } from '../../shared/commons';
 
 @Component({
     selector: 'jhi-revisions',
@@ -26,7 +27,7 @@ export class RevisionComponent implements OnInit, OnDestroy {
     page: any;
     predicate: any;
     previousPage: any;
-    reverse: any;
+    ascending: any;
     routeData: any;
 
     constructor(
@@ -39,11 +40,15 @@ export class RevisionComponent implements OnInit, OnDestroy {
             private router: Router,
     ) {
         this.itemsPerPage = ITEMS_PER_PAGE;
-        this.routeData = this.activatedRoute.data.subscribe((data) => {
-            this.page = data['pagingParams'].page;
-            this.previousPage = data['pagingParams'].page;
-            this.reverse = data['pagingParams'].ascending;
-            this.predicate = data['pagingParams'].predicate;
+        const pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
+            const fallback = { page: 1, predicate: 'id', ascending: true };
+            return data['pagingParams'] || fallback;
+        });
+        this.routeData = pagingParams$.subscribe(params => {
+            this.page = params.page;
+            this.previousPage = params.page;
+            this.ascending = params.ascending;
+            this.predicate = params.predicate;
         });
         this.jhiLanguageService.setLocations(['audits']);
     }
@@ -78,7 +83,7 @@ export class RevisionComponent implements OnInit, OnDestroy {
     }
 
     sort() {
-        const result = [this.predicate + ',' + (this.reverse ? 'asc' : 'desc')];
+        const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
         if (this.predicate !== 'id') {
             result.push('id');
         }
@@ -97,7 +102,7 @@ export class RevisionComponent implements OnInit, OnDestroy {
             queryParams:
                     {
                         page: this.page,
-                        sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc'),
+                        sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
                     },
         });
         this.loadAll();
