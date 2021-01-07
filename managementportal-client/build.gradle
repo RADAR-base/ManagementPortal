@@ -1,0 +1,147 @@
+/*
+ * Copyright (c) 2020. The Hyve
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * See the file LICENSE in the root of this repository.
+ */
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version "1.4.20"
+    id 'org.jetbrains.dokka' version "1.4.20"
+    id 'maven-publish'
+}
+
+description = "Kotlin ManagementPortal client"
+group = "org.radarbase"
+ext.bintrayOrg = 'radar-cns'
+
+repositories {
+    jcenter()
+}
+
+ext {
+    jacksonModuleVersion = "2.11.4"
+    okhttpVersion = "4.9.0"
+}
+
+dependencies {
+    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.20")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.20")
+    api(project(":oauth-client-util"))
+
+    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonModuleVersion")
+
+    implementation("org.slf4j:slf4j-api:1.7.30")
+
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonModuleVersion")
+    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonModuleVersion")
+
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.20")
+}
+
+def sharedManifest = manifest {
+    attributes("Implementation-Title": project.name,
+            "Implementation-Version": version)
+}
+
+task dokkaJar(type: Jar) {
+    from("$buildDir/dokka/javadoc")
+    archiveClassifier.set("javadoc")
+    dependsOn(dokkaJavadoc)
+}
+
+// custom tasks for creating source/javadoc jars
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier.set('sources')
+    from sourceSets.main.allSource
+    manifest.from sharedManifest
+}
+
+publishing {
+    publications {
+        mavenJar(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact dokkaJar
+
+            pom {
+                name = project.name
+                description = project.description
+                url = githubUrl
+                licenses {
+                    license {
+                        name = 'The Apache Software License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution = 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'dennyverbeeck'
+                        name = 'Denny Verbeeck'
+                        email = 'dverbeec@its.jnj.com'
+                        organization = 'Janssen R&D'
+                    }
+                    developer {
+                        id = 'blootsvoets'
+                        name = 'Joris Borgdorff'
+                        email = 'joris@thehyve.nl'
+                        organization = 'The Hyve'
+                    }
+                    developer {
+                        id = 'nivemaham'
+                        name = 'Nivethika Mahasivam'
+                        email = 'nivethika@thehyve.nl'
+                        organization = 'The Hyve'
+                    }
+                }
+                issueManagement {
+                    system = 'GitHub'
+                    url = githubUrl + '/issues'
+                }
+                organization {
+                    name = 'RADAR-base'
+                    url = website
+                }
+                scm {
+                    connection = 'scm:git:' + githubUrl
+                    url = githubUrl
+                }
+            }
+
+        }
+    }
+
+    repositories {
+        def nexusRepoBase = "https://repo.thehyve.nl/content/repositories"
+        if (version.toString().endsWith("SNAPSHOT")) {
+            maven {
+                url = "$nexusRepoBase/snapshots"
+                name = "thehyveSnapshots"
+                credentials {
+                    username = project.hasProperty('nexusUser') ? project.property('nexusUser') : System.getenv('NEXUS_USER')
+                    password = project.hasProperty('nexusPassword') ? project.property('nexusPassword') : System.getenv('NEXUS_PASSWORD')
+                }
+            }
+        } else {
+            maven {
+                url = "$nexusRepoBase/releases"
+                name = "thehyve"
+                credentials {
+                    username = project.hasProperty('nexusUser') ? project.property('nexusUser') : System.getenv('NEXUS_USER')
+                    password = project.hasProperty('nexusPassword') ? project.property('nexusPassword') : System.getenv('NEXUS_PASSWORD')
+                }
+            }
+            maven {
+                url = "https://api.bintray.com/maven/radar-base/org.radarbase/${project.name}/"
+                name = "bintray"
+                credentials {
+                    username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+                    password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+                }
+            }
+        }
+    }
+}
