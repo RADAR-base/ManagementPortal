@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
-import { Subscription } from 'rxjs/Rx';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs/Rx';
 import { ITEMS_PER_PAGE, Principal, Project } from '..';
 
 import { Subject } from './subject.model';
@@ -22,9 +22,12 @@ import { PagingParams } from '../commons';
     templateUrl: './subject.component.html',
 })
 export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
-    @Input() project: Project;
+    pagingParams$: Observable<PagingParams>;
+    project$ = new BehaviorSubject<Project>(null);
+    @Input()
+    get project() { return this.project$.value; }
+    set project(v: Project) { this.project$.next(v); }
     subjects: Subject[];
-    currentAccount: any;
     eventSubscriber: Subscription;
     itemsPerPage: number;
     links: any;
@@ -43,18 +46,17 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             private subjectService: SubjectService,
             private alertService: AlertService,
             private eventManager: EventManager,
-            private principal: Principal,
             private parseLinks: ParseLinks,
             private activatedRoute: ActivatedRoute,
             private router: Router,
     ) {
         this.subjects = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
-        const pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
+        this.pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
             const fallback = { page: 1, predicate: 'user.login', ascending: true };
             return data['pagingParams'] || fallback;
         });
-        this.routeData = pagingParams$.subscribe(params => {
+        this.routeData = this.pagingParams$.subscribe(params => {
             this.page = params.page;
             this.previousPage = params.page;
             this.ascending = params.ascending;
@@ -69,6 +71,19 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         } else {
             this.loadAll();
         }
+    }
+
+    private loadAllFromProject() {
+        this.subjectService.findAllByProject(this.project.projectName, {
+            page: this.page - 1,
+            size: this.itemsPerPage,
+            sort: this.sort(),
+        }).subscribe(
+                (res: HttpResponse<Subject[]>) => {
+                    this.onSuccess(res.body, res.headers);
+                },
+                (res: HttpErrorResponse) => this.onError(res),
+        );
     }
 
     loadAll() {
@@ -86,10 +101,11 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
 
     ngOnInit() {
         this.loadSubjects();
-        this.principal.identity().then((account) => {
-            this.currentAccount = account;
-        });
         this.registerChangeInSubjects();
+
+        this.pagingParams$.subscribe(() => {
+            this.loadSubjects();
+        });
     }
 
     ngOnDestroy() {
@@ -119,19 +135,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             this.project = project.currentValue;
             this.loadAllFromProject();
         }
-    }
-
-    private loadAllFromProject() {
-        this.subjectService.findAllByProject(this.project.projectName, {
-            page: this.page - 1,
-            size: this.itemsPerPage,
-            sort: this.sort(),
-        }).subscribe(
-                (res: HttpResponse<Subject[]>) => {
-                    this.onSuccess(res.body, res.headers);
-                },
-                (res: HttpErrorResponse) => this.onError(res),
-        );
     }
 
     sort() {
