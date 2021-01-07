@@ -24,7 +24,7 @@ public class AbstractEntityListener {
     public static final String ENTITY_UPDATED = "ENTITY_UPDATED";
     public static final String ENTITY_REMOVED = "ENTITY_REMOVED";
 
-    private final Logger log = LoggerFactory.getLogger(AbstractEntityListener.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractEntityListener.class);
     private static final String TEMPLATE = "[{}] by {}: entityClass={}, entity={}";
 
     @Autowired

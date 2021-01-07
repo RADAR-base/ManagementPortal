@@ -19,7 +19,11 @@ import java.net.URISyntaxException;
 /**
  * Consolidates the generation of location URI's for all of the resources.
  */
-public class ResourceUriService {
+public final class ResourceUriService {
+
+    private ResourceUriService() {
+        // utility class
+    }
 
     /**
      * Get the API location for the given resource.

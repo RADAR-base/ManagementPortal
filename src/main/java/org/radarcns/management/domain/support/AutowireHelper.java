@@ -9,12 +9,13 @@ import org.springframework.stereotype.Component;
  * listeners.
  */
 @Component
-public class AutowireHelper implements ApplicationContextAware {
+public final class AutowireHelper implements ApplicationContextAware {
 
     private static final AutowireHelper INSTANCE = new AutowireHelper();
     private static ApplicationContext applicationContext;
 
     private AutowireHelper() {
+        // Utility class
     }
 
     /**

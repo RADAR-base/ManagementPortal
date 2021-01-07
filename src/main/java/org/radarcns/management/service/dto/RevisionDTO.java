@@ -14,6 +14,7 @@ public class RevisionDTO {
     private RevisionType revisionType;
 
     public RevisionDTO() {
+        // JSON initializer
     }
 
     /**

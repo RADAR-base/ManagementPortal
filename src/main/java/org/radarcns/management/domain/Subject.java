@@ -83,6 +83,7 @@ public class Subject extends AbstractEntity implements Serializable {
     @JsonIgnore
     private final Set<MetaToken> metaTokens = new HashSet<>();
 
+    @Override
     public Long getId() {
         return id;
     }

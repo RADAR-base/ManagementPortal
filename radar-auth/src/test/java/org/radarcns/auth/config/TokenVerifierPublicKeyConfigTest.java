@@ -33,7 +33,7 @@ public class TokenVerifierPublicKeyConfigTest {
 
     @Test
     public void testLoadYamlFileFromEnv() throws URISyntaxException {
-        ClassLoader loader = getClass().getClassLoader();
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
         File configFile = new File(loader.getResource("radar-is.yml").toURI());
         environmentVariables
                 .set(TokenVerifierPublicKeyConfig.LOCATION_ENV, configFile.getAbsolutePath());

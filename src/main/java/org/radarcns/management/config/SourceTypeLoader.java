@@ -31,7 +31,7 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class SourceTypeLoader implements CommandLineRunner {
 
-    private final Logger log = LoggerFactory.getLogger(SourceTypeLoader.class);
+    private static final Logger log = LoggerFactory.getLogger(SourceTypeLoader.class);
 
     @Autowired
     private SourceTypeRepository sourceTypeRepository;
@@ -85,13 +85,13 @@ public class SourceTypeLoader implements CommandLineRunner {
                     saveSourceTypesFromCatalogServer(catalogSourceTypes);
 
                 } else {
-                    log.warn("Catalog Service {} is unreachable: {}", catalogServerUrl);
+                    log.warn("Catalog Service {} is unreachable", catalogServerUrl);
                 }
             } catch (MalformedURLException e) {
                 log.warn("Invalid Url provided for Catalog server url {} : {}", catalogServerUrl,
                         e.getMessage());
             } catch (RuntimeException exe) {
-                log.warn("An error has occurred during auto import of source-types. ", exe
+                log.warn("An error has occurred during auto import of source-types: {}", exe
                         .getMessage());
             }
         } else {

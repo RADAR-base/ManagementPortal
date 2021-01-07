@@ -24,8 +24,7 @@ import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 
 public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
-
-    private final Logger log = LoggerFactory.getLogger(ClaimsTokenEnhancer.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClaimsTokenEnhancer.class);
 
     @Autowired
     private SubjectRepository subjectRepository;
@@ -36,7 +35,6 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
     @Autowired
     private AuditEventRepository auditEventRepository;
 
-    private final Logger logger = LoggerFactory.getLogger(ClaimsTokenEnhancer.class);
 
     @Value("${spring.application.name}")
     private String appName;
@@ -46,7 +44,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken,
             OAuth2Authentication authentication) {
-        log.debug("Enhancing token {} with authentication {}" , accessToken, authentication);
+        logger.debug("Enhancing token {} with authentication {}" , accessToken, authentication);
 
         Map<String, Object> additionalInfo = new HashMap<>();
 

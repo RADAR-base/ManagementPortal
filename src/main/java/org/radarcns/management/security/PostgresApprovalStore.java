@@ -47,7 +47,7 @@ public class PostgresApprovalStore implements ApprovalStore {
 
     private final JdbcTemplate jdbcTemplate;
 
-    private final Logger logger = LoggerFactory.getLogger(PostgresApprovalStore.class);
+    private static final Logger logger = LoggerFactory.getLogger(PostgresApprovalStore.class);
 
     private final RowMapper<Approval> rowMapper = new AuthorizationRowMapper();
 

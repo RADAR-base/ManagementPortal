@@ -59,7 +59,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class OAuthClientService {
 
-    private final Logger log = LoggerFactory.getLogger(OAuthClientService.class);
+    private static final Logger log = LoggerFactory.getLogger(OAuthClientService.class);
 
     private static final String PROTECTED_KEY = "protected";
 

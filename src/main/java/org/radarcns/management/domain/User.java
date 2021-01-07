@@ -105,6 +105,7 @@ public class User extends AbstractEntity implements Serializable {
     @Cascade(CascadeType.SAVE_UPDATE)
     private Set<Role> roles = new HashSet<>();
 
+    @Override
     public Long getId() {
         return id;
     }

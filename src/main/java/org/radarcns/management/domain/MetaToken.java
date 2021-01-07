@@ -89,6 +89,7 @@ public class MetaToken extends AbstractEntity {
         return this;
     }
 
+    @Override
     public Long getId() {
         return id;
     }

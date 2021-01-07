@@ -5,6 +5,7 @@ import static java.util.Collections.emptyMap;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
@@ -58,7 +59,8 @@ public abstract class RadarWebApplicationException extends WebApplicationExcepti
         super(status);
         // add default timestamp first, so a timestamp key in the paramMap will overwrite it
         this.paramMap.put("timestamp",
-                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+                        .format(new Date()));
         this.paramMap.putAll(params);
         this.message = message;
         this.entityName = entityName;

@@ -10,9 +10,13 @@ import org.slf4j.LoggerFactory;
  * access the protected resources of a given subject based on the authorities and project
  * affiliations.
  */
-public class RadarAuthorization {
+public final class RadarAuthorization {
 
     private static final Logger log = LoggerFactory.getLogger(RadarAuthorization.class);
+
+    private RadarAuthorization() {
+        // utility class
+    }
 
     /**
      * Similar to {@link RadarToken#hasAuthority(String)} (Permission)}, but this method throws an
@@ -39,6 +43,7 @@ public class RadarAuthorization {
      * controllers and exception translators.
      * @param token The token of the requester
      * @param authority The authority to check
+     * @param permission Permission that the authority should have.
      * @throws NotAuthorizedException if the supplied token does not have the authority
      */
     public static void checkAuthorityAndPermission(RadarToken token, String authority,

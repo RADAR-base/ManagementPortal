@@ -59,7 +59,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class SourceTypeResource {
 
-    private final Logger log = LoggerFactory.getLogger(SourceTypeResource.class);
+    private static final Logger log = LoggerFactory.getLogger(SourceTypeResource.class);
 
     @Autowired
     private SourceTypeService sourceTypeService;

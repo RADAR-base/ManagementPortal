@@ -6,19 +6,18 @@ import java.util.Objects;
  * Created by nivethika on 30-8-17.
  */
 public class AttributeMapDTO {
+    private String key;
+
+    private String value;
 
     public AttributeMapDTO() {
-        //default constructor
+        this(null, null);
     }
 
     public AttributeMapDTO(String key, String value) {
         this.key = key;
         this.value = value;
     }
-
-    private String key;
-
-    private String value;
 
     public String getKey() {
         return key;

@@ -30,7 +30,7 @@ import java.util.List;
 @Transactional
 public class ProjectService {
 
-    private final Logger log = LoggerFactory.getLogger(ProjectService.class);
+    private static final Logger log = LoggerFactory.getLogger(ProjectService.class);
 
     @Autowired
     private ProjectRepository projectRepository;

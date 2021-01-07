@@ -122,8 +122,6 @@ public class ManagementPortalJwtTokenStore implements TokenStore {
 
     @Override
     public OAuth2RefreshToken readRefreshToken(String tokenValue) {
-        OAuth2AccessToken encodedRefreshToken = convertAccessToken(tokenValue);
-        OAuth2RefreshToken refreshToken = createRefreshToken(encodedRefreshToken);
         if (approvalStore != null) {
             OAuth2Authentication authentication = readAuthentication(tokenValue);
             if (authentication.getUserAuthentication() != null) {
@@ -141,7 +139,8 @@ public class ManagementPortalJwtTokenStore implements TokenStore {
                 }
             }
         }
-        return refreshToken;
+        OAuth2AccessToken encodedRefreshToken = convertAccessToken(tokenValue);
+        return createRefreshToken(encodedRefreshToken);
     }
 
     private OAuth2RefreshToken createRefreshToken(OAuth2AccessToken encodedRefreshToken) {

@@ -6,9 +6,13 @@ import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpUtil {
+public final class HttpUtil {
 
-    private static Logger log = LoggerFactory.getLogger(HttpUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(HttpUtil.class);
+
+    private HttpUtil() {
+        // utility class
+    }
 
     /**
      * Checks whether given {@link URL} can be reachable.

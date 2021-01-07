@@ -4,8 +4,6 @@ package org.radarcns.auth.authorization;
  * Constants for Spring Security authorities.
  */
 public interface AuthoritiesConstants {
-
-
     String SYS_ADMIN = "ROLE_SYS_ADMIN";
 
     String PROJECT_ADMIN = "ROLE_PROJECT_ADMIN";

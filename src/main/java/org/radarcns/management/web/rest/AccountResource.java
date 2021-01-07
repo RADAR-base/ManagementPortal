@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class AccountResource {
 
-    private final Logger log = LoggerFactory.getLogger(AccountResource.class);
+    private static final Logger log = LoggerFactory.getLogger(AccountResource.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -75,7 +75,7 @@ public class AccountResource {
      */
     @GetMapping("/authenticate")
     @Timed
-    public String isAuthenticated(HttpServletRequest request) {
+    public String authenticate(HttpServletRequest request) {
         log.debug("REST request to check if the current user is authenticated");
         return request.getRemoteUser();
     }
