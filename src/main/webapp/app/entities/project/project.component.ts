@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs/Rx';
+import { Observable, Subscription } from 'rxjs/Rx';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
 import { ITEMS_PER_PAGE, Project, ProjectService } from '../../shared';
 import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
@@ -11,6 +11,8 @@ import { PagingParams } from '../../shared/commons';
     templateUrl: './project.component.html',
 })
 export class ProjectComponent implements OnInit, OnDestroy {
+    pagingParams$: Observable<PagingParams>;
+
     projects: Project[];
     eventSubscriber: Subscription;
     itemsPerPage: number;
@@ -34,11 +36,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
     ) {
         this.projects = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
-        const pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
+        this.pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
             const fallback = { page: 1, predicate: 'id', ascending: true };
             return data['pagingParams'] || fallback;
         });
-        this.routeData = pagingParams$.subscribe(params => {
+        this.routeData = this.pagingParams$.subscribe(params => {
             this.page = params.page;
             this.previousPage = params.page;
             this.ascending = params.ascending;
@@ -63,6 +65,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.loadAll();
         this.registerChangeInProjects();
+
+        this.pagingParams$.subscribe(() => {
+            this.loadAll();
+        });
     }
 
     ngOnDestroy() {
