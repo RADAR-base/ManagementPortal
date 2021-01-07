@@ -5,7 +5,7 @@ import { EventManager, ParseLinks, JhiLanguageService, AlertService } from 'ng-j
 
 import { SourceData } from './source-data.model';
 import { SourceDataService } from './source-data.service';
-import { ITEMS_PER_PAGE, Principal } from '../../shared';
+import { ITEMS_PER_PAGE } from '../../shared';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { PagingParams } from '../../shared/commons';
 
@@ -15,7 +15,6 @@ import { PagingParams } from '../../shared/commons';
 })
 export class SourceDataComponent implements OnInit, OnDestroy {
     sourceData: SourceData[];
-    currentAccount: any;
     eventSubscriber: Subscription;
     itemsPerPage: number;
     links: any;
@@ -32,7 +31,6 @@ export class SourceDataComponent implements OnInit, OnDestroy {
         private alertService: AlertService,
         private eventManager: EventManager,
         private parseLinks: ParseLinks,
-        private principal: Principal,
         private activatedRoute: ActivatedRoute,
         private router: Router
     ) {
@@ -65,9 +63,6 @@ export class SourceDataComponent implements OnInit, OnDestroy {
     }
     ngOnInit() {
         this.loadAll();
-        this.principal.identity().then((account) => {
-            this.currentAccount = account;
-        });
         this.registerChangeInSourceData();
     }
 

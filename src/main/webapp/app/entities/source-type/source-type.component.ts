@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
-import { ITEMS_PER_PAGE, Principal } from '../../shared';
+import { ITEMS_PER_PAGE } from '../../shared';
 
 import { SourceType } from './source-type.model';
 import { SourceTypeService } from './source-type.service';
@@ -16,7 +16,6 @@ import { PagingParams } from '../../shared/commons';
 export class SourceTypeComponent implements OnInit, OnDestroy {
 
     sourceTypes: SourceType[];
-    currentAccount: any;
     eventSubscriber: Subscription;
     itemsPerPage: number;
     links: any;
@@ -33,7 +32,6 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
             private sourceTypeService: SourceTypeService,
             private alertService: AlertService,
             private eventManager: EventManager,
-            private principal: Principal,
             private parseLinks: ParseLinks,
             private activatedRoute: ActivatedRoute,
             private router: Router,
@@ -68,9 +66,6 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.loadAll();
-        this.principal.identity().then((account) => {
-            this.currentAccount = account;
-        });
         this.registerChangeInSourceTypes();
     }
 

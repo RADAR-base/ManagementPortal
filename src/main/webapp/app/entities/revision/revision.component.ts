@@ -15,7 +15,6 @@ import { PagingParams } from '../../shared/commons';
 })
 export class RevisionComponent implements OnInit, OnDestroy {
 
-    currentAccount: any;
     eventSubscriber: Subscription;
     revisions: Revision[];
     error: any;

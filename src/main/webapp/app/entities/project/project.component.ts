@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
-import { ITEMS_PER_PAGE, Principal, Project, ProjectService } from '../../shared';
+import { ITEMS_PER_PAGE, Project, ProjectService } from '../../shared';
 import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
 import { PagingParams } from '../../shared/commons';
 
@@ -12,7 +12,6 @@ import { PagingParams } from '../../shared/commons';
 })
 export class ProjectComponent implements OnInit, OnDestroy {
     projects: Project[];
-    currentAccount: any;
     eventSubscriber: Subscription;
     itemsPerPage: number;
     links: any;
@@ -29,7 +28,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
             private projectService: ProjectService,
             private alertService: AlertService,
             private eventManager: EventManager,
-            private principal: Principal,
             private parseLinks: ParseLinks,
             private activatedRoute: ActivatedRoute,
             private router: Router,
@@ -64,9 +62,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.loadAll();
-        this.principal.identity().then((account) => {
-            this.currentAccount = account;
-        });
         this.registerChangeInProjects();
     }
 
