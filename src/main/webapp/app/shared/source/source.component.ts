@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
-import { Subscription } from 'rxjs/Rx';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs/Rx';
 import { ITEMS_PER_PAGE, Principal, Project } from '..';
 
 import { Source } from './source.model';
@@ -23,12 +23,14 @@ import { PagingParams } from '../commons';
     templateUrl: './source.component.html',
 })
 export class SourceComponent implements OnInit, OnDestroy, OnChanges {
-
-    @Input() project: Project;
+    pagingParams$: Observable<PagingParams>;
+    project$ = new BehaviorSubject<Project>(null);
+    @Input()
+    get project() { return this.project$.value; }
+    set project(v: Project) { this.project$.next(v); }
     @Input() isProjectSpecific: boolean;
 
     sources: Source[];
-    currentAccount: any;
     eventSubscriber: Subscription;
     itemsPerPage: number;
     links: any;
@@ -44,17 +46,16 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
                 private sourceService: SourceService,
                 private alertService: AlertService,
                 private eventManager: EventManager,
-                private principal: Principal,
                 private parseLinks: ParseLinks,
                 private activatedRoute: ActivatedRoute,
                 private router: Router) {
         this.sources = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
-        const pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
+        this.pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
             const fallback = { page: 1, predicate: 'id', ascending: true };
             return data['pagingParams'] || fallback;
         });
-        this.routeData = pagingParams$.subscribe(params => {
+        this.routeData = this.pagingParams$.subscribe(params => {
             this.page = params.page;
             this.previousPage = params.page;
             this.ascending = params.ascending;
@@ -65,10 +66,11 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
 
     ngOnInit() {
         this.loadSources();
-        this.principal.identity().then((account) => {
-            this.currentAccount = account;
-        });
         this.registerChangeInDevices();
+
+        this.pagingParams$.subscribe(() => {
+            this.loadSources();
+        });
     }
 
     private loadSources() {
