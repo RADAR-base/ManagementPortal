@@ -14,6 +14,7 @@ export const sourceDataRoute: Routes = [
   {
     path: 'source-data',
     component: SourceDataComponent,
+    runGuardsAndResolvers: 'paramsOrQueryParamsChange',
     resolve: {
       'pagingParams': ResolvePagingParams
     },
