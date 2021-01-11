@@ -31,10 +31,8 @@ dependencies {
     api(project(":oauth-client-util"))
 
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion
+
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonModuleVersion")
-
-    implementation("org.slf4j:slf4j-api:1.7.30")
-
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonModuleVersion")
     runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonModuleVersion")
 
