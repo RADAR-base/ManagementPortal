@@ -1,21 +1,12 @@
 package org.radarcns.management.web.rest;
 
 
-import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
-
 import com.codahale.metrics.annotation.Timed;
-import java.net.MalformedURLException;
-import java.time.Duration;
-import javax.servlet.ServletRequest;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.MetaToken;
 import org.radarcns.management.domain.Subject;
-import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.service.MetaTokenService;
-import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ClientPairInfoDTO;
 import org.radarcns.management.service.dto.TokenDTO;
 import org.slf4j.Logger;
@@ -27,6 +18,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.ServletRequest;
+import java.net.MalformedURLException;
+import java.time.Duration;
+
+import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
 
 @RestController
 @RequestMapping("/api")

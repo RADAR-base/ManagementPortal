@@ -8,7 +8,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -20,10 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Created by dverbeec on 29/09/2017.
@@ -42,6 +38,12 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         this.ignoreUrls = new ArrayList<>();
     }
 
+    /**
+     * Do not use JWT authentication for given paths and HTTP method.
+     * @param method HTTP method
+     * @param antPatterns Ant wildcard pattern
+     * @return the current filter
+     */
     public JwtAuthenticationFilter skipUrlPattern(HttpMethod method, String... antPatterns) {
         for (String pattern : antPatterns) {
             ignoreUrls.add(new AntPathRequestMatcher(pattern, method.name()));

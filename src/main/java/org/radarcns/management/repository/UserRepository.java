@@ -41,9 +41,6 @@ public interface UserRepository extends JpaRepository<User, Long>,
     @EntityGraph(attributePaths = "roles")
     Optional<User> findOneWithRolesByLogin(String login);
 
-    @EntityGraph(attributePaths = "roles")
-    Optional<User> findOneWithRolesById(Long id);
-
     Page<User> findAllByLoginNot(Pageable pageable, String login);
 
 }
