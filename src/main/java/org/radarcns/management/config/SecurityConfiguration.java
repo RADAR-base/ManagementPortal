@@ -90,7 +90,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/account/reset_password/finish")
                 .antMatchers("/test/**")
                 .antMatchers("/h2-console/**")
-                .antMatchers("/api/meta-token/**");
+                .antMatchers(HttpMethod.GET, "/api/meta-token/**");
     }
 
     @Override
@@ -119,7 +119,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         registration.setFilter(jwtAuthenticationFilter());
         // Servlet filters do not have an API to exclude URLs, we need to exclude
         // /api/account/reset_password/*, so we need to list all other endpoints
-        registration.addUrlPatterns("/api/account",
+        registration.addUrlPatterns(
+                "/api/account",
                 "/api/account/change_password",
                 "/api/authenticate",
                 "/api/authorities/*",
@@ -132,6 +133,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 "/api/sources/*",
                 "/api/subjects/*",
                 "/api/users/*",
+                "/api/meta-token/*",
                 "/management/*");
         registration.setName("jwtAuthenticationFilter");
         registration.setOrder(1);
@@ -144,6 +146,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
      * @return the JwtAuthenticationFilter
      */
     public Filter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(keyStoreHandler.getTokenValidator());
+        return new JwtAuthenticationFilter(keyStoreHandler.getTokenValidator())
+                .skipUrlPattern(HttpMethod.GET, "/management/health")
+                .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*");
     }
 }

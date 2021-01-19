@@ -5,7 +5,10 @@ import org.radarcns.auth.exception.TokenValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -16,6 +19,11 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by dverbeec on 29/09/2017.
@@ -25,9 +33,20 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private final TokenValidator validator;
     public static final String TOKEN_ATTRIBUTE = "jwt";
+    private final List<AntPathRequestMatcher> ignoreUrls;
 
-    public JwtAuthenticationFilter(TokenValidator validator) {
+    public JwtAuthenticationFilter(
+            TokenValidator validator
+    ) {
         this.validator = validator;
+        this.ignoreUrls = new ArrayList<>();
+    }
+
+    public JwtAuthenticationFilter skipUrlPattern(HttpMethod method, String... antPatterns) {
+        for (String pattern : antPatterns) {
+            ignoreUrls.add(new AntPathRequestMatcher(pattern, method.name()));
+        }
+        return this;
     }
 
     @Override
@@ -39,8 +58,14 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             return;
         }
 
-        if (((HttpServletRequest) request).getRequestURI().contains("management/health")) {
-            log.debug("Skipping JWT check for Health check request");
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        AntPathRequestMatcher ignored = ignoreUrls.stream()
+                .filter(pattern -> pattern.matches(httpRequest))
+                .findAny()
+                .orElse(null);
+
+        if (ignored != null) {
+            log.debug("Skipping JWT check for {} request", ignored);
             chain.doFilter(request, response);
             return;
         }

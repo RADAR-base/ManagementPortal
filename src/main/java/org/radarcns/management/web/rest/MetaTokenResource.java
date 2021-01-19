@@ -13,7 +13,9 @@ import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.MetaToken;
 import org.radarcns.management.domain.Subject;
+import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.service.MetaTokenService;
+import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.ClientPairInfoDTO;
 import org.radarcns.management.service.dto.TokenDTO;
 import org.slf4j.Logger;
@@ -72,8 +74,10 @@ public class MetaTokenResource {
         log.info("Requesting token with tokenName {}", tokenName);
         MetaToken token = metaTokenService.getToken(tokenName);
         Subject subject = token.getSubject();
-        String project = subject.getActiveProject().orElseThrow(() -> new NotAuthorizedException(
-                "Cannot establish authority for subject with no active project affiliation."))
+        String project = subject.getActiveProject()
+                .orElseThrow(() -> new NotAuthorizedException(
+                        "Cannot establish authority of subject without active project affiliation."
+                ))
                 .getProjectName();
         String user = subject.getUser().getLogin();
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, project, user);
