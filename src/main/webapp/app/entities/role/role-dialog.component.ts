@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
 import { Role } from '../../admin/user-management/role.model';
-import { AuthorityService, Principal, Project, ProjectService } from '../../shared';
+import { AuthorityService, Project, ProjectService } from '../../shared';
 
 import { RolePopupService } from './role-popup.service';
 import { RoleService } from './role.service';
@@ -20,7 +20,6 @@ export class RoleDialogComponent implements OnInit {
     authorities: any[];
     projects: Project[];
     isSaving: boolean;
-    currentAccount: any;
 
     constructor(
             public activeModal: NgbActiveModal,
@@ -29,7 +28,6 @@ export class RoleDialogComponent implements OnInit {
             private roleService: RoleService,
             private authorityService: AuthorityService,
             private projectService: ProjectService,
-            private principal: Principal,
             private eventManager: EventManager,
     ) {
         this.jhiLanguageService.addLocation('role');

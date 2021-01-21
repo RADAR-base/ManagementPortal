@@ -10,6 +10,7 @@ export const revisionRoute: Routes = [
     {
         path: 'revisions',
         component: RevisionComponent,
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         resolve: {
             'pagingParams': ResolvePagingParams,
         },

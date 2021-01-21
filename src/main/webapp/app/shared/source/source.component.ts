@@ -9,32 +9,35 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
-import { Subscription } from 'rxjs/Rx';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs/Rx';
 import { ITEMS_PER_PAGE, Principal, Project } from '..';
 
 import { Source } from './source.model';
 import { SourceService } from './source.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { SourceData } from '../../entities/source-data';
+import { PagingParams } from '../commons';
 
 @Component({
     selector: 'jhi-sources',
     templateUrl: './source.component.html',
 })
 export class SourceComponent implements OnInit, OnDestroy, OnChanges {
-
-    @Input() project: Project;
+    pagingParams$: Observable<PagingParams>;
+    project$ = new BehaviorSubject<Project>(null);
+    @Input()
+    get project() { return this.project$.value; }
+    set project(v: Project) { this.project$.next(v); }
     @Input() isProjectSpecific: boolean;
 
     sources: Source[];
-    currentAccount: any;
     eventSubscriber: Subscription;
     itemsPerPage: number;
     links: any;
     page: any;
     predicate: any;
     queryCount: any;
-    reverse: any;
+    ascending: any;
     totalItems: number;
     routeData: any;
     previousPage: any;
@@ -43,34 +46,31 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
                 private sourceService: SourceService,
                 private alertService: AlertService,
                 private eventManager: EventManager,
-                private principal: Principal,
                 private parseLinks: ParseLinks,
                 private activatedRoute: ActivatedRoute,
                 private router: Router) {
         this.sources = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
-        this.routeData = this.activatedRoute.data.subscribe((data) => {
-            if (data['pagingParams']) {
-                this.page = data['pagingParams'].page;
-                this.previousPage = data['pagingParams'].page;
-                this.reverse = data['pagingParams'].ascending;
-                this.predicate = data['pagingParams'].predicate;
-            } else {
-                this.page = 1;
-                this.previousPage = 1;
-                this.predicate = 'id';
-                this.reverse = true;
-            }
+        this.pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
+            const fallback = { page: 1, predicate: 'id', ascending: true };
+            return data['pagingParams'] || fallback;
+        });
+        this.routeData = this.pagingParams$.subscribe(params => {
+            this.page = params.page;
+            this.previousPage = params.page;
+            this.ascending = params.ascending;
+            this.predicate = params.predicate;
         });
         this.jhiLanguageService.addLocation('source');
     }
 
     ngOnInit() {
         this.loadSources();
-        this.principal.identity().then((account) => {
-            this.currentAccount = account;
-        });
         this.registerChangeInDevices();
+
+        this.pagingParams$.subscribe(() => {
+            this.loadSources();
+        });
     }
 
     private loadSources() {
@@ -133,7 +133,7 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     sort() {
-        const result = [this.predicate + ',' + (this.reverse ? 'asc' : 'desc')];
+        const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
         if (this.predicate !== 'id') {
             result.push('id');
         }
@@ -160,7 +160,7 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
                 queryParams:
                         {
                             page: this.page,
-                            sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc'),
+                            sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
                         },
             });
         }

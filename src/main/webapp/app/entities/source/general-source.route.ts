@@ -13,6 +13,7 @@ export const sourceRoute: Routes = [
         resolve: {
             'pagingParams': ResolvePagingParams,
         },
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         component: GeneralSourceComponent,
         data: {
             authorities: [SYSTEM_ADMIN],

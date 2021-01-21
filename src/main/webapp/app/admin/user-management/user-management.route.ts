@@ -17,6 +17,7 @@ import { UserDialogComponent } from './user-management-dialog.component';
 import { UserMgmtComponent } from './user-management.component';
 import { UserSendActivationLinkComponent } from './user-mgnt-send-activation.component';
 import { SYSTEM_ADMIN} from '../../shared/constants/common.constants';
+import { ResolvePagingParams } from '../../shared/commons';
 
 @Injectable()
 export class UserResolve implements CanActivate {
@@ -30,29 +31,12 @@ export class UserResolve implements CanActivate {
     }
 }
 
-@Injectable()
-export class UserResolvePagingParams implements Resolve<any> {
-
-    constructor(private paginationUtil: PaginationUtil) {
-    }
-
-    resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-        const page = route.queryParams['page'] ? route.queryParams['page'] : '1';
-        const sort = route.queryParams['sort'] ? route.queryParams['sort'] : 'id,asc';
-        return {
-            page: this.paginationUtil.parsePage(page),
-            predicate: this.paginationUtil.parsePredicate(sort),
-            ascending: this.paginationUtil.parseAscending(sort),
-        };
-    }
-}
-
 export const userMgmtRoute: Routes = [
     {
         path: 'user-management',
         component: UserMgmtComponent,
         resolve: {
-            'pagingParams': UserResolvePagingParams,
+            'pagingParams': ResolvePagingParams,
         },
         data: {
             pageTitle: 'userManagement.home.title',

@@ -1,24 +1,26 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs/Rx';
+import { Observable, Subscription } from 'rxjs/Rx';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
-import { ITEMS_PER_PAGE, Principal, Project, ProjectService } from '../../shared';
+import { ITEMS_PER_PAGE, Project, ProjectService } from '../../shared';
 import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import { PagingParams } from '../../shared/commons';
 
 @Component({
     selector: 'jhi-project',
     templateUrl: './project.component.html',
 })
 export class ProjectComponent implements OnInit, OnDestroy {
+    pagingParams$: Observable<PagingParams>;
+
     projects: Project[];
-    currentAccount: any;
     eventSubscriber: Subscription;
     itemsPerPage: number;
     links: any;
     page: any;
     predicate: any;
     queryCount: any;
-    reverse: any;
+    ascending: any;
     totalItems: number;
     routeData: any;
     previousPage: any;
@@ -28,18 +30,21 @@ export class ProjectComponent implements OnInit, OnDestroy {
             private projectService: ProjectService,
             private alertService: AlertService,
             private eventManager: EventManager,
-            private principal: Principal,
             private parseLinks: ParseLinks,
             private activatedRoute: ActivatedRoute,
             private router: Router,
     ) {
         this.projects = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
-        this.routeData = this.activatedRoute.data.subscribe((data) => {
-            this.page = data['pagingParams'].page;
-            this.previousPage = data['pagingParams'].page;
-            this.reverse = data['pagingParams'].ascending;
-            this.predicate = data['pagingParams'].predicate;
+        this.pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
+            const fallback = { page: 1, predicate: 'id', ascending: true };
+            return data['pagingParams'] || fallback;
+        });
+        this.routeData = this.pagingParams$.subscribe(params => {
+            this.page = params.page;
+            this.previousPage = params.page;
+            this.ascending = params.ascending;
+            this.predicate = params.predicate;
         });
         this.jhiLanguageService.setLocations(['project', 'projectStatus']);
     }
@@ -59,10 +64,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.loadAll();
-        this.principal.identity().then((account) => {
-            this.currentAccount = account;
-        });
         this.registerChangeInProjects();
+
+        this.pagingParams$.subscribe(() => {
+            this.loadAll();
+        });
     }
 
     ngOnDestroy() {
@@ -82,7 +88,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     }
 
     sort() {
-        const result = [this.predicate + ',' + (this.reverse ? 'asc' : 'desc')];
+        const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
         if (this.predicate !== 'id') {
             result.push('id');
         }
@@ -108,7 +114,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
             queryParams:
                     {
                         page: this.page,
-                        sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc'),
+                        sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
                     },
         });
         this.loadAll();

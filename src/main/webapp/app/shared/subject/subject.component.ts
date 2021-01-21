@@ -9,28 +9,32 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
-import { Subscription } from 'rxjs/Rx';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs/Rx';
 import { ITEMS_PER_PAGE, Principal, Project } from '..';
 
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { PagingParams } from '../commons';
 
 @Component({
     selector: 'jhi-subjects',
     templateUrl: './subject.component.html',
 })
 export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
-    @Input() project: Project;
+    pagingParams$: Observable<PagingParams>;
+    project$ = new BehaviorSubject<Project>(null);
+    @Input()
+    get project() { return this.project$.value; }
+    set project(v: Project) { this.project$.next(v); }
     subjects: Subject[];
-    currentAccount: any;
     eventSubscriber: Subscription;
     itemsPerPage: number;
     links: any;
     page: any;
     predicate: any;
     queryCount: any;
-    reverse: any;
+    ascending: any;
     totalItems: number;
     routeData: any;
     previousPage: any;
@@ -42,25 +46,21 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             private subjectService: SubjectService,
             private alertService: AlertService,
             private eventManager: EventManager,
-            private principal: Principal,
             private parseLinks: ParseLinks,
             private activatedRoute: ActivatedRoute,
             private router: Router,
     ) {
         this.subjects = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
-        this.routeData = this.activatedRoute.data.subscribe((data) => {
-            if (data['pagingParams']) {
-                this.page = data['pagingParams'].page;
-                this.previousPage = data['pagingParams'].page;
-                this.reverse = data['pagingParams'].ascending;
-                this.predicate = data['pagingParams'].predicate;
-            } else {
-                this.page = 1;
-                this.previousPage = 1;
-                this.predicate = 'user.login';
-                this.reverse = true;
-            }
+        this.pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
+            const fallback = { page: 1, predicate: 'user.login', ascending: true };
+            return data['pagingParams'] || fallback;
+        });
+        this.routeData = this.pagingParams$.subscribe(params => {
+            this.page = params.page;
+            this.previousPage = params.page;
+            this.ascending = params.ascending;
+            this.predicate = params.predicate;
         });
         this.jhiLanguageService.addLocation('subject');
     }
@@ -71,6 +71,19 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         } else {
             this.loadAll();
         }
+    }
+
+    private loadAllFromProject() {
+        this.subjectService.findAllByProject(this.project.projectName, {
+            page: this.page - 1,
+            size: this.itemsPerPage,
+            sort: this.sort(),
+        }).subscribe(
+                (res: HttpResponse<Subject[]>) => {
+                    this.onSuccess(res.body, res.headers);
+                },
+                (res: HttpErrorResponse) => this.onError(res),
+        );
     }
 
     loadAll() {
@@ -88,10 +101,11 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
 
     ngOnInit() {
         this.loadSubjects();
-        this.principal.identity().then((account) => {
-            this.currentAccount = account;
-        });
         this.registerChangeInSubjects();
+
+        this.pagingParams$.subscribe(() => {
+            this.loadSubjects();
+        });
     }
 
     ngOnDestroy() {
@@ -123,21 +137,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
-    private loadAllFromProject() {
-        this.subjectService.findAllByProject(this.project.projectName, {
-            page: this.page - 1,
-            size: this.itemsPerPage,
-            sort: this.sort(),
-        }).subscribe(
-                (res: HttpResponse<Subject[]>) => {
-                    this.onSuccess(res.body, res.headers);
-                },
-                (res: HttpErrorResponse) => this.onError(res),
-        );
-    }
-
     sort() {
-        return [this.predicate + ',' + (this.reverse ? 'asc' : 'desc')];
+        return [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
     }
 
     private onSuccess(data, headers) {
@@ -160,7 +161,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
                 queryParams:
                         {
                             page: this.page,
-                            sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc'),
+                            sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
                         },
             });
         }
