@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit
  * Client for the ManagementPortal REST API.
  */
 @Suppress("unused")
-class MPClient private constructor(
+class MPClient(
     /** Server configuration of the ManagementPortal API. */
     serverConfig: MPServerConfig,
     /** ObjectMapper to use for all requests. */
