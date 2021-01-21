@@ -18,8 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Utility class for testing REST controllers.
  */
-public class TestUtil {
-
+public final class TestUtil {
     /* MediaType for JSON UTF8 */
     public static final MediaType APPLICATION_JSON_UTF8 = new MediaType(
             MediaType.APPLICATION_JSON.getType(),
@@ -32,6 +31,9 @@ public class TestUtil {
             .setSerializationInclusion(JsonInclude.Include.NON_NULL)
             .registerModule(module);
 
+    private TestUtil() {
+        // utilitly class
+    }
 
     /**
      * Convert a JSON String to an object.

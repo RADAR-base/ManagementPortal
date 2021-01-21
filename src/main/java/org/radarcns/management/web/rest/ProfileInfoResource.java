@@ -30,7 +30,7 @@ public class ProfileInfoResource {
         return new ProfileInfoVM(activeProfiles, getRibbonEnv(activeProfiles));
     }
 
-    private String getRibbonEnv(String[] activeProfiles) {
+    private String getRibbonEnv(String... activeProfiles) {
         String[] displayOnActiveProfiles = jHipsterProperties.getRibbon()
                 .getDisplayOnActiveProfiles();
         if (displayOnActiveProfiles == null) {
@@ -52,7 +52,9 @@ public class ProfileInfoResource {
         private final String ribbonEnv;
 
         ProfileInfoVM(String[] activeProfiles, String ribbonEnv) {
-            this.activeProfiles = activeProfiles;
+            this.activeProfiles = new String[activeProfiles.length];
+            System.arraycopy(activeProfiles, 0,
+                    this.activeProfiles, 0, activeProfiles.length);
             this.ribbonEnv = ribbonEnv;
         }
 

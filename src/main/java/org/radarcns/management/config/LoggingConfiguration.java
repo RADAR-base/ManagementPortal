@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class LoggingConfiguration {
 
-    private final Logger log = LoggerFactory.getLogger(LoggingConfiguration.class);
+    private static final Logger log = LoggerFactory.getLogger(LoggingConfiguration.class);
 
     private final LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
 

@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class MetaTokenResource {
 
-    private final Logger log = LoggerFactory.getLogger(OAuthClientsResource.class);
+    private static final Logger log = LoggerFactory.getLogger(OAuthClientsResource.class);
 
     public static final Duration DEFAULT_META_TOKEN_TIMEOUT = Duration.ofHours(1);
     public static final Duration DEFAULT_PERSISTENT_META_TOKEN_TIMEOUT = Duration.ofDays(31);

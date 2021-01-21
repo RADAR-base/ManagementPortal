@@ -58,7 +58,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class OAuthClientsResource {
 
-    private final Logger log = LoggerFactory.getLogger(OAuthClientsResource.class);
+    private static final Logger log = LoggerFactory.getLogger(OAuthClientsResource.class);
 
 
     @Autowired

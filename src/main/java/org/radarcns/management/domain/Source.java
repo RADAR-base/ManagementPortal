@@ -79,7 +79,7 @@ public class Source extends AbstractEntity implements Serializable {
     @MapKeyColumn(name = "attribute_key")
     @Column(name = "attribute_value")
     @CollectionTable(name = "source_metadata", joinColumns = @JoinColumn(name = "id"))
-    private Map<String, String> attributes = new HashMap<String, String>();
+    private Map<String, String> attributes = new HashMap<>();
 
     /**
      * Default constructor. Needed for other JPA operations.
@@ -98,6 +98,7 @@ public class Source extends AbstractEntity implements Serializable {
         this.generateUuid();
     }
 
+    @Override
     public Long getId() {
         return id;
     }
@@ -127,7 +128,7 @@ public class Source extends AbstractEntity implements Serializable {
      * of the string representation of the UUID.
      */
     @PrePersist
-    public void generateUuid() {
+    public final void generateUuid() {
         if (this.sourceId == null) {
             this.sourceId = UUID.randomUUID();
         }

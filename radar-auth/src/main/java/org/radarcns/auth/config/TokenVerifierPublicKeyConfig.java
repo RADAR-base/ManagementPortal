@@ -58,7 +58,7 @@ public class TokenVerifierPublicKeyConfig implements TokenValidatorConfig {
             // if config location not defined, look for it on the classpath
             log.info(LOCATION_ENV
                     + " environment variable not set, looking for it on the classpath");
-            configFile = TokenVerifierPublicKeyConfig.class.getClassLoader()
+            configFile = Thread.currentThread().getContextClassLoader()
                     .getResource(CONFIG_FILE_NAME);
 
             if (configFile == null) {
@@ -76,7 +76,7 @@ public class TokenVerifierPublicKeyConfig implements TokenValidatorConfig {
         }
     }
 
-
+    @Override
     public List<URI> getPublicKeyEndpoints() {
         return publicKeyEndpoints;
     }

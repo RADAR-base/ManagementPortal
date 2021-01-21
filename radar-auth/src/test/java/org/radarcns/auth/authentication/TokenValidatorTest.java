@@ -72,7 +72,7 @@ public class TokenValidatorTest {
 
     @Test
     public void testPublicKeyFromConfigFile() throws URISyntaxException {
-        ClassLoader loader = getClass().getClassLoader();
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
         File configFile = new File(loader.getResource("radar-is-2.yml").toURI());
         environmentVariables
                 .set(TokenVerifierPublicKeyConfig.LOCATION_ENV, configFile.getAbsolutePath());

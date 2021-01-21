@@ -50,7 +50,7 @@ import static org.radarcns.management.web.rest.errors.EntityName.SOURCE_DATA;
 @RequestMapping("/api")
 public class SourceDataResource {
 
-    private final Logger log = LoggerFactory.getLogger(SourceDataResource.class);
+    private static final Logger log = LoggerFactory.getLogger(SourceDataResource.class);
 
     @Autowired
     private SourceDataService sourceDataService;

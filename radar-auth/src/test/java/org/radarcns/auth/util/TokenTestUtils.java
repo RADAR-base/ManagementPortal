@@ -18,7 +18,7 @@ import org.radarcns.auth.authorization.Permission;
 /**
  * Created by dverbeec on 29/06/2017.
  */
-public class TokenTestUtils {
+public final class TokenTestUtils {
     public static final String PUBLIC_KEY = "/oauth/token_key";
     public static String PUBLIC_KEY_BODY;
     public static String VALID_RSA_TOKEN;
@@ -44,21 +44,24 @@ public class TokenTestUtils {
     public static final String APPLICATION_JSON = "application/json";
     public static final int WIREMOCK_PORT = 8089;
 
+    private TokenTestUtils() {
+        // utility class
+    }
+
     /**
      * Set up a keypair for signing the tokens, initialize all kinds of different tokens for tests.
      * @throws Exception If anything goes wrong during setup
      */
     public static void setUp() throws Exception {
         KeyStore ks = KeyStore.getInstance("PKCS12");
-        InputStream keyStream = TokenTestUtils.class
-                .getClassLoader().getResourceAsStream("keystore.p12");
-        ks.load(keyStream, "radarbase".toCharArray());
+        try (InputStream keyStream = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream("keystore.p12")) {
+            ks.load(keyStream, "radarbase".toCharArray());
+        }
         RSAPrivateKey privateKey = (RSAPrivateKey) ks.getKey("selfsigned",
                 "radarbase".toCharArray());
         Certificate cert = ks.getCertificate("selfsigned");
         RSAPublicKey publicKey = (RSAPublicKey) cert.getPublicKey();
-
-        keyStream.close();
         PUBLIC_KEY_STRING = new String(new Base64().encode(publicKey.getEncoded()));
         initVars(PUBLIC_KEY_STRING, Algorithm.RSA256(publicKey, privateKey));
     }

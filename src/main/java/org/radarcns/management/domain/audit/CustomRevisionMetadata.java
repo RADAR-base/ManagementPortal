@@ -22,6 +22,7 @@ public class CustomRevisionMetadata implements RevisionMetadata<Integer> {
      * (non-Javadoc)
      * @see org.springframework.data.history.RevisionMetadata#getRevisionNumber()
      */
+    @Override
     public Integer getRevisionNumber() {
         return entity.getId();
     }
@@ -30,6 +31,7 @@ public class CustomRevisionMetadata implements RevisionMetadata<Integer> {
      * (non-Javadoc)
      * @see org.springframework.data.history.RevisionMetadata#getRevisionDate()
      */
+    @Override
     public DateTime getRevisionDate() {
         return new DateTime(entity.getTimestamp());
     }
@@ -39,6 +41,7 @@ public class CustomRevisionMetadata implements RevisionMetadata<Integer> {
      * @see org.springframework.data.history.RevisionMetadata#getDelegate()
      */
     @SuppressWarnings("unchecked")
+    @Override
     public <T> T getDelegate() {
         return (T) entity;
     }

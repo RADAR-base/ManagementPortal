@@ -68,7 +68,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class SubjectService {
 
-    private final Logger log = LoggerFactory.getLogger(SubjectService.class);
+    private static final Logger log = LoggerFactory.getLogger(SubjectService.class);
 
     @Autowired
     private SubjectMapper subjectMapper;

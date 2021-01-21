@@ -31,7 +31,7 @@ public class MetricsConfiguration extends MetricsConfigurerAdapter {
     private static final String PROP_METRIC_REG_JVM_THREADS = "jvm.threads";
     private static final String PROP_METRIC_REG_JVM_FILES = "jvm.files";
     private static final String PROP_METRIC_REG_JVM_BUFFERS = "jvm.buffers";
-    private final Logger log = LoggerFactory.getLogger(MetricsConfiguration.class);
+    private static final Logger log = LoggerFactory.getLogger(MetricsConfiguration.class);
 
     private final MetricRegistry metricRegistry = new MetricRegistry();
 

@@ -92,6 +92,7 @@ public class SourceData extends AbstractEntity implements Serializable {
     @JsonIgnoreProperties({"sourceData"})     // avoids infinite recursion in JSON serialization
     private SourceType sourceType;
 
+    @Override
     public Long getId() {
         return id;
     }

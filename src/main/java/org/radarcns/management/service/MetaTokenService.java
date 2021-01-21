@@ -35,7 +35,7 @@ import static org.radarcns.management.web.rest.errors.EntityName.META_TOKEN;
 @Transactional
 public class MetaTokenService {
 
-    private final Logger log = LoggerFactory.getLogger(MetaTokenService.class);
+    private static final Logger log = LoggerFactory.getLogger(MetaTokenService.class);
 
     @Autowired
     private MetaTokenRepository metaTokenRepository;

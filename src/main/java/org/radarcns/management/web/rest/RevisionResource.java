@@ -25,7 +25,7 @@ import java.util.List;
 @RequestMapping("/api")
 public class RevisionResource {
 
-    private final Logger log = LoggerFactory.getLogger(RevisionResource.class);
+    private static final Logger log = LoggerFactory.getLogger(RevisionResource.class);
 
     @Autowired
     private RevisionService revisionService;

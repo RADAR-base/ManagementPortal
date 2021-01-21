@@ -65,7 +65,7 @@ public class Role extends AbstractEntity implements Serializable {
     private Authority authority;
 
     public Role() {
-
+        // constructor for reflection
     }
 
     public Role(Authority authority, Project project) {
@@ -77,6 +77,7 @@ public class Role extends AbstractEntity implements Serializable {
         this.authority = authority;
     }
 
+    @Override
     public Long getId() {
         return id;
     }

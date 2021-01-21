@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class SourceDataService {
 
-    private final Logger log = LoggerFactory.getLogger(SourceDataService.class);
+    private static final Logger log = LoggerFactory.getLogger(SourceDataService.class);
 
     private final SourceDataRepository sourceDataRepository;
 

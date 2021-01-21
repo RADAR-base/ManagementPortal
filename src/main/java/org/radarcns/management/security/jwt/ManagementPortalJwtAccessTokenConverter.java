@@ -115,7 +115,7 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
     }
 
     @Override
-    public void setAlgorithm(Algorithm algorithm) {
+    public final void setAlgorithm(Algorithm algorithm) {
         this.algorithm = algorithm;
         if (verifiers.isEmpty()) {
             this.verifiers.add(AlgorithmLoader.buildVerifier(algorithm, RES_MANAGEMENT_PORTAL));

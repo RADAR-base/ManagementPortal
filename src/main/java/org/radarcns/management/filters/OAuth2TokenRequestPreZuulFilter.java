@@ -18,10 +18,12 @@ import org.springframework.stereotype.Component;
 public class OAuth2TokenRequestPreZuulFilter extends ZuulFilter {
 
     protected static final String REFRESH_TOKEN_COOKIE = "rft";
+    private static final Logger logger = LoggerFactory.getLogger(
+            OAuth2TokenRequestPreZuulFilter.class);
+
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
 
-    private final Logger logger = LoggerFactory.getLogger(OAuth2TokenRequestPreZuulFilter.class);
 
     @Override
     public Object run() {

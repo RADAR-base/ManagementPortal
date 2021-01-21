@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class RoleService {
 
-    private final Logger log = LoggerFactory.getLogger(RoleService.class);
+    private static final Logger log = LoggerFactory.getLogger(RoleService.class);
 
     @Autowired
     private RoleRepository roleRepository;

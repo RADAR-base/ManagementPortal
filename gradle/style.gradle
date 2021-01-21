@@ -19,7 +19,7 @@ checkstyle {
 }
 
 pmd {
-    toolVersion = '5.8.1'
+    toolVersion = '6.12.0'
     ignoreFailures = false
 
     consoleOutput = true

@@ -68,7 +68,7 @@ import static org.radarcns.management.security.SecurityUtils.getJWT;
 @RequestMapping("/api")
 public class ProjectResource {
 
-    private final Logger log = LoggerFactory.getLogger(ProjectResource.class);
+    private static final Logger log = LoggerFactory.getLogger(ProjectResource.class);
 
     private static final String ENTITY_NAME = "project";
 
@@ -298,8 +298,8 @@ public class ProjectResource {
         checkPermissionOnProject(getJWT(servletRequest), SUBJECT_READ, projectName);
         log.debug("REST request to get all subjects for project {}", projectName);
         Page<SubjectDTO> page;
-        boolean includeInactiveParticipants =
-                inactiveParticipantsParam != null ? inactiveParticipantsParam : false;
+        boolean includeInactiveParticipants = inactiveParticipantsParam != null
+                && inactiveParticipantsParam;
         if (includeInactiveParticipants) {
             page = subjectRepository.findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
                     Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT))
