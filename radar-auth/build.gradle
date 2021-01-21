@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '5.0.0'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 apply plugin: 'maven-publish'
@@ -7,10 +7,10 @@ apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.jfrog.artifactory'
 
 ext {
-    jacksonVersion = '2.11.3'
-    jacksonYamlVersion = '2.11.3'
+    jacksonVersion = '2.11.4'
+    jacksonYamlVersion = '2.11.4'
     okhttpVersion = '4.9.0'
-    oauthJwtVersion = '3.11.0'
+    oauthJwtVersion = '3.12.0'
     commonsCodecVersion = '1.15'
     slf4jVersion = '1.7.30'
 }
