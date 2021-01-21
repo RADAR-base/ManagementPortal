@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges } from '@angular/core';
-import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
+import { EventManager, JhiLanguageService } from 'ng-jhipster';
 
 import { ITEMS_PER_PAGE, Project, User, UserService } from '..';
 
@@ -8,7 +8,6 @@ import { ITEMS_PER_PAGE, Project, User, UserService } from '..';
     templateUrl: './common-user-management.component.html'
 })
 export class CommonUserMgmtComponent implements OnInit, OnChanges {
-    currentAccount: any;
     users: User[];
     error: any;
     success: any;
@@ -26,8 +25,6 @@ export class CommonUserMgmtComponent implements OnInit, OnChanges {
     constructor(
             private jhiLanguageService: JhiLanguageService,
             private userService: UserService,
-            private parseLinks: ParseLinks,
-            private alertService: AlertService,
             private eventManager: EventManager,
     ) {
         this.itemsPerPage = ITEMS_PER_PAGE;

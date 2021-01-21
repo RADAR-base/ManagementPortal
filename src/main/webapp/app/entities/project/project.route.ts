@@ -12,6 +12,7 @@ import { ResolvePagingParams } from '../../shared/commons';
 export const projectRoute: Routes = [
     {
         path: 'project',
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         resolve: {
             'pagingParams': ResolvePagingParams,
         },

@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
-import { Principal } from '../..';
 import { MinimalSource, SourceService} from '../../source';
 import { SubjectPopupService } from '../subject-popup.service';
 
@@ -21,7 +20,6 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
     assignableSources: MinimalSource[];
     assignedSources: MinimalSource[];
     isSaving: boolean;
-    currentAccount: any;
 
     constructor(
             public activeModal: NgbActiveModal,
@@ -29,7 +27,6 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
             private alertService: AlertService,
             private subjectService: SubjectService,
             private sourceService: SourceService,
-            private principal: Principal,
             private eventManager: EventManager,
     ) {
         this.jhiLanguageService.addLocation('subject');

@@ -13,6 +13,7 @@ export const sourceTypeRoute: Routes = [
     {
         path: 'source-type',
         component: SourceTypeComponent,
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         resolve: {
             'pagingParams': ResolvePagingParams,
         },

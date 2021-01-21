@@ -15,6 +15,6 @@ dependencies {
 }
 
 shadowJar {
-    relocate 'com', 'shadow.com'
-    relocate 'org', 'shadow.org'
+    relocate 'com.auth0.jwt', 'shadow.com.auth0.jwt'
+    relocate 'org.bouncycastle', 'shadow.org.bouncycastle'
 }
