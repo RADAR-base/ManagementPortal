@@ -57,6 +57,8 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     manifest.from sharedManifest
 }
 
+assemble.dependsOn(dokkaJar, sourcesJar)
+
 publishing {
     publications {
         mavenJar(MavenPublication) {
