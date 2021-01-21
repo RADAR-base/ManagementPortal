@@ -193,6 +193,10 @@ dependencies {
     compile "com.h2database:h2"
     compile project(path: ':radar-auth', configuration: 'shadow')
     compile "org.springframework.data:spring-data-envers:${spring_data_envers_version}"
+    runtimeOnly("jakarta.xml.bind:jakarta.xml.bind-api:$javaxXmlBindVersion")
+    runtimeOnly("org.glassfish.jaxb:jaxb-core:$javaxJaxbCoreVersion")
+    runtimeOnly("org.glassfish.jaxb:jaxb-runtime:$javaxJaxbRuntimeVersion")
+    runtimeOnly("javax.activation:activation:$javaxActivation")
 
     testCompile "org.awaitility:awaitility:${awaitility_version}"
     testCompile "com.jayway.jsonpath:json-path"

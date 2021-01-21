@@ -141,6 +141,7 @@ public final class OAuthHelper {
      */
     public static TokenValidator createTokenValidator() {
         // Use tokenValidator with known JWTVerifier which signs.
+        //noinspection deprecation
         return new TokenValidator(verifiers, getDummyValidatorConfig());
     }
 
