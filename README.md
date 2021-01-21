@@ -14,6 +14,7 @@ ManagementPortal is an application which is used to manage pilot studies for [RA
 - [Configuration](#configuration)
   * [Environment Variables](#environment-variables)
   * [OAuth Clients](#oauth-clients)
+  * [UI Customization](#ui-customization)
 - [Development](#development)
   * [Managing dependencies](#managing-dependencies)
   * [Using angular-cli](#using-angular-cli)
@@ -182,6 +183,14 @@ username your OAuth client id, and leaving the password empty:
     }
     ```
     Now the app can use the refresh token flow as shown above.
+
+### UI Customization
+
+You can customize ManagementPortal web app by replacing images located in `src/main/webapp/content/images` with your logos:
+- `navbar-logo.png` is a 70x45 (WxH in pixels) image shown at the top of every page;
+- `home-page-logo.png` is shown on the home page only; 350x350 px image recommended.
+
+Once you build the project, you will find these images in `build/www/assets/images`.
 
 ## Development
 
