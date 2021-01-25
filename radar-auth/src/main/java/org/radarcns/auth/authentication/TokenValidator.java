@@ -150,10 +150,9 @@ public class TokenValidator {
                 }
                 return new JwtRadarToken(jwt);
             } catch (SignatureVerificationException sve) {
-                LOGGER.warn("Client presented a token with an incorrect signature, fetching public "
-                        + "keys again. Token: {}", token);
+                LOGGER.debug("Client presented a token with an incorrect signature. Token: {}",
+                        token);
                 refresh();
-                return validateAccessToken(token);
             } catch (JWTVerificationException ex) {
                 LOGGER.debug("Verifier {} with implementation {} did not accept token {}",
                         verifier.toString(), verifier.getClass().toString(), token);
