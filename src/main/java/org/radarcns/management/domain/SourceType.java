@@ -93,6 +93,7 @@ public class SourceType extends AbstractEntity implements Serializable {
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<Project> projects = new HashSet<>();
 
+    @Override
     public Long getId() {
         return id;
     }

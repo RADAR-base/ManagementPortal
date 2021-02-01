@@ -4,14 +4,13 @@ plugins {
     id 'org.springframework.boot' version '1.5.9.RELEASE'
     id "com.moowork.node" version "1.2.0"
     id "io.spring.dependency-management" version "1.0.7.RELEASE"
-    id 'com.jfrog.bintray' version '1.8.4' apply false
-    id 'com.jfrog.artifactory' version '4.9.3' apply false
+    id 'com.jfrog.bintray' version '1.8.5' apply false
+    id 'com.jfrog.artifactory' version '4.18.3' apply false
 }
 
 allprojects {
     group 'org.radarcns'
-
-    version '0.6.2' // project version
+    version '0.6.3' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
@@ -26,6 +25,7 @@ allprojects {
     ext.githubUrl = 'https://github.com/RADAR-base/ManagementPortal'
     ext.issueUrl = "https://github.com/$githubRepoName/issues"
     ext.website = 'http://radar-base.org'
+    ext.bintrayOrg = 'radar-cns'
 
     idea {
         module {
@@ -192,6 +192,10 @@ dependencies {
     compile "com.h2database:h2"
     compile project(path: ':radar-auth', configuration: 'shadow')
     compile "org.springframework.data:spring-data-envers:${spring_data_envers_version}"
+    runtimeOnly("jakarta.xml.bind:jakarta.xml.bind-api:$javaxXmlBindVersion")
+    runtimeOnly("org.glassfish.jaxb:jaxb-core:$javaxJaxbCoreVersion")
+    runtimeOnly("org.glassfish.jaxb:jaxb-runtime:$javaxJaxbRuntimeVersion")
+    runtimeOnly("javax.activation:activation:$javaxActivation")
 
     testCompile "org.awaitility:awaitility:${awaitility_version}"
     testCompile "com.jayway.jsonpath:json-path"
@@ -217,7 +221,7 @@ task cleanResources(type: Delete) {
 }
 
 wrapper {
-    gradleVersion '5.4.1'
+    gradleVersion '6.7.1'
 }
 
 task stage(dependsOn: 'bootRepackage') {

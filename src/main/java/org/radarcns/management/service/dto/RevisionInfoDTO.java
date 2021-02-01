@@ -1,5 +1,6 @@
 package org.radarcns.management.service.dto;
 
+import java.util.Locale;
 import java.util.stream.Collectors;
 import org.hibernate.envers.RevisionType;
 import org.radarcns.management.domain.audit.CustomRevisionEntity;
@@ -82,7 +83,7 @@ public class RevisionInfoDTO implements Serializable {
                         .collect(Collectors.groupingBy(obj -> obj.getClass()
                                 .getSimpleName()
                                 .replaceAll("DTO$","")
-                                .toLowerCase())))));
+                                .toLowerCase(Locale.US))))));
         return result;
     }
 }

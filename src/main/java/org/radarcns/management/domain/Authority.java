@@ -33,6 +33,7 @@ public class Authority implements Serializable {
     private String name;
 
     public Authority() {
+        // builder constructor
     }
 
     public Authority(String authorityName) {

@@ -24,12 +24,15 @@ import java.util.stream.Stream;
 import org.radarcns.auth.authorization.Permission;
 import org.radarcns.auth.config.TokenValidatorConfig;
 import org.radarcns.management.security.JwtAuthenticationFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 /**
  * Created by dverbeec on 29/06/2017.
  */
-public class OAuthHelper {
+public final class OAuthHelper {
+    private static final Logger logger = LoggerFactory.getLogger(OAuthHelper.class);
     public static String validEcToken;
     public static DecodedJWT superUserToken;
     public static String validRsaToken;
@@ -52,8 +55,12 @@ public class OAuthHelper {
         try {
             setUp();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Failed to set up OAuthHelper", e);
         }
+    }
+
+    private OAuthHelper() {
+        // utility class
     }
 
     /**
@@ -86,8 +93,8 @@ public class OAuthHelper {
      */
     public static void setUp() throws Exception {
         KeyStore ks = KeyStore.getInstance("PKCS12");
-        try (InputStream keyStream = OAuthHelper.class
-                .getClassLoader().getResourceAsStream("config/keystore.p12")) {
+        try (InputStream keyStream = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream("config/keystore.p12")) {
             if (keyStream == null) {
                 throw new IllegalStateException("Cannot find keystore to set up OAuth");
             }
@@ -134,6 +141,7 @@ public class OAuthHelper {
      */
     public static TokenValidator createTokenValidator() {
         // Use tokenValidator with known JWTVerifier which signs.
+        //noinspection deprecation
         return new TokenValidator(verifiers, getDummyValidatorConfig());
     }
 

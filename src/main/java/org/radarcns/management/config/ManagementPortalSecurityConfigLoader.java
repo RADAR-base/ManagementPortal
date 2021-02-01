@@ -1,9 +1,10 @@
 package org.radarcns.management.config;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -48,7 +49,7 @@ public class ManagementPortalSecurityConfigLoader {
     @Autowired
     private UserService userService;
 
-    private static Logger logger =
+    private static final Logger logger =
             LoggerFactory.getLogger(ManagementPortalSecurityConfigLoader.class);
 
     private static final Character SEPARATOR = ';';
@@ -82,7 +83,7 @@ public class ManagementPortalSecurityConfigLoader {
         details.setClientSecret(frontend.getClientSecret());
         details.setAccessTokenValiditySeconds(frontend.getAccessTokenValiditySeconds());
         details.setRefreshTokenValiditySeconds(frontend.getRefreshTokenValiditySeconds());
-        details.setResourceIds(Arrays.asList("res_ManagementPortal"));
+        details.setResourceIds(Collections.singletonList("res_ManagementPortal"));
         details.setAuthorizedGrantTypes(Arrays.asList("password", "refresh_token",
                 "authorization_code"));
         details.setAdditionalInformation(Collections.singletonMap("protected", Boolean.TRUE));
@@ -107,9 +108,9 @@ public class ManagementPortalSecurityConfigLoader {
             logger.info("No OAuth clients file specified, not loading additional clients");
             return;
         }
-        File file = new File(path);
-        try (FileInputStream inputStream = new FileInputStream(file)) {
-            logger.info("Loading OAuth clients from " + file.getAbsolutePath());
+        Path file = Paths.get(path);
+        try (InputStream inputStream = Files.newInputStream(file)) {
+            logger.info("Loading OAuth clients from {}", file.toAbsolutePath());
             CsvMapper mapper = new CsvMapper();
             CsvSchema schema = mapper.schemaFor(CustomBaseClientDetails.class)
                     // CsvSchema uses the @JsonPropertyOrder to define column order, it does not
@@ -151,9 +152,8 @@ public class ManagementPortalSecurityConfigLoader {
         }
     }
 
-    private String[] getCsvFileColumnOrder(File csvFile) {
-        String[] header;
-        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(csvFile))) {
+    private String[] getCsvFileColumnOrder(Path csvFile) {
+        try (BufferedReader bufferedReader = Files.newBufferedReader(csvFile)) {
             return bufferedReader.readLine().split(SEPARATOR.toString());
         } catch (Exception ex) {
             logger.error("Unable to read header from OAuth clients file: " + ex.getMessage(), ex);

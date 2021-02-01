@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
-import { Principal } from '../../shared';
 
 import { OAuthClient } from './oauth-client.model';
 import { OAuthClientService } from './oauth-client.service';
@@ -13,7 +12,6 @@ import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 })
 export class OAuthClientComponent implements OnInit, OnDestroy {
     oauthClients: OAuthClient[];
-    currentAccount: any;
     eventSubscriber: Subscription;
     objectKeys = Object.keys;
 
@@ -29,7 +27,6 @@ export class OAuthClientComponent implements OnInit, OnDestroy {
             private oauthClientService: OAuthClientService,
             private alertService: AlertService,
             private eventManager: EventManager,
-            private principal: Principal,
     ) {
         this.jhiLanguageService.setLocations(['oauthClient']);
     }
@@ -45,9 +42,6 @@ export class OAuthClientComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.loadAll();
-        this.principal.identity().then((account) => {
-            this.currentAccount = account;
-        });
         this.registerChangeInOAuthClients();
     }
 

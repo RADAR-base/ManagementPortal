@@ -6,7 +6,10 @@ import java.util.stream.Collectors;
 
 import org.radarcns.management.service.dto.ClientDetailsDTO;
 
-public class OauthClientServiceTest {
+public final class OauthClientServiceTest {
+    private OauthClientServiceTest() {
+        // utility class
+    }
 
     /**
      * Create an entity for this test.

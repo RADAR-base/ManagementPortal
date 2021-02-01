@@ -17,12 +17,16 @@ import static org.radarcns.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
 /**
  * Created by dverbeec on 22/09/2017.
  */
-public class Permissions {
+public final class Permissions {
 
-    private static Map<Permission, Set<String>> PERMISSION_MATRIX;
+    private static final Map<Permission, Set<String>> PERMISSION_MATRIX = new HashMap<>();
 
     static {
         initPermissions();
+    }
+
+    private Permissions() {
+        // utility class
     }
 
     /**
@@ -54,7 +58,6 @@ public class Permissions {
      * Static permission matrix based on the currently agreed upon security rules.
      */
     private static void initPermissions() {
-        PERMISSION_MATRIX = new HashMap<>();
         Permission.allPermissions().forEach(p -> PERMISSION_MATRIX.put(p, new HashSet<>()));
 
         /* System Administrator - has all currently defined permissions */

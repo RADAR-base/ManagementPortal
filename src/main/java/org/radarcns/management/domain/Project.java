@@ -98,6 +98,7 @@ public class Project extends AbstractEntity implements Serializable {
     @CollectionTable(name = "project_metadata", joinColumns = @JoinColumn(name = "id"))
     private Map<String, String> attributes = new HashMap<>();
 
+    @Override
     public Long getId() {
         return id;
     }

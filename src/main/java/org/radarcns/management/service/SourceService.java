@@ -37,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class SourceService {
 
-    private final Logger log = LoggerFactory.getLogger(SourceService.class);
+    private static final Logger log = LoggerFactory.getLogger(SourceService.class);
 
     @Autowired
     private SourceRepository sourceRepository;

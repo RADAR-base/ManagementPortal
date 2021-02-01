@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -86,7 +87,8 @@ public class OAuth2LoginUiWebConfig {
         // The error summary may contain malicious user input,
         // it needs to be escaped to prevent XSS
         Map<String, String> errorParams = new HashMap<>();
-        errorParams.put("date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        errorParams.put("date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+                .format(new Date()));
         if (error instanceof OAuth2Exception) {
             OAuth2Exception oauthError = (OAuth2Exception) error;
             errorParams.put("status", String.format("%d", oauthError.getHttpErrorCode()));

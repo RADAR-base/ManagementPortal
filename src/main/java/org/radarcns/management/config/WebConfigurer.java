@@ -37,7 +37,7 @@ import org.springframework.web.filter.CorsFilter;
 public class WebConfigurer implements ServletContextInitializer,
         EmbeddedServletContainerCustomizer {
 
-    private final Logger log = LoggerFactory.getLogger(WebConfigurer.class);
+    private static final Logger log = LoggerFactory.getLogger(WebConfigurer.class);
 
     @Autowired
     private Environment env;

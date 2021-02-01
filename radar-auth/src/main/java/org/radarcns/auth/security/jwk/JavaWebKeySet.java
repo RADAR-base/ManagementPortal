@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JavaWebKeySet {
-
     private List<JavaWebKey> keys = new ArrayList<>();
 
     public JavaWebKeySet() {
+        // JSON constructor
     }
 
     public JavaWebKeySet(List<JavaWebKey> keys) {

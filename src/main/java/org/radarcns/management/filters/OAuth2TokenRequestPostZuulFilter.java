@@ -9,6 +9,7 @@ import com.netflix.zuul.context.RequestContext;
 import io.github.jhipster.config.JHipsterConstants;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -27,13 +28,14 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class OAuth2TokenRequestPostZuulFilter extends ZuulFilter {
+    private static final Logger logger = LoggerFactory.getLogger(
+            OAuth2TokenRequestPostZuulFilter.class);
 
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
 
     @Autowired
     private Environment env;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
@@ -45,8 +47,8 @@ public class OAuth2TokenRequestPostZuulFilter extends ZuulFilter {
         final String requestMethod = ctx.getRequest().getMethod();
         Collection<String> activeProfiles = Arrays.asList(env.getActiveProfiles());
 
-        try (final InputStream is = ctx.getResponseDataStream()) {
-            String responseBody = IOUtils.toString(is, "UTF-8");
+        try (InputStream is = ctx.getResponseDataStream()) {
+            String responseBody = IOUtils.toString(is, StandardCharsets.UTF_8);
             if (responseBody.contains("refresh_token")) {
                 final Map<String, Object> responseMap = mapper
                         .readValue(responseBody, new TypeReference<Map<String, Object>>() {

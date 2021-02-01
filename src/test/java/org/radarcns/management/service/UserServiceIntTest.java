@@ -201,7 +201,7 @@ public class UserServiceIntTest {
         commitTransactionAndStartNew();
 
         // Update the timestamp of the revision so it appears to have been created 5 days ago
-        ZonedDateTime expDateTime = ZonedDateTime.now().minus(Period.ofDays(5));
+        ZonedDateTime expDateTime = ZonedDateTime.now().minus(Period.ofDays(5)).withNano(0);
 
         AuditReader auditReader = AuditReaderFactory.get(entityManager);
         Object[] firstRevision = (Object[]) auditReader.createQuery()

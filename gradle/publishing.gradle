@@ -94,7 +94,7 @@ bintray {
     pkg {
         repo = project.group
         name = project.name
-        userOrg = 'radar-cns'
+        userOrg = bintrayOrg
         desc = project.description
         licenses = ['Apache-2.0']
         websiteUrl = website

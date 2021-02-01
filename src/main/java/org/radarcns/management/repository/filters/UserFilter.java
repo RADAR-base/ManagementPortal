@@ -1,10 +1,10 @@
 package org.radarcns.management.repository.filters;
 
+import org.apache.commons.lang.StringUtils;
 import org.radarcns.management.domain.Authority;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Role;
 import org.radarcns.management.domain.User;
-import org.radarcns.management.web.rest.util.FilterUtil;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -14,6 +14,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static org.radarcns.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarcns.auth.authorization.AuthoritiesConstants.PARTICIPANT;
@@ -34,24 +35,27 @@ public class UserFilter implements Specification<User> {
                 builder.not(authorityJoin.get("name").in(PARTICIPANT, INACTIVE_PARTICIPANT)));
         predicates.add(filterParticipants);
 
-        if (FilterUtil.isValid(login)) {
+        if (isValid(login)) {
             predicates.add(builder.like(
-                    builder.lower(root.get("login")), "%" + login.trim().toLowerCase() + "%"));
+                    builder.lower(root.get("login")),
+                    "%" + login.trim().toLowerCase(Locale.US) + "%"));
         }
-        if (FilterUtil.isValid(email)) {
+        if (isValid(email)) {
             predicates.add(builder.like(
-                    builder.lower(root.get("email")), "%" + email.trim().toLowerCase() + "%"));
+                    builder.lower(root.get("email")),
+                    "%" + email.trim().toLowerCase(Locale.US) + "%"));
         }
 
-        if (FilterUtil.isValid(projectName)) {
+        if (isValid(projectName)) {
             Join<Role, Project> projectJoin = roleJoin.join("project");
             predicates.add(builder.like(builder.lower(projectJoin.get("projectName")),
-                    "%" + projectName.trim().toLowerCase() + "%"));
+                    "%" + projectName.trim().toLowerCase(Locale.US) + "%"));
         }
-        if (FilterUtil.isValid(authority)) {
+        if (isValid(authority)) {
             Predicate filterByAuthority = builder.and(builder.like(
                     builder.lower(
-                            authorityJoin.get("name")), "%" + authority.trim().toLowerCase() + "%"),
+                            authorityJoin.get("name")),
+                    "%" + authority.trim().toLowerCase(Locale.US) + "%"),
                     filterParticipants);
             predicates.add(filterByAuthority);
 
@@ -97,5 +101,9 @@ public class UserFilter implements Specification<User> {
 
     public void setAuthority(String authority) {
         this.authority = authority;
+    }
+
+    private static boolean isValid(String str) {
+        return StringUtils.isNotBlank(str) && !str.equals("null");
     }
 }

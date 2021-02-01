@@ -56,8 +56,7 @@ public class ExceptionTranslator {
         // TODO: this is the top level exception that is thrown when e.g. a
         // ConstraintValidationException occurs. Need to investigate what other exceptions result
         // in this one and probably add a check for it.
-        ErrorVM dto = new ErrorVM(ErrorConstants.ERR_VALIDATION, ex.getMessage());
-        return dto;
+        return new ErrorVM(ErrorConstants.ERR_VALIDATION, ex.getMessage());
     }
 
     /**

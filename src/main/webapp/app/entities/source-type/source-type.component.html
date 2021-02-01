@@ -15,7 +15,7 @@
     <div class="table-responsive" *ngIf="sourceTypes">
         <table class="table table-striped">
             <thead>
-            <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
+            <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="transition.bind(this)">
             <th jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span><span class="fa fa-sort"></span></th>
             <th jhiSortBy="producer"><span jhiTranslate="managementPortalApp.sourceType.producer">Producer</span><span class="fa fa-sort"></span></th>
             <th jhiSortBy="model"><span jhiTranslate="managementPortalApp.sourceType.model">Model</span><span class="fa fa-sort"></span></th>
@@ -72,7 +72,7 @@
             </tbody>
         </table>
     </div>
-    <div *ngIf="sourceTypes">
+    <div *ngIf="sourceTypes && totalItems !== undefined">
         <div class="row justify-content-center">
             <jhi-item-count [page]="page" [total]="queryCount" [itemsPerPage]="itemsPerPage"></jhi-item-count>
         </div>

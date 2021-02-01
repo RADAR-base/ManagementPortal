@@ -1,28 +1,29 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
-import { Subscription } from 'rxjs/Rx';
-import { ITEMS_PER_PAGE, Principal } from '../../shared';
+import { Observable, Subscription } from 'rxjs/Rx';
+import { ITEMS_PER_PAGE } from '../../shared';
 
 import { SourceType } from './source-type.model';
 import { SourceTypeService } from './source-type.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { PagingParams } from '../../shared/commons';
 
 @Component({
     selector: 'jhi-source-type',
     templateUrl: './source-type.component.html',
 })
 export class SourceTypeComponent implements OnInit, OnDestroy {
+    pagingParams$: Observable<PagingParams>;
 
     sourceTypes: SourceType[];
-    currentAccount: any;
     eventSubscriber: Subscription;
     itemsPerPage: number;
     links: any;
     page: any;
     predicate: any;
     queryCount: any;
-    reverse: any;
+    ascending: any;
     totalItems: number;
     routeData: any;
     previousPage: any;
@@ -32,18 +33,21 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
             private sourceTypeService: SourceTypeService,
             private alertService: AlertService,
             private eventManager: EventManager,
-            private principal: Principal,
             private parseLinks: ParseLinks,
             private activatedRoute: ActivatedRoute,
             private router: Router,
     ) {
         this.sourceTypes = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
-        this.routeData = this.activatedRoute.data.subscribe((data) => {
-            this.page = data['pagingParams'].page;
-            this.previousPage = data['pagingParams'].page;
-            this.reverse = data['pagingParams'].ascending;
-            this.predicate = data['pagingParams'].predicate;
+        this.pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
+            const fallback = { page: 1, predicate: 'id', ascending: true };
+            return data['pagingParams'] || fallback;
+        });
+        this.routeData = this.pagingParams$.subscribe(params => {
+            this.page = params.page;
+            this.previousPage = params.page;
+            this.ascending = params.ascending;
+            this.predicate = params.predicate;
         });
         this.jhiLanguageService.setLocations(['sourceType', 'sourceTypeScope']);
     }
@@ -63,10 +67,11 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.loadAll();
-        this.principal.identity().then((account) => {
-            this.currentAccount = account;
-        });
         this.registerChangeInSourceTypes();
+
+        this.pagingParams$.subscribe(() => {
+            this.loadAll();
+        });
     }
 
     ngOnDestroy() {
@@ -87,7 +92,7 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
     }
 
     sort() {
-        const result = [this.predicate + ',' + (this.reverse ? 'asc' : 'desc')];
+        const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
         if (this.predicate !== 'id') {
             result.push('id');
         }
@@ -109,11 +114,11 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
     }
 
     transition() {
-        this.router.navigate(['/source-types'], {
+        this.router.navigate(['/source-type'], {
             queryParams:
                     {
                         page: this.page,
-                        sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc'),
+                        sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
                     },
         });
         this.loadAll();

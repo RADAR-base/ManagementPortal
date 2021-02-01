@@ -1,14 +1,7 @@
 package org.radarcns.management.web.rest;
 
 
-import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
-import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
-import static org.radarcns.management.security.SecurityUtils.getJWT;
-
 import com.codahale.metrics.annotation.Timed;
-import java.net.MalformedURLException;
-import java.time.Duration;
-import javax.servlet.ServletRequest;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
 import org.radarcns.management.domain.MetaToken;
@@ -26,11 +19,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.ServletRequest;
+import java.net.MalformedURLException;
+import java.time.Duration;
+
+import static org.radarcns.auth.authorization.Permission.SUBJECT_UPDATE;
+import static org.radarcns.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
+import static org.radarcns.management.security.SecurityUtils.getJWT;
+
 @RestController
 @RequestMapping("/api")
 public class MetaTokenResource {
 
-    private final Logger log = LoggerFactory.getLogger(OAuthClientsResource.class);
+    private static final Logger log = LoggerFactory.getLogger(OAuthClientsResource.class);
 
     public static final Duration DEFAULT_META_TOKEN_TIMEOUT = Duration.ofHours(1);
     public static final Duration DEFAULT_PERSISTENT_META_TOKEN_TIMEOUT = Duration.ofDays(31);
@@ -72,8 +73,10 @@ public class MetaTokenResource {
         log.info("Requesting token with tokenName {}", tokenName);
         MetaToken token = metaTokenService.getToken(tokenName);
         Subject subject = token.getSubject();
-        String project = subject.getActiveProject().orElseThrow(() -> new NotAuthorizedException(
-                "Cannot establish authority for subject with no active project affiliation."))
+        String project = subject.getActiveProject()
+                .orElseThrow(() -> new NotAuthorizedException(
+                        "Cannot establish authority of subject without active project affiliation."
+                ))
                 .getProjectName();
         String user = subject.getUser().getLogin();
         checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, project, user);

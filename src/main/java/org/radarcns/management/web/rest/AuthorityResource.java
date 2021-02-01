@@ -27,7 +27,7 @@ public class AuthorityResource {
     @Autowired
     private HttpServletRequest servletRequest;
 
-    private final Logger log = LoggerFactory.getLogger(AuthorityResource.class);
+    private static final Logger log = LoggerFactory.getLogger(AuthorityResource.class);
 
     /**
      * GET  /authorities : get all the authorities.

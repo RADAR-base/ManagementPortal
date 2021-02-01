@@ -1,7 +1,7 @@
 package org.radarcns.management.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,7 +39,6 @@ public class RedcapIntegrationWorkFlowOnServiceLevelTest {
         final String workPackage = "MDD";
         final String phase = "1";
 
-
         ProjectDTO projectDto = new ProjectDTO();
         projectDto.setDescription("Test Project");
         projectDto.setLocation(projectLocation);
@@ -56,7 +55,7 @@ public class RedcapIntegrationWorkFlowOnServiceLevelTest {
         // manually save
         ProjectDTO saved = projectService.save(projectDto);
         Long storedProjectId = saved.getId();
-        assertThat(storedProjectId > 0);
+        assertTrue(storedProjectId > 0);
 
         // Use ROLE_EXTERNAL_ERF_INTEGRATOR authority in your oauth2 client config
         // GET api/projects/{storedProjectId}
@@ -108,7 +107,7 @@ public class RedcapIntegrationWorkFlowOnServiceLevelTest {
         // create/save a subject
         // PUT api/subjects/
         SubjectDTO savedSubject = subjectService.createSubject(newSubject);
-        assertThat(savedSubject.getId() > 0);
+        assertTrue(savedSubject.getId() > 0);
 
         // asset human-readable-id
         for (Map.Entry<String, String> attr : savedSubject.getAttributes().entrySet()) {

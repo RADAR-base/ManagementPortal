@@ -87,7 +87,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class SubjectResource {
 
-    private final Logger log = LoggerFactory.getLogger(SubjectResource.class);
+    private static final Logger log = LoggerFactory.getLogger(SubjectResource.class);
 
     @Autowired
     private SubjectService subjectService;
@@ -250,8 +250,8 @@ public class SubjectResource {
         checkPermission(getJWT(servletRequest), SUBJECT_READ);
         log.debug("ProjectName {} and external {}", projectName, externalId);
         // if not specified do not include inactive patients
-        boolean withInactive =
-                withInactiveParticipantsParam != null ? withInactiveParticipantsParam : false;
+        boolean withInactive = withInactiveParticipantsParam != null
+                && withInactiveParticipantsParam;
 
         List<String> authoritiesToInclude = withInactive ? Arrays.asList(PARTICIPANT,
                 INACTIVE_PARTICIPANT) : Collections.singletonList(PARTICIPANT);
@@ -497,8 +497,7 @@ public class SubjectResource {
             @RequestParam(value = "withInactiveSources", required = false)
                     Boolean withInactiveSourcesParam) throws NotAuthorizedException {
 
-        boolean withInactiveSources = withInactiveSourcesParam == null ? false
-                : withInactiveSourcesParam;
+        boolean withInactiveSources = withInactiveSourcesParam != null && withInactiveSourcesParam;
         // check the subject id
         Subject subject = subjectRepository.findOneWithEagerBySubjectLogin(login)
                 .orElseThrow(NoSuchElementException::new);

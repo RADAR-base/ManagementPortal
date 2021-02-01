@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Subscription';
-import { AuthorityService, Principal, Project, ProjectService } from '../../shared';
+import { AuthorityService, Project, ProjectService } from '../../shared';
 
 import { Role } from './role.model';
 import {HttpResponse} from '@angular/common/http';
@@ -12,7 +12,6 @@ import {HttpResponse} from '@angular/common/http';
 })
 export class RoleComponent implements OnInit {
     @Input() roles: Role[];
-    currentAccount: any;
     eventSubscriber: Subscription;
     authorities: string[];
     projects: Project[];
@@ -24,8 +23,8 @@ export class RoleComponent implements OnInit {
                 private authorityService: AuthorityService,
                 private projectService: ProjectService,
                 private alertService: AlertService,
-                private eventManager: EventManager,
-                private principal: Principal) {
+                private eventManager: EventManager
+    ) {
         this.jhiLanguageService.addLocation('role');
     }
 
@@ -38,9 +37,6 @@ export class RoleComponent implements OnInit {
         });
         this.projectService.query().subscribe((res: HttpResponse<any>) => {
             this.projects = res.body;
-        });
-        this.principal.identity().then((account) => {
-            this.currentAccount = account;
         });
     }
 

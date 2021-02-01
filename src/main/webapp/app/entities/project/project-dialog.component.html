@@ -95,9 +95,27 @@
 
         <div class="form-group">
             <label jhiTranslate="managementPortalApp.project.sourceType" for="field_sourceType">Source Type</label>
-            <select class="form-control" id="field_sourceType" multiple name="sourceType" [(ngModel)]="project.sourceTypes">
-                <option [ngValue]="getSelected(project.sourceTypes, sourceTypeOption)" *ngFor="let sourceTypeOption of sourceTypes; trackBy: trackSourceTypeById">{{sourceTypeOption.producer+"_"+sourceTypeOption.model+"_"+sourceTypeOption.catalogVersion}}</option>
-            </select>
+            <input
+                id="field_sourceType"
+                type="text"
+                class="form-control"
+                name="sourceType"
+                [(ngModel)]="sourceTypeInputText"
+                [ngbTypeahead]="getMatchingSourceTypes"
+                [resultFormatter]="formatSourceTypeOption"
+                (focus)="sourceTypeInputFocus$.next($any($event).target.value)"
+                (selectItem)="addSourceType($event)"
+            />
+            <div class="selected-source-types">
+                <div
+                    class="badge badge-pill badge-primary"
+                    *ngFor="let t of project.sourceTypes"
+                    (click)="removeSourceType(t.id)"
+                >
+                    <span>{{formatSourceTypeOption(t)}}</span>
+                    <span aria-hidden="true">&times;</span>
+                </div>
+            </div>
         </div>
         <jhi-dictionary-mapper [attributes]='project.attributes' [options]="options"
                                [eventPrefix]='attributeComponentEventPrefix'></jhi-dictionary-mapper>

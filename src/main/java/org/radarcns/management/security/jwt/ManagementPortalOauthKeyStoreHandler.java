@@ -61,7 +61,7 @@ public class ManagementPortalOauthKeyStoreHandler {
     private static final Logger logger = LoggerFactory.getLogger(
             ManagementPortalOauthKeyStoreHandler.class);
 
-    private static final List<Resource> keystorePaths = Arrays.asList(
+    private static final List<Resource> KEYSTORE_PATHS = Arrays.asList(
             new ClassPathResource("/config/keystore.p12"),
             new ClassPathResource("/config/keystore.jks"));
 
@@ -172,7 +172,7 @@ public class ManagementPortalOauthKeyStoreHandler {
 
     @Nonnull
     private Map.Entry<Resource, KeyStore> loadStore() {
-        for (Resource resource : keystorePaths) {
+        for (Resource resource : KEYSTORE_PATHS) {
             if (!resource.exists()) {
                 logger.debug("JWT key store {} does not exist. Ignoring this resource", resource);
                 continue;
@@ -191,7 +191,7 @@ public class ManagementPortalOauthKeyStoreHandler {
             }
         }
         throw new IllegalArgumentException("Cannot load any of the given JWT key stores "
-                + keystorePaths);
+                + KEYSTORE_PATHS);
     }
 
     private List<String> loadVerifiersPublicKeyAliasList() {
@@ -269,7 +269,7 @@ public class ManagementPortalOauthKeyStoreHandler {
      * @throws IllegalArgumentException if the key alias password is wrong or the key cannot
      *                                  loaded.
      */
-    private  @Nullable KeyPair getKeyPair(@Nullable String alias, char[] password) {
+    private @Nullable KeyPair getKeyPair(@Nullable String alias, char[] password) {
         try {
             PrivateKey key = (PrivateKey) store.getKey(alias, password);
             if (key == null) {

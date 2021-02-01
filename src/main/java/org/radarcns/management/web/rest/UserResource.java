@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.radarcns.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
@@ -81,7 +82,7 @@ import static org.radarcns.management.web.rest.errors.EntityName.USER;
 @RequestMapping("/api")
 public class UserResource {
 
-    private final Logger log = LoggerFactory.getLogger(UserResource.class);
+    private static final Logger log = LoggerFactory.getLogger(UserResource.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -123,7 +124,7 @@ public class UserResource {
                             "A new user cannot already have an ID"))
                     .body(null);
             // Lowercase the user login before comparing with database
-        } else if (userRepository.findOneByLogin(managedUserVm.getLogin().toLowerCase())
+        } else if (userRepository.findOneByLogin(managedUserVm.getLogin().toLowerCase(Locale.US))
                 .isPresent()) {
             return ResponseEntity.badRequest()
                     .headers(HeaderUtil
@@ -172,7 +173,8 @@ public class UserResource {
                     .createFailureAlert(USER, "emailexists", "Email already in use"))
                     .body(null);
         }
-        existingUser = userRepository.findOneByLogin(managedUserVm.getLogin().toLowerCase());
+        existingUser = userRepository.findOneByLogin(managedUserVm.getLogin()
+                .toLowerCase(Locale.US));
         if (existingUser.isPresent() && (!existingUser.get().getId()
                 .equals(managedUserVm.getId()))) {
             return ResponseEntity.badRequest().headers(HeaderUtil

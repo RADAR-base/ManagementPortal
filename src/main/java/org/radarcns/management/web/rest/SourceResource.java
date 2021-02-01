@@ -48,7 +48,7 @@ import static org.radarcns.management.security.SecurityUtils.getJWT;
 @RequestMapping("/api")
 public class SourceResource {
 
-    private final Logger log = LoggerFactory.getLogger(SourceResource.class);
+    private static final Logger log = LoggerFactory.getLogger(SourceResource.class);
 
     private static final String ENTITY_NAME = "source";
 

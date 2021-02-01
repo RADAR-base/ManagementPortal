@@ -40,7 +40,7 @@ import static org.radarcns.management.security.SecurityUtils.getJWT;
 @RequestMapping("/api")
 public class RoleResource {
 
-    private final Logger log = LoggerFactory.getLogger(RoleResource.class);
+    private static final Logger log = LoggerFactory.getLogger(RoleResource.class);
 
     private static final String ENTITY_NAME = "role";
 
