@@ -319,7 +319,7 @@ public class SubjectResource {
      *
      * @param login the login of the subjectDTO for which to retrieve the revisions
      * @return the ResponseEntity with status 200 (OK) and with body the subjectDTO, or with status
-     * 404 (Not Found)
+     *         404 (Not Found)
      */
     @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/revisions")
     @Timed
