@@ -13,6 +13,7 @@ import static org.radarcns.management.security.SecurityUtils.getJWT;
 import static org.radarcns.management.web.rest.errors.EntityName.SOURCE;
 import static org.radarcns.management.web.rest.errors.EntityName.SOURCE_TYPE;
 import static org.radarcns.management.web.rest.errors.EntityName.SUBJECT;
+import static org.radarcns.management.web.rest.errors.EntityName.PROJECT;
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND;
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_SOURCE_TYPE_NOT_PROVIDED;
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
@@ -36,7 +37,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
-import org.radarcns.auth.token.RadarToken;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.SourceType;
@@ -319,7 +319,7 @@ public class SubjectResource {
      *
      * @param login the login of the subjectDTO for which to retrieve the revisions
      * @return the ResponseEntity with status 200 (OK) and with body the subjectDTO, or with status
-     *         404 (Not Found)
+     *     404 (Not Found)
      */
     @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/revisions")
     @Timed
@@ -327,11 +327,15 @@ public class SubjectResource {
             @ApiParam Pageable pageable, @PathVariable String login) throws NotAuthorizedException {
         log.debug("REST request to get revisions for Subject : {}", login);
         Subject subject = subjectService.findOneByLogin(login);
-        Project project = subject.getActiveProject()
+        String project = subject.getActiveProject()
                 .flatMap(p -> projectRepository.findOneWithEagerRelationships(p.getId()))
-                .orElse(null);
+                .map(p -> p.getProjectName())
+                .orElseThrow(() -> new NotFoundException(
+                        "Requested subject does not have an active project",
+                        PROJECT,
+                        ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND));
 
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, project.getProjectName(),
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, project,
                 login);
         Page<RevisionDTO> page = revisionService.getRevisionsForEntity(pageable, subject);
 
