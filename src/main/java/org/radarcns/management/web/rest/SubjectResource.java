@@ -13,6 +13,7 @@ import static org.radarcns.management.security.SecurityUtils.getJWT;
 import static org.radarcns.management.web.rest.errors.EntityName.SOURCE;
 import static org.radarcns.management.web.rest.errors.EntityName.SOURCE_TYPE;
 import static org.radarcns.management.web.rest.errors.EntityName.SUBJECT;
+import static org.radarcns.management.web.rest.errors.EntityName.PROJECT;
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND;
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_SOURCE_TYPE_NOT_PROVIDED;
 import static org.radarcns.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
@@ -36,7 +37,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.radarcns.auth.config.Constants;
 import org.radarcns.auth.exception.NotAuthorizedException;
-import org.radarcns.auth.token.RadarToken;
 import org.radarcns.management.domain.Project;
 import org.radarcns.management.domain.Source;
 import org.radarcns.management.domain.SourceType;
@@ -319,32 +319,26 @@ public class SubjectResource {
      *
      * @param login the login of the subjectDTO for which to retrieve the revisions
      * @return the ResponseEntity with status 200 (OK) and with body the subjectDTO, or with status
-     *         404 (Not Found)
+     *     404 (Not Found)
      */
     @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/revisions")
     @Timed
     public ResponseEntity<List<RevisionDTO>> getSubjectRevisions(
             @ApiParam Pageable pageable, @PathVariable String login) throws NotAuthorizedException {
         log.debug("REST request to get revisions for Subject : {}", login);
-        SubjectDTO subject = subjectService.getLatestRevision(login);
-        Page<RevisionDTO> page = revisionService.getRevisionsForEntity(pageable,
-                subjectMapper.subjectDTOToSubject(subject));
-        SubjectDTO blank = new SubjectDTO();
-        RadarToken token = getJWT(servletRequest);
-        // iterate the revisions, if we don't have read permission for the subject in a given
-        // revision, swap the subject with a 'blank' subject so no information gets leaked
-        page = page.map(rev -> token.hasPermissionOnSubject(SUBJECT_READ,
-                ((SubjectDTO) rev.getEntity()).getProject().getProjectName(),
-                ((SubjectDTO) rev.getEntity()).getLogin())
-                ? rev : rev.setEntity(blank));
-        // This stream returns true if all values are equal to blank. To prevent people with no
-        // access to the requested subject in any of the subject history's projects from gaining
-        // information on the subject history this way, we throw a NotAuthorized.
-        if (page.getContent().stream()
-                .map(RevisionDTO::getEntity)
-                .allMatch(blank::equals)) {
-            throw new NotAuthorizedException();
-        }
+        Subject subject = subjectService.findOneByLogin(login);
+        String project = subject.getActiveProject()
+                .flatMap(p -> projectRepository.findOneWithEagerRelationships(p.getId()))
+                .map(p -> p.getProjectName())
+                .orElseThrow(() -> new NotFoundException(
+                        "Requested subject does not have an active project",
+                        PROJECT,
+                        ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND));
+
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, project,
+                login);
+        Page<RevisionDTO> page = revisionService.getRevisionsForEntity(pageable, subject);
+
         return ResponseEntity.ok()
                 .headers(PaginationUtil.generatePaginationHttpHeaders(page,
                         HeaderUtil.buildPath("subjects", login, "revisions")))

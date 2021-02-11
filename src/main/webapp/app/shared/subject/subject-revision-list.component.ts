@@ -75,7 +75,7 @@ export class SubjectRevisionListComponent implements OnInit, OnDestroy {
             this.links = this.parseLinks.parse(response.headers.get('link'));
             this.totalItems = parseInt(response.headers.get('X-Total-Count'), 10);
             this.queryCount = this.totalItems;
-            this.revisions = response.body();
+            this.revisions = response.body;
         });
     }
 
