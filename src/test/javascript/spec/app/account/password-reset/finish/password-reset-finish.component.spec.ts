@@ -6,7 +6,7 @@ import { ManagementPortalTestModule } from '../../../../test.module';
 import { PasswordResetFinishComponent } from '../../../../../../../main/webapp/app/account/password-reset/finish/password-reset-finish.component';
 import { PasswordResetFinish } from '../../../../../../../main/webapp/app/account/password-reset/finish/password-reset-finish.service';
 import { MockActivatedRoute } from '../../../../helpers/mock-route.service';
-import { Password } from "../../../../../../../main/webapp/app/account";
+import { Password } from '../../../../../../../main/webapp/app/account';
 
 describe('Component Tests', () => {
 

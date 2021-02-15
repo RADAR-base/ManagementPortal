@@ -11,7 +11,7 @@ describe('Component Tests', () => {
         let fixture: ComponentFixture<PasswordStrengthBarComponent>;
 
         beforeEach(async(() => {
-            service = new Password(null)
+            service = new Password(null);
             TestBed.configureTestingModule({
               declarations: [PasswordStrengthBarComponent],
               providers: [
