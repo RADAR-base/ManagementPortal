@@ -24,25 +24,8 @@ public class PasswordUtil {
     };
 
     /** Calculate password strength. A score of at least 40 is good. */
-    public int score(String password) {
-        int passedMatches = (int) Arrays.stream(patterns)
-                .filter(p -> p.matcher(password).find())
-                .count();
-
-        int force = 2 * password.length() + 10 * passedMatches;
-
-        // penality (short password)
-        if (password.length() <= 8 && force > 20) {
-            force = 20;
-        }
-        // penality (poor variety of characters)
-        if (passedMatches == 1 && force > 10) {
-            force = 10;
-        }
-        if (passedMatches == 2 && force > 30) {
-            force = 30;
-        }
-
-        return force;
+    public boolean isPasswordWeak(String password) {
+        return Arrays.stream(patterns).allMatch(p -> p.matcher(password).find())
+                && password.length() >= 8;
     }
 }
