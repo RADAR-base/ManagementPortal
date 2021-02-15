@@ -208,7 +208,7 @@ public class AccountResource {
 
     private void checkPasswordLength(String password) {
         if (passwordUtil.score(password) < 40) {
-            throw new BadRequestException("Incorrect password", null, "incorrect_password");
+            throw new BadRequestException("Weak password. Use a password with more variety of numeric, alphabetical and symbol characters.", null, "weak_password");
         } else if (password.length() > 100) {
             throw new BadRequestException("Password too long", null, "password_too_long");
         }
