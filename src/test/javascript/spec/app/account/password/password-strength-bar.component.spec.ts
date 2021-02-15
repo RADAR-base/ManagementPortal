@@ -1,17 +1,20 @@
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 
 import { PasswordStrengthBarComponent } from '../../../../../../main/webapp/app/account/password/password-strength-bar.component';
+import { Password } from "../../../../../../main/webapp/app/account";
 
 describe('Component Tests', () => {
 
     describe('PasswordStrengthBarComponent', () => {
 
+        let serviceFixture: ComponentFixture<Password>;
+        let service: Password;
         let comp: PasswordStrengthBarComponent;
         let fixture: ComponentFixture<PasswordStrengthBarComponent>;
 
         beforeEach(async(() => {
             TestBed.configureTestingModule({
-                declarations: [PasswordStrengthBarComponent]
+              declarations: [PasswordStrengthBarComponent, Password]
             })
                     .overrideTemplate(PasswordStrengthBarComponent, '')
                     .compileComponents();
@@ -20,22 +23,24 @@ describe('Component Tests', () => {
         beforeEach(() => {
             fixture = TestBed.createComponent(PasswordStrengthBarComponent);
             comp = fixture.componentInstance;
+            serviceFixture = TestBed.createComponent(Password);
+            service = serviceFixture.componentInstance;
         });
 
         describe('PasswordStrengthBarComponents', () => {
             it('should initialize with default values', () => {
-                expect(comp.measureStrength('')).toBe(0);
+                expect(service.measureStrength('')).toBe(0);
                 expect(comp.colors).toEqual(['#F00', '#F90', '#FF0', '#9F0', '#0F0']);
                 expect(comp.getColor(0).idx).toBe(1);
                 expect(comp.getColor(0).col).toBe(comp.colors[0]);
             });
 
             it('should increase strength upon password value change', () => {
-                expect(comp.measureStrength('')).toBe(0);
-                expect(comp.measureStrength('aa')).toBeGreaterThanOrEqual(comp.measureStrength(''));
-                expect(comp.measureStrength('aa^6')).toBeGreaterThanOrEqual(comp.measureStrength('aa'));
-                expect(comp.measureStrength('Aa090(**)')).toBeGreaterThanOrEqual(comp.measureStrength('aa^6'));
-                expect(comp.measureStrength('Aa090(**)+-07365')).toBeGreaterThanOrEqual(comp.measureStrength('Aa090(**)'));
+                expect(service.measureStrength('')).toBe(0);
+                expect(service.measureStrength('aa')).toBeGreaterThanOrEqual(service.measureStrength(''));
+                expect(service.measureStrength('aa^6')).toBeGreaterThanOrEqual(service.measureStrength('aa'));
+                expect(service.measureStrength('Aa090(**)')).toBeGreaterThanOrEqual(service.measureStrength('aa^6'));
+                expect(service.measureStrength('Aa090(**)+-07365')).toBeGreaterThanOrEqual(service.measureStrength('Aa090(**)'));
             });
 
              it('should change the color based on strength', () => {

@@ -10,6 +10,7 @@ import { Password } from './password.service';
 })
 export class PasswordComponent implements OnInit {
     doNotMatch: string;
+    weakPassword: string;
     error: string;
     success: string;
     account: any;
@@ -25,25 +26,29 @@ export class PasswordComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.principal.identity().then((account) => {
-            this.account = account;
-        });
+        this.principal.identity()
+            .then((account) => this.account = account);
     }
 
     changePassword() {
+        this.error = null;
+        this.success = null;
+        this.doNotMatch = null;
+        this.weakPassword = null;
+        if (this.passwordService.measureStrength(this.password) < 40) {
+            this.weakPassword = 'ERROR';
+        }
         if (this.password !== this.confirmPassword) {
-            this.error = null;
-            this.success = null;
             this.doNotMatch = 'ERROR';
-        } else {
-            this.doNotMatch = null;
-            this.passwordService.save(this.password).subscribe(() => {
-                this.error = null;
-                this.success = 'OK';
-            }, () => {
-                this.success = null;
-                this.error = 'ERROR';
-            });
+        }
+
+        if (this.weakPassword == null && this.doNotMatch == null) {
+            this.passwordService.save(this.password)
+                .subscribe(() => {
+                    this.success = 'OK';
+                }, () => {
+                    this.error = 'ERROR';
+                });
         }
     }
 }
