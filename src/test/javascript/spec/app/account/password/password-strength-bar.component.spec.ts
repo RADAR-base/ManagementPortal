@@ -6,15 +6,20 @@ import { Password } from '../../../../../../main/webapp/app/account';
 describe('Component Tests', () => {
 
     describe('PasswordStrengthBarComponent', () => {
-
-        let serviceFixture: ComponentFixture<Password>;
         let service: Password;
         let comp: PasswordStrengthBarComponent;
         let fixture: ComponentFixture<PasswordStrengthBarComponent>;
 
         beforeEach(async(() => {
+            service = new Password(null)
             TestBed.configureTestingModule({
-              declarations: [PasswordStrengthBarComponent, Password]
+              declarations: [PasswordStrengthBarComponent],
+              providers: [
+                {
+                  provider: Password,
+                  use: service,
+                }
+              ]
             })
                     .overrideTemplate(PasswordStrengthBarComponent, '')
                     .compileComponents();
@@ -23,8 +28,6 @@ describe('Component Tests', () => {
         beforeEach(() => {
             fixture = TestBed.createComponent(PasswordStrengthBarComponent);
             comp = fixture.componentInstance;
-            serviceFixture = TestBed.createComponent(Password);
-            service = serviceFixture.componentInstance;
         });
 
         describe('PasswordStrengthBarComponents', () => {
