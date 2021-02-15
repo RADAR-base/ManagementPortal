@@ -41,7 +41,7 @@ describe('account', () => {
         expect((await modalTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
 
         await username.sendKeys('admin');
-        await password.sendKeys('admin');
+        await password.sendKeys('admin123$');
         await element(by.css('button[type=submit]')).click();
 
         await browser.waitForAngular();
@@ -74,8 +74,8 @@ describe('account', () => {
         const pageTitle = element.all(by.css('h2')).first();
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
 
-        await password.sendKeys('newpassword');
-        await element(by.id('confirmPassword')).sendKeys('newpassword');
+        await password.sendKeys('newpassword123$');
+        await element(by.id('confirmPassword')).sendKeys('newpassword123$');
         await element(by.css('button[type=submit]')).click();
 
         const expect2 = /password.messages.success/;
@@ -89,7 +89,7 @@ describe('account', () => {
         await navBarPage.clickOnSignIn();
 
         await username.sendKeys('admin');
-        await password.sendKeys('newpassword');
+        await password.sendKeys('newpassword123$');
         await element(by.css('button[type=submit]')).click();
 
         await browser.waitForAngular();
