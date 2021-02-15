@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 
 import { PasswordStrengthBarComponent } from '../../../../../../main/webapp/app/account/password/password-strength-bar.component';
-import { Password } from "../../../../../../main/webapp/app/account";
+import { Password } from '../../../../../../main/webapp/app/account';
 
 describe('Component Tests', () => {
 

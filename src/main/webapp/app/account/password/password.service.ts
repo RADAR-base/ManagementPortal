@@ -13,19 +13,14 @@ export class Password {
     }
 
     measureStrength(p: string): number {
-        let force = 0;
-        const regex = /[$-/:-?{-~!"^_`\[\]]/g; // "
         const letters = /[a-zA-Z]+/.test(p);
         const numbers = /[0-9]+/.test(p);
-        const symbols = regex.test(p);
+        const symbols = /[^a-zA-Z0-9]/.test(p);
 
         const flags = [letters, numbers, symbols];
-        const passedMatches = flags.filter((isMatchedFlag: boolean) => {
-            return isMatchedFlag === true;
-        }).length;
+        const passedMatches = flags.filter((isMatchedFlag) => isMatchedFlag).length;
 
-        force += 2 * p.length + ((p.length >= 10) ? 1 : 0);
-        force += passedMatches * 10;
+        let force = 2 * p.length + passedMatches * 10;
 
         // penality (short password)
         force = (p.length <= 8) ? Math.min(force, 20) : force;

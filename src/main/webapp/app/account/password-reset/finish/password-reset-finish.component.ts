@@ -5,7 +5,7 @@ import { JhiLanguageService } from 'ng-jhipster';
 import { LoginModalService } from '../../../shared';
 
 import { PasswordResetFinish } from './password-reset-finish.service';
-import { Password } from "../../password/password.service";
+import { Password } from '../../password/password.service';
 
 @Component({
     selector: 'jhi-password-reset-finish',

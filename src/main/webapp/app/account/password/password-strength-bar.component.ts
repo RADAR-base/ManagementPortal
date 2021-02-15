@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, Renderer } from '@angular/core';
-import { Password } from "./password.service";
+import { Password } from './password.service';
 
 @Component({
     selector: 'jhi-password-strength-bar',
