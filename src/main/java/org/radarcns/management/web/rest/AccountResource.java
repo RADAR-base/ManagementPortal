@@ -9,7 +9,6 @@ import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.UserMapper;
 import org.radarcns.management.service.util.PasswordUtil;
-import org.radarcns.management.web.rest.errors.BadRequestException;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.web.rest.vm.KeyAndPasswordVM;
 import org.slf4j.Logger;
@@ -139,7 +138,10 @@ public class AccountResource {
             produces = MediaType.TEXT_PLAIN_VALUE)
     @Timed
     public ResponseEntity<String> changePassword(@RequestBody String password) {
-        checkPasswordLength(password);
+        ResponseEntity<String> passFail = checkPasswordLength(password);
+        if (passFail != null) {
+            return passFail;
+        }
         userService.changePassword(password);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -166,7 +168,6 @@ public class AccountResource {
             }).orElse(new ResponseEntity<>("Cannot find a deactivated user with login " + login,
                 HttpStatus.BAD_REQUEST));
     }
-
 
     /**
      * POST   /account/reset_password/init : Send an email to reset the password of the user.
@@ -199,20 +200,27 @@ public class AccountResource {
     @Timed
     public ResponseEntity<String> finishPasswordReset(
             @RequestBody KeyAndPasswordVM keyAndPassword) {
-        checkPasswordLength(keyAndPassword.getNewPassword());
+        ResponseEntity<String> passFail = checkPasswordLength(keyAndPassword.getNewPassword());
+        if (passFail != null) {
+            return passFail;
+        }
         return userService
                 .completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey())
                 .map(user -> new ResponseEntity<String>(HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
-    private void checkPasswordLength(String password) {
+    private ResponseEntity<String> checkPasswordLength(String password) {
         if (passwordUtil.isPasswordWeak(password)) {
-            throw new BadRequestException(
+            return new ResponseEntity<>(
                     "Weak password. Use a password with more variety of numeric, alphabetical and "
-                            + "symbol characters.", null, "weak_password");
+                            + "symbol characters.",
+                    HttpStatus.BAD_REQUEST);
         } else if (password.length() > 100) {
-            throw new BadRequestException("Password too long", null, "password_too_long");
+            return new ResponseEntity<>(
+                    "Password too long", HttpStatus.BAD_REQUEST);
+        } else {
+            return null;
         }
     }
 }

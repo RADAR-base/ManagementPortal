@@ -32,13 +32,13 @@ export class PasswordStrengthBarComponent {
 
     getColor(s: number): any {
         let idx = 0;
-        if (s <= 10) {
+        if (s < 20) {
             idx = 0;
-        } else if (s <= 20) {
+        } else if (s < 30) {
             idx = 1;
-        } else if (s <= 30) {
+        } else if (s < 40) {
             idx = 2;
-        } else if (s <= 40) {
+        } else if (s < 55) {
             idx = 3;
         } else {
             idx = 4;

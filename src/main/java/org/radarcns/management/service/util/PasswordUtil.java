@@ -23,9 +23,9 @@ public class PasswordUtil {
             Pattern.compile("[^a-zA-Z0-9]")
     };
 
-    /** Calculate password strength. A score of at least 40 is good. */
+    /** Check whether given password is too weak. */
     public boolean isPasswordWeak(String password) {
-        return Arrays.stream(patterns).allMatch(p -> p.matcher(password).find())
-                && password.length() >= 8;
+        return !Arrays.stream(patterns).allMatch(p -> p.matcher(password).find())
+                || password.length() < 8;
     }
 }

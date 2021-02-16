@@ -46,12 +46,12 @@ describe('Component Tests', () => {
                 expect(service.measureStrength('Aa090(**)+-07365')).toBeGreaterThanOrEqual(service.measureStrength('Aa090(**)'));
             });
 
-             it('should change the color based on strength', () => {
-                expect(comp.getColor(0).col).toBe(comp.colors[0]);
-                expect(comp.getColor(11).col).toBe(comp.colors[1]);
-                expect(comp.getColor(22).col).toBe(comp.colors[2]);
-                expect(comp.getColor(33).col).toBe(comp.colors[3]);
-                expect(comp.getColor(44).col).toBe(comp.colors[4]);
+            it('should change the color based on strength', () => {
+                expect(comp.getColor(10).col).toBe(comp.colors[0]);
+                expect(comp.getColor(20).col).toBe(comp.colors[1]);
+                expect(comp.getColor(30).col).toBe(comp.colors[2]);
+                expect(comp.getColor(40).col).toBe(comp.colors[3]);
+                expect(comp.getColor(55).col).toBe(comp.colors[4]);
             });
         });
     });
