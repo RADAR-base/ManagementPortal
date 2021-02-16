@@ -16,8 +16,8 @@ describe('Component Tests', () => {
               declarations: [PasswordStrengthBarComponent],
               providers: [
                 {
-                  provider: Password,
-                  use: service,
+                  provide: Password,
+                  useValue: service,
                 }
               ]
             })
