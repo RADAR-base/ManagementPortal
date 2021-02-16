@@ -41,7 +41,7 @@ describe('account', () => {
         expect((await modalTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
 
         await username.sendKeys('admin');
-        await password.sendKeys('admin123$');
+        await password.sendKeys('admin');
         await element(by.css('button[type=submit]')).click();
 
         await browser.waitForAngular();
