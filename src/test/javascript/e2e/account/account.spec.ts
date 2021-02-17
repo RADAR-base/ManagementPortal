@@ -93,16 +93,9 @@ describe('account', () => {
         await element(by.css('button[type=submit]')).click();
 
         await browser.waitForAngular();
+        browser.sleep(3000);
 
-        await navBarPage.clickOnAccountMenu();
-        await browser.waitForAngular();
-        await element(by.css('[routerLink="password"]')).click();
-        // change back to default
-        await password.clear();
-        await password.sendKeys('admin');
-        await element(by.id('confirmPassword')).clear();
-        await element(by.id('confirmPassword')).sendKeys('admin');
-        await element(by.css('button[type=submit]')).click();
+        const successElements = element.all(by.css('.alert-success span'));
+        expect((await successElements.isPresent()));
     });
-
 });
