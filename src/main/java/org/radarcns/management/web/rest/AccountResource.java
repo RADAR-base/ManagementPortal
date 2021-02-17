@@ -1,10 +1,6 @@
 package org.radarcns.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import org.apache.commons.lang3.StringUtils;
 import org.radarcns.management.config.ManagementPortalProperties;
 import org.radarcns.management.repository.UserRepository;
 import org.radarcns.management.security.SecurityUtils;
@@ -12,9 +8,9 @@ import org.radarcns.management.service.MailService;
 import org.radarcns.management.service.UserService;
 import org.radarcns.management.service.dto.UserDTO;
 import org.radarcns.management.service.mapper.UserMapper;
+import org.radarcns.management.service.util.PasswordUtil;
 import org.radarcns.management.web.rest.util.HeaderUtil;
 import org.radarcns.management.web.rest.vm.KeyAndPasswordVM;
-import org.radarcns.management.web.rest.vm.ManagedUserVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +23,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.Optional;
 
 /**
  * REST controller for managing the current user's account.
@@ -51,6 +51,8 @@ public class AccountResource {
 
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
+
+    private final PasswordUtil passwordUtil = new PasswordUtil();
 
     /**
      * GET  /activate : activate the registered user.
@@ -103,7 +105,7 @@ public class AccountResource {
      */
     @PostMapping("/account")
     @Timed
-    public ResponseEntity saveAccount(@Valid @RequestBody UserDTO userDto) {
+    public ResponseEntity<Void> saveAccount(@Valid @RequestBody UserDTO userDto) {
         boolean hasConflictingLogin = userRepository.findOneByEmail(userDto.getEmail())
                 .filter(u -> !u.getLogin().equalsIgnoreCase(userDto.getLogin()))
                 .isPresent();
@@ -120,7 +122,7 @@ public class AccountResource {
                     userService.updateUser(userDto.getFirstName(), userDto.getLastName(),
                             userDto.getEmail(),
                             userDto.getLangKey());
-                    return new ResponseEntity(HttpStatus.OK);
+                    return new ResponseEntity<Void>(HttpStatus.OK);
                 })
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
@@ -135,9 +137,10 @@ public class AccountResource {
     @PostMapping(path = "/account/change_password",
             produces = MediaType.TEXT_PLAIN_VALUE)
     @Timed
-    public ResponseEntity changePassword(@RequestBody String password) {
-        if (!checkPasswordLength(password)) {
-            return new ResponseEntity<>("Incorrect password", HttpStatus.BAD_REQUEST);
+    public ResponseEntity<String> changePassword(@RequestBody String password) {
+        ResponseEntity<String> passFail = checkPasswordLength(password);
+        if (passFail != null) {
+            return passFail;
         }
         userService.changePassword(password);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -155,7 +158,7 @@ public class AccountResource {
     @PostMapping(path = "/account/reset-activation/init",
             produces = MediaType.TEXT_PLAIN_VALUE)
     @Timed
-    public ResponseEntity requestActivationReset(@RequestBody String login) {
+    public ResponseEntity<String>  requestActivationReset(@RequestBody String login) {
         return userService.requestActivationReset(login)
             .map(user -> {
                 // this will be the similar email with newly set reset-key
@@ -165,7 +168,6 @@ public class AccountResource {
             }).orElse(new ResponseEntity<>("Cannot find a deactivated user with login " + login,
                 HttpStatus.BAD_REQUEST));
     }
-
 
     /**
      * POST   /account/reset_password/init : Send an email to reset the password of the user.
@@ -177,7 +179,7 @@ public class AccountResource {
     @PostMapping(path = "/account/reset_password/init",
             produces = MediaType.TEXT_PLAIN_VALUE)
     @Timed
-    public ResponseEntity requestPasswordReset(@RequestBody String mail) {
+    public ResponseEntity<String>  requestPasswordReset(@RequestBody String mail) {
         return userService.requestPasswordReset(mail)
                 .map(user -> {
                     mailService.sendPasswordResetMail(user);
@@ -198,8 +200,9 @@ public class AccountResource {
     @Timed
     public ResponseEntity<String> finishPasswordReset(
             @RequestBody KeyAndPasswordVM keyAndPassword) {
-        if (!checkPasswordLength(keyAndPassword.getNewPassword())) {
-            return new ResponseEntity<>("Incorrect password", HttpStatus.BAD_REQUEST);
+        ResponseEntity<String> passFail = checkPasswordLength(keyAndPassword.getNewPassword());
+        if (passFail != null) {
+            return passFail;
         }
         return userService
                 .completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey())
@@ -207,9 +210,17 @@ public class AccountResource {
                 .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
-    private boolean checkPasswordLength(String password) {
-        return !StringUtils.isEmpty(password)
-                && password.length() >= ManagedUserVM.PASSWORD_MIN_LENGTH
-                && password.length() <= ManagedUserVM.PASSWORD_MAX_LENGTH;
+    private ResponseEntity<String> checkPasswordLength(String password) {
+        if (passwordUtil.isPasswordWeak(password)) {
+            return new ResponseEntity<>(
+                    "Weak password. Use a password with more variety of numeric, alphabetical and "
+                            + "symbol characters.",
+                    HttpStatus.BAD_REQUEST);
+        } else if (password.length() > 100) {
+            return new ResponseEntity<>(
+                    "Password too long", HttpStatus.BAD_REQUEST);
+        } else {
+            return null;
+        }
     }
 }

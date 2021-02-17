@@ -65,19 +65,20 @@
                 }
             },
             "error": {
-                "dontmatch" : "Het wachtwoord en zijn bevestiging komen niet overeen!"
+                "dontmatch" : "Het wachtwoord en zijn bevestiging komen niet overeen!",
+                "weakpassword": "De wachtwoordsterkte moet tenminste vier streepjes zijn. Voeg symbolen en getallen toe om de sterkte te verbeteren."
             },
             "validate": {
                 "newpassword": {
                     "required": "Uw wachtwoord is vereist.",
-                    "minlength": "Uw wachtwoord moet minstens 5 tekens lang zijn.",
-                    "maxlength": "Uw wachtwoord kan niet langer zijn dan 50 tekens.",
+                    "minlength": "Uw wachtwoord moet minstens 8 tekens lang zijn.",
+                    "maxlength": "Uw wachtwoord kan niet langer zijn dan 100 tekens.",
                     "strength": "Wachtwoord sterkte:"
                 },
                 "confirmpassword": {
                     "required": "Uw wachtwoord bevestiging is vereist.",
-                    "minlength": "Uw wachtwoord bevestiging moet minstens 5 tekens lang zijn.",
-                    "maxlength": "Uw wachtwoord bevestiging kan niet langer zijn dan 50 tekens."
+                    "minlength": "Uw wachtwoord bevestiging moet minstens 8 tekens lang zijn.",
+                    "maxlength": "Uw wachtwoord bevestiging kan niet langer zijn dan 100 tekens."
                 },
                 "email": {
                     "required": "Uw email is vereist.",

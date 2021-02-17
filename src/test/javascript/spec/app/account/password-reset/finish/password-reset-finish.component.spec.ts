@@ -6,6 +6,7 @@ import { ManagementPortalTestModule } from '../../../../test.module';
 import { PasswordResetFinishComponent } from '../../../../../../../main/webapp/app/account/password-reset/finish/password-reset-finish.component';
 import { PasswordResetFinish } from '../../../../../../../main/webapp/app/account/password-reset/finish/password-reset-finish.service';
 import { MockActivatedRoute } from '../../../../helpers/mock-route.service';
+import { Password } from '../../../../../../../main/webapp/app/account';
 
 describe('Component Tests', () => {
 
@@ -37,7 +38,8 @@ describe('Component Tests', () => {
                     {
                         provide: ElementRef,
                         useValue: new ElementRef(null)
-                    }
+                    },
+                    Password,
                 ]
             }).overrideTemplate(PasswordResetFinishComponent, 'overrideTemplate')
                     .createComponent(PasswordResetFinishComponent);
