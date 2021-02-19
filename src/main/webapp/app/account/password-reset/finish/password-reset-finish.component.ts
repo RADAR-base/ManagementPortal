@@ -5,6 +5,7 @@ import { JhiLanguageService } from 'ng-jhipster';
 import { LoginModalService } from '../../../shared';
 
 import { PasswordResetFinish } from './password-reset-finish.service';
+import { Password } from '../../password/password.service';
 
 @Component({
     selector: 'jhi-password-reset-finish',
@@ -12,6 +13,7 @@ import { PasswordResetFinish } from './password-reset-finish.service';
 })
 export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
     confirmPassword: string;
+    weakPassword: string;
     doNotMatch: string;
     error: string;
     keyMissing: boolean;
@@ -23,6 +25,7 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
     constructor(
             private jhiLanguageService: JhiLanguageService,
             private passwordResetFinish: PasswordResetFinish,
+            private passwordService: Password,
             private loginModalService: LoginModalService,
             private route: ActivatedRoute,
             private elementRef: ElementRef, private renderer: Renderer,
@@ -45,18 +48,24 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
     }
 
     finishReset() {
-        this.doNotMatch = null;
         this.error = null;
+        this.success = null;
+        this.doNotMatch = null;
+        this.weakPassword = null;
+        if (this.passwordService.measureStrength(this.resetAccount.password) < 40) {
+            this.weakPassword = 'ERROR';
+        }
         if (this.resetAccount.password !== this.confirmPassword) {
             this.doNotMatch = 'ERROR';
-        } else {
+        }
+
+        if (this.weakPassword == null && this.doNotMatch == null) {
             this.passwordResetFinish.save({
                 key: this.key,
                 newPassword: this.resetAccount.password,
             }).subscribe(() => {
                 this.success = 'OK';
             }, () => {
-                this.success = null;
                 this.error = 'ERROR';
             });
         }

@@ -34,8 +34,8 @@ describe('Component Tests', () => {
 
         it('should show error if passwords do not match', () => {
             // GIVEN
-            comp.password = 'password1';
-            comp.confirmPassword = 'password2';
+            comp.password = 'password1$';
+            comp.confirmPassword = 'password2$';
             // WHEN
             comp.changePassword();
             // THEN
@@ -47,19 +47,19 @@ describe('Component Tests', () => {
         it('should call Auth.changePassword when passwords match', () => {
             // GIVEN
             spyOn(service, 'save').and.returnValue(Observable.of(true));
-            comp.password = comp.confirmPassword = 'myPassword';
+            comp.password = comp.confirmPassword = 'myPassword1$';
 
             // WHEN
             comp.changePassword();
 
             // THEN
-            expect(service.save).toHaveBeenCalledWith('myPassword');
+            expect(service.save).toHaveBeenCalledWith('myPassword1$');
         });
 
         it('should set success to OK upon success', function() {
             // GIVEN
             spyOn(service, 'save').and.returnValue(Observable.of(true));
-            comp.password = comp.confirmPassword = 'myPassword';
+            comp.password = comp.confirmPassword = 'myPassword1$';
 
             // WHEN
             comp.changePassword();
@@ -73,7 +73,7 @@ describe('Component Tests', () => {
         it('should notify of error if change password fails', function() {
             // GIVEN
             spyOn(service, 'save').and.returnValue(Observable.throw('ERROR'));
-            comp.password = comp.confirmPassword = 'myPassword';
+            comp.password = comp.confirmPassword = 'myPassword1$';
 
             // WHEN
             comp.changePassword();
