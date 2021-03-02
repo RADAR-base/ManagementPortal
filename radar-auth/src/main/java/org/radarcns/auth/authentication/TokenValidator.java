@@ -161,7 +161,7 @@ public class TokenValidator {
                         refresh();
                     } catch(TokenValidationException ex) {
                         // Log and Continue with validation
-                        LOGGER.warn("Could not fetch public keys.", ex)
+                        LOGGER.warn("Could not fetch public keys.", ex);
                     }
                     return validateAccessToken(token, false);
                 }
