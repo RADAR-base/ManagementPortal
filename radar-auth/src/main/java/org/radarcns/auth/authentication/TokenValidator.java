@@ -163,8 +163,8 @@ public class TokenValidator {
                         // Log and Continue with validation
                         LOGGER.warn("Could not fetch public keys.", ex)
                     }
+                    return validateAccessToken(token, false);
                 }
-                return validateAccessToken(token, false);
             } catch (JWTVerificationException ex) {
                 LOGGER.debug("Verifier {} with implementation {} did not accept token {}",
                         verifier.toString(), verifier.getClass().toString(), token);
