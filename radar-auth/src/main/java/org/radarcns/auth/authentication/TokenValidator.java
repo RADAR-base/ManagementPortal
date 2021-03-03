@@ -159,7 +159,7 @@ public class TokenValidator {
                     LOGGER.info("Trying to fetch public keys again...");
                     try {
                         refresh();
-                    } catch(TokenValidationException ex) {
+                    } catch (TokenValidationException ex) {
                         // Log and Continue with validation
                         LOGGER.warn("Could not fetch public keys.", ex);
                     }
