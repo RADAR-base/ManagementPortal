@@ -156,8 +156,13 @@ public class TokenValidator {
             } catch (SignatureVerificationException sve) {
                 LOGGER.debug("Client presented a token with an incorrect signature.");
                 if (tryRefresh) {
-                    LOGGER.info("Fetching public keys again...");
-                    refresh();
+                    LOGGER.info("Trying to fetch public keys again...");
+                    try {
+                        refresh();
+                    } catch (TokenValidationException ex) {
+                        // Log and Continue with validation
+                        LOGGER.warn("Could not fetch public keys.", ex);
+                    }
                     return validateAccessToken(token, false);
                 }
             } catch (JWTVerificationException ex) {
