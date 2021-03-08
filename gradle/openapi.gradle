@@ -65,11 +65,11 @@ task generateJavaClient(dependsOn: 'generateOpenApiSpec', group: 'Swagger',
         config.setOutputDir(Paths.get(projectDir.absolutePath, swaggerTargetFolder).toString())
         config.setLang("java")
         config.setArtifactId("managementportal-client")
-        config.setGroupId("org.radarcns")
+        config.setGroupId("org.radarbase")
         config.setArtifactVersion(version)
         config.setAdditionalProperties([
-                'apiPackage'    : 'org.radarcns.management.client.api',
-                'modelPackage'  : 'org.radarcns.management.client.model',
+                'apiPackage'    : 'org.radarbase.management.client.api',
+                'modelPackage'  : 'org.radarbase.management.client.model',
                 'appName'       : rootProject.name,
                 'appDescription': description,
                 'licenceUrl'    : 'http://apache.org/licenses/LICENSE-2.0.html'

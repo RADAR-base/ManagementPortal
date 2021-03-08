@@ -5,7 +5,7 @@ apply plugin: 'java-library'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
-ext.website = 'http://radar-cns.org/'
+ext.website = 'http://radar-base.org/'
 ext.githubRepoName = 'RADAR-base/ManagementPortal'
 ext.githubUrl = 'https://github.com/RADAR-base/ManagementPortal/tree/master/managementportal-client'
 ext.issueUrl = 'https://github.com/RADAR-base/ManagementPortal/issues'
@@ -36,7 +36,7 @@ ext.pomConfig = {
         url githubUrl + '/issues'
     }
     organization {
-        name 'RADAR-CNS'
+        name 'RADAR-Base'
         url website
     }
     scm {
@@ -101,7 +101,7 @@ bintray {
     pkg {
         repo = project.group
         name = project.name
-        userOrg = 'radar-cns'
+        userOrg = 'radar-base'
         desc = description
         licenses = ['Apache-2.0']
         websiteUrl = website

@@ -1,13 +1,13 @@
 {
   "generator-jhipster": {
     "promptValues": {
-      "packageName": "org.radarcns.management",
+      "packageName": "org.radarbase.management",
       "nativeLanguage": "en"
     },
     "jhipsterVersion": "4.3.0",
     "baseName": "ManagementPortal",
-    "packageName": "org.radarcns.management",
-    "packageFolder": "org/radarcns/management",
+    "packageName": "org.radarbase.management",
+    "packageFolder": "org/radarbase/management",
     "serverPort": "8080",
     "authenticationType": "oauth2",
     "hibernateCache": "hazelcast",

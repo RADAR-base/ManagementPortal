@@ -9,7 +9,7 @@ plugins {
 }
 
 allprojects {
-    group 'org.radarcns'
+    group 'org.radarbase'
     version '0.7.0-SNAPSHOT' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
@@ -25,7 +25,7 @@ allprojects {
     ext.githubUrl = 'https://github.com/RADAR-base/ManagementPortal'
     ext.issueUrl = "https://github.com/$githubRepoName/issues"
     ext.website = 'http://radar-base.org'
-    ext.bintrayOrg = 'radar-cns'
+    ext.bintrayOrg = 'radar-base'
 
     idea {
         module {
@@ -51,11 +51,11 @@ configurations {
 
 
 bootRepackage {
-    mainClass = 'org.radarcns.management.ManagementPortalApp'
+    mainClass = 'org.radarbase.management.ManagementPortalApp'
 }
 
 springBoot {
-    mainClass = 'org.radarcns.management.ManagementPortalApp'
+    mainClass = 'org.radarbase.management.ManagementPortalApp'
     executable = true
     buildInfo()
 }
@@ -122,8 +122,6 @@ ext.findbugAnnotationVersion = '3.0.2'
 repositories {
     mavenCentral()
     jcenter()
-    maven { url 'https://oss.jfrog.org/artifactory/libs-snapshot/' }
-    maven { url 'https://dl.bintray.com/radar-cns/org.radarcns' }
 }
 
 dependencies {

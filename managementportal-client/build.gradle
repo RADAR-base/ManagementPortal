@@ -14,7 +14,7 @@ plugins {
 
 description = "Kotlin ManagementPortal client"
 group = "org.radarbase"
-ext.bintrayOrg = 'radar-cns'
+ext.bintrayOrg = 'radar-base'
 
 repositories {
     jcenter()

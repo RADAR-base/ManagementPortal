@@ -52,7 +52,7 @@ describe('Subject e2e test', () => {
             .all(by.xpath('ancestor::tr'))
             .all(by.cssContainingText('jhi-subjects tbody tr button', 'Edit'))
             .first().click();
-        await element(by.name('externalLink')).sendKeys('www.radarcns.org');
+        await element(by.name('externalLink')).sendKeys('www.radar-base.org');
         await element(by.cssContainingText('button.btn-primary', 'Save')).click();
         await browser.waitForAngular();
 

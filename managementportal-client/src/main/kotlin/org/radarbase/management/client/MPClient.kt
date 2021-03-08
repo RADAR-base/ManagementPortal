@@ -21,8 +21,8 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import org.radarcns.oauth.OAuth2AccessTokenDetails
-import org.radarcns.oauth.OAuth2Client
+import org.radarbase.oauth.OAuth2AccessTokenDetails
+import org.radarbase.oauth.OAuth2Client
 import java.io.IOException
 import java.net.MalformedURLException
 import java.util.concurrent.TimeUnit
@@ -73,7 +73,7 @@ class MPClient(
 
     /**
      * Valid access token for the ManagementPortal REST API.
-     * @throws org.radarcns.exception.TokenException if a new access token could not be fetched
+     * @throws org.radarbase.exception.TokenException if a new access token could not be fetched
      */
     val validToken: OAuth2AccessTokenDetails
         get() = oauth2Client.validToken

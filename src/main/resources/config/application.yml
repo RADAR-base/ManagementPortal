@@ -63,7 +63,7 @@ spring:
         hibernate:
             ddl-auto: none
             naming:
-                physical-strategy: org.radarcns.management.hibernate.CaseSensitivePhysicalNamingStrategy
+                physical-strategy: org.radarbase.management.hibernate.CaseSensitivePhysicalNamingStrategy
                 implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
         properties:
             org.hibernate.envers:

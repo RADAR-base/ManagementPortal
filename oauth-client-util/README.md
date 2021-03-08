@@ -10,7 +10,7 @@ Quickstart:
 
 ```groovy
 dependencies {
-  implementation group: 'org.radarcns', name: 'oauth-client-util', version: '0.6.5'
+  implementation group: 'org.radarbase', name: 'oauth-client-util', version: '0.6.5'
 }
 ```
 
