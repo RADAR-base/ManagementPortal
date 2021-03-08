@@ -14,19 +14,19 @@ import java.time.ZonedDateTime
 
 data class MPUser(
     @JsonProperty("login")
-    private val id: String,
+    val id: String,
 
-    private val firstName: String? = null,
-    private val lastName: String? = null,
-    private val email: String? = null,
-    private val activated: Boolean = false,
+    val firstName: String? = null,
+    val lastName: String? = null,
+    val email: String? = null,
+    val activated: Boolean = false,
 
-    private val langKey: String? = null,
-    private val createdBy: String? = null,
+    val langKey: String? = null,
+    val createdBy: String? = null,
 
-    private val createdDate: ZonedDateTime? = null,
-    private val lastModifiedBy: String? = null,
-    private val lastModifiedDate: ZonedDateTime? = null,
-    private val roles: List<MPRole> = listOf(),
-    private val authorities: List<String> = listOf(),
+    val createdDate: ZonedDateTime? = null,
+    val lastModifiedBy: String? = null,
+    val lastModifiedDate: ZonedDateTime? = null,
+    val roles: List<MPRole> = listOf(),
+    val authorities: List<String> = listOf(),
 )

@@ -72,7 +72,7 @@ memory database and ManagementPortal.
 
 
 
-The docker image can be pulled by running `docker pull radarbase/management-portal:0.6.4`.
+The docker image can be pulled by running `docker pull radarbase/management-portal:0.6.5`.
 
 ## Configuration
 

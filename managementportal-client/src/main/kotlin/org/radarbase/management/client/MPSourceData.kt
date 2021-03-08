@@ -10,22 +10,22 @@
 package org.radarbase.management.client
 
 data class MPSourceData(
-    private val id: Long,
+    val id: Long,
     //Source data type.
-    private val sourceDataType: String,
-    private val sourceDataName: String? = null,
+    val sourceDataType: String,
+    val sourceDataName: String? = null,
     //Default data frequency
-    private val frequency: String? = null,
+    val frequency: String? = null,
     //Measurement unit.
-    private val unit: String? = null,
+    val unit: String? = null,
     // Define if the samples are RAW data or instead they the result of some computation
-    private val processingState: String? = null,
+    val processingState: String? = null,
     //  the storage
-    private val dataClass: String? = null,
-    private val keySchema: String? = null,
-    private val valueSchema: String? = null,
-    private val topic: String? = null,
-    private val provider: String? = null,
-    private val enabled: Boolean = true,
-    private val sourceType: MPSourceType? = null
+    val dataClass: String? = null,
+    val keySchema: String? = null,
+    val valueSchema: String? = null,
+    val topic: String? = null,
+    val provider: String? = null,
+    val enabled: Boolean = true,
+    val sourceType: MPSourceType? = null
 )
