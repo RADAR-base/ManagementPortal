@@ -5,7 +5,7 @@ This Kotlin library interfaces with the ManagementPortal REST API. Import it int
 ```kotlin
 
 repositories {
-    maven(url = "https://dl.bintray.com/radar-base/org.radarbase")
+    mavenCentral()
 }
 
 dependencies {

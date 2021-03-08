@@ -4,8 +4,6 @@ plugins {
     id 'org.springframework.boot' version '1.5.9.RELEASE'
     id "com.moowork.node" version "1.2.0"
     id "io.spring.dependency-management" version "1.0.7.RELEASE"
-    id 'com.jfrog.bintray' version '1.8.5' apply false
-    id 'com.jfrog.artifactory' version '4.18.3' apply false
 }
 
 allprojects {
@@ -25,7 +23,6 @@ allprojects {
     ext.githubUrl = 'https://github.com/RADAR-base/ManagementPortal'
     ext.issueUrl = "https://github.com/$githubRepoName/issues"
     ext.website = 'http://radar-base.org'
-    ext.bintrayOrg = 'radar-base'
 
     idea {
         module {

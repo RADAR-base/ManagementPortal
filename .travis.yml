@@ -87,14 +87,10 @@ deploy:
     on:
       tags: true
   - provider: script
-    script: ./gradlew artifactoryPublish
+    script: ./gradlew publish
     cleanup: false
     on:
       branch: dev
-  - provider: script
-    script: ./gradlew bintrayUpload
-    cleanup: false
-    on:
       tags: true
 notifications:
   webhooks:

@@ -1,10 +1,9 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'signing'
 }
 
 apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'com.jfrog.artifactory'
 
 ext {
     jacksonVersion = '2.11.4'
@@ -59,7 +58,6 @@ def sharedManifest = manifest {
 }
 
 jar {
-    manifest.from sharedManifest
     enabled = false
 }
 
@@ -83,7 +81,7 @@ artifacts {
 
 publishing {
     publications {
-        mavenAuthJar(MavenPublication) {
+        mavenJar(MavenPublication) {
             publication -> project.shadow.component(publication)
             artifact sourcesJar
             artifact javadocJar
@@ -138,56 +136,26 @@ publishing {
             }
         }
     }
-}
+    repositories {
+        maven {
+            name = "OSSRH"
+            credentials {
+                username = project.hasProperty("ossrh.user") ? project.property("ossrh.user") : System.getenv("OSSRH_USER")
+                password = project.hasProperty("ossrh.password") ? project.property("ossrh.password") : System.getenv("OSSRH_PASSWORD")
+            }
 
-bintray {
-    user project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-    override false
-    publications 'mavenAuthJar'
-    pkg {
-        repo = project.group
-        name = project.name
-        userOrg = 'radar-base'
-        desc = project.description
-        licenses = ['Apache-2.0']
-        websiteUrl = website
-        issueTrackerUrl = issueUrl
-        vcsUrl = githubUrl
-        githubRepo = githubRepoName
-        githubReleaseNotesFile = 'README.md'
-        version {
-            name = project.version
-            desc = project.description
-            vcsTag = System.getenv('TRAVIS_TAG')
-            released = new Date()
+            def releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+            def snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+            url = version.toString().endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
         }
     }
 }
 
-
-artifactory {
-    contextUrl = 'https://oss.jfrog.org/artifactory'
-    publish {
-        repository {
-            repoKey = 'oss-snapshot-local'
-            username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-            password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-            maven = true
-        }
-        defaults {
-            publishArtifacts = false
-            publishPom = true
-            properties = ['qa.level': 'basic']
-        }
-    }
+signing {
+    useGpgCmd()
+    required { true }
+    sign(tasks["sourcesJar"], tasks["javadocJar"])
+    sign(publishing.publications["mavenJar"])
 }
-
-artifactoryPublish {
-    publications('mavenAuthJar')
-    dependsOn 'assemble'
-}
-
-bintrayUpload.dependsOn 'assemble'
 
 apply from: '../gradle/style.gradle'

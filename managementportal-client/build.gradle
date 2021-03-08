@@ -14,7 +14,6 @@ plugins {
 
 description = "Kotlin ManagementPortal client"
 group = "org.radarbase"
-ext.bintrayOrg = 'radar-base'
 
 repositories {
     jcenter()
@@ -39,109 +38,6 @@ dependencies {
     dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.20")
 }
 
-def sharedManifest = manifest {
-    attributes("Implementation-Title": project.name,
-            "Implementation-Version": version)
-}
+ext.projectLanguage = "kotlin"
 
-task dokkaJar(type: Jar) {
-    from("$buildDir/dokka/javadoc")
-    archiveClassifier.set("javadoc")
-    dependsOn(dokkaJavadoc)
-}
-
-// custom tasks for creating source/javadoc jars
-task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveClassifier.set('sources')
-    from sourceSets.main.allSource
-    manifest.from sharedManifest
-}
-
-assemble.dependsOn(dokkaJar, sourcesJar)
-
-publishing {
-    publications {
-        mavenJar(MavenPublication) {
-            from components.java
-            artifact sourcesJar
-            artifact dokkaJar
-
-            pom {
-                name = project.name
-                description = project.description
-                url = githubUrl
-                licenses {
-                    license {
-                        name = 'The Apache Software License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution = 'repo'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'dennyverbeeck'
-                        name = 'Denny Verbeeck'
-                        email = 'dverbeec@its.jnj.com'
-                        organization = 'Janssen R&D'
-                    }
-                    developer {
-                        id = 'blootsvoets'
-                        name = 'Joris Borgdorff'
-                        email = 'joris@thehyve.nl'
-                        organization = 'The Hyve'
-                    }
-                    developer {
-                        id = 'nivemaham'
-                        name = 'Nivethika Mahasivam'
-                        email = 'nivethika@thehyve.nl'
-                        organization = 'The Hyve'
-                    }
-                }
-                issueManagement {
-                    system = 'GitHub'
-                    url = githubUrl + '/issues'
-                }
-                organization {
-                    name = 'RADAR-base'
-                    url = website
-                }
-                scm {
-                    connection = 'scm:git:' + githubUrl
-                    url = githubUrl
-                }
-            }
-
-        }
-    }
-
-    repositories {
-        def nexusRepoBase = "https://repo.thehyve.nl/content/repositories"
-        if (version.toString().endsWith("SNAPSHOT")) {
-            maven {
-                url = "$nexusRepoBase/snapshots"
-                name = "thehyveSnapshots"
-                credentials {
-                    username = project.hasProperty('nexusUser') ? project.property('nexusUser') : System.getenv('NEXUS_USER')
-                    password = project.hasProperty('nexusPassword') ? project.property('nexusPassword') : System.getenv('NEXUS_PASSWORD')
-                }
-            }
-        } else {
-            maven {
-                url = "$nexusRepoBase/releases"
-                name = "thehyve"
-                credentials {
-                    username = project.hasProperty('nexusUser') ? project.property('nexusUser') : System.getenv('NEXUS_USER')
-                    password = project.hasProperty('nexusPassword') ? project.property('nexusPassword') : System.getenv('NEXUS_PASSWORD')
-                }
-            }
-            maven {
-                url = "https://api.bintray.com/maven/radar-base/org.radarbase/${project.name}/"
-                name = "bintray"
-                credentials {
-                    username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-                    password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-                }
-            }
-        }
-    }
-}
+apply from: "$rootDir/gradle/publishing.gradle"
