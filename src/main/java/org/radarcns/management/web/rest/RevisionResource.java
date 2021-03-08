@@ -15,9 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -38,13 +38,14 @@ public class RevisionResource {
      */
     @GetMapping("/revisions")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN})
+    @Secured({ AuthoritiesConstants.SYS_ADMIN })
     public ResponseEntity<List<RevisionInfoDTO>> getRevisions(
             @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable) {
         log.debug("REST request to get page of revisions");
         Page<RevisionInfoDTO> page = revisionService.getRevisions(pageable);
-        return new ResponseEntity<>(page.getContent(), PaginationUtil
-                .generatePaginationHttpHeaders(page, "/api/revisions"), HttpStatus.OK);
+        return new ResponseEntity<>(page.getContent(),
+                PaginationUtil.generatePaginationHttpHeaders(page, "/api/revisions"),
+                HttpStatus.OK);
     }
 
     /**
@@ -55,7 +56,7 @@ public class RevisionResource {
      */
     @GetMapping("/revisions/{id}")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN})
+    @Secured({ AuthoritiesConstants.SYS_ADMIN })
     public ResponseEntity<RevisionInfoDTO> getRevision(@PathVariable("id") Integer id) {
         log.debug("REST request to get single revision: {}", id.toString());
         return ResponseEntity.ok(revisionService.getRevision(id));

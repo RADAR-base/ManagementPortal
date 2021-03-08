@@ -55,6 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.Revisions;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -203,6 +204,19 @@ public class SubjectService {
     public Page<SubjectDTO> findAll(Pageable pageable) {
         return subjectRepository.findAllWithEagerRelationships(pageable)
                 .map(subjectMapper::subjectToSubjectReducedProjectDTO);
+    }
+
+    /**
+     * Get all subjects created between dates specified.
+     *
+     * @param fromDate date created from
+     * @param toDate date created to
+     * @return the requested list of subjects
+     */
+    public List<SubjectDTO> findByDateCreated(ZonedDateTime fromDate, ZonedDateTime toDate) {
+        return this.findAll(new PageRequest(0,Integer.MAX_VALUE)).getContent().stream()
+                .filter(subject -> subject.getCreatedDate().isAfter(fromDate)
+                && subject.getCreatedDate().isBefore(toDate)).collect(Collectors.toList());
     }
 
     /**
