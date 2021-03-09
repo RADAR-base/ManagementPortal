@@ -4,6 +4,7 @@ plugins {
     id 'org.springframework.boot' version '1.5.9.RELEASE'
     id "com.moowork.node" version "1.2.0"
     id "io.spring.dependency-management" version "1.0.7.RELEASE"
+    id 'de.undercouch.download' version '4.1.1' apply false
 }
 
 allprojects {
@@ -31,6 +32,12 @@ allprojects {
     }
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
+
+    tasks.register("ghPages") {
+        dependsOn(provider {
+            tasks.findAll { task -> task.name.startsWith("ghPages") && task.name != "ghPages" }
+        })
+    }
 }
 
 description = 'MangementPortal application to manage studies and participants'
@@ -220,6 +227,16 @@ wrapper {
 }
 
 task stage(dependsOn: 'bootRepackage') {
+}
+
+task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {
+    from javadoc.destinationDir
+    into file("$rootDir/public/management-portal-javadoc")
+}
+
+task ghPagesOpenApiSpec(type: Copy) {
+    from file("$buildDir/swagger-spec")
+    into file("$rootDir/public/apidoc")
 }
 
 if (project.hasProperty('nodeInstall')) {

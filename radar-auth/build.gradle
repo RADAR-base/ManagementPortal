@@ -52,110 +52,16 @@ shadowJar {
     }
 }
 
-def sharedManifest = manifest {
-    attributes("Implementation-Title": project.name,
-            "Implementation-Version": version)
-}
-
 jar {
     enabled = false
 }
 
-// custom tasks for creating source/javadoc jars
-task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveClassifier.set('sources')
-    from sourceSets.main.allSource
-    manifest.from sharedManifest
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    archiveClassifier.set('javadoc')
+task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {
     from javadoc.destinationDir
-    manifest.from sharedManifest
+    into file("$rootDir/public/radar-auth-javadoc")
 }
 
-// add javadoc/source jar tasks as artifacts
-artifacts {
-    archives sourcesJar, javadocJar
-}
+ext.isShadowed = true
 
-publishing {
-    publications {
-        mavenJar(MavenPublication) {
-            publication -> project.shadow.component(publication)
-            artifact sourcesJar
-            artifact javadocJar
-            pom {
-                name = project.name
-                description = project.description
-                url = githubUrl
-                licenses {
-                    license {
-                        name = 'The Apache Software License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution = 'repo'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'dennyverbeeck'
-                        name = 'Denny Verbeeck'
-                        email = 'dverbeec@its.jnj.com'
-                        organization = 'Janssen R&D'
-                    }
-                    developer {
-                        id = 'blootsvoets'
-                        name = 'Joris Borgdorff'
-                        email = 'joris@thehyve.nl'
-                        organization = 'The Hyve'
-                    }
-                    developer {
-                        id = 'nivemaham'
-                        name = 'Nivethika Mahasivam'
-                        email = 'nivethika@thehyve.nl'
-                        organization = 'The Hyve'
-                    }
-                }
-                issueManagement {
-                    system = 'GitHub'
-                    url = githubUrl + '/issues'
-                }
-                organization {
-                    name = 'RADAR-base'
-                    url = website
-                }
-                scm {
-                    connection = 'scm:git:' + githubUrl
-                    url = githubUrl
-                }
-            }
-            pom.withXml {
-                asNode().dependencies.'*'.findAll() {
-                    it.scope.text() == 'runtime' && it.artifactId.text() == 'java-jwt'
-                }.each { it.scope*.value = 'compile'}
-            }
-        }
-    }
-    repositories {
-        maven {
-            name = "OSSRH"
-            credentials {
-                username = project.hasProperty("ossrh.user") ? project.property("ossrh.user") : System.getenv("OSSRH_USER")
-                password = project.hasProperty("ossrh.password") ? project.property("ossrh.password") : System.getenv("OSSRH_PASSWORD")
-            }
-
-            def releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-            def snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-            url = version.toString().endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
-        }
-    }
-}
-
-signing {
-    useGpgCmd()
-    required { true }
-    sign(tasks["sourcesJar"], tasks["javadocJar"])
-    sign(publishing.publications["mavenJar"])
-}
-
-apply from: '../gradle/style.gradle'
+apply from: "$rootDir/gradle/publishing.gradle"
+apply from: "$rootDir/gradle/style.gradle"

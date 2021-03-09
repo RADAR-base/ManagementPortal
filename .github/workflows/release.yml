@@ -1,0 +1,64 @@
+# Create release files
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  upload:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 15
+        uses: actions/setup-node@v1
+        with:
+          node-version: 15
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            ~/.gradle/caches/jars-3
+            ~/.gradle/caches/modules-2/files-2.1/
+            ~/.gradle/caches/modules-2/metadata-2.96/
+            ~/.gradle/native
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-java-${{ hashFiles('**/build.gradle', '**/gradle.properties', '**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-java-
+
+      - name: Compile code
+        run: ./gradlew assemble
+
+      # Upload it to GitHub
+      - name: Upload to GitHub
+        uses: AButler/upload-release-assets@v2.0
+        with:
+          files: '*/build/libs/*'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install gpg secret key
+        run: |
+          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+
+      - name: Publish to Maven Central
+        env:
+          OSSRH_USER: ${{ secrets.OSSRH_USER }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+        run: ./gradlew -Psigning.gnupg.keyName={{ secrets.OSSRH_GPG_SECRET_KEY_ID }} -Psigning.gnupg.executable=gpg -Psigning.gnupg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} publish

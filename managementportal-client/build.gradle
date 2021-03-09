@@ -7,13 +7,12 @@
  * See the file LICENSE in the root of this repository.
  */
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version "1.4.20"
+    id 'org.jetbrains.kotlin.jvm' version "1.4.31"
     id 'org.jetbrains.dokka' version "1.4.20"
     id 'maven-publish'
 }
 
 description = "Kotlin ManagementPortal client"
-group = "org.radarbase"
 
 repositories {
     jcenter()
@@ -25,8 +24,8 @@ ext {
 }
 
 dependencies {
-    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.20")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.20")
+    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.31")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.31")
     api(project(":oauth-client-util"))
 
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion
@@ -36,6 +35,11 @@ dependencies {
     runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonModuleVersion")
 
     dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.20")
+}
+
+task ghPagesJavadoc(type: Copy, dependsOn: dokkaJavadoc) {
+    from file("$buildDir/dokka/javadoc")
+    into file("$rootDir/public/managementportal-client-javadoc")
 }
 
 ext.projectLanguage = "kotlin"

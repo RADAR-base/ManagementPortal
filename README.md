@@ -344,10 +344,7 @@ This project provides a Gradle task to generate an [OpenAPI] specification from 
 ```
 ManagementPortal needs to be running and be accessible at `http://localhost:8080` for this task to work.
 
-The resulting file can be imported into the [Swagger editor], or used with [Swagger codegen] to generate client libraries. A Gradle task for generating a Java client is also provided for convenience:
-```bash
-./gradlew generateJavaClient
-```
+The resulting file can be imported into the [Swagger editor], or used with [Swagger codegen] to generate client libraries.
 
 [JHipster Homepage and latest documentation]: https://jhipster.github.io
 [JHipster 4.3.0 archive]: https://jhipster.github.io/documentation-archive/v4.3.0

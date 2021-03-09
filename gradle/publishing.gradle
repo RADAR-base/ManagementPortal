@@ -7,7 +7,6 @@ def sharedManifest = manifest {
 }
 
 jar {
-//    archiveBaseName.set(project.name)
     manifest.from sharedManifest
 }
 
@@ -25,10 +24,10 @@ if (!ext.hasProperty("projectLanguage") || ext.projectLanguage == "java") {
         manifest.from sharedManifest
     }
 } else if (ext.projectLanguage == "kotlin") {
-    task javadocJar(type: Jar) {
+    task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
         from("$buildDir/dokka/javadoc")
         archiveClassifier.set("javadoc")
-        dependsOn("dokkaJavadoc")
+        manifest.from sharedManifest
     }
 }
 
@@ -36,8 +35,12 @@ assemble.dependsOn(javadocJar, sourcesJar)
 
 publishing {
     publications {
-        mavenJar(MavenPublication) {
-            from components.java
+        mavenJar(MavenPublication) { publication ->
+            if (ext.hasProperty("isShadowed") && ext.isShadowed) {
+                project.shadow.component(publication)
+            } else {
+                from components.java
+            }
             artifact sourcesJar
             artifact javadocJar
 
@@ -96,7 +99,6 @@ publishing {
                 username = project.hasProperty("ossrh.user") ? project.property("ossrh.user") : System.getenv("OSSRH_USER")
                 password = project.hasProperty("ossrh.password") ? project.property("ossrh.password") : System.getenv("OSSRH_PASSWORD")
             }
-            println(credentials.username)
 
             def releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
             def snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
@@ -110,4 +112,8 @@ signing {
     required { true }
     sign(tasks["sourcesJar"], tasks["javadocJar"])
     sign(publishing.publications["mavenJar"])
+}
+
+tasks.withType(Sign).configureEach {
+    onlyIf { gradle.taskGraph.hasTask("${project.path}:publish") }
 }

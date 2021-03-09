@@ -92,6 +92,7 @@
     "tslint": "^5.16.0",
     "tslint-loader": "3.5.4",
     "typescript": "~2.9.0",
+    "wait-port": "^0.2.9",
     "webpack": "^4.0.0",
     "webpack-cli": "^3.3.2",
     "webpack-dev-server": "^3.7.1",
@@ -121,7 +122,8 @@
     "webpack:prod": "yarn run ngc && webpack -p --config webpack/webpack.vendor.js && webpack -p --config webpack/webpack.prod.js",
     "test": "yarn run lint && karma start src/test/javascript/karma.conf.js",
     "test:watch": "karma start --watch",
-    "e2e": "protractor src/test/javascript/protractor.conf.js",
-    "install:webdriver": "webdriver-manager update --gecko"
+    "e2e": "yarn run wait-for-managementportal && protractor src/test/javascript/protractor.conf.js",
+    "wait-for-managementportal": "wait-port -t 240000 8080",
+    "install:webdriver": "webdriver-manager update --gecko true --standalone false --chrome false"
   }
 }
