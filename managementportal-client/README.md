@@ -3,7 +3,6 @@
 This Kotlin library interfaces with the ManagementPortal REST API. Import it into your project using the following configuration:
 
 ```kotlin
-
 repositories {
     mavenCentral()
 }
