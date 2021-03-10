@@ -1,0 +1,67 @@
+# Continuous integration, including test and integration test
+name: Pre-release
+
+# Run in master and dev branches and in all pull requests to those branches
+on:
+  push:
+    branches: [ "release-*" ]
+  release:
+    types: [ published ]
+
+jobs:
+  # Build and test the code
+  integration:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 15
+        uses: actions/setup-node@v1
+        with:
+          node-version: 15
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            ~/.gradle/caches/jars-3
+            ~/.gradle/caches/modules-2/files-2.1/
+            ~/.gradle/caches/modules-2/metadata-2.96/
+            ~/.gradle/native
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-java-${{ hashFiles('**/build.gradle', '**/gradle.properties', '**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-java-
+
+      # Compile the code
+      - name: Install dependencies
+        run: |
+          yarn install
+          yarn run install:webdriver
+
+      - name: Run full end to end tests
+        run: |
+          ./src/test/bash/run-prod-e2e.sh
+
+      - name: Generate github pages
+        run: ./gradlew ghPages
+        if: startsWith(github.ref, 'refs/tags/')
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}

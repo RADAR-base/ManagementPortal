@@ -3,7 +3,7 @@
 <configuration scan="true">
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <logger name="org.radarcns.management" level="INFO"/>
+    <logger name="org.radarbase.management" level="INFO"/>
 
     <logger name="io.github.jhipster" level="WARN"/>
 

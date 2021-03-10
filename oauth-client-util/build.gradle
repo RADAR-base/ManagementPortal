@@ -22,5 +22,10 @@ dependencies {
     testRuntimeOnly group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.26'
 }
 
+task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {
+    from javadoc.destinationDir
+    into file("$rootDir/public/oauth-client-util-javadoc")
+}
+
 apply from: '../gradle/style.gradle'
 apply from: '../gradle/publishing.gradle'

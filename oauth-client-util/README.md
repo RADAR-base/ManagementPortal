@@ -9,8 +9,12 @@ Usage
 Quickstart:
 
 ```groovy
+repositories {
+  mavenCentral()
+}
+
 dependencies {
-  implementation group: 'org.radarcns', name: 'oauth-client-util', version: '0.6.5'
+  implementation("org.radarbase:oauth-client-util:<version>")
 }
 ```
 

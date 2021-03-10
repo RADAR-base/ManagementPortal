@@ -1,0 +1,94 @@
+# Continuous integration, including test and integration test
+name: Main
+
+# Run in master and dev branches and in all pull requests to those branches
+on:
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master, dev ]
+
+jobs:
+  # Build and test the code
+  test:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 15
+        uses: actions/setup-node@v1
+        with:
+          node-version: 15
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            ~/.gradle/caches/jars-3
+            ~/.gradle/caches/modules-2/files-2.1/
+            ~/.gradle/caches/modules-2/metadata-2.96/
+            ~/.gradle/native
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-java-${{ hashFiles('**/build.gradle', '**/gradle.properties', '**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-java-
+
+      - name: Install Yarn dependencies
+        run: yarn install
+
+      - name: Yarn build
+        run: yarn run webpack:build
+
+      - name: Yarn check
+        run: yarn test
+
+      # Compile the code
+      - name: Compile java
+        run: ./gradlew assemble
+
+      # Gradle check
+      - name: Gradle check
+        id: gradle-check
+        if: always()
+        run: ./gradlew check
+
+      - name: Codacy
+        if: steps.gradle-check.outcome != 'cancelled'
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: ./gradlew sendCoverageToCodacy
+
+      - name: End to end tests
+        id: e2e
+        run: |
+          cp src/test/resources/config/keystore.p12 src/main/resources/config/keystore.p12
+          ./gradlew bootRun &>mp.log </dev/null &
+          yarn run install:webdriver
+          yarn run wait-for-managementportal
+          ./gradlew generateOpenApiSpec
+          yarn e2e
+
+      - uses: actions/upload-artifact@v2
+        if: steps.e2e.outcome == 'success' || steps.e2e.outcome == 'failure'
+        with:
+          name: openapi-spec
+          path: build/swagger-spec/swagger.json
+
+      - uses: actions/upload-artifact@v2
+        if: steps.e2e.outcome == 'success' || steps.e2e.outcome == 'failure'
+        with:
+          name: managementportal-logs
+          path: mp.log
