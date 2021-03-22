@@ -30,6 +30,7 @@
         "sourceIdExists": "Een nieuwe source mag geen ID toegewezen hebben.",
         "sourceNameExists": "Huidige source naam is al geregistreerd",
         "sourceIsAssigned": "Kan een momenteel toegewezen bron niet overdragen / verwijderen.",
+        "sourceRevisionIsAssigned": "Cannot transfer/delete a previosly assigned source.\nNB this is a design issue, deletion/archival of outdated Sources should be addressed in the future.",
         "sourceAssignedRequired": "Het 'assigned' veld is verplicht voor een nieuwe Source.",
         "validation": "Validatie fout, controleer de ingevoerde waarden.",
         "usedSourceDeletion": "Kan een bron die door een deelnemer wordt gebruikt niet verwijderen",
