@@ -180,7 +180,7 @@ public class SourceResource {
         Revisions<Integer, Source> sourceHistory = sourceRepository.findRevisions(sourceId);
         List<Source> sources = sourceHistory.getContent().stream().map(r -> r.getEntity())
                 .filter(Source::isAssigned).collect(Collectors.toList());
-        if (sources.isEmpty()) {
+        if (!sources.isEmpty()) {
             HttpHeaders failureAlert = HeaderUtil.createFailureAlert(ENTITY_NAME,
                     "sourceRevisionIsAssigned", "Cannot delete a previously assigned source");
             return ResponseEntity.status(HttpStatus.CONFLICT).headers(failureAlert).build();
