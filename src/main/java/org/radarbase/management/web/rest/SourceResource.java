@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.management.domain.Source;
 import org.radarbase.management.repository.SourceRepository;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.SourceService;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.history.Revisions;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -33,6 +35,7 @@ import javax.validation.Valid;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.radarbase.auth.authorization.Permission.SOURCE_CREATE;
 import static org.radarbase.auth.authorization.Permission.SOURCE_DELETE;
@@ -173,7 +176,16 @@ public class SourceResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
                     "sourceIsAssigned", "Cannot delete an assigned source")).build();
         }
-        sourceService.delete(sourceDto.get().getId());
+        Long sourceId = sourceDto.get().getId();
+        Revisions<Integer, Source> sourceHistory = sourceRepository.findRevisions(sourceId);
+        List<Source> sources = sourceHistory.getContent().stream().map(r -> r.getEntity())
+                .filter(Source::isAssigned).collect(Collectors.toList());
+        if (sources.isEmpty()) {
+            HttpHeaders failureAlert = HeaderUtil.createFailureAlert(ENTITY_NAME,
+                    "sourceRevisionIsAssigned", "Cannot delete a previously assigned source");
+            return ResponseEntity.status(HttpStatus.CONFLICT).headers(failureAlert).build();
+        }
+        sourceService.delete(sourceId);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME,
                 sourceName)).build();
     }
