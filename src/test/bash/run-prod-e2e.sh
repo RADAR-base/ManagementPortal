@@ -14,10 +14,10 @@ set -e
 echo "Running production e2e tests"
 cp src/test/resources/config/keystore.p12 src/main/docker/etc/config
 cp src/test/resources/config/keystore.p12 src/main/resources/config
-yarn run webpack:prod
 sed -i "s|new plugin.BaseHrefWebpackPlugin({ baseHref: '/' })|new plugin.BaseHrefWebpackPlugin({ baseHref: '/managementportal/' })|" webpack/webpack.dev.js
 sed -i "s|baseUrl: 'http://localhost:8080/',|baseUrl: 'http://localhost:8080/managementportal/',|" src/test/javascript/protractor.conf.js
 sed -i "s|contexts: prod|contexts: dev|" src/main/resources/config/application-prod.yml # set liquibase context to dev so it loads demo data
+yarn run webpack:prod
 ./gradlew bootRepackage -Pprod buildDocker -x test
 
 docker-compose -f src/main/docker/app.yml up -d # spin up production mode application
