@@ -23,13 +23,10 @@ RUN ./gradlew --version
 COPY gradle gradle
 COPY build.gradle gradle.properties settings.gradle /app/
 COPY radar-auth/build.gradle radar-auth/
-COPY radar-auth/deprecated-auth0/build.gradle radar-auth/deprecated-auth0
+COPY radar-auth/deprecated-auth0/build.gradle radar-auth/deprecated-auth0/
 COPY oauth-client-util/build.gradle oauth-client-util/
-COPY radar-auth radar-auth
-RUN ./gradlew radar-auth:shadowJar
 
-RUN ./gradlew downloadDependencies
-
+RUN ./gradlew downloadDependencies :radar-auth:shadowJar
 
 # now we copy our application source code and build it
 COPY radar-auth radar-auth
