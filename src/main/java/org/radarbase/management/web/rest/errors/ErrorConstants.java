@@ -31,6 +31,7 @@ public final class ErrorConstants {
     public static final String ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED = "error"
             + ".noValidPrivacyPolicyUrl";
     public static final String ERR_NO_SUCH_CLIENT = "error.noSuchClient";
+    public static final String ERR_PROJECT_NOT_EMPTY = "error.projectNotEmpty";
 
     private ErrorConstants() {
     }
