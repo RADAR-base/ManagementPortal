@@ -1,7 +1,7 @@
 version: '2'
 services:
     managementportal-postgresql:
-        image: postgres:9.6.2
+        image: postgres:11-alpine
         environment:
             - POSTGRES_USER=radarbase
             - POSTGRES_PASSWORD=radarbase
