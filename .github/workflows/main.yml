@@ -76,10 +76,12 @@ jobs:
         run: |
           cp src/test/resources/config/keystore.p12 src/main/resources/config/keystore.p12
           ./gradlew bootRun &>mp.log </dev/null &
+          BOOTRUN_PROCESS=$!
           yarn run install:webdriver
           yarn run wait-for-managementportal
           ./gradlew generateOpenApiSpec
           yarn e2e
+          kill $BOOTRUN_PROCESS
 
       - uses: actions/upload-artifact@v2
         if: steps.e2e.outcome == 'success' || steps.e2e.outcome == 'failure'

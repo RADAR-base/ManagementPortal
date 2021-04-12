@@ -33,4 +33,4 @@ fi
 docker-compose -f src/main/docker/app.yml logs # show output of app startup
 docker-compose -f src/main/docker/app.yml down -v # clean up containers and volumes
 
-exit $FAILED
+exit $EXIT_STATUS
