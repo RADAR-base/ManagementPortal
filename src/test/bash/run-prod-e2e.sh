@@ -26,7 +26,7 @@ set +e
 # wait for app to be up
 yarn run wait-for-managementportal-prod
 # run e2e tests against production mode
-if ./gradlew generateOpenApiSpec && yarn e2e-prod; then
+if ./gradlew generateOpenApiSpecProd && yarn e2e-prod; then
   EXIT_STATUS=0
 else
   EXIT_STATUS=1
