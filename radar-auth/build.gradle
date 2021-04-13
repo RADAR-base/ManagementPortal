@@ -61,7 +61,7 @@ task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {
 }
 
 ext.isShadowed = true
-ext.publishToMavenCentral = true
+ext.projectLanguage = "java"
 
 apply from: "$rootDir/gradle/publishing.gradle"
 apply from: "$rootDir/gradle/style.gradle"

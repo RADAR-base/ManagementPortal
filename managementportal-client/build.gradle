@@ -42,6 +42,7 @@ task ghPagesJavadoc(type: Copy, dependsOn: dokkaJavadoc) {
     into file("$rootDir/public/managementportal-client-javadoc")
 }
 
+ext.isShadowed = false
 ext.projectLanguage = "kotlin"
 ext.publishToMavenCentral = true
 
