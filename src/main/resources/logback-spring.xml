@@ -22,7 +22,7 @@
     </appender>
 -->
 
-    <logger name="org.radarcns.management" level="#logback.loglevel#"/>
+    <logger name="org.radarbase.management" level="#logback.loglevel#"/>
 
     <logger name="io.github.jhipster" level="DEBUG"/>
 

@@ -8,7 +8,7 @@ describe('Create, edit, and delete user', () => {
     const password = element(by.id('password'));
 
     beforeAll(async() => {
-        await browser.get('/');
+        await browser.get('./');
         navBarPage = new NavBarPage(true);
         await browser.waitForAngular();
     });
@@ -41,7 +41,7 @@ describe('Create, edit, and delete user', () => {
         await element(by.name('login')).sendKeys('test-user-radar');
         await element(by.name('firstName')).sendKeys('Bob');
         await element(by.name('lastName')).sendKeys('Rob');
-        await element(by.name('email')).sendKeys('rob@radarcns.org');
+        await element(by.name('email')).sendKeys('rob@radarbase.org');
         await element(by.name('authority')).sendKeys('ROLE_PROJECT_ADMIN');
         await element(by.name('project')).sendKeys('radar');
         await element(by.name('addRole')).click();
@@ -57,7 +57,7 @@ describe('Create, edit, and delete user', () => {
         await element(by.name('login')).sendKeys('test-sys-admin');
         await element(by.name('firstName')).sendKeys('Alice');
         await element(by.name('lastName')).sendKeys('Bob');
-        await element(by.name('email')).sendKeys('alice@radarcns.org');
+        await element(by.name('email')).sendKeys('alice@radarbase.org');
 
         await element(by.cssContainingText('button.btn-primary', 'Save')).click();
         await browser.waitForAngular();

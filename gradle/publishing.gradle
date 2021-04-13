@@ -1,6 +1,5 @@
 apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'com.jfrog.artifactory'
+apply plugin: 'signing'
 
 def sharedManifest = manifest {
     attributes("Implementation-Title": project.name,
@@ -8,7 +7,6 @@ def sharedManifest = manifest {
 }
 
 jar {
-//    archiveBaseName.set(project.name)
     manifest.from sharedManifest
 }
 
@@ -19,21 +17,30 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     manifest.from sharedManifest
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    archiveClassifier.set('javadoc')
-    from javadoc.destinationDir
-    manifest.from sharedManifest
+if (!ext.hasProperty("projectLanguage") || ext.projectLanguage == "java") {
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        archiveClassifier.set('javadoc')
+        from javadoc.destinationDir
+        manifest.from sharedManifest
+    }
+} else if (ext.projectLanguage == "kotlin") {
+    task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
+        from("$buildDir/dokka/javadoc")
+        archiveClassifier.set("javadoc")
+        manifest.from sharedManifest
+    }
 }
 
-// add javadoc/source jar tasks as artifacts
-artifacts {
-    archives sourcesJar, javadocJar
-}
+assemble.dependsOn(javadocJar, sourcesJar)
 
 publishing {
     publications {
-        mavenJar(MavenPublication) {
-            from components.java
+        mavenJar(MavenPublication) { publication ->
+            if (ext.hasProperty("isShadowed") && ext.isShadowed) {
+                project.shadow.component(publication)
+            } else {
+                from components.java
+            }
             artifact sourcesJar
             artifact javadocJar
 
@@ -84,54 +91,29 @@ publishing {
 
         }
     }
-}
 
-bintray {
-    user project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-    override false
-    publications 'mavenJar'
-    pkg {
-        repo = project.group
-        name = project.name
-        userOrg = bintrayOrg
-        desc = project.description
-        licenses = ['Apache-2.0']
-        websiteUrl = website
-        issueTrackerUrl = issueUrl
-        vcsUrl = githubUrl
-        githubRepo = githubRepoName
-        githubReleaseNotesFile = 'README.md'
-        version {
-            name = project.version
-            desc = project.description
-            vcsTag = System.getenv('TRAVIS_TAG')
-            released = new Date()
+    repositories {
+        maven {
+            name = "OSSRH"
+            credentials {
+                username = project.hasProperty("ossrh.user") ? project.property("ossrh.user") : System.getenv("OSSRH_USER")
+                password = project.hasProperty("ossrh.password") ? project.property("ossrh.password") : System.getenv("OSSRH_PASSWORD")
+            }
+
+            def releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+            def snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+            url = version.toString().endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
         }
     }
 }
 
-
-artifactory {
-    contextUrl = 'https://oss.jfrog.org/artifactory'
-    publish {
-        repository {
-            repoKey = 'oss-snapshot-local'
-            username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-            password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-            maven = true
-        }
-        defaults {
-            publishArtifacts = true
-            publishPom = true
-            properties = ['qa.level': 'basic']
-        }
-    }
+signing {
+    useGpgCmd()
+    required { true }
+    sign(tasks["sourcesJar"], tasks["javadocJar"])
+    sign(publishing.publications["mavenJar"])
 }
 
-artifactoryPublish {
-    publications('mavenJar')
-    dependsOn 'assemble'
+tasks.withType(Sign).configureEach {
+    onlyIf { gradle.taskGraph.hasTask("${project.path}:publish") }
 }
-
-bintrayUpload.dependsOn 'assemble'

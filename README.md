@@ -1,6 +1,7 @@
 # ManagementPortal
 
-[![Build Status](https://travis-ci.org/RADAR-base/ManagementPortal.svg?branch=master)](https://travis-ci.org/RADAR-base/ManagementPortal)
+[![Latest release](https://img.shields.io/github/v/release/RADAR-base/ManagementPortal)](https://github.com/RADAR-base/ManagementPortal/releases/latest)
+[![Build Status](https://github.com/RADAR-base/ManagementPortal/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/RADAR-base/ManagementPortal/actions/workflows/main.yml?query=branch%3Amaster)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d6945ebd1eba4a3fbb55882cda33655e)](https://www.codacy.com/app/RADAR-base/ManagementPortal?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RADAR-base/ManagementPortal&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/d6945ebd1eba4a3fbb55882cda33655e)](https://www.codacy.com/app/RADAR-base/ManagementPortal?utm_source=github.com&utm_medium=referral&utm_content=RADAR-base/ManagementPortal&utm_campaign=Badge_Coverage)
 
@@ -72,7 +73,7 @@ memory database and ManagementPortal.
 
 
 
-The docker image can be pulled by running `docker pull radarbase/management-portal:0.6.5`.
+The docker image can be pulled by running `docker pull radarbase/management-portal`.
 
 ## Configuration
 
@@ -344,10 +345,7 @@ This project provides a Gradle task to generate an [OpenAPI] specification from 
 ```
 ManagementPortal needs to be running and be accessible at `http://localhost:8080` for this task to work.
 
-The resulting file can be imported into the [Swagger editor], or used with [Swagger codegen] to generate client libraries. A Gradle task for generating a Java client is also provided for convenience:
-```bash
-./gradlew generateJavaClient
-```
+The resulting file can be imported into the [Swagger editor], or used with [Swagger codegen] to generate client libraries.
 
 [JHipster Homepage and latest documentation]: https://jhipster.github.io
 [JHipster 4.3.0 archive]: https://jhipster.github.io/documentation-archive/v4.3.0

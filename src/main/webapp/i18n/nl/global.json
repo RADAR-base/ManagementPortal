@@ -141,6 +141,7 @@
     },
     "error": {
         "internalServerError": "Internal server error",
+        "projectNotEmpty": "Kan project niet verwijderen: het heeft nog gebruikers",
         "internalParameterized": "Internal server error: {{ message }}",
         "server.not.reachable": "Server not reachable",
         "url.not.found": "Not found",

@@ -160,3 +160,5 @@ Desktop.ini
 
 # don't ignore jars in /libs
 !/libs/**/*.jar
+
+/public

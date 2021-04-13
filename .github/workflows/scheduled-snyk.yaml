@@ -1,0 +1,48 @@
+name: Snyk scheduled test
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Run Snyk to check for Kotlin vulnerabilities
+        uses: snyk/actions/gradle-jdk11@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
+          json: true
+          args: --all-sub-projects --policy-path=.snyk
+        if: ${{ !cancelled() }}
+
+      - name: Report new Kotlin vulnerabilities
+        uses: thehyve/report-vulnerability@master
+        with:
+          report-file: snyk.json
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: ${{ failure() }}
+
+      - name: Run Snyk to check for Node vulnerabilities
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
+          args: . --policy-path=.snyk
+          json: true
+        if: ${{ !cancelled() }}
+
+      - name: Report new Node vulnerabilities
+        uses: thehyve/report-vulnerability@master
+        with:
+          report-file: snyk.json
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: ${{ failure() }}

@@ -1,10 +1,9 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'signing'
 }
 
 apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'com.jfrog.artifactory'
 
 ext {
     jacksonVersion = '2.11.4'
@@ -53,141 +52,16 @@ shadowJar {
     }
 }
 
-def sharedManifest = manifest {
-    attributes("Implementation-Title": project.name,
-            "Implementation-Version": version)
-}
-
 jar {
-    manifest.from sharedManifest
     enabled = false
 }
 
-// custom tasks for creating source/javadoc jars
-task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveClassifier.set('sources')
-    from sourceSets.main.allSource
-    manifest.from sharedManifest
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    archiveClassifier.set('javadoc')
+task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {
     from javadoc.destinationDir
-    manifest.from sharedManifest
+    into file("$rootDir/public/radar-auth-javadoc")
 }
 
-// add javadoc/source jar tasks as artifacts
-artifacts {
-    archives sourcesJar, javadocJar
-}
+ext.isShadowed = true
 
-publishing {
-    publications {
-        mavenAuthJar(MavenPublication) {
-            publication -> project.shadow.component(publication)
-            artifact sourcesJar
-            artifact javadocJar
-            pom {
-                name = project.name
-                description = project.description
-                url = githubUrl
-                licenses {
-                    license {
-                        name = 'The Apache Software License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution = 'repo'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'dennyverbeeck'
-                        name = 'Denny Verbeeck'
-                        email = 'dverbeec@its.jnj.com'
-                        organization = 'Janssen R&D'
-                    }
-                    developer {
-                        id = 'blootsvoets'
-                        name = 'Joris Borgdorff'
-                        email = 'joris@thehyve.nl'
-                        organization = 'The Hyve'
-                    }
-                    developer {
-                        id = 'nivemaham'
-                        name = 'Nivethika Mahasivam'
-                        email = 'nivethika@thehyve.nl'
-                        organization = 'The Hyve'
-                    }
-                }
-                issueManagement {
-                    system = 'GitHub'
-                    url = githubUrl + '/issues'
-                }
-                organization {
-                    name = 'RADAR-base'
-                    url = website
-                }
-                scm {
-                    connection = 'scm:git:' + githubUrl
-                    url = githubUrl
-                }
-            }
-            pom.withXml {
-                asNode().dependencies.'*'.findAll() {
-                    it.scope.text() == 'runtime' && it.artifactId.text() == 'java-jwt'
-                }.each { it.scope*.value = 'compile'}
-            }
-        }
-    }
-}
-
-bintray {
-    user project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-    override false
-    publications 'mavenAuthJar'
-    pkg {
-        repo = project.group
-        name = project.name
-        userOrg = 'radar-cns'
-        desc = project.description
-        licenses = ['Apache-2.0']
-        websiteUrl = website
-        issueTrackerUrl = issueUrl
-        vcsUrl = githubUrl
-        githubRepo = githubRepoName
-        githubReleaseNotesFile = 'README.md'
-        version {
-            name = project.version
-            desc = project.description
-            vcsTag = System.getenv('TRAVIS_TAG')
-            released = new Date()
-        }
-    }
-}
-
-
-artifactory {
-    contextUrl = 'https://oss.jfrog.org/artifactory'
-    publish {
-        repository {
-            repoKey = 'oss-snapshot-local'
-            username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-            password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-            maven = true
-        }
-        defaults {
-            publishArtifacts = false
-            publishPom = true
-            properties = ['qa.level': 'basic']
-        }
-    }
-}
-
-artifactoryPublish {
-    publications('mavenAuthJar')
-    dependsOn 'assemble'
-}
-
-bintrayUpload.dependsOn 'assemble'
-
-apply from: '../gradle/style.gradle'
+apply from: "$rootDir/gradle/publishing.gradle"
+apply from: "$rootDir/gradle/style.gradle"

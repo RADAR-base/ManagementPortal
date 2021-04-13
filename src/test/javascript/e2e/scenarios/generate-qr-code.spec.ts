@@ -8,7 +8,7 @@ describe('Project view: Generate QR code', () => {
     const password = element(by.id('password'));
 
     beforeAll(async() => {
-        await browser.get('/');
+        await browser.get('./');
         navBarPage = new NavBarPage(true);
         await browser.waitForAngular();
     });
