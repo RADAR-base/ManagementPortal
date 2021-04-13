@@ -1,0 +1,5 @@
+$dokka.format:javadoc-v1
+$dokka.linkExtension:html
+$dokka.location:org.radarbase.management.client/MPClient.MPServerConfig///PointingToDeclaration/org/radarbase/management/client/MPClient.MPServerConfig.html
+org.radarbase.management.client
+

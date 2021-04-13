@@ -1,8 +1,0 @@
-org.radarcns.auth.authentication
-org.radarcns.auth.authorization
-org.radarcns.auth.config
-org.radarcns.auth.exception
-org.radarcns.auth.security.jwk
-org.radarcns.auth.token
-org.radarcns.auth.token.validation
-org.radarcns.auth.token.validation.deprecated
