@@ -17,13 +17,13 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     manifest.from sharedManifest
 }
 
-if (!ext.hasProperty("projectLanguage") || ext.projectLanguage == "java") {
+if (!project.hasProperty("projectLanguage") || projectLanguage == "java") {
     task javadocJar(type: Jar, dependsOn: javadoc) {
         archiveClassifier.set('javadoc')
         from javadoc.destinationDir
         manifest.from sharedManifest
     }
-} else if (ext.projectLanguage == "kotlin") {
+} else if (projectLanguage == "kotlin") {
     task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
         from("$buildDir/dokka/javadoc")
         archiveClassifier.set("javadoc")
@@ -36,7 +36,7 @@ assemble.dependsOn(javadocJar, sourcesJar)
 publishing {
     publications {
         mavenJar(MavenPublication) { publication ->
-            if (ext.hasProperty("isShadowed") && ext.isShadowed) {
+            if (project.hasProperty("isShadowed") && isShadowed) {
                 project.shadow.component(publication)
             } else {
                 from components.java
@@ -92,17 +92,19 @@ publishing {
         }
     }
 
-    repositories {
-        maven {
-            name = "OSSRH"
-            credentials {
-                username = project.hasProperty("ossrh.user") ? project.property("ossrh.user") : System.getenv("OSSRH_USER")
-                password = project.hasProperty("ossrh.password") ? project.property("ossrh.password") : System.getenv("OSSRH_PASSWORD")
-            }
+    if (!project.hasProperty("publishToMavenCentral") || publishToMavenCentral) {
+        repositories {
+            maven {
+                name = "OSSRH"
+                credentials {
+                    username = project.hasProperty("ossrh.user") ? project.property("ossrh.user") : System.getenv("OSSRH_USER")
+                    password = project.hasProperty("ossrh.password") ? project.property("ossrh.password") : System.getenv("OSSRH_PASSWORD")
+                }
 
-            def releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-            def snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-            url = version.toString().endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
+                def releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+                def snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+                url = version.toString().endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
+            }
         }
     }
 }

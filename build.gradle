@@ -258,4 +258,6 @@ task downloadDependencies {
     configurations.runtimeClasspath.files
 }
 
+ext.publishToMavenCentral = false
+
 apply from: 'gradle/publishing.gradle'

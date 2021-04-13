@@ -43,5 +43,6 @@ task ghPagesJavadoc(type: Copy, dependsOn: dokkaJavadoc) {
 }
 
 ext.projectLanguage = "kotlin"
+ext.publishToMavenCentral = true
 
 apply from: "$rootDir/gradle/publishing.gradle"

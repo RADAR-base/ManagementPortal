@@ -27,5 +27,7 @@ task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {
     into file("$rootDir/public/oauth-client-util-javadoc")
 }
 
+ext.publishToMavenCentral = true
+
 apply from: '../gradle/style.gradle'
 apply from: '../gradle/publishing.gradle'
