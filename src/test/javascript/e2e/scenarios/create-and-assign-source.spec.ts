@@ -9,7 +9,7 @@ describe('Project View: Create, assign, unassign and delete source', () => {
     const sourceName = 'test-source-1';
 
     beforeAll(async() => {
-        await browser.get('/');
+        await browser.get('./');
         navBarPage = new NavBarPage(true);
         await browser.waitForAngular();
     });

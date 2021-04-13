@@ -8,7 +8,7 @@ describe('administration', () => {
     const password = element(by.id('password'));
 
     beforeAll(async() => {
-        await browser.get('/');
+        await browser.get('./');
         navBarPage = new NavBarPage(true);
         await browser.waitForAngular();
     });
