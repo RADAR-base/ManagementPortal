@@ -1,42 +1,12 @@
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
-def sharedManifest = manifest {
-    attributes("Implementation-Title": project.name,
-            "Implementation-Version": version)
-}
-
-jar {
-    manifest.from sharedManifest
-}
-
-// custom tasks for creating source/javadoc jars
-task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveClassifier.set('sources')
-    from sourceSets.main.allSource
-    manifest.from sharedManifest
-}
-
-if (!ext.hasProperty("projectLanguage") || ext.projectLanguage == "java") {
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        archiveClassifier.set('javadoc')
-        from javadoc.destinationDir
-        manifest.from sharedManifest
-    }
-} else if (ext.projectLanguage == "kotlin") {
-    task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
-        from("$buildDir/dokka/javadoc")
-        archiveClassifier.set("javadoc")
-        manifest.from sharedManifest
-    }
-}
-
-assemble.dependsOn(javadocJar, sourcesJar)
+apply from: "$rootDir/gradle/artifacts.gradle"
 
 publishing {
     publications {
         mavenJar(MavenPublication) { publication ->
-            if (ext.hasProperty("isShadowed") && ext.isShadowed) {
+            if (project.hasProperty("isShadowed") && isShadowed) {
                 project.shadow.component(publication)
             } else {
                 from components.java
@@ -89,20 +59,6 @@ publishing {
                 }
             }
 
-        }
-    }
-
-    repositories {
-        maven {
-            name = "OSSRH"
-            credentials {
-                username = project.hasProperty("ossrh.user") ? project.property("ossrh.user") : System.getenv("OSSRH_USER")
-                password = project.hasProperty("ossrh.password") ? project.property("ossrh.password") : System.getenv("OSSRH_PASSWORD")
-            }
-
-            def releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-            def snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-            url = version.toString().endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
         }
     }
 }

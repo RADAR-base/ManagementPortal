@@ -18,11 +18,13 @@ import org.radarbase.management.service.dto.SourceDTO;
 import org.radarbase.management.service.dto.SourceTypeDTO;
 import org.radarbase.management.service.dto.SubjectDTO;
 import org.radarbase.management.service.mapper.SubjectMapper;
+import org.radarbase.management.web.rest.errors.ErrorVM;
 import org.radarbase.management.web.rest.util.HeaderUtil;
 import org.radarbase.management.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -60,6 +62,7 @@ import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
 import static org.radarbase.management.security.SecurityUtils.getJWT;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_PROJECT_NOT_EMPTY;
 
 /**
  * REST controller for managing Project.
@@ -211,15 +214,22 @@ public class ProjectResource {
      */
     @DeleteMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
-    public ResponseEntity<Void> deleteProject(@PathVariable String projectName)
+    public ResponseEntity<?> deleteProject(@PathVariable String projectName)
             throws NotAuthorizedException {
         log.debug("REST request to delete Project : {}", projectName);
         ProjectDTO projectDto = projectService.findOneByName(projectName);
         checkPermissionOnProject(getJWT(servletRequest), PROJECT_DELETE,
                 projectDto.getProjectName());
-        projectService.delete(projectDto.getId());
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(
-                ENTITY_NAME, projectName)).build();
+
+        try {
+            projectService.delete(projectDto.getId());
+            return ResponseEntity.ok()
+                    .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, projectName))
+                    .build();
+        } catch (DataIntegrityViolationException ex) {
+            return ResponseEntity.badRequest()
+                    .body(new ErrorVM(ERR_PROJECT_NOT_EMPTY, ex.getMessage()));
+        }
     }
 
     /**

@@ -10,7 +10,7 @@ describe('Project view: Create a subject, assign sources, discontinue and delete
     const externalId = 'test-id';
 
     beforeAll(async() => {
-        await browser.get('/');
+        await browser.get('./');
         navBarPage = new NavBarPage(true);
         await browser.waitForAngular();
     });

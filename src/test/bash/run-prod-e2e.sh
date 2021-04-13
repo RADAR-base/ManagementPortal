@@ -8,17 +8,28 @@
 # Then we start up a docker stack with a postgres server since production mode is configured for a
 # postgres database instead of in-memory database.
 
+set -e
+
 # only run on the release branch and master branch if it's not a tag build
 echo "Running production e2e tests"
-yarn run webpack:prod
-sed -i "s|new plugin.BaseHrefWebpackPlugin({ baseHref: '/' })|new plugin.BaseHrefWebpackPlugin({ baseHref: '/managementportal/' })|" webpack/webpack.dev.js
-sed -i "s|baseUrl: 'http://localhost:8080/',|baseUrl: 'http://localhost:8080/managementportal/',|" src/test/javascript/protractor.conf.js
+cp src/test/resources/config/keystore.p12 src/main/docker/etc/config
+cp src/test/resources/config/keystore.p12 src/main/resources/config
 sed -i "s|contexts: prod|contexts: dev|" src/main/resources/config/application-prod.yml # set liquibase context to dev so it loads demo data
-./gradlew bootRepackage -Pprod buildDocker -x test
+./gradlew -Pprod buildDocker -x test -x javadocJar
+git checkout src/main/resources/config/application-prod.yml
+
 docker-compose -f src/main/docker/app.yml up -d # spin up production mode application
-yarn run wait-for-managementportal
-./gradlew generateOpenApiSpec
+set +e
+
 # wait for app to be up
-yarn e2e # run e2e tests against production mode
+yarn run wait-for-managementportal-prod
+# run e2e tests against production mode
+if ./gradlew generateOpenApiSpecProd && yarn run e2e-prod; then
+  EXIT_STATUS=0
+else
+  EXIT_STATUS=1
+fi
 docker-compose -f src/main/docker/app.yml logs # show output of app startup
 docker-compose -f src/main/docker/app.yml down -v # clean up containers and volumes
+
+exit $EXIT_STATUS

@@ -144,6 +144,7 @@
         "internalParameterized": "Internal server error: {{ message }}",
         "server.not.reachable": "Server not reachable",
         "url.not.found": "Not found",
+        "projectNotEmpty": "Cannot delete project: it still contains users",
         "NotNull": "Field {{ fieldName }} cannot be empty!",
         "Size": "Field {{ fieldName }} does not meet min/max size requirements!",
         "userexists": "Login name already used!",

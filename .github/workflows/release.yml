@@ -33,10 +33,7 @@ jobs:
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
-            ~/.gradle/caches/jars-3
-            ~/.gradle/caches/modules-2/files-2.1/
-            ~/.gradle/caches/modules-2/metadata-2.96/
-            ~/.gradle/native
+            ~/.gradle/caches
             ~/.gradle/wrapper
           key: ${{ runner.os }}-java-${{ hashFiles('**/build.gradle', '**/gradle.properties', '**/yarn.lock') }}
           restore-keys: |
@@ -61,4 +58,4 @@ jobs:
         env:
           OSSRH_USER: ${{ secrets.OSSRH_USER }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-        run: ./gradlew -Psigning.gnupg.keyName={{ secrets.OSSRH_GPG_SECRET_KEY_ID }} -Psigning.gnupg.executable=gpg -Psigning.gnupg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} publish
+        run: ./gradlew -Psigning.gnupg.keyName=${{ secrets.OSSRH_GPG_SECRET_KEY_ID }} -Psigning.gnupg.executable=gpg -Psigning.gnupg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} publish closeAndReleaseSonatypeStagingRepository

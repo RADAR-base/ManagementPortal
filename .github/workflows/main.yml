@@ -37,10 +37,7 @@ jobs:
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
-            ~/.gradle/caches/jars-3
-            ~/.gradle/caches/modules-2/files-2.1/
-            ~/.gradle/caches/modules-2/metadata-2.96/
-            ~/.gradle/native
+            ~/.gradle/caches
             ~/.gradle/wrapper
           key: ${{ runner.os }}-java-${{ hashFiles('**/build.gradle', '**/gradle.properties', '**/yarn.lock') }}
           restore-keys: |
@@ -76,10 +73,12 @@ jobs:
         run: |
           cp src/test/resources/config/keystore.p12 src/main/resources/config/keystore.p12
           ./gradlew bootRun &>mp.log </dev/null &
+          BOOTRUN_PROCESS=$!
           yarn run install:webdriver
           yarn run wait-for-managementportal
           ./gradlew generateOpenApiSpec
           yarn e2e
+          kill $BOOTRUN_PROCESS
 
       - uses: actions/upload-artifact@v2
         if: steps.e2e.outcome == 'success' || steps.e2e.outcome == 'failure'
@@ -92,3 +91,21 @@ jobs:
         with:
           name: managementportal-logs
           path: mp.log
+
+      - name: Has SNAPSHOT version
+        id: is-snapshot
+        if: github.ref == 'refs/heads/dev'
+        run: grep "version = '.*-SNAPSHOT'" build.gradle
+
+      - name: Install gpg secret key
+        if: steps.is-snapshot.outcome == 'success'
+        run: |
+          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+
+      - name: Publish to Maven Central
+        if: steps.is-snapshot.outcome == 'success'
+        env:
+          OSSRH_USER: ${{ secrets.OSSRH_USER }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+        run: ./gradlew -Psigning.gnupg.keyName=${{ secrets.OSSRH_GPG_SECRET_KEY_ID }} -Psigning.gnupg.executable=gpg -Psigning.gnupg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} publish

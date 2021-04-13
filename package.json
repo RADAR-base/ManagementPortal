@@ -1,6 +1,6 @@
 {
   "name": "management-portal",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Description for ManagementPortal",
   "private": true,
   "cacheDirectories": [
@@ -123,7 +123,9 @@
     "test": "yarn run lint && karma start src/test/javascript/karma.conf.js",
     "test:watch": "karma start --watch",
     "e2e": "yarn run wait-for-managementportal && protractor src/test/javascript/protractor.conf.js",
-    "wait-for-managementportal": "wait-port -t 240000 8080",
+    "e2e-prod": "yarn run wait-for-managementportal-prod && protractor src/test/javascript/protractor-prod.conf.js",
+    "wait-for-managementportal": "wait-port -t 240000 http://localhost:8080/management/health",
+    "wait-for-managementportal-prod": "wait-port -t 240000 http://localhost:8080/managementportal/management/health",
     "install:webdriver": "webdriver-manager update --gecko true --standalone false --chrome false"
   }
 }
