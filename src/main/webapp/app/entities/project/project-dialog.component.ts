@@ -118,7 +118,7 @@ export class ProjectDialogComponent implements OnInit {
 
     addSourceType(event: NgbTypeaheadSelectItemEvent) {
         const sourceType = event.item as SourceType;
-        let currentSourceTypes = this.project.sourceTypes || [];
+        const currentSourceTypes = this.project.sourceTypes || [];
         this.project.sourceTypes = [ ...currentSourceTypes, sourceType ];
         this.sourceTypeInputText = '';
         event.preventDefault();
