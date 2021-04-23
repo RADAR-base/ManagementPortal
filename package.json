@@ -103,7 +103,7 @@
     "yargs": "^13.2.4"
   },
   "engines": {
-    "node": ">=6.9.0"
+    "node": ">=6.9.0,<14.0.0"
   },
   "scripts": {
     "lint": "tslint --project tsconfig.json -e 'node_modules/**'",
