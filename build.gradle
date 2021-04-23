@@ -31,8 +31,10 @@ allprojects {
             downloadSources = true
         }
     }
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
+
+    // To make ManagementPortal work on Java 11, 'org.springframework.boot' needs to be upgraded to 2.1 onward.
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 
     tasks.register("ghPages") {
         dependsOn(provider {
