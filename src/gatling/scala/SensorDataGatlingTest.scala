@@ -42,7 +42,7 @@ class SensorDataGatlingTest extends ManagementPortalSimulation {
             .exec(http("Create new sourceData")
               .post("/api/source-data")
               .headers(headers_http_authenticated)
-              .body(StringBody("""{"id":null, "sourceDataType":"SAMPLE_TEXT", "sourceDataName":"SOURCEDATA-${randstring}", "processingState":null, "keySchema":"SAMPLE_TEXT", "frequency":"SAMPLE_TEXT"}""")).asJSON
+              .body(StringBody("""{"id":null, "sourceDataType":"SAMPLE_TEXT", "sourceDataName":"SOURCEDATA-${randstring}", "processingState":null, "keySchema":"SAMPLE_TEXT", "frequency":"SAMPLE_TEXT"}""")).asJson
               .check(status.is(201))
               .check(headerRegex("Location", "(.*)").saveAs("new_sourceData_url"))).exitHereIfFailed
             .pause(5)

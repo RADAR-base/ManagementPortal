@@ -111,7 +111,7 @@ public class RoleService {
     @Transactional(readOnly = true)
     public RoleDTO findOne(Long id) {
         log.debug("Request to get Role : {}", id);
-        Role role = roleRepository.findOne(id);
+        Role role = roleRepository.findById(id).get();
         return roleMapper.roleToRoleDTO(role);
     }
 
@@ -122,7 +122,7 @@ public class RoleService {
      */
     public void delete(Long id) {
         log.debug("Request to delete Role : {}", id);
-        roleRepository.delete(id);
+        roleRepository.deleteById(id);
     }
 
     /**

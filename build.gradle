@@ -1,11 +1,32 @@
 import org.gradle.internal.os.OperatingSystem
 
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${spring_boot_version}")
+    }
+}
+
 plugins {
-    id 'org.springframework.boot' version '1.5.9.RELEASE'
+    id 'org.springframework.boot' version "${spring_boot_version}"
     id "com.moowork.node" version "1.2.0"
     id "io.spring.dependency-management" version "1.0.7.RELEASE"
     id 'de.undercouch.download' version '4.1.1' apply false
-    id("io.github.gradle-nexus.publish-plugin") version "1.0.0"
+    id "io.github.gradle-nexus.publish-plugin" version "1.0.0"
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'war'
+apply plugin: 'com.moowork.node'
+apply plugin: 'io.spring.dependency-management'
+
+repositories {
+    mavenCentral()
+    jcenter()
 }
 
 allprojects {
@@ -43,11 +64,6 @@ allprojects {
 
 description = 'MangementPortal application to manage studies and participants'
 
-apply plugin: 'org.springframework.boot'
-apply plugin: 'war'
-apply plugin: 'com.moowork.node'
-apply plugin: 'io.spring.dependency-management'
-
 defaultTasks 'bootRun'
 
 configurations {
@@ -55,13 +71,13 @@ configurations {
 }
 
 
-bootRepackage {
-    mainClass = 'org.radarbase.management.ManagementPortalApp'
+bootWar {
+    mainClassName = 'org.radarbase.management.ManagementPortalApp'
+    launchScript()
+//    buildInfo()
 }
 
 springBoot {
-    mainClass = 'org.radarbase.management.ManagementPortalApp'
-    executable = true
     buildInfo()
 }
 
@@ -80,7 +96,7 @@ if (OperatingSystem.current().isWindows()) {
     }
 
     bootRun {
-        addResources = false
+        sourceResources sourceSets.main
         dependsOn pathingJar
         doFirst {
             classpath = files("$buildDir/classes/java/main", "$buildDir/resources/main", pathingJar.archivePath)
@@ -88,7 +104,7 @@ if (OperatingSystem.current().isWindows()) {
     }
 } else {
     bootRun {
-        addResources = false
+        sourceResources sourceSets.main
     }
 }
 
@@ -124,11 +140,6 @@ if (project.hasProperty('graphite')) {
 //ext.moduleDescription = 'Management Portal application'
 ext.findbugAnnotationVersion = '3.0.2'
 
-repositories {
-    mavenCentral()
-    jcenter()
-}
-
 dependencies {
     compile "io.github.jhipster:jhipster:${jhipster_server_version}"
     compile "io.dropwizard.metrics:metrics-core:${dropwizard_metrics_version}"
@@ -160,7 +171,7 @@ dependencies {
     compile group: 'javax.ws.rs', name: 'jsr311-api', version: '1.1.1'
     compile group: 'com.google.code.findbugs', name: 'jsr305', version: findbugAnnotationVersion
     compile "org.hibernate:hibernate-envers:${hibernate_version}"
-    compile "org.hibernate:hibernate-validator"
+    compile "org.hibernate:hibernate-validator:${hibernate_version}"
     compile("org.liquibase:liquibase-core")
     compile "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     compile "org.springframework.boot:spring-boot-actuator"
@@ -173,19 +184,28 @@ dependencies {
         exclude group: 'org.hibernate', module: 'hibernate-entitymanager'
     }
     compile "org.springframework.boot:spring-boot-starter-security"
-    compile "org.springframework.cloud:spring-cloud-starter-zuul:${zuul_proxy_version}"
-    compile("org.springframework.boot:spring-boot-starter-web") {
+    compile("org.springframework.cloud:spring-cloud-starter-netflix-zuul:${spring_cloud_version}")
+//    {
+//        exclude module: "spring-cloud-starter-netflix-ribbon"
+//        exclude module: "spring-cloud-starter-netflix-hystrix"
+//    }
+//    compile "org.springframework.cloud:spring-cloud-starter-netflix-hystrix:2.2.8.RELEASE"
+//    compile "org.springframework.cloud:spring-cloud-starter-netflix-ribbon:2.2.8.RELEASE"
+    compile "org.springframework.cloud:spring-cloud-context:${spring_cloud_version}"
+    compile "org.springframework.cloud:spring-cloud-commons:${spring_cloud_version}"
+    compile("org.springframework.boot:spring-boot-starter-web:${spring_boot_version}") {
         exclude module: 'spring-boot-starter-tomcat'
     }
     compile "org.springframework.boot:spring-boot-starter-undertow"
     compile "org.springframework.boot:spring-boot-starter-thymeleaf"
     compile("org.springframework:spring-context-support")
+    compile("org.springframework:spring-jdbc")
     compile "org.springframework.security:spring-security-config"
     compile "org.springframework.security:spring-security-data"
     compile ("org.springframework.security:spring-security-web"){
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
     }
-    compile "org.springframework.security:spring-security-jwt"
+    compile "org.springframework.security:spring-security-jwt:${spring_security_jwt_versions}"
     compile "org.springframework.security.oauth:spring-security-oauth2:${spring_security_oauth2_version}"
     compile("io.springfox:springfox-swagger2:${springfox_version}") {
         exclude module: 'mapstruct'
@@ -227,7 +247,7 @@ wrapper {
     gradleVersion '6.7.1'
 }
 
-task stage(dependsOn: 'bootRepackage') {
+task stage(dependsOn: 'bootWar') {
 }
 
 task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {

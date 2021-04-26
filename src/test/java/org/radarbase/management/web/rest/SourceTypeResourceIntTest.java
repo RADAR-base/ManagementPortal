@@ -262,7 +262,7 @@ public class SourceTypeResourceIntTest {
         // Get all the sourceTypeList
         restSourceTypeMockMvc.perform(get("/api/source-types"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(sourceType.getId().intValue())))
                 .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER)))
                 .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL)))
@@ -281,7 +281,7 @@ public class SourceTypeResourceIntTest {
         // Get all the sourceTypeList
         restSourceTypeMockMvc.perform(get("/api/source-types?page=0&size=5&sort=id,desc"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(sourceType.getId().intValue())))
                 .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER)))
                 .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL)))
@@ -301,7 +301,7 @@ public class SourceTypeResourceIntTest {
         restSourceTypeMockMvc.perform(get("/api/source-types/{prodcuer}/{model}/{version}",
                 sourceType.getProducer(), sourceType.getModel(), sourceType.getCatalogVersion()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(sourceType.getId().intValue()))
                 .andExpect(jsonPath("$.producer").value(DEFAULT_PRODUCER))
                 .andExpect(jsonPath("$.model").value(DEFAULT_MODEL))
@@ -326,7 +326,7 @@ public class SourceTypeResourceIntTest {
         int databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size();
 
         // Update the sourceType
-        SourceType updatedSourceType = sourceTypeRepository.findOne(sourceType.getId());
+        SourceType updatedSourceType = sourceTypeRepository.findById(sourceType.getId()).get();
         updatedSourceType
                 .producer(UPDATED_PRODUCER)
                 .model(UPDATED_MODEL)

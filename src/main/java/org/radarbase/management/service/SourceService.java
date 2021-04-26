@@ -114,7 +114,7 @@ public class SourceService {
     @Transactional(readOnly = true)
     public Optional<SourceDTO> findOneById(Long id) {
         log.debug("Request to get Source by id: {}", id);
-        return Optional.ofNullable(sourceRepository.findOne(id))
+        return Optional.ofNullable(sourceRepository.findById(id).orElse(null))
                 .map(sourceMapper::sourceToSourceDTO);
     }
 
@@ -130,7 +130,7 @@ public class SourceService {
         List<Source> sources = sourceHistory.getContent().stream().map(Revision::getEntity)
                 .filter(Source::isAssigned).collect(Collectors.toList());
         if (sources.isEmpty()) {
-            sourceRepository.delete(id);
+            sourceRepository.deleteById(id);
         } else {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("message", "Cannot delete source with sourceId ");
@@ -212,7 +212,7 @@ public class SourceService {
      */
     @Transactional
     public SourceDTO updateSource(SourceDTO sourceDto) {
-        Source existingSource = sourceRepository.findOne(sourceDto.getId());
+        Source existingSource = sourceRepository.findById(sourceDto.getId()).get();
         // if the source is being transferred to another project.
         if (!existingSource.getProject().getId().equals(sourceDto.getProject().getId())) {
             if (existingSource.isAssigned()) {

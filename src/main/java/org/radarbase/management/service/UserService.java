@@ -247,8 +247,7 @@ public class UserService {
      * @return updated user
      */
     public Optional<UserDTO> updateUser(UserDTO userDto) {
-        return Optional.of(userRepository
-                .findOne(userDto.getId()))
+        return userRepository.findById(userDto.getId())
                 .map(user -> {
                     user.setLogin(userDto.getLogin());
                     user.setFirstName(userDto.getFirstName());

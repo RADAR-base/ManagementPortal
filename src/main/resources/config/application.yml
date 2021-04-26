@@ -48,6 +48,11 @@ management:
             enabled: false # When using the MailService, configure an SMTP server and set this to true
         db:
             enabled: true
+    management:
+        endpoint:
+            metrics:
+                enabled: false
+
 spring:
     application:
         name: ManagementPortal

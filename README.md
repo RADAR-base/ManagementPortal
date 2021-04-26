@@ -270,7 +270,7 @@ will generate few files:
 
 To optimize the ManagementPortal application for production, run:
 
-    ./gradlew -Pprod clean bootRepackage
+    ./gradlew -Pprod clean bootWar
 ### Hosting in production
 The latest Meta-QR code implementation requires REST resources on `api/meta-token/*` should definitely be rate-limited by upstream servers.
 
@@ -319,7 +319,7 @@ To stop it and remove the container, run:
 You can also fully dockerize your application and all the services that it depends on.
 To achieve this, first build a docker image of your app by running:
 
-    ./gradlew bootRepackage -Pprod buildDocker
+    ./gradlew bootWar -Pprod buildDocker
 
 Then run:
 

@@ -153,7 +153,7 @@ public class MetaTokenServiceTest {
                 .tokenName("somethingelseandelse")
                 .expiryDate(Instant.now().plus(Duration.ofHours(1)));
 
-        metaTokenRepository.save(Arrays.asList(tokenFetched, tokenExpired, tokenNew));
+        metaTokenRepository.saveAll(Arrays.asList(tokenFetched, tokenExpired, tokenNew));
 
         metaTokenService.removeStaleTokens();
 

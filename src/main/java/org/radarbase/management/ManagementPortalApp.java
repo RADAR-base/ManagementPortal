@@ -12,8 +12,6 @@ import org.radarbase.management.config.ManagementPortalProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.actuate.autoconfigure.MetricFilterAutoConfiguration;
-import org.springframework.boot.actuate.autoconfigure.MetricRepositoryAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -31,8 +29,7 @@ import org.springframework.core.env.Environment;
         "org.radarbase.management.web"
 })
 @EnableZuulProxy
-@EnableAutoConfiguration(exclude = {MetricFilterAutoConfiguration.class,
-        MetricRepositoryAutoConfiguration.class})
+@EnableAutoConfiguration
 @EnableConfigurationProperties({LiquibaseProperties.class, ApplicationProperties.class,
         ManagementPortalProperties.class})
 public class ManagementPortalApp {

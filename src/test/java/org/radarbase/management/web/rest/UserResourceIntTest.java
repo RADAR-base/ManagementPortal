@@ -261,7 +261,7 @@ public class UserResourceIntTest {
         restUserMockMvc.perform(get("/api/users?sort=id,desc")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].login").value(hasItem(DEFAULT_LOGIN)))
                 .andExpect(jsonPath("$.[*].firstName").value(hasItem(DEFAULT_FIRSTNAME)))
                 .andExpect(jsonPath("$.[*].lastName").value(hasItem(DEFAULT_LASTNAME)))
@@ -278,7 +278,7 @@ public class UserResourceIntTest {
         // Get the user
         restUserMockMvc.perform(get("/api/users/{login}", user.getLogin()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.login").value(user.getLogin()))
                 .andExpect(jsonPath("$.firstName").value(DEFAULT_FIRSTNAME))
                 .andExpect(jsonPath("$.lastName").value(DEFAULT_LASTNAME))
@@ -301,7 +301,7 @@ public class UserResourceIntTest {
         final int databaseSizeBeforeUpdate = userRepository.findAll().size();
 
         // Update the user
-        User updatedUser = userRepository.findOne(user.getId());
+        User updatedUser = userRepository.findById(user.getId()).get();
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
@@ -342,7 +342,7 @@ public class UserResourceIntTest {
         final int databaseSizeBeforeUpdate = userRepository.findAll().size();
 
         // Update the user
-        User updatedUser = userRepository.findOne(user.getId());
+        User updatedUser = userRepository.findById(user.getId()).get();
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
@@ -393,7 +393,7 @@ public class UserResourceIntTest {
         userRepository.saveAndFlush(anotherUser);
 
         // Update the user
-        User updatedUser = userRepository.findOne(user.getId());
+        User updatedUser = userRepository.findById(user.getId()).get();
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
         role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
@@ -433,7 +433,7 @@ public class UserResourceIntTest {
         userRepository.saveAndFlush(anotherUser);
 
         // Update the user
-        User updatedUser = userRepository.findOne(user.getId());
+        User updatedUser = userRepository.findById(user.getId()).get();
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();

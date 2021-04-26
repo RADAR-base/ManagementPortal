@@ -35,7 +35,7 @@ class SourceGatlingTest extends ManagementPortalSimulation {
       .exec(http("Create new sourceType")
         .post("/api/source-types")
         .headers(headers_http_authenticated)
-        .body(StringBody("""{"id":null, "producer":"GATLING", "model":"MODEL-${randstring}", "catalogVersion":"v1", "sourceTypeScope": "ACTIVE"}""")).asJSON
+        .body(StringBody("""{"id":null, "producer":"GATLING", "model":"MODEL-${randstring}", "catalogVersion":"v1", "sourceTypeScope": "ACTIVE"}""")).asJson
         .check(status.is(201))
         .check(headerRegex("Location", "(.*)").saveAs("new_sourceType_url"))
         .check(jsonPath("$.id").saveAs("sourceTypeId"))).exitHereIfFailed
@@ -50,7 +50,7 @@ class SourceGatlingTest extends ManagementPortalSimulation {
             .exec(http("Create new source")
               .post("/api/sources")
               .headers(headers_http_authenticated)
-              .body(StringBody("""{"id":null, "sourceName":"SOURCE-${randstring}", "assigned":false, "sourceType":{"id":"${sourceTypeId}"}}""")).asJSON
+              .body(StringBody("""{"id":null, "sourceName":"SOURCE-${randstring}", "assigned":false, "sourceType":{"id":"${sourceTypeId}"}}""")).asJson
               .check(status.is(201))
               .check(headerRegex("Location", "(.*)").saveAs("new_source_url"))).exitHereIfFailed
             .pause(5)

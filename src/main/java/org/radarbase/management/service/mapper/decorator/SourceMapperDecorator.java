@@ -40,7 +40,7 @@ public abstract class SourceMapperDecorator implements SourceMapper {
     public Source sourceDTOToSource(SourceDTO sourceDto) {
         Source source = delegate.sourceDTOToSource(sourceDto);
         if (sourceDto.getId() != null) {
-            Source existingSource = sourceRepository.findOne(sourceDto.getId());
+            Source existingSource = sourceRepository.findById(sourceDto.getId()).get();
             if (sourceDto.getSubjectLogin() == null) {
                 source.setSubject(existingSource.getSubject());
             } else {

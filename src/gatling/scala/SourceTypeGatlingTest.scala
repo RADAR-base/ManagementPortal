@@ -41,7 +41,7 @@ class SourceTypeGatlingTest extends ManagementPortalSimulation {
             .exec(http("Create new sourceType")
               .post("/api/source-types")
               .headers(headers_http_authenticated)
-              .body(StringBody("""{"id":null, "producer":"GATLING", "model":"MODEL-${randstring}", "catalogVersion":"v1", "sourceTypeScope": "ACTIVE"}""")).asJSON
+              .body(StringBody("""{"id":null, "producer":"GATLING", "model":"MODEL-${randstring}", "catalogVersion":"v1", "sourceTypeScope": "ACTIVE"}""")).asJson
               .check(status.is(201))
               .check(headerRegex("Location", "(.*)").saveAs("new_sourceType_url"))).exitHereIfFailed
             .pause(5)

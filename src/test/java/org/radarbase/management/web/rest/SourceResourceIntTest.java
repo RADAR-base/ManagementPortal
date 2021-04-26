@@ -140,7 +140,7 @@ public class SourceResourceIntTest {
         List<SourceTypeDTO> sourceTypeDtos = sourceTypeService.findAll();
         assertThat(sourceTypeDtos.size()).isGreaterThan(0);
         source.setSourceType(sourceTypeMapper.sourceTypeDTOToSourceType(sourceTypeDtos.get(0)));
-        project = projectRepository.findOne(1L);
+        project = projectRepository.findById(1L).get();
         source.project(project);
     }
 
@@ -242,7 +242,7 @@ public class SourceResourceIntTest {
         // Get all the deviceList
         restDeviceMockMvc.perform(get("/api/sources?sort=id,desc"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(source.getId().intValue())))
                 .andExpect(jsonPath("$.[*].sourceId").value(everyItem(notNullValue())))
                 .andExpect(jsonPath("$.[*].assigned").value(
@@ -258,7 +258,7 @@ public class SourceResourceIntTest {
         // Get the source
         restDeviceMockMvc.perform(get("/api/sources/{sourceName}", source.getSourceName()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(source.getId().intValue()))
                 .andExpect(jsonPath("$.sourceId").value(notNullValue()))
                 .andExpect(jsonPath("$.assigned").value(DEFAULT_ASSIGNED.booleanValue()));
@@ -280,7 +280,7 @@ public class SourceResourceIntTest {
         int databaseSizeBeforeUpdate = sourceRepository.findAll().size();
 
         // Update the source
-        Source updatedSource = sourceRepository.findOne(source.getId());
+        Source updatedSource = sourceRepository.findById(source.getId()).get();
         updatedSource
                 .sourceId(UPDATED_SOURCE_PHYSICAL_ID)
                 .assigned(UPDATED_ASSIGNED);

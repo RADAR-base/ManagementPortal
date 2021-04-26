@@ -182,7 +182,7 @@ public class SubjectResourceIntTest {
         // Get all the subjectList
         restSubjectMockMvc.perform(get("/api/subjects?sort=id,desc"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(subjectDto.getId().intValue())))
                 .andExpect(jsonPath("$.[*].externalLink").value(hasItem(DEFAULT_EXTERNAL_LINK)))
                 .andExpect(jsonPath("$.[*].externalId").value(hasItem(DEFAULT_ENTERNAL_ID)))
@@ -198,7 +198,7 @@ public class SubjectResourceIntTest {
         // Get the subject
         restSubjectMockMvc.perform(get("/api/subjects/{login}", subjectDto.getLogin()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(subjectDto.getId().intValue()))
                 .andExpect(jsonPath("$.externalLink").value(DEFAULT_EXTERNAL_LINK))
                 .andExpect(jsonPath("$.externalId").value(DEFAULT_ENTERNAL_ID))
@@ -221,7 +221,7 @@ public class SubjectResourceIntTest {
         final int databaseSizeBeforeUpdate = subjectRepository.findAll().size();
 
         // Update the subject
-        Subject updatedSubject = subjectRepository.findOne(subjectDto.getId());
+        Subject updatedSubject = subjectRepository.findById(subjectDto.getId()).get();
         updatedSubject
                 .externalLink(UPDATED_EXTERNAL_LINK)
                 .externalId(UPDATED_ENTERNAL_ID)
@@ -250,7 +250,7 @@ public class SubjectResourceIntTest {
         final int databaseSizeBeforeUpdate = subjectRepository.findAll().size();
 
         // Update the subject
-        Subject updatedSubject = subjectRepository.findOne(subjectDto.getId());
+        Subject updatedSubject = subjectRepository.findById(subjectDto.getId()).get();
 
 
         updatedSubject
@@ -400,7 +400,7 @@ public class SubjectResourceIntTest {
         restSubjectMockMvc
                 .perform(get("/api/subjects/{login}/sources?sort=id,desc", subjectDto.getLogin()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").isNotEmpty());
 
     }
@@ -457,7 +457,7 @@ public class SubjectResourceIntTest {
         // Get the subject
         restSubjectMockMvc.perform(get("/api/subjects/{login}/sources", createdSubject.getLogin()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[0].id").value(createdSource.getId().intValue()))
                 .andExpect(
                         jsonPath("$.[0].sourceId").value(createdSource.getSourceId().toString()));
@@ -486,7 +486,7 @@ public class SubjectResourceIntTest {
         restSubjectMockMvc.perform(get("/api/subjects/{login}/sources?withInactiveSources=true",
                 createdSubject.getLogin()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(createdSource.getId().intValue()))
                 .andExpect(
                         jsonPath("$.[*].sourceId").value(createdSource.getSourceId().toString()));
@@ -520,7 +520,7 @@ public class SubjectResourceIntTest {
         restSubjectMockMvc.perform(get("/api/subjects/{login}/sources?withInactiveSources=true",
                 updatedSubject.getLogin()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(createdSource.getId().intValue()))
                 .andExpect(
                         jsonPath("$.[*].sourceId").value(createdSource.getSourceId().toString()));
@@ -530,7 +530,7 @@ public class SubjectResourceIntTest {
                 .perform(get("/api/subjects/{login}/sources?withInactiveSources=false",
                         updatedSubject.getLogin()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
     }
 

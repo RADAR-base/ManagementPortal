@@ -47,7 +47,7 @@ class SubjectGatlingTest extends ManagementPortalSimulation {
             .exec(http("Create new subject")
               .post("/api/subjects")
               .headers(headers_http_authenticated)
-              .body(StringBody("""{"id":null, "externalLink":"SAMPLE_TEXT", "enternalId":"${randstring}", "project": {"id": "${project_id}"}}""")).asJSON
+              .body(StringBody("""{"id":null, "externalLink":"SAMPLE_TEXT", "enternalId":"${randstring}", "project": {"id": "${project_id}"}}""")).asJson
               .check(status.is(201))
               .check(headerRegex("Location", "(.*)").saveAs("new_subject_url"))).exitHereIfFailed
             .pause(5)

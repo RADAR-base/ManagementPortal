@@ -42,7 +42,7 @@ public class LogsResourceIntTest {
     public void getAllLogs()throws Exception {
         restLogsMockMvc.perform(get("/management/logs"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
     @Test

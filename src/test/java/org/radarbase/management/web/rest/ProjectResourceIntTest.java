@@ -258,7 +258,7 @@ public class ProjectResourceIntTest {
         // Get all the projectList
         restProjectMockMvc.perform(get("/api/projects?sort=id,desc"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(project.getId().intValue())))
                 .andExpect(jsonPath("$.[*].projectName").value(hasItem(DEFAULT_PROJECT_NAME)))
                 .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
@@ -280,7 +280,7 @@ public class ProjectResourceIntTest {
         // Get the project
         restProjectMockMvc.perform(get("/api/projects/{projectName}", project.getProjectName()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(project.getId().intValue()))
                 .andExpect(jsonPath("$.projectName").value(DEFAULT_PROJECT_NAME))
                 .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
@@ -307,7 +307,7 @@ public class ProjectResourceIntTest {
         int databaseSizeBeforeUpdate = projectRepository.findAll().size();
 
         // Update the project
-        Project updatedProject = projectRepository.findOne(project.getId());
+        Project updatedProject = projectRepository.findById(project.getId()).get();
         updatedProject
                 .projectName(UPDATED_PROJECT_NAME)
                 .description(UPDATED_DESCRIPTION)

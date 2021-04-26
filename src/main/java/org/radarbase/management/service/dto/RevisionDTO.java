@@ -24,8 +24,8 @@ public class RevisionDTO {
      * @param entity the entity
      */
     public RevisionDTO(Revision revision, RevisionType revisionType, Object entity) {
-        id = revision.getRevisionNumber().intValue();
-        timestamp = Instant.ofEpochMilli(revision.getRevisionDate().getMillis());
+        id = (int) revision.getRevisionNumber().get(); // Make sure no NPE is thrown.
+        timestamp = (Instant) revision.getRevisionInstant().get(); // Make sure no NPE is thrown.
         author = ((CustomRevisionEntity) revision.getMetadata().getDelegate()).getAuditor();
         this.entity = entity;
         this.revisionType = revisionType;

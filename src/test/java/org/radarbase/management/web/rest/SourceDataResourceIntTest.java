@@ -220,7 +220,7 @@ public class SourceDataResourceIntTest {
         // Get all the sourceDataList
         restSourceDataMockMvc.perform(get("/api/source-data?sort=id,desc"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(sourceData.getId().intValue())))
                 .andExpect(jsonPath("$.[*].sourceDataType").value(
                         hasItem(DEFAULT_SOURCE_DATA_TYPE)))
@@ -244,7 +244,7 @@ public class SourceDataResourceIntTest {
         // Get all the sourceDataList
         restSourceDataMockMvc.perform(get("/api/source-data?page=0&size=5&sort=id,desc"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(sourceData.getId().intValue())))
                 .andExpect(jsonPath("$.[*].sourceDataType").value(
                         hasItem(DEFAULT_SOURCE_DATA_TYPE)))
@@ -269,7 +269,7 @@ public class SourceDataResourceIntTest {
         restSourceDataMockMvc.perform(get("/api/source-data/{sourceDataName}",
                 sourceData.getSourceDataName()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(sourceData.getId().intValue()))
                 .andExpect(jsonPath("$.sourceDataType").value(DEFAULT_SOURCE_DATA_TYPE))
                 .andExpect(jsonPath("$.sourceDataName").value(DEFAULT_SOURCE_DATA_NAME))
@@ -298,7 +298,7 @@ public class SourceDataResourceIntTest {
         int databaseSizeBeforeUpdate = sourceDataRepository.findAll().size();
 
         // Update the sourceData
-        SourceData updatedSourceData = sourceDataRepository.findOne(sourceData.getId());
+        SourceData updatedSourceData = sourceDataRepository.findById(sourceData.getId()).get();
         updatedSourceData
                 .sourceDataType(UPDATED_SOURCE_DATA_TYPE)
                 .sourceDataName(UPDATED_SOURCE_DATA_NAME)

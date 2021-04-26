@@ -83,7 +83,7 @@ public class SourceDataService {
     @Transactional(readOnly = true)
     public SourceDataDTO findOne(Long id) {
         log.debug("Request to get SourceData : {}", id);
-        SourceData sourceData = sourceDataRepository.findOne(id);
+        SourceData sourceData = sourceDataRepository.findById(id).get();
         return sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
     }
 
@@ -108,6 +108,6 @@ public class SourceDataService {
     @Transactional
     public void delete(Long id) {
         log.debug("Request to delete SourceData : {}", id);
-        sourceDataRepository.delete(id);
+        sourceDataRepository.deleteById(id);
     }
 }
