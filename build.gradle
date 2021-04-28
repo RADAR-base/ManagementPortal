@@ -78,6 +78,7 @@ bootWar {
 }
 
 springBoot {
+    mainClassName = 'org.radarbase.management.ManagementPortalApp'
     buildInfo()
 }
 
@@ -141,97 +142,92 @@ if (project.hasProperty('graphite')) {
 ext.findbugAnnotationVersion = '3.0.2'
 
 dependencies {
-    compile "io.github.jhipster:jhipster:${jhipster_server_version}"
-    compile "io.dropwizard.metrics:metrics-core:${dropwizard_metrics_version}"
-    compile "io.dropwizard.metrics:metrics-jcache:${dropwizard_metrics_version}"
-    compile "io.dropwizard.metrics:metrics-jvm:${dropwizard_metrics_version}"
-    compile "io.dropwizard.metrics:metrics-servlet:${dropwizard_metrics_version}"
-    compile "io.dropwizard.metrics:metrics-json:${dropwizard_metrics_version}"
-    compile "io.dropwizard.metrics:metrics-servlets:${dropwizard_metrics_version}"
-    compile("net.logstash.logback:logstash-logback-encoder:${logstash_logback_encoder_version}") {
+
+    implementation "io.github.jhipster:jhipster:${jhipster_server_version}"
+    implementation "io.dropwizard.metrics:metrics-core:${dropwizard_metrics_version}"
+    implementation "io.dropwizard.metrics:metrics-jcache:${dropwizard_metrics_version}"
+    implementation "io.dropwizard.metrics:metrics-jvm:${dropwizard_metrics_version}"
+    implementation "io.dropwizard.metrics:metrics-servlet:${dropwizard_metrics_version}"
+    implementation "io.dropwizard.metrics:metrics-json:${dropwizard_metrics_version}"
+    implementation "io.dropwizard.metrics:metrics-servlets:${dropwizard_metrics_version}"
+    implementation("net.logstash.logback:logstash-logback-encoder:${logstash_logback_encoder_version}") {
         exclude(group: 'ch.qos.logback')
     }
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-json-org:${jackson_dataformat_version}"
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-hppc:${jackson_dataformat_version}"
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_dataformat_version}"
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${jackson_dataformat_version}"
-    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:${jackson_dataformat_version}"
-    compile "com.fasterxml.jackson.core:jackson-annotations:${jackson_dataformat_version}"
-    compile "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
-    compile("com.ryantenney.metrics:metrics-spring:${metrics_spring_version}")
-    compile "com.hazelcast:hazelcast"
-    compile "com.hazelcast:hazelcast-hibernate52:${hazelcast_hibernate52_version}"
-    compile "com.hazelcast:hazelcast-spring"
-    compile "javax.cache:cache-api"
-    compile "org.hibernate:hibernate-core:${hibernate_version}"
-    compile("com.zaxxer:HikariCP:${hikaricp_version}")
-    compile "org.apache.commons:commons-lang3:${commons_lang_version}"
-    compile "commons-io:commons-io:${commons_io_version}"
-    compile "javax.transaction:javax.transaction-api"
-    compile group: 'javax.ws.rs', name: 'jsr311-api', version: '1.1.1'
-    compile group: 'com.google.code.findbugs', name: 'jsr305', version: findbugAnnotationVersion
-    compile "org.hibernate:hibernate-envers:${hibernate_version}"
-    compile "org.hibernate:hibernate-validator:${hibernate_version}"
-    compile("org.liquibase:liquibase-core")
-    compile "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
-    compile "org.springframework.boot:spring-boot-actuator"
-    compile "org.springframework.boot:spring-boot-autoconfigure"
-    compile "org.springframework.boot:spring-boot-loader-tools"
-    compile "org.springframework.boot:spring-boot-starter-mail"
-    compile "org.springframework.boot:spring-boot-starter-logging"
-    compile "org.springframework.boot:spring-boot-starter-aop"
-    compile ("org.springframework.boot:spring-boot-starter-data-jpa") {
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-json-org:${jackson_dataformat_version}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-hppc:${jackson_dataformat_version}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_dataformat_version}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${jackson_dataformat_version}"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:${jackson_dataformat_version}"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:${jackson_dataformat_version}"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
+    implementation("com.ryantenney.metrics:metrics-spring:${metrics_spring_version}")
+    implementation "com.hazelcast:hazelcast"
+    implementation "com.hazelcast:hazelcast-hibernate52:${hazelcast_hibernate52_version}"
+    implementation "com.hazelcast:hazelcast-spring"
+    implementation "javax.cache:cache-api"
+    implementation "org.hibernate:hibernate-core:${hibernate_version}"
+    implementation("com.zaxxer:HikariCP:${hikaricp_version}")
+    implementation "org.apache.commons:commons-lang3:${commons_lang_version}"
+    implementation "commons-io:commons-io:${commons_io_version}"
+    implementation "javax.transaction:javax.transaction-api"
+    implementation group: 'javax.ws.rs', name: 'jsr311-api', version: '1.1.1'
+    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: findbugAnnotationVersion
+    implementation "org.hibernate:hibernate-envers:${hibernate_version}"
+    implementation "org.hibernate:hibernate-validator:6.2.0.Final"
+    implementation("org.liquibase:liquibase-core")
+    implementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
+    implementation "org.springframework.boot:spring-boot-actuator"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    implementation "org.springframework.boot:spring-boot-loader-tools"
+    implementation "org.springframework.boot:spring-boot-starter-mail"
+    implementation "org.springframework.boot:spring-boot-starter-logging"
+    implementation "org.springframework.boot:spring-boot-starter-aop"
+    implementation ("org.springframework.boot:spring-boot-starter-data-jpa") {
         exclude group: 'org.hibernate', module: 'hibernate-entitymanager'
     }
-    compile "org.springframework.boot:spring-boot-starter-security"
-    compile("org.springframework.cloud:spring-cloud-starter-netflix-zuul:${spring_cloud_version}")
-//    {
-//        exclude module: "spring-cloud-starter-netflix-ribbon"
-//        exclude module: "spring-cloud-starter-netflix-hystrix"
-//    }
-//    compile "org.springframework.cloud:spring-cloud-starter-netflix-hystrix:2.2.8.RELEASE"
-//    compile "org.springframework.cloud:spring-cloud-starter-netflix-ribbon:2.2.8.RELEASE"
-    compile "org.springframework.cloud:spring-cloud-context:${spring_cloud_version}"
-    compile "org.springframework.cloud:spring-cloud-commons:${spring_cloud_version}"
-    compile("org.springframework.boot:spring-boot-starter-web:${spring_boot_version}") {
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-zuul:${zuul_proxy_version}")
+    implementation "org.springframework.cloud:spring-cloud-context"
+    implementation "org.springframework.cloud:spring-cloud-commons"
+    implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude module: 'spring-boot-starter-tomcat'
     }
-    compile "org.springframework.boot:spring-boot-starter-undertow"
-    compile "org.springframework.boot:spring-boot-starter-thymeleaf"
-    compile("org.springframework:spring-context-support")
-    compile("org.springframework:spring-jdbc")
-    compile "org.springframework.security:spring-security-config"
-    compile "org.springframework.security:spring-security-data"
-    compile ("org.springframework.security:spring-security-web"){
+    implementation "org.springframework.boot:spring-boot-starter-undertow"
+    implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
+    implementation("org.springframework:spring-context-support")
+    implementation("org.springframework:spring-jdbc")
+    implementation "org.springframework.security:spring-security-config"
+    implementation "org.springframework.security:spring-security-data"
+    implementation ("org.springframework.security:spring-security-web"){
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
     }
-    compile "org.springframework.security:spring-security-jwt:${spring_security_jwt_versions}"
-    compile "org.springframework.security.oauth:spring-security-oauth2:${spring_security_oauth2_version}"
-    compile("io.springfox:springfox-swagger2:${springfox_version}") {
+    implementation "org.springframework.security:spring-security-jwt:${spring_security_jwt_versions}"
+    implementation "org.springframework.security.oauth:spring-security-oauth2:${spring_security_oauth2_version}"
+    implementation("io.springfox:springfox-swagger2:${springfox_version}") {
         exclude module: 'mapstruct'
     }
-    compile "io.springfox:springfox-bean-validators:${springfox_version}"
-    compile "org.postgresql:postgresql:${postgresql_version}"
-    compile "com.h2database:h2"
-    compile project(path: ':radar-auth', configuration: 'shadow')
-    compile "org.springframework.data:spring-data-envers:${spring_data_envers_version}"
+    implementation "io.springfox:springfox-bean-validators:${springfox_version}"
+    implementation "org.postgresql:postgresql:${postgresql_version}"
+    implementation "com.h2database:h2"
+    implementation project(path: ':radar-auth', configuration: 'shadow')
+    implementation "org.springframework.data:spring-data-envers:${spring_data_envers_version}"
     runtimeOnly("jakarta.xml.bind:jakarta.xml.bind-api:$javaxXmlBindVersion")
     runtimeOnly("org.glassfish.jaxb:jaxb-core:$javaxJaxbCoreVersion")
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime:$javaxJaxbRuntimeVersion")
     runtimeOnly("javax.activation:activation:$javaxActivation")
 
-    testCompile "org.awaitility:awaitility:${awaitility_version}"
-    testCompile "com.jayway.jsonpath:json-path"
-    testCompile ("org.springframework.boot:spring-boot-starter-test") {
+    testImplementation "org.awaitility:awaitility:${awaitility_version}"
+    testImplementation "com.jayway.jsonpath:json-path"
+    testImplementation ("org.springframework.boot:spring-boot-starter-test") {
         exclude group: "com.vaadin.external.google", module:"android-json"
     }
-    testCompile "org.springframework.security:spring-security-test"
-    testCompile "org.springframework.boot:spring-boot-test"
-    testCompile "org.assertj:assertj-core:${assertj_version}"
-    testCompile "junit:junit"
-    testCompile "org.mockito:mockito-core"
-    testCompile "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
-    testCompile "org.hamcrest:hamcrest-library"
+    testImplementation "org.springframework.security:spring-security-test"
+    testImplementation "org.springframework.boot:spring-boot-test"
+    testImplementation "org.assertj:assertj-core:${assertj_version}"
+    testImplementation "junit:junit"
+    testImplementation "org.mockito:mockito-core"
+    testImplementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
+    testImplementation "org.hamcrest:hamcrest-library"
     annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
 }
 

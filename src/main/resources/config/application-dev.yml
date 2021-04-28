@@ -65,9 +65,8 @@ spring:
         cache-seconds: 1
     thymeleaf:
         cache: false
-
-liquibase:
-    contexts: dev
+    liquibase:
+        contexts: dev
 
 # ===================================================================
 # To enable SSL, generate a certificate using:

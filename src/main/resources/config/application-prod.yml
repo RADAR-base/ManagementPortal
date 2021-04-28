@@ -60,9 +60,8 @@ spring:
         debug: true
     thymeleaf:
         cache: true
-
-liquibase:
-    contexts: prod
+    liquibase:
+        contexts: prod
 
 # ===================================================================
 # To enable SSL, generate a certificate using:
