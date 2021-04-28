@@ -14,7 +14,7 @@ set -e
 echo "Running production e2e tests"
 cp src/test/resources/config/keystore.p12 src/main/docker/etc/config
 cp src/test/resources/config/keystore.p12 src/main/resources/config
-sed -i "s|contexts: prod|contexts: dev|" src/main/resources/config/application-prod.yml # set liquibase context to dev so it loads demo data
+sed -i .bak "s|contexts: prod|contexts: dev|" src/main/resources/config/application-prod.yml # set liquibase context to dev so it loads demo data and back the original at src/main/resources/config/application-prod.yml.bak
 ./gradlew -Pprod buildDocker -x test -x javadocJar
 git checkout src/main/resources/config/application-prod.yml
 
