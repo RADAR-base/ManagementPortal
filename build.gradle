@@ -1,4 +1,5 @@
 import org.gradle.internal.os.OperatingSystem
+import java.util.concurrent.TimeUnit
 
 buildscript {
     repositories {
@@ -14,7 +15,7 @@ buildscript {
 plugins {
     id 'org.springframework.boot' version "${spring_boot_version}"
     id "com.moowork.node" version "1.2.0"
-    id "io.spring.dependency-management" version "1.0.7.RELEASE"
+    id "io.spring.dependency-management" version "1.0.10.RELEASE"
     id 'de.undercouch.download' version '4.1.1' apply false
     id "io.github.gradle-nexus.publish-plugin" version "1.0.0"
 }
@@ -174,7 +175,7 @@ dependencies {
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: findbugAnnotationVersion
     implementation "org.hibernate:hibernate-envers:${hibernate_version}"
     implementation "org.hibernate:hibernate-validator:6.2.0.Final"
-    implementation("org.liquibase:liquibase-core")
+    implementation("org.liquibase:liquibase-core:${liquibase_version}")
     implementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     implementation "org.springframework.boot:spring-boot-actuator"
     implementation "org.springframework.boot:spring-boot-autoconfigure"
@@ -186,7 +187,7 @@ dependencies {
         exclude group: 'org.hibernate', module: 'hibernate-entitymanager'
     }
     implementation "org.springframework.boot:spring-boot-starter-security"
-    implementation("org.springframework.cloud:spring-cloud-starter-netflix-zuul:${zuul_proxy_version}")
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-zuul")
     implementation "org.springframework.cloud:spring-cloud-context"
     implementation "org.springframework.cloud:spring-cloud-commons"
     implementation("org.springframework.boot:spring-boot-starter-web") {
@@ -203,6 +204,7 @@ dependencies {
     }
     implementation "org.springframework.security:spring-security-jwt:${spring_security_jwt_versions}"
     implementation "org.springframework.security.oauth:spring-security-oauth2:${spring_security_oauth2_version}"
+    implementation "org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${spring_security_oauth2_version}"
     implementation("io.springfox:springfox-swagger2:${springfox_version}") {
         exclude module: 'mapstruct'
     }
@@ -229,6 +231,12 @@ dependencies {
     testImplementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     testImplementation "org.hamcrest:hamcrest-library"
     annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:Hoxton.SR9"
+    }
 }
 
 clean {
@@ -286,3 +294,46 @@ nexusPublishing {
         }
     }
 }
+
+class TimingsListener implements TaskExecutionListener, BuildListener {
+    private long startTime
+    private timings = []
+
+    @Override
+    void beforeExecute(Task task) {
+        startTime = System.nanoTime()
+    }
+
+    @Override
+    void afterExecute(Task task, TaskState taskState) {
+        def ms = TimeUnit.MILLISECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
+        timings.add([ms, task.path])
+        task.project.logger.warn "${task.path} took ${ms}ms"
+    }
+
+    @Override
+    void buildFinished(BuildResult result) {
+        println "Task timings:"
+        for (timing in timings) {
+            if (timing[0] >= 50) {
+                printf "%7sms  %s\n", timing
+            }
+        }
+    }
+
+    @Override
+    void buildStarted(Gradle gradle) {}
+
+    @Override
+    void projectsEvaluated(Gradle gradle) {}
+
+    @Override
+    void projectsLoaded(Gradle gradle) {}
+
+    @Override
+    void settingsEvaluated(Settings settings) {}
+}
+if (project.hasProperty('dev')) {
+    gradle.addListener new TimingsListener()
+}
+

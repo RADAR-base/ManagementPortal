@@ -6,3 +6,5 @@ services:
             - POSTGRES_USER=radarbase
             - POSTGRES_PASSWORD=radarbase
             - POSTGRES_DB=managementportal
+        ports:
+            - 5432:5432

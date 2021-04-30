@@ -26,19 +26,21 @@ spring:
         serialization.indent_output: true
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:h2:mem:managementportal;DB_CLOSE_DELAY=-1
-#        driverClassName: org.postgresql.Driver
-#        url: jdbc:postgresql://localhost:5432/managementportal
-        username: ManagementPortal
-        password:
+#        url: jdbc:h2:mem:managementportal;DB_CLOSE_DELAY=-1
+        driverClassName: org.postgresql.Driver
+        url: jdbc:postgresql://localhost:5432/managementportal
+#        username: ManagementPortal
+#        password:
+        username: radarbase
+        password: radarbase
     h2:
         console:
             enabled: false
     jpa:
-        database-platform: io.github.jhipster.domain.util.FixedH2Dialect
-#        database-platform: org.hibernate.dialect.PostgreSQLDialect
-        database: H2
-#        database: POSTGRESQL
+#        database-platform: org.hibernate.dialect.H2Dialect
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
+#        database: H2
+        database: POSTGRESQL
         show-sql: true
         properties:
             hibernate.id.new_generator_mappings: true
@@ -49,6 +51,7 @@ spring:
             hibernate.cache.hazelcast.instance_name: ManagementPortal
             hibernate.cache.use_minimal_puts: true
             hibernate.cache.hazelcast.use_lite_member: true
+            hibernate.ddl-auto: none
     mail:
         host:  # for hotmail
         port:

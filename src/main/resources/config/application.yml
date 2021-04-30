@@ -77,6 +77,10 @@ spring:
                 audit_strategy_validity_store_revend_timestamp: true
                 global_with_modified_flag: true
                 track_entities_changed_in_revision: true
+            hibernate:
+                jdbc:
+                    lob:
+                        non_contextual_creation: true
     messages:
         basename: i18n/messages
     mvc:
