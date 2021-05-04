@@ -14,6 +14,7 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
 zuul:
+    sensitiveHeaders: Cookie,Set-Cookie
     host:
         max-total-connections: 1000
         max-per-route-connections: 100
@@ -21,7 +22,7 @@ zuul:
         max-semaphores: 500
     retryable: true
     routes:
-        ManagementPortal:
+        oauth:
             path: /oauthserver/oauth/**
             url: http://localhost:8080/oauth
 ribbon:
@@ -37,20 +38,22 @@ hystrix:
                         timeoutInMilliseconds: 60000
 
 management:
-    security:
-        roles: ROLE_SYS_ADMIN
-        enabled: false # disabling security check for health to allow kubernetes to detect the health of the service
-    context-path: /management
+    endpoints:
+        web:
+            base-path: /management
+    endpoint:
+        health:
+            show-details: "ALWAYS"
     health:
         diskspace:
             enabled: false # disabling diskspace as the standard config, since we have removed security check for health endpoint
         mail:
             enabled: false # When using the MailService, configure an SMTP server and set this to true
-        db:
+        datasource:
             enabled: true
-    management:
-        endpoint:
-            metrics:
+    metrics:
+        export:
+            defaults:
                 enabled: false
 
 spring:
