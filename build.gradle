@@ -5,11 +5,12 @@ plugins {
     id "com.moowork.node" version "1.2.0"
     id "io.spring.dependency-management" version "1.0.7.RELEASE"
     id 'de.undercouch.download' version '4.1.1' apply false
+    id("io.github.gradle-nexus.publish-plugin") version "1.0.0"
 }
 
 allprojects {
     group 'org.radarbase'
-    version '0.7.0' // project version
+    version '0.7.1' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
@@ -258,4 +259,14 @@ task downloadDependencies {
     configurations.runtimeClasspath.files
 }
 
-apply from: 'gradle/publishing.gradle'
+ext.projectLanguage = "java"
+apply from: 'gradle/artifacts.gradle'
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            username = project.hasProperty("ossrh.user") ? project.property("ossrh.user") : System.getenv("OSSRH_USER")
+            password = project.hasProperty("ossrh.password") ? project.property("ossrh.password") : System.getenv("OSSRH_PASSWORD")
+        }
+    }
+}

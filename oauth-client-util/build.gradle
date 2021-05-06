@@ -27,5 +27,8 @@ task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {
     into file("$rootDir/public/oauth-client-util-javadoc")
 }
 
+ext.isShadowed = false
+ext.projectLanguage = "java"
+
 apply from: '../gradle/style.gradle'
 apply from: '../gradle/publishing.gradle'

@@ -154,11 +154,11 @@ class MPClient(
         urlBuilder: HttpUrl.Builder.() -> Unit,
         requestBuilder: (Request.Builder.() -> Unit) = { },
     ) {
-        request(urlBuilder, requestBuilder, { request, response ->
+        request(urlBuilder, requestBuilder) { request, response ->
             if (!response.isSuccessful) {
                 throw IOException("Request to ${request.url} failed (code ${response.code})")
             }
-        })
+        }
     }
 
     /**
@@ -178,7 +178,7 @@ class MPClient(
             url(baseUrl.newBuilder().apply {
                 urlBuilder()
             }.build())
-            header("Authorization", "Bearer $validToken")
+            header("Authorization", "Bearer ${validToken.accessToken}")
             requestBuilder()
         }.build()
 

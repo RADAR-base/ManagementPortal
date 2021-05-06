@@ -1,0 +1,32 @@
+
+def sharedManifest = manifest {
+    attributes("Implementation-Title": project.name,
+            "Implementation-Version": version)
+}
+
+jar {
+    manifest.from sharedManifest
+}
+
+// custom tasks for creating source/javadoc jars
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier.set('sources')
+    from sourceSets.main.allSource
+    manifest.from sharedManifest
+}
+
+if (!project.hasProperty("projectLanguage") || projectLanguage == "java") {
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        archiveClassifier.set('javadoc')
+        from javadoc.destinationDir
+        manifest.from sharedManifest
+    }
+} else if (projectLanguage == "kotlin") {
+    task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
+        from("$buildDir/dokka/javadoc")
+        archiveClassifier.set("javadoc")
+        manifest.from sharedManifest
+    }
+}
+
+assemble.dependsOn(javadocJar, sourcesJar)

@@ -1,6 +1,5 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
-    id 'signing'
 }
 
 apply plugin: 'maven-publish'
@@ -62,6 +61,7 @@ task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {
 }
 
 ext.isShadowed = true
+ext.projectLanguage = "java"
 
 apply from: "$rootDir/gradle/publishing.gradle"
 apply from: "$rootDir/gradle/style.gradle"
