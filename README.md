@@ -301,7 +301,11 @@ and can be run by starting Spring Boot in one terminal (`./gradlew bootRun`) and
 
 Performance tests are run by [Gatling][] and written in Scala. They're located in [src/test/gatling](src/test/gatling) and can be run with:
 
-    ./gradlew gatlingRun
+    ./gradlew gatlingRunAll
+
+or
+
+    ./gradlew gatlingRun<SIMULATION_CLASS_NAME> # E.g., gatlingRunProjectGatlingTest
 
 For more information, refer to the [Running tests page][].
 
