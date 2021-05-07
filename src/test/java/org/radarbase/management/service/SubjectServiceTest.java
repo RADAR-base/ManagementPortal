@@ -1,7 +1,7 @@
 package org.radarbase.management.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.radarbase.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
 import static org.radarbase.management.service.dto.SubjectDTO.SubjectStatus.ACTIVATED;
 
