@@ -5,9 +5,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.query.AuditEntity;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Authority;
@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +45,7 @@ import static org.radarbase.management.web.rest.TestUtil.commitTransactionAndSta
  *
  * @see UserService
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @Transactional
 public class UserServiceIntTest {
@@ -90,7 +90,7 @@ public class UserServiceIntTest {
 
     private UserDTO userDto;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         entityManager = entityManagerFactory.createEntityManager(
                 entityManagerFactory.getProperties());

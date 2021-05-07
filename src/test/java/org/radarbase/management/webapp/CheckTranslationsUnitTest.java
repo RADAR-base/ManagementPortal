@@ -15,9 +15,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,7 @@ public class CheckTranslationsUnitTest {
 
     private static final Logger log = LoggerFactory.getLogger(CheckTranslationsUnitTest.class);
 
-    @BeforeClass
+    @BeforeAll
     public static void loadBaseDictionary() {
         baseLangPath = new File(PATH, BASE_LANG);
         baseDictionary = loadJsonKeysFromDirectory(baseLangPath);
@@ -63,7 +64,7 @@ public class CheckTranslationsUnitTest {
                 log.error("Missing translations in {}: {}", key,
                         String.join(", ", differencesFound.get(key)));
             }
-            Assert.fail("There were missing keys in some of the translations.");
+            Assertions.fail("There were missing keys in some of the translations.");
         }
     }
 
@@ -110,7 +111,7 @@ public class CheckTranslationsUnitTest {
      *     lists of JSON paths.
      */
     private static Map<String, List<String>> loadJsonKeysFromDirectory(File path) {
-        Assert.assertTrue(path.isDirectory());
+        Assertions.assertTrue(path.isDirectory());
         HashMap<String, List<String>> map = new HashMap<>();
         Arrays.stream(path.listFiles())
                 .filter(p -> p.getName().endsWith(".json"))
@@ -126,8 +127,8 @@ public class CheckTranslationsUnitTest {
      * @return The list of all the fields in the file
      */
     private static List<String> loadJsonKeysFromFile(File file) {
-        Assert.assertTrue(file.isFile());
-        Assert.assertTrue(file.getName().endsWith(".json"));
+        Assertions.assertTrue(file.isFile());
+        Assertions.assertTrue(file.getName().endsWith(".json"));
         ObjectMapper mapper = new ObjectMapper();
         // Adding to a LinkedList is always O(1) (never a resize necessary as in ArrayList)
         List<String> result = new LinkedList<>();
@@ -135,7 +136,7 @@ public class CheckTranslationsUnitTest {
             JsonNode node = mapper.readTree(file);
             addKeysToList(node, "", result);
         } catch (IOException ex) {
-            Assert.fail(ex.getMessage());
+            Assertions.fail(ex.getMessage());
         }
         return result;
     }
@@ -160,7 +161,8 @@ public class CheckTranslationsUnitTest {
             } else if (fieldValue.isTextual()) {
                 keyList.add(path);
             } else {
-                Assert.fail("Encountered field that is not an object and not a string at " + path);
+                Assertions.fail("Encountered field that is not an object and not a string at "
+                        + path);
             }
         }
     }

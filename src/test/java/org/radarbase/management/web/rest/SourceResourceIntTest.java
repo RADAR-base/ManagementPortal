@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Project;
@@ -41,7 +41,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -53,7 +53,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @see SourceResource
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @WithMockUser
 public class SourceResourceIntTest {
@@ -102,7 +102,7 @@ public class SourceResourceIntTest {
 
     private Project project;
 
-    @Before
+    @BeforeEach
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         SourceResource sourceResource = new SourceResource();
@@ -134,7 +134,7 @@ public class SourceResourceIntTest {
         return source;
     }
 
-    @Before
+    @BeforeEach
     public void initTest() {
         source = createEntity();
         List<SourceTypeDTO> sourceTypeDtos = sourceTypeService.findAll();

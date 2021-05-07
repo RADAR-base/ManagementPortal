@@ -11,9 +11,10 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.MetaToken;
 import org.radarbase.management.repository.MetaTokenRepository;
@@ -24,10 +25,15 @@ import org.radarbase.management.web.rest.errors.RadarWebApplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.oauth2.provider.ClientDetails;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
-@RunWith(SpringRunner.class)
+/**
+ * Test class for the MetaTokenService class.
+ *
+ * @see MetaTokenService
+ */
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @Transactional
 public class MetaTokenServiceTest {
@@ -52,14 +58,13 @@ public class MetaTokenServiceTest {
 
     private SubjectDTO subjectDto;
 
-
-    @Before
+    @BeforeEach
     public void setUp() {
         subjectDto = SubjectServiceTest.createEntityDTO();
         subjectDto = subjectService.createSubject(subjectDto);
 
         clientDetails = oAuthClientService
-                .createClientDetail(OauthClientServiceTest.createClient());
+                .createClientDetail(OAuthClientServiceTest.createClient());
     }
 
     @Test
@@ -87,7 +92,7 @@ public class MetaTokenServiceTest {
 
     }
 
-    @Test(expected = RadarWebApplicationException.class)
+    @Test
     public void testGetAFetchedMetaToken() throws MalformedURLException {
         MetaToken token = new MetaToken()
                 .generateName(MetaToken.SHORT_ID_LENGTH)
@@ -104,10 +109,11 @@ public class MetaTokenServiceTest {
         assertTrue(saved.getExpiryDate().isAfter(Instant.now()));
 
         String tokenName = saved.getTokenName();
-        metaTokenService.fetchToken(tokenName);
+        Assertions.assertThrows(RadarWebApplicationException.class,
+                () -> metaTokenService.fetchToken(tokenName));
     }
 
-    @Test(expected = RadarWebApplicationException.class)
+    @Test
     public void testGetAnExpiredMetaToken() throws MalformedURLException {
         MetaToken token = new MetaToken()
                 .generateName(MetaToken.SHORT_ID_LENGTH)
@@ -126,7 +132,8 @@ public class MetaTokenServiceTest {
 
         String tokenName = saved.getTokenName();
 
-        metaTokenService.fetchToken(tokenName);
+        Assertions.assertThrows(RadarWebApplicationException.class,
+                () -> metaTokenService.fetchToken(tokenName));
     }
 
     @Test

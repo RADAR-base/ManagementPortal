@@ -113,6 +113,7 @@ test {
     testLogging {
         exceptionFormat = 'full'
     }
+    useJUnitPlatform()
 }
 
 task testReport(type: TestReport) {
@@ -221,14 +222,19 @@ dependencies {
     testImplementation "com.jayway.jsonpath:json-path"
     testImplementation ("org.springframework.boot:spring-boot-starter-test") {
         exclude group: "com.vaadin.external.google", module:"android-json"
+        exclude group: "junit", module: "junit"
     }
     testImplementation "org.springframework.security:spring-security-test"
     testImplementation "org.springframework.boot:spring-boot-test"
     testImplementation "org.assertj:assertj-core:${assertj_version}"
     testImplementation "junit:junit"
+    testImplementation "org.junit.jupiter:junit-jupiter-api"
     testImplementation "org.mockito:mockito-core"
     testImplementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     testImplementation "org.hamcrest:hamcrest-library"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+    testRuntimeOnly "org.junit.vintage:junit-vintage-engine"
+
     annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
 }
 

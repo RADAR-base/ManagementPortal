@@ -1,11 +1,15 @@
 package org.radarbase.management.web.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.radarbase.management.web.rest.util.HeaderUtil;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
+/**
+ * Test class for the HeaderUtil class.
+ *
+ * @see HeaderUtil
+ */
 public class HeaderUtilUnitTest {
 
     @Test
