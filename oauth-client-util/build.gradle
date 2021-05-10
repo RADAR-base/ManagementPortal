@@ -1,7 +1,7 @@
 ext.jacksonVersion = '2.11.3'
 ext.jacksonYamlVersion = '2.11.3'
 ext.okhttpVersion = '4.9.0'
-ext.junitVersion ='4.12'
+ext.junitVersion ='5.6.3'
 
 description = 'This library can be used by client applications that want to use the client_credentials OAuth2 flow. It will manage getting the token and renewing it when necessary.'
 
@@ -15,11 +15,20 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core' , name: 'jackson-databind' , version: jacksonVersion
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jacksonYamlVersion
 
-    testImplementation group: 'junit', name: 'junit', version: junitVersion
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junitVersion
     testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.21.0'
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.25.1'
     testImplementation 'org.glassfish.jersey.core:jersey-common:2.28'
     testRuntimeOnly group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.26'
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junitVersion
+    testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: junitVersion
+}
+
+test {
+    testLogging {
+        exceptionFormat = 'full'
+    }
+    useJUnitPlatform()
 }
 
 task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {

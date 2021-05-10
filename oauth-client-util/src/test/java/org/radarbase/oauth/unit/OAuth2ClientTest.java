@@ -2,10 +2,11 @@ package org.radarbase.oauth.unit;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import okhttp3.OkHttpClient;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.Rule;
-import org.junit.Test;
+
 import org.radarbase.exception.TokenException;
 import org.radarbase.oauth.OAuth2AccessTokenDetails;
 import org.radarbase.oauth.OAuth2Client;
@@ -21,9 +22,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Created by dverbeec on 31/08/2017.
@@ -79,7 +81,7 @@ public class OAuth2ClientTest {
     private OAuth2Client.Builder clientBuilder;
 
     /** Set up custom HTTP client. */
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() {
         httpClient = new OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
@@ -88,7 +90,7 @@ public class OAuth2ClientTest {
             .build();
     }
 
-    @Before
+    @BeforeEach
     public void init() throws MalformedURLException {
         tokenIssueDate = Instant.now().getEpochSecond();
         clientBuilder = new OAuth2Client.Builder()
@@ -122,7 +124,7 @@ public class OAuth2ClientTest {
         assertEquals("ManagementPortal", token.getIssuer());
     }
 
-    @Test(expected = TokenException.class)
+    @Test
     public void testInvalidScope() throws TokenException {
         stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
@@ -132,10 +134,10 @@ public class OAuth2ClientTest {
         OAuth2Client client = clientBuilder
                 .scopes("write")
                 .build();
-        client.getValidToken();
+        assertThrows(TokenException.class, () -> client.getValidToken());
     }
 
-    @Test(expected = TokenException.class)
+    @Test
     public void testInvalidCredentials() throws TokenException {
         stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
@@ -145,10 +147,10 @@ public class OAuth2ClientTest {
         OAuth2Client client = clientBuilder
                 .scopes("read")
                 .build();
-        client.getValidToken();
+        assertThrows(TokenException.class, () -> client.getValidToken());
     }
 
-    @Test(expected = TokenException.class)
+    @Test
     public void testInvalidGrantType() throws TokenException {
         stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
@@ -158,10 +160,10 @@ public class OAuth2ClientTest {
         OAuth2Client client = clientBuilder
                 .scopes("read")
                 .build();
-        client.getValidToken(Duration.ofSeconds(30));
+        assertThrows(TokenException.class, () -> client.getValidToken(Duration.ofSeconds(30)));
     }
 
-    @Test(expected = TokenException.class)
+    @Test
     public void testInvalidMapping() throws TokenException {
         stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
@@ -171,10 +173,10 @@ public class OAuth2ClientTest {
         OAuth2Client client = clientBuilder
                 .scopes("read")
                 .build();
-        client.getValidToken(Duration.ofSeconds(30));
+        assertThrows(TokenException.class, () -> client.getValidToken(Duration.ofSeconds(30)));
     }
 
-    @Test(expected = TokenException.class)
+    @Test
     public void testUnreachableServer() throws MalformedURLException, TokenException {
         // no http stub here so the location will be unreachable
         OAuth2Client client = clientBuilder
@@ -182,10 +184,10 @@ public class OAuth2ClientTest {
                 .endpoint(new URL("http://localhost:9000"))
                 .scopes("read")
                 .build();
-        client.getValidToken();
+        assertThrows(TokenException.class, () -> client.getValidToken());
     }
 
-    @Test(expected = TokenException.class)
+    @Test
     public void testParseError() throws TokenException {
         stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
@@ -196,9 +198,10 @@ public class OAuth2ClientTest {
                 .scopes("read")
                 .build();
         client.getValidToken();
+        assertThrows(TokenException.class, () -> client.getValidToken());
     }
 
-    @Test(expected = TokenException.class)
+    @Test
     public void testNotFound() throws TokenException {
         stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
@@ -208,7 +211,7 @@ public class OAuth2ClientTest {
         OAuth2Client client = clientBuilder
                 .scopes("read")
                 .build();
-        client.getValidToken();
+        assertThrows(TokenException.class, () -> client.getValidToken());
     }
 
     private String successfulResponse() {

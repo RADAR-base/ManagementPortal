@@ -11,6 +11,7 @@ ext {
     oauthJwtVersion = '3.12.0'
     commonsCodecVersion = '1.15'
     slf4jVersion = '1.7.30'
+    junitVersion ='5.6.3'
 }
 
 description = 'Library for authentication and authorization of JWT tokens issued by the RADAR platform'
@@ -26,6 +27,8 @@ configurations {
 
 dependencies {
     implementation project(path: ':radar-auth:deprecated-auth0', configuration: 'shadow')
+    implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
+    implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
     shadow "commons-codec:commons-codec:$commonsCodecVersion"
 
     shadow group: 'com.auth0', name: 'java-jwt', version: oauthJwtVersion
@@ -35,11 +38,14 @@ dependencies {
     shadow group: 'com.fasterxml.jackson.core' , name: 'jackson-databind' , version: jacksonVersion
     shadow group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jacksonYamlVersion
 
-    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junitVersion
     testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.21.0'
     testImplementation group: 'com.github.stefanbirkner', name: 'system-rules', version: '1.19.0'
 
     testRuntimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junitVersion
+    testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: junitVersion
+
 }
 
 shadowJar {

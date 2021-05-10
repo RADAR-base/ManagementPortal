@@ -3,7 +3,7 @@ package org.radarbase.auth.config;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.net.URI;
@@ -11,7 +11,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.radarbase.auth.token.validation.ECTokenValidationAlgorithm;
 import org.radarbase.auth.token.validation.RSATokenValidationAlgorithm;

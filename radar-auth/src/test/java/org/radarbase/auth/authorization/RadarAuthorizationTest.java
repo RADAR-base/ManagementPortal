@@ -1,8 +1,8 @@
 package org.radarbase.auth.authorization;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
@@ -10,8 +10,8 @@ import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.radarbase.auth.authorization.Permission.Entity;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.JwtRadarToken;
@@ -23,7 +23,7 @@ import org.radarbase.auth.util.TokenTestUtils;
  */
 public class RadarAuthorizationTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void loadToken() throws Exception {
         TokenTestUtils.setUp();
     }
