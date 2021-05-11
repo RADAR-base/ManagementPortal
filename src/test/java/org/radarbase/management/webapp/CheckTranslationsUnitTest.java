@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * test takes one language as the 'ground truth' to check against. That language is currently
  * configured to be English, but can be changed by changing the <code>BASE_LANG</code> field.
  */
-public class CheckTranslationsUnitTest {
+class CheckTranslationsUnitTest {
 
     private static final String PATH = "src/main/webapp/i18n";
     private static final String BASE_LANG = "en";
@@ -43,7 +43,7 @@ public class CheckTranslationsUnitTest {
     }
 
     @Test
-    public void testLanguages() {
+    void testLanguages() {
         File basePath = new File(PATH);
         Map<String, List<String>> differencesFound = new HashMap<>();
         Arrays.stream(basePath.listFiles())

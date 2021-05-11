@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @WithMockUser
-public class JwtAuthenticationFilterIntTest {
+class JwtAuthenticationFilterIntTest {
 
     @Autowired
     private HttpServletRequest servletRequest;
@@ -81,7 +81,7 @@ public class JwtAuthenticationFilterIntTest {
     }
 
     @Test
-    public void testMultipleSigningKeys() throws Exception {
+    void testMultipleSigningKeys() throws Exception {
         // Check that we can get the project list with both RSA and EC signed token. We are testing
         // acceptance of the tokens, so no test on the content of the response is performed here.
         rsaRestProjectMockMvc.perform(get("/api/projects?sort=id,desc"))

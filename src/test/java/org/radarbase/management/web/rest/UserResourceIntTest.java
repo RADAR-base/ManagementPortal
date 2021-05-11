@@ -72,7 +72,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @WithMockUser
-public class UserResourceIntTest {
+class UserResourceIntTest {
 
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
@@ -136,7 +136,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void createUser() throws Exception {
+    void createUser() throws Exception {
         final int databaseSizeBeforeCreate = userRepository.findAll().size();
 
         // Create the User
@@ -165,7 +165,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void createUserWithExistingId() throws Exception {
+    void createUserWithExistingId() throws Exception {
         final int databaseSizeBeforeCreate = userRepository.findAll().size();
 
         Set<RoleDTO> roles = new HashSet<>();
@@ -189,7 +189,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void createUserWithExistingLogin() throws Exception {
+    void createUserWithExistingLogin() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
         final int databaseSizeBeforeCreate = userRepository.findAll().size();
@@ -214,7 +214,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void createUserWithExistingEmail() throws Exception {
+    void createUserWithExistingEmail() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
         final int databaseSizeBeforeCreate = userRepository.findAll().size();
@@ -239,7 +239,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void getAllUsers() throws Exception {
+    void getAllUsers() throws Exception {
         // Initialize the database
         Role adminRole = new Role();
         adminRole.setId(1L);
@@ -271,7 +271,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void getUser() throws Exception {
+    void getUser() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
 
@@ -288,14 +288,14 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void getNonExistingUser() throws Exception {
+    void getNonExistingUser() throws Exception {
         restUserMockMvc.perform(get("/api/users/unknown"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @Transactional
-    public void updateUser() throws Exception {
+    void updateUser() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
         final int databaseSizeBeforeUpdate = userRepository.findAll().size();
@@ -336,7 +336,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void updateUserLogin() throws Exception {
+    void updateUserLogin() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
         final int databaseSizeBeforeUpdate = userRepository.findAll().size();
@@ -378,7 +378,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void updateUserExistingEmail() throws Exception {
+    void updateUserExistingEmail() throws Exception {
         // Initialize the database with 2 users
         userRepository.saveAndFlush(user);
 
@@ -418,7 +418,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void updateUserExistingLogin() throws Exception {
+    void updateUserExistingLogin() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
 
@@ -459,7 +459,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void deleteUser() throws Exception {
+    void deleteUser() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
         final int databaseSizeBeforeDelete = userRepository.findAll().size();
@@ -476,7 +476,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void equalsVerifier() throws Exception {
+    void equalsVerifier() throws Exception {
         User userA = new User();
         userA.setLogin("AAA");
         User userB = new User();

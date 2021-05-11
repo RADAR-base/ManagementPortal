@@ -12,10 +12,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 *
 * @see SecurityUtils
 */
-public class SecurityUtilsUnitTest {
+class SecurityUtilsUnitTest {
 
     @Test
-    public void testGetCurrentUserLogin() {
+    void testGetCurrentUserLogin() {
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("admin",
                 "admin"));

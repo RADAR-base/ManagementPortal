@@ -45,7 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
-public class AccountResourceIntTest {
+class AccountResourceIntTest {
 
     @Autowired
     private UserRepository userRepository;
@@ -85,7 +85,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
-    public void testNonAuthenticatedUser() throws Exception {
+    void testNonAuthenticatedUser() throws Exception {
         restUserMockMvc.perform(get("/api/authenticate")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -93,7 +93,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
-    public void testAuthenticatedUser() throws Exception {
+    void testAuthenticatedUser() throws Exception {
         restUserMockMvc.perform(get("/api/authenticate")
                 .with(request -> {
                     request.setRemoteUser("test");
@@ -105,7 +105,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
-    public void testGetExistingAccount() throws Exception {
+    void testGetExistingAccount() throws Exception {
         Set<Role> roles = new HashSet<>();
         Role role = new Role();
         Authority authority = new Authority();
@@ -135,7 +135,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
-    public void testGetUnknownAccount() throws Exception {
+    void testGetUnknownAccount() throws Exception {
         when(mockUserService.getUserWithAuthorities()).thenReturn(null);
 
         restUserMockMvc.perform(get("/api/account")
@@ -145,7 +145,7 @@ public class AccountResourceIntTest {
 
     @Test
     @Transactional
-    public void testSaveInvalidLogin() throws Exception {
+    void testSaveInvalidLogin() throws Exception {
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
         role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
@@ -166,6 +166,6 @@ public class AccountResourceIntTest {
                 .andExpect(status().isBadRequest());
 
         Optional<User> user = userRepository.findOneByEmail("funky@example.com");
-        assertThat(user.isPresent()).isFalse();
+        assertThat(user).isNotPresent();
     }
 }

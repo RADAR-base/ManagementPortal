@@ -27,7 +27,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
  **/
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
-public class ProfileInfoResourceIntTest {
+class ProfileInfoResourceIntTest {
 
     @Mock
     private Environment environment;
@@ -58,14 +58,14 @@ public class ProfileInfoResourceIntTest {
     }
 
     @Test
-    public void getProfileInfoWithRibbon() throws Exception {
+    void getProfileInfoWithRibbon() throws Exception {
         restProfileMockMvc.perform(get("/api/profile-info"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
     @Test
-    public void getProfileInfoWithoutRibbon() throws Exception {
+    void getProfileInfoWithoutRibbon() throws Exception {
         JHipsterProperties.Ribbon ribbon = new JHipsterProperties.Ribbon();
         ribbon.setDisplayOnActiveProfiles(null);
         when(jHipsterProperties.getRibbon()).thenReturn(ribbon);
@@ -76,7 +76,7 @@ public class ProfileInfoResourceIntTest {
     }
 
     @Test
-    public void getProfileInfoWithoutActiveProfiles() throws Exception {
+    void getProfileInfoWithoutActiveProfiles() throws Exception {
         String[] emptyProfile = {};
         when(environment.getDefaultProfiles()).thenReturn(emptyProfile);
         when(environment.getActiveProfiles()).thenReturn(emptyProfile);

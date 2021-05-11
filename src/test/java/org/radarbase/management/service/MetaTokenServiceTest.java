@@ -36,7 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @Transactional
-public class MetaTokenServiceTest {
+class MetaTokenServiceTest {
 
 
     @Autowired
@@ -64,11 +64,11 @@ public class MetaTokenServiceTest {
         subjectDto = subjectService.createSubject(subjectDto);
 
         clientDetails = oAuthClientService
-                .createClientDetail(OAuthClientServiceTest.createClient());
+                .createClientDetail(OAuthClientServiceTestUtil.createClient());
     }
 
     @Test
-    public void testSaveThenFetchMetaToken() throws MalformedURLException {
+    void testSaveThenFetchMetaToken() throws MalformedURLException {
 
         MetaToken metaToken = new MetaToken()
                 .generateName(MetaToken.SHORT_ID_LENGTH)
@@ -93,7 +93,7 @@ public class MetaTokenServiceTest {
     }
 
     @Test
-    public void testGetAFetchedMetaToken() throws MalformedURLException {
+    void testGetAFetchedMetaToken() throws MalformedURLException {
         MetaToken token = new MetaToken()
                 .generateName(MetaToken.SHORT_ID_LENGTH)
                 .fetched(true)
@@ -114,7 +114,7 @@ public class MetaTokenServiceTest {
     }
 
     @Test
-    public void testGetAnExpiredMetaToken() throws MalformedURLException {
+    void testGetAnExpiredMetaToken() throws MalformedURLException {
         MetaToken token = new MetaToken()
                 .generateName(MetaToken.SHORT_ID_LENGTH)
                 .fetched(false)
@@ -137,7 +137,7 @@ public class MetaTokenServiceTest {
     }
 
     @Test
-    public void testRemovingExpiredMetaToken() {
+    void testRemovingExpiredMetaToken() {
 
         MetaToken tokenFetched = new MetaToken()
                 .generateName(MetaToken.SHORT_ID_LENGTH)
@@ -166,6 +166,6 @@ public class MetaTokenServiceTest {
 
         List<MetaToken> availableTokens = metaTokenRepository.findAll();
 
-        assertEquals(availableTokens.size(), 1);
+        assertEquals(1, availableTokens.size());
     }
 }

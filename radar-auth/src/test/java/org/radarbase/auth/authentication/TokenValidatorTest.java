@@ -24,7 +24,7 @@ import org.radarbase.auth.util.TokenTestUtils;
  * Created by dverbeec on 24/04/2017.
  */
 
-public class TokenValidatorTest {
+class TokenValidatorTest {
 
     private final EnvironmentVariables environmentVariables = new EnvironmentVariables();
     private static WireMockServer wireMockServer;
@@ -63,30 +63,30 @@ public class TokenValidatorTest {
     }
 
     @Test
-    public void testValidToken() {
+    void testValidToken() {
         validator.validateAccessToken(TokenTestUtils.VALID_RSA_TOKEN);
     }
 
     @Test
-    public void testIncorrectAudienceToken() {
+    void testIncorrectAudienceToken() {
         assertThrows(TokenValidationException.class,
                 () -> validator.validateAccessToken(TokenTestUtils.INCORRECT_AUDIENCE_TOKEN));
     }
 
     @Test
-    public void testExpiredToken() {
+    void testExpiredToken() {
         assertThrows(TokenValidationException.class,
                 () -> validator.validateAccessToken(TokenTestUtils.EXPIRED_TOKEN));
     }
 
     @Test
-    public void testIncorrectAlgorithmToken() {
+    void testIncorrectAlgorithmToken() {
         assertThrows(TokenValidationException.class,
                 () -> validator.validateAccessToken(TokenTestUtils.INCORRECT_ALGORITHM_TOKEN));
     }
 
     @Test
-    public void testPublicKeyFromConfigFile() throws URISyntaxException {
+    void testPublicKeyFromConfigFile() throws URISyntaxException {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         File configFile = new File(loader.getResource("radar-is-2.yml").toURI());
         environmentVariables

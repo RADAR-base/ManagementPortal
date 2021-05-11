@@ -12,22 +12,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Created by dverbeec on 31/08/2017.
  */
-public class OAuth2AccessTokenDetailsTest {
+class OAuth2AccessTokenDetailsTest {
 
     @Test
-    public void testNewTokenIsExpired() {
+    void testNewTokenIsExpired() {
         OAuth2AccessTokenDetails token = new OAuth2AccessTokenDetails();
         assertTrue(token.isExpired());
     }
 
     @Test
-    public void testNewTokenIsInvalid() {
+    void testNewTokenIsInvalid() {
         OAuth2AccessTokenDetails token = new OAuth2AccessTokenDetails();
         assertFalse(token.isValid());
     }
 
     @Test
-    public void testTokenNotExpired() throws TokenException {
+    void testTokenNotExpired() throws TokenException {
         String body =
                 "{\"expires_in\":30"
                 + ",\"iat\":" + Instant.now().getEpochSecond()

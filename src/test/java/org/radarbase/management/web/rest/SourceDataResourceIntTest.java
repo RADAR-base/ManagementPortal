@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Assertions;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.SourceData;
@@ -49,7 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @WithMockUser
-public class SourceDataResourceIntTest {
+class SourceDataResourceIntTest {
 
     private static final String DEFAULT_SOURCE_DATA_TYPE = "AAAAAAAAAA";
     private static final String UPDATED_SOURCE_DATA_TYPE = "BBBBBBBBBB";
@@ -148,7 +149,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void createSourceData() throws Exception {
+    void createSourceData() throws Exception {
         int databaseSizeBeforeCreate = sourceDataRepository.findAll().size();
 
         // Create the SourceData
@@ -174,7 +175,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void createSourceDataWithExistingId() throws Exception {
+    void createSourceDataWithExistingId() throws Exception {
         int databaseSizeBeforeCreate = sourceDataRepository.findAll().size();
 
         // Create the SourceData with an existing ID
@@ -194,7 +195,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void checkSourceDataTypeIsRequired() throws Exception {
+    void checkSourceDataTypeIsRequired() throws Exception {
         int databaseSizeBeforeTest = sourceDataRepository.findAll().size();
         // set the field null
         sourceData.setSourceDataType(null);
@@ -213,7 +214,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void getAllSourceData() throws Exception {
+    void getAllSourceData() throws Exception {
         // Initialize the database
         sourceDataRepository.saveAndFlush(sourceData);
 
@@ -237,7 +238,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void getAllSourceDataWithPagination() throws Exception {
+    void getAllSourceDataWithPagination() throws Exception {
         // Initialize the database
         sourceDataRepository.saveAndFlush(sourceData);
 
@@ -261,7 +262,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void getSourceData() throws Exception {
+    void getSourceData() throws Exception {
         // Initialize the database
         sourceDataRepository.saveAndFlush(sourceData);
 
@@ -283,7 +284,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void getNonExistingSourceData() throws Exception {
+    void getNonExistingSourceData() throws Exception {
         // Get the sourceData
         restSourceDataMockMvc.perform(get("/api/source-data/{sourceDataName}",
                 DEFAULT_SOURCE_DATA_NAME + DEFAULT_SOURCE_DATA_NAME))
@@ -292,7 +293,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void updateSourceData() throws Exception {
+    void updateSourceData() throws Exception {
         // Initialize the database
         sourceDataRepository.saveAndFlush(sourceData);
         int databaseSizeBeforeUpdate = sourceDataRepository.findAll().size();
@@ -331,7 +332,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void updateNonExistingSourceData() throws Exception {
+    void updateNonExistingSourceData() throws Exception {
         int databaseSizeBeforeUpdate = sourceDataRepository.findAll().size();
 
         // Create the SourceData
@@ -350,7 +351,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void deleteSourceData() throws Exception {
+    void deleteSourceData() throws Exception {
         // Initialize the database
         sourceDataRepository.saveAndFlush(sourceData);
         int databaseSizeBeforeDelete = sourceDataRepository.findAll().size();
@@ -368,7 +369,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(SourceData.class);
+    void equalsVerifier() throws Exception {
+        Assertions.assertTrue(TestUtil.equalsVerifier(SourceData.class));
     }
 }

@@ -19,18 +19,18 @@ import org.radarbase.auth.token.validation.RSATokenValidationAlgorithm;
 /**
  * Created by dverbeec on 19/06/2017.
  */
-public class TokenVerifierPublicKeyConfigTest {
+class TokenVerifierPublicKeyConfigTest {
 
     public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
     @Test
-    public void testLoadYamlFileFromClasspath() throws URISyntaxException {
+    void testLoadYamlFileFromClasspath() throws URISyntaxException {
         TokenValidatorConfig config = TokenVerifierPublicKeyConfig.readFromFileOrClasspath();
         checkConfig(config);
     }
 
     @Test
-    public void testLoadYamlFileFromEnv() throws URISyntaxException {
+    void testLoadYamlFileFromEnv() throws URISyntaxException {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         File configFile = new File(loader.getResource("radar-is.yml").toURI());
         environmentVariables

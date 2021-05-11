@@ -78,7 +78,7 @@ public class SubjectServiceTest {
 
     @Test
     @Transactional
-    public void testGetPrivacyPolicyUrl() {
+    void testGetPrivacyPolicyUrl() {
 
         projectService.save(createEntityDTO().getProject());
         SubjectDTO created = subjectService.createSubject(createEntityDTO());
@@ -89,7 +89,7 @@ public class SubjectServiceTest {
 
         URL privacyPolicyUrl = subjectService.getPrivacyPolicyUrl(subject);
         assertNotNull(privacyPolicyUrl);
-        assertEquals(privacyPolicyUrl.toExternalForm(), DEFAULT_PROJECT_PRIVACY_POLICY_URL);
+        assertEquals(DEFAULT_PROJECT_PRIVACY_POLICY_URL, privacyPolicyUrl.toExternalForm());
 
     }
 

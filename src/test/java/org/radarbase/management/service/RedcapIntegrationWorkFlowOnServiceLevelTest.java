@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @Transactional
-public class RedcapIntegrationWorkFlowOnServiceLevelTest {
+class RedcapIntegrationWorkFlowOnServiceLevelTest {
 
     @Autowired
     private ProjectService projectService;
@@ -32,7 +32,7 @@ public class RedcapIntegrationWorkFlowOnServiceLevelTest {
     private SubjectService subjectService;
 
     @Test
-    public void testRedcapIntegrationWorkFlowOnServiceLevel() {
+    void testRedcapIntegrationWorkFlowOnServiceLevel() {
         final String externalProjectUrl = "MyUrl";
         final String externalProjectId = "MyId";
         final String projectLocation = "London";

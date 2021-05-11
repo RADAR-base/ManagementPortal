@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Assertions;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Project;
@@ -53,7 +54,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @WithMockUser
-public class ProjectResourceIntTest {
+class ProjectResourceIntTest {
 
     private static final String DEFAULT_PROJECT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_PROJECT_NAME = "BBBBBBBBBB";
@@ -149,7 +150,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void createProject() throws Exception {
+    void createProject() throws Exception {
         int databaseSizeBeforeCreate = projectRepository.findAll().size();
 
         // Create the Project
@@ -174,7 +175,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void createProjectWithExistingId() throws Exception {
+    void createProjectWithExistingId() throws Exception {
         int databaseSizeBeforeCreate = projectRepository.findAll().size();
 
         // Create the Project with an existing ID
@@ -194,7 +195,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void checkProjectNameIsRequired() throws Exception {
+    void checkProjectNameIsRequired() throws Exception {
         int databaseSizeBeforeTest = projectRepository.findAll().size();
         // set the field null
         project.setProjectName(null);
@@ -213,7 +214,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void checkDescriptionIsRequired() throws Exception {
+    void checkDescriptionIsRequired() throws Exception {
         int databaseSizeBeforeTest = projectRepository.findAll().size();
         // set the field null
         project.setDescription(null);
@@ -232,7 +233,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void checkLocationIsRequired() throws Exception {
+    void checkLocationIsRequired() throws Exception {
         int databaseSizeBeforeTest = projectRepository.findAll().size();
         // set the field null
         project.setLocation(null);
@@ -251,7 +252,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void getAllProjects() throws Exception {
+    void getAllProjects() throws Exception {
         // Initialize the database
         projectRepository.saveAndFlush(project);
 
@@ -273,7 +274,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void getProject() throws Exception {
+    void getProject() throws Exception {
         // Initialize the database
         projectRepository.saveAndFlush(project);
 
@@ -293,7 +294,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void getNonExistingProject() throws Exception {
+    void getNonExistingProject() throws Exception {
         // Get the project
         restProjectMockMvc.perform(get("/api/projects/{id}", Long.MAX_VALUE))
                 .andExpect(status().isNotFound());
@@ -301,7 +302,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void updateProject() throws Exception {
+    void updateProject() throws Exception {
         // Initialize the database
         projectRepository.saveAndFlush(project);
         int databaseSizeBeforeUpdate = projectRepository.findAll().size();
@@ -338,7 +339,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void updateNonExistingProject() throws Exception {
+    void updateNonExistingProject() throws Exception {
         int databaseSizeBeforeUpdate = projectRepository.findAll().size();
 
         // Create the Project
@@ -357,7 +358,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void deleteProject() throws Exception {
+    void deleteProject() throws Exception {
         // Initialize the database
         projectRepository.saveAndFlush(project);
         int databaseSizeBeforeDelete = projectRepository.findAll().size();
@@ -374,7 +375,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Project.class);
+    void equalsVerifier() throws Exception {
+        Assertions.assertTrue(TestUtil.equalsVerifier(Project.class));
     }
 }

@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
-public class LogsResourceIntTest {
+class LogsResourceIntTest {
 
     private MockMvc restLogsMockMvc;
 
@@ -39,14 +39,14 @@ public class LogsResourceIntTest {
     }
 
     @Test
-    public void getAllLogs()throws Exception {
+    void getAllLogs()throws Exception {
         restLogsMockMvc.perform(get("/management/logs"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
     @Test
-    public void changeLogs()throws Exception {
+    void changeLogs()throws Exception {
         LoggerVM logger = new LoggerVM();
         logger.setLevel("INFO");
         logger.setName("ROOT");

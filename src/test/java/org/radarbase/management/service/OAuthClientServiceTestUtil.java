@@ -11,8 +11,8 @@ import org.radarbase.management.service.dto.ClientDetailsDTO;
  *
  * @see OAuthClientService
  */
-public final class OAuthClientServiceTest {
-    private OAuthClientServiceTest() {
+public final class OAuthClientServiceTestUtil {
+    private OAuthClientServiceTestUtil() {
         // utility class
     }
 

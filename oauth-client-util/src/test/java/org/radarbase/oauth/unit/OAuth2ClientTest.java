@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * Created by dverbeec on 31/08/2017.
  */
-public class OAuth2ClientTest {
+class OAuth2ClientTest {
     private static final String accessToken =
             "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyYWRhcl9yZXN0YXBp"
             + "Iiwi19NYW5hZ2VtZW50UG9ydGFsIl0sInNvdXJjZXMiOltdLCJzY29wZSI6WyJyZWFkIl0sImlzcyI6Ik1hb"
@@ -110,7 +110,7 @@ public class OAuth2ClientTest {
     }
 
     @Test
-    public void testValidTokenResponse() throws TokenException {
+    void testValidTokenResponse() throws TokenException {
         wireMockServer.stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                 .withStatus(200)
@@ -136,7 +136,7 @@ public class OAuth2ClientTest {
     }
 
     @Test
-    public void testInvalidScope() throws TokenException {
+    void testInvalidScope() {
         wireMockServer.stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(400)
@@ -149,7 +149,7 @@ public class OAuth2ClientTest {
     }
 
     @Test
-    public void testInvalidCredentials() throws TokenException {
+    void testInvalidCredentials() {
         wireMockServer.stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(401)
@@ -162,7 +162,7 @@ public class OAuth2ClientTest {
     }
 
     @Test
-    public void testInvalidGrantType() throws TokenException {
+    void testInvalidGrantType() {
         wireMockServer.stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(401)
@@ -175,7 +175,7 @@ public class OAuth2ClientTest {
     }
 
     @Test
-    public void testInvalidMapping() throws TokenException {
+    void testInvalidMapping() {
         wireMockServer.stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(401)
@@ -188,7 +188,7 @@ public class OAuth2ClientTest {
     }
 
     @Test
-    public void testUnreachableServer() throws MalformedURLException, TokenException {
+    void testUnreachableServer() throws MalformedURLException {
         // no http stub here so the location will be unreachable
         OAuth2Client client = clientBuilder
                 // different port in case wiremock is not cleaned up yet
@@ -199,7 +199,7 @@ public class OAuth2ClientTest {
     }
 
     @Test
-    public void testParseError() throws TokenException {
+    void testParseError() {
         wireMockServer.stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -212,7 +212,7 @@ public class OAuth2ClientTest {
     }
 
     @Test
-    public void testNotFound() throws TokenException {
+    void testNotFound() {
         wireMockServer.stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(404)

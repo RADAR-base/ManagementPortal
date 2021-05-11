@@ -10,28 +10,28 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @see HeaderUtil
  */
-public class HeaderUtilUnitTest {
+class HeaderUtilUnitTest {
 
     @Test
-    public void pathHasLeadingSlash() {
+    void pathHasLeadingSlash() {
         String path = HeaderUtil.buildPath("api", "subjects");
         assertThat(path).isEqualTo("/api/subjects");
     }
 
     @Test
-    public void nullComponentsAreIgnored() {
+    void nullComponentsAreIgnored() {
         String path = HeaderUtil.buildPath(null, "api", null, "subjects");
         assertThat(path).isEqualTo("/api/subjects");
     }
 
     @Test
-    public void emptyComponentsAreIgnored() {
+    void emptyComponentsAreIgnored() {
         String path = HeaderUtil.buildPath("", "api", "", "subjects");
         assertThat(path).isEqualTo("/api/subjects");
     }
 
     @Test
-    public void charactersAreEscaped() {
+    void charactersAreEscaped() {
         String path = HeaderUtil.buildPath("api", "subjects", "sub/1/2/3");
         assertThat(path).isEqualTo("/api/subjects/sub%2F1%2F2%2F3");
     }

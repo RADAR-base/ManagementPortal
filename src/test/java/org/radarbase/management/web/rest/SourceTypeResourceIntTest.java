@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Assertions;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.SourceData;
@@ -55,7 +56,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @WithMockUser
-public class SourceTypeResourceIntTest {
+class SourceTypeResourceIntTest {
 
     private static final String DEFAULT_PRODUCER = "AAAAA AAAAA";
     private static final String UPDATED_PRODUCER = "BBBBBBBBBB";
@@ -145,7 +146,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void createSourceType() throws Exception {
+    void createSourceType() throws Exception {
         int databaseSizeBeforeCreate = sourceTypeRepository.findAll().size();
 
         // Create the SourceType
@@ -178,7 +179,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void createSourceTypeWithExistingId() throws Exception {
+    void createSourceTypeWithExistingId() throws Exception {
         int databaseSizeBeforeCreate = sourceTypeRepository.findAll().size();
 
         // Create the SourceType with an existing ID
@@ -198,7 +199,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void checkModelIsRequired() throws Exception {
+    void checkModelIsRequired() throws Exception {
         int databaseSizeBeforeTest = sourceTypeRepository.findAll().size();
         // set the field null
         sourceType.setModel(null);
@@ -217,7 +218,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void checkSourceTypeIsRequired() throws Exception {
+    void checkSourceTypeIsRequired() throws Exception {
         int databaseSizeBeforeTest = sourceTypeRepository.findAll().size();
         // set the field null
         sourceType.setSourceTypeScope(null);
@@ -236,7 +237,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void checkVersionIsRequired() throws Exception {
+    void checkVersionIsRequired() throws Exception {
         int databaseSizeBeforeTest = sourceTypeRepository.findAll().size();
         // set the field null
         sourceType.catalogVersion(null);
@@ -255,7 +256,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void getAllSourceTypes() throws Exception {
+    void getAllSourceTypes() throws Exception {
         // Initialize the database
         sourceTypeRepository.saveAndFlush(sourceType);
 
@@ -274,7 +275,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void getAllSourceTypesWithPagination() throws Exception {
+    void getAllSourceTypesWithPagination() throws Exception {
         // Initialize the database
         sourceTypeRepository.saveAndFlush(sourceType);
 
@@ -293,7 +294,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void getSourceType() throws Exception {
+    void getSourceType() throws Exception {
         // Initialize the database
         sourceTypeRepository.saveAndFlush(sourceType);
 
@@ -311,7 +312,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void getNonExistingSourceType() throws Exception {
+    void getNonExistingSourceType() throws Exception {
         // Get the sourceType
         restSourceTypeMockMvc.perform(get("/api/source-types/{prodcuer}/{model}/{version}",
                 "does", "not", "exist"))
@@ -320,7 +321,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void updateSourceType() throws Exception {
+    void updateSourceType() throws Exception {
         // Initialize the database
         sourceTypeRepository.saveAndFlush(sourceType);
         int databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size();
@@ -351,7 +352,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void updateNonExistingSourceType() throws Exception {
+    void updateNonExistingSourceType() throws Exception {
         int databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size();
 
         // Create the SourceType
@@ -370,7 +371,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void deleteSourceType() throws Exception {
+    void deleteSourceType() throws Exception {
         // Initialize the database
         sourceTypeRepository.saveAndFlush(sourceType);
         int databaseSizeBeforeDelete = sourceTypeRepository.findAll().size();
@@ -388,13 +389,13 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(SourceType.class);
+    void equalsVerifier() throws Exception {
+        Assertions.assertTrue(TestUtil.equalsVerifier(SourceType.class));
     }
 
     @Test
     @Transactional
-    public void idempotentPutWithoutId() throws Exception {
+    void idempotentPutWithoutId() throws Exception {
         final int databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size();
         final int sensorsSizeBeforeUpdate = sourceDataRepository.findAll().size();
 
