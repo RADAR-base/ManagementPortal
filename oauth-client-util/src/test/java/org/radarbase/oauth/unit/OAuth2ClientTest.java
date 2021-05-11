@@ -1,11 +1,13 @@
 package org.radarbase.oauth.unit;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import okhttp3.OkHttpClient;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.radarbase.exception.TokenException;
 import org.radarbase.oauth.OAuth2AccessTokenDetails;
@@ -20,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -74,15 +75,15 @@ public class OAuth2ClientTest {
             + "  \"path\" : \"/oauth/token\"\n"
             + "}\n";
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(8089);
-
     private static OkHttpClient httpClient;
+    private static WireMockServer wireMockServer;
     private OAuth2Client.Builder clientBuilder;
 
     /** Set up custom HTTP client. */
     @BeforeAll
     public static void setUpClass() {
+        wireMockServer = new WireMockServer(new WireMockConfiguration().port(8089));
+        wireMockServer.start();
         httpClient = new OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
@@ -98,13 +99,23 @@ public class OAuth2ClientTest {
             .endpoint(new URL("http://localhost:8089/oauth/token"));
     }
 
+    @AfterEach
+    public void reset() {
+        wireMockServer.resetAll();
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        wireMockServer.stop();
+    }
+
     @Test
     public void testValidTokenResponse() throws TokenException {
-        stubFor(post(urlEqualTo("/oauth/token"))
+        wireMockServer.stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
-                        .withBody(successfulResponse())));
+                .withStatus(200)
+                .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+                .withBody(successfulResponse())));
         OAuth2Client client = clientBuilder
                 .scopes("read")
                 .httpClient(httpClient)
@@ -126,7 +137,7 @@ public class OAuth2ClientTest {
 
     @Test
     public void testInvalidScope() throws TokenException {
-        stubFor(post(urlEqualTo("/oauth/token"))
+        wireMockServer.stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(400)
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
@@ -139,7 +150,7 @@ public class OAuth2ClientTest {
 
     @Test
     public void testInvalidCredentials() throws TokenException {
-        stubFor(post(urlEqualTo("/oauth/token"))
+        wireMockServer.stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(401)
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
@@ -152,7 +163,7 @@ public class OAuth2ClientTest {
 
     @Test
     public void testInvalidGrantType() throws TokenException {
-        stubFor(post(urlEqualTo("/oauth/token"))
+        wireMockServer.stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(401)
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
@@ -165,7 +176,7 @@ public class OAuth2ClientTest {
 
     @Test
     public void testInvalidMapping() throws TokenException {
-        stubFor(post(urlEqualTo("/oauth/token"))
+        wireMockServer.stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(401)
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
@@ -189,7 +200,7 @@ public class OAuth2ClientTest {
 
     @Test
     public void testParseError() throws TokenException {
-        stubFor(post(urlEqualTo("/oauth/token"))
+        wireMockServer.stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/html")
@@ -197,13 +208,12 @@ public class OAuth2ClientTest {
         OAuth2Client client = clientBuilder
                 .scopes("read")
                 .build();
-        client.getValidToken();
         assertThrows(TokenException.class, () -> client.getValidToken());
     }
 
     @Test
     public void testNotFound() throws TokenException {
-        stubFor(post(urlEqualTo("/oauth/token"))
+        wireMockServer.stubFor(post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                         .withStatus(404)
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")

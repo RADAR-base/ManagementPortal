@@ -10,7 +10,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.radarbase.auth.token.validation.ECTokenValidationAlgorithm;
@@ -22,7 +21,6 @@ import org.radarbase.auth.token.validation.RSATokenValidationAlgorithm;
  */
 public class TokenVerifierPublicKeyConfigTest {
 
-    @Rule
     public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
     @Test
