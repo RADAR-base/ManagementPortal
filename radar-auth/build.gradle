@@ -27,8 +27,6 @@ configurations {
 
 dependencies {
     implementation project(path: ':radar-auth:deprecated-auth0', configuration: 'shadow')
-    implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
-    implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
     shadow "commons-codec:commons-codec:$commonsCodecVersion"
 
     shadow group: 'com.auth0', name: 'java-jwt', version: oauthJwtVersion
@@ -60,6 +58,13 @@ jar {
     enabled = false
 }
 
+test {
+    testLogging {
+        exceptionFormat = 'full'
+    }
+    useJUnitPlatform()
+}
+
 task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {
     from javadoc.destinationDir
     into file("$rootDir/public/radar-auth-javadoc")
@@ -68,5 +73,5 @@ task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {
 ext.isShadowed = true
 ext.projectLanguage = "java"
 
-apply from: "$rootDir/gradle/publishing.gradle"
 apply from: "$rootDir/gradle/style.gradle"
+apply from: "$rootDir/gradle/publishing.gradle"
