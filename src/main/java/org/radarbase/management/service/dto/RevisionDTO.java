@@ -24,10 +24,8 @@ public class RevisionDTO {
      * @param entity the entity
      */
     public RevisionDTO(Revision revision, RevisionType revisionType, Object entity) {
-        // Revision numbers are auto-generated so no NPE on get().
-        id = (int) revision.getRevisionNumber().get();
-        // Revision timestamps are auto-generated so no NPE on get().
-        timestamp = (Instant) revision.getRevisionInstant().get();
+        id = revision.getRequiredRevisionNumber().intValue();
+        timestamp = revision.getRequiredRevisionInstant();
         author = ((CustomRevisionEntity) revision.getMetadata().getDelegate()).getAuditor();
         this.entity = entity;
         this.revisionType = revisionType;
