@@ -1,5 +1,6 @@
 package org.radarbase.management.domain.support;
 
+import org.radarbase.auth.config.Constants;
 import org.radarbase.management.domain.AbstractEntity;
 import org.radarbase.management.security.SpringSecurityAuditorAware;
 import org.slf4j.Logger;
@@ -38,7 +39,8 @@ public class AbstractEntityListener {
     @PostPersist
     public void publishPersistEvent(AbstractEntity entity) {
         AutowireHelper.autowire(this, springSecurityAuditorAware);
-        log.info(TEMPLATE, ENTITY_CREATED, springSecurityAuditorAware.getCurrentAuditor(),
+        log.info(TEMPLATE, ENTITY_CREATED, springSecurityAuditorAware.getCurrentAuditor()
+                        .orElse(Constants.SYSTEM_ACCOUNT),
                 entity.getClass().getName(), entity.toString());
     }
 
@@ -50,7 +52,8 @@ public class AbstractEntityListener {
     @PostUpdate
     public void publishUpdateEvent(AbstractEntity entity) {
         AutowireHelper.autowire(this, springSecurityAuditorAware);
-        log.info(TEMPLATE, ENTITY_UPDATED, springSecurityAuditorAware.getCurrentAuditor(),
+        log.info(TEMPLATE, ENTITY_UPDATED, springSecurityAuditorAware.getCurrentAuditor()
+                        .orElse(Constants.SYSTEM_ACCOUNT),
                 entity.getClass().getName(), entity.toString());
     }
 
@@ -62,7 +65,8 @@ public class AbstractEntityListener {
     @PostRemove
     public void publishRemoveEvent(AbstractEntity entity) {
         AutowireHelper.autowire(this, springSecurityAuditorAware);
-        log.info(TEMPLATE, ENTITY_REMOVED, springSecurityAuditorAware.getCurrentAuditor(),
+        log.info(TEMPLATE, ENTITY_REMOVED, springSecurityAuditorAware.getCurrentAuditor()
+                        .orElse(Constants.SYSTEM_ACCOUNT),
                 entity.getClass().getName(), entity.toString());
     }
 

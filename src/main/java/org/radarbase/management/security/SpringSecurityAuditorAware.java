@@ -1,8 +1,9 @@
 package org.radarbase.management.security;
 
-import org.radarbase.auth.config.Constants;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 /**
  * Implementation of AuditorAware based on Spring Security.
@@ -11,8 +12,7 @@ import org.springframework.stereotype.Component;
 public class SpringSecurityAuditorAware implements AuditorAware<String> {
 
     @Override
-    public String getCurrentAuditor() {
-        String userName = SecurityUtils.getCurrentUserLogin();
-        return userName != null ? userName : Constants.SYSTEM_ACCOUNT;
+    public Optional<String> getCurrentAuditor() {
+        return Optional.ofNullable(SecurityUtils.getCurrentUserLogin());
     }
 }

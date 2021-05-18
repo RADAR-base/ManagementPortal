@@ -1,29 +1,29 @@
 package org.radarbase.management.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.enumeration.ProjectStatus;
 import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.service.dto.SubjectDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Created by nivethika on 31-8-17.
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @Transactional
-public class RedcapIntegrationWorkFlowOnServiceLevelTest {
+class RedcapIntegrationWorkFlowOnServiceLevelTest {
 
     @Autowired
     private ProjectService projectService;
@@ -32,7 +32,7 @@ public class RedcapIntegrationWorkFlowOnServiceLevelTest {
     private SubjectService subjectService;
 
     @Test
-    public void testRedcapIntegrationWorkFlowOnServiceLevel() {
+    void testRedcapIntegrationWorkFlowOnServiceLevel() {
         final String externalProjectUrl = "MyUrl";
         final String externalProjectId = "MyId";
         final String projectLocation = "London";

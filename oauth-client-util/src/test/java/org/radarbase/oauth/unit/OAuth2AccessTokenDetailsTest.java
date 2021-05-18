@@ -1,33 +1,33 @@
 package org.radarbase.oauth.unit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.radarbase.exception.TokenException;
 import org.radarbase.oauth.OAuth2AccessTokenDetails;
 
 import java.time.Instant;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Created by dverbeec on 31/08/2017.
  */
-public class OAuth2AccessTokenDetailsTest {
+class OAuth2AccessTokenDetailsTest {
 
     @Test
-    public void testNewTokenIsExpired() {
+    void testNewTokenIsExpired() {
         OAuth2AccessTokenDetails token = new OAuth2AccessTokenDetails();
         assertTrue(token.isExpired());
     }
 
     @Test
-    public void testNewTokenIsInvalid() {
+    void testNewTokenIsInvalid() {
         OAuth2AccessTokenDetails token = new OAuth2AccessTokenDetails();
         assertFalse(token.isValid());
     }
 
     @Test
-    public void testTokenNotExpired() throws TokenException {
+    void testTokenNotExpired() throws TokenException {
         String body =
                 "{\"expires_in\":30"
                 + ",\"iat\":" + Instant.now().getEpochSecond()

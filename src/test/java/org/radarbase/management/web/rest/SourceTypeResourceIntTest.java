@@ -15,9 +15,10 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Assertions;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.SourceData;
@@ -41,7 +42,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -52,10 +53,10 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @see SourceTypeResource
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @WithMockUser
-public class SourceTypeResourceIntTest {
+class SourceTypeResourceIntTest {
 
     private static final String DEFAULT_PRODUCER = "AAAAA AAAAA";
     private static final String UPDATED_PRODUCER = "BBBBBBBBBB";
@@ -103,7 +104,7 @@ public class SourceTypeResourceIntTest {
 
     private SourceType sourceType;
 
-    @Before
+    @BeforeEach
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         SourceTypeResource sourceTypeResource = new SourceTypeResource();
@@ -138,14 +139,14 @@ public class SourceTypeResourceIntTest {
         return sourceType;
     }
 
-    @Before
+    @BeforeEach
     public void initTest() {
         sourceType = createEntity(em);
     }
 
     @Test
     @Transactional
-    public void createSourceType() throws Exception {
+    void createSourceType() throws Exception {
         int databaseSizeBeforeCreate = sourceTypeRepository.findAll().size();
 
         // Create the SourceType
@@ -178,7 +179,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void createSourceTypeWithExistingId() throws Exception {
+    void createSourceTypeWithExistingId() throws Exception {
         int databaseSizeBeforeCreate = sourceTypeRepository.findAll().size();
 
         // Create the SourceType with an existing ID
@@ -198,7 +199,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void checkModelIsRequired() throws Exception {
+    void checkModelIsRequired() throws Exception {
         int databaseSizeBeforeTest = sourceTypeRepository.findAll().size();
         // set the field null
         sourceType.setModel(null);
@@ -217,7 +218,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void checkSourceTypeIsRequired() throws Exception {
+    void checkSourceTypeIsRequired() throws Exception {
         int databaseSizeBeforeTest = sourceTypeRepository.findAll().size();
         // set the field null
         sourceType.setSourceTypeScope(null);
@@ -236,7 +237,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void checkVersionIsRequired() throws Exception {
+    void checkVersionIsRequired() throws Exception {
         int databaseSizeBeforeTest = sourceTypeRepository.findAll().size();
         // set the field null
         sourceType.catalogVersion(null);
@@ -255,14 +256,14 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void getAllSourceTypes() throws Exception {
+    void getAllSourceTypes() throws Exception {
         // Initialize the database
         sourceTypeRepository.saveAndFlush(sourceType);
 
         // Get all the sourceTypeList
         restSourceTypeMockMvc.perform(get("/api/source-types"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(sourceType.getId().intValue())))
                 .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER)))
                 .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL)))
@@ -274,14 +275,14 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void getAllSourceTypesWithPagination() throws Exception {
+    void getAllSourceTypesWithPagination() throws Exception {
         // Initialize the database
         sourceTypeRepository.saveAndFlush(sourceType);
 
         // Get all the sourceTypeList
         restSourceTypeMockMvc.perform(get("/api/source-types?page=0&size=5&sort=id,desc"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(sourceType.getId().intValue())))
                 .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER)))
                 .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL)))
@@ -293,7 +294,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void getSourceType() throws Exception {
+    void getSourceType() throws Exception {
         // Initialize the database
         sourceTypeRepository.saveAndFlush(sourceType);
 
@@ -301,7 +302,7 @@ public class SourceTypeResourceIntTest {
         restSourceTypeMockMvc.perform(get("/api/source-types/{prodcuer}/{model}/{version}",
                 sourceType.getProducer(), sourceType.getModel(), sourceType.getCatalogVersion()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(sourceType.getId().intValue()))
                 .andExpect(jsonPath("$.producer").value(DEFAULT_PRODUCER))
                 .andExpect(jsonPath("$.model").value(DEFAULT_MODEL))
@@ -311,7 +312,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void getNonExistingSourceType() throws Exception {
+    void getNonExistingSourceType() throws Exception {
         // Get the sourceType
         restSourceTypeMockMvc.perform(get("/api/source-types/{prodcuer}/{model}/{version}",
                 "does", "not", "exist"))
@@ -320,13 +321,13 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void updateSourceType() throws Exception {
+    void updateSourceType() throws Exception {
         // Initialize the database
         sourceTypeRepository.saveAndFlush(sourceType);
         int databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size();
 
         // Update the sourceType
-        SourceType updatedSourceType = sourceTypeRepository.findOne(sourceType.getId());
+        SourceType updatedSourceType = sourceTypeRepository.findById(sourceType.getId()).get();
         updatedSourceType
                 .producer(UPDATED_PRODUCER)
                 .model(UPDATED_MODEL)
@@ -351,7 +352,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void updateNonExistingSourceType() throws Exception {
+    void updateNonExistingSourceType() throws Exception {
         int databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size();
 
         // Create the SourceType
@@ -370,7 +371,7 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void deleteSourceType() throws Exception {
+    void deleteSourceType() throws Exception {
         // Initialize the database
         sourceTypeRepository.saveAndFlush(sourceType);
         int databaseSizeBeforeDelete = sourceTypeRepository.findAll().size();
@@ -388,13 +389,13 @@ public class SourceTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(SourceType.class);
+    void equalsVerifier() throws Exception {
+        Assertions.assertTrue(TestUtil.equalsVerifier(SourceType.class));
     }
 
     @Test
     @Transactional
-    public void idempotentPutWithoutId() throws Exception {
+    void idempotentPutWithoutId() throws Exception {
         final int databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size();
         final int sensorsSizeBeforeUpdate = sourceDataRepository.findAll().size();
 

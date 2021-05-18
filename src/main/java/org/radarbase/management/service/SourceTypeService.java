@@ -61,7 +61,7 @@ public class SourceTypeService {
             data.setSourceType(sourceType);
         }
         sourceType = sourceTypeRepository.save(sourceType);
-        sourceDataRepository.save(sourceType.getSourceData());
+        sourceDataRepository.saveAll(sourceType.getSourceData());
         return sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
     }
 
@@ -98,7 +98,7 @@ public class SourceTypeService {
      */
     public void delete(Long id) {
         log.debug("Request to delete SourceType : {}", id);
-        sourceTypeRepository.delete(id);
+        sourceTypeRepository.deleteById(id);
     }
 
     /**
