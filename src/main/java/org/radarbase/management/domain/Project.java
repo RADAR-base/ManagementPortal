@@ -1,6 +1,8 @@
 package org.radarbase.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
@@ -83,7 +85,7 @@ public class Project extends AbstractEntity implements Serializable {
     @JsonIgnore
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -146,6 +148,7 @@ public class Project extends AbstractEntity implements Serializable {
         return roles;
     }
 
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
@@ -239,6 +242,7 @@ public class Project extends AbstractEntity implements Serializable {
         return this;
     }
 
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setSourceTypes(Set<SourceType> sourceTypes) {
         this.sourceTypes = sourceTypes;
     }
@@ -247,6 +251,7 @@ public class Project extends AbstractEntity implements Serializable {
         return attributes;
     }
 
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
     }

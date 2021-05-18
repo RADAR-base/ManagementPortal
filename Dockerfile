@@ -1,5 +1,5 @@
 # Build stage
-FROM openjdk:8-jdk as builder
+FROM openjdk:11-jdk as builder
 
 # install node
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
@@ -34,7 +34,7 @@ COPY src src
 RUN ./gradlew -s bootWar
 
 # Run stage
-FROM openjdk:8-jre-alpine
+FROM adoptopenjdk/openjdk11:alpine-jre
 
 ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
     JHIPSTER_SLEEP=0

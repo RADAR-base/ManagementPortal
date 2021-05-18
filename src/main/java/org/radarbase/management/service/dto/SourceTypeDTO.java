@@ -6,6 +6,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import org.radarbase.management.domain.enumeration.SourceTypeScope;
 
 /**
@@ -86,6 +89,7 @@ public class SourceTypeDTO implements Serializable {
         return sourceData;
     }
 
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setSourceData(Set<SourceDataDTO> sourceData) {
         this.sourceData = sourceData;
     }

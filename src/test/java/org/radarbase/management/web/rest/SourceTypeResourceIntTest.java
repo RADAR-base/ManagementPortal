@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -153,7 +154,8 @@ class SourceTypeResourceIntTest {
         SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
         SourceDataDTO sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(
                 SourceDataResourceIntTest.createEntity(em));
-        sourceTypeDto.getSourceData().add(sourceDataDto);
+        Set<SourceDataDTO> sourceData = sourceTypeDto.getSourceData();
+        sourceData.add(sourceDataDto);
         restSourceTypeMockMvc.perform(post("/api/source-types")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))

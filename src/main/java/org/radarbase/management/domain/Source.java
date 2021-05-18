@@ -1,6 +1,8 @@
 package org.radarbase.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
@@ -211,6 +213,7 @@ public class Source extends AbstractEntity implements Serializable {
         return attributes;
     }
 
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
     }
