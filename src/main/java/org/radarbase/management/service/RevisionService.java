@@ -255,7 +255,8 @@ public class RevisionService implements ApplicationContextAware {
         }
 
         for (String entityName : revisionEntity.getModifiedEntityNames()) {
-            Class<?> entityClass = classForEntityName(entityName);
+            String cleanedEntityName = entityName.replace("org.radarcns.", "org.radarbase."))
+            Class<?> entityClass = classForEntityName(cleanedEntityName);
             Function<Object, Object> dtoMapper = getDtoMapper(entityClass);
 
             for (RevisionType revisionType : RevisionType.values()) {
