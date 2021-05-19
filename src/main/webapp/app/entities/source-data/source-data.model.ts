@@ -2,7 +2,10 @@ import {MinimalSourceType} from '../source-type/source-type.model';
 
 const enum ProcessingState {
     'RAW',
-    'DERIVED'
+    'DERIVED',
+    'VENDOR',
+    'RADAR',
+    'UNKNOWN'
 }
 
 export class SourceData {

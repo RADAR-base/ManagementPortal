@@ -11,14 +11,11 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.envers.Audited;
 import org.radarbase.auth.config.Constants;
-import org.radarbase.management.domain.enumeration.SourceTypeScope;
 import org.radarbase.management.domain.support.AbstractEntityListener;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -78,9 +75,8 @@ public class SourceType extends AbstractEntity implements Serializable {
     private String catalogVersion;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "source_type_scope", nullable = false)
-    private SourceTypeScope sourceTypeScope;
+    private String sourceTypeScope;
 
     @NotNull
     @Column(name = "dynamic_registration", nullable = false)
@@ -144,16 +140,16 @@ public class SourceType extends AbstractEntity implements Serializable {
         return this;
     }
 
-    public SourceTypeScope getSourceTypeScope() {
+    public String getSourceTypeScope() {
         return sourceTypeScope;
     }
 
-    public SourceType sourceTypeScope(SourceTypeScope sourceTypeScope) {
+    public SourceType sourceTypeScope(String sourceTypeScope) {
         this.sourceTypeScope = sourceTypeScope;
         return this;
     }
 
-    public void setSourceTypeScope(SourceTypeScope sourceTypeScope) {
+    public void setSourceTypeScope(String sourceTypeScope) {
         this.sourceTypeScope = sourceTypeScope;
     }
 

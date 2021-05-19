@@ -4,7 +4,9 @@
             "null": "NOT STATED",
             "RAW": "RAW",
             "DERIVED": "DERIVED",
-            "VENDOR": "VENDOR"
+            "RADAR": "RADAR",
+            "VENDOR": "VENDOR",
+            "UNKNOWN": "UNKNOWN"
         }
     }
 }
