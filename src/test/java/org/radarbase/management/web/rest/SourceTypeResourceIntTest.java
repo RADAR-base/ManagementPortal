@@ -23,7 +23,6 @@ import org.mockito.MockitoAnnotations;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.SourceData;
 import org.radarbase.management.domain.SourceType;
-import org.radarbase.management.domain.enumeration.SourceTypeScope;
 import org.radarbase.management.repository.SourceDataRepository;
 import org.radarbase.management.repository.SourceTypeRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
@@ -67,8 +66,8 @@ class SourceTypeResourceIntTest {
     private static final String DEFAULT_DEVICE_VERSION = "AAAAAAAAAA";
     private static final String UPDATED_DEVICE_VERSION = "AAAAAAAAAA";
 
-    private static final SourceTypeScope DEFAULT_SOURCE_TYPE_SCOPE = SourceTypeScope.ACTIVE;
-    private static final SourceTypeScope UPDATED_SOURCE_TYPE_SCOPE = SourceTypeScope.PASSIVE;
+    private static final String DEFAULT_SOURCE_TYPE_SCOPE = "ACTIVE";
+    private static final String UPDATED_SOURCE_TYPE_SCOPE = "PASSIVE";
 
     @Autowired
     private SourceTypeRepository sourceTypeRepository;

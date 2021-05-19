@@ -1,34 +1,19 @@
 package org.radarbase.management.web.rest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.Assertions;
 import org.mockito.MockitoAnnotations;
+import org.radarbase.auth.authentication.OAuthHelper;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.SourceData;
-import org.radarbase.management.domain.enumeration.ProcessingState;
 import org.radarbase.management.repository.SourceDataRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
 import org.radarbase.management.service.SourceDataService;
 import org.radarbase.management.service.dto.SourceDataDTO;
 import org.radarbase.management.service.mapper.SourceDataMapper;
 import org.radarbase.management.web.rest.errors.ExceptionTranslator;
-import org.radarbase.auth.authentication.OAuthHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -41,6 +26,21 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManager;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Test class for the SourceDataResource REST controller.
@@ -58,8 +58,8 @@ class SourceDataResourceIntTest {
     private static final String DEFAULT_SOURCE_DATA_NAME = "AAAAAAAAAAAAA";
     private static final String UPDATED_SOURCE_DATA_NAME = "BBBBBBBBBBAAA";
 
-    private static final ProcessingState DEFAULT_PROCESSING_STATE = ProcessingState.RAW;
-    private static final ProcessingState UPDATED_PROCESSING_STATE = ProcessingState.DERIVED;
+    private static final String DEFAULT_PROCESSING_STATE = "RAW";
+    private static final String UPDATED_PROCESSING_STATE = "DERIVED";
 
     private static final String DEFAULT_KEY_SCHEMA = "AAAAAAAAAAC";
     private static final String UPDATED_KEY_SCHEMA = "BBBBBBBBBBC";
