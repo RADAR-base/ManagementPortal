@@ -129,18 +129,17 @@ class SourceTypeResourceIntTest {
      * <p>This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.</p>
      */
-    public static SourceType createEntity(EntityManager em) {
-        SourceType sourceType = new SourceType()
+    public static SourceType createEntity() {
+        return new SourceType()
                 .producer(DEFAULT_PRODUCER)
                 .model(DEFAULT_MODEL)
                 .catalogVersion(DEFAULT_DEVICE_VERSION)
                 .sourceTypeScope(DEFAULT_SOURCE_TYPE_SCOPE);
-        return sourceType;
     }
 
     @BeforeEach
     public void initTest() {
-        sourceType = createEntity(em);
+        sourceType = createEntity();
     }
 
     @Test
@@ -268,7 +267,7 @@ class SourceTypeResourceIntTest {
                 .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL)))
                 .andExpect(jsonPath("$.[*].catalogVersion").value(hasItem(DEFAULT_DEVICE_VERSION)))
                 .andExpect(jsonPath("$.[*].sourceTypeScope").value(
-                        hasItem(DEFAULT_SOURCE_TYPE_SCOPE.toString())));
+                        hasItem(DEFAULT_SOURCE_TYPE_SCOPE)));
     }
 
 
@@ -287,7 +286,7 @@ class SourceTypeResourceIntTest {
                 .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL)))
                 .andExpect(jsonPath("$.[*].catalogVersion").value(hasItem(DEFAULT_DEVICE_VERSION)))
                 .andExpect(jsonPath("$.[*].sourceTypeScope").value(
-                        hasItem(DEFAULT_SOURCE_TYPE_SCOPE.toString())));
+                        hasItem(DEFAULT_SOURCE_TYPE_SCOPE)));
     }
 
 
@@ -306,7 +305,7 @@ class SourceTypeResourceIntTest {
                 .andExpect(jsonPath("$.producer").value(DEFAULT_PRODUCER))
                 .andExpect(jsonPath("$.model").value(DEFAULT_MODEL))
                 .andExpect(jsonPath("$.sourceTypeScope").value(
-                        DEFAULT_SOURCE_TYPE_SCOPE.toString()));
+                        DEFAULT_SOURCE_TYPE_SCOPE));
     }
 
     @Test

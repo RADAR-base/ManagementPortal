@@ -228,7 +228,7 @@ class SourceDataResourceIntTest {
                 .andExpect(jsonPath("$.[*].sourceDataName").value(
                         hasItem(DEFAULT_SOURCE_DATA_NAME)))
                 .andExpect(jsonPath("$.[*].processingState").value(
-                        hasItem(DEFAULT_PROCESSING_STATE.toString())))
+                        hasItem(DEFAULT_PROCESSING_STATE)))
                 .andExpect(jsonPath("$.[*].keySchema").value(hasItem(DEFAULT_KEY_SCHEMA)))
                 .andExpect(jsonPath("$.[*].valueSchema").value(hasItem(DEFAULT_VALUE_SCHEMA)))
                 .andExpect(jsonPath("$.[*].unit").value(hasItem(DEFAULT_UNTI)))
@@ -252,7 +252,7 @@ class SourceDataResourceIntTest {
                 .andExpect(jsonPath("$.[*].sourceDataName").value(
                         hasItem(DEFAULT_SOURCE_DATA_NAME)))
                 .andExpect(jsonPath("$.[*].processingState").value(
-                        hasItem(DEFAULT_PROCESSING_STATE.toString())))
+                        hasItem(DEFAULT_PROCESSING_STATE)))
                 .andExpect(jsonPath("$.[*].keySchema").value(hasItem(DEFAULT_KEY_SCHEMA)))
                 .andExpect(jsonPath("$.[*].valueSchema").value(hasItem(DEFAULT_VALUE_SCHEMA)))
                 .andExpect(jsonPath("$.[*].unit").value(hasItem(DEFAULT_UNTI)))
@@ -274,7 +274,7 @@ class SourceDataResourceIntTest {
                 .andExpect(jsonPath("$.id").value(sourceData.getId().intValue()))
                 .andExpect(jsonPath("$.sourceDataType").value(DEFAULT_SOURCE_DATA_TYPE))
                 .andExpect(jsonPath("$.sourceDataName").value(DEFAULT_SOURCE_DATA_NAME))
-                .andExpect(jsonPath("$.processingState").value(DEFAULT_PROCESSING_STATE.toString()))
+                .andExpect(jsonPath("$.processingState").value(DEFAULT_PROCESSING_STATE))
                 .andExpect(jsonPath("$.keySchema").value(DEFAULT_KEY_SCHEMA))
                 .andExpect(jsonPath("$.valueSchema").value(DEFAULT_VALUE_SCHEMA))
                 .andExpect(jsonPath("$.unit").value(DEFAULT_UNTI))
