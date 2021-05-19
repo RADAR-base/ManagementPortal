@@ -18,9 +18,10 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Assertions;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Project;
@@ -39,7 +40,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -50,10 +51,10 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @see ProjectResource
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @WithMockUser
-public class ProjectResourceIntTest {
+class ProjectResourceIntTest {
 
     private static final String DEFAULT_PROJECT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_PROJECT_NAME = "BBBBBBBBBB";
@@ -105,7 +106,7 @@ public class ProjectResourceIntTest {
 
     private Project project;
 
-    @Before
+    @BeforeEach
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         ProjectResource projectResource = new ProjectResource();
@@ -142,14 +143,14 @@ public class ProjectResourceIntTest {
         return project;
     }
 
-    @Before
+    @BeforeEach
     public void initTest() {
         project = createEntity();
     }
 
     @Test
     @Transactional
-    public void createProject() throws Exception {
+    void createProject() throws Exception {
         int databaseSizeBeforeCreate = projectRepository.findAll().size();
 
         // Create the Project
@@ -174,7 +175,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void createProjectWithExistingId() throws Exception {
+    void createProjectWithExistingId() throws Exception {
         int databaseSizeBeforeCreate = projectRepository.findAll().size();
 
         // Create the Project with an existing ID
@@ -194,7 +195,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void checkProjectNameIsRequired() throws Exception {
+    void checkProjectNameIsRequired() throws Exception {
         int databaseSizeBeforeTest = projectRepository.findAll().size();
         // set the field null
         project.setProjectName(null);
@@ -213,7 +214,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void checkDescriptionIsRequired() throws Exception {
+    void checkDescriptionIsRequired() throws Exception {
         int databaseSizeBeforeTest = projectRepository.findAll().size();
         // set the field null
         project.setDescription(null);
@@ -232,7 +233,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void checkLocationIsRequired() throws Exception {
+    void checkLocationIsRequired() throws Exception {
         int databaseSizeBeforeTest = projectRepository.findAll().size();
         // set the field null
         project.setLocation(null);
@@ -251,14 +252,14 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void getAllProjects() throws Exception {
+    void getAllProjects() throws Exception {
         // Initialize the database
         projectRepository.saveAndFlush(project);
 
         // Get all the projectList
         restProjectMockMvc.perform(get("/api/projects?sort=id,desc"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(project.getId().intValue())))
                 .andExpect(jsonPath("$.[*].projectName").value(hasItem(DEFAULT_PROJECT_NAME)))
                 .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
@@ -273,14 +274,14 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void getProject() throws Exception {
+    void getProject() throws Exception {
         // Initialize the database
         projectRepository.saveAndFlush(project);
 
         // Get the project
         restProjectMockMvc.perform(get("/api/projects/{projectName}", project.getProjectName()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(project.getId().intValue()))
                 .andExpect(jsonPath("$.projectName").value(DEFAULT_PROJECT_NAME))
                 .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
@@ -293,7 +294,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void getNonExistingProject() throws Exception {
+    void getNonExistingProject() throws Exception {
         // Get the project
         restProjectMockMvc.perform(get("/api/projects/{id}", Long.MAX_VALUE))
                 .andExpect(status().isNotFound());
@@ -301,13 +302,13 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void updateProject() throws Exception {
+    void updateProject() throws Exception {
         // Initialize the database
         projectRepository.saveAndFlush(project);
         int databaseSizeBeforeUpdate = projectRepository.findAll().size();
 
         // Update the project
-        Project updatedProject = projectRepository.findOne(project.getId());
+        Project updatedProject = projectRepository.findById(project.getId()).get();
         updatedProject
                 .projectName(UPDATED_PROJECT_NAME)
                 .description(UPDATED_DESCRIPTION)
@@ -338,7 +339,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void updateNonExistingProject() throws Exception {
+    void updateNonExistingProject() throws Exception {
         int databaseSizeBeforeUpdate = projectRepository.findAll().size();
 
         // Create the Project
@@ -357,7 +358,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void deleteProject() throws Exception {
+    void deleteProject() throws Exception {
         // Initialize the database
         projectRepository.saveAndFlush(project);
         int databaseSizeBeforeDelete = projectRepository.findAll().size();
@@ -374,7 +375,7 @@ public class ProjectResourceIntTest {
 
     @Test
     @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Project.class);
+    void equalsVerifier() throws Exception {
+        Assertions.assertTrue(TestUtil.equalsVerifier(Project.class));
     }
 }

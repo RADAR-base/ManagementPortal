@@ -4,5 +4,5 @@ package org.radarbase.management.domain.enumeration;
  * The ProcessingState enumeration.
  */
 public enum ProcessingState {
-    RAW, DERIVED, VENDOR
+    RAW, DERIVED, VENDOR, RADAR, UNKNOWN
 }

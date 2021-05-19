@@ -16,9 +16,11 @@ import java.util.List;
 import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Assertions;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Project;
@@ -41,7 +43,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -53,10 +55,10 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @see SourceResource
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @WithMockUser
-public class SourceResourceIntTest {
+class SourceResourceIntTest {
 
     private static final UUID DEFAULT_SOURCE_PHYSICAL_ID = UUID.randomUUID();
     private static final UUID UPDATED_SOURCE_PHYSICAL_ID = DEFAULT_SOURCE_PHYSICAL_ID;
@@ -102,7 +104,7 @@ public class SourceResourceIntTest {
 
     private Project project;
 
-    @Before
+    @BeforeEach
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         SourceResource sourceResource = new SourceResource();
@@ -134,19 +136,19 @@ public class SourceResourceIntTest {
         return source;
     }
 
-    @Before
+    @BeforeEach
     public void initTest() {
         source = createEntity();
         List<SourceTypeDTO> sourceTypeDtos = sourceTypeService.findAll();
-        assertThat(sourceTypeDtos.size()).isGreaterThan(0);
+        assertThat(sourceTypeDtos.size()).isPositive();
         source.setSourceType(sourceTypeMapper.sourceTypeDTOToSourceType(sourceTypeDtos.get(0)));
-        project = projectRepository.findOne(1L);
+        project = projectRepository.findById(1L).get();
         source.project(project);
     }
 
     @Test
     @Transactional
-    public void createSource() throws Exception {
+    void createSource() throws Exception {
         int databaseSizeBeforeCreate = sourceRepository.findAll().size();
 
         // Create the Source
@@ -167,7 +169,7 @@ public class SourceResourceIntTest {
 
     @Test
     @Transactional
-    public void createSourceWithExistingId() throws Exception {
+    void createSourceWithExistingId() throws Exception {
         int databaseSizeBeforeCreate = sourceRepository.findAll().size();
 
         // Create the Source with an existing ID
@@ -187,7 +189,7 @@ public class SourceResourceIntTest {
 
     @Test
     @Transactional
-    public void checkSourcePhysicalIdIsGenerated() throws Exception {
+    void checkSourcePhysicalIdIsGenerated() throws Exception {
         int databaseSizeBeforeTest = sourceRepository.findAll().size();
         // set the field null
         source.setSourceId(null);
@@ -216,7 +218,7 @@ public class SourceResourceIntTest {
 
     @Test
     @Transactional
-    public void checkAssignedIsRequired() throws Exception {
+    void checkAssignedIsRequired() throws Exception {
         int databaseSizeBeforeTest = sourceRepository.findAll().size();
         // set the field null
         source.setAssigned(null);
@@ -235,14 +237,14 @@ public class SourceResourceIntTest {
 
     @Test
     @Transactional
-    public void getAllSources() throws Exception {
+    void getAllSources() throws Exception {
         // Initialize the database
         sourceRepository.saveAndFlush(source);
 
         // Get all the deviceList
         restDeviceMockMvc.perform(get("/api/sources?sort=id,desc"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(source.getId().intValue())))
                 .andExpect(jsonPath("$.[*].sourceId").value(everyItem(notNullValue())))
                 .andExpect(jsonPath("$.[*].assigned").value(
@@ -251,14 +253,14 @@ public class SourceResourceIntTest {
 
     @Test
     @Transactional
-    public void getSource() throws Exception {
+    void getSource() throws Exception {
         // Initialize the database
         sourceRepository.saveAndFlush(source);
 
         // Get the source
         restDeviceMockMvc.perform(get("/api/sources/{sourceName}", source.getSourceName()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(source.getId().intValue()))
                 .andExpect(jsonPath("$.sourceId").value(notNullValue()))
                 .andExpect(jsonPath("$.assigned").value(DEFAULT_ASSIGNED.booleanValue()));
@@ -266,7 +268,7 @@ public class SourceResourceIntTest {
 
     @Test
     @Transactional
-    public void getNonExistingSource() throws Exception {
+    void getNonExistingSource() throws Exception {
         // Get the source
         restDeviceMockMvc.perform(get("/api/sources/{id}", Long.MAX_VALUE))
                 .andExpect(status().isNotFound());
@@ -274,13 +276,13 @@ public class SourceResourceIntTest {
 
     @Test
     @Transactional
-    public void updateSource() throws Exception {
+    void updateSource() throws Exception {
         // Initialize the database
         sourceRepository.saveAndFlush(source);
         int databaseSizeBeforeUpdate = sourceRepository.findAll().size();
 
         // Update the source
-        Source updatedSource = sourceRepository.findOne(source.getId());
+        Source updatedSource = sourceRepository.findById(source.getId()).get();
         updatedSource
                 .sourceId(UPDATED_SOURCE_PHYSICAL_ID)
                 .assigned(UPDATED_ASSIGNED);
@@ -301,7 +303,7 @@ public class SourceResourceIntTest {
 
     @Test
     @Transactional
-    public void updateNonExistingSource() throws Exception {
+    void updateNonExistingSource() throws Exception {
         int databaseSizeBeforeUpdate = sourceRepository.findAll().size();
 
         // Create the Source
@@ -320,7 +322,7 @@ public class SourceResourceIntTest {
 
     @Test
     @Transactional
-    public void deleteSource() throws Exception {
+    void deleteSource() throws Exception {
         // Initialize the database
         sourceRepository.saveAndFlush(source);
         int databaseSizeBeforeDelete = sourceRepository.findAll().size();
@@ -337,7 +339,7 @@ public class SourceResourceIntTest {
 
     @Test
     @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Source.class);
+    void equalsVerifier() throws Exception {
+        Assertions.assertTrue(TestUtil.equalsVerifier(Source.class));
     }
 }

@@ -22,7 +22,7 @@ tasks.withType(ScalaCompile) {
 
 task manifestJar(type: Jar) {
     from configurations.gatlingCompile
-    archiveName 'gatlingBooter.jar'
+    archiveFileName.set 'gatlingBooter.jar'
     doFirst {
         manifest {
             // uri is just needed for Windows-compatibility
@@ -35,7 +35,7 @@ task gatlingRunAll(dependsOn: manifestJar) {
     group = 'gatling'
     description = 'Run all available Gatling simulations.'
 
-    fileTree(dir: gatlingSimulations, include: '**/*.scala').each {
+    fileTree(dir: gatlingSimulations, include: '**/*Test.scala').each {
         def gatlingClass = it.name.replaceFirst(".scala", "")
         gatlingRunAll.dependsOn "gatlingRun${gatlingClass}"
     }
@@ -48,7 +48,7 @@ tasks.addRule("Pattern: gatlingRun<ID>") { String taskName ->
 
             final def sourceSet = sourceSets.gatling
 
-            classpath sourceSet.output + files(manifestJar.archivePath) + files("${gatlingSrc}/resources")
+            classpath sourceSet.output + files(manifestJar.archiveFile) + files("${gatlingSrc}/resources")
             main = "io.gatling.app.Gatling"
 
             environment GATLING_HOME:''

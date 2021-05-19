@@ -270,7 +270,7 @@ will generate few files:
 
 To optimize the ManagementPortal application for production, run:
 
-    ./gradlew -Pprod clean bootRepackage
+    ./gradlew -Pprod clean bootWar
 ### Hosting in production
 The latest Meta-QR code implementation requires REST resources on `api/meta-token/*` should definitely be rate-limited by upstream servers.
 
@@ -301,7 +301,11 @@ and can be run by starting Spring Boot in one terminal (`./gradlew bootRun`) and
 
 Performance tests are run by [Gatling][] and written in Scala. They're located in [src/test/gatling](src/test/gatling) and can be run with:
 
-    ./gradlew gatlingRun
+    ./gradlew gatlingRunAll
+
+or
+
+    ./gradlew gatlingRun<SIMULATION_CLASS_NAME> # E.g., gatlingRunProjectGatlingTest
 
 For more information, refer to the [Running tests page][].
 
@@ -319,7 +323,7 @@ To stop it and remove the container, run:
 You can also fully dockerize your application and all the services that it depends on.
 To achieve this, first build a docker image of your app by running:
 
-    ./gradlew bootRepackage -Pprod buildDocker
+    ./gradlew bootWar -Pprod buildDocker
 
 Then run:
 

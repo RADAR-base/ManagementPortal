@@ -1,6 +1,6 @@
 import org.gradle.internal.os.OperatingSystem
 
-task buildDocker(type: Exec, dependsOn: bootRepackage) {
+task buildDocker(type: Exec, dependsOn: bootWar) {
     doFirst {
         copy {
             from "src/main/docker/"

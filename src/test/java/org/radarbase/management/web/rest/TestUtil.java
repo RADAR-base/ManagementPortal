@@ -121,7 +121,7 @@ public final class TestUtil {
      * Verifies the equals/hashcode contract on the domain object.
      */
     @SuppressWarnings("unchecked")
-    public static void equalsVerifier(Class clazz) throws Exception {
+    public static boolean equalsVerifier(Class clazz) throws Exception {
         Object domainObject1 = clazz.getConstructor().newInstance();
         assertThat(domainObject1.toString()).isNotNull();
         assertThat(domainObject1).isEqualTo(domainObject1);
@@ -134,6 +134,7 @@ public final class TestUtil {
         assertThat(domainObject1).isNotEqualTo(domainObject2);
         // HashCodes are equals because the objects are not persisted yet
         assertThat(domainObject1.hashCode()).isEqualTo(domainObject2.hashCode());
+        return true;
     }
 
 

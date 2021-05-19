@@ -31,7 +31,7 @@ RUN ./gradlew downloadDependencies :radar-auth:shadowJar
 # now we copy our application source code and build it
 COPY radar-auth radar-auth
 COPY src src
-RUN ./gradlew -s bootRepackage
+RUN ./gradlew -s bootWar
 
 # Run stage
 FROM openjdk:8-jre-alpine

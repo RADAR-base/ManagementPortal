@@ -1,16 +1,38 @@
 import org.gradle.internal.os.OperatingSystem
+import java.util.concurrent.TimeUnit
+
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${spring_boot_version}")
+    }
+}
 
 plugins {
-    id 'org.springframework.boot' version '1.5.9.RELEASE'
+    id 'org.springframework.boot' version "${spring_boot_version}"
     id "com.moowork.node" version "1.2.0"
-    id "io.spring.dependency-management" version "1.0.7.RELEASE"
+    id "io.spring.dependency-management" version "1.0.10.RELEASE"
     id 'de.undercouch.download' version '4.1.1' apply false
-    id("io.github.gradle-nexus.publish-plugin") version "1.0.0"
+    id "io.github.gradle-nexus.publish-plugin" version "1.0.0"
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'war'
+apply plugin: 'com.moowork.node'
+apply plugin: 'io.spring.dependency-management'
+
+repositories {
+    mavenCentral()
+    jcenter()
 }
 
 allprojects {
     group 'org.radarbase'
-    version '0.7.1-SNAPSHOT' // project version
+    version '0.7.2-SNAPSHOT' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
@@ -45,11 +67,6 @@ allprojects {
 
 description = 'MangementPortal application to manage studies and participants'
 
-apply plugin: 'org.springframework.boot'
-apply plugin: 'war'
-apply plugin: 'com.moowork.node'
-apply plugin: 'io.spring.dependency-management'
-
 defaultTasks 'bootRun'
 
 configurations {
@@ -57,13 +74,13 @@ configurations {
 }
 
 
-bootRepackage {
-    mainClass = 'org.radarbase.management.ManagementPortalApp'
+bootWar {
+    mainClassName = 'org.radarbase.management.ManagementPortalApp'
+    launchScript()
 }
 
 springBoot {
-    mainClass = 'org.radarbase.management.ManagementPortalApp'
-    executable = true
+    mainClassName = 'org.radarbase.management.ManagementPortalApp'
     buildInfo()
 }
 
@@ -82,7 +99,7 @@ if (OperatingSystem.current().isWindows()) {
     }
 
     bootRun {
-        addResources = false
+        sourceResources sourceSets.main
         dependsOn pathingJar
         doFirst {
             classpath = files("$buildDir/classes/java/main", "$buildDir/resources/main", pathingJar.archivePath)
@@ -90,7 +107,7 @@ if (OperatingSystem.current().isWindows()) {
     }
 } else {
     bootRun {
-        addResources = false
+        sourceResources sourceSets.main
     }
 }
 
@@ -98,6 +115,7 @@ test {
     testLogging {
         exceptionFormat = 'full'
     }
+    useJUnitPlatform()
 }
 
 task testReport(type: TestReport) {
@@ -126,95 +144,112 @@ if (project.hasProperty('graphite')) {
 //ext.moduleDescription = 'Management Portal application'
 ext.findbugAnnotationVersion = '3.0.2'
 
-repositories {
-    mavenCentral()
-    jcenter()
-}
-
 dependencies {
-    compile "io.github.jhipster:jhipster:${jhipster_server_version}"
-    compile "io.dropwizard.metrics:metrics-core:${dropwizard_metrics_version}"
-    compile "io.dropwizard.metrics:metrics-jcache:${dropwizard_metrics_version}"
-    compile "io.dropwizard.metrics:metrics-jvm:${dropwizard_metrics_version}"
-    compile "io.dropwizard.metrics:metrics-servlet:${dropwizard_metrics_version}"
-    compile "io.dropwizard.metrics:metrics-json:${dropwizard_metrics_version}"
-    compile "io.dropwizard.metrics:metrics-servlets:${dropwizard_metrics_version}"
-    compile("net.logstash.logback:logstash-logback-encoder:${logstash_logback_encoder_version}") {
+
+    implementation("io.github.jhipster:jhipster:${jhipster_server_version}") {
+        exclude group: "org.springframework.boot", module: "spring-boot-autoconfigure"
+    }
+    implementation "io.dropwizard.metrics:metrics-core:${dropwizard_metrics_version}"
+    implementation "io.dropwizard.metrics:metrics-jcache:${dropwizard_metrics_version}"
+    implementation "io.dropwizard.metrics:metrics-jvm:${dropwizard_metrics_version}"
+    implementation "io.dropwizard.metrics:metrics-servlet:${dropwizard_metrics_version}"
+    implementation "io.dropwizard.metrics:metrics-json:${dropwizard_metrics_version}"
+    implementation "io.dropwizard.metrics:metrics-servlets:${dropwizard_metrics_version}"
+    implementation("net.logstash.logback:logstash-logback-encoder:${logstash_logback_encoder_version}") {
         exclude(group: 'ch.qos.logback')
     }
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-json-org:${jackson_dataformat_version}"
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-hppc:${jackson_dataformat_version}"
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_dataformat_version}"
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${jackson_dataformat_version}"
-    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:${jackson_dataformat_version}"
-    compile "com.fasterxml.jackson.core:jackson-annotations:${jackson_dataformat_version}"
-    compile "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
-    compile("com.ryantenney.metrics:metrics-spring:${metrics_spring_version}")
-    compile "com.hazelcast:hazelcast"
-    compile "com.hazelcast:hazelcast-hibernate52:${hazelcast_hibernate52_version}"
-    compile "com.hazelcast:hazelcast-spring"
-    compile "javax.cache:cache-api"
-    compile "org.hibernate:hibernate-core:${hibernate_version}"
-    compile("com.zaxxer:HikariCP:${hikaricp_version}")
-    compile "org.apache.commons:commons-lang3:${commons_lang_version}"
-    compile "commons-io:commons-io:${commons_io_version}"
-    compile "javax.transaction:javax.transaction-api"
-    compile group: 'javax.ws.rs', name: 'jsr311-api', version: '1.1.1'
-    compile group: 'com.google.code.findbugs', name: 'jsr305', version: findbugAnnotationVersion
-    compile "org.hibernate:hibernate-envers:${hibernate_version}"
-    compile "org.hibernate:hibernate-validator"
-    compile("org.liquibase:liquibase-core")
-    compile "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
-    compile "org.springframework.boot:spring-boot-actuator"
-    compile "org.springframework.boot:spring-boot-autoconfigure"
-    compile "org.springframework.boot:spring-boot-loader-tools"
-    compile "org.springframework.boot:spring-boot-starter-mail"
-    compile "org.springframework.boot:spring-boot-starter-logging"
-    compile "org.springframework.boot:spring-boot-starter-aop"
-    compile ("org.springframework.boot:spring-boot-starter-data-jpa") {
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-json-org:${jackson_dataformat_version}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-hppc:${jackson_dataformat_version}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_dataformat_version}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${jackson_dataformat_version}"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:${jackson_dataformat_version}"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:${jackson_dataformat_version}"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
+    implementation("com.ryantenney.metrics:metrics-spring:${metrics_spring_version}")
+    implementation "com.hazelcast:hazelcast"
+    implementation "com.hazelcast:hazelcast-hibernate52:${hazelcast_hibernate52_version}"
+    implementation "com.hazelcast:hazelcast-spring"
+    implementation "javax.cache:cache-api"
+    implementation "org.hibernate:hibernate-core:${hibernate_version}"
+    implementation("com.zaxxer:HikariCP:${hikaricp_version}")
+    implementation "org.apache.commons:commons-lang3:${commons_lang_version}"
+    implementation "commons-io:commons-io:${commons_io_version}"
+    implementation "javax.transaction:javax.transaction-api"
+    implementation group: 'javax.ws.rs', name: 'jsr311-api', version: '1.1.1'
+    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: findbugAnnotationVersion
+    implementation "org.hibernate:hibernate-envers:${hibernate_version}"
+    implementation "org.hibernate:hibernate-validator:6.2.0.Final"
+    implementation("org.liquibase:liquibase-core:${liquibase_version}")
+    implementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    implementation "org.springframework.boot:spring-boot-loader-tools"
+    implementation "org.springframework.boot:spring-boot-starter-mail"
+    implementation "org.springframework.boot:spring-boot-starter-logging"
+    implementation "org.springframework.boot:spring-boot-starter-aop"
+    implementation ("org.springframework.boot:spring-boot-starter-data-jpa") {
         exclude group: 'org.hibernate', module: 'hibernate-entitymanager'
     }
-    compile "org.springframework.boot:spring-boot-starter-security"
-    compile "org.springframework.cloud:spring-cloud-starter-zuul:${zuul_proxy_version}"
-    compile("org.springframework.boot:spring-boot-starter-web") {
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-zuul") {
+        exclude group: "org.springframework.boot", module: "spring-boot-autoconfigure"
+    }
+    implementation "org.springframework.cloud:spring-cloud-context"
+    implementation "org.springframework.cloud:spring-cloud-commons"
+    implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude module: 'spring-boot-starter-tomcat'
     }
-    compile "org.springframework.boot:spring-boot-starter-undertow"
-    compile "org.springframework.boot:spring-boot-starter-thymeleaf"
-    compile("org.springframework:spring-context-support")
-    compile "org.springframework.security:spring-security-config"
-    compile "org.springframework.security:spring-security-data"
-    compile ("org.springframework.security:spring-security-web"){
+    implementation "org.springframework.boot:spring-boot-starter-undertow"
+    implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
+    implementation("org.springframework:spring-context-support")
+    implementation("org.springframework:spring-jdbc")
+    implementation "org.springframework.security:spring-security-config"
+    implementation "org.springframework.security:spring-security-data"
+    implementation ("org.springframework.security:spring-security-web") {
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
     }
-    compile "org.springframework.security:spring-security-jwt"
-    compile "org.springframework.security.oauth:spring-security-oauth2:${spring_security_oauth2_version}"
-    compile("io.springfox:springfox-swagger2:${springfox_version}") {
+    implementation "org.springframework.cloud:spring-cloud-starter-security"
+    implementation("org.springframework.cloud:spring-cloud-starter-oauth2") {
+        exclude group: "org.springframework.boot", module: "spring-boot-autoconfigure"
+        exclude group: "org.springframework.security.oauth", module: "spring-security-oauth2"
+    }
+    implementation("org.springframework.security.oauth:spring-security-oauth2:2.3.5.RELEASE")
+    implementation("io.springfox:springfox-swagger2:${springfox_version}") {
         exclude module: 'mapstruct'
     }
-    compile "io.springfox:springfox-bean-validators:${springfox_version}"
-    compile "org.postgresql:postgresql:${postgresql_version}"
-    compile "com.h2database:h2"
-    compile project(path: ':radar-auth', configuration: 'shadow')
-    compile "org.springframework.data:spring-data-envers:${spring_data_envers_version}"
+    implementation "io.springfox:springfox-bean-validators:${springfox_version}"
+    implementation "org.postgresql:postgresql:${postgresql_version}"
+    implementation "com.h2database:h2"
+    implementation project(path: ':radar-auth', configuration: 'shadow')
+    implementation "org.springframework.data:spring-data-envers:${spring_data_envers_version}"
     runtimeOnly("jakarta.xml.bind:jakarta.xml.bind-api:$javaxXmlBindVersion")
     runtimeOnly("org.glassfish.jaxb:jaxb-core:$javaxJaxbCoreVersion")
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime:$javaxJaxbRuntimeVersion")
     runtimeOnly("javax.activation:activation:$javaxActivation")
 
-    testCompile "org.awaitility:awaitility:${awaitility_version}"
-    testCompile "com.jayway.jsonpath:json-path"
-    testCompile ("org.springframework.boot:spring-boot-starter-test") {
+    testImplementation "org.awaitility:awaitility:${awaitility_version}"
+    testImplementation "com.jayway.jsonpath:json-path"
+    testImplementation ("org.springframework.boot:spring-boot-starter-test") {
         exclude group: "com.vaadin.external.google", module:"android-json"
+        exclude group: "junit", module: "junit"
+        exclude group: "org.junit.vintage", module: "junit-vintage-engine"
     }
-    testCompile "org.springframework.security:spring-security-test"
-    testCompile "org.springframework.boot:spring-boot-test"
-    testCompile "org.assertj:assertj-core:${assertj_version}"
-    testCompile "junit:junit"
-    testCompile "org.mockito:mockito-core"
-    testCompile "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
-    testCompile "org.hamcrest:hamcrest-library"
+    testImplementation "org.springframework.security:spring-security-test"
+    testImplementation "org.springframework.boot:spring-boot-test"
+    testImplementation "org.assertj:assertj-core:${assertj_version}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api"
+    testImplementation "org.mockito:mockito-core"
+    testImplementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
+    testImplementation "org.hamcrest:hamcrest-library"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+
     annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:Hoxton.SR9"
+    }
 }
 
 clean {
@@ -229,7 +264,7 @@ wrapper {
     gradleVersion '6.7.1'
 }
 
-task stage(dependsOn: 'bootRepackage') {
+task stage(dependsOn: 'bootWar') {
 }
 
 task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {
@@ -272,3 +307,46 @@ nexusPublishing {
         }
     }
 }
+
+class TimingsListener implements TaskExecutionListener, BuildListener {
+    private long startTime
+    private timings = []
+
+    @Override
+    void beforeExecute(Task task) {
+        startTime = System.nanoTime()
+    }
+
+    @Override
+    void afterExecute(Task task, TaskState taskState) {
+        def ms = TimeUnit.MILLISECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
+        timings.add([ms, task.path])
+        task.project.logger.warn "${task.path} took ${ms}ms"
+    }
+
+    @Override
+    void buildFinished(BuildResult result) {
+        println "Task timings:"
+        for (timing in timings) {
+            if (timing[0] >= 50) {
+                printf "%7sms  %s\n", timing
+            }
+        }
+    }
+
+    @Override
+    void buildStarted(Gradle gradle) {}
+
+    @Override
+    void projectsEvaluated(Gradle gradle) {}
+
+    @Override
+    void projectsLoaded(Gradle gradle) {}
+
+    @Override
+    void settingsEvaluated(Settings settings) {}
+}
+if (project.hasProperty('dev')) {
+    gradle.addListener new TimingsListener()
+}
+

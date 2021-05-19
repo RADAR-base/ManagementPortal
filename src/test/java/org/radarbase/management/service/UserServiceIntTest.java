@@ -5,9 +5,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.query.AuditEntity;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Authority;
@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +45,7 @@ import static org.radarbase.management.web.rest.TestUtil.commitTransactionAndSta
  *
  * @see UserService
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @Transactional
 public class UserServiceIntTest {
@@ -90,7 +90,7 @@ public class UserServiceIntTest {
 
     private UserDTO userDto;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         entityManager = entityManagerFactory.createEntityManager(
                 entityManagerFactory.getProperties());
@@ -121,12 +121,12 @@ public class UserServiceIntTest {
     }
 
     @Test
-    public void assertThatUserMustExistToResetPassword() {
+    void assertThatUserMustExistToResetPassword() {
         Optional<User> maybeUser = userService.requestPasswordReset("john.doe@localhost");
-        assertThat(maybeUser.isPresent()).isFalse();
+        assertThat(maybeUser).isNotPresent();
 
         maybeUser = userService.requestPasswordReset("admin@localhost");
-        assertThat(maybeUser.isPresent()).isTrue();
+        assertThat(maybeUser).isPresent();
 
         assertThat(maybeUser.get().getEmail()).isEqualTo("admin@localhost");
         assertThat(maybeUser.get().getResetDate()).isNotNull();
@@ -134,15 +134,15 @@ public class UserServiceIntTest {
     }
 
     @Test
-    public void assertThatOnlyActivatedUserCanRequestPasswordReset() {
+    void assertThatOnlyActivatedUserCanRequestPasswordReset() {
         User user = userService.createUser(userDto);
         Optional<User> maybeUser = userService.requestPasswordReset(userDto.getEmail());
-        assertThat(maybeUser.isPresent()).isFalse();
+        assertThat(maybeUser).isNotPresent();
         userRepository.delete(user);
     }
 
     @Test
-    public void assertThatResetKeyMustNotBeOlderThan24Hours() {
+    void assertThatResetKeyMustNotBeOlderThan24Hours() {
         User user = userService.createUser(userDto);
 
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(25);
@@ -156,13 +156,13 @@ public class UserServiceIntTest {
         Optional<User> maybeUser = userService.completePasswordReset("johndoe2",
                 user.getResetKey());
 
-        assertThat(maybeUser.isPresent()).isFalse();
+        assertThat(maybeUser).isNotPresent();
 
         userRepository.delete(user);
     }
 
     @Test
-    public void assertThatResetKeyMustBeValid() {
+    void assertThatResetKeyMustBeValid() {
         User user = userService.createUser(userDto);
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(25);
         user.setActivated(true);
@@ -171,12 +171,12 @@ public class UserServiceIntTest {
         userRepository.save(user);
         Optional<User> maybeUser = userService.completePasswordReset("johndoe2",
                 user.getResetKey());
-        assertThat(maybeUser.isPresent()).isFalse();
+        assertThat(maybeUser).isNotPresent();
         userRepository.delete(user);
     }
 
     @Test
-    public void assertThatUserCanResetPassword() {
+    void assertThatUserCanResetPassword() {
         User user = userService.createUser(userDto);
         final String oldPassword = user.getPassword();
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(2);
@@ -187,7 +187,7 @@ public class UserServiceIntTest {
         userRepository.save(user);
         Optional<User> maybeUser = userService.completePasswordReset("johndoe2",
                 user.getResetKey());
-        assertThat(maybeUser.isPresent()).isTrue();
+        assertThat(maybeUser).isPresent();
         assertThat(maybeUser.get().getResetDate()).isNull();
         assertThat(maybeUser.get().getResetKey()).isNull();
         assertThat(maybeUser.get().getPassword()).isNotEqualTo(oldPassword);
@@ -196,7 +196,7 @@ public class UserServiceIntTest {
     }
 
     @Test
-    public void testFindNotActivatedUsersByCreationDateBefore() {
+    void testFindNotActivatedUsersByCreationDateBefore() {
         User expiredUser = addExpiredUser(userRepository);
         commitTransactionAndStartNew();
 
@@ -236,8 +236,8 @@ public class UserServiceIntTest {
     }
 
     @Test
-    public void assertThatAnonymousUserIsNotGet() {
-        final PageRequest pageable = new PageRequest(0, (int) userRepository.count());
+    void assertThatAnonymousUserIsNotGet() {
+        final PageRequest pageable = PageRequest.of(0, (int) userRepository.count());
         final Page<UserDTO> allManagedUsers = userService.findUsers(new UserFilter(), pageable);
         assertThat(allManagedUsers.getContent().stream()
                 .noneMatch(user -> Constants.ANONYMOUS_USER.equals(user.getLogin())))

@@ -116,12 +116,12 @@ public class ProjectService {
     }
 
     /**
-     * Delete the  project by id.
+     * Delete the project by id.
      *
      * @param id the id of the entity
      */
     public void delete(Long id) {
         log.debug("Request to delete Project : {}", id);
-        projectRepository.delete(id);
+        projectRepository.deleteById(id);
     }
 }

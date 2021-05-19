@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
-import static org.radarbase.management.service.OauthClientServiceTest.createClient;
+import static org.radarbase.management.service.OAuthClientServiceTestUtil.createClient;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -14,9 +14,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.authentication.OAuthHelper;
 import org.radarbase.management.ManagementPortalApp;
@@ -36,7 +36,7 @@ import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -47,9 +47,9 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @see ProjectResource
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalApp.class)
-public class OAuthClientsResourceIntTest {
+class OAuthClientsResourceIntTest {
 
     @Autowired
     private JdbcClientDetailsService clientDetailsService;
@@ -86,7 +86,7 @@ public class OAuthClientsResourceIntTest {
 
     private int databaseSizeBeforeCreate;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         OAuthClientsResource oauthClientsResource = new OAuthClientsResource();
@@ -127,7 +127,7 @@ public class OAuthClientsResourceIntTest {
 
     @Test
     @Transactional
-    public void createAndFetchOAuthClient() throws Exception {
+    void createAndFetchOAuthClient() throws Exception {
         // fetch the created oauth client and check the json result
         restOauthClientMvc.perform(get("/api/oauth-clients/" + details.getClientId())
                 .accept(MediaType.APPLICATION_JSON))
@@ -169,7 +169,7 @@ public class OAuthClientsResourceIntTest {
 
     @Test
     @Transactional
-    public void dupliceOAuthClient() throws Exception {
+    void dupliceOAuthClient() throws Exception {
         restOauthClientMvc.perform(post("/api/oauth-clients")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
@@ -178,7 +178,7 @@ public class OAuthClientsResourceIntTest {
 
     @Test
     @Transactional
-    public void updateOAuthClient() throws Exception {
+    void updateOAuthClient() throws Exception {
         // update the client
         details.setRefreshTokenValiditySeconds(20L);
         restOauthClientMvc.perform(put("/api/oauth-clients")
@@ -196,7 +196,7 @@ public class OAuthClientsResourceIntTest {
 
     @Test
     @Transactional
-    public void deleteOAuthClient() throws Exception {
+    void deleteOAuthClient() throws Exception {
         restOauthClientMvc.perform(delete("/api/oauth-clients/" + details.getClientId())
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details)))
@@ -207,7 +207,7 @@ public class OAuthClientsResourceIntTest {
 
     @Test
     @Transactional
-    public void cannotModifyProtected() throws Exception {
+    void cannotModifyProtected() throws Exception {
         // first change our test client to be protected
         details.getAdditionalInformation().put("protected", "true");
         restOauthClientMvc.perform(put("/api/oauth-clients")

@@ -20,6 +20,7 @@ spring:
     devtools:
         restart:
             enabled: true
+            exclude: .h2.server.properties,static/**,templates/**
         livereload:
             enabled: false # we use gulp + BrowserSync for livereload
     jackson:
@@ -27,17 +28,20 @@ spring:
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
         url: jdbc:h2:mem:managementportal;DB_CLOSE_DELAY=-1
-#        driverClassName: org.postgresql.Driver
-#        url: jdbc:postgresql://localhost:5432/managementportal
         username: ManagementPortal
         password:
+#        driverClassName: org.postgresql.Driver
+#        url: jdbc:postgresql://localhost:5432/managementportal
+#        username: radarbase
+#        password: radarbase
     h2:
         console:
-            enabled: false
+            enabled: true
+            path: /h2-console
     jpa:
-        database-platform: io.github.jhipster.domain.util.FixedH2Dialect
-#        database-platform: org.hibernate.dialect.PostgreSQLDialect
+        database-platform: org.hibernate.dialect.H2Dialect
         database: H2
+#        database-platform: org.hibernate.dialect.PostgreSQLDialect
 #        database: POSTGRESQL
         show-sql: true
         properties:
@@ -49,6 +53,7 @@ spring:
             hibernate.cache.hazelcast.instance_name: ManagementPortal
             hibernate.cache.use_minimal_puts: true
             hibernate.cache.hazelcast.use_lite_member: true
+            hibernate.ddl-auto: none
     mail:
         host:  # for hotmail
         port:
@@ -65,9 +70,8 @@ spring:
         cache-seconds: 1
     thymeleaf:
         cache: false
-
-liquibase:
-    contexts: dev
+    liquibase:
+        contexts: dev
 
 # ===================================================================
 # To enable SSL, generate a certificate using:

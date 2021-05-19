@@ -2,7 +2,6 @@ package org.radarbase.management.config;
 
 import io.github.jhipster.async.ExceptionHandlingAsyncTaskExecutor;
 import io.github.jhipster.config.JHipsterProperties;
-import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
@@ -27,7 +26,7 @@ public class AsyncConfiguration implements AsyncConfigurer {
 
     @Override
     @Bean(name = "taskExecutor")
-    public Executor getAsyncExecutor() {
+    public ExceptionHandlingAsyncTaskExecutor getAsyncExecutor() {
         log.debug("Creating Async Task Executor");
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(jHipsterProperties.getAsync().getCorePoolSize());
