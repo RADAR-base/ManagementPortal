@@ -334,6 +334,11 @@ For more information refer to [Using Docker and Docker-Compose][], this page als
 
 Visit our [Github pages](https://radar-base.github.io/ManagementPortal) site to find links to the
 Javadoc and API docs.
+* [management-portal-javadoc](https://radar-base.github.io/ManagementPortal/management-portal-javadoc/)
+* [oauth-client-util-javadoc](https://radar-base.github.io/ManagementPortal/oauth-client-util-javadoc/)
+* [radar-auth-javadoc](https://radar-base.github.io/ManagementPortal/radar-auth-javadoc/)
+* [managementportal-client-javadoc](https://radar-base.github.io/ManagementPortal/managementportal-client-javadoc/)
+* [apidoc](https://radar-base.github.io/ManagementPortal/apidoc/swagger.json)
 
 The pages site is published from the `gh-pages` branch, which has its own history. If you want to
 contribute to the documentation, it is probably more convenient to clone a separate copy of this
