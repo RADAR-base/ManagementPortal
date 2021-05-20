@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +24,6 @@ import org.mockito.MockitoAnnotations;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.SourceData;
 import org.radarbase.management.domain.SourceType;
-import org.radarbase.management.domain.enumeration.SourceTypeScope;
 import org.radarbase.management.repository.SourceDataRepository;
 import org.radarbase.management.repository.SourceTypeRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
@@ -67,8 +67,8 @@ class SourceTypeResourceIntTest {
     private static final String DEFAULT_DEVICE_VERSION = "AAAAAAAAAA";
     private static final String UPDATED_DEVICE_VERSION = "AAAAAAAAAA";
 
-    private static final SourceTypeScope DEFAULT_SOURCE_TYPE_SCOPE = SourceTypeScope.ACTIVE;
-    private static final SourceTypeScope UPDATED_SOURCE_TYPE_SCOPE = SourceTypeScope.PASSIVE;
+    private static final String DEFAULT_SOURCE_TYPE_SCOPE = "ACTIVE";
+    private static final String UPDATED_SOURCE_TYPE_SCOPE = "PASSIVE";
 
     @Autowired
     private SourceTypeRepository sourceTypeRepository;
@@ -130,18 +130,17 @@ class SourceTypeResourceIntTest {
      * <p>This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.</p>
      */
-    public static SourceType createEntity(EntityManager em) {
-        SourceType sourceType = new SourceType()
+    public static SourceType createEntity() {
+        return new SourceType()
                 .producer(DEFAULT_PRODUCER)
                 .model(DEFAULT_MODEL)
                 .catalogVersion(DEFAULT_DEVICE_VERSION)
                 .sourceTypeScope(DEFAULT_SOURCE_TYPE_SCOPE);
-        return sourceType;
     }
 
     @BeforeEach
     public void initTest() {
-        sourceType = createEntity(em);
+        sourceType = createEntity();
     }
 
     @Test
@@ -153,7 +152,8 @@ class SourceTypeResourceIntTest {
         SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
         SourceDataDTO sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(
                 SourceDataResourceIntTest.createEntity(em));
-        sourceTypeDto.getSourceData().add(sourceDataDto);
+        Set<SourceDataDTO> sourceData = sourceTypeDto.getSourceData();
+        sourceData.add(sourceDataDto);
         restSourceTypeMockMvc.perform(post("/api/source-types")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
@@ -269,7 +269,7 @@ class SourceTypeResourceIntTest {
                 .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL)))
                 .andExpect(jsonPath("$.[*].catalogVersion").value(hasItem(DEFAULT_DEVICE_VERSION)))
                 .andExpect(jsonPath("$.[*].sourceTypeScope").value(
-                        hasItem(DEFAULT_SOURCE_TYPE_SCOPE.toString())));
+                        hasItem(DEFAULT_SOURCE_TYPE_SCOPE)));
     }
 
 
@@ -288,7 +288,7 @@ class SourceTypeResourceIntTest {
                 .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL)))
                 .andExpect(jsonPath("$.[*].catalogVersion").value(hasItem(DEFAULT_DEVICE_VERSION)))
                 .andExpect(jsonPath("$.[*].sourceTypeScope").value(
-                        hasItem(DEFAULT_SOURCE_TYPE_SCOPE.toString())));
+                        hasItem(DEFAULT_SOURCE_TYPE_SCOPE)));
     }
 
 
@@ -307,7 +307,7 @@ class SourceTypeResourceIntTest {
                 .andExpect(jsonPath("$.producer").value(DEFAULT_PRODUCER))
                 .andExpect(jsonPath("$.model").value(DEFAULT_MODEL))
                 .andExpect(jsonPath("$.sourceTypeScope").value(
-                        DEFAULT_SOURCE_TYPE_SCOPE.toString()));
+                        DEFAULT_SOURCE_TYPE_SCOPE));
     }
 
     @Test

@@ -10,6 +10,9 @@ package org.radarbase.management.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.persistence.FetchType;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
@@ -95,6 +98,7 @@ public class Role extends AbstractEntity implements Serializable {
         return this;
     }
 
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setUsers(Set<User> users) {
         this.users = users;
     }

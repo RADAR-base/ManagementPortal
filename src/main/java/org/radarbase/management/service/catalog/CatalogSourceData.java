@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class CatalogSourceData {
-
     @JsonProperty("app_provider")
     private String appProvider;
 
@@ -105,12 +104,33 @@ public class CatalogSourceData {
     }
 
     public static class DataField {
-
         @JsonProperty
         private String name;
 
         public String getName() {
             return name;
         }
+
+        @Override
+        public String toString() {
+            return "DataField{" + "name='" + name + '\''
+                    + '}';
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "CatalogSourceData{" + "appProvider='" + appProvider + '\''
+                + ", processingState='" + processingState + '\''
+                + ", type='" + type + '\''
+                + ", doc='" + doc + '\''
+                + ", sampleRate=" + sampleRate
+                + ", unit='" + unit + '\''
+                + ", fields=" + fields
+                + ", topic='" + topic + '\''
+                + ", keySchema='" + keySchema + '\''
+                + ", valueSchema='" + valueSchema + '\''
+                + ", tags=" + tags
+                + '}';
     }
 }

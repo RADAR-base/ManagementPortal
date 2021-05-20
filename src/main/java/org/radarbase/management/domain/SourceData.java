@@ -5,14 +5,11 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
 import org.radarbase.auth.config.Constants;
-import org.radarbase.management.domain.enumeration.ProcessingState;
 import org.radarbase.management.domain.support.AbstractEntityListener;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -62,9 +59,8 @@ public class SourceData extends AbstractEntity implements Serializable {
     private String unit;
 
     // Define if the samples are RAW data or instead they the result of some computation
-    @Enumerated(EnumType.STRING)
     @Column(name = "processing_state")
-    private ProcessingState processingState;
+    private String processingState;
 
     //  the storage
     @Column(name = "data_class")
@@ -119,16 +115,16 @@ public class SourceData extends AbstractEntity implements Serializable {
         this.sourceDataType = sourceDataType;
     }
 
-    public ProcessingState getProcessingState() {
+    public String getProcessingState() {
         return processingState;
     }
 
-    public SourceData processingState(ProcessingState processingState) {
+    public SourceData processingState(String processingState) {
         this.processingState = processingState;
         return this;
     }
 
-    public void setProcessingState(ProcessingState processingState) {
+    public void setProcessingState(String processingState) {
         this.processingState = processingState;
     }
 

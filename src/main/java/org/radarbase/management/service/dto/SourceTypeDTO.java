@@ -6,7 +6,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import javax.validation.constraints.NotNull;
-import org.radarbase.management.domain.enumeration.SourceTypeScope;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 
 /**
  * A DTO for the SourceType entity.
@@ -27,7 +29,7 @@ public class SourceTypeDTO implements Serializable {
     private String catalogVersion;
 
     @NotNull
-    private SourceTypeScope sourceTypeScope;
+    private String sourceTypeScope;
 
     @NotNull
     private Boolean canRegisterDynamically = false;
@@ -74,11 +76,11 @@ public class SourceTypeDTO implements Serializable {
         this.model = model;
     }
 
-    public SourceTypeScope getSourceTypeScope() {
+    public String getSourceTypeScope() {
         return sourceTypeScope;
     }
 
-    public void setSourceTypeScope(SourceTypeScope sourceTypeScope) {
+    public void setSourceTypeScope(String sourceTypeScope) {
         this.sourceTypeScope = sourceTypeScope;
     }
 
@@ -86,6 +88,7 @@ public class SourceTypeDTO implements Serializable {
         return sourceData;
     }
 
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setSourceData(Set<SourceDataDTO> sourceData) {
         this.sourceData = sourceData;
     }

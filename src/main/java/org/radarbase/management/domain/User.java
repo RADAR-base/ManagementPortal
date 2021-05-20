@@ -1,6 +1,8 @@
 package org.radarbase.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -199,6 +201,7 @@ public class User extends AbstractEntity implements Serializable {
         return roles;
     }
 
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }

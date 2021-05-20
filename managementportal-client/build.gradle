@@ -12,6 +12,9 @@ plugins {
     id 'maven-publish'
 }
 
+sourceCompatibility = "11"
+targetCompatibility = "11"
+
 description = "Kotlin ManagementPortal client"
 
 repositories {
@@ -35,6 +38,14 @@ dependencies {
     runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonModuleVersion")
 
     dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.32")
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "11"
+        apiVersion = "1.4"
+        languageVersion = "1.4"
+    }
 }
 
 task ghPagesJavadoc(type: Copy, dependsOn: dokkaJavadoc) {
