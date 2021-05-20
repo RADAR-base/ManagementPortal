@@ -7,6 +7,9 @@ import java.util.Objects;
 import java.util.Set;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
+
 /**
  * A DTO for the SourceType entity.
  */
@@ -85,6 +88,7 @@ public class SourceTypeDTO implements Serializable {
         return sourceData;
     }
 
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setSourceData(Set<SourceDataDTO> sourceData) {
         this.sourceData = sourceData;
     }

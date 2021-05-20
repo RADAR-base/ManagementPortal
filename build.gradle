@@ -53,8 +53,6 @@ allprojects {
             downloadSources = true
         }
     }
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
 
     tasks.register("ghPages") {
         dependsOn(provider {
@@ -62,6 +60,9 @@ allprojects {
         })
     }
 }
+
+sourceCompatibility = "11"
+targetCompatibility = "11"
 
 description = 'MangementPortal application to manage studies and participants'
 
@@ -220,10 +221,10 @@ dependencies {
     implementation "com.h2database:h2"
     implementation project(path: ':radar-auth', configuration: 'shadow')
     implementation "org.springframework.data:spring-data-envers:${spring_data_envers_version}"
-    runtimeOnly("jakarta.xml.bind:jakarta.xml.bind-api:$javaxXmlBindVersion")
-    runtimeOnly("org.glassfish.jaxb:jaxb-core:$javaxJaxbCoreVersion")
-    runtimeOnly("org.glassfish.jaxb:jaxb-runtime:$javaxJaxbRuntimeVersion")
-    runtimeOnly("javax.activation:activation:$javaxActivation")
+    runtimeOnly("jakarta.xml.bind:jakarta.xml.bind-api:${javax_xml_bind_version}")
+    runtimeOnly("org.glassfish.jaxb:jaxb-core:${javax_jaxb_core_version}")
+    runtimeOnly("org.glassfish.jaxb:jaxb-runtime:${javax_jaxb_runtime_version}")
+    runtimeOnly("javax.activation:activation:${javax_activation}")
 
     testImplementation "org.awaitility:awaitility:${awaitility_version}"
     testImplementation "com.jayway.jsonpath:json-path"

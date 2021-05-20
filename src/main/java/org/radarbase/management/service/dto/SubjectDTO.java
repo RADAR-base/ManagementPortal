@@ -3,6 +3,9 @@ package org.radarbase.management.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
+
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -12,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.ArrayList;
 
 /**
  * A DTO for the Subject entity.
@@ -54,7 +58,7 @@ public class SubjectDTO implements Serializable {
     @JsonInclude(Include.NON_NULL)
     private ProjectDTO project;
 
-    private List<RoleDTO> roles;
+    private List<RoleDTO> roles = new ArrayList<>();
 
     private Set<MinimalSourceDetailsDTO> sources = new HashSet<>();
 
@@ -137,6 +141,7 @@ public class SubjectDTO implements Serializable {
         return roles;
     }
 
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setRoles(List<RoleDTO> roles) {
         this.roles = roles;
     }

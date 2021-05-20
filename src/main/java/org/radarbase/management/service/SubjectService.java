@@ -111,8 +111,10 @@ public class SubjectService {
         Subject subject = subjectMapper.subjectDTOToSubject(subjectDto);
         //assign roles
         User user = subject.getUser();
-        user.getRoles().add(getProjectParticipantRole(
-                projectMapper.projectDTOToProject(subjectDto.getProject()), PARTICIPANT));
+        Project project = projectMapper.projectDTOToProject(subjectDto.getProject());
+        Role projectParticipantRole = getProjectParticipantRole(project, PARTICIPANT);
+        Set<Role> roles = user.getRoles();
+        roles.add(projectParticipantRole);
 
         // set password and reset keys
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
