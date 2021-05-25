@@ -36,7 +36,7 @@ public class CustomRevisionMetadata implements RevisionMetadata<Integer> {
 
     @Override
     public Optional<Instant> getRevisionInstant() {
-        return Optional.empty();
+        return Optional.ofNullable(entity.getTimestamp()).map(ts -> ts.toInstant());
     }
 
     @Override
