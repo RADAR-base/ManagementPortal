@@ -14,8 +14,8 @@ ext {
     junitVersion ='5.6.3'
 }
 
-sourceCompatibility = "8"
-targetCompatibility = "8"
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 description = 'Library for authentication and authorization of JWT tokens issued by the RADAR platform'
 

@@ -37,7 +37,7 @@ docker-compose files.
 1. Make sure [Docker][] and [Docker-Compose][] are installed on your system.
 2. Generate a key pair for signing JWT tokens as follows:
    ```shell
-   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -keysize 256 -sigalg SHA256withECDSA -storetype PKCS12 -keystore src/main/docker/etc/config/keystore.p12 -storepass radarbase -keypass radarbase
+   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -validity 3650 -keysize 256 -sigalg SHA256withECDSA -storetype PKCS12 -keystore src/main/docker/etc/config/keystore.p12 -storepass radarbase -keypass radarbase
    ```
 3. Now, we can start the stack with `docker-compose -f src/main/docker/management-portal.yml up -d`.
 
@@ -52,7 +52,7 @@ you must install and configure the following dependencies on your machine to run
    Depending on your system, you can install Yarn either from source or as a pre-packaged bundle.
 3. Generate a key pair for signing JWT tokens as follows:
    ```shell
-   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -keysize 256 -sigalg SHA256withECDSA -storetype PKCS12 -keystore keystore.p12 -storepass radarbase -keypass radarbase
+   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -validity 3650 -keysize 256 -sigalg SHA256withECDSA -storetype PKCS12 -keystore src/main/resources/config/keystore.p12 -storepass radarbase -keypass radarbase
    ```
    **Make sure the key password and store password are the same!** This is a requirement for Spring Security.
 
@@ -334,6 +334,11 @@ For more information refer to [Using Docker and Docker-Compose][], this page als
 
 Visit our [Github pages](https://radar-base.github.io/ManagementPortal) site to find links to the
 Javadoc and API docs.
+* [management-portal-javadoc](https://radar-base.github.io/ManagementPortal/management-portal-javadoc/)
+* [oauth-client-util-javadoc](https://radar-base.github.io/ManagementPortal/oauth-client-util-javadoc/)
+* [radar-auth-javadoc](https://radar-base.github.io/ManagementPortal/radar-auth-javadoc/)
+* [managementportal-client-javadoc](https://radar-base.github.io/ManagementPortal/managementportal-client-javadoc/)
+* [apidoc](https://radar-base.github.io/ManagementPortal/apidoc/swagger.json)
 
 The pages site is published from the `gh-pages` branch, which has its own history. If you want to
 contribute to the documentation, it is probably more convenient to clone a separate copy of this
