@@ -30,7 +30,7 @@
         "sourceIdExists": "A new source cannot already have a Source ID",
         "sourceNameExists": "Source Name is already registered.",
         "sourceIsAssigned": "Cannot transfer/delete a currently assigned source.",
-        "sourceRevisionIsAssigned": "Cannot transfer/delete a previosly assigned source.\nNB this is a design issue, deletion/archival of outdated Sources should be addressed in the future.",
+        "sourceRevisionIsAssigned": "Cannot transfer/delete a previously assigned source.\nNB this is a design issue, deletion/archival of outdated Sources should be addressed in the future.",
         "sourceAssignedRequired": "A new source must have the 'assigned' field specified.",
         "validation": "Validation error, check the entered values in the fields.",
         "usedSourceDeletion": "Cannot delete a source used by a subject",
