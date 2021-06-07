@@ -1,7 +1,7 @@
 ext.jacksonVersion = '2.11.3'
 ext.jacksonYamlVersion = '2.11.3'
 ext.okhttpVersion = '4.9.1'
-ext.junitVersion ='5.6.3'
+ext.junitVersion ='5.7.2'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -9,7 +9,6 @@ targetCompatibility = JavaVersion.VERSION_1_8
 description = 'This library can be used by client applications that want to use the client_credentials OAuth2 flow. It will manage getting the token and renewing it when necessary.'
 
 repositories {
-    jcenter()
     mavenCentral()
 }
 
