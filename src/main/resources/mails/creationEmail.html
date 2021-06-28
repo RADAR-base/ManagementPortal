@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title th:text="#{email.creation.title}">JHipster creation</title>
+        <title th:text="#{email.creation.title}">ManagementPortal user creation</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     </head>
     <body>
         <p th:text="#{email.creation.greeting} + ' ' + ${#strings.capitalize(user.login)}">
             Dear
         </p>
-        <p th:text="#{email.creation.text1}">
-            Your JHipster account has been created by RADAR-base team.
+        <p>
+            <span th:text="#{email.creation.text1}">Your JHipster account has been created by RADAR-base team at</span>
+            <a th:href="@{|${baseUrl}|}" th:text="|${baseUrl}|">url</a>.
         </p>
         <p th:text="#{email.creation.loginIntro(${user.login})}">
             Your user name is
@@ -20,9 +21,10 @@
         </p>
         <p>
             <a th:href="@{|${baseUrl}/#/reset/finish?key=${user.resetKey}|}"
-               th:text="|${user.login}|">login</a>
+               th:text="#{email.creation.activateLink}">activate account</a>
         </p>
         <p th:text="#{email.creation.expiry(${expiry})}">
+            This invitation will expire in 24 hours.
         </p>
 
         <p th:text="#{email.creation.onetimeonly}">
