@@ -1,12 +1,13 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { JhiLanguageService, ParseLinks } from 'ng-jhipster';
+import { JhiLanguageService } from 'ng-jhipster';
 import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
 import { ITEMS_PER_PAGE } from '../../shared';
 
 import { Audit } from './audit.model';
 import { AuditsService } from './audits.service';
 import { HttpResponse } from '@angular/common/http';
+import { parseLinks } from '../../shared/util/parse-links-util';
 
 @Component({
     selector: 'jhi-audit',
@@ -28,7 +29,6 @@ export class AuditsComponent implements OnInit {
     constructor(
             private jhiLanguageService: JhiLanguageService,
             private auditsService: AuditsService,
-            private parseLinks: ParseLinks,
     ) {
         this.jhiLanguageService.setLocations(['audits']);
         this.itemsPerPage = ITEMS_PER_PAGE;
@@ -59,7 +59,7 @@ export class AuditsComponent implements OnInit {
             fromDate: this.fromDate, toDate: this.toDate,
         }).subscribe((res: HttpResponse<any>) => {
             this.audits = res.body;
-            this.links = this.parseLinks.parse(res.headers.get('link'));
+            this.links = parseLinks(res.headers.get('link'));
             this.totalItems = +res.headers.get('X-Total-Count');
         });
     }

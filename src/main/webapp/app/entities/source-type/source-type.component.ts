@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
+import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
 import { Observable, Subscription } from 'rxjs/Rx';
 import { ITEMS_PER_PAGE } from '../../shared';
 
@@ -8,6 +8,7 @@ import { SourceType } from './source-type.model';
 import { SourceTypeService } from './source-type.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { PagingParams } from '../../shared/commons';
+import { parseLinks } from '../../shared/util/parse-links-util';
 
 @Component({
     selector: 'jhi-source-type',
@@ -33,7 +34,6 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
             private sourceTypeService: SourceTypeService,
             private alertService: AlertService,
             private eventManager: EventManager,
-            private parseLinks: ParseLinks,
             private activatedRoute: ActivatedRoute,
             private router: Router,
     ) {
@@ -100,7 +100,7 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
     }
 
     private onSuccess(data, headers) {
-        this.links = this.parseLinks.parse(headers.get('link'));
+        this.links = parseLinks(headers.get('link'));
         this.totalItems = headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
         this.sourceTypes = data;

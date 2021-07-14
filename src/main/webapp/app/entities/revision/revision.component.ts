@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
+import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
 import { Observable, Subscription } from 'rxjs/Rx';
 import { ITEMS_PER_PAGE } from '../../shared';
 
@@ -8,6 +8,7 @@ import { Revision } from './revision.model';
 import { RevisionService } from './revision.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { PagingParams } from '../../shared/commons';
+import { parseLinks } from '../../shared/util/parse-links-util';
 
 @Component({
     selector: 'jhi-revisions',
@@ -33,7 +34,6 @@ export class RevisionComponent implements OnInit, OnDestroy {
     constructor(
             private jhiLanguageService: JhiLanguageService,
             private revisionService: RevisionService,
-            private parseLinks: ParseLinks,
             private alertService: AlertService,
             private activatedRoute: ActivatedRoute,
             private eventManager: EventManager,
@@ -113,7 +113,7 @@ export class RevisionComponent implements OnInit, OnDestroy {
     }
 
     private onSuccess(data, headers) {
-        this.links = this.parseLinks.parse(headers.get('link'));
+        this.links = parseLinks(headers.get('link'));
         this.totalItems = headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
         this.revisions = data;

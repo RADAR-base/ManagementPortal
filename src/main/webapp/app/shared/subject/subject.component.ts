@@ -8,14 +8,15 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
+import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs/Rx';
-import { ITEMS_PER_PAGE, Principal, Project } from '..';
+import { ITEMS_PER_PAGE, Project } from '..';
 
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { PagingParams } from '../commons';
+import { parseLinks } from '../util/parse-links-util';
 
 @Component({
     selector: 'jhi-subjects',
@@ -46,7 +47,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             private subjectService: SubjectService,
             private alertService: AlertService,
             private eventManager: EventManager,
-            private parseLinks: ParseLinks,
             private activatedRoute: ActivatedRoute,
             private router: Router,
     ) {
@@ -142,7 +142,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     private onSuccess(data, headers) {
-        this.links = this.parseLinks.parse(headers.get('link'));
+        this.links = parseLinks(headers.get('link'));
         this.totalItems = headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
         this.subjects = data;

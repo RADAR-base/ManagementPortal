@@ -8,15 +8,16 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
+import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs/Rx';
-import { ITEMS_PER_PAGE, Principal, Project } from '..';
+import { ITEMS_PER_PAGE, Project } from '..';
 
 import { Source } from './source.model';
 import { SourceService } from './source.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { SourceData } from '../../entities/source-data';
 import { PagingParams } from '../commons';
+import { parseLinks } from '../util/parse-links-util';
 
 @Component({
     selector: 'jhi-sources',
@@ -46,7 +47,6 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
                 private sourceService: SourceService,
                 private alertService: AlertService,
                 private eventManager: EventManager,
-                private parseLinks: ParseLinks,
                 private activatedRoute: ActivatedRoute,
                 private router: Router) {
         this.sources = [];
@@ -141,7 +141,7 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     private onSuccess(data, headers) {
-        this.links = this.parseLinks.parse(headers.get('link'));
+        this.links = parseLinks(headers.get('link'));
         this.totalItems = headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
         this.sources = data;

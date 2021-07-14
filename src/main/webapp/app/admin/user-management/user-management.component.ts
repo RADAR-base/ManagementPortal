@@ -4,13 +4,11 @@ import {
     AlertService,
     EventManager,
     JhiLanguageService,
-    PaginationUtil,
-    ParseLinks,
 } from 'ng-jhipster';
-import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
 
 import { ITEMS_PER_PAGE, Principal, User, UserService } from '../../shared';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { parseLinks } from '../../shared/util/parse-links-util';
 
 @Component({
     selector: 'jhi-user-mgmt',
@@ -39,12 +37,9 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
     constructor(
             private jhiLanguageService: JhiLanguageService,
             private userService: UserService,
-            private parseLinks: ParseLinks,
             private alertService: AlertService,
             private principal: Principal,
             private eventManager: EventManager,
-            private paginationUtil: PaginationUtil,
-            private paginationConfig: PaginationConfig,
             private activatedRoute: ActivatedRoute,
             private router: Router,
     ) {
@@ -132,7 +127,7 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
     }
 
     private onSuccess(data, headers) {
-        this.links = this.parseLinks.parse(headers.get('link'));
+        this.links = parseLinks(headers.get('link'));
         this.totalItems = headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
         this.users = data;

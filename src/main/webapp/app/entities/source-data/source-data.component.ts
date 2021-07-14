@@ -1,13 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs/Rx';
-import { EventManager, ParseLinks, JhiLanguageService, AlertService } from 'ng-jhipster';
+import { EventManager, JhiLanguageService, AlertService } from 'ng-jhipster';
 
 import { SourceData } from './source-data.model';
 import { SourceDataService } from './source-data.service';
 import { ITEMS_PER_PAGE } from '../../shared';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { PagingParams } from '../../shared/commons';
+import { parseLinks } from '../../shared/util/parse-links-util';
 
 @Component({
     selector: 'jhi-source-data',
@@ -32,7 +33,6 @@ export class SourceDataComponent implements OnInit, OnDestroy {
         private sourceDataService: SourceDataService,
         private alertService: AlertService,
         private eventManager: EventManager,
-        private parseLinks: ParseLinks,
         private activatedRoute: ActivatedRoute,
         private router: Router
     ) {
@@ -97,7 +97,7 @@ export class SourceDataComponent implements OnInit, OnDestroy {
     }
 
     private onSuccess(data, headers) {
-        this.links = this.parseLinks.parse(headers.get('link'));
+        this.links = parseLinks(headers.get('link'));
         this.totalItems = headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
         this.sourceData = data;
