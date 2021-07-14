@@ -1,44 +1,42 @@
 import { Injectable } from '@angular/core';
-import { DateUtils } from 'ng-jhipster';
 import { Observable } from 'rxjs/Rx';
 import { Project } from './project.model';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { SourceType } from '../../entities/source-type';
 import { createRequestOption } from '../model/request.utils';
+import { convertDateTimeFromServer, toDate } from '../util/date-util';
 
 @Injectable()
 export class ProjectService {
 
     private resourceUrl = 'api/projects';
 
-    constructor(private http: HttpClient, private dateUtils: DateUtils) {
+    constructor(private http: HttpClient) {
     }
 
     create(project: Project): Observable<Project> {
         const copy: Project = Object.assign({}, project);
-        copy.startDate = this.dateUtils.toDate(project.startDate);
-        copy.endDate = this.dateUtils.toDate(project.endDate);
+        copy.startDate = toDate(project.startDate);
+        copy.endDate = toDate(project.endDate);
         return this.http.post(this.resourceUrl, copy) as Observable<Project>;
     }
 
     update(project: Project): Observable<Project> {
         const copy: Project = Object.assign({}, project);
 
-        copy.startDate = this.dateUtils.toDate(project.startDate);
+        copy.startDate = toDate(project.startDate);
 
-        copy.endDate = this.dateUtils.toDate(project.endDate);
+        copy.endDate = toDate(project.endDate);
         return this.http.put(this.resourceUrl, copy) as Observable<Project>;
     }
 
     find(projectName: string): Observable<Project> {
         return this.http.get(`${this.resourceUrl}/${encodeURIComponent(projectName)}`)
-                .map((jsonResponse: any) => {
-                    jsonResponse.startDate = this.dateUtils
-                    .convertDateTimeFromServer(jsonResponse.startDate);
-                    jsonResponse.endDate = this.dateUtils
-                    .convertDateTimeFromServer(jsonResponse.endDate);
-                    return jsonResponse;
-                });
+            .map((jsonResponse: any) => {
+                jsonResponse.startDate = convertDateTimeFromServer(jsonResponse.startDate);
+                jsonResponse.endDate = convertDateTimeFromServer(jsonResponse.endDate);
+                return jsonResponse;
+            });
     }
 
     query(req?: any): Observable<HttpResponse<Project[]>> {
@@ -61,10 +59,8 @@ export class ProjectService {
 
     private convertResponseDates(jsonResponse: any): any {
         for (let i = 0; i < jsonResponse.length; i++) {
-            jsonResponse[i].startDate = this.dateUtils
-            .convertDateTimeFromServer(jsonResponse[i].startDate);
-            jsonResponse[i].endDate = this.dateUtils
-            .convertDateTimeFromServer(jsonResponse[i].endDate);
+            jsonResponse[i].startDate = convertDateTimeFromServer(jsonResponse[i].startDate);
+            jsonResponse[i].endDate = convertDateTimeFromServer(jsonResponse[i].endDate);
         }
         return jsonResponse;
     }
