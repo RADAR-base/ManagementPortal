@@ -21,7 +21,6 @@ export class SubjectDialogComponent implements OnInit {
     subject: Subject;
     isSaving: boolean;
 
-    // sources: MinimalSource[];
     attributeComponentEventPrefix: 'subjectAttributes';
 
     constructor(public activeModal: NgbActiveModal,

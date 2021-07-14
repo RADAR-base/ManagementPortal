@@ -4,8 +4,6 @@ import { NavBarPage } from '../page-objects/jhi-page-objects';
 
 describe('administration', () => {
     let navBarPage: NavBarPage;
-    const username = element(by.id('username'));
-    const password = element(by.id('password'));
 
     beforeAll(async() => {
         await browser.get('./');
@@ -38,14 +36,6 @@ describe('administration', () => {
         const pageTitle = element.all(by.css('h2 span')).first();
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
     });
-
-    // it('should load configuration', () => {
-    //     element(by.css('[routerLink="jhi-configuration"]')).click();
-    //     const expect1 = /configuration.title/;
-    //     element.all(by.css('h2')).first().getAttribute('jhiTranslate').then((value) => {
-    //         expect(value).toMatch(expect1);
-    //     });
-    // });
 
     it('should load audits', async() => {
         await navBarPage.clickOnEntity('audits');

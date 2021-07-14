@@ -20,12 +20,6 @@ export class AuthService {
             const isAuthenticated = this.principal.isAuthenticated();
             const toStateInfo = this.stateStorageService.getDestinationState().destination;
 
-            // an authenticated user can't access to login and register pages
-            if (isAuthenticated && (toStateInfo.name === 'register')) {
-                this.router.navigate(['']);
-                return false;
-            }
-
             // recover and clear previousState after external login redirect (e.g. oauth2)
             const fromStateInfo = this.stateStorageService.getDestinationState().from;
             const previousState = this.stateStorageService.getPreviousState();

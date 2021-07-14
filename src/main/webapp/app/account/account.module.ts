@@ -24,7 +24,6 @@ import {
     ],
     declarations: [
         ActivateComponent,
-        // RegisterComponent,
         PasswordComponent,
         PasswordStrengthBarComponent,
         PasswordResetInitComponent,
@@ -32,7 +31,6 @@ import {
         SettingsComponent,
     ],
     providers: [
-        // Register,
         Activate,
         Password,
         PasswordResetInit,

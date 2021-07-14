@@ -1,13 +1,8 @@
 import { Injectable } from '@angular/core';
 import {
-    ActivatedRouteSnapshot,
     CanActivate,
-    Resolve,
-    RouterStateSnapshot,
     Routes,
 } from '@angular/router';
-
-import { PaginationUtil } from 'ng-jhipster';
 
 import { Principal } from '../../shared';
 import { UserDeleteDialogComponent } from './user-management-delete-dialog.component';
