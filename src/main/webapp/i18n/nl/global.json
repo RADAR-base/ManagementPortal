@@ -55,13 +55,8 @@
         "messages": {
             "info": {
                 "authenticated": {
-                    "prefix": "Indien u wilt ",
-                    "link": "aanmelden",
-                    "suffix": ", dan kan u de standaard gebruikers proberen:<br/>- Administrator (login=\"admin\" en wachtwoord=\"admin\") <br/>- Gebruiker (login=\"user\" en wachtwoord=\"user\")."
-                },
-                "register": {
-                    "noaccount": "U heeft nog geen gebruiker?",
-                    "link": "Registreer een nieuwe gebruiker"
+                    "prefix": "Heeft u een account? ",
+                    "link": "Aanmelden"
                 }
             },
             "error": {

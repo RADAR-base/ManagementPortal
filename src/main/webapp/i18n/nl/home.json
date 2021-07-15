@@ -1,7 +1,7 @@
 {
     "home": {
-        "title": "Welkom, Java Hipster!",
-        "subtitle": "Dit is uw startpagina",
+        "title": "Welkom bij het RADAR-beheerportaal",
+        "subtitle": "Beheer hier uw patiëntbewakingsonderzoeken!",
         "logged": {
             "message": "U bent aangemeld als gebruiker \"{{username}}\"."
         }

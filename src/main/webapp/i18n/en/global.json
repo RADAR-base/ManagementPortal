@@ -56,12 +56,7 @@
             "info": {
                 "authenticated": {
                     "prefix": "Are you a registered user? ",
-                    "link": "Sign in",
-                    "suffix": ", you can try the default accounts:<br/>- Administrator (login=\"admin\" and password=\"admin\") <br/>- User (login=\"user\" and password=\"user\")."
-                },
-                "register": {
-                    "noaccount": "You don't have an account yet?",
-                    "link": "Register a new account"
+                    "link": "Sign in"
                 }
             },
             "error": {
