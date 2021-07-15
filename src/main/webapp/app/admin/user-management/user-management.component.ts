@@ -2,12 +2,12 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AlertService,
-    EventManager,
     JhiLanguageService,
 } from 'ng-jhipster';
 
 import { ITEMS_PER_PAGE, Principal, User, UserService } from '../../shared';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { EventManager } from '../../shared/util/event-manager.service';
 import { parseLinks } from '../../shared/util/parse-links-util';
 
 @Component({

@@ -1,7 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
+import { AlertService, JhiLanguageService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Subscription';
 import { AuthorityService, Project, ProjectService } from '../../shared';
+import { EventManager } from '../../shared/util/event-manager.service';
 
 import { Role } from './role.model';
 import {HttpResponse} from '@angular/common/http';

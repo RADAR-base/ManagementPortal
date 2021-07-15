@@ -1,8 +1,9 @@
 import { AfterViewInit, Component, ElementRef, Renderer } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { EventManager, JhiLanguageService } from 'ng-jhipster';
+import { JhiLanguageService } from 'ng-jhipster';
 import { StateStorageService } from '..';
+import { EventManager } from '../util/event-manager.service';
 
 import { LoginService } from './login.service';
 

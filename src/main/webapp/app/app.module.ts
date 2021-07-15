@@ -19,12 +19,12 @@ import {
 } from './layouts';
 
 import { ManagementPortalSharedModule, UserRouteAccessService } from './shared';
+import { EventManager } from './shared/util/event-manager.service';
 import './vendor.ts';
 import {HTTP_INTERCEPTORS} from '@angular/common/http';
 import {AuthInterceptor} from './blocks/interceptor/auth.interceptor';
 import {AuthExpiredInterceptor} from './blocks/interceptor/auth-expired.interceptor';
 import {ErrorHandlerInterceptor} from './blocks/interceptor/errorhandler.interceptor';
-import {EventManager} from 'ng-jhipster';
 import {NotificationInterceptor} from './blocks/interceptor/notification.interceptor';
 
 @NgModule({

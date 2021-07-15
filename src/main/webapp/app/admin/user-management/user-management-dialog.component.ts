@@ -2,8 +2,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { EventManager, JhiLanguageService } from 'ng-jhipster';
+import { JhiLanguageService } from 'ng-jhipster';
 import { JhiLanguageHelper, User, UserService } from '../../shared';
+import { EventManager } from '../../shared/util/event-manager.service';
 import { Role } from './role.model';
 
 import { UserModalService } from './user-modal.service';

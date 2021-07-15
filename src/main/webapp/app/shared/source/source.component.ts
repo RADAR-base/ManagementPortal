@@ -8,7 +8,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
+import { AlertService, JhiLanguageService } from 'ng-jhipster';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs/Rx';
 import { ITEMS_PER_PAGE, Project } from '..';
 
@@ -17,6 +17,7 @@ import { SourceService } from './source.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { SourceData } from '../../entities/source-data';
 import { PagingParams } from '../commons';
+import { EventManager } from '../util/event-manager.service';
 import { parseLinks } from '../util/parse-links-util';
 
 @Component({

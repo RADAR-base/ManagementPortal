@@ -1,7 +1,9 @@
 import { Component, OnDestroy } from '@angular/core';
-import { AlertService, EventManager } from 'ng-jhipster';
+import { AlertService } from 'ng-jhipster';
 import { TranslateService } from 'ng2-translate';
 import { Subscription } from 'rxjs/Rx';
+
+import { EventManager } from '../util/event-manager.service';
 
 @Component({
     selector: 'jhi-alert-error',

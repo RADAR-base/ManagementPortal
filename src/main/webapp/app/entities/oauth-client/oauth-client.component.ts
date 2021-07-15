@@ -1,7 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
+import { AlertService, JhiLanguageService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
 
+import { EventManager } from '../../shared/util/event-manager.service';
 import { OAuthClient } from './oauth-client.model';
 import { OAuthClientService } from './oauth-client.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';

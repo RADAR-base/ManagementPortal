@@ -1,7 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { EventManager, JhiLanguageService } from 'ng-jhipster';
+import { JhiLanguageService } from 'ng-jhipster';
 
 import { Subscription } from 'rxjs/Subscription';
+import { EventManager } from '../util/event-manager.service';
 import { Dictionary } from './dictionary-mapper.model';
 
 @Component({

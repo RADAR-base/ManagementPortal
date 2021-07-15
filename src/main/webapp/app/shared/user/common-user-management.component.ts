@@ -1,7 +1,8 @@
 import { Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges } from '@angular/core';
-import { EventManager, JhiLanguageService } from 'ng-jhipster';
+import { JhiLanguageService } from 'ng-jhipster';
 
 import { ITEMS_PER_PAGE, Project, User, UserService } from '..';
+import { EventManager } from '../util/event-manager.service';
 
 @Component({
     selector: 'jhi-common-user-mgmt',

@@ -1,4 +1,3 @@
-import {EventManager} from 'ng-jhipster';
 import { Observable } from 'rxjs/Observable';
 import {
     HttpErrorResponse,
@@ -7,6 +6,8 @@ import {
     HttpInterceptor,
     HttpRequest
 } from '@angular/common/http';
+
+import { EventManager } from '../../shared/util/event-manager.service';
 
 export class ErrorHandlerInterceptor implements HttpInterceptor {
 

@@ -1,8 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { EventManager, JhiLanguageService } from 'ng-jhipster';
+import { JhiLanguageService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
 
+import { EventManager } from '../util/event-manager.service';
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
 
