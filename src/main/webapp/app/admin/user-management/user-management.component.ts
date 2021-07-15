@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AlertService,
-    JhiLanguageService,
 } from 'ng-jhipster';
 
 import { ITEMS_PER_PAGE, Principal, User, UserService } from '../../shared';
@@ -35,7 +34,6 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
     byEmail: string;
 
     constructor(
-            private jhiLanguageService: JhiLanguageService,
             private userService: UserService,
             private alertService: AlertService,
             private principal: Principal,
@@ -50,7 +48,6 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
             this.reverse = data['pagingParams'].ascending;
             this.predicate = data['pagingParams'].predicate;
         });
-        this.jhiLanguageService.setLocations(['user-management']);
     }
 
     ngOnInit() {
