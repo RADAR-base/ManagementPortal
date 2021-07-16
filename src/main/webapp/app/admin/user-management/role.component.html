@@ -1,6 +1,6 @@
 <div>
     <h2>
-        <span jhiTranslate="userManagement.role.title">Roles</span>
+        <span [translate]="'userManagement.role.title'"></span>
 
     </h2>
     <jhi-alert></jhi-alert>
@@ -10,15 +10,13 @@
         <table class="table table-striped">
             <thead>
             <tr>
-            <!--<th><span jhiTranslate="global.field.id">ID</span></th>-->
-            <th><span jhiTranslate="userManagement.role.authorityName">Authority Name</span></th>
-            <th><span jhiTranslate="userManagement.role.project">Project</span></th>
+            <th><span [translate]="'userManagement.role.authorityName'"></span></th>
+            <th><span [translate]="'userManagement.role.project'"></span></th>
             <th></th>
             </tr>
             </thead>
             <tbody>
             <tr *ngFor="let role of roles ;trackBy: trackId">
-                <!--<td><a [routerLink]="['../role', role.id ]">{{role.id}}</a></td>-->
                 <td>{{role.authorityName}}</td>
                 <td>
                     <div *ngIf="role.projectId">
@@ -37,9 +35,8 @@
         <table class="table table-striped">
             <thead>
             <tr>
-                <!--<th><span jhiTranslate="global.field.id">ID</span></th>-->
-                <th><span jhiTranslate="userManagement.role.authorityName">Authority Name</span></th>
-                <th><span jhiTranslate="userManagement.role.project">Project</span></th>
+                <th><span [translate]="'userManagement.role.authorityName'"></span></th>
+                <th><span [translate]="'userManagement.role.project'"></span></th>
                 <th></th>
             </tr>
             </thead>
@@ -58,9 +55,7 @@
                 </td>
                 <td>
                     <button name='addRole'type="button" class="btn btn-primary float-right" (click)="addRole()">
-                        <span  jhiTranslate="userManagement.role.create">
-                            Add
-                        </span>
+                        <span [translate]="'userManagement.role.create'"></span>
                     </button>
                 </td>
             </tbody>

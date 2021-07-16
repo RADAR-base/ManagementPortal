@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { AlertService, JhiLanguageService } from 'ng-jhipster';
+import { AlertService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Subscription';
 import { AuthorityService, Project, ProjectService } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
@@ -20,13 +20,12 @@ export class RoleComponent implements OnInit {
     selectedAuthority: any;
     selectedProject: Project;
 
-    constructor(private jhiLanguageService: JhiLanguageService,
+    constructor(
                 private authorityService: AuthorityService,
                 private projectService: ProjectService,
                 private alertService: AlertService,
                 private eventManager: EventManager
     ) {
-        this.jhiLanguageService.addLocation('role');
     }
 
     ngOnInit() {
