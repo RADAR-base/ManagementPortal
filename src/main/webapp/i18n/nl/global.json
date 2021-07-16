@@ -148,7 +148,7 @@
         "invalidsubjectstate": "Een stopgezette deelnemer kan niet geactiveerd worden",
         "nameexists": "Er bestaat reeds een {{ entityName }} met deze naam"
     },
-    "footer": "Dit is uw voettekst",
+    "footer": "Voor meer details, lees <a target=\"_blank\" href=\"https://github.com/RADAR-base/ManagementPortal/wiki/User-Guide\">de gebruikershandleiding</a>.",
     "common" : {
         "showMore": " Meer",
         "showLess": " Minder"
