@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertService, JhiLanguageService } from 'ng-jhipster';
+import { AlertService } from 'ng-jhipster';
 import { Observable, Subscription } from 'rxjs/Rx';
 import { ITEMS_PER_PAGE } from '../../shared';
 
@@ -31,7 +31,6 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
     previousPage: any;
 
     constructor(
-            private jhiLanguageService: JhiLanguageService,
             private sourceTypeService: SourceTypeService,
             private alertService: AlertService,
             private eventManager: EventManager,
@@ -50,7 +49,6 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
             this.ascending = params.ascending;
             this.predicate = params.predicate;
         });
-        this.jhiLanguageService.setLocations(['sourceType', 'sourceTypeScope']);
     }
 
     loadAll() {
