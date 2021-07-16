@@ -16,6 +16,7 @@
                 "title": "Project"
             },
             "projectName": "Project Id",
+            "projectName.fieldDescription": "Unique identifier of project",
             "description": "Description",
             "organization": "Organization",
             "location": "Location",
@@ -26,7 +27,9 @@
             "sourceType": "Source Type",
             "attributeDataKey" : "Tag",
             "attributeDataValue" : "Value",
-            "prettyProjectName" : "Human readable project Name"
+            "prettyProjectName" : "Human readable project Name",
+            "prettyProjectName.fieldDescription" : "Human readable project name that doesn't have to follow url pattern.",
+            "projectIdAsPrettyName": "Do you want to use the project-id as the human readable name?"
         },
         "error" : {
             "projectIdNotFound" : "There was no project found with id {{ param0 }}",
