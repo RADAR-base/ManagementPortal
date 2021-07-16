@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { JhiLanguageService } from 'ng-jhipster';
+
 import { ProjectPopupService } from './project-popup.service';
 
 import { Project, ProjectService } from '../../shared';
@@ -17,13 +17,10 @@ export class ProjectDeleteDialogComponent {
     project: Project;
 
     constructor(
-            private jhiLanguageService: JhiLanguageService,
             private projectService: ProjectService,
             public activeModal: NgbActiveModal,
             private eventManager: EventManager,
     ) {
-        this.jhiLanguageService.addLocation('project');
-        this.jhiLanguageService.addLocation('projectStatus');
     }
 
     clear() {
