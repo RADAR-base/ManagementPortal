@@ -1,14 +1,14 @@
 
 <div *ngIf="role">
-    <h2><span jhiTranslate="managementPortalApp.role.detail.title">Role</span> {{role.authorityName}} - {{role.projectName}}</h2>
+    <h2><span [translate]="'managementPortalApp.role.detail.title'"></span> {{role.authorityName}} - {{role.projectName}}</h2>
     <hr>
     <jhi-alert-error></jhi-alert-error>
     <dl class="row-md jh-entity-details">
-        <dt><span jhiTranslate="managementPortalApp.role.authorityName">Authority Name</span></dt>
+        <dt><span [translate]="'managementPortalApp.role.authorityName'"></span></dt>
         <dd>
             <span>{{role.authorityName}}</span>
         </dd>
-        <dt><span jhiTranslate="managementPortalApp.role.project">Project</span></dt>
+        <dt><span [translate]="'managementPortalApp.role.project'"></span></dt>
         <dd>
             <span>{{role.projectName}}</span>
         </dd>
@@ -17,13 +17,6 @@
     <button type="submit"
             (click)="previousState()"
             class="btn btn-info">
-        <span class="fa fa-arrow-left"></span>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+        <span class="fa fa-arrow-left"></span>&nbsp;<span [translate]="'entity.action.back'"></span>
     </button>
-
-    <!--<button type="button"-->
-            <!--[routerLink]="['/', { outlets: { popup: 'role/'+ role.id + '/edit'} }]"-->
-            <!--replaceUrl="true"-->
-            <!--class="btn btn-primary">-->
-        <!--<span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>-->
-    <!--</button>-->
 </div>

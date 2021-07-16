@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
 import { Role } from '../../admin/user-management/role.model';
 import { EventManager } from '../../shared/util/event-manager.service';
@@ -19,11 +18,9 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
 
     constructor(
             private eventManager: EventManager,
-            private jhiLanguageService: JhiLanguageService,
             private roleService: RoleService,
             private route: ActivatedRoute,
     ) {
-        this.jhiLanguageService.setLocations(['role']);
     }
 
     ngOnInit() {
