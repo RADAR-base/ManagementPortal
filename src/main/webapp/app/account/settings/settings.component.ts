@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { JhiLanguageService } from 'ng-jhipster';
+import { TranslateService } from '@ngx-translate/core';
 
 import { AccountService, JhiLanguageHelper, Principal } from '../../shared';
 
@@ -16,10 +16,9 @@ export class SettingsComponent implements OnInit {
     constructor(
             private account: AccountService,
             private principal: Principal,
-            private languageService: JhiLanguageService,
             private languageHelper: JhiLanguageHelper,
+            private translateService: TranslateService,
     ) {
-        this.languageService.setLocations(['settings']);
     }
 
     ngOnInit() {
@@ -38,11 +37,7 @@ export class SettingsComponent implements OnInit {
             this.principal.identity(true).then((account) => {
                 this.settingsAccount = this.copyAccount(account);
             });
-            this.languageService.getCurrent().then((current) => {
-                if (this.settingsAccount.langKey !== current) {
-                    this.languageService.changeLanguage(this.settingsAccount.langKey);
-                }
-            });
+            this.translateService.use(this.settingsAccount.langKey);
         }, () => {
             this.success = null;
             this.error = 'ERROR';
