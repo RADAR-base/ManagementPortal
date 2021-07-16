@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { JhiLanguageService } from 'ng-jhipster';
 import { JhiHealthModalComponent } from './health-modal.component';
 
 import { JhiHealthService } from './health.service';
@@ -14,12 +13,9 @@ export class JhiHealthCheckComponent implements OnInit {
     updatingHealth: boolean;
 
     constructor(
-            private jhiLanguageService: JhiLanguageService,
             private modalService: NgbModal,
             private healthService: JhiHealthService,
     ) {
-        this.jhiLanguageService.setLocations(['health']);
-
     }
 
     ngOnInit() {

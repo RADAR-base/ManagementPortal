@@ -1,7 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { JhiLanguageService } from 'ng-jhipster';
-import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
+
 import { ITEMS_PER_PAGE } from '../../shared';
 
 import { Audit } from './audit.model';
@@ -27,10 +26,8 @@ export class AuditsComponent implements OnInit {
     datePipe: DatePipe;
 
     constructor(
-            private jhiLanguageService: JhiLanguageService,
             private auditsService: AuditsService,
     ) {
-        this.jhiLanguageService.setLocations(['audits']);
         this.itemsPerPage = ITEMS_PER_PAGE;
         this.page = 1;
         this.reverse = false;
