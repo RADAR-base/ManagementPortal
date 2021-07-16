@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { JhiLanguageService } from 'ng-jhipster';
+
 import { EventManager } from '../util/event-manager.service';
 import { SourcePopupService } from './source-popup.service';
 
@@ -18,12 +18,10 @@ export class SourceDeleteDialogComponent {
     source: Source;
 
     constructor(
-            private jhiLanguageService: JhiLanguageService,
             private sourceService: SourceService,
             public activeModal: NgbActiveModal,
             private eventManager: EventManager,
     ) {
-        this.jhiLanguageService.addLocation('source');
     }
 
     clear() {
