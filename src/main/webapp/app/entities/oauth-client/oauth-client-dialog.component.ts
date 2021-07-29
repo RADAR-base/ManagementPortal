@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { AlertService, JhiLanguageService } from 'ng-jhipster';
+import { AlertService } from 'ng-jhipster';
 import { EventManager } from '../../shared/util/event-manager.service';
 import { OAuthClientPopupService } from './oauth-client-popup.service';
 
@@ -32,12 +32,10 @@ export class OAuthClientDialogComponent implements OnInit {
 
     constructor(
             public activeModal: NgbActiveModal,
-            private jhiLanguageService: JhiLanguageService,
             private alertService: AlertService,
             private oauthClientSerivce: OAuthClientService,
             private eventManager: EventManager,
     ) {
-        this.jhiLanguageService.addLocation('oauthClient');
         this.availableGrants = ['authorization_code', 'implicit', 'client_credentials', 'refresh_token', 'password'];
         this.authorities = ['ROLE_SYS_ADMIN'];
         this.isSaving = false;
