@@ -1,13 +1,12 @@
 <div>
     <h4>
-        <span jhiTranslate="managementPortalApp.subject.home.title">Subjects</span>
+        <span [translate]="'managementPortalApp.subject.home.title'"></span>
         <button
                 class="btn btn-primary float-right create-subject"
                 *ngIf='isProjectSpecific'
                 [routerLink]="['/', { outlets: { popup: ['project-subject-new' , project.projectName] } }]">
             <span class="fa fa-plus"></span>
-            <span  jhiTranslate="managementPortalApp.subject.home.createLabel">
-            Create new Subject
+            <span [translate]="'managementPortalApp.subject.home.createLabel'">
             </span>
         </button>
         <button
@@ -15,8 +14,7 @@
                 *ngIf='!isProjectSpecific'
                 [routerLink]="['/', { outlets: { popup: ['general-subject-new'] } }]">
             <span class="fa fa-plus"></span>
-            <span  jhiTranslate="managementPortalApp.subject.home.createLabel">
-            Create new Subject
+            <span [translate]="'managementPortalApp.subject.home.createLabel'">
             </span>
         </button>
     </h4>
@@ -27,16 +25,16 @@
     <div class="table-responsive" *ngIf="subjects">
         <table class="table table-striped">
             <thead>
-            <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="transition.bind(this)">
-            <th jhiSortBy="user.login" ><span jhiTranslate="managementPortalApp.subject.subjectId">subjectId</span><span class="fa fa-sort"></span></th>
-            <th jhiSortBy="externalId" ><span jhiTranslate="managementPortalApp.subject.externalId">Enternal Id</span><span class="fa fa-sort"></span></th>
-                <th jhiSortBy="user.activated"><span jhiTranslate="managementPortalApp.subject.status.title">Status</span><span class="fa fa-sort"></span></th>
-            <th *ngIf="!isProjectSpecific"><span jhiTranslate="managementPortalApp.subject.project">Project</span></th>
-            <th><span jhiTranslate="managementPortalApp.subject.sources">Sources</span></th>
-            <th><span jhiTranslate="managementPortalApp.subject.attributeData">Attributes</span></th>
-            <th class="text-center"><span jhiTranslate="managementPortalApp.subject.pairing">Pairing</span></th>
-            <th class="text-center"><span jhiTranslate="managementPortalApp.subject.actions">Actions</span></th>
-            </tr>
+                <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="transition.bind(this)">
+                    <th jhiSortBy="user.login" ><span [translate]="'managementPortalApp.subject.subjectId'"></span><span class="fa fa-sort"></span></th>
+                    <th jhiSortBy="externalId" ><span [translate]="'managementPortalApp.subject.externalId'"></span><span class="fa fa-sort"></span></th>
+                    <th jhiSortBy="user.activated"><span [translate]="'managementPortalApp.subject.status.title'"></span><span class="fa fa-sort"></span></th>
+                    <th *ngIf="!isProjectSpecific"><span [translate]="'managementPortalApp.subject.project'"></span></th>
+                    <th><span [translate]="'managementPortalApp.subject.sources'"></span></th>
+                    <th><span [translate]="'managementPortalApp.subject.attributeData'"></span></th>
+                    <th class="text-center"><span [translate]="'managementPortalApp.subject.pairing'"></span></th>
+                    <th class="text-center"><span [translate]="'managementPortalApp.subject.actions'"></span></th>
+                </tr>
             </thead>
             <tbody>
             <tr *ngFor="let subject of subjects ;trackBy: trackLogin">
@@ -80,7 +78,7 @@
                                 replaceUrl="true"
                                 class="btn btn-success btn-sm">
                             <span class="fa fa-qrcode"></span>
-                            <span jhiTranslate="managementPortalApp.subject.pairApp">Pair App</span>
+                            <span [translate]="'managementPortalApp.subject.pairApp'"></span>
                         </button>
                         <button [disabled]="subject.status != 'ACTIVATED'"
                                 type="submit"
@@ -88,7 +86,7 @@
                                 replaceUrl="true"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-link"></span>
-                            <span jhiTranslate="managementPortalApp.subject.pairSources.button">Pair Sources</span>
+                            <span [translate]="'managementPortalApp.subject.pairSources.button'"></span>
                         </button>
                     </div>
                 </td>
@@ -99,7 +97,7 @@
                                 [routerLink]="['/subject', subject.login ]"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>
-                            <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
+                            <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
                         </button>
                         <button *ngIf='!isProjectSpecific' [disabled]="subject.status != 'ACTIVATED'"
                                 type="submit"
@@ -107,14 +105,14 @@
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>
-                            <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
+                            <span class="hidden-md-down" [translate]="'entity.action.edit'"></span>
                         </button>
                         <button *ngIf='isProjectSpecific' [disabled]="subject.status != 'ACTIVATED'"
                                 type="submit"
                                 [routerLink]="['/', { outlets: { popup: 'project-subject/'+ project.projectName + '/' + subject.login + '/edit'} }]"
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
-                            <span class="fa fa-pencil"></span>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+                            <span class="fa fa-pencil"></span>&nbsp;<span [translate]="'entity.action.edit'"></span>
                         </button>
                         <button
                                 [disabled]="subject.status != 'ACTIVATED'"
@@ -123,7 +121,7 @@
                                 replaceUrl="true"
                                 class="btn btn-warning btn-sm">
                             <span class="fa fa-stop"></span>
-                            <span class="hidden-md-down" jhiTranslate="managementPortalApp.subject.discontinue.operation">Discontinue</span>
+                            <span class="hidden-md-down" [translate]="'managementPortalApp.subject.discontinue.operation'"></span>
                         </button>
                         <button
                                 *jhiHasAnyAuthority="['ROLE_SYS_ADMIN' ]"
@@ -132,7 +130,7 @@
                                 replaceUrl="true"
                                 class="btn btn-danger btn-sm">
                             <span class="fa fa-remove"></span>
-                            <span class="hidden-md-down" jhiTranslate="entity.action.delete">Delete</span>
+                            <span class="hidden-md-down" [translate]="'entity.action.delete'"></span>
                         </button>
                     </div>
                 </td>

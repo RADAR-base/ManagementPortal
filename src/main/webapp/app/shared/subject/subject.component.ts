@@ -8,7 +8,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertService, JhiLanguageService } from 'ng-jhipster';
+import { AlertService } from 'ng-jhipster';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs/Rx';
 import { ITEMS_PER_PAGE, Project } from '..';
 
@@ -44,7 +44,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     @Input() isProjectSpecific: boolean;
 
     constructor(
-            private jhiLanguageService: JhiLanguageService,
             private subjectService: SubjectService,
             private alertService: AlertService,
             private eventManager: EventManager,
@@ -63,7 +62,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             this.ascending = params.ascending;
             this.predicate = params.predicate;
         });
-        this.jhiLanguageService.addLocation('subject');
     }
 
     loadSubjects() {
