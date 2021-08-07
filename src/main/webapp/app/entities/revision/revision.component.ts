@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertService, JhiLanguageService } from 'ng-jhipster';
+import { AlertService } from 'ng-jhipster';
 import { Observable, Subscription } from 'rxjs/Rx';
 import { ITEMS_PER_PAGE } from '../../shared';
 
@@ -33,7 +33,6 @@ export class RevisionComponent implements OnInit, OnDestroy {
     routeData: any;
 
     constructor(
-            private jhiLanguageService: JhiLanguageService,
             private revisionService: RevisionService,
             private alertService: AlertService,
             private activatedRoute: ActivatedRoute,
@@ -51,7 +50,6 @@ export class RevisionComponent implements OnInit, OnDestroy {
             this.ascending = params.ascending;
             this.predicate = params.predicate;
         });
-        this.jhiLanguageService.setLocations(['audits']);
     }
 
     ngOnInit() {
