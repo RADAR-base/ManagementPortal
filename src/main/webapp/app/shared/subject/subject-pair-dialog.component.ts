@@ -2,7 +2,7 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { JhiLanguageService } from 'ng-jhipster';
+
 import { OAuthClient, OAuthClientService } from '../../entities/oauth-client';
 import { OAuthClientPairInfoService } from '../../entities/oauth-client/oauth-client-pair-info.service';
 
@@ -29,13 +29,11 @@ export class SubjectPairDialogComponent implements OnInit {
     allowPersistentToken = false;
 
     constructor(public activeModal: NgbActiveModal,
-                private jhiLanguageService: JhiLanguageService,
                 private translate: TranslateService,
                 private oauthClientService: OAuthClientService,
                 private pairInfoService: OAuthClientPairInfoService,
                 private datePipe: DatePipe,
                 @Inject(DOCUMENT) private doc) {
-        this.jhiLanguageService.addLocation('subject');
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
     }
 
