@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs/Rx';
-import { JhiLanguageService, AlertService } from 'ng-jhipster';
+import { AlertService } from 'ng-jhipster';
 
 import { SourceData } from './source-data.model';
 import { SourceDataService } from './source-data.service';
@@ -30,7 +30,6 @@ export class SourceDataComponent implements OnInit, OnDestroy {
     routeData: any;
     previousPage: any;
     constructor(
-        private jhiLanguageService: JhiLanguageService,
         private sourceDataService: SourceDataService,
         private alertService: AlertService,
         private eventManager: EventManager,
@@ -49,7 +48,6 @@ export class SourceDataComponent implements OnInit, OnDestroy {
             this.ascending = params.ascending;
             this.predicate = params.predicate;
         });
-        this.jhiLanguageService.setLocations(['sourceData', 'processingState']);
     }
 
     loadAll() {
