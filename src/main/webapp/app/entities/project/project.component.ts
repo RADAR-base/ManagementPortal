@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs/Rx';
-import { AlertService, JhiLanguageService } from 'ng-jhipster';
+import { AlertService } from 'ng-jhipster';
 import { ITEMS_PER_PAGE, Project, ProjectService } from '../../shared';
 import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
 import { PagingParams } from '../../shared/commons';
@@ -28,7 +28,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
     previousPage: any;
 
     constructor(
-            private jhiLanguageService: JhiLanguageService,
             private projectService: ProjectService,
             private alertService: AlertService,
             private eventManager: EventManager,
@@ -47,7 +46,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
             this.ascending = params.ascending;
             this.predicate = params.predicate;
         });
-        this.jhiLanguageService.setLocations(['project', 'projectStatus']);
     }
 
     loadAll() {
