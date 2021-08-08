@@ -4,17 +4,12 @@ import { RouterModule } from '@angular/router';
 import { ManagementPortalSharedModule } from '../../shared';
 import {
     RoleDetailComponent,
-    RoleDialogComponent,
-    RolePopupComponent,
-    rolePopupRoute,
-    RolePopupService,
     roleRoute,
     RoleService,
 } from './';
 
 const ENTITY_STATES = [
     ...roleRoute,
-    ...rolePopupRoute,
 ];
 
 @NgModule({
@@ -24,16 +19,9 @@ const ENTITY_STATES = [
     ],
     declarations: [
         RoleDetailComponent,
-        RoleDialogComponent,
-        RolePopupComponent,
-    ],
-    entryComponents: [
-        RolePopupComponent,
-        RoleDialogComponent,
     ],
     providers: [
         RoleService,
-        RolePopupService,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
