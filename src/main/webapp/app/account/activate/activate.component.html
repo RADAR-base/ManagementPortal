@@ -3,7 +3,7 @@
         <div class="col-md-8 offset-md-2">
             <h1 [translate]="'activate.title'"></h1>
 
-            <div class="alert alert-success" *ngIf="!success">
+            <div class="alert alert-success" *ngIf="success">
                 <span [innerHTML]="'activate.messages.success' | translate"></span>
                 <a class="alert-link" (click)="login()"
                     [translate]="'global.messages.info.authenticated.link'">
