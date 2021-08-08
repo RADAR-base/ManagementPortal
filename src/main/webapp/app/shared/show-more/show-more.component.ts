@@ -13,7 +13,7 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
                 type="button"
                 class="btn btn-success btn-sm">
             <span class="fa fa-angle-down"></span>
-            <span class="hidden-md-down" jhiTranslate="common.showMore">More</span>
+            <span class="hidden-md-down" [translate]="'common.showMore'"></span>
         </button>
         <button [hidden]="this.items && this.items.length < this.maxLength"
                 *ngIf='!isCollapsed'
@@ -21,7 +21,7 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
                 type="button"
                 class="btn btn-success btn-sm">
             <span class="fa fa-angle-up"></span>
-            <span class="hidden-md-down" jhiTranslate="common.showLess">Less</span>
+            <span class="hidden-md-down" [translate]="'common.showLess'"></span>
         </button>
     `,
 })
