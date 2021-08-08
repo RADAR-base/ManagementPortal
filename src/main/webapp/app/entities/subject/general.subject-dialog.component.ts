@@ -1,15 +1,16 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { AlertService } from 'ng-jhipster';
+
+import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
 import { MinimalSource } from '../../shared/source';
 import { Subject, SubjectService } from '../../shared/subject';
 
 import { Project, ProjectService } from '../../shared/project';
 import { GeneralSubjectPopupService } from './general.subject-popup.service';
-import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-subject-dialog',

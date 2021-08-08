@@ -1,7 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { AlertService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Subscription';
+
 import { AuthorityService, Project, ProjectService } from '../../shared';
+import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
 
 import { Role } from './role.model';

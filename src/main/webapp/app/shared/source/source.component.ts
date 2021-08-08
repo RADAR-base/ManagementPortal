@@ -7,16 +7,16 @@ import {
     SimpleChange,
     SimpleChanges,
 } from '@angular/core';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertService } from 'ng-jhipster';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs/Rx';
 import { ITEMS_PER_PAGE, Project } from '..';
 
 import { Source } from './source.model';
 import { SourceService } from './source.service';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { SourceData } from '../../entities/source-data';
 import { PagingParams } from '../commons';
+import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
 import { parseLinks } from '../util/parse-links-util';
 

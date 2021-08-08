@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AlertService } from 'ng-jhipster';
 import { Subscription } from 'rxjs/Rx';
 
+import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
 import { OAuthClient } from './oauth-client.model';
 import { OAuthClientService } from './oauth-client.service';

@@ -1,13 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertService } from 'ng-jhipster';
 import { Observable, Subscription } from 'rxjs/Rx';
 import { ITEMS_PER_PAGE } from '../../shared';
 
 import { Revision } from './revision.model';
 import { RevisionService } from './revision.service';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { PagingParams } from '../../shared/commons';
+import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
 import { parseLinks } from '../../shared/util/parse-links-util';
 

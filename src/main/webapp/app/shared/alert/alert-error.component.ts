@@ -1,8 +1,8 @@
 import { Component, OnDestroy } from '@angular/core';
-import { AlertService } from 'ng-jhipster';
 import { TranslateService } from 'ng2-translate';
 import { Subscription } from 'rxjs/Rx';
 
+import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
 
 @Component({
@@ -19,7 +19,11 @@ export class JhiAlertErrorComponent implements OnDestroy {
     alerts: any[];
     cleanHttpErrorListener: Subscription;
 
-    constructor(private alertService: AlertService, private eventManager: EventManager, private translateService: TranslateService) {
+    constructor(
+        private alertService: AlertService,
+        private eventManager: EventManager,
+        translateService: TranslateService,
+    ) {
         this.alerts = [];
 
         this.cleanHttpErrorListener = eventManager.subscribe('managementPortalApp.httpError', (response) => {
@@ -94,7 +98,6 @@ export class JhiAlertErrorComponent implements OnDestroy {
                             msg: key,
                             params: data,
                             timeout: 5000,
-                            toast: this.alertService.isToast(),
                             scoped: true,
                         },
                         this.alerts,

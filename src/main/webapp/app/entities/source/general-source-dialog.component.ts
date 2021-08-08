@@ -1,15 +1,16 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { AlertService } from 'ng-jhipster';
+
+import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
 import { Source, SourceService } from '../../shared/source';
 import { MinimalProject, ProjectService } from '../../shared';
 
 import { SourceType } from '../source-type';
 import { GeneralSourcePopupService } from './general-source-popup.service';
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-source-dialog',

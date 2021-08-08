@@ -1,5 +1,4 @@
 import { Injector } from '@angular/core';
-import { AlertService } from 'ng-jhipster';
 import { Observable } from 'rxjs/Observable';
 import {
     HttpEvent,
@@ -8,6 +7,8 @@ import {
     HttpRequest,
     HttpResponse
 } from '@angular/common/http';
+
+import { AlertService } from '../../shared/util/alert.service';
 
 export class NotificationInterceptor implements HttpInterceptor {
 
