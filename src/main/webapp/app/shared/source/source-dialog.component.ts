@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { AlertService, JhiLanguageService } from 'ng-jhipster';
+import { AlertService } from 'ng-jhipster';
 import { EventManager } from '../util/event-manager.service';
 import { ProjectService } from '../project/project.service';
 import { SourceType } from '../../entities/source-type';
@@ -25,13 +25,11 @@ export class SourceDialogComponent implements OnInit {
 
     constructor(
             public activeModal: NgbActiveModal,
-            private jhiLanguageService: JhiLanguageService,
             private alertService: AlertService,
             private sourceService: SourceService,
             private projectService: ProjectService,
             private eventManager: EventManager,
     ) {
-        this.jhiLanguageService.addLocation('source');
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.options = ['External-identifier'];
