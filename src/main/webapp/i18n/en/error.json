@@ -1,6 +1,11 @@
 {
     "error": {
         "title": "Error page!",
-        "403": "You are not authorized to access this page."
+        "403": "You are not authorized to access this page.",
+        "loginLink": {
+            "prefix": "Please ",
+            "text": "sign in",
+            "suffix": " again."
+        }
     }
 }
