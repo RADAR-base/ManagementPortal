@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { JhiLanguageService } from 'ng-jhipster';
 
 import { Subscription } from 'rxjs/Subscription';
 import { EventManager } from '../util/event-manager.service';
@@ -18,9 +17,9 @@ export class DictionaryMapperComponent implements OnInit {
     selectedKey: any;
     enteredValue: string;
 
-    constructor(private jhiLanguageService: JhiLanguageService,
-                private eventManager: EventManager) {
-        this.jhiLanguageService.addLocation('global');
+    constructor(
+        private eventManager: EventManager,
+    ) {
         this.selectedKey = null;
         this.enteredValue = '';
     }
