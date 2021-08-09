@@ -5,7 +5,7 @@ import {
     LangChangeEvent,
     TranslateService,
     TranslationChangeEvent,
-} from 'ng2-translate/ng2-translate';
+} from '@ngx-translate/core';
 
 import { LANGUAGES } from './language.constants';
 
