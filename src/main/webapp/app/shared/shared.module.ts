@@ -16,7 +16,6 @@ import {
 } from './';
 import { DictionaryMapperComponent } from './dictionary-mapper/dictionary-mapper.component';
 import { ShowMoreComponent } from './show-more/show-more.component';
-import { AuthorityService } from './user/authority.service';
 import { CommonUserMgmtComponent } from './user/common-user-management.component';
 import { ResolvePagingParams } from './commons';
 import { ProjectService } from './project/project.service';
@@ -42,7 +41,6 @@ import { ProjectService } from './project/project.service';
         AuthServerProvider,
         AuthService,
         ProjectService,
-        AuthorityService,
         DatePipe,
         ResolvePagingParams,
     ],
