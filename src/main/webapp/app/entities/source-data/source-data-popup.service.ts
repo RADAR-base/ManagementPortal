@@ -1,10 +1,11 @@
-import { Component, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+
 import { SourceData } from './source-data.model';
 import { SourceDataService } from './source-data.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class SourceDataPopupService {
     private isOpen = false;
 
