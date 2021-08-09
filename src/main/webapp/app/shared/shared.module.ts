@@ -6,14 +6,12 @@ import { CookieService } from 'ngx-cookie-service';
 import {
     AuthServerProvider,
     AuthService,
-    CSRFService,
     HasAnyAuthorityDirective,
     JhiLoginModalComponent,
     LoginModalService,
     LoginService,
     ManagementPortalSharedCommonModule,
     ManagementPortalSharedLibsModule,
-    Principal,
     StateStorageService,
     UserService,
 } from './';
@@ -42,8 +40,6 @@ import { ProjectService } from './project/project.service';
         LoginService,
         LoginModalService,
         StateStorageService,
-        Principal,
-        CSRFService,
         AuthServerProvider,
         AuthService,
         UserService,
