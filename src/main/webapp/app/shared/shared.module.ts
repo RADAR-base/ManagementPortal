@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 
 import { CookieService } from 'ngx-cookie-service';
 import {
-    AccountService,
     AuthServerProvider,
     AuthService,
     CSRFService,
@@ -42,7 +41,6 @@ import { ProjectService } from './project/project.service';
         CookieService,
         LoginService,
         LoginModalService,
-        AccountService,
         StateStorageService,
         Principal,
         CSRFService,
