@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class JhiHealthService {
 
     separator: string;
@@ -12,7 +12,7 @@ export class JhiHealthService {
     }
 
     checkHealth(): Observable<any> {
-        return this.http.get('management/health', { observe: 'response'}).map((res: HttpResponse<any>) => res.body);
+        return this.http.get('management/health');
     }
 
     transformHealthData(data): any {

@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
+import { Observable } from 'rxjs';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { createRequestOption } from '../../shared/model/request.utils';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class AuditsService {
     constructor(private http: HttpClient) {
     }

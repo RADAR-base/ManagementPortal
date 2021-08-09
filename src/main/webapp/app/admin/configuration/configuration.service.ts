@@ -1,18 +1,19 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class JhiConfigurationService {
 
     constructor(private http: HttpClient) {
     }
 
     get(): Observable<any> {
-        return this.http.get('management/configprops').map((res: HttpResponse<any>) => {
+        return this.http.get<object>('management/configprops').pipe(map((res) => {
             const properties: any[] = [];
 
-            const propertiesObject = res.body;
+            const propertiesObject = res;
 
             for (const key in propertiesObject) {
                 if (propertiesObject.hasOwnProperty(key)) {
@@ -24,14 +25,14 @@ export class JhiConfigurationService {
                 return (propertyA.prefix === propertyB.prefix) ? 0 :
                         (propertyA.prefix < propertyB.prefix) ? -1 : 1;
             });
-        });
+        }));
     }
 
     getEnv(): Observable<any> {
-        return this.http.get('management/env').map((res: HttpResponse<any>) => {
+        return this.http.get<object>('management/env').pipe(map((res) => {
             const properties: any = {};
 
-            const propertiesObject = res.body;
+            const propertiesObject = res;
 
             for (const key in propertiesObject) {
                 if (propertiesObject.hasOwnProperty(key)) {
@@ -48,6 +49,6 @@ export class JhiConfigurationService {
             }
 
             return properties;
-        });
+        }));
     }
 }
