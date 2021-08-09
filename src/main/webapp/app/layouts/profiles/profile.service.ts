@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ProfileInfo } from './profile-info.model';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ProfileService {
 
     private profileInfoUrl = 'api/profile-info';

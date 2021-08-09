@@ -1,4 +1,5 @@
 import {Injector, NgModule} from '@angular/core';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import {Ng2Webstorage} from 'ngx-webstorage';
 import { ManagementPortalAccountModule } from './account/account.module';
@@ -15,13 +16,11 @@ import {
     LayoutRoutingModule,
     NavbarComponent,
     PageRibbonComponent,
-    ProfileService,
 } from './layouts';
 
 import { ManagementPortalSharedModule, UserRouteAccessService } from './shared';
 import { EventManager } from './shared/util/event-manager.service';
 import './vendor.ts';
-import {HTTP_INTERCEPTORS} from '@angular/common/http';
 import {AuthInterceptor} from './blocks/interceptor/auth.interceptor';
 import {AuthExpiredInterceptor} from './blocks/interceptor/auth-expired.interceptor';
 import {ErrorHandlerInterceptor} from './blocks/interceptor/errorhandler.interceptor';
@@ -47,7 +46,6 @@ import {NotificationInterceptor} from './blocks/interceptor/notification.interce
         FooterComponent,
     ],
     providers: [
-        ProfileService,
         PaginationConfig,
         UserRouteAccessService,
         {
