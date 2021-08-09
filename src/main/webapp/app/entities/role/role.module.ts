@@ -5,7 +5,6 @@ import { ManagementPortalSharedModule } from '../../shared';
 import {
     RoleDetailComponent,
     roleRoute,
-    RoleService,
 } from './';
 
 const ENTITY_STATES = [
@@ -19,9 +18,6 @@ const ENTITY_STATES = [
     ],
     declarations: [
         RoleDetailComponent,
-    ],
-    providers: [
-        RoleService,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
