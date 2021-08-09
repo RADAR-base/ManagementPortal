@@ -7,7 +7,6 @@ import {
     GeneralSubjectDialogComponent,
     GeneralSubjectPopupComponent,
 } from './general.subject-dialog.component';
-import { GeneralSubjectPopupService } from './general.subject-popup.service';
 import { GeneralSubjectComponent } from './general.subject.component';
 import { subjectPopupRoute, subjectRoute } from './general.subject.route';
 
@@ -32,9 +31,6 @@ const ENTITY_STATES = [
         GeneralSubjectComponent,
         GeneralSubjectPopupComponent,
         GeneralSubjectDialogComponent,
-    ],
-    providers: [
-        GeneralSubjectPopupService,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [],
