@@ -13,7 +13,6 @@ import {
     ManagementPortalSharedCommonModule,
     ManagementPortalSharedLibsModule,
     StateStorageService,
-    UserService,
 } from './';
 import { DictionaryMapperComponent } from './dictionary-mapper/dictionary-mapper.component';
 import { ShowMoreComponent } from './show-more/show-more.component';
@@ -42,7 +41,6 @@ import { ProjectService } from './project/project.service';
         StateStorageService,
         AuthServerProvider,
         AuthService,
-        UserService,
         ProjectService,
         AuthorityService,
         DatePipe,
