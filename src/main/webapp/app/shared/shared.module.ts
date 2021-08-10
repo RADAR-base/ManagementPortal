@@ -8,8 +8,6 @@ import {
     AuthService,
     HasAnyAuthorityDirective,
     JhiLoginModalComponent,
-    LoginModalService,
-    LoginService,
     ManagementPortalSharedCommonModule,
     ManagementPortalSharedLibsModule,
     StateStorageService,
@@ -34,8 +32,6 @@ import { ResolvePagingParams } from './commons';
     ],
     providers: [
         CookieService,
-        LoginService,
-        LoginModalService,
         StateStorageService,
         AuthServerProvider,
         AuthService,

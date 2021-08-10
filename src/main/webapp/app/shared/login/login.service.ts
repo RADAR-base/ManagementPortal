@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
-import { JhiLanguageService } from 'ng-jhipster';
-import { AuthServerProvider } from '../auth/auth-oauth2.service';
+import { TranslateService } from '@ngx-translate/core';
 
+import { AuthServerProvider } from '../auth/auth-oauth2.service';
 import { Principal } from '../auth/principal.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class LoginService {
 
     constructor(
-            private languageService: JhiLanguageService,
             private principal: Principal,
             private authServerProvider: AuthServerProvider,
+            private translateService: TranslateService
     ) {
     }
 
@@ -23,7 +23,7 @@ export class LoginService {
                     // After the login the language will be changed to
                     // the language selected by the user during his registration
                     if (account !== null) {
-                        this.languageService.changeLanguage(account.langKey);
+                        this.translateService.use(account.langKey);
                     }
                     resolve(data);
                 });
