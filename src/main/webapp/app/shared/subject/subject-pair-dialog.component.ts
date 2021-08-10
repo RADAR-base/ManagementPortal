@@ -17,7 +17,6 @@ import { Subject } from './subject.model';
     selector: 'jhi-subject-pair-dialog',
     templateUrl: './subject-pair-dialog.component.html',
     styleUrls: ['subject-pair-dialog.component.scss'],
-    providers: [OAuthClientService, OAuthClientPairInfoService],
 })
 export class SubjectPairDialogComponent implements OnInit {
     readonly authorities: string[];

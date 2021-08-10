@@ -1,11 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { Component, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+
 import { OAuthClient } from './oauth-client.model';
 import { OAuthClientService } from './oauth-client.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class OAuthClientPopupService {
     private isOpen = false;
 

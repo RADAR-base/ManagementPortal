@@ -10,9 +10,7 @@ import {
     OAuthClientDialogComponent,
     OAuthClientPopupComponent,
     oauthClientPopupRoute,
-    OAuthClientPopupService,
     oauthClientRoute,
-    OAuthClientService,
 } from './';
 
 const ENTITY_STATES = [
@@ -39,10 +37,6 @@ const ENTITY_STATES = [
         OAuthClientPopupComponent,
         OAuthClientDeleteDialogComponent,
         OAuthClientDeletePopupComponent,
-    ],
-    providers: [
-        OAuthClientService,
-        OAuthClientPopupService,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
