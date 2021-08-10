@@ -5,13 +5,9 @@ import { ManagementPortalSharedModule } from '../shared';
 
 import {
     accountState,
-    Activate,
     ActivateComponent,
-    Password,
     PasswordComponent,
-    PasswordResetFinish,
     PasswordResetFinishComponent,
-    PasswordResetInit,
     PasswordResetInitComponent,
     PasswordStrengthBarComponent,
     SettingsComponent,
@@ -29,12 +25,6 @@ import {
         PasswordResetInitComponent,
         PasswordResetFinishComponent,
         SettingsComponent,
-    ],
-    providers: [
-        Activate,
-        Password,
-        PasswordResetInit,
-        PasswordResetFinish,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
