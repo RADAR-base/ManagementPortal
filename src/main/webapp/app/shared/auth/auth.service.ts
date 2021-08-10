@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+
 import { LoginModalService } from '../login/login-modal.service';
 import { Principal } from './principal.service';
 import { StateStorageService } from './state-storage.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class AuthService {
 
     constructor(

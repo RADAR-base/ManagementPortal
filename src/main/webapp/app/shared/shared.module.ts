@@ -4,8 +4,6 @@ import { RouterModule } from '@angular/router';
 
 import { CookieService } from 'ngx-cookie-service';
 import {
-    AuthServerProvider,
-    AuthService,
     HasAnyAuthorityDirective,
     JhiLoginModalComponent,
     ManagementPortalSharedCommonModule,
@@ -30,8 +28,6 @@ import { CommonUserMgmtComponent } from './user/common-user-management.component
     ],
     providers: [
         CookieService,
-        AuthServerProvider,
-        AuthService,
         DatePipe,
     ],
     entryComponents: [JhiLoginModalComponent],
