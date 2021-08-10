@@ -18,7 +18,6 @@ import { DictionaryMapperComponent } from './dictionary-mapper/dictionary-mapper
 import { ShowMoreComponent } from './show-more/show-more.component';
 import { CommonUserMgmtComponent } from './user/common-user-management.component';
 import { ResolvePagingParams } from './commons';
-import { ProjectService } from './project/project.service';
 
 @NgModule({
     imports: [
@@ -40,7 +39,6 @@ import { ProjectService } from './project/project.service';
         StateStorageService,
         AuthServerProvider,
         AuthService,
-        ProjectService,
         DatePipe,
         ResolvePagingParams,
     ],

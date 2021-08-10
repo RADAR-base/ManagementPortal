@@ -1,10 +1,11 @@
 import { DatePipe } from '@angular/common';
-import { Component, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+
 import { Project, ProjectService } from '../../shared';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ProjectPopupService {
     private isOpen = false;
 
