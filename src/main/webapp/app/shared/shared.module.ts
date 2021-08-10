@@ -14,7 +14,6 @@ import {
 import { DictionaryMapperComponent } from './dictionary-mapper/dictionary-mapper.component';
 import { ShowMoreComponent } from './show-more/show-more.component';
 import { CommonUserMgmtComponent } from './user/common-user-management.component';
-import { ResolvePagingParams } from './commons';
 
 @NgModule({
     imports: [
@@ -34,7 +33,6 @@ import { ResolvePagingParams } from './commons';
         AuthServerProvider,
         AuthService,
         DatePipe,
-        ResolvePagingParams,
     ],
     entryComponents: [JhiLoginModalComponent],
     exports: [

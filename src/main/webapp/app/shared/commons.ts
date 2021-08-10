@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve } from '@angular/router';
 import { parseAscending, parsePage, parsePredicate } from './util/pagination-util';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ResolvePagingParams implements Resolve<any> {
     resolve(route: ActivatedRouteSnapshot): PagingParams {
         const page = route.queryParams['page'] ? route.queryParams['page'] : '1';

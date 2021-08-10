@@ -2,7 +2,6 @@ import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { ManagementPortalSharedModule } from '../shared';
-import { ResolvePagingParams } from '../shared/commons';
 
 import {
     adminState,
@@ -58,7 +57,6 @@ import { RoleComponent } from './user-management/role.component';
         JhiMetricsMonitoringModalComponent,
     ],
     providers: [
-        ResolvePagingParams,
         UserResolve,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
