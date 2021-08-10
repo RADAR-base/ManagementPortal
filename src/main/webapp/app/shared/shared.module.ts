@@ -10,7 +10,6 @@ import {
     JhiLoginModalComponent,
     ManagementPortalSharedCommonModule,
     ManagementPortalSharedLibsModule,
-    StateStorageService,
 } from './';
 import { DictionaryMapperComponent } from './dictionary-mapper/dictionary-mapper.component';
 import { ShowMoreComponent } from './show-more/show-more.component';
@@ -32,7 +31,6 @@ import { ResolvePagingParams } from './commons';
     ],
     providers: [
         CookieService,
-        StateStorageService,
         AuthServerProvider,
         AuthService,
         DatePipe,
