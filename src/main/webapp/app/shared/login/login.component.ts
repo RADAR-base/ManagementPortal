@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Renderer } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -12,6 +12,8 @@ import { LoginService } from './login.service';
     templateUrl: './login.component.html',
 })
 export class JhiLoginModalComponent implements AfterViewInit {
+    @ViewChild('usernameField') usernameField: ElementRef;
+
     authenticationError: boolean;
     password: string;
     rememberMe: boolean;
@@ -22,8 +24,6 @@ export class JhiLoginModalComponent implements AfterViewInit {
             private eventManager: EventManager,
             private loginService: LoginService,
             private stateStorageService: StateStorageService,
-            private elementRef: ElementRef,
-            private renderer: Renderer,
             private router: Router,
             public activeModal: NgbActiveModal,
     ) {
@@ -31,7 +31,7 @@ export class JhiLoginModalComponent implements AfterViewInit {
     }
 
     ngAfterViewInit() {
-        this.renderer.invokeElementMethod(this.elementRef.nativeElement.querySelector('#username'), 'focus', []);
+        this.usernameField.nativeElement.focus();
     }
 
     cancel() {

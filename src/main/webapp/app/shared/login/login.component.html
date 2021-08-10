@@ -18,8 +18,10 @@
             <form class="form" role="form" (ngSubmit)="login()">
                 <div class="form-group">
                     <label for="username" [translate]="'global.form.username'"></label>
-                    <input type="text" class="form-control" name="username" id="username" placeholder="{{'global.form.username.placeholder' | translate}}"
-                    [(ngModel)]="username">
+                    <input type="text" class="form-control"
+                        name="username" id="username"
+                        placeholder="{{'global.form.username.placeholder' | translate}}"
+                        [(ngModel)]="username" #usernameField>
                 </div>
                 <div class="form-group">
                     <label for="password" [translate]="'login.form.password'"></label>

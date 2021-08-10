@@ -7,7 +7,7 @@ import { PasswordResetInit } from './password-reset-init.service';
     templateUrl: './password-reset-init.component.html',
 })
 export class PasswordResetInitComponent implements OnInit, AfterViewInit {
-    @ViewChild('#email') emailField: ElementRef;
+    @ViewChild('emailField') emailField: ElementRef;
 
     error: string;
     errorEmailNotExists: string;

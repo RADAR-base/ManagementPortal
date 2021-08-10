@@ -12,7 +12,7 @@ import { Password } from '../../password/password.service';
     templateUrl: './password-reset-finish.component.html',
 })
 export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
-    @ViewChild('#password') passwordField: ElementRef | null;
+    @ViewChild('passwordField') passwordField: ElementRef | null;
 
     confirmPassword: string;
     weakPassword: string;
