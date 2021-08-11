@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 
-import { Subscription } from 'rxjs/Subscription';
 import { EventManager } from '../util/event-manager.service';
 import { Dictionary } from './dictionary-mapper.model';
 

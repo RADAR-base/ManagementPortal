@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs/Rx';
+import { Subscription } from 'rxjs';
+
 import { Role } from '../../admin/user-management/role.model';
 import { EventManager } from '../../shared/util/event-manager.service';
 

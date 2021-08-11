@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs/Rx';
-import { Source } from '../../shared/source/source.model';
+import { Subscription } from 'rxjs';
 
+import { Source } from '../../shared/source/source.model';
 import { Project, ProjectService } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 
