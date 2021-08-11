@@ -51,33 +51,21 @@ import {NotificationInterceptor} from './blocks/interceptor/notification.interce
             provide: HTTP_INTERCEPTORS,
             useClass: AuthInterceptor,
             multi: true,
-            deps: [
-                Injector,
-            ]
         },
         {
             provide: HTTP_INTERCEPTORS,
             useClass: AuthExpiredInterceptor,
             multi: true,
-            deps: [
-               Injector
-            ]
         },
         {
             provide: HTTP_INTERCEPTORS,
             useClass: ErrorHandlerInterceptor,
             multi: true,
-            deps: [
-                EventManager
-            ]
         },
         {
             provide: HTTP_INTERCEPTORS,
             useClass: NotificationInterceptor,
             multi: true,
-            deps: [
-                Injector
-            ]
         },
     ],
     bootstrap: [JhiMainComponent],
