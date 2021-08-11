@@ -19,7 +19,6 @@ import {
     UserMgmtDeleteDialogComponent,
     UserMgmtDetailComponent,
     UserMgmtDialogComponent,
-    UserResolve,
     UserSendActivationLinkComponent,
     UserSendActivationLinkDialogComponent,
 } from './';
@@ -55,9 +54,6 @@ import { RoleComponent } from './user-management/role.component';
         UserSendActivationLinkDialogComponent,
         JhiHealthModalComponent,
         JhiMetricsMonitoringModalComponent,
-    ],
-    providers: [
-        UserResolve,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
