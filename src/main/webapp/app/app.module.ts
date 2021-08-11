@@ -18,7 +18,7 @@ import {
     PageRibbonComponent,
 } from './layouts';
 
-import { ManagementPortalSharedModule, UserRouteAccessService } from './shared';
+import { ManagementPortalSharedModule } from './shared';
 import { EventManager } from './shared/util/event-manager.service';
 import './vendor.ts';
 import {AuthInterceptor} from './blocks/interceptor/auth.interceptor';
@@ -47,7 +47,6 @@ import {NotificationInterceptor} from './blocks/interceptor/notification.interce
     ],
     providers: [
         PaginationConfig,
-        UserRouteAccessService,
         {
             provide: HTTP_INTERCEPTORS,
             useClass: AuthInterceptor,
