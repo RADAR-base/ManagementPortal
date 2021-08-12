@@ -10,20 +10,18 @@
     <span class="badge badge-warning" (click)="threadDumpFilter = {threadState: 'TIMED_WAITING'}">Timed Waiting&nbsp;<span class="badge badge-pill badge-default">{{threadDumpTimedWaiting}}</span></span>&nbsp;
     <span class="badge badge-danger" (click)="threadDumpFilter = {threadState: 'BLOCKED'}">Blocked&nbsp;<span class="badge badge-pill badge-default">{{threadDumpBlocked}}</span></span>&nbsp;
     <div class="mt-2">&nbsp;</div>
-    Filter
-    <input type="text" [(ngModel)]="threadDumpFilter" class="form-control">
-    <div class="pad" *ngFor="let entry of threadDump | pureFilter:threadDumpFilter:'lockName' | keyvalue">
+    <div class="pad" *ngFor="let thread of threads">
         <h6>
-            <span class="badge" [ngClass]="getBadgeClass(entry.value.threadState)">{{entry.value.threadState}}</span>&nbsp;{{entry.value.threadName}} (ID {{entry.value.threadId}})
-            <a (click)="entry.show = !entry.show" href="javascript:void(0);">
-               <span [hidden]="entry.show" [translate]="'metrics.jvm.threads.dump.show'"></span>
-               <span [hidden]="!entry.show" [translate]="'metrics.jvm.threads.dump.hide'"></span>
+            <span class="badge" [ngClass]="getBadgeClass(thread.threadState)">{{thread.threadState}}</span>&nbsp;{{thread.threadName}} (ID {{thread.threadId}})
+            <a (click)="thread.show = !thread.show" href="javascript:void(0);">
+               <span [hidden]="thread.show" [translate]="'metrics.jvm.threads.dump.show'"></span>
+               <span [hidden]="!thread.show" [translate]="'metrics.jvm.threads.dump.hide'"></span>
             </a>
         </h6>
-        <div class="card" [hidden]="!entry.show">
+        <div class="card" [hidden]="!thread.show">
             <div class="card-block">
-                <div *ngFor="let st of entry.value.stackTrace | keyvalue" class="break">
-                    <samp>{{st.value.className}}.{{st.value.methodName}}(<code>{{st.value.fileName}}:{{st.value.lineNumber}}</code>)</samp>
+                <div *ngFor="let st of thread.stackTrace" class="break">
+                    <samp>{{st.className}}.{{st.methodName}}(<code>{{st.fileName}}:{{st.lineNumber}}</code>)</samp>
                     <span class="mt-1"></span>
                 </div>
             </div>
@@ -40,11 +38,11 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>{{entry.value.blockedTime}}</td>
-                    <td>{{entry.value.blockedCount}}</td>
-                    <td>{{entry.value.waitedTime}}</td>
-                    <td>{{entry.value.waitedCount}}</td>
-                    <td><code>{{entry.value.lockName}}</code></td>
+                    <td>{{thread.blockedTime}}</td>
+                    <td>{{thread.blockedCount}}</td>
+                    <td>{{thread.waitedTime}}</td>
+                    <td>{{thread.waitedCount}}</td>
+                    <td><code>{{thread.lockName}}</code></td>
                 </tr>
             </tbody>
         </table>

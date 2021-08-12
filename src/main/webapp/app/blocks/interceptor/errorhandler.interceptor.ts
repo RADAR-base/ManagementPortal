@@ -20,7 +20,7 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
         return next.handle(request).pipe(
             tap({
                 error: (err: HttpErrorResponse) => {
-                    if (!(err.status === 401 && (err.message === '' || (err.url && err.url.startsWith('/api/account'))))) {
+                    if (!(err.status === 401 && (err.message === '' || (err.url && err.url.includes('/api/account'))))) {
                         this.eventManager.broadcast({
                             name: 'managementPortalApp.httpError',
                             content: err

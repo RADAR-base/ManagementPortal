@@ -6,7 +6,6 @@ import { ManagementPortalSharedModule } from '../shared';
 import {
     adminState,
     AuditsComponent,
-    JhiConfigurationComponent,
     JhiDocsComponent,
     JhiHealthCheckComponent,
     JhiHealthModalComponent,
@@ -38,7 +37,6 @@ import { RoleComponent } from './user-management/role.component';
         UserMgmtDialogComponent,
         UserMgmtDeleteDialogComponent,
         LogsComponent,
-        JhiConfigurationComponent,
         JhiHealthCheckComponent,
         JhiHealthModalComponent,
         JhiDocsComponent,

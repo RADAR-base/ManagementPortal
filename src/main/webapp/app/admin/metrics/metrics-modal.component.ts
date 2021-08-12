@@ -47,4 +47,9 @@ export class JhiMetricsMonitoringModalComponent implements OnInit {
             return 'badge-danger';
         }
     }
+
+    get threads(): any[] {
+        let state = this.threadDumpFilter && this.threadDumpFilter.threadState;
+        return this.threadDump.filter(t => !state || t.threadState === state);
+    }
 }
