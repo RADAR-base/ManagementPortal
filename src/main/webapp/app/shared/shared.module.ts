@@ -12,6 +12,8 @@ import {
 import { DictionaryMapperComponent } from './dictionary-mapper/dictionary-mapper.component';
 import { ShowMoreComponent } from './show-more/show-more.component';
 import { CommonUserMgmtComponent } from './user/common-user-management.component';
+import { JhiSortDirective } from './util/sort.directive';
+import { JhiSortByDirective } from './util/sort-by.directive';
 
 @NgModule({
     imports: [
@@ -21,6 +23,8 @@ import { CommonUserMgmtComponent } from './user/common-user-management.component
     ],
     declarations: [
         JhiLoginModalComponent,
+        JhiSortDirective,
+        JhiSortByDirective,
         HasAnyAuthorityDirective,
         DictionaryMapperComponent,
         CommonUserMgmtComponent,
@@ -34,6 +38,8 @@ import { CommonUserMgmtComponent } from './user/common-user-management.component
     exports: [
         ManagementPortalSharedCommonModule,
         JhiLoginModalComponent,
+        JhiSortDirective,
+        JhiSortByDirective,
         HasAnyAuthorityDirective,
         DictionaryMapperComponent,
         CommonUserMgmtComponent,
