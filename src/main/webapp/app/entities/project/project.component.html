@@ -41,7 +41,7 @@
                         </span>
                 </td>
                 <td>
-                    <div *ngFor="let entry of project.attributes | keys; trackBy: trackKey">
+                    <div *ngFor="let entry of project.attributes | keyvalue; trackBy: trackKey">
                         <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
                     </div>
                 </td>

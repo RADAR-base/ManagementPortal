@@ -34,7 +34,7 @@
         </dd>
         <dt><span [translate]="'managementPortalApp.source.attributeData'"></span></dt>
         <dd>
-            <div *ngFor="let entry of source.attributes | keys; trackBy: trackKey">
+            <div *ngFor="let entry of source.attributes | keyvalue; trackBy: trackKey">
                 <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
             </div>
         </dd>

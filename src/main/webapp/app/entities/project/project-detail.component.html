@@ -73,12 +73,12 @@
                     <td [translate]="'managementPortalApp.ProjectStatus.' + project.projectStatus"></td>
                     <td>{{project.endDate | date:'medium'}}</td>
                     <td>
-                        <div *ngFor="let entry of project.attributes | keys; trackBy: trackKey">
+                        <div *ngFor="let entry of project.attributes | keyvalue; trackBy: trackKey">
                             <span class="form-control-static">{{entry.key}}</span>
                         </div>
                     </td>
                     <td>
-                        <div *ngFor="let entry of project.attributes | keys; trackBy: trackKey">
+                        <div *ngFor="let entry of project.attributes | keyvalue; trackBy: trackKey">
                             <span class="form-control-static">{{entry.value}}</span>
                         </div>
                     </td>
