@@ -9,9 +9,10 @@ import {
 } from '@angular/core';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs/Rx';
-import { ITEMS_PER_PAGE, Project } from '..';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
+import { ITEMS_PER_PAGE, Project } from '..';
 import { Source } from './source.model';
 import { SourceService } from './source.service';
 import { SourceData } from '../../entities/source-data';
@@ -52,10 +53,10 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
                 private router: Router) {
         this.sources = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
-        this.pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
+        this.pagingParams$ = this.activatedRoute.data.pipe(map(data => {
             const fallback = { page: 1, predicate: 'id', ascending: true };
             return data['pagingParams'] || fallback;
-        });
+        }));
         this.routeData = this.pagingParams$.subscribe(params => {
             this.page = params.page;
             this.previousPage = params.page;

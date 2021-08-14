@@ -9,9 +9,10 @@ import {
 } from '@angular/core';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs/Rx';
-import { ITEMS_PER_PAGE, Project } from '..';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
+import { ITEMS_PER_PAGE, Project } from '..';
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
 import { PagingParams } from '../commons';
@@ -52,10 +53,10 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     ) {
         this.subjects = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
-        this.pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
+        this.pagingParams$ = this.activatedRoute.data.pipe(map(data => {
             const fallback = { page: 1, predicate: 'user.login', ascending: true };
             return data['pagingParams'] || fallback;
-        });
+        }));
         this.routeData = this.pagingParams$.subscribe(params => {
             this.page = params.page;
             this.previousPage = params.page;

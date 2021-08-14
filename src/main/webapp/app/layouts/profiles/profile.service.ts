@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs/operators';
+
 import { ProfileInfo } from './profile-info.model';
-import {HttpClient, HttpResponse} from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
@@ -14,7 +16,7 @@ export class ProfileService {
     getProfileInfo(): Promise<ProfileInfo> {
         if (!this.profileInfo) {
             this.profileInfo = this.http.get<ProfileInfo>(this.profileInfoUrl, { observe: 'response' })
-                    .map((res: HttpResponse<ProfileInfo>) => {
+                    .pipe(map(res => {
                         const data = res.body;
                         const pi = new ProfileInfo();
                         pi.activeProfiles = data.activeProfiles;
@@ -22,7 +24,7 @@ export class ProfileService {
                         pi.inProduction = data.activeProfiles.indexOf('prod') !== -1;
                         pi.swaggerEnabled = data.activeProfiles.indexOf('swagger') !== -1;
                         return pi;
-                    }).toPromise();
+                    })).toPromise();
         }
         return this.profileInfo;
     }

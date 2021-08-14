@@ -1,9 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, Subscription } from 'rxjs/Rx';
-import { ITEMS_PER_PAGE } from '../../shared';
+import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
+import { ITEMS_PER_PAGE } from '../../shared';
 import { Revision } from './revision.model';
 import { RevisionService } from './revision.service';
 import { PagingParams } from '../../shared/commons';
@@ -40,10 +41,10 @@ export class RevisionComponent implements OnInit, OnDestroy {
             private router: Router,
     ) {
         this.itemsPerPage = ITEMS_PER_PAGE;
-        this.pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
+        this.pagingParams$ = this.activatedRoute.data.pipe(map(data => {
             const fallback = { page: 1, predicate: 'id', ascending: true };
             return data['pagingParams'] || fallback;
-        });
+        }));
         this.routeData = this.pagingParams$.subscribe(params => {
             this.page = params.page;
             this.previousPage = params.page;

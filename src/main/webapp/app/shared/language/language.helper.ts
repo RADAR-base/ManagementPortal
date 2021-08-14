@@ -9,7 +9,7 @@ import {
 
 import { LANGUAGES } from './language.constants';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class JhiLanguageHelper {
 
     constructor(private translateService: TranslateService, private titleService: Title, private router: Router) {
