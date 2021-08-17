@@ -1,8 +1,9 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ManagementPortalTestModule } from '../../../test.module';
-import { JhiHealthCheckComponent } from '../../../../../../main/webapp/app/admin/health/health.component';
-import { JhiHealthService } from '../../../../../../main/webapp/app/admin/health/health.service';
+
+import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
+import { JhiHealthCheckComponent } from './health.component';
+import { JhiHealthService } from './health.service';
 
 describe('Component Tests', () => {
 
@@ -12,7 +13,7 @@ describe('Component Tests', () => {
         let fixture: ComponentFixture<JhiHealthCheckComponent>;
         let service: JhiHealthService;
 
-        beforeEach(async(() => {
+        beforeEach(waitForAsync(() => {
             TestBed.configureTestingModule({
                 imports: [ManagementPortalTestModule],
                 declarations: [JhiHealthCheckComponent],

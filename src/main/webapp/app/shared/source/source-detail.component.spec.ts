@@ -1,13 +1,14 @@
-import { ComponentFixture, TestBed, async, inject } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs/Rx';
-import { DateUtils, DataUtils, EventManager } from 'ng-jhipster';
-import { ManagementPortalTestModule } from '../../../test.module';
-import { MockActivatedRoute } from '../../../helpers/mock-route.service';
-import {SourceDetailComponent} from '../../../../../../main/webapp/app/shared/source/source-detail.component';
-import {SourceService} from '../../../../../../main/webapp/app/shared/source/source.service';
-import {Source} from '../../../../../../main/webapp/app/shared/source/source.model';
+import { of } from 'rxjs';
+
+import { EventManager } from '../util/event-manager.service';
+import { ManagementPortalTestModule } from '../util/test/test.module';
+import { MockActivatedRoute } from '../util/test/mock-route.service';
+import { SourceDetailComponent } from './source-detail.component';
+import { SourceService } from './source.service';
+import { Source } from './source.model';
 
 describe('Component Tests', () => {
 
@@ -16,13 +17,11 @@ describe('Component Tests', () => {
         let fixture: ComponentFixture<SourceDetailComponent>;
         let service: SourceService;
 
-        beforeEach(async(() => {
+        beforeEach(waitForAsync(() => {
             TestBed.configureTestingModule({
                 imports: [ManagementPortalTestModule],
                 declarations: [SourceDetailComponent],
                 providers: [
-                    DateUtils,
-                    DataUtils,
                     DatePipe,
                     {
                         provide: ActivatedRoute,
@@ -44,7 +43,7 @@ describe('Component Tests', () => {
             it('Should call load all on init', () => {
             // GIVEN
 
-            spyOn(service, 'find').and.returnValue(Observable.of(new Source(10)));
+            spyOn(service, 'find').and.returnValue(of(new Source(10)));
 
             // WHEN
             comp.ngOnInit();

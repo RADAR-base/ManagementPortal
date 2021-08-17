@@ -1,13 +1,14 @@
-import { ComponentFixture, TestBed, async, inject } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs/Rx';
-import { DateUtils, DataUtils, EventManager } from 'ng-jhipster';
-import { ManagementPortalTestModule } from '../../../test.module';
-import { MockActivatedRoute } from '../../../helpers/mock-route.service';
-import {SubjectService} from '../../../../../../main/webapp/app/shared/subject/subject.service';
-import {Subject} from '../../../../../../main/webapp/app/shared/subject/subject.model';
-import {SubjectDetailComponent} from '../../../../../../main/webapp/app/shared/subject/subject-detail.component';
+import { of } from 'rxjs';
+
+import { EventManager } from '../util/event-manager.service';
+import { ManagementPortalTestModule } from '../util/test/test.module';
+import { MockActivatedRoute } from '../util/test/mock-route.service';
+import { SubjectService } from './subject.service';
+import { Subject } from './subject.model';
+import { SubjectDetailComponent } from './subject-detail.component';
 
 describe('Component Tests', () => {
 
@@ -16,13 +17,11 @@ describe('Component Tests', () => {
         let fixture: ComponentFixture<SubjectDetailComponent>;
         let service: SubjectService;
 
-        beforeEach(async(() => {
+        beforeEach(waitForAsync(() => {
             TestBed.configureTestingModule({
                 imports: [ManagementPortalTestModule],
                 declarations: [SubjectDetailComponent],
                 providers: [
-                    DateUtils,
-                    DataUtils,
                     DatePipe,
                     {
                         provide: ActivatedRoute,
@@ -44,7 +43,7 @@ describe('Component Tests', () => {
             it('Should call load all on init', () => {
             // GIVEN
 
-            spyOn(service, 'find').and.returnValue(Observable.of(new Subject(10, 'test')));
+            spyOn(service, 'find').and.returnValue(of(new Subject(10, 'test')));
 
             // WHEN
             comp.ngOnInit();

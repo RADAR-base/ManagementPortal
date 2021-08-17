@@ -1,12 +1,12 @@
 import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
+import { of } from 'rxjs';
 
 export class MockActivatedRoute extends ActivatedRoute {
 
     constructor(parameters?: any) {
         super();
-        this.queryParams = Observable.of(parameters);
-        this.params = Observable.of(parameters);
+        this.queryParams = of(parameters);
+        this.params = of(parameters);
     }
 }
 

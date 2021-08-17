@@ -1,11 +1,13 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
-import { Observable } from 'rxjs/Rx';
-import { JhiLanguageHelper } from '../../../../../../main/webapp/app/shared';
-import { ManagementPortalTestModule } from '../../../test.module';
-import { Principal, AccountService } from '../../../../../../main/webapp/app/shared';
-import { SettingsComponent } from '../../../../../../main/webapp/app/account/settings/settings.component';
-import { MockAccountService } from '../../../helpers/mock-account.service';
-import { MockPrincipal } from '../../../helpers/mock-principal.service';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TranslateService } from '@ngx-translate/core';
+import { throwError } from 'rxjs';
+
+import { JhiLanguageHelper } from '../../shared';
+import { MockAccountService } from '../../shared/util/test/mock-account.service';
+import { MockPrincipal } from '../../shared/util/test/mock-principal.service';
+import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
+import { Principal, AccountService } from '../../shared';
+import { SettingsComponent } from './settings.component';
 
 describe('Component Tests', () => {
 
@@ -16,7 +18,7 @@ describe('Component Tests', () => {
         let mockAuth: any;
         let mockPrincipal: any;
 
-        beforeEach(async(() => {
+        beforeEach(waitForAsync(() => {
             TestBed.configureTestingModule({
                 imports: [ManagementPortalTestModule],
                 declarations: [SettingsComponent],
@@ -32,6 +34,10 @@ describe('Component Tests', () => {
                     {
                         provide: JhiLanguageHelper,
                         useValue: null
+                    },
+                    {
+                        provide: TranslateService,
+                        useValue: { use() {} }
                     },
                 ]
             }).overrideTemplate(SettingsComponent, '').compileComponents();
@@ -62,8 +68,8 @@ describe('Component Tests', () => {
             comp.save();
 
             // THEN
-            expect(mockPrincipal.identitySpy).toHaveBeenCalled();
-            expect(mockAuth.saveSpy).toHaveBeenCalledWith(accountValues);
+            expect(mockPrincipal.identity).toHaveBeenCalled();
+            expect(mockAuth.save).toHaveBeenCalledWith(accountValues);
             expect(comp.settingsAccount).toEqual(accountValues);
         });
 
@@ -85,7 +91,7 @@ describe('Component Tests', () => {
 
         it('should notify of error upon failed save', function() {
             // GIVEN
-            mockAuth.saveSpy.and.returnValue(Observable.throw('ERROR'));
+            mockAuth.save.and.returnValue(throwError('ERROR'));
 
             // WHEN
             comp.save();

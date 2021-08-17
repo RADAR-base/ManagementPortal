@@ -31,12 +31,11 @@ export class SettingsComponent implements OnInit {
     }
 
     save() {
-        this.account.save(this.settingsAccount).subscribe(() => {
+        this.account.save(this.settingsAccount).subscribe(async () => {
             this.error = null;
             this.success = 'OK';
-            this.principal.identity(true).then((account) => {
-                this.settingsAccount = this.copyAccount(account);
-            });
+            let savedAccount = await this.principal.identity(true);
+            this.settingsAccount = this.copyAccount(savedAccount);
             this.translateService.use(this.settingsAccount.langKey);
         }, () => {
             this.success = null;

@@ -1,13 +1,14 @@
-import { ComponentFixture, TestBed, async, inject } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs/Rx';
-import { DateUtils, DataUtils, EventManager } from 'ng-jhipster';
-import { ManagementPortalTestModule } from '../../../test.module';
-import { MockActivatedRoute } from '../../../helpers/mock-route.service';
-import { SourceTypeDetailComponent } from '../../../../../../main/webapp/app/entities/source-type/source-type-detail.component';
-import { SourceTypeService } from '../../../../../../main/webapp/app/entities/source-type/source-type.service';
-import { SourceType } from '../../../../../../main/webapp/app/entities/source-type/source-type.model';
+import { of } from 'rxjs';
+
+import { EventManager } from '../../shared/util/event-manager.service';
+import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
+import { MockActivatedRoute } from '../../shared/util/test/mock-route.service';
+import { SourceTypeDetailComponent } from './source-type-detail.component';
+import { SourceTypeService } from './source-type.service';
+import { SourceType } from './source-type.model';
 
 describe('Component Tests', () => {
 
@@ -16,13 +17,11 @@ describe('Component Tests', () => {
         let fixture: ComponentFixture<SourceTypeDetailComponent>;
         let service: SourceTypeService;
 
-        beforeEach(async(() => {
+        beforeEach(waitForAsync(() => {
             TestBed.configureTestingModule({
                 imports: [ManagementPortalTestModule],
                 declarations: [SourceTypeDetailComponent],
                 providers: [
-                    DateUtils,
-                    DataUtils,
                     DatePipe,
                     {
                         provide: ActivatedRoute,
@@ -45,7 +44,7 @@ describe('Component Tests', () => {
             it('Should call load all on init', () => {
             // GIVEN
 
-            spyOn(service, 'find').and.returnValue(Observable.of(new SourceType(10)));
+            spyOn(service, 'find').and.returnValue(of(new SourceType(10)));
 
             // WHEN
             comp.ngOnInit();

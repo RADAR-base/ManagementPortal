@@ -1,7 +1,7 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import { PasswordStrengthBarComponent } from '../../../../../../main/webapp/app/account/password/password-strength-bar.component';
-import { Password } from '../../../../../../main/webapp/app/account';
+import { PasswordStrengthBarComponent } from './password-strength-bar.component';
+import { Password } from './password.service';
 
 describe('Component Tests', () => {
 
@@ -10,7 +10,7 @@ describe('Component Tests', () => {
         let comp: PasswordStrengthBarComponent;
         let fixture: ComponentFixture<PasswordStrengthBarComponent>;
 
-        beforeEach(async(() => {
+        beforeEach(waitForAsync(() => {
             service = new Password(null);
             TestBed.configureTestingModule({
               declarations: [PasswordStrengthBarComponent],

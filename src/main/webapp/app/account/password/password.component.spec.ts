@@ -1,10 +1,10 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
-import { Observable } from 'rxjs/Rx';
-import { ManagementPortalTestModule } from '../../../test.module';
-import { PasswordComponent } from '../../../../../../main/webapp/app/account/password/password.component';
-import { Password } from '../../../../../../main/webapp/app/account/password/password.service';
-import { Principal } from '../../../../../../main/webapp/app/shared/auth/principal.service';
-import { AccountService } from '../../../../../../main/webapp/app/shared/auth/account.service';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { of, throwError } from 'rxjs';
+import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
+import { PasswordComponent } from './password.component';
+import { Password } from './password.service';
+import { Principal } from '../../shared/auth/principal.service';
+import { AccountService } from '../../shared/auth/account.service';
 
 describe('Component Tests', () => {
 
@@ -14,7 +14,7 @@ describe('Component Tests', () => {
         let fixture: ComponentFixture<PasswordComponent>;
         let service: Password;
 
-        beforeEach(async(() => {
+        beforeEach(waitForAsync(() => {
             TestBed.configureTestingModule({
                 imports: [ManagementPortalTestModule],
                 declarations: [PasswordComponent],
@@ -46,7 +46,7 @@ describe('Component Tests', () => {
 
         it('should call Auth.changePassword when passwords match', () => {
             // GIVEN
-            spyOn(service, 'save').and.returnValue(Observable.of(true));
+            spyOn(service, 'save').and.returnValue(of(true));
             comp.password = comp.confirmPassword = 'myPassword1$';
 
             // WHEN
@@ -58,7 +58,7 @@ describe('Component Tests', () => {
 
         it('should set success to OK upon success', function() {
             // GIVEN
-            spyOn(service, 'save').and.returnValue(Observable.of(true));
+            spyOn(service, 'save').and.returnValue(of(true));
             comp.password = comp.confirmPassword = 'myPassword1$';
 
             // WHEN
@@ -72,7 +72,7 @@ describe('Component Tests', () => {
 
         it('should notify of error if change password fails', function() {
             // GIVEN
-            spyOn(service, 'save').and.returnValue(Observable.throw('ERROR'));
+            spyOn(service, 'save').and.returnValue(throwError('ERROR'));
             comp.password = comp.confirmPassword = 'myPassword1$';
 
             // WHEN

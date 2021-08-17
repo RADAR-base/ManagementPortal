@@ -1,10 +1,10 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { NgbPaginationConfig} from '@ng-bootstrap/ng-bootstrap';
-import { ParseLinks } from 'ng-jhipster';
-import { ManagementPortalTestModule } from '../../../test.module';
-import { AuditsComponent } from '../../../../../../main/webapp/app/admin/audits/audits.component';
-import { AuditsService } from '../../../../../../main/webapp/app/admin/audits/audits.service';
-import { ITEMS_PER_PAGE } from '../../../../../../main/webapp/app/shared';
+
+import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
+import { ITEMS_PER_PAGE } from '../../shared';
+import { AuditsComponent } from './audits.component';
+import { AuditsService } from './audits.service';
 
 function build2DigitsDatePart(datePart: number) {
     return `0${datePart}`.slice(-2);
@@ -37,14 +37,13 @@ describe('Component Tests', () => {
         let fixture: ComponentFixture<AuditsComponent>;
         let service: AuditsService;
 
-        beforeEach(async(() => {
+        beforeEach(waitForAsync(() => {
             TestBed.configureTestingModule({
                 imports: [ManagementPortalTestModule],
                 declarations: [AuditsComponent],
                 providers: [
                     AuditsService,
                     NgbPaginationConfig,
-                    ParseLinks
                 ]
             })
             .overrideTemplate(AuditsComponent, '')
