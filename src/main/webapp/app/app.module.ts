@@ -1,7 +1,7 @@
 import {Injector, NgModule} from '@angular/core';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
-import {Ng2Webstorage} from 'ngx-webstorage';
+import { NgxWebstorageModule } from 'ngx-webstorage';
 import { ManagementPortalAccountModule } from './account/account.module';
 import { ManagementPortalAdminModule } from './admin/admin.module';
 import { PaginationConfig } from './blocks/config/uib-pagination.config';
@@ -30,7 +30,7 @@ import {NotificationInterceptor} from './blocks/interceptor/notification.interce
     imports: [
         BrowserModule,
         LayoutRoutingModule,
-        Ng2Webstorage.forRoot({prefix: 'jhi', separator: '-'}),
+        NgxWebstorageModule.forRoot({ prefix: 'jhi', separator: '-' }),
         ManagementPortalSharedModule,
         ManagementPortalHomeModule,
         ManagementPortalAdminModule,
