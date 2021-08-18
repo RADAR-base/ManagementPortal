@@ -90,7 +90,7 @@
     "yargs": "^13.2.4"
   },
   "engines": {
-    "node": ">=6.9.0"
+    "node": ">=14.14.0"
   },
   "scripts": {
     "lint": "tslint --project tsconfig.json -e 'node_modules/**'",
@@ -104,8 +104,8 @@
     "webpack:build": "yarn run ngc && webpack --config webpack/webpack.vendor.js && webpack --config webpack/webpack.dev.js",
     "webpack:build:vendor": "webpack --config webpack/webpack.vendor.js",
     "webpack:prod": "yarn run ngc && webpack -p --config webpack/webpack.vendor.js && webpack -p --config webpack/webpack.prod.js",
-    "test": "ng test",
-    "test:watch": "ng test --watch",
+    "test": "ng test --no-watch --no-progress --browsers=ChromeHeadlessCI",
+    "test:watch": "ng test --watch --browsers=Chrome",
     "e2e": "yarn run wait-for-managementportal && protractor src/test/javascript/protractor.conf.js",
     "e2e-prod": "yarn run wait-for-managementportal-prod && protractor src/test/javascript/protractor-prod.conf.js",
     "wait-for-managementportal": "wait-port -t 240000 http://localhost:8080/management/health",
