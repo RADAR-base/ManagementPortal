@@ -1,5 +1,7 @@
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+
 import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
 import { PasswordComponent } from './password.component';
 import { Password } from './password.service';
@@ -22,7 +24,8 @@ describe('Component Tests', () => {
                     Principal,
                     AccountService,
                     Password
-                ]
+                ],
+                schemas: [CUSTOM_ELEMENTS_SCHEMA],
             }).overrideTemplate(PasswordComponent, '').compileComponents();
         }));
 
