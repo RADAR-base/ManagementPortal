@@ -18,6 +18,8 @@
     "@angular/platform-server": "5.2.0",
     "@angular/router": "5.2.0",
     "@ng-bootstrap/ng-bootstrap": "2.0.0",
+    "@ngx-translate/core": "13.0.0",
+    "@ngx-translate/http-loader": "6.0.0",
     "angularx-qrcode": "1.5.3",
     "bootstrap": "4.0.0-alpha.6",
     "core-js": "2.4.1",

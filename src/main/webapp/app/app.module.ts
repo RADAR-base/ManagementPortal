@@ -1,7 +1,14 @@
-import {Injector, NgModule} from '@angular/core';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { NgModule } from '@angular/core';
+import {
+    HttpClient,
+    HttpClientModule,
+    HTTP_INTERCEPTORS,
+} from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgxWebstorageModule } from 'ngx-webstorage';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+
 import { ManagementPortalAccountModule } from './account/account.module';
 import { ManagementPortalAdminModule } from './admin/admin.module';
 import { PaginationConfig } from './blocks/config/uib-pagination.config';
@@ -18,7 +25,7 @@ import {
     PageRibbonComponent,
 } from './layouts';
 
-import { ManagementPortalSharedModule } from './shared';
+import { LANGUAGES, ManagementPortalSharedModule } from './shared';
 import { EventManager } from './shared/util/event-manager.service';
 import './vendor.ts';
 import {AuthInterceptor} from './blocks/interceptor/auth.interceptor';
@@ -29,6 +36,15 @@ import {NotificationInterceptor} from './blocks/interceptor/notification.interce
 @NgModule({
     imports: [
         BrowserModule,
+        HttpClientModule,
+        TranslateModule.forRoot({
+            useDefaultLang: true,
+            loader: {
+                provide: TranslateLoader,
+                useFactory: c => new TranslateHttpLoader(c, 'i18n/', `.json`),
+                deps: [HttpClient],
+            },
+        }),
         LayoutRoutingModule,
         NgxWebstorageModule.forRoot({ prefix: 'jhi', separator: '-' }),
         ManagementPortalSharedModule,
@@ -71,4 +87,8 @@ import {NotificationInterceptor} from './blocks/interceptor/notification.interce
     bootstrap: [JhiMainComponent],
 })
 export class ManagementPortalAppModule {
+    constructor(translate: TranslateService) {
+        let browserLang = translate.getBrowserLang();
+        translate.use(LANGUAGES.includes(browserLang) ? browserLang: 'en');
+    }
 }

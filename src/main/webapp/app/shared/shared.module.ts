@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { CookieService } from 'ngx-cookie-service';
 import {
@@ -17,6 +18,7 @@ import { JhiSortByDirective } from './util/sort-by.directive';
 
 @NgModule({
     imports: [
+        TranslateModule.forChild(),
         ManagementPortalSharedLibsModule,
         ManagementPortalSharedCommonModule,
         RouterModule,
@@ -34,7 +36,6 @@ import { JhiSortByDirective } from './util/sort-by.directive';
         CookieService,
         DatePipe,
     ],
-    entryComponents: [JhiLoginModalComponent],
     exports: [
         ManagementPortalSharedCommonModule,
         JhiLoginModalComponent,
@@ -45,6 +46,7 @@ import { JhiSortByDirective } from './util/sort-by.directive';
         CommonUserMgmtComponent,
         ShowMoreComponent,
         DatePipe,
+        TranslateModule,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 
