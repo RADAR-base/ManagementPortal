@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark">
     <a class="navbar-brand" class="navbar-brand" routerLink="/" (click)="collapseNavbar()">
         <span class="logo-img"></span>
         <span [translate]="'global.title'" class="navbar-title"></span>
@@ -22,7 +22,6 @@
                     <span>
                         <i class="fa fa-th-list" aria-hidden="true"></i>
                         <span [translate]="'global.menu.entities.main'"></span>
-                        <b class="caret"></b>
                     </span>
                 </a>
                 <ul class="dropdown-menu" ngbDropdownMenu>
@@ -59,7 +58,6 @@
                     <span>
                         <i class="fa fa-th-list" aria-hidden="true"></i>
                         <span [translate]="'global.menu.entities.project'"></span>
-                        <b class="caret"></b>
                     </span>
                 </a>
                 <ul class="dropdown-menu" ngbDropdownMenu>
@@ -77,7 +75,6 @@
                     <span>
                         <i class="fa fa-user-plus" aria-hidden="true"></i>
                         <span [translate]="'global.menu.admin.main'"></span>
-                        <b class="caret"></b>
                     </span>
                 </a>
                 <ul class="dropdown-menu" ngbDropdownMenu>
@@ -150,7 +147,6 @@
                     <span>
                         <i class="fa fa-flag" aria-hidden="true"></i>
                         <span [translate]="'global.menu.language'"></span>
-                        <b class="caret"></b>
                     </span>
                 </a>
                 <ul class="dropdown-menu" ngbDropdownMenu *ngIf="languages.length > 1">

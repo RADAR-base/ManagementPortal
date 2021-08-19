@@ -1,21 +1,13 @@
 
+@import '~bootstrap/scss/bootstrap';
+@import '~font-awesome/css/font-awesome';
+
 /* ==============================================================
 Bootstrap tweaks
 ===============================================================*/
 
 body, h1, h2, h3, h4 {
     font-weight: 300;
-}
-
-
-/* ==========================================================================
-Browser Upgrade Prompt
-========================================================================== */
-.browserupgrade {
-    margin: 0.2em 0;
-    background: #ccc;
-    color: #000;
-    padding: 0.2em 0;
 }
 
 /* ==========================================================================
@@ -262,3 +254,10 @@ http://google.github.io/material-design-icons/
     }
 }
 /* jhipster-needle-scss-add-main JHipster will add new css style */
+
+.btn {
+    .fa {
+        margin-right: 4px;
+    }
+    white-space: nowrap;
+}
