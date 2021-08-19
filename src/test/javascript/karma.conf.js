@@ -85,11 +85,7 @@ module.exports = function (config) {
         // test results reporter to use
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-        reporters: ['dots', 'junit', 'progress', 'karma-remap-istanbul', 'notify'],
-
-        junitReporter: {
-            outputFile: '../../../../build/test-results/karma/TESTS-results.xml'
-        },
+        reporters: ['dots', 'kjhtml', 'progress', 'karma-remap-istanbul', 'notify'],
 
         notifyReporter: {
             reportEachFailure: true, // Default: false, will notify on every failed sepc
