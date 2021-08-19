@@ -92,7 +92,7 @@
     "ngc": "ngc -p tsconfig-aot.json",
     "cleanup": "rimraf build/",
     "start": "ng serve",
-    "build:prod": "yarn test && ng build",
+    "build:prod": "yarn test && ng build --base-href /managementportal/",
     "build:dev": "ng build --configuration development",
     "test": "ng test --no-watch --no-progress --browsers=ChromeHeadlessCI",
     "test:watch": "ng test --watch --browsers=Chrome",
