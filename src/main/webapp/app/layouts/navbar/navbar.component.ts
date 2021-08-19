@@ -109,8 +109,4 @@ export class NavbarComponent implements OnInit {
     toggleNavbar() {
         this.isNavbarCollapsed = !this.isNavbarCollapsed;
     }
-
-    getImageUrl() {
-        return this.isAuthenticated() ? this.principal.getImageUrl() : null;
-    }
 }

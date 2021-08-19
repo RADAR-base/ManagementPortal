@@ -161,13 +161,9 @@
             </li>
             <li ngbDropdown class="nav-item dropdown pointer">
                 <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="account-menu">
-                  <span *ngIf="!getImageUrl()">
+                  <span>
                     <i class="fa fa-user" aria-hidden="true"></i>
                     <span [translate]="'global.menu.account.main'"></span>
-                    <b class="caret"></b>
-                  </span>
-                  <span *ngIf="getImageUrl()">
-                      <img [src]="getImageUrl()" class="profile-image img-circle" alt="Avatar">
                   </span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-right" ngbDropdownMenu>
