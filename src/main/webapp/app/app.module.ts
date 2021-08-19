@@ -26,12 +26,10 @@ import {
 } from './layouts';
 
 import { LANGUAGES, ManagementPortalSharedModule } from './shared';
-import { EventManager } from './shared/util/event-manager.service';
-import './vendor.ts';
-import {AuthInterceptor} from './blocks/interceptor/auth.interceptor';
-import {AuthExpiredInterceptor} from './blocks/interceptor/auth-expired.interceptor';
-import {ErrorHandlerInterceptor} from './blocks/interceptor/errorhandler.interceptor';
-import {NotificationInterceptor} from './blocks/interceptor/notification.interceptor';
+import { AuthInterceptor } from './blocks/interceptor/auth.interceptor';
+import { AuthExpiredInterceptor } from './blocks/interceptor/auth-expired.interceptor';
+import { ErrorHandlerInterceptor } from './blocks/interceptor/errorhandler.interceptor';
+import { NotificationInterceptor } from './blocks/interceptor/notification.interceptor';
 
 @NgModule({
     imports: [
