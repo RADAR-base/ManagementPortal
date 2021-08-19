@@ -17,7 +17,7 @@ bootRun {
 }
 
 task webpackBuildDev(type: YarnTask) {
-    args = ["run", "webpack:build:dev"]
+    args = ["build:dev"]
 }
 
 war {

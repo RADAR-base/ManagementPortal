@@ -47,7 +47,7 @@ jobs:
         run: yarn install
 
       - name: Yarn build
-        run: yarn run webpack:build
+        run: yarn build:prod
 
       - name: Yarn check
         run: yarn test

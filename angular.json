@@ -23,7 +23,7 @@
             "customWebpackConfig": {
               "path": "./webpack/webpack.config.js"
             },
-            "outputPath": "dist/management-portal",
+            "outputPath": "build/www",
             "index": "src/main/webapp/index.html",
             "main": "src/main/webapp/app/app.main.ts",
             "polyfills": "src/main/webapp/app/polyfills.ts",
@@ -43,13 +43,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "1mb",
+                  "maximumError": "2mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
+                  "maximumWarning": "4kb",
+                  "maximumError": "8kb"
                 }
               ],
               "fileReplacements": [
