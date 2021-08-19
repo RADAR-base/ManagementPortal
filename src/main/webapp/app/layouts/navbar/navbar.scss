@@ -47,6 +47,10 @@ Navbar
     }
 }
 
+.navbar {
+    padding: .2em 1em;
+}
+
 .navbar-title {
     display: inline-block;
     vertical-align: middle;
@@ -56,15 +60,14 @@ Navbar
 Logo styles
 ========================================================================== */
 .navbar-brand {
-    &.logo {
-        padding: 5px 15px;
-        .logo-img {
-            height: 45px;
-            width: 70px;
-            display: inline-block;
-            vertical-align: middle;
-            background: url("../../../content/images/navbar-logo.png") no-repeat center center;
-            background-size: contain;
-        }
+    padding: 5px 15px;
+
+    .logo-img {
+        height: 45px;
+        width: 70px;
+        display: inline-block;
+        vertical-align: middle;
+        background: url("../../../content/images/navbar-logo.png") no-repeat center center;
+        background-size: contain;
     }
 }
