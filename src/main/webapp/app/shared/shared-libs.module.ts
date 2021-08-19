@@ -6,7 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
     imports: [
-        NgbModule.forRoot(),
+        NgbModule,
     ],
     exports: [
         FormsModule,
