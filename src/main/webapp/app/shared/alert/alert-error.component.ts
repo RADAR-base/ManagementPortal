@@ -10,7 +10,9 @@ import { EventManager } from '../util/event-manager.service';
     template: `
         <div class="alerts" role="alert">
             <div *ngFor="let alert of alerts"  [ngClass]="{\'alert.position\': true, \'toast\': alert.toast}">
-                <ngb-alert type="{{alert.type}}" close="alert.close(alerts)"><pre [innerHTML]="alert.msg"></pre></ngb-alert>
+                <ngb-alert type="{{alert.type}}" close="alert.close(alerts)">
+                    <pre [innerHTML]="alert.msg | translate:alert.params"></pre>
+                </ngb-alert>
             </div>
         </div>`,
 })

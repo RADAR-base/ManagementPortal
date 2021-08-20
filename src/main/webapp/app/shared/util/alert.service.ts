@@ -1,5 +1,6 @@
 // Based on JhiAlertService
-import { Injectable, Sanitizer, SecurityContext } from '@angular/core';
+import { Injectable, SecurityContext } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 
 export type AlertType = 'success' | 'danger' | 'warning' | 'info';
 
@@ -22,7 +23,7 @@ export class AlertService {
     private timeout: number;
 
     constructor(
-        private sanitizer: Sanitizer,
+        private sanitizer: DomSanitizer,
     ) {
         this.alertId = 0; // unique id for each alert. Starts from 0.
         this.alerts = [];
@@ -81,6 +82,7 @@ export class AlertService {
         const alert: Alert = {
             type: alertOptions.type,
             msg: this.sanitizer.sanitize(SecurityContext.HTML, alertOptions.msg),
+            params: alertOptions.params,
             id: alertOptions.id,
             timeout: alertOptions.timeout,
             position: alertOptions.position ? alertOptions.position : 'top right',
