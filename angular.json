@@ -127,8 +127,8 @@
           "builder": "@cypress/schematic:cypress",
           "options": {
             "devServerTarget": "management-portal:serve",
-            "watch": true,
-            "headless": false
+            "watch": false,
+            "headless": true
           },
           "configurations": {
             "production": {
