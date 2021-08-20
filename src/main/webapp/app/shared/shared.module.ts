@@ -13,6 +13,8 @@ import {
 import { DictionaryMapperComponent } from './dictionary-mapper/dictionary-mapper.component';
 import { ShowMoreComponent } from './show-more/show-more.component';
 import { CommonUserMgmtComponent } from './user/common-user-management.component';
+import { JhiAlertComponent } from './alert/alert.component';
+import { JhiAlertErrorComponent } from './alert/alert-error.component';
 import { JhiSortDirective } from './util/sort.directive';
 import { JhiSortByDirective } from './util/sort-by.directive';
 
@@ -24,6 +26,8 @@ import { JhiSortByDirective } from './util/sort-by.directive';
         RouterModule,
     ],
     declarations: [
+        JhiAlertComponent,
+        JhiAlertErrorComponent,
         JhiLoginModalComponent,
         JhiSortDirective,
         JhiSortByDirective,
@@ -38,6 +42,8 @@ import { JhiSortByDirective } from './util/sort-by.directive';
     ],
     exports: [
         ManagementPortalSharedCommonModule,
+        JhiAlertComponent,
+        JhiAlertErrorComponent,
         JhiLoginModalComponent,
         JhiSortDirective,
         JhiSortByDirective,

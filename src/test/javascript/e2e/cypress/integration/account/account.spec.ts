@@ -1,19 +1,14 @@
-import { browser, by, element } from 'protractor';
-
-import { NavBarPage } from '../page-objects/jhi-page-objects';
+import { login } from '../util/login';
+import * as navBarPage from '../util/nav-bar';
 
 describe('account', () => {
-    let navBarPage: NavBarPage;
-    const username = element(by.id('username'));
-    const password = element(by.id('password'));
-
-    beforeAll(async() => {
-        await browser.get('./');
-        navBarPage = new NavBarPage(true);
+    before(() => {
+        login();
+        cy.visit('./');
     });
 
-    beforeEach(async() => {
-        browser.sleep(3000);
+    beforeEach(() => {
+        Cypress.Cookies.preserveOnce('oAtkn');
     });
 
     it('should fail to login with bad password', async() => {

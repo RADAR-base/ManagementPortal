@@ -1,22 +1,17 @@
-import { $, browser, by, element } from 'protractor';
-
-import { NavBarPage } from '../page-objects/jhi-page-objects';
+import { login } from '../util/login';
+import * as navBarPage from '../util/nav-bar';
 
 describe('Project view: Create a subject, assign sources, discontinue and delete a subject.', () => {
-    let navBarPage: NavBarPage;
-    const username = element(by.id('username'));
-    const password = element(by.id('password'));
     const sourceName = 'test-source-2';
     const externalId = 'test-id';
 
-    beforeAll(async() => {
-        await browser.get('./');
-        navBarPage = new NavBarPage(true);
-        await browser.waitForAngular();
+    before(() => {
+        login();
+        cy.visit('./');
     });
 
-    beforeEach(async() => {
-        browser.sleep(1000);
+    beforeEach(() => {
+        Cypress.Cookies.preserveOnce('oAtkn');
     });
 
     it('should load project view', async() => {

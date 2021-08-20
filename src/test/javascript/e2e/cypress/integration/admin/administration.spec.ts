@@ -1,19 +1,14 @@
-import { browser, by, element } from 'protractor';
-
-import { NavBarPage } from '../page-objects/jhi-page-objects';
+import { login } from '../util/login';
+import * as navBarPage from '../util/nav-bar';
 
 describe('administration', () => {
-    let navBarPage: NavBarPage;
-
-    beforeAll(async() => {
-        await browser.get('./');
-        navBarPage = new NavBarPage(true);
-        await browser.waitForAngular();
+    before(() => {
+        login();
+        cy.visit('./');
     });
 
-    beforeEach(async() => {
-        browser.sleep(1000);
-        await navBarPage.clickOnAdminMenu();
+    beforeEach(() => {
+        Cypress.Cookies.preserveOnce('oAtkn');
     });
 
     it('should load user management', async() => {
