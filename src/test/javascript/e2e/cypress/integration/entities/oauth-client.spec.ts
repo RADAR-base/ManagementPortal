@@ -11,62 +11,59 @@ describe('OAuth Clients e2e test', () => {
         Cypress.Cookies.preserveOnce('oAtkn');
     });
 
-    it('should load OAuth clients', async() => {
-        await navBarPage.clickOnAdminMenu();
-        await element.all(by.css('[routerLink="oauth-client"]')).first().click();
+    it('should load OAuth clients', () => {
+        navBarPage.clickOnAdminMenu();
+        cy.get('[routerLink="oauth-client"]').first().click();
 
-        const expectVal = /managementPortalApp.oauthClient.home.title/;
-        const pageTitle = element.all(by.css('h4 span')).first();
-        expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
+        cy.get('h4 span').first().should('have.text', 'OAuth Clients');
     });
 
-    it('should load create OAuth Client dialog', async() => {
-        await element(by.css('jhi-oauth-client h4 button.btn-primary')).click();
-        const expectVal = /managementPortalApp.oauthClient.home.createOrEditLabel/;
-        const modalTitle = element.all(by.css('h4.modal-title')).first();
-        expect((await modalTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
+    it('should load create OAuth Client dialog', () => {
+        cy.get('jhi-oauth-client h4 button.btn-primary').click();
+        cy.get('h4.modal-title').first()
+            .should('have.text', 'Create or edit an OAuth Client');
 
-        await element(by.css('button.close')).click();
+        cy.get('button.close').click();
     });
 
-    it('should disable edit and delete buttons for protected clients', async() => {
+    it('should disable edit and delete buttons for protected clients', () => {
         // find the table row that contains the protected badge, and assert it contains zero enabled buttons
-        expect((await element(by.cssContainingText('span.badge-info', 'protected: true')).element(by.xpath('ancestor::tr'))
-            .all(by.css('button')).filter((button) => button.isEnabled()).count())).toEqual(2);
+        cy.get('span.badge-info').contains('protected: true').parents('tr')
+            .find('button:not(:disabled)').should('have.length', 2);
         // show more, show less buttons are enabled
     });
 
-    it('should be able to create OAuth Client', async() => {
-        await element(by.css('jhi-oauth-client h4 button.btn-primary')).click();
-        await element(by.id('id')).sendKeys('test-client');
-        await element(by.cssContainingText('button', 'Random')).click();
+    it('should be able to create OAuth Client', () => {
+        cy.get('jhi-oauth-client h4 button.btn-primary').click();
+        cy.get('#id').type('test-client');
+        cy.get('button').contains('Random').click();
 
-        expect((await element(by.id('secret')).getAttribute('value')).length).toBeGreaterThan(0);
+        cy.get('#secret').invoke('val').should('not.be.empty');
 
-        await element(by.id('scope')).sendKeys('SUBJECT.READ');
-        await element(by.id('resourceIds')).sendKeys('res_ManagementPortal');
-        await element(by.cssContainingText('label.form-check-label', 'refresh_token')).element(by.css('input')).click();
-        await element(by.cssContainingText('label.form-check-label', 'password')).element(by.css('input')).click();
-        await element(by.id('accessTokenValidity')).clear();
-        await element(by.id('accessTokenValidity')).sendKeys('3600');
-        await element(by.id('refreshTokenValidity')).clear();
-        await element(by.id('refreshTokenValidity')).sendKeys('7200');
-        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
+        cy.get('#scope').type('SUBJECT.READ');
+        cy.get('#resourceIds').type('res_ManagementPortal');
+        cy.get('label.form-check-label').contains('refresh_token')
+            .find('input').click();
+        cy.get('label.form-check-label').contains('password')
+            .find('input').click();
+        cy.get('#accessTokenValidity').clear();
+        cy.get('#accessTokenValidity').type('3600');
+        cy.get('#refreshTokenValidity').clear();
+        cy.get('#refreshTokenValidity').type('7200');
+        cy.get('button.btn-primary').contains('Save').click();
     });
 
-    it('should be able to edit OAuth Client', async() => {
-        await browser.waitForAngular();
-        await element(by.cssContainingText('td', 'test-client')).element(by.xpath('ancestor::tr'))
-            .element(by.cssContainingText('button', 'Edit')).click();
-        await browser.waitForAngular();
-        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
-
+    it('should be able to edit OAuth Client', () => {
+        cy.wait(500);
+        cy.get('td').contains('test-client').parents('tr')
+            .find('button').contains('Edit').click();
+        cy.get('button.btn-primary').contains('Save').click();
     });
 
-    it('should be able to delete OAuth Client', async() => {
-        await element(by.cssContainingText('td', 'test-client')).element(by.xpath('ancestor::tr'))
-            .element(by.cssContainingText('button', 'Delete')).click();
-        await browser.waitForAngular();
-        await element(by.cssContainingText('jhi-oauth-client-delete-dialog button.btn-danger', 'Delete')).click();
+    it('should be able to delete OAuth Client', () => {
+        cy.get('td').contains('test-client').parents('tr')
+            .find('button').contains('Delete').click();
+        cy.get('jhi-oauth-client-delete-dialog button.btn-danger')
+            .contains('Delete').click();
     });
 });

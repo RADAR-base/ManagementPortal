@@ -11,58 +11,51 @@ describe('Subject e2e test', () => {
         Cypress.Cookies.preserveOnce('oAtkn');
     });
 
-    it('should load Subjects', async() => {
-        await navBarPage.clickOnEntityMenu();
-        await element.all(by.css('[routerLink="subject"]')).first().click();
+    it('should load Subjects', () => {
+        navBarPage.clickOnEntityMenu();
+        navBarPage.clickOnEntity('subject');
 
-        const expectVal = /managementPortalApp.subject.home.title/;
-        const pageTitle = element.all(by.css('h4 span')).first();
-        expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
+        cy.get('h4 span').first().should('have.text', 'Subjects');
     });
 
-    it('should load create Subject dialog', async() => {
-        await element(by.css('button.create-subject')).click();
-        const expectVal = /managementPortalApp.subject.home.createOrEditLabel/;
+    it('should load create Subject dialog', () => {
+        cy.get('button.create-subject').click();
 
-        const modalTitle = element.all(by.css('h4.modal-title')).first();
-        expect((await modalTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
+        cy.get('h4.modal-title').first()
+            .should('have.text', 'Create or edit a Subject');
 
-        await element(by.css('button.close')).click();
+        cy.get('button.close').click();
     });
 
-    it('should be able to create new subject', async() => {
-        await element(by.cssContainingText('button.btn-primary', 'Create a new Subject')).click();
+    it('should be able to create new subject', () => {
+        cy.get('button.btn-primary').contains('Create a new Subject').click();
 
-        await element(by.name('externalId')).sendKeys('test-subject1');
-        await element(by.name('project')).sendKeys('radar');
+        cy.get('[name=externalId]').type('test-subject1');
+        cy.get('[name=project]').select('radar');
 
-        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
-        await browser.waitForAngular();
-        expect((await element.all(by.css('jhi-subjects tbody tr')).count())).toEqual(5);
+        cy.get('button.btn-primary').contains('Save').click();
+        cy.get('jhi-subjects tbody tr').should('have.length', 5);
     });
 
-    it('should be able to edit a subject', async() => {
-        await element.all(by.cssContainingText('jhi-subjects tbody tr td', 'test-subject1'))
-            .all(by.xpath('ancestor::tr'))
-            .all(by.cssContainingText('jhi-subjects tbody tr button', 'Edit'))
+    it('should be able to edit a subject', () => {
+        cy.wait(500);
+        cy.get('jhi-subjects tbody tr td').contains('test-subject1')
+            .parents('tr')
+            .get('jhi-subjects tbody tr button').contains('Edit')
             .first().click();
-        await element(by.name('externalLink')).sendKeys('www.radar-base.org');
-        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
-        await browser.waitForAngular();
+        cy.get('[name=externalLink]').type('www.radar-base.org');
+        cy.get('button.btn-primary').contains('Save').click();
 
-        expect((await element.all(by.css('jhi-subjects tbody tr')).count())).toEqual(5);
+        cy.get('jhi-subjects tbody tr').should('have.length', 5);
     });
 
-    it('should be able to delete a subject without source', async() => {
-        await element(by.cssContainingText('jhi-subjects tbody tr td', 'test-subject1'))
-            .element(by.xpath('ancestor::tr'))
-            .element(by.cssContainingText('button', 'Delete')).click();
+    it('should be able to delete a subject without source', () => {
+        cy.get('jhi-subjects tbody tr td').contains('test-subject1')
+            .parents('tr').find('button').contains('Delete').click();
 
-        await browser.waitForAngular();
-        await element(by.cssContainingText('jhi-subject-delete-dialog button.btn-danger', 'Delete'))
-            .click();
-        await browser.waitForAngular();
-        expect((await element.all(by.css('jhi-subjects tbody tr')).count())).toEqual(4);
+        cy.get('jhi-subject-delete-dialog button.btn-danger')
+            .contains('Delete').click();
+        cy.get('jhi-subjects tbody tr').should('have.length', 4);
     });
 
 });

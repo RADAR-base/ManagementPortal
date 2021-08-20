@@ -11,48 +11,44 @@ describe('SourceType e2e test', () => {
         Cypress.Cookies.preserveOnce('oAtkn');
     });
 
-    it('should load SourceTypes', async() => {
-        await navBarPage.clickOnEntityMenu();
-        await element.all(by.css('[routerLink="source-type"]')).first().click();
-        const expectVal = /managementPortalApp.sourceType.home.title/;
+    it('should load SourceTypes', () => {
+        navBarPage.clickOnEntityMenu();
+        navBarPage.clickOnEntity('source-type');
 
-        const pageTitle = element.all(by.css('h2 span')).first();
-        expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
+        cy.get('h2 span').first().should('have.text', 'Source Types');
     });
 
-    it('should load create SourceType dialog', async() => {
-        await element(by.css('button.create-source-type')).click();
+    it('should load create SourceType dialog', () => {
+        cy.get('button.create-source-type').click();
 
-        const expectVal = /managementPortalApp.sourceType.home.createOrEditLabel/;
-        const modalTitle = element.all(by.css('h4.modal-title')).first();
-        expect((await modalTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
+        cy.get('h4.modal-title').first()
+            .should('have.text', 'Create or edit a Source Type');
 
-        await element(by.css('button.close')).click();
+        cy.get('button.close').click();
     });
 
-    it('should be able to create SourceType', async() => {
-        await element(by.css('button.create-source-type')).click();
-        await element(by.id('field_producer')).sendKeys('test-producer');
-        await element(by.id('field_model')).sendKeys('test-model');
-        await element(by.id('field_catalogVersion')).sendKeys('v1');
+    it('should be able to create SourceType', () => {
+        cy.get('button.create-source-type').click();
+        cy.get('#field_producer').type('test-producer');
+        cy.get('#field_model').type('test-model');
+        cy.get('#field_catalogVersion').type('v1');
         // select first option in the source type scope dropdown
-        await element(by.id('field_sourceTypeScope')).all(by.tagName('option')).first().click();
-        await element(by.css('jhi-source-type-dialog')).element(by.buttonText('Save')).click();
+        cy.get('#field_sourceTypeScope').select('ACTIVE');
+        cy.get('jhi-source-type-dialog button').contains('Save').click();
     });
 
-    it('should be able to edit SourceType', async() => {
-        await browser.waitForAngular();
-        await element(by.cssContainingText('td', 'test-producer')).element(by.xpath('ancestor::tr'))
-            .element(by.cssContainingText('button', 'Edit')).click();
-        await browser.waitForAngular();
-        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
+    it('should be able to edit SourceType', () => {
+        cy.wait(500);
+        cy.get('td').contains('test-producer').parents('tr')
+            .find('button').contains('Edit').click();
+        cy.get('button.btn-primary').contains('Save').click();
     });
 
-    it('should be able to delete SourceType', async() => {
-        await element(by.cssContainingText('td', 'test-producer')).element(by.xpath('ancestor::tr'))
-            .element(by.cssContainingText('button', 'Delete')).click();
-        await browser.waitForAngular();
-        await element(by.cssContainingText('jhi-source-type-delete-dialog button.btn-danger', 'Delete')).click();
+    it('should be able to delete SourceType', () => {
+        cy.get('td').contains('test-producer').parents('tr')
+            .find('button').contains('Delete').click();
+        cy.get('jhi-source-type-delete-dialog button.btn-danger')
+            .contains('Delete').click();
     });
 
 });

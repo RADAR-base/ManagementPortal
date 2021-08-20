@@ -11,25 +11,25 @@ describe('Project view: Generate QR code', () => {
         Cypress.Cookies.preserveOnce('oAtkn');
     });
 
-    it('should load project view', async() => {
-        await navBarPage.clickOnProjectMenu();
-        await element.all(by.partialLinkText('radar')).first().click();
-        expect(element(by.className('status-header')).getText()).toMatch('RADAR');
+    it('should load project view', () => {
+        navBarPage.clickOnProjectMenu();
+        cy.get('a').contains('radar').first().click();
+        cy.get('.status-header').invoke('text').should('match', /RADAR/i);
         // expect 3 subjects in this table
-        expect((await element.all(by.css('jhi-subjects tbody tr')).count())).toEqual(3);
+        cy.get('jhi-subjects tbody tr').should('have.length', 3);
     });
 
-    it('should open pair app dialog', async() => {
-        await element.all(by.buttonText('Pair App')).first().click();
-        expect(element.all(by.name('pairForm')).all(by.css('h4')).first().getAttribute('jhitranslate'))
-            .toMatch('managementPortalApp.subject.home.pairAppLabel');
+    it('should open pair app dialog', () => {
+        cy.get('button:not(:disabled)').contains('Pair App').first().click();
+        cy.get('[name=pairForm]').find('h4').first()
+            .should('have.text', 'Pair an application');
     });
 
-    it('should be able to create a qr code', async() => {
-        await element(by.name('pairForm')).element(by.cssContainingText('option', 'pRMT')).click();
-        await element(by.buttonText('Generate QR code')).click();
-        expect((await element.all(by.css('qrcode')).count())).toBe(1);
-        await element(by.css('button.close')).click();
+    it('should be able to create a qr code', () => {
+        cy.get('#field_clientApp').select('pRMT');
+        cy.get('button').contains('Generate QR code').click();
+        cy.get('qrcode').should('have.length', 1);
+        cy.get('button.close').click();
     });
 
 });

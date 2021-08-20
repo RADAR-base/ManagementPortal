@@ -1,4 +1,4 @@
-import { TestBed, async, tick, fakeAsync, inject } from '@angular/core/testing';
+import { TestBed, tick, fakeAsync, inject, waitForAsync } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
@@ -14,7 +14,7 @@ describe('Component Tests', () => {
 
         let comp: ActivateComponent;
 
-        beforeEach(async(() => {
+        beforeEach(waitForAsync(() => {
             TestBed.configureTestingModule({
                 imports: [ManagementPortalTestModule],
                 declarations: [ActivateComponent],

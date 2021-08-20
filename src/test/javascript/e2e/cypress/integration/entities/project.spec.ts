@@ -11,47 +11,41 @@ describe('Project e2e test', () => {
         Cypress.Cookies.preserveOnce('oAtkn');
     });
 
-    it('should load Projects', async() => {
-        await navBarPage.clickOnAdminMenu();
-        await element.all(by.css('[routerLink="project"]')).first().click();
-        const expectVal = /managementPortalApp.project.home.title/;
+    it('should load Projects', () => {
+        navBarPage.clickOnAdminMenu();
+        navBarPage.clickOnEntity('project');
 
-        const pageTitle = element.all(by.css('h2 span')).first();
-        expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
+        cy.get('h2 span').first().should('have.text', 'Projects');
     });
 
-    it('should load create Project dialog', async() => {
-        await element(by.css('button.create-project')).click();
+    it('should load create Project dialog', () => {
+        cy.get('button.create-project').click();
 
-        const expectVal = /managementPortalApp.project.home.createOrEditLabel/;
-        const modalTitle = element.all(by.css('h4.modal-title')).first();
-        expect((await modalTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
+        cy.get('h4.modal-title').first()
+            .should('have.text', 'Create or edit a Project');
 
-        await element(by.css('button.close')).click();
+        cy.get('button.close').click();
     });
 
-    it('should be able to create Project', async() => {
-        await element(by.css('button.create-project')).click();
-        await element(by.id('field_projectName')).sendKeys('test-project');
-        await element(by.id('field_humanReadableProjectName')).sendKeys('Test project');
-        await element(by.id('field_description')).sendKeys('Best test project in the world');
-        await element(by.id('field_location')).sendKeys('in-memory');
-        await element(by.cssContainingText('jhi-project-dialog button.btn-primary', 'Save')).click();
+    it('should be able to create Project', () => {
+        cy.get('button.create-project').click();
+        cy.get('#field_projectName').type('test-project');
+        cy.get('#field_humanReadableProjectName').type('Test project');
+        cy.get('#field_description').type('Best test project in the world');
+        cy.get('#field_location').type('in-memory');
+        cy.get('jhi-project-dialog button.btn-primary').contains('Save').click();
     });
 
-    it('should be able to edit Project', async() => {
-        await browser.waitForAngular();
-        await element(by.cssContainingText('td', 'test-project')).element(by.xpath('ancestor::tr'))
-            .element(by.cssContainingText('button', 'Edit')).click();
-        await browser.waitForAngular();
-        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
+    it('should be able to edit Project', () => {
+        cy.get('td').contains('test-project').parents('tr')
+            .find('button').contains('Edit').click();
+        cy.get('button.btn-primary').contains('Save').click();
     });
 
-    it('should be able to delete Project', async() => {
-        await element(by.cssContainingText('td', 'test-project')).element(by.xpath('ancestor::tr'))
-            .element(by.cssContainingText('button', 'Delete')).click();
-        await browser.waitForAngular();
-        await element(by.cssContainingText('jhi-project-delete-dialog button.btn-danger', 'Delete')).click();
-
+    it('should be able to delete Project', () => {
+        cy.get('td').contains('test-project').parents('tr')
+            .find('button').contains('Delete').click();
+        cy.get('jhi-project-delete-dialog button.btn-danger')
+            .contains('Delete').click();
     });
 });

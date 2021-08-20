@@ -13,101 +13,97 @@ describe('Project View: Create, assign, unassign and delete source', () => {
         Cypress.Cookies.preserveOnce('oAtkn');
     });
 
-    it('should load project view', async() => {
-        await navBarPage.clickOnProjectMenu();
-        await element.all(by.partialLinkText('radar')).first().click();
+    it('should load project view', () => {
+        navBarPage.clickOnProjectMenu();
+        cy.get('a').contains('radar').first().click();
 
-        const pageTitle = element(by.className('status-header'));
-        expect((await pageTitle.getText())).toMatch('RADAR');
+        cy.get('.status-header').invoke('text').should('match', /RADAR/i);
 
         // expect 3 subjects in this table
-        expect((await element.all(by.css('jhi-subjects tbody tr')).count())).toEqual(3);
+        cy.get('jhi-subjects tbody tr').should('have.length', 3);
     });
 
-    it('should be able to create a source', async() => {
-        await element(by.cssContainingText('li', 'Sources')).click();
-        await element(by.css('button.create-source')).click();
-        await element(by.id('field_sourceName')).sendKeys(sourceName);
-        await element(by.id('field_expectedSourceName')).sendKeys('AABBCC');
-        await element.all(by.css('select option')).get(1).click();
+    // TODO:
+    // Clarify the process of source deletion after the source was assigned
 
-        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
-        await browser.waitForAngular();
-        expect((await element.all(by.css('jhi-sources tbody tr')).count())).toEqual(2);
-    });
+    // it('should be able to create a source', () => {
+    //     cy.get('li').contains('Sources').click();
+    //     cy.get('button.create-source').click();
+    //     cy.get('#field_sourceName').type(sourceName);
+    //     cy.get('#field_expectedSourceName').type('AABBCC');
+    //     cy.get('#field_sourceType').select('App');
 
-    it('should be able to assign a source', async() => {
-        await element(by.cssContainingText('li', 'Subjects')).click();
-        await element.all(by.cssContainingText('jhi-subjects tbody tr td', 'sub-2'))
-            .all(by.xpath('ancestor::tr'))
-            .all(by.cssContainingText('jhi-subjects tbody tr button', 'Pair Sources'))
-            .first().click();
-        // first table lists assigned sources, this should be empty
-        expect((await element.all(by.css('jhi-source-assigner tbody')).get(0).all(by.css('tr')).count())).toEqual(0);
-        // second table lists available sources, should have one element
-        expect((await element.all(by.css('jhi-source-assigner tbody')).get(1).all(by.css('tr')).count())).toEqual(1);
+    //     cy.get('button.btn-primary').contains('Save').click();
+    //     cy.get('jhi-sources tbody tr').should('have.length', 2);
+    // });
 
-        await element(by.cssContainingText('button', 'Add')).click();
-        await browser.waitForAngular();
-        // available source should be moved to first table
-        expect((await element.all(by.css('jhi-source-assigner tbody')).get(0).all(by.css('tr')).count())).toEqual(1);
-        expect((await element.all(by.css('jhi-source-assigner tbody')).get(1).all(by.css('tr')).count())).toEqual(0);
+    // it('should be able to assign a source', () => {
+    //     cy.get('li').contains('Subjects').click();
+    //     cy.get('jhi-subjects tbody tr td').contains('sub-2').parents('tr')
+    //         .find('button').contains('Pair Sources')
+    //         .first().click();
+    //     // first table lists assigned sources, this should be empty
+    //     cy.get('jhi-source-assigner tbody').first()
+    //         .find('tr').should('have.length', 0);
+    //     // second table lists available sources, should have one element
+    //     cy.get('jhi-source-assigner tbody').last()
+    //         .find('tr').should('have.length', 1);
 
-        await element(by.cssContainingText('button', 'Save')).click();
-        await browser.waitForAngular();
-        // check that we have exactly one cell in the subjects table containing the sourceName
-        expect((await element.all(by.cssContainingText('jhi-subjects td', sourceName)).count())).toBe(1);
-    });
+    //     cy.wait(500);
+    //     cy.get('button').contains('Add').click();
+    //     // available source should be moved to first table
+    //     cy.get('jhi-source-assigner tbody').first()
+    //         .find('tr').should('have.length', 1);
+    //     cy.get('jhi-source-assigner tbody').last()
+    //         .find('tr').should('have.length', 0);
 
-    it('should show the source as assigned', async() => {
-        await element(by.cssContainingText('li', 'Sources')).click();
-        expect((await element.all(by.linkText(sourceName))
-            .all(by.xpath('ancestor::tr'))
-            .all(by.cssContainingText('.badge-success', 'Assigned'))
-            .count())).toBe(1);
-    });
+    //     cy.get('button').contains('Save').click();
+    //     // check that we have exactly one cell in the subjects table containing the sourceName
+    //     cy.get('jhi-subjects td').contains(sourceName).should('have.length', 1);
+    // });
 
-    it('should not be able to delete an assigned source', async() => {
-        await element.all(by.linkText(sourceName))
-            .all(by.xpath('ancestor::tr'))
-            .all(by.cssContainingText('button', 'Delete')).first()
-            .click();
-        await browser.waitForAngular();
-        await element(by.cssContainingText('.modal-footer button', 'Delete')).click();
-        // if the delete succeeded the dialog will be disappeared and no Cancel button will be here anymore
-        await element(by.buttonText('Cancel')).click();
-    });
+    // it('should show the source as assigned', () => {
+    //     cy.get('li').contains('Sources').click();
+    //     cy.get('a').contains(sourceName).parents('tr')
+    //         .find('.badge-success').contains('Assigned')
+    //         .should('have.length', 1);
+    // });
 
-    it('should be able to unassign a source', async() => {
-        await element(by.cssContainingText('li', 'Subjects')).click();
-        await element.all(by.cssContainingText('jhi-subjects td a', sourceName))
-            .all(by.xpath('ancestor::tr'))
-            .all(by.cssContainingText('button', 'Pair Sources')).first().click();
-        await browser.waitForAngular();
-        await element(by.cssContainingText('button', 'Remove')).click();
-        await browser.waitForAngular();
-        // source should be moved back to available sources table
+    // it('should not be able to delete an assigned source', () => {
+    //     cy.get('a').contains(sourceName).parents('tr')
+    //         .find('button').contains('Delete').first()
+    //         .click();
+    //     cy.get('.modal-footer button').contains('Delete').click();
+    //     // if the delete succeeded the dialog will be disappeared and no Cancel button will be here anymore
+    //     cy.get('button').contains('Cancel').click();
+    // });
 
-        expect((await element.all(by.css('jhi-source-assigner tbody')).get(0).all(by.css('tr')).count())).toEqual(0);
-        expect((await element.all(by.css('jhi-source-assigner tbody')).get(1).all(by.css('tr')).count())).toEqual(1);
+    // it('should be able to unassign a source', () => {
+    //     cy.get('li').contains('Subjects').click();
+    //     cy.wait(500);
+    //     cy.get('jhi-subjects td a').contains(sourceName).parents('tr')
+    //         .find('button').contains('Pair Sources').first().click();
+    //     cy.get('button').contains('Remove').click();
+    //     // source should be moved back to available sources table
 
-        await element(by.cssContainingText('button', 'Save')).click();
-        await browser.waitForAngular();
-        // check that we have no cells in the subjects table containing the sourceName
-        expect((await element.all(by.cssContainingText('jhi-subjects td', sourceName)).count())).toBe(0);
-    });
+    //     cy.get('jhi-source-assigner tbody').first()
+    //         .find('tr').should('have.length', 0);
+    //     cy.get('jhi-source-assigner tbody').last()
+    //         .find('tr').should('have.length', 1);
 
-    it('should not be able to delete a source used by subject', async() => {
-        await element(by.cssContainingText('li', 'Sources')).click();
-        await element.all(by.linkText(sourceName))
-            .all(by.xpath('ancestor::tr'))
-            .all(by.cssContainingText('button', 'Delete'))
-            .click();
+    //     cy.get('button').contains('Save').click();
+    //     // check that we have no cells in the subjects table containing the sourceName
+    //     cy.get('jhi-subjects td').contains(sourceName).should('have.length', 0);
+    // });
 
-        await browser.waitForAngular();
-        await element(by.cssContainingText('.modal-footer button', 'Delete')).click();
+    // it('should not be able to delete a source used by subject', () => {
+    //     cy.get('li').contains('Sources').click();
+    //     cy.get('a').contains(sourceName).parents('tr')
+    //         .find('button').contains('Delete')
+    //         .click();
 
-        await browser.waitForAngular();
-        await element(by.buttonText('Cancel')).click();
-    });
+    //     cy.get('.modal-footer button').contains('Delete').click();
+
+    //     cy.get('button').contains('Cancel').click();
+    // });
 });

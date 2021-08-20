@@ -11,57 +11,49 @@ describe('Source e2e test', () => {
         Cypress.Cookies.preserveOnce('oAtkn');
     });
 
-    it('should load Sources', async() => {
-        await navBarPage.clickOnEntityMenu();
-        await element.all(by.css('[routerLink="source"]')).first().click();
+    it('should load Sources', () => {
+        navBarPage.clickOnEntityMenu();
+        navBarPage.clickOnEntity('source');
 
-        const expectVal = /managementPortalApp.source.home.title/;
-        const pageTitle = element.all(by.css('h4 span')).first();
-        expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
+        cy.get('h4 span').first().should('have.text', 'Sources');
     });
 
-    it('should load create Source dialog', async() => {
-        await element(by.css('button.create-source')).click();
+    it('should load create Source dialog', () => {
+        cy.get('button.create-source').click();
 
-        const expectVal = /managementPortalApp.source.home.createOrEditLabel/;
-        const modalTitle = element.all(by.css('h4.modal-title')).first();
-        expect((await modalTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
+        cy.get('h4.modal-title').first()
+            .should('have.text', 'Create or edit a Source');
 
-        await element(by.css('button.close')).click();
+        cy.get('button.close').click();
     });
 
-    it('should be able to create new source', async() => {
-        await element(by.cssContainingText('button.btn-primary', 'Create a new Source')).click();
-        await element(by.name('sourceName')).sendKeys('test-source1');
-        await element(by.name('expectedSourceName')).sendKeys('A007C');
-        await element(by.name('project')).sendKeys('radar');
-        await element(by.name('sourceType')).sendKeys('Empatica_E4_v1');
+    it('should be able to create new source', () => {
+        cy.get('button.btn-primary').contains('Create a new Source').click();
+        cy.get('[name=sourceName]').type('test-source1');
+        cy.get('[name=expectedSourceName]').type('A007C');
+        cy.get('[name=project]').select('radar');
+        cy.get('[name=sourceType]').select('Empatica_E4_v1');
 
-        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
-        await browser.waitForAngular();
-        expect((await element.all(by.css('jhi-source tbody tr')).count())).toEqual(2);
+        cy.get('button.btn-primary').contains('Save').click();
+        cy.get('jhi-source tbody tr').should('have.length', 2);
     });
 
-    it('should be able to edit a source', async() => {
-        await element.all(by.cssContainingText('jhi-source tbody tr td', 'test-source1'))
-            .all(by.xpath('ancestor::tr'))
-            .all(by.cssContainingText('jhi-source tbody tr button', 'Edit'))
+    it('should be able to edit a source', () => {
+        cy.wait(500);
+        cy.get('jhi-source tbody tr td').contains('test-source1').parents('tr')
+            .find('button').contains('Edit')
             .first().click();
-        await element(by.name('expectedSourceName')).sendKeys('A007C9');
-        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
-        await browser.waitForAngular();
-        expect((await element.all(by.css('jhi-source tbody tr')).count())).toEqual(2);
+        cy.get('[name=expectedSourceName]').type('A007C9');
+        cy.get('button.btn-primary').contains('Save').click();
+        cy.get('jhi-source tbody tr').should('have.length', 2);
     });
 
-    it('should be able to delete an unassigned source', async() => {
-        await element(by.cssContainingText('jhi-source tbody tr td', 'test-source1'))
-            .element(by.xpath('ancestor::tr'))
-            .element(by.cssContainingText('button', 'Delete')).click();
-        await browser.waitForAngular();
-        await element(by.cssContainingText('jhi-source-delete-dialog button.btn-danger', 'Delete'))
+    it('should be able to delete an unassigned source', () => {
+        cy.get('jhi-source tbody tr td').contains('test-source1').parents('tr')
+            .find('button').contains('Delete').click();
+        cy.get('jhi-source-delete-dialog button.btn-danger').contains('Delete')
             .click();
-        await browser.waitForAngular();
-        expect((await element.all(by.css('jhi-source tbody tr')).count())).toEqual(1);
+        cy.get('jhi-source tbody tr').should('have.length', 1);
     });
 
     // Source creation and deletion already covered in scenarios/create-and-assign-source.spec.ts

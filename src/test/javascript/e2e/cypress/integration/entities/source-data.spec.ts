@@ -11,50 +11,44 @@ describe('SourceData e2e test', () => {
         Cypress.Cookies.preserveOnce('oAtkn');
     });
 
-    it('should load SourceData', async() => {
-        await navBarPage.clickOnEntityMenu();
-        await element.all(by.css('[routerLink="source-data"]')).first().click();
+    it('should load SourceData', () => {
+        navBarPage.clickOnEntityMenu();
+        cy.get('[routerLink="source-data"]').first().click();
 
-        const expectVal = /managementPortalApp.sourceData.home.title/;
-        const pageTitle = element.all(by.css('h2 span')).first();
-        expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
+        const pageTitle = cy.get('h2 span').first();
+        pageTitle.should('have.text', 'Source Data');
     });
 
-    it('should load create SourceData dialog', async() => {
-        await element(by.css('button.create-source-data')).click();
+    it('should load create SourceData dialog', () => {
+        cy.get('button.create-source-data').click();
 
-        const expectVal = /managementPortalApp.sourceData.home.createOrEditLabel/;
-        const modalTitle = element.all(by.css('h4.modal-title')).first();
-        expect((await modalTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
+        const modalTitle = cy.get('h4.modal-title').first();
+        modalTitle.should('have.text', 'Create or edit a Source Data');
 
-        await element(by.css('button.close')).click();
-
+        cy.get('button.close').click();
     });
 
-    it('should be able to create SourceData', async() => {
-        await element(by.css('button.create-source-data')).click();
+    it('should be able to create SourceData', () => {
+        cy.get('button.create-source-data').click();
 
-        await element(by.id('field_sourceDataType')).sendKeys('TEST-TYPE');
-        await element(by.id('field_sourceDataName')).sendKeys('TEST-SENSOR');
-        await element(by.css('jhi-source-data-dialog')).element(by.buttonText('Save')).click();
+        cy.get('#field_sourceDataType').type('TEST-TYPE');
+        cy.get('#field_sourceDataName').type('TEST-SENSOR');
+        cy.get('jhi-source-data-dialog').contains('Save').click();
 
     });
 
-    it('should be able to edit SourceData', async() => {
-        await browser.waitForAngular();
-        await element(by.cssContainingText('td', 'TEST-SENSOR')).element(by.xpath('ancestor::tr'))
-            .element(by.cssContainingText('button', 'Edit')).click();
+    it('should be able to edit SourceData', () => {
+        cy.get('td').contains('TEST-SENSOR').parents('tr')
+            .find('button').contains('Edit').click();
 
-        await browser.waitForAngular();
-        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
+        cy.get('button.btn-primary').contains('Save').click();
     });
 
-    it('should be able to delete SourceData', async() => {
-        await element(by.cssContainingText('td', 'TEST-SENSOR')).element(by.xpath('ancestor::tr'))
-            .element(by.cssContainingText('button', 'Delete')).click();
+    it('should be able to delete SourceData', () => {
+        cy.get('td').contains('TEST-SENSOR').parents('tr')
+            .find('button').contains('Delete').click();
 
-        await browser.waitForAngular();
-        await element(by.cssContainingText('jhi-source-data-delete-dialog button.btn-danger', 'Delete')).click();
-
+        cy.get('jhi-source-data-delete-dialog button.btn-danger')
+            .contains('Delete').click();
     });
 });

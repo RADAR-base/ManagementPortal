@@ -11,7 +11,7 @@ describe('account', () => {
         Cypress.Cookies.preserveOnce('oAtkn');
     });
 
-    it('should fail to login with bad password', async() => {
+    it('should fail to login with bad password', () => {
         const expect1 = /home.title/;
         const header = element.all(by.css('h1')).first();
         expect((await header.getAttribute('jhiTranslate'))).toMatch(expect1);
@@ -30,7 +30,7 @@ describe('account', () => {
         await password.clear();
     });
 
-    it('should login successfully with admin account', async() => {
+    it('should login successfully with admin account', () => {
         const expect1 = /login.title/;
         const modalTitle = element.all(by.css('.modal-content h1')).first();
         expect((await modalTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
@@ -46,7 +46,7 @@ describe('account', () => {
         expect((await successMessage.isPresent()));
     });
 
-    it('should be able to update settings', async() => {
+    it('should be able to update settings', () => {
         await navBarPage.clickOnAccountMenu();
         await element(by.css('[routerLink="settings"]')).click();
 
@@ -61,7 +61,7 @@ describe('account', () => {
         expect((await successMessage.getAttribute('jhiTranslate'))).toMatch(expect2);
     });
 
-    it('should be able to update password', async() => {
+    it('should be able to update password', () => {
         await navBarPage.clickOnAccountMenu();
         await navBarPage.clickOnPasswordMenu();
 

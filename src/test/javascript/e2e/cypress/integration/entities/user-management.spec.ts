@@ -11,16 +11,16 @@ describe('Create, edit, and delete user', () => {
         Cypress.Cookies.preserveOnce('oAtkn');
     });
 
-    it('should load user management view', async() => {
-        await navBarPage.clickOnAdminMenu();
-        await navBarPage.clickOnEntity('user-management');
+    it('should load user management view', () => {
+        navBarPage.clickOnAdminMenu();
+        navBarPage.clickOnEntity('user-management');
 
         const expect1 = /userManagement.home.title/;
         const pageTitle = element.all(by.css('h2 span')).first();
         expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
     });
 
-    it('should load create a new user dialog', async() => {
+    it('should load create a new user dialog', () => {
         await element(by.cssContainingText('button.btn-primary', 'Create a new user')).click();
         const expectVal = /userManagement.home.createOrEditLabel/;
 
@@ -30,7 +30,7 @@ describe('Create, edit, and delete user', () => {
         await element(by.css('button.close')).click();
     });
 
-    it('should be able to create new user with roles', async() => {
+    it('should be able to create new user with roles', () => {
         await element(by.cssContainingText('button.btn-primary', 'Create a new user')).click();
         await element(by.name('login')).sendKeys('test-user-radar');
         await element(by.name('firstName')).sendKeys('Bob');
@@ -46,7 +46,7 @@ describe('Create, edit, and delete user', () => {
         expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(4);
     });
 
-    it('should be able to create new system admin user', async() => {
+    it('should be able to create new system admin user', () => {
         await element(by.cssContainingText('button.btn-primary', 'Create an admin user')).click();
         await element(by.name('login')).sendKeys('test-sys-admin');
         await element(by.name('firstName')).sendKeys('Alice');
@@ -58,7 +58,7 @@ describe('Create, edit, and delete user', () => {
         expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(5);
     });
 
-    it('should be able to edit a user with roles', async() => {
+    it('should be able to edit a user with roles', () => {
         await element.all(by.cssContainingText('jhi-user-mgmt tbody tr td', 'test-user-radar'))
             .all(by.xpath('ancestor::tr'))
             .all(by.cssContainingText('jhi-user-mgmt tbody tr button', 'Edit'))
@@ -70,7 +70,7 @@ describe('Create, edit, and delete user', () => {
         expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(5);
     });
 
-    it('should be able to delete a user with roles', async() => {
+    it('should be able to delete a user with roles', () => {
         await element(by.cssContainingText('jhi-user-mgmt tbody tr td', 'test-user-radar'))
             .element(by.xpath('ancestor::tr'))
             .element(by.cssContainingText('button', 'Delete')).click();
@@ -82,7 +82,7 @@ describe('Create, edit, and delete user', () => {
         expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(4);
     });
 
-    it('should be able to delete a sys admin user', async() => {
+    it('should be able to delete a sys admin user', () => {
         await element(by.cssContainingText('jhi-user-mgmt tbody tr td', 'test-sys-admin'))
             .element(by.xpath('ancestor::tr'))
             .element(by.cssContainingText('button', 'Delete')).click();

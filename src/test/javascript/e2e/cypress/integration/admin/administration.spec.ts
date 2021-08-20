@@ -8,42 +8,33 @@ describe('administration', () => {
     });
 
     beforeEach(() => {
+        navBarPage.clickOnAdminMenu();
         Cypress.Cookies.preserveOnce('oAtkn');
     });
 
-    it('should load user management', async() => {
-        await navBarPage.clickOnEntity('user-management');
-        const expect1 = /userManagement.home.title/;
-        const pageTitle = element.all(by.css('h2 span')).first();
-        expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
+    it('should load user management', () => {
+        navBarPage.clickOnEntity('user-management');
+        cy.get('h2 span').first().should('have.text', 'Users');
     });
 
-    it('should load metrics', async() => {
-        await navBarPage.clickOnEntity('jhi-metrics');
-        const expect1 = /metrics.title/;
-        const pageTitle = element.all(by.css('h2 span')).first();
-        expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
+    it('should load metrics', () => {
+        navBarPage.clickOnEntity('jhi-metrics');
+        cy.get('h2 span').first().should('have.text', 'Application Metrics');
     });
 
-    it('should load health', async() => {
-        await navBarPage.clickOnEntity('jhi-health');
-        const expect1 = /health.title/;
-        const pageTitle = element.all(by.css('h2 span')).first();
-        expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
+    it('should load health', () => {
+        navBarPage.clickOnEntity('jhi-health');
+        cy.get('h2 span').first().should('have.text', 'Health Checks');
     });
 
-    it('should load audits', async() => {
-        await navBarPage.clickOnEntity('audits');
-        const expect1 = /audits.title/;
-        const pageTitle = element.all(by.css('h2')).first();
-        expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
+    it('should load audits', () => {
+        navBarPage.clickOnEntity('audits');
+        cy.get('h2').first().should('have.text', 'Audits');
     });
 
-    it('should load logs', async() => {
-        await navBarPage.clickOnEntity('logs');
-        const expect1 = /logs.title/;
-        const pageTitle = element.all(by.css('h2')).first();
-        expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
+    it('should load logs', () => {
+        navBarPage.clickOnEntity('logs');
+        cy.get('h2').first().should('have.text', 'Logs');
     });
 
 });
