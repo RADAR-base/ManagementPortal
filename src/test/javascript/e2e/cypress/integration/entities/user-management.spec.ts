@@ -15,82 +15,73 @@ describe('Create, edit, and delete user', () => {
         navBarPage.clickOnAdminMenu();
         navBarPage.clickOnEntity('user-management');
 
-        const expect1 = /userManagement.home.title/;
-        const pageTitle = element.all(by.css('h2 span')).first();
-        expect((await pageTitle.getAttribute('jhiTranslate'))).toMatch(expect1);
+        cy.get('h2 span').first().should('have.text', 'Users');
     });
 
     it('should load create a new user dialog', () => {
-        await element(by.cssContainingText('button.btn-primary', 'Create a new user')).click();
-        const expectVal = /userManagement.home.createOrEditLabel/;
+        cy.get('button.btn-primary').contains('Create a new user').click();
 
-        const modalTitle = element.all(by.css('h4.modal-title')).first();
-        expect((await modalTitle.getAttribute('jhiTranslate'))).toMatch(expectVal);
+        cy.get('h4.modal-title').first()
+            .should('have.text', 'Create or edit a user');
 
-        await element(by.css('button.close')).click();
+        cy.get('button.close').click();
     });
 
     it('should be able to create new user with roles', () => {
-        await element(by.cssContainingText('button.btn-primary', 'Create a new user')).click();
-        await element(by.name('login')).sendKeys('test-user-radar');
-        await element(by.name('firstName')).sendKeys('Bob');
-        await element(by.name('lastName')).sendKeys('Rob');
-        await element(by.name('email')).sendKeys('rob@radarbase.org');
-        await element(by.name('authority')).sendKeys('ROLE_PROJECT_ADMIN');
-        await element(by.name('project')).sendKeys('radar');
-        await element(by.name('addRole')).click();
+        cy.get('button.btn-primary').contains('Create a new user').click();
+        cy.get('[name=login]').type('test-user-radar');
+        cy.get('[name=firstName]').type('Bob');
+        cy.get('[name=lastName]').type('Rob');
+        cy.get('[name=email]').type('rob@radarbase.org');
+        cy.get('[name=authority]').select('ROLE_PROJECT_ADMIN');
+        cy.get('[name=project]').select('radar');
+        cy.get('[name=addRole]').click();
 
-        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
-        await browser.waitForAngular();
+        cy.get('button.btn-primary').contains('Save').click();
 
-        expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(4);
+        cy.get('jhi-user-mgmt tbody tr').should('have.length', 4);
     });
 
     it('should be able to create new system admin user', () => {
-        await element(by.cssContainingText('button.btn-primary', 'Create an admin user')).click();
-        await element(by.name('login')).sendKeys('test-sys-admin');
-        await element(by.name('firstName')).sendKeys('Alice');
-        await element(by.name('lastName')).sendKeys('Bob');
-        await element(by.name('email')).sendKeys('alice@radarbase.org');
+        cy.get('button.btn-primary').contains('Create an admin user').click();
+        cy.get('[name=login]').type('test-sys-admin');
+        cy.get('[name=firstName]').type('Alice');
+        cy.get('[name=lastName]').type('Bob');
+        cy.get('[name=email]').type('alice@radarbase.org');
 
-        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
-        await browser.waitForAngular();
-        expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(5);
+        cy.get('button.btn-primary').contains('Save').click();
+        cy.get('jhi-user-mgmt tbody tr').should('have.length', 5);
     });
 
     it('should be able to edit a user with roles', () => {
-        await element.all(by.cssContainingText('jhi-user-mgmt tbody tr td', 'test-user-radar'))
-            .all(by.xpath('ancestor::tr'))
-            .all(by.cssContainingText('jhi-user-mgmt tbody tr button', 'Edit'))
+        cy.get('jhi-user-mgmt tbody tr td').contains('test-user-radar')
+            .parents('tr')
+            .find('button').contains('Edit')
             .first().click();
-        await element(by.name('lastName')).sendKeys('Robert');
-        await element(by.cssContainingText('button.btn-primary', 'Save')).click();
+        cy.get('[name=lastName]').type('Robert');
+        cy.get('button.btn-primary').contains('Save').click();
 
-        await browser.waitForAngular();
-        expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(5);
+        cy.get('jhi-user-mgmt tbody tr').should('have.length', 5);
     });
 
     it('should be able to delete a user with roles', () => {
-        await element(by.cssContainingText('jhi-user-mgmt tbody tr td', 'test-user-radar'))
-            .element(by.xpath('ancestor::tr'))
-            .element(by.cssContainingText('button', 'Delete')).click();
-        await browser.waitForAngular();
-        await element(by.cssContainingText('jhi-user-mgmt-delete-dialog button.btn-danger', 'Delete'))
+        cy.get('jhi-user-mgmt tbody tr td').contains('test-user-radar')
+            .parents('tr')
+            .find('button').contains('Delete').click();
+        cy.get('jhi-user-mgmt-delete-dialog button.btn-danger')
+            .contains('Delete')
             .click();
 
-        await browser.waitForAngular();
-        expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(4);
+        cy.get('jhi-user-mgmt tbody tr').should('have.length', 4);
     });
 
     it('should be able to delete a sys admin user', () => {
-        await element(by.cssContainingText('jhi-user-mgmt tbody tr td', 'test-sys-admin'))
-            .element(by.xpath('ancestor::tr'))
-            .element(by.cssContainingText('button', 'Delete')).click();
-        await browser.waitForAngular();
-        await element(by.cssContainingText('jhi-user-mgmt-delete-dialog button.btn-danger', 'Delete'))
+        cy.get('jhi-user-mgmt tbody tr td').contains('test-sys-admin')
+            .parents('tr')
+            .find('button').contains('Delete').click();
+        cy.get('jhi-user-mgmt-delete-dialog button.btn-danger').contains('Delete')
             .click();
 
-        await browser.waitForAngular();
-        expect((await element.all(by.css('jhi-user-mgmt tbody tr')).count())).toEqual(3);
+        cy.get('jhi-user-mgmt tbody tr').should('have.length', 3);
     });
 });
