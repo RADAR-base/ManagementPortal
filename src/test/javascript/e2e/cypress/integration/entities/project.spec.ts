@@ -37,6 +37,7 @@ describe('Project e2e test', () => {
     });
 
     it('should be able to edit Project', () => {
+        cy.wait(500);
         cy.get('td').contains('test-project').parents('tr')
             .find('button').contains('Edit').click();
         cy.get('button.btn-primary').contains('Save').click();

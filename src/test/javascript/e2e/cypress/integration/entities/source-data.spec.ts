@@ -38,6 +38,7 @@ describe('SourceData e2e test', () => {
     });
 
     it('should be able to edit SourceData', () => {
+        cy.wait(500);
         cy.get('td').contains('TEST-SENSOR').parents('tr')
             .find('button').contains('Edit').click();
 
