@@ -8,6 +8,7 @@ describe('administration', () => {
     });
 
     beforeEach(() => {
+        cy.wait(100);
         navBarPage.clickOnAdminMenu();
         Cypress.Cookies.preserveOnce('oAtkn');
     });

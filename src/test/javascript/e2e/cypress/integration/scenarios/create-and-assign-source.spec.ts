@@ -10,6 +10,7 @@ describe('Project View: Create, assign, unassign and delete source', () => {
     });
 
     beforeEach(() => {
+        cy.wait(100);
         Cypress.Cookies.preserveOnce('oAtkn');
     });
 

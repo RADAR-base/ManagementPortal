@@ -11,6 +11,7 @@ describe.skip('Project view: Create a subject, assign sources, discontinue and d
     });
 
     beforeEach(() => {
+        cy.wait(100);
         Cypress.Cookies.preserveOnce('oAtkn');
     });
 

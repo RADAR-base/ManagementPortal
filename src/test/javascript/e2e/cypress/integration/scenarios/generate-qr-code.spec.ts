@@ -8,6 +8,7 @@ describe('Project view: Generate QR code', () => {
     });
 
     beforeEach(() => {
+        cy.wait(100);
         Cypress.Cookies.preserveOnce('oAtkn');
     });
 

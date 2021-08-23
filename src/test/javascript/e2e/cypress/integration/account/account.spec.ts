@@ -6,6 +6,7 @@ describe('account', () => {
     });
 
     beforeEach(() => {
+        cy.wait(100);
         Cypress.Cookies.preserveOnce('oAtkn');
     });
 

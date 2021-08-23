@@ -8,6 +8,7 @@ describe('Create, edit, and delete user', () => {
     });
 
     beforeEach(() => {
+        cy.wait(100);
         Cypress.Cookies.preserveOnce('oAtkn');
     });
 

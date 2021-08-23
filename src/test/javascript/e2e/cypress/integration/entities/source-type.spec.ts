@@ -8,6 +8,7 @@ describe('SourceType e2e test', () => {
     });
 
     beforeEach(() => {
+        cy.wait(100);
         Cypress.Cookies.preserveOnce('oAtkn');
     });
 
