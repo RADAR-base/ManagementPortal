@@ -30,6 +30,7 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
+              "src/main/webapp/robots.txt",
               "src/main/webapp/favicon.ico",
               "src/main/webapp/assets"
             ],
