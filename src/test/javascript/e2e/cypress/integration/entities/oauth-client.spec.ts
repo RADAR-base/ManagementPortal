@@ -36,6 +36,7 @@ describe('OAuth Clients e2e test', () => {
 
     it('should be able to create OAuth Client', () => {
         cy.get('jhi-oauth-client h4 button.btn-primary').click();
+        cy.wait(500);
         cy.get('#id').type('test-client');
         cy.get('button').contains('Random').click();
 
@@ -58,6 +59,7 @@ describe('OAuth Clients e2e test', () => {
         cy.wait(500);
         cy.get('td').contains('test-client').parents('tr')
             .find('button').contains('Edit').click();
+        cy.wait(500);
         cy.get('button.btn-primary').contains('Save').click();
     });
 

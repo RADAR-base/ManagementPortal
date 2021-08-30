@@ -30,6 +30,7 @@ describe('SourceType e2e test', () => {
 
     it('should be able to create SourceType', () => {
         cy.get('button.create-source-type').click();
+        cy.wait(500);
         cy.get('#field_producer').type('test-producer');
         cy.get('#field_model').type('test-model');
         cy.get('#field_catalogVersion').type('v1');
@@ -42,6 +43,7 @@ describe('SourceType e2e test', () => {
         cy.wait(500);
         cy.get('td').contains('test-producer').parents('tr')
             .find('button').contains('Edit').click();
+        cy.wait(500);
         cy.get('button.btn-primary').contains('Save').click();
     });
 

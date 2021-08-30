@@ -10,7 +10,6 @@ import { JhiHealthService } from './health.service';
 })
 export class JhiHealthCheckComponent implements OnInit {
     healthData: any;
-    updatingHealth: boolean;
 
     constructor(
             private modalService: NgbModal,
@@ -35,15 +34,11 @@ export class JhiHealthCheckComponent implements OnInit {
     }
 
     refresh() {
-        this.updatingHealth = true;
-
         this.healthService.checkHealth().subscribe((health) => {
             this.healthData = this.healthService.transformHealthData(health);
-            this.updatingHealth = false;
         }, (error) => {
             if (error.status === 503) {
                 this.healthData = this.healthService.transformHealthData(error.json());
-                this.updatingHealth = false;
             }
         });
     }
