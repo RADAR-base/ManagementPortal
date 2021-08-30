@@ -41,10 +41,16 @@ export class JhiHealthService {
     private addHealthObject(result, isLeaf, healthObject, name): any {
         const healthData: any = {
             name,
-            details: healthObject.details,
-            status: healthObject.status,
-            error: healthObject.error,
         };
+        if (healthObject.details) {
+            healthData.details = healthObject.details;
+        }
+        if (healthObject.status) {
+            healthData.status = healthObject.status;
+        }
+        if (healthObject.error) {
+            healthData.error = healthObject.error;
+        }
         let hasDetails = !!healthData.details;
 
         // Only add nodes if they provide additional information
@@ -55,7 +61,7 @@ export class JhiHealthService {
     }
 
     private flattenHealthData(result, path, data): any {
-        for (const [key, value] of Object.entries(data.components)) {
+        for (const [key, value] of Object.entries(data.components || {})) {
             if (this.isHealthObject(value)) {
                 if (this.hasSubSystem(value)) {
                     this.addHealthObject(result, false, value, this.getModuleName(path, key));
