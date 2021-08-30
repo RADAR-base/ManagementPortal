@@ -31,6 +31,7 @@ describe('SourceData e2e test', () => {
 
     it('should be able to create SourceData', () => {
         cy.get('button.create-source-data').click();
+        cy.wait(500);
 
         cy.get('#field_sourceDataType').type('TEST-TYPE');
         cy.get('#field_sourceDataName').type('TEST-SENSOR');

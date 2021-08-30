@@ -30,6 +30,7 @@ describe('Project e2e test', () => {
 
     it('should be able to create Project', () => {
         cy.get('button.create-project').click();
+        cy.wait(500);
         cy.get('#field_projectName').type('test-project');
         cy.get('#field_humanReadableProjectName').type('Test project');
         cy.get('#field_description').type('Best test project in the world');
