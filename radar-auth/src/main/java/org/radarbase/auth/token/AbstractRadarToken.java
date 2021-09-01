@@ -1,6 +1,5 @@
 package org.radarbase.auth.token;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;

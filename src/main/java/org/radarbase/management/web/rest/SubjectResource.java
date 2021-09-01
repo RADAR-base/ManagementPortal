@@ -3,13 +3,10 @@ package org.radarbase.management.web.rest;
 import static io.github.jhipster.web.util.ResponseUtil.wrapOrNotFound;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_CREATE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_DELETE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkAuthorityAndPermission;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
 import static org.radarbase.management.security.SecurityUtils.getJWT;
@@ -34,7 +31,6 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 
 import com.codahale.metrics.annotation.Timed;
-import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -336,7 +332,7 @@ public class SubjectResource {
         log.debug("REST request to get revisions for Subject : {}", login);
         Subject subject = subjectService.findOneByLogin(login);
         String project = subject.getActiveProject()
-                .flatMap(p -> projectRepository.findOne(p.getId()))
+                .flatMap(p -> projectRepository.findById(p.getId()))
                 .map(Project::getProjectName)
                 .orElseThrow(() -> new NotFoundException(
                         "Requested subject does not have an active project",

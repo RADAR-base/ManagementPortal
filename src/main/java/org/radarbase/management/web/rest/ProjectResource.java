@@ -53,10 +53,6 @@ import java.util.Optional;
 
 import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.PROJECT_ADMIN;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.PROJECT_AFFILIATE;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.PROJECT_ANALYST;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
 import static org.radarbase.auth.authorization.Permission.PROJECT_CREATE;
 import static org.radarbase.auth.authorization.Permission.PROJECT_DELETE;
 import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
@@ -319,7 +315,8 @@ public class ProjectResource {
         checkPermissionOnProject(jwt, SUBJECT_READ, projectName);
         if (jwt.hasAuthority(PARTICIPANT)) {
             throw new NotAuthorizedException(String.format("Client %s does not have "
-                            + "permission %s in project %s", jwt.getSubject(), SUBJECT_READ, projectName));
+                    + "permission %s in project %s", jwt.getSubject(), SUBJECT_READ,
+                    projectName));
         }
 
         log.debug("REST request to get all subjects for project {}", projectName);

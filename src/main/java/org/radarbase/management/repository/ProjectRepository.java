@@ -20,8 +20,6 @@ import java.util.Optional;
 @RepositoryDefinition(domainClass = Project.class, idClass = Long.class)
 public interface ProjectRepository extends JpaRepository<Project, Long>,
         RevisionRepository<Project, Long, Integer> {
-    Optional<Project> findOne(Long id);
-
     @Query(value = "select distinct project from Project project "
             + "left join fetch project.sourceTypes",
             countQuery = "select distinct count(project) from Project project")

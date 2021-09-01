@@ -3,7 +3,6 @@ package org.radarbase.management.service;
 
 import static org.hibernate.id.IdentifierGenerator.ENTITY_NAME;
 import static org.radarbase.auth.authorization.Permission.SOURCE_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSource;
 import static org.radarbase.management.web.rest.errors.EntityName.SOURCE;
 
@@ -213,11 +212,12 @@ public class SourceService {
      * Does not allow to transfer if new project does not have valid source-type.
      *
      * @param sourceDto source details to update.
-     * @param jwt
+     * @param jwt authorization token.
      * @return updated source.
      */
     @Transactional
-    public Optional<SourceDTO> updateSource(SourceDTO sourceDto, RadarToken jwt) throws NotAuthorizedException {
+    public Optional<SourceDTO> updateSource(SourceDTO sourceDto, RadarToken jwt)
+            throws NotAuthorizedException {
         Optional<Source> existingSourceOpt = sourceRepository.findById(sourceDto.getId());
         if (existingSourceOpt.isEmpty()) {
             return Optional.empty();
