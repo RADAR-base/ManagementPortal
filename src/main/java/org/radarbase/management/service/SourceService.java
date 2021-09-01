@@ -239,7 +239,7 @@ public class SourceService {
                 throw new InvalidRequestException("Cannot transfer an assigned source", SOURCE,
                         "error.sourceIsAssigned");
             }
-            checkPermissionOnProject(jwt, SOURCE_UPDATE, existingSource.getProject().getProjectName());
+
             // check whether source-type of the device is assigned to the new project
             // to be transferred.
             Optional<SourceType> sourceType = projectRepository
