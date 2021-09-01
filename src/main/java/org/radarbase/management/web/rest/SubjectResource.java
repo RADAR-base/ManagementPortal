@@ -2,10 +2,12 @@ package org.radarbase.management.web.rest;
 
 import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_CREATE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_DELETE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_UPDATE;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkAuthorityAndPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
@@ -247,7 +249,11 @@ public class SubjectResource {
             @RequestParam(value = "withInactiveParticipants", required = false)
                     Boolean withInactiveParticipantsParam)
             throws NotAuthorizedException {
-        checkPermission(getJWT(servletRequest), SUBJECT_READ);
+        if (projectName == null) {
+            checkAuthorityAndPermission(getJWT(servletRequest), SYS_ADMIN, SUBJECT_READ);
+        } else {
+            checkPermissionOnProject(getJWT(servletRequest), SUBJECT_READ, projectName);
+        }
         log.debug("ProjectName {} and external {}", projectName, externalId);
         // if not specified do not include inactive patients
         boolean withInactive = withInactiveParticipantsParam != null

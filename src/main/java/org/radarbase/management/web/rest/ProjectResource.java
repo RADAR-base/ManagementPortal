@@ -5,6 +5,7 @@ import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.service.ProjectService;
@@ -52,6 +53,10 @@ import java.util.Optional;
 
 import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarbase.auth.authorization.AuthoritiesConstants.PROJECT_ADMIN;
+import static org.radarbase.auth.authorization.AuthoritiesConstants.PROJECT_AFFILIATE;
+import static org.radarbase.auth.authorization.AuthoritiesConstants.PROJECT_ANALYST;
+import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
 import static org.radarbase.auth.authorization.Permission.PROJECT_CREATE;
 import static org.radarbase.auth.authorization.Permission.PROJECT_DELETE;
 import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
@@ -261,7 +266,12 @@ public class ProjectResource {
                     Boolean minimized) throws NotAuthorizedException {
         log.debug("REST request to get all Sources");
         ProjectDTO projectDto = projectService.findOneByName(projectName);
-        checkPermissionOnProject(getJWT(servletRequest), SOURCE_READ, projectDto.getProjectName());
+        RadarToken jwt = getJWT(servletRequest);
+        checkPermissionOnProject(jwt, SOURCE_READ, projectDto.getProjectName());
+        if (jwt.hasAuthority(PARTICIPANT)) {
+            throw new NotAuthorizedException(String.format("Client %s does not have "
+                    + "permission %s in project %s", jwt.getSubject(), SOURCE_READ, projectName));
+        }
 
         if (Objects.nonNull(assigned)) {
             if (minimized) {
@@ -305,7 +315,13 @@ public class ProjectResource {
                     Boolean inactiveParticipantsParam) throws NotAuthorizedException {
         // this checks if the project exists
         projectService.findOneByName(projectName);
-        checkPermissionOnProject(getJWT(servletRequest), SUBJECT_READ, projectName);
+        RadarToken jwt = getJWT(servletRequest);
+        checkPermissionOnProject(jwt, SUBJECT_READ, projectName);
+        if (jwt.hasAuthority(PARTICIPANT)) {
+            throw new NotAuthorizedException(String.format("Client %s does not have "
+                            + "permission %s in project %s", jwt.getSubject(), SUBJECT_READ, projectName));
+        }
+
         log.debug("REST request to get all subjects for project {}", projectName);
         Page<SubjectDTO> page;
         boolean includeInactiveParticipants = inactiveParticipantsParam != null
@@ -314,6 +330,7 @@ public class ProjectResource {
             page = subjectRepository.findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
                     Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT))
                     .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
+
         } else {
             page = subjectRepository.findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
                     Collections.singletonList(PARTICIPANT))

@@ -24,7 +24,7 @@ public final class PaginationUtil {
      * @param baseUrl the base URL
      * @return the {@link HttpHeaders}
      */
-    public static HttpHeaders generatePaginationHttpHeaders(Page page, String baseUrl) {
+    public static HttpHeaders generatePaginationHttpHeaders(Page<?> page, String baseUrl) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-Total-Count", Long.toString(page.getTotalElements()));

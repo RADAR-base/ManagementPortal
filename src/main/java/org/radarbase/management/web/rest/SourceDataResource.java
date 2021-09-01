@@ -35,10 +35,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
 import static org.radarbase.auth.authorization.Permission.SOURCEDATA_CREATE;
 import static org.radarbase.auth.authorization.Permission.SOURCEDATA_DELETE;
 import static org.radarbase.auth.authorization.Permission.SOURCEDATA_READ;
 import static org.radarbase.auth.authorization.Permission.SOURCEDATA_UPDATE;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkAuthorityAndPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.management.security.SecurityUtils.getJWT;
 import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_DATA;
@@ -71,7 +73,7 @@ public class SourceDataResource {
     public ResponseEntity<SourceDataDTO> createSourceData(@Valid @RequestBody SourceDataDTO
             sourceDataDto) throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save SourceData : {}", sourceDataDto);
-        checkPermission(getJWT(servletRequest), SOURCEDATA_CREATE);
+        checkAuthorityAndPermission(getJWT(servletRequest), SYS_ADMIN, SOURCEDATA_CREATE);
         if (sourceDataDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(SOURCE_DATA,
                     "idexists", "A new sourceData cannot already have an ID")).build();
@@ -105,7 +107,7 @@ public class SourceDataResource {
         if (sourceDataDto.getId() == null) {
             return createSourceData(sourceDataDto);
         }
-        checkPermission(getJWT(servletRequest), SOURCEDATA_UPDATE);
+        checkAuthorityAndPermission(getJWT(servletRequest), SYS_ADMIN, SOURCEDATA_UPDATE);
         SourceDataDTO result = sourceDataService.save(sourceDataDto);
         return ResponseEntity.ok().headers(HeaderUtil
                 .createEntityUpdateAlert(SOURCE_DATA, sourceDataDto.getSourceDataName()))
@@ -160,7 +162,7 @@ public class SourceDataResource {
         checkPermission(getJWT(servletRequest), SOURCEDATA_DELETE);
         Optional<SourceDataDTO> sourceDataDto = sourceDataService
                 .findOneBySourceDataName(sourceDataName);
-        if (!sourceDataDto.isPresent()) {
+        if (sourceDataDto.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         sourceDataService.delete(sourceDataDto.get().getId());

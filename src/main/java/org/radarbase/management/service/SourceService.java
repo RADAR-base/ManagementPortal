@@ -2,6 +2,11 @@ package org.radarbase.management.service;
 
 
 import static org.hibernate.id.IdentifierGenerator.ENTITY_NAME;
+import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
+import static org.radarbase.auth.authorization.Permission.SOURCE_UPDATE;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkAuthorityAndPermission;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSource;
 import static org.radarbase.management.web.rest.errors.EntityName.SOURCE;
 
 import java.util.HashMap;
@@ -11,6 +16,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.domain.SourceType;
 import org.radarbase.management.repository.ProjectRepository;
@@ -208,24 +215,41 @@ public class SourceService {
      * Does not allow to transfer if new project does not have valid source-type.
      *
      * @param sourceDto source details to update.
+     * @param jwt
      * @return updated source.
      */
     @Transactional
-    public SourceDTO updateSource(SourceDTO sourceDto) {
-        Source existingSource = sourceRepository.findById(sourceDto.getId()).get();
+    public Optional<SourceDTO> updateSource(SourceDTO sourceDto, RadarToken jwt) throws NotAuthorizedException {
+        Optional<Source> existingSourceOpt = sourceRepository.findById(sourceDto.getId());
+        if (existingSourceOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        Source existingSource = existingSourceOpt.get();
+        if (existingSource.getProject() != null && existingSource.getProject().getProjectName() != null) {
+            String user;
+            if (existingSource.getSubject() != null && existingSource.getSubject().getUser() != null) {
+                user = existingSource.getSubject().getUser().getLogin();
+            } else {
+                user = null;
+            }
+            checkPermissionOnSource(jwt, SOURCE_UPDATE, existingSource.getProject().getProjectName(), user, existingSource.getSourceName());
+        } else {
+            checkAuthorityAndPermission(jwt, SYS_ADMIN, SOURCE_UPDATE);
+        }
         // if the source is being transferred to another project.
         if (!existingSource.getProject().getId().equals(sourceDto.getProject().getId())) {
             if (existingSource.isAssigned()) {
                 throw new InvalidRequestException("Cannot transfer an assigned source", SOURCE,
                         "error.sourceIsAssigned");
             }
+            checkPermissionOnProject(jwt, SOURCE_UPDATE, existingSource.getProject().getProjectName());
             // check whether source-type of the device is assigned to the new project
             // to be transferred.
             Optional<SourceType> sourceType = projectRepository
                     .findSourceTypeByProjectIdAndSourceTypeId(sourceDto.getProject().getId(),
                             existingSource.getSourceType().getId());
 
-            if (!sourceType.isPresent()) {
+            if (sourceType.isEmpty()) {
                 throw new InvalidRequestException(
                         "Cannot transfer a source to a project which doesn't have compatible "
                                 + "source-type", ENTITY_NAME, "error.invalidTransfer");
@@ -236,7 +260,6 @@ public class SourceService {
 
         }
 
-        return save(sourceDto);
-
+        return Optional.of(save(sourceDto));
     }
 }
