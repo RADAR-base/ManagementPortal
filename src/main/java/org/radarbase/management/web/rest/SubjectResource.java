@@ -249,11 +249,8 @@ public class SubjectResource {
             @RequestParam(value = "withInactiveParticipants", required = false)
                     Boolean withInactiveParticipantsParam)
             throws NotAuthorizedException {
-        if (projectName == null) {
-            checkAuthorityAndPermission(getJWT(servletRequest), SYS_ADMIN, SUBJECT_READ);
-        } else {
-            checkPermissionOnProject(getJWT(servletRequest), SUBJECT_READ, projectName);
-        }
+        checkPermissionOnProject(getJWT(servletRequest), SUBJECT_READ, projectName);
+
         log.debug("ProjectName {} and external {}", projectName, externalId);
         // if not specified do not include inactive patients
         boolean withInactive = withInactiveParticipantsParam != null
