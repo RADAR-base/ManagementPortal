@@ -257,20 +257,19 @@ public class SubjectResource {
                 INACTIVE_PARTICIPANT) : Collections.singletonList(PARTICIPANT);
 
         if (projectName != null && externalId != null) {
-            Optional<Subject> subject = subjectRepository
-                    .findOneByProjectNameAndExternalIdAndAuthoritiesIn(projectName, externalId,
-                            authoritiesToInclude);
-
-            if (!subject.isPresent()) {
-                return ResponseEntity.notFound().build();
-            }
-            SubjectDTO subjectDto = subjectMapper.subjectToSubjectReducedProjectDTO(subject.get());
-            return ResponseEntity.ok(Collections.singletonList(subjectDto));
+            return subjectRepository
+                    .findOneByProjectNameAndExternalIdAndAuthoritiesIn(
+                            projectName, externalId, authoritiesToInclude)
+                    .map(subject -> {
+                        SubjectDTO dto = subjectMapper.subjectToSubjectReducedProjectDTO(subject);
+                        return ResponseEntity.ok(Collections.singletonList(dto));
+                    })
+                    .orElseGet(() -> ResponseEntity.notFound().build());
         } else if (projectName == null && externalId != null) {
             List<Subject> subjects = subjectRepository
                     .findAllByExternalIdAndAuthoritiesIn(externalId, authoritiesToInclude);
-            return ResponseUtil.wrapOrNotFound(Optional.of(
-                    subjectMapper.subjectsToSubjectReducedProjectDTOs(subjects)));
+            List<SubjectDTO> dto = subjectMapper.subjectsToSubjectReducedProjectDTOs(subjects);
+            return ResponseEntity.ok(dto);
         } else if (projectName != null) {
             Page<SubjectDTO> page = subjectRepository
                     .findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
@@ -280,12 +279,13 @@ public class SubjectResource {
             HttpHeaders headers = PaginationUtil
                     .generatePaginationHttpHeaders(page, "/api/subjects");
             return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+        } else {
+            log.debug("REST request to get all Subjects");
+            Page<SubjectDTO> page = subjectService.findAll(pageable);
+            HttpHeaders headers = PaginationUtil
+                    .generatePaginationHttpHeaders(page, "/api/subjects");
+            return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
         }
-        log.debug("REST request to get all Subjects");
-        Page<SubjectDTO> page = subjectService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil
-                .generatePaginationHttpHeaders(page, "/api/subjects");
-        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     /**
@@ -328,8 +328,8 @@ public class SubjectResource {
         log.debug("REST request to get revisions for Subject : {}", login);
         Subject subject = subjectService.findOneByLogin(login);
         String project = subject.getActiveProject()
-                .flatMap(p -> projectRepository.findOneWithEagerRelationships(p.getId()))
-                .map(p -> p.getProjectName())
+                .flatMap(p -> projectRepository.findOne(p.getId()))
+                .map(Project::getProjectName)
                 .orElseThrow(() -> new NotFoundException(
                         "Requested subject does not have an active project",
                         PROJECT,
