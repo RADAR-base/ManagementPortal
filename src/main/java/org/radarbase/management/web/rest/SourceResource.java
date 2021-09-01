@@ -1,7 +1,6 @@
 package org.radarbase.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import io.github.jhipster.web.util.ResponseUtil;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
@@ -41,7 +40,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.github.jhipster.web.util.ResponseUtil.wrapOrNotFound;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.PROJECT_ADMIN;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
 import static org.radarbase.auth.authorization.Permission.SOURCE_CREATE;
 import static org.radarbase.auth.authorization.Permission.SOURCE_DELETE;
@@ -89,11 +87,8 @@ public class SourceResource {
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Source : {}", sourceDto);
         MinimalProjectDetailsDTO project = sourceDto.getProject();
-        if (project != null && project.getProjectName() != null) {
-            checkPermissionOnProject(getJWT(servletRequest), SOURCE_CREATE, project.getProjectName());
-        } else {
-            checkAuthorityAndPermission(getJWT(servletRequest), SYS_ADMIN, SOURCE_CREATE);
-        }
+        String projectName = project != null ? project.getProjectName() : null;
+        checkPermissionOnProject(getJWT(servletRequest), SOURCE_CREATE, projectName);
         if (sourceDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
                     "idexists", "A new source cannot already have an ID")).build();
@@ -133,13 +128,10 @@ public class SourceResource {
         if (sourceDto.getId() == null) {
             return createSource(sourceDto);
         }
-        MinimalProjectDetailsDTO project = sourceDto.getProject();
         RadarToken jwt = getJWT(servletRequest);
-        if (project != null && project.getProjectName() != null) {
-            checkPermissionOnProject(jwt, SOURCE_UPDATE, project.getProjectName());
-        } else {
-            checkAuthorityAndPermission(jwt, SYS_ADMIN, SOURCE_UPDATE);
-        }
+        MinimalProjectDetailsDTO project = sourceDto.getProject();
+        String projectName = project != null ? project.getProjectName() : null;
+        checkPermissionOnProject(jwt, SOURCE_UPDATE, projectName);
         Optional<SourceDTO> updatedSource = sourceService.updateSource(sourceDto, jwt);
         return wrapOrNotFound(updatedSource,
                 HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceDto.getSourceName()));
@@ -180,11 +172,11 @@ public class SourceResource {
         Optional<SourceDTO> sourceOpt = sourceService.findOneByName(sourceName);
         if (sourceOpt.isPresent()) {
             SourceDTO source = sourceOpt.get();
-            if (source.getProject() == null || source.getProject().getProjectName() == null) {
-                checkAuthority(jwt, SYS_ADMIN);
-            } else {
-                checkPermissionOnSource(jwt, SOURCE_READ, source.getProject().getProjectName(), source.getSubjectLogin(), source.getSourceName());
-            }
+            String projectName = source.getProject() != null
+                    ? source.getProject().getProjectName()
+                    : null;
+            checkPermissionOnSource(jwt, SOURCE_READ, projectName, source.getSubjectLogin(),
+                    source.getSourceName());
         }
         return wrapOrNotFound(sourceService.findOneByName(sourceName));
     }
@@ -207,11 +199,12 @@ public class SourceResource {
             return ResponseEntity.notFound().build();
         }
         SourceDTO sourceDto = sourceDtoOpt.get();
-        if (sourceDto.getProject() != null && sourceDto.getProject().getProjectName() != null) {
-            checkPermissionOnSource(jwt, SOURCE_DELETE, sourceDto.getProject().getProjectName(), sourceDto.getSubjectLogin(), sourceDto.getSourceName());
-        } else {
-            checkAuthority(jwt, SYS_ADMIN);
-        }
+        String projectName = sourceDto.getProject() != null
+                ? sourceDto.getProject().getProjectName()
+                : null;
+        checkPermissionOnSource(jwt, SOURCE_DELETE, projectName, sourceDto.getSubjectLogin(),
+                sourceDto.getSourceName());
+
         if (sourceDto.getAssigned()) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
                     "sourceIsAssigned", "Cannot delete an assigned source")).build();

@@ -2,9 +2,7 @@ package org.radarbase.management.service;
 
 
 import static org.hibernate.id.IdentifierGenerator.ENTITY_NAME;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
 import static org.radarbase.auth.authorization.Permission.SOURCE_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkAuthorityAndPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSource;
 import static org.radarbase.management.web.rest.errors.EntityName.SOURCE;
@@ -225,17 +223,16 @@ public class SourceService {
             return Optional.empty();
         }
         Source existingSource = existingSourceOpt.get();
-        if (existingSource.getProject() != null && existingSource.getProject().getProjectName() != null) {
-            String user;
-            if (existingSource.getSubject() != null && existingSource.getSubject().getUser() != null) {
-                user = existingSource.getSubject().getUser().getLogin();
-            } else {
-                user = null;
-            }
-            checkPermissionOnSource(jwt, SOURCE_UPDATE, existingSource.getProject().getProjectName(), user, existingSource.getSourceName());
-        } else {
-            checkAuthorityAndPermission(jwt, SYS_ADMIN, SOURCE_UPDATE);
-        }
+        String project = existingSource.getProject() != null
+                ? existingSource.getProject().getProjectName()
+                : null;
+        String user = (existingSource.getSubject() != null
+                && existingSource.getSubject().getUser() != null)
+                ? existingSource.getSubject().getUser().getLogin()
+                : null;
+
+        checkPermissionOnSource(jwt, SOURCE_UPDATE, project, user, existingSource.getSourceName());
+
         // if the source is being transferred to another project.
         if (!existingSource.getProject().getId().equals(sourceDto.getProject().getId())) {
             if (existingSource.isAssigned()) {

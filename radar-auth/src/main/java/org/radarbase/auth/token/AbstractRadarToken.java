@@ -6,6 +6,7 @@ import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import org.radarbase.auth.authorization.Permission;
 
@@ -84,10 +85,14 @@ public abstract class AbstractRadarToken implements RadarToken {
      * @return {@code true} if any authority contains the permission, {@code false} otherwise
      */
     protected boolean hasAuthorityForProject(Permission permission, String projectName) {
-        return getRoles()
-                .getOrDefault(projectName, emptyList()).stream()
-                .anyMatch(permission::isAuthorityAllowed)
-                || hasNonProjectRelatedAuthorityForPermission(permission);
+        if (hasNonProjectRelatedAuthorityForPermission(permission)) {
+            return true;
+        }
+        if (projectName == null) {
+            return false;
+        }
+        List<String> roles = getRoles().get(projectName);
+        return roles != null && roles.stream().anyMatch(permission::isAuthorityAllowed);
     }
 
     /**
