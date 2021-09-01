@@ -39,6 +39,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.domain.SourceType;
@@ -249,7 +250,12 @@ public class SubjectResource {
             @RequestParam(value = "withInactiveParticipants", required = false)
                     Boolean withInactiveParticipantsParam)
             throws NotAuthorizedException {
-        checkPermissionOnProject(getJWT(servletRequest), SUBJECT_READ, projectName);
+        RadarToken jwt = getJWT(servletRequest);
+        checkPermissionOnProject(jwt, SUBJECT_READ, projectName);
+        if (jwt.hasAuthority(PARTICIPANT)) {
+            throw new NotAuthorizedException(String.format("Client %s does not have "
+                            + "permission %s", jwt.getSubject(), SUBJECT_READ));
+        }
 
         log.debug("ProjectName {} and external {}", projectName, externalId);
         // if not specified do not include inactive patients
@@ -308,12 +314,12 @@ public class SubjectResource {
                 .flatMap(p ->  projectRepository.findOneWithEagerRelationships(p.getId()))
                 .orElse(null);
 
-        String projectName = project == null ? null : project.getProjectName();
+        String projectName = project != null ? project.getProjectName() : null;
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, projectName,
+                subject.getUser().getLogin());
 
         SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject);
 
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, projectName,
-                subjectDto.getLogin());
         return ResponseEntity.ok(subjectDto);
     }
 
