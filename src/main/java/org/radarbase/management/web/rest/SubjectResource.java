@@ -1,5 +1,6 @@
 package org.radarbase.management.web.rest;
 
+import static io.github.jhipster.web.util.ResponseUtil.wrapOrNotFound;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
@@ -266,14 +267,12 @@ public class SubjectResource {
                 INACTIVE_PARTICIPANT) : Collections.singletonList(PARTICIPANT);
 
         if (projectName != null && externalId != null) {
-            return subjectRepository
+            Optional<List<SubjectDTO>> subject = subjectRepository
                     .findOneByProjectNameAndExternalIdAndAuthoritiesIn(
                             projectName, externalId, authoritiesToInclude)
-                    .map(subject -> {
-                        SubjectDTO dto = subjectMapper.subjectToSubjectReducedProjectDTO(subject);
-                        return ResponseEntity.ok(Collections.singletonList(dto));
-                    })
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+                    .map(s -> Collections.singletonList(
+                            subjectMapper.subjectToSubjectReducedProjectDTO(s)));
+            return wrapOrNotFound(subject);
         } else if (projectName == null && externalId != null) {
             List<Subject> subjects = subjectRepository
                     .findAllByExternalIdAndAuthoritiesIn(externalId, authoritiesToInclude);
