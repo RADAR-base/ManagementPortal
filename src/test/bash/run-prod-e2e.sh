@@ -16,7 +16,7 @@ cp src/test/resources/config/keystore.p12 src/main/docker/etc/config
 cp src/test/resources/config/keystore.p12 src/main/resources/config
 
 # set liquibase context to dev so it loads demo data
-sed -i "" "s|contexts: prod|contexts: dev|" src/main/resources/config/application-prod.yml
+sed -i "s|contexts: prod|contexts: dev|" src/main/resources/config/application-prod.yml
 ./gradlew -Pprod buildDocker -x test -x javadocJar
 # recover the prod liquibase context
 git checkout src/main/resources/config/application-prod.yml
