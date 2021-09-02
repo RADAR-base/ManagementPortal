@@ -4,7 +4,6 @@ package org.radarbase.management.service.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -18,9 +17,7 @@ public class SourceDataDTO implements Serializable {
     private Long id;
 
     //Source data type.
-    @NotNull
     private String sourceDataType;
-
 
     private String sourceDataName;
 
@@ -65,8 +62,13 @@ public class SourceDataDTO implements Serializable {
         this.frequency = frequency;
     }
 
+    /** Get source data type. Defaults to the topic of the source data. */
     public String getSourceDataType() {
-        return sourceDataType;
+        if (sourceDataType == null) {
+            return topic;
+        } else {
+            return sourceDataType;
+        }
     }
 
     public void setSourceDataType(String sourceDataType) {

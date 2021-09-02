@@ -1,12 +1,12 @@
 package org.radarbase.management.web.rest;
 
+import static io.github.jhipster.web.util.ResponseUtil.wrapOrNotFound;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_CREATE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_DELETE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
 import static org.radarbase.management.security.SecurityUtils.getJWT;
@@ -31,12 +31,12 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 
 import com.codahale.metrics.annotation.Timed;
-import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.domain.SourceType;
@@ -247,7 +247,12 @@ public class SubjectResource {
             @RequestParam(value = "withInactiveParticipants", required = false)
                     Boolean withInactiveParticipantsParam)
             throws NotAuthorizedException {
-        checkPermission(getJWT(servletRequest), SUBJECT_READ);
+        RadarToken jwt = getJWT(servletRequest);
+        checkPermissionOnProject(jwt, SUBJECT_READ, projectName);
+        if (!jwt.isClientCredentials() && jwt.hasAuthority(PARTICIPANT)) {
+            throw new NotAuthorizedException("Cannot list subjects as a participant.");
+        }
+
         log.debug("ProjectName {} and external {}", projectName, externalId);
         // if not specified do not include inactive patients
         boolean withInactive = withInactiveParticipantsParam != null
@@ -257,20 +262,17 @@ public class SubjectResource {
                 INACTIVE_PARTICIPANT) : Collections.singletonList(PARTICIPANT);
 
         if (projectName != null && externalId != null) {
-            Optional<Subject> subject = subjectRepository
-                    .findOneByProjectNameAndExternalIdAndAuthoritiesIn(projectName, externalId,
-                            authoritiesToInclude);
-
-            if (!subject.isPresent()) {
-                return ResponseEntity.notFound().build();
-            }
-            SubjectDTO subjectDto = subjectMapper.subjectToSubjectReducedProjectDTO(subject.get());
-            return ResponseEntity.ok(Collections.singletonList(subjectDto));
+            Optional<List<SubjectDTO>> subject = subjectRepository
+                    .findOneByProjectNameAndExternalIdAndAuthoritiesIn(
+                            projectName, externalId, authoritiesToInclude)
+                    .map(s -> Collections.singletonList(
+                            subjectMapper.subjectToSubjectReducedProjectDTO(s)));
+            return wrapOrNotFound(subject);
         } else if (projectName == null && externalId != null) {
             List<Subject> subjects = subjectRepository
                     .findAllByExternalIdAndAuthoritiesIn(externalId, authoritiesToInclude);
-            return ResponseUtil.wrapOrNotFound(Optional.of(
-                    subjectMapper.subjectsToSubjectReducedProjectDTOs(subjects)));
+            List<SubjectDTO> dto = subjectMapper.subjectsToSubjectReducedProjectDTOs(subjects);
+            return ResponseEntity.ok(dto);
         } else if (projectName != null) {
             Page<SubjectDTO> page = subjectRepository
                     .findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
@@ -280,12 +282,13 @@ public class SubjectResource {
             HttpHeaders headers = PaginationUtil
                     .generatePaginationHttpHeaders(page, "/api/subjects");
             return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+        } else {
+            log.debug("REST request to get all Subjects");
+            Page<SubjectDTO> page = subjectService.findAll(pageable);
+            HttpHeaders headers = PaginationUtil
+                    .generatePaginationHttpHeaders(page, "/api/subjects");
+            return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
         }
-        log.debug("REST request to get all Subjects");
-        Page<SubjectDTO> page = subjectService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil
-                .generatePaginationHttpHeaders(page, "/api/subjects");
-        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     /**
@@ -305,12 +308,12 @@ public class SubjectResource {
                 .flatMap(p ->  projectRepository.findOneWithEagerRelationships(p.getId()))
                 .orElse(null);
 
-        String projectName = project == null ? null : project.getProjectName();
+        String projectName = project != null ? project.getProjectName() : null;
+        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, projectName,
+                subject.getUser().getLogin());
 
         SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject);
 
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, projectName,
-                subjectDto.getLogin());
         return ResponseEntity.ok(subjectDto);
     }
 
@@ -328,8 +331,8 @@ public class SubjectResource {
         log.debug("REST request to get revisions for Subject : {}", login);
         Subject subject = subjectService.findOneByLogin(login);
         String project = subject.getActiveProject()
-                .flatMap(p -> projectRepository.findOneWithEagerRelationships(p.getId()))
-                .map(p -> p.getProjectName())
+                .flatMap(p -> projectRepository.findById(p.getId()))
+                .map(Project::getProjectName)
                 .orElseThrow(() -> new NotFoundException(
                         "Requested subject does not have an active project",
                         PROJECT,
