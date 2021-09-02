@@ -32,7 +32,7 @@ repositories {
 
 allprojects {
     group 'org.radarbase'
-    version '0.7.2' // project version
+    version '0.8.0' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
