@@ -249,9 +249,8 @@ public class SubjectResource {
             throws NotAuthorizedException {
         RadarToken jwt = getJWT(servletRequest);
         checkPermissionOnProject(jwt, SUBJECT_READ, projectName);
-        if (jwt.hasAuthority(PARTICIPANT)) {
-            throw new NotAuthorizedException(String.format("Client %s does not have "
-                            + "permission %s", jwt.getSubject(), SUBJECT_READ));
+        if (!jwt.isClientCredentials() && jwt.hasAuthority(PARTICIPANT)) {
+            throw new NotAuthorizedException("Cannot list subjects as a participant.");
         }
 
         log.debug("ProjectName {} and external {}", projectName, externalId);

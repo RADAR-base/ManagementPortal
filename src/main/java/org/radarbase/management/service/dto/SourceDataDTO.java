@@ -18,9 +18,7 @@ public class SourceDataDTO implements Serializable {
     private Long id;
 
     //Source data type.
-    @NotNull
     private String sourceDataType;
-
 
     private String sourceDataName;
 
@@ -66,7 +64,11 @@ public class SourceDataDTO implements Serializable {
     }
 
     public String getSourceDataType() {
-        return sourceDataType;
+        if (sourceDataType == null) {
+            return topic;
+        } else {
+            return sourceDataType;
+        }
     }
 
     public void setSourceDataType(String sourceDataType) {

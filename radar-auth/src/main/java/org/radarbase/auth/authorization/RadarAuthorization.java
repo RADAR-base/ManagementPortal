@@ -114,7 +114,7 @@ public final class RadarAuthorization {
         if (!token.hasPermissionOnSubject(permission, projectName, subjectName)) {
             throw new NotAuthorizedException(String.format("Client %s does not have "
                     + "permission %s on subject %s in project %s", token.getSubject(),
-                    permission.toString(), subjectName, projectName));
+                    permission, subjectName, projectName));
         }
     }
 
@@ -137,7 +137,7 @@ public final class RadarAuthorization {
         if (!token.hasPermissionOnSource(permission, projectName, subjectName, sourceId)) {
             throw new NotAuthorizedException(String.format("Client %s does not have "
                             + "permission %s on source %s of subject %s in project %s",
-                    token.getSubject(), permission.toString(), sourceId, subjectName, projectName));
+                    token.getSubject(), permission, sourceId, subjectName, projectName));
         }
     }
 }

@@ -262,7 +262,7 @@ public class ProjectResource {
         ProjectDTO projectDto = projectService.findOneByName(projectName);
         RadarToken jwt = getJWT(servletRequest);
         checkPermissionOnProject(jwt, SOURCE_READ, projectDto.getProjectName());
-        if (jwt.hasAuthority(PARTICIPANT)) {
+        if (!jwt.isClientCredentials() && jwt.hasAuthority(PARTICIPANT)) {
             throw new NotAuthorizedException("Cannot list all project sources as a participant.");
         }
 
@@ -310,7 +310,7 @@ public class ProjectResource {
         projectService.findOneByName(projectName);
         RadarToken jwt = getJWT(servletRequest);
         checkPermissionOnProject(jwt, SUBJECT_READ, projectName);
-        if (jwt.hasAuthority(PARTICIPANT)) {
+        if (!jwt.isClientCredentials() && jwt.hasAuthority(PARTICIPANT)) {
             throw new NotAuthorizedException("Cannot list all project subjects as a participant.");
         }
 

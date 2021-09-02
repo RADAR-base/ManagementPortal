@@ -39,6 +39,10 @@ FROM openjdk:11-jre-slim
 ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
     JHIPSTER_SLEEP=0
 
+RUN apt-get update && apt-get install -y \
+  curl \
+  && rm -rf /var/lib/apt/lists/*
+
 # Add the war and changelogs files from build stage
 COPY --from=builder /app/build/libs/*.war /app.war
 COPY --from=builder /app/src/main/docker/etc /mp-includes
@@ -46,4 +50,14 @@ COPY --from=builder /app/src/main/docker/etc /mp-includes
 EXPOSE 8080 5701/udp
 CMD echo "The application will start in ${JHIPSTER_SLEEP}s..." && \
     sleep ${JHIPSTER_SLEEP} && \
-    java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -cp /mp-includes:/app.war org.springframework.boot.loader.WarLauncher
+    java $JAVA_OPTS \
+        -Djava.security.egd=file:/dev/./urandom \
+        --add-modules java.se \
+        --add-exports java.base/jdk.internal.ref=ALL-UNNAMED \
+        --add-opens java.base/java.lang=ALL-UNNAMED \
+        --add-opens java.base/java.nio=ALL-UNNAMED \
+        --add-opens java.base/sun.nio.ch=ALL-UNNAMED \
+        --add-opens java.management/sun.management=ALL-UNNAMED \
+        --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED \
+        -cp /mp-includes:/app.war \
+        org.springframework.boot.loader.WarLauncher
