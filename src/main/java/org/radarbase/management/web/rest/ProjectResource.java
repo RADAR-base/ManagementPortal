@@ -44,6 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.ws.rs.core.Response;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -160,13 +161,13 @@ public class ProjectResource {
      */
     @GetMapping("/projects")
     @Timed
-    public ResponseEntity getAllProjects(
+    public ResponseEntity<?> getAllProjects(
             @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable,
             @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
                     minimized) throws NotAuthorizedException {
         log.debug("REST request to get Projects");
         checkPermission(getJWT(servletRequest), PROJECT_READ);
-        Page page = projectService.findAll(minimized, pageable);
+        Page<?> page = projectService.findAll(minimized, pageable);
         HttpHeaders headers = PaginationUtil
                 .generatePaginationHttpHeaders(page, "/api/projects");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
@@ -186,7 +187,7 @@ public class ProjectResource {
         log.debug("REST request to get Project : {}", projectName);
         ProjectDTO projectDto = projectService.findOneByName(projectName);
         checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ, projectDto.getProjectName());
-        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(projectDto));
+        return ResponseEntity.ok(projectDto);
     }
 
     /**
@@ -255,7 +256,7 @@ public class ProjectResource {
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/sources")
     @Timed
-    public ResponseEntity getAllSourcesForProject(@ApiParam Pageable pageable,
+    public ResponseEntity<?> getAllSourcesForProject(@ApiParam Pageable pageable,
             @PathVariable String projectName,
             @RequestParam(value = "assigned", required = false) Boolean assigned,
             @RequestParam(name = "minimized", required = false, defaultValue = "false")
@@ -265,8 +266,7 @@ public class ProjectResource {
         RadarToken jwt = getJWT(servletRequest);
         checkPermissionOnProject(jwt, SOURCE_READ, projectDto.getProjectName());
         if (jwt.hasAuthority(PARTICIPANT)) {
-            throw new NotAuthorizedException(String.format("Client %s does not have "
-                    + "permission %s in project %s", jwt.getSubject(), SOURCE_READ, projectName));
+            throw new NotAuthorizedException("Cannot list all project sources as a participant.");
         }
 
         if (Objects.nonNull(assigned)) {
@@ -314,9 +314,7 @@ public class ProjectResource {
         RadarToken jwt = getJWT(servletRequest);
         checkPermissionOnProject(jwt, SUBJECT_READ, projectName);
         if (jwt.hasAuthority(PARTICIPANT)) {
-            throw new NotAuthorizedException(String.format("Client %s does not have "
-                    + "permission %s in project %s", jwt.getSubject(), SUBJECT_READ,
-                    projectName));
+            throw new NotAuthorizedException("Cannot list all project subjects as a participant.");
         }
 
         log.debug("REST request to get all subjects for project {}", projectName);

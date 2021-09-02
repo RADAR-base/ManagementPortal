@@ -28,11 +28,13 @@ public final class RadarAuthorization {
      */
     public static void checkAuthority(RadarToken token, String authority)
             throws NotAuthorizedException {
-        log.debug("Checking authority {} for user {}", authority,
-                token.getSubject());
-        if (!token.hasAuthority(authority)) {
-            throw new NotAuthorizedException(String.format("Request Client %s does not have "
-                    + "authority %s", token.getSubject(), authority));
+        if (!token.isClientCredentials()) {
+            log.debug("Checking authority {} for user {}", authority,
+                    token.getSubject());
+            if (!token.hasAuthority(authority)) {
+                throw new NotAuthorizedException(String.format("Request Client %s does not have "
+                        + "authority %s", token.getSubject(), authority));
+            }
         }
     }
 

@@ -69,11 +69,11 @@ public abstract class AbstractRadarToken implements RadarToken {
      * @return {@code true} if any authority contains the permission, {@code false} otherwise
      */
     protected boolean hasAuthorityForPermission(Permission permission) {
-        return getRoles()
-                .values().stream()
-                .flatMap(Collection::stream)
-                .anyMatch(permission::isAuthorityAllowed)
-                || hasNonProjectRelatedAuthorityForPermission(permission);
+        return hasNonProjectRelatedAuthorityForPermission(permission)
+                || getRoles()
+                        .values().stream()
+                        .flatMap(Collection::stream)
+                        .anyMatch(permission::isAuthorityAllowed);
     }
 
     /**
@@ -117,8 +117,14 @@ public abstract class AbstractRadarToken implements RadarToken {
 
     protected boolean hasAuthorityForSource(Permission permission, String projectName,
             String subjectName, String sourceId) {
-        return hasAuthorityForSubject(permission, projectName, subjectName)
-                && getSources().contains(sourceId);
+        if (!hasAuthorityForSubject(permission, projectName, subjectName)) {
+            return false;
+        }
+        if (isJustParticipant(projectName)) {
+            return getSources().contains(sourceId);
+        } else {
+            return true;
+        }
     }
 
     /**

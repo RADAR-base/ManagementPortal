@@ -61,7 +61,7 @@ public class ProjectService {
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    public Page findAll(Boolean fetchMinimal, Pageable pageable) {
+    public Page<?> findAll(Boolean fetchMinimal, Pageable pageable) {
         Page<Project> projects = projectRepository.findAllWithEagerRelationships(pageable);
         if (!fetchMinimal) {
             return projects.map(projectMapper::projectToProjectDTOReduced);

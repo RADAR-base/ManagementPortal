@@ -60,7 +60,7 @@ public class RoleResource {
      */
     @PostMapping("/roles")
     @Timed
-    @Secured({AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.SYS_ADMIN})
+    @Secured({AuthoritiesConstants.SYS_ADMIN})
     public ResponseEntity<RoleDTO> createRole(@Valid @RequestBody RoleDTO roleDto)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Role : {}", roleDto);
@@ -86,7 +86,7 @@ public class RoleResource {
      */
     @PutMapping("/roles")
     @Timed
-    @Secured({AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.SYS_ADMIN})
+    @Secured({AuthoritiesConstants.SYS_ADMIN})
     public ResponseEntity<RoleDTO> updateRole(@Valid @RequestBody RoleDTO roleDto)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to update Role : {}", roleDto);
@@ -107,7 +107,7 @@ public class RoleResource {
      */
     @GetMapping("/roles")
     @Timed
-    @Secured({AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.SYS_ADMIN})
+    @Secured({AuthoritiesConstants.SYS_ADMIN})
     public List<RoleDTO> getAllRoles() {
         log.debug("REST request to get all Roles");
         return roleService.findAll();
@@ -120,7 +120,7 @@ public class RoleResource {
      */
     @GetMapping("/roles/admin")
     @Timed
-    @Secured({AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.SYS_ADMIN})
+    @Secured({AuthoritiesConstants.SYS_ADMIN})
     public List<RoleDTO> getAllAdminRoles() {
         log.debug("REST request to get all Admin Roles");
         return roleService.findSuperAdminRoles();
@@ -138,7 +138,6 @@ public class RoleResource {
     @GetMapping("/roles/{projectName:" + Constants.ENTITY_ID_REGEX + "}/{authorityName:"
             + Constants.ENTITY_ID_REGEX + "}")
     @Timed
-    @Secured({AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.SYS_ADMIN})
     public ResponseEntity<RoleDTO> getRole(@PathVariable String projectName,
             @PathVariable String authorityName) throws NotAuthorizedException {
         checkPermissionOnProject(getJWT(servletRequest), ROLE_READ, projectName);
