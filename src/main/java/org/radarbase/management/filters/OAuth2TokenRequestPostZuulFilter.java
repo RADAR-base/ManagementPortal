@@ -69,6 +69,7 @@ public class OAuth2TokenRequestPostZuulFilter extends ZuulFilter {
             }
             if (requestURI.contains("oauth/token") && requestMethod.equals("DELETE")) {
                 final Cookie cookie = new Cookie(REFRESH_TOKEN_COOKIE, "");
+                cookie.setHttpOnly(true);
                 cookie.setMaxAge(0);
                 cookie.setSecure(
                         activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_PRODUCTION));

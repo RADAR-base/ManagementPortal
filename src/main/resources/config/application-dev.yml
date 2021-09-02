@@ -20,6 +20,7 @@ spring:
     devtools:
         restart:
             enabled: true
+            exclude: .h2.server.properties,static/**,templates/**
         livereload:
             enabled: false # we use gulp + BrowserSync for livereload
     jackson:
@@ -27,17 +28,20 @@ spring:
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
         url: jdbc:h2:mem:managementportal;DB_CLOSE_DELAY=-1
-#        driverClassName: org.postgresql.Driver
-#        url: jdbc:postgresql://localhost:5432/managementportal
         username: ManagementPortal
         password:
+#        driverClassName: org.postgresql.Driver
+#        url: jdbc:postgresql://localhost:5432/managementportal
+#        username: radarbase
+#        password: radarbase
     h2:
         console:
-            enabled: false
+            enabled: true
+            path: /h2-console
     jpa:
-        database-platform: io.github.jhipster.domain.util.FixedH2Dialect
-#        database-platform: org.hibernate.dialect.PostgreSQLDialect
+        database-platform: org.hibernate.dialect.H2Dialect
         database: H2
+#        database-platform: org.hibernate.dialect.PostgreSQLDialect
 #        database: POSTGRESQL
         show-sql: true
         properties:
@@ -49,6 +53,7 @@ spring:
             hibernate.cache.hazelcast.instance_name: ManagementPortal
             hibernate.cache.use_minimal_puts: true
             hibernate.cache.hazelcast.use_lite_member: true
+            hibernate.ddl-auto: none
     mail:
         host:  # for hotmail
         port:
@@ -65,13 +70,12 @@ spring:
         cache-seconds: 1
     thymeleaf:
         cache: false
-
-liquibase:
-    contexts: dev
+    liquibase:
+        contexts: dev
 
 # ===================================================================
 # To enable SSL, generate a certificate using:
-# keytool -genkey -alias ManagementPortal -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650
+# keytool -genkey -alias ManagementPortal -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore src/main/resources/config/keystore.p12 -validity 3650
 #
 # You can also use Let's Encrypt:
 # https://maximilian-boehm.com/hp2121/Create-a-Java-Keystore-JKS-from-Let-s-Encrypt-Certificates.htm
@@ -81,7 +85,7 @@ liquibase:
 # server:
 #    port: 8443
 #    ssl:
-#        key-store: keystore.p12
+#        key-store: src/main/resources/config/keystore.p12
 #        key-store-password: <your-password>
 #        keyStoreType: PKCS12
 #        keyAlias: ManagementPortal

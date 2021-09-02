@@ -2,20 +2,20 @@ package org.radarbase.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.FetchType;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.envers.Audited;
 import org.radarbase.auth.config.Constants;
-import org.radarbase.management.domain.enumeration.SourceTypeScope;
 import org.radarbase.management.domain.support.AbstractEntityListener;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -75,9 +75,8 @@ public class SourceType extends AbstractEntity implements Serializable {
     private String catalogVersion;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "source_type_scope", nullable = false)
-    private SourceTypeScope sourceTypeScope;
+    private String sourceTypeScope;
 
     @NotNull
     @Column(name = "dynamic_registration", nullable = false)
@@ -86,7 +85,7 @@ public class SourceType extends AbstractEntity implements Serializable {
     @OneToMany(mappedBy = "sourceType", orphanRemoval = true, fetch = FetchType.LAZY)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @Cascade({CascadeType.DELETE, CascadeType.SAVE_UPDATE})
-    private Set<SourceData> sourceData;
+    private Set<SourceData> sourceData = new HashSet<>();
 
     @ManyToMany(mappedBy = "sourceTypes", fetch = FetchType.LAZY)
     @JsonIgnore
@@ -141,16 +140,16 @@ public class SourceType extends AbstractEntity implements Serializable {
         return this;
     }
 
-    public SourceTypeScope getSourceTypeScope() {
+    public String getSourceTypeScope() {
         return sourceTypeScope;
     }
 
-    public SourceType sourceTypeScope(SourceTypeScope sourceTypeScope) {
+    public SourceType sourceTypeScope(String sourceTypeScope) {
         this.sourceTypeScope = sourceTypeScope;
         return this;
     }
 
-    public void setSourceTypeScope(SourceTypeScope sourceTypeScope) {
+    public void setSourceTypeScope(String sourceTypeScope) {
         this.sourceTypeScope = sourceTypeScope;
     }
 
@@ -187,6 +186,7 @@ public class SourceType extends AbstractEntity implements Serializable {
         return this;
     }
 
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setSourceData(Set<SourceData> sourceData) {
         this.sourceData = sourceData;
     }
@@ -232,6 +232,7 @@ public class SourceType extends AbstractEntity implements Serializable {
         this.assessmentType = assessmentType;
     }
 
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setProjects(Set<Project> projects) {
         this.projects = projects;
     }

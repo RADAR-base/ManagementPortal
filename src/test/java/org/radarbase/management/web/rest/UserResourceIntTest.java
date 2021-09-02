@@ -1,9 +1,9 @@
 package org.radarbase.management.web.rest;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.authorization.AuthoritiesConstants;
 import org.radarbase.management.ManagementPortalTestApp;
@@ -27,7 +27,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -69,10 +69,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @see UserResource
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @WithMockUser
-public class UserResourceIntTest {
+class UserResourceIntTest {
 
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
@@ -105,7 +105,7 @@ public class UserResourceIntTest {
 
     private User user;
 
-    @Before
+    @BeforeEach
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         UserResource userResource = new UserResource();
@@ -129,14 +129,14 @@ public class UserResourceIntTest {
     }
 
 
-    @Before
+    @BeforeEach
     public void initTest() {
         user = createEntity();
     }
 
     @Test
     @Transactional
-    public void createUser() throws Exception {
+    void createUser() throws Exception {
         final int databaseSizeBeforeCreate = userRepository.findAll().size();
 
         // Create the User
@@ -165,7 +165,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void createUserWithExistingId() throws Exception {
+    void createUserWithExistingId() throws Exception {
         final int databaseSizeBeforeCreate = userRepository.findAll().size();
 
         Set<RoleDTO> roles = new HashSet<>();
@@ -189,7 +189,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void createUserWithExistingLogin() throws Exception {
+    void createUserWithExistingLogin() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
         final int databaseSizeBeforeCreate = userRepository.findAll().size();
@@ -214,7 +214,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void createUserWithExistingEmail() throws Exception {
+    void createUserWithExistingEmail() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
         final int databaseSizeBeforeCreate = userRepository.findAll().size();
@@ -239,7 +239,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void getAllUsers() throws Exception {
+    void getAllUsers() throws Exception {
         // Initialize the database
         Role adminRole = new Role();
         adminRole.setId(1L);
@@ -261,7 +261,7 @@ public class UserResourceIntTest {
         restUserMockMvc.perform(get("/api/users?sort=id,desc")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].login").value(hasItem(DEFAULT_LOGIN)))
                 .andExpect(jsonPath("$.[*].firstName").value(hasItem(DEFAULT_FIRSTNAME)))
                 .andExpect(jsonPath("$.[*].lastName").value(hasItem(DEFAULT_LASTNAME)))
@@ -271,14 +271,14 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void getUser() throws Exception {
+    void getUser() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
 
         // Get the user
         restUserMockMvc.perform(get("/api/users/{login}", user.getLogin()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.login").value(user.getLogin()))
                 .andExpect(jsonPath("$.firstName").value(DEFAULT_FIRSTNAME))
                 .andExpect(jsonPath("$.lastName").value(DEFAULT_LASTNAME))
@@ -288,20 +288,20 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void getNonExistingUser() throws Exception {
+    void getNonExistingUser() throws Exception {
         restUserMockMvc.perform(get("/api/users/unknown"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @Transactional
-    public void updateUser() throws Exception {
+    void updateUser() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
         final int databaseSizeBeforeUpdate = userRepository.findAll().size();
 
         // Update the user
-        User updatedUser = userRepository.findOne(user.getId());
+        User updatedUser = userRepository.findById(user.getId()).get();
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
@@ -336,13 +336,13 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void updateUserLogin() throws Exception {
+    void updateUserLogin() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
         final int databaseSizeBeforeUpdate = userRepository.findAll().size();
 
         // Update the user
-        User updatedUser = userRepository.findOne(user.getId());
+        User updatedUser = userRepository.findById(user.getId()).get();
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
@@ -378,7 +378,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void updateUserExistingEmail() throws Exception {
+    void updateUserExistingEmail() throws Exception {
         // Initialize the database with 2 users
         userRepository.saveAndFlush(user);
 
@@ -393,7 +393,7 @@ public class UserResourceIntTest {
         userRepository.saveAndFlush(anotherUser);
 
         // Update the user
-        User updatedUser = userRepository.findOne(user.getId());
+        User updatedUser = userRepository.findById(user.getId()).get();
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
         role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
@@ -418,7 +418,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void updateUserExistingLogin() throws Exception {
+    void updateUserExistingLogin() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
 
@@ -433,7 +433,7 @@ public class UserResourceIntTest {
         userRepository.saveAndFlush(anotherUser);
 
         // Update the user
-        User updatedUser = userRepository.findOne(user.getId());
+        User updatedUser = userRepository.findById(user.getId()).get();
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
@@ -459,7 +459,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void deleteUser() throws Exception {
+    void deleteUser() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
         final int databaseSizeBeforeDelete = userRepository.findAll().size();
@@ -476,7 +476,7 @@ public class UserResourceIntTest {
 
     @Test
     @Transactional
-    public void equalsVerifier() throws Exception {
+    void equalsVerifier() throws Exception {
         User userA = new User();
         userA.setLogin("AAA");
         User userB = new User();

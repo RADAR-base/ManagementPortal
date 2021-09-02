@@ -13,8 +13,9 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
 zuul:
+    sensitiveHeaders: Cookie,Set-Cookie
     routes:
-        ManagementPortal:
+        oauth:
             path: /oauthserver/oauth/**
             url: http://localhost:8080/managementportal/oauth
 spring:
@@ -60,13 +61,12 @@ spring:
         debug: true
     thymeleaf:
         cache: true
-
-liquibase:
-    contexts: prod
+    liquibase:
+        contexts: prod
 
 # ===================================================================
 # To enable SSL, generate a certificate using:
-# keytool -genkey -alias ManagementPortal -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650
+# keytool -genkey -alias ManagementPortal -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore src/main/resources/config/keystore.p12 -validity 3650
 #
 # You can also use Let's Encrypt:
 # https://maximilian-boehm.com/hp2121/Create-a-Java-Keystore-JKS-from-Let-s-Encrypt-Certificates.htm
@@ -76,14 +76,15 @@ liquibase:
 # server:
 #    port: 443
 #    ssl:
-#        key-store: keystore.p12
+#        key-store: src/main/resources/config/keystore.p12
 #        key-store-password: <your-password>
 #        keyStoreType: PKCS12
 #        keyAlias: ManagementPortal
 # ===================================================================
 server:
     port: 8080
-    contextPath: /managementportal
+    servlet:
+        context-path: /managementportal
 
 
 # ===================================================================

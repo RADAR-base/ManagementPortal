@@ -7,11 +7,15 @@ apply plugin: 'maven-publish'
 ext {
     jacksonVersion = '2.11.4'
     jacksonYamlVersion = '2.11.4'
-    okhttpVersion = '4.9.0'
+    okhttpVersion = '4.9.1'
     oauthJwtVersion = '3.12.0'
     commonsCodecVersion = '1.15'
     slf4jVersion = '1.7.30'
+    junitVersion ='5.6.3'
 }
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 description = 'Library for authentication and authorization of JWT tokens issued by the RADAR platform'
 
@@ -21,7 +25,7 @@ repositories {
 }
 
 configurations {
-    testCompile.extendsFrom shadow
+    testImplementation.extendsFrom shadow
 }
 
 dependencies {
@@ -35,11 +39,13 @@ dependencies {
     shadow group: 'com.fasterxml.jackson.core' , name: 'jackson-databind' , version: jacksonVersion
     shadow group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jacksonYamlVersion
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.21.0'
-    testCompile group: 'com.github.stefanbirkner', name: 'system-rules', version: '1.19.0'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junitVersion
+    testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
+    testImplementation group: 'com.github.stefanbirkner', name: 'system-rules', version: '1.19.0'
 
     testRuntimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junitVersion
+
 }
 
 shadowJar {
@@ -55,6 +61,13 @@ jar {
     enabled = false
 }
 
+test {
+    testLogging {
+        exceptionFormat = 'full'
+    }
+    useJUnitPlatform()
+}
+
 task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {
     from javadoc.destinationDir
     into file("$rootDir/public/radar-auth-javadoc")
@@ -63,5 +76,5 @@ task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {
 ext.isShadowed = true
 ext.projectLanguage = "java"
 
-apply from: "$rootDir/gradle/publishing.gradle"
 apply from: "$rootDir/gradle/style.gradle"
+apply from: "$rootDir/gradle/publishing.gradle"

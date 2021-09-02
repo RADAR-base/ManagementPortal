@@ -5,15 +5,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.web.rest.vm.LoggerVM;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -22,13 +22,13 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
  *
  * @see LogsResource
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
-public class LogsResourceIntTest {
+class LogsResourceIntTest {
 
     private MockMvc restLogsMockMvc;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
@@ -39,14 +39,14 @@ public class LogsResourceIntTest {
     }
 
     @Test
-    public void getAllLogs()throws Exception {
+    void getAllLogs()throws Exception {
         restLogsMockMvc.perform(get("/management/logs"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
     @Test
-    public void changeLogs()throws Exception {
+    void changeLogs()throws Exception {
         LoggerVM logger = new LoggerVM();
         logger.setLevel("INFO");
         logger.setName("ROOT");

@@ -13,9 +13,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.authorization.AuthoritiesConstants;
@@ -32,7 +32,7 @@ import org.radarbase.management.service.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -43,9 +43,9 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @see AccountResource
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
-public class AccountResourceIntTest {
+class AccountResourceIntTest {
 
     @Autowired
     private UserRepository userRepository;
@@ -64,7 +64,7 @@ public class AccountResourceIntTest {
 
     private MockMvc restUserMockMvc;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         doNothing().when(mockMailService).sendActivationEmail(anyObject());
@@ -85,7 +85,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
-    public void testNonAuthenticatedUser() throws Exception {
+    void testNonAuthenticatedUser() throws Exception {
         restUserMockMvc.perform(get("/api/authenticate")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -93,7 +93,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
-    public void testAuthenticatedUser() throws Exception {
+    void testAuthenticatedUser() throws Exception {
         restUserMockMvc.perform(get("/api/authenticate")
                 .with(request -> {
                     request.setRemoteUser("test");
@@ -105,7 +105,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
-    public void testGetExistingAccount() throws Exception {
+    void testGetExistingAccount() throws Exception {
         Set<Role> roles = new HashSet<>();
         Role role = new Role();
         Authority authority = new Authority();
@@ -125,7 +125,7 @@ public class AccountResourceIntTest {
         restUserMockMvc.perform(get("/api/account")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.login").value("test"))
                 .andExpect(jsonPath("$.firstName").value("john"))
                 .andExpect(jsonPath("$.lastName").value("doe"))
@@ -135,7 +135,7 @@ public class AccountResourceIntTest {
     }
 
     @Test
-    public void testGetUnknownAccount() throws Exception {
+    void testGetUnknownAccount() throws Exception {
         when(mockUserService.getUserWithAuthorities()).thenReturn(null);
 
         restUserMockMvc.perform(get("/api/account")
@@ -145,7 +145,7 @@ public class AccountResourceIntTest {
 
     @Test
     @Transactional
-    public void testSaveInvalidLogin() throws Exception {
+    void testSaveInvalidLogin() throws Exception {
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
         role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
@@ -166,6 +166,6 @@ public class AccountResourceIntTest {
                 .andExpect(status().isBadRequest());
 
         Optional<User> user = userRepository.findOneByEmail("funky@example.com");
-        assertThat(user.isPresent()).isFalse();
+        assertThat(user).isNotPresent();
     }
 }

@@ -61,7 +61,7 @@ public class ProjectService {
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    public Page findAll(Boolean fetchMinimal, Pageable pageable) {
+    public Page<?> findAll(Boolean fetchMinimal, Pageable pageable) {
         Page<Project> projects = projectRepository.findAllWithEagerRelationships(pageable);
         if (!fetchMinimal) {
             return projects.map(projectMapper::projectToProjectDTOReduced);
@@ -116,12 +116,12 @@ public class ProjectService {
     }
 
     /**
-     * Delete the  project by id.
+     * Delete the project by id.
      *
      * @param id the id of the entity
      */
     public void delete(Long id) {
         log.debug("Request to delete Project : {}", id);
-        projectRepository.delete(id);
+        projectRepository.deleteById(id);
     }
 }

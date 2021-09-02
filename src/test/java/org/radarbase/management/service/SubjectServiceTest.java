@@ -1,25 +1,30 @@
 package org.radarbase.management.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.radarbase.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
 import static org.radarbase.management.service.dto.SubjectDTO.SubjectStatus.ACTIVATED;
 
 import java.net.URL;
 import java.util.Collections;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.service.dto.SubjectDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
-@RunWith(SpringRunner.class)
+/**
+ * Test class for the SubjectService class.
+ *
+ * @see SubjectService
+ */
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @Transactional
 public class SubjectServiceTest {
@@ -73,7 +78,7 @@ public class SubjectServiceTest {
 
     @Test
     @Transactional
-    public void testGetPrivacyPolicyUrl() {
+    void testGetPrivacyPolicyUrl() {
 
         projectService.save(createEntityDTO().getProject());
         SubjectDTO created = subjectService.createSubject(createEntityDTO());
@@ -84,7 +89,7 @@ public class SubjectServiceTest {
 
         URL privacyPolicyUrl = subjectService.getPrivacyPolicyUrl(subject);
         assertNotNull(privacyPolicyUrl);
-        assertEquals(privacyPolicyUrl.toExternalForm(), DEFAULT_PROJECT_PRIVACY_POLICY_URL);
+        assertEquals(DEFAULT_PROJECT_PRIVACY_POLICY_URL, privacyPolicyUrl.toExternalForm());
 
     }
 

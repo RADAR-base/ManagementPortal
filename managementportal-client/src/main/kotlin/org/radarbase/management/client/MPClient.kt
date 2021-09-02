@@ -15,7 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.ObjectReader
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.jsonMapper
+import com.fasterxml.jackson.module.kotlin.kotlinModule
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
@@ -47,12 +48,15 @@ class MPClient(
         .addPathSegment("")
         .build()
 
-    private val objectMapper: ObjectMapper = objectMapper ?: ObjectMapper()
-        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-        .registerModule(JavaTimeModule())
-        .registerModule(KotlinModule())
-        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    private val objectMapper: ObjectMapper = objectMapper ?: jsonMapper {
+        serializationInclusion(JsonInclude.Include.NON_NULL)
+        addModule(JavaTimeModule())
+        addModule(kotlinModule {
+            nullIsSameAsDefault(true)
+        })
+        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    }
 
     /** HTTP client to make requests with. */
     var httpClient: OkHttpClient = httpClient ?: OkHttpClient().newBuilder()

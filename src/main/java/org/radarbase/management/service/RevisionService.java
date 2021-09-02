@@ -187,8 +187,8 @@ public class RevisionService implements ApplicationContextAware {
         }
 
         // add the page constraints (offset and amount of results)
-        query.setFirstResult(pageable.getOffset())
-                .setMaxResults(pageable.getPageSize());
+        query.setFirstResult(Math.toIntExact(pageable.getOffset()))
+                .setMaxResults(Math.toIntExact(pageable.getPageSize()));
 
         Function<Object, Object> dtoMapper = getDtoMapper(entity.getClass());
 
@@ -197,9 +197,9 @@ public class RevisionService implements ApplicationContextAware {
         @SuppressWarnings({"unchecked", "rawtypes"})
         List<RevisionDTO> revisionDtos = resultList.stream()
                 .map(objArray -> new RevisionDTO(
-                        new Revision(
-                                new CustomRevisionMetadata((CustomRevisionEntity) objArray[1]),
-                                objArray[0]),
+                        Revision.of(
+                            new CustomRevisionMetadata((CustomRevisionEntity) objArray[1]),
+                            objArray[0]),
                         (RevisionType) objArray[2],
                         dtoMapper.apply(objArray[0])))
                 .collect(toList());
@@ -215,7 +215,8 @@ public class RevisionService implements ApplicationContextAware {
      * @throws NotFoundException if the revision number does not exist
      */
     public RevisionInfoDTO getRevision(Integer revision) throws NotFoundException {
-        CustomRevisionEntity revisionEntity = revisionEntityRepository.findOne(revision);
+        CustomRevisionEntity revisionEntity = revisionEntityRepository.findById(revision)
+                .orElse(null);
         if (revisionEntity == null) {
             throw new NotFoundException("Revision not found with revision id", REVISION,
                     ERR_REVISIONS_NOT_FOUND,
@@ -238,7 +239,8 @@ public class RevisionService implements ApplicationContextAware {
         // show up in revisions where they were still around. However clearing for every request
         // causes the revisions api to be quite slow so we retrieve the changes manually using
         // the AuditReader.
-        CustomRevisionEntity revisionEntity = revisionEntityRepository.findOne(revision);
+        CustomRevisionEntity revisionEntity = revisionEntityRepository.findById(revision)
+                .orElse(null);
         if (revisionEntity == null) {
             throw new NotFoundException("The requested revision could not be found.", REVISION,
                     ERR_REVISIONS_NOT_FOUND,
@@ -253,7 +255,8 @@ public class RevisionService implements ApplicationContextAware {
         }
 
         for (String entityName : revisionEntity.getModifiedEntityNames()) {
-            Class<?> entityClass = classForEntityName(entityName);
+            String cleanedEntityName = entityName.replace("org.radarcns.", "org.radarbase.");
+            Class<?> entityClass = classForEntityName(cleanedEntityName);
             Function<Object, Object> dtoMapper = getDtoMapper(entityClass);
 
             for (RevisionType revisionType : RevisionType.values()) {

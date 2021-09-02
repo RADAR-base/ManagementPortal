@@ -1,5 +1,37 @@
 package org.radarbase.management.web.rest;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockitoAnnotations;
+import org.radarbase.auth.authentication.OAuthHelper;
+import org.radarbase.management.ManagementPortalTestApp;
+import org.radarbase.management.domain.SourceData;
+import org.radarbase.management.repository.SourceDataRepository;
+import org.radarbase.management.security.JwtAuthenticationFilter;
+import org.radarbase.management.service.SourceDataService;
+import org.radarbase.management.service.dto.SourceDataDTO;
+import org.radarbase.management.service.mapper.SourceDataMapper;
+import org.radarbase.management.web.rest.errors.ExceptionTranslator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.mock.web.MockFilterConfig;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManager;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -10,46 +42,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.MockitoAnnotations;
-import org.radarbase.management.ManagementPortalTestApp;
-import org.radarbase.management.domain.SourceData;
-import org.radarbase.management.domain.enumeration.ProcessingState;
-import org.radarbase.management.repository.SourceDataRepository;
-import org.radarbase.management.security.JwtAuthenticationFilter;
-import org.radarbase.management.service.SourceDataService;
-import org.radarbase.management.service.dto.SourceDataDTO;
-import org.radarbase.management.service.mapper.SourceDataMapper;
-import org.radarbase.management.web.rest.errors.ExceptionTranslator;
-import org.radarbase.auth.authentication.OAuthHelper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.mock.web.MockFilterConfig;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
-
 /**
  * Test class for the SourceDataResource REST controller.
  *
  * @see SourceDataResource
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @WithMockUser
-public class SourceDataResourceIntTest {
+class SourceDataResourceIntTest {
 
     private static final String DEFAULT_SOURCE_DATA_TYPE = "AAAAAAAAAA";
     private static final String UPDATED_SOURCE_DATA_TYPE = "BBBBBBBBBB";
@@ -57,8 +58,8 @@ public class SourceDataResourceIntTest {
     private static final String DEFAULT_SOURCE_DATA_NAME = "AAAAAAAAAAAAA";
     private static final String UPDATED_SOURCE_DATA_NAME = "BBBBBBBBBBAAA";
 
-    private static final ProcessingState DEFAULT_PROCESSING_STATE = ProcessingState.RAW;
-    private static final ProcessingState UPDATED_PROCESSING_STATE = ProcessingState.DERIVED;
+    private static final String DEFAULT_PROCESSING_STATE = "RAW";
+    private static final String UPDATED_PROCESSING_STATE = "DERIVED";
 
     private static final String DEFAULT_KEY_SCHEMA = "AAAAAAAAAAC";
     private static final String UPDATED_KEY_SCHEMA = "BBBBBBBBBBC";
@@ -103,7 +104,7 @@ public class SourceDataResourceIntTest {
 
     private SourceData sourceData;
 
-    @Before
+    @BeforeEach
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         SourceDataResource sourceDataResource = new SourceDataResource();
@@ -141,14 +142,14 @@ public class SourceDataResourceIntTest {
         return sourceData;
     }
 
-    @Before
+    @BeforeEach
     public void initTest() {
         sourceData = createEntity(em);
     }
 
     @Test
     @Transactional
-    public void createSourceData() throws Exception {
+    void createSourceData() throws Exception {
         int databaseSizeBeforeCreate = sourceDataRepository.findAll().size();
 
         // Create the SourceData
@@ -174,7 +175,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void createSourceDataWithExistingId() throws Exception {
+    void createSourceDataWithExistingId() throws Exception {
         int databaseSizeBeforeCreate = sourceDataRepository.findAll().size();
 
         // Create the SourceData with an existing ID
@@ -194,8 +195,8 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void checkSourceDataTypeIsRequired() throws Exception {
-        int databaseSizeBeforeTest = sourceDataRepository.findAll().size();
+    void checkSourceDataTypeIsNotRequired() throws Exception {
+        final int databaseSizeBeforeTest = sourceDataRepository.findAll().size();
         // set the field null
         sourceData.setSourceDataType(null);
 
@@ -205,6 +206,26 @@ public class SourceDataResourceIntTest {
         restSourceDataMockMvc.perform(post("/api/source-data")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(sourceDataDto)))
+                .andExpect(status().isCreated());
+
+        List<SourceData> sourceDataList = sourceDataRepository.findAll();
+        assertThat(sourceDataList).hasSize(databaseSizeBeforeTest + 1);
+    }
+
+
+    @Test
+    @Transactional
+    void checkSourceDataTypeOrTopicIsRequired() throws Exception {
+        final int databaseSizeBeforeTest = sourceDataRepository.findAll().size();
+        // set the field null
+        sourceData.setSourceDataType(null);
+        sourceData.setTopic(null);
+
+        // Create the SourceData, which fails.
+        SourceDataDTO sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
+        restSourceDataMockMvc.perform(post("/api/source-data")
+                        .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                        .content(TestUtil.convertObjectToJsonBytes(sourceDataDto)))
                 .andExpect(status().isBadRequest());
 
         List<SourceData> sourceDataList = sourceDataRepository.findAll();
@@ -213,21 +234,21 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void getAllSourceData() throws Exception {
+    void getAllSourceData() throws Exception {
         // Initialize the database
         sourceDataRepository.saveAndFlush(sourceData);
 
         // Get all the sourceDataList
         restSourceDataMockMvc.perform(get("/api/source-data?sort=id,desc"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(sourceData.getId().intValue())))
                 .andExpect(jsonPath("$.[*].sourceDataType").value(
                         hasItem(DEFAULT_SOURCE_DATA_TYPE)))
                 .andExpect(jsonPath("$.[*].sourceDataName").value(
                         hasItem(DEFAULT_SOURCE_DATA_NAME)))
                 .andExpect(jsonPath("$.[*].processingState").value(
-                        hasItem(DEFAULT_PROCESSING_STATE.toString())))
+                        hasItem(DEFAULT_PROCESSING_STATE)))
                 .andExpect(jsonPath("$.[*].keySchema").value(hasItem(DEFAULT_KEY_SCHEMA)))
                 .andExpect(jsonPath("$.[*].valueSchema").value(hasItem(DEFAULT_VALUE_SCHEMA)))
                 .andExpect(jsonPath("$.[*].unit").value(hasItem(DEFAULT_UNTI)))
@@ -237,21 +258,21 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void getAllSourceDataWithPagination() throws Exception {
+    void getAllSourceDataWithPagination() throws Exception {
         // Initialize the database
         sourceDataRepository.saveAndFlush(sourceData);
 
         // Get all the sourceDataList
         restSourceDataMockMvc.perform(get("/api/source-data?page=0&size=5&sort=id,desc"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(sourceData.getId().intValue())))
                 .andExpect(jsonPath("$.[*].sourceDataType").value(
                         hasItem(DEFAULT_SOURCE_DATA_TYPE)))
                 .andExpect(jsonPath("$.[*].sourceDataName").value(
                         hasItem(DEFAULT_SOURCE_DATA_NAME)))
                 .andExpect(jsonPath("$.[*].processingState").value(
-                        hasItem(DEFAULT_PROCESSING_STATE.toString())))
+                        hasItem(DEFAULT_PROCESSING_STATE)))
                 .andExpect(jsonPath("$.[*].keySchema").value(hasItem(DEFAULT_KEY_SCHEMA)))
                 .andExpect(jsonPath("$.[*].valueSchema").value(hasItem(DEFAULT_VALUE_SCHEMA)))
                 .andExpect(jsonPath("$.[*].unit").value(hasItem(DEFAULT_UNTI)))
@@ -261,7 +282,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void getSourceData() throws Exception {
+    void getSourceData() throws Exception {
         // Initialize the database
         sourceDataRepository.saveAndFlush(sourceData);
 
@@ -269,11 +290,11 @@ public class SourceDataResourceIntTest {
         restSourceDataMockMvc.perform(get("/api/source-data/{sourceDataName}",
                 sourceData.getSourceDataName()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(sourceData.getId().intValue()))
                 .andExpect(jsonPath("$.sourceDataType").value(DEFAULT_SOURCE_DATA_TYPE))
                 .andExpect(jsonPath("$.sourceDataName").value(DEFAULT_SOURCE_DATA_NAME))
-                .andExpect(jsonPath("$.processingState").value(DEFAULT_PROCESSING_STATE.toString()))
+                .andExpect(jsonPath("$.processingState").value(DEFAULT_PROCESSING_STATE))
                 .andExpect(jsonPath("$.keySchema").value(DEFAULT_KEY_SCHEMA))
                 .andExpect(jsonPath("$.valueSchema").value(DEFAULT_VALUE_SCHEMA))
                 .andExpect(jsonPath("$.unit").value(DEFAULT_UNTI))
@@ -283,7 +304,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void getNonExistingSourceData() throws Exception {
+    void getNonExistingSourceData() throws Exception {
         // Get the sourceData
         restSourceDataMockMvc.perform(get("/api/source-data/{sourceDataName}",
                 DEFAULT_SOURCE_DATA_NAME + DEFAULT_SOURCE_DATA_NAME))
@@ -292,13 +313,13 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void updateSourceData() throws Exception {
+    void updateSourceData() throws Exception {
         // Initialize the database
         sourceDataRepository.saveAndFlush(sourceData);
         int databaseSizeBeforeUpdate = sourceDataRepository.findAll().size();
 
         // Update the sourceData
-        SourceData updatedSourceData = sourceDataRepository.findOne(sourceData.getId());
+        SourceData updatedSourceData = sourceDataRepository.findById(sourceData.getId()).get();
         updatedSourceData
                 .sourceDataType(UPDATED_SOURCE_DATA_TYPE)
                 .sourceDataName(UPDATED_SOURCE_DATA_NAME)
@@ -331,7 +352,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void updateNonExistingSourceData() throws Exception {
+    void updateNonExistingSourceData() throws Exception {
         int databaseSizeBeforeUpdate = sourceDataRepository.findAll().size();
 
         // Create the SourceData
@@ -350,7 +371,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void deleteSourceData() throws Exception {
+    void deleteSourceData() throws Exception {
         // Initialize the database
         sourceDataRepository.saveAndFlush(sourceData);
         int databaseSizeBeforeDelete = sourceDataRepository.findAll().size();
@@ -368,7 +389,7 @@ public class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(SourceData.class);
+    void equalsVerifier() throws Exception {
+        Assertions.assertTrue(TestUtil.equalsVerifier(SourceData.class));
     }
 }

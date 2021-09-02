@@ -3,10 +3,9 @@ package org.radarbase.management.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 import java.io.Serializable;
 import java.util.Objects;
-import javax.validation.constraints.NotNull;
-import org.radarbase.management.domain.enumeration.ProcessingState;
 
 /**
  * A DTO for the SourceData entity.
@@ -18,9 +17,7 @@ public class SourceDataDTO implements Serializable {
     private Long id;
 
     //Source data type.
-    @NotNull
     private String sourceDataType;
-
 
     private String sourceDataName;
 
@@ -31,10 +28,10 @@ public class SourceDataDTO implements Serializable {
     private String unit;
 
     // Define if the samples are RAW data or instead they the result of some computation
-    private ProcessingState processingState;
+    private String processingState;
 
     //  the storage
-    private ProcessingState dataClass;
+    private String dataClass;
 
     private String keySchema;
 
@@ -65,8 +62,13 @@ public class SourceDataDTO implements Serializable {
         this.frequency = frequency;
     }
 
+    /** Get source data type. Defaults to the topic of the source data. */
     public String getSourceDataType() {
-        return sourceDataType;
+        if (sourceDataType == null) {
+            return topic;
+        } else {
+            return sourceDataType;
+        }
     }
 
     public void setSourceDataType(String sourceDataType) {
@@ -81,19 +83,19 @@ public class SourceDataDTO implements Serializable {
         this.unit = unit;
     }
 
-    public ProcessingState getProcessingState() {
+    public String getProcessingState() {
         return processingState;
     }
 
-    public void setProcessingState(ProcessingState processingState) {
+    public void setProcessingState(String processingState) {
         this.processingState = processingState;
     }
 
-    public ProcessingState getDataClass() {
+    public String getDataClass() {
         return dataClass;
     }
 
-    public void setDataClass(ProcessingState dataClass) {
+    public void setDataClass(String dataClass) {
         this.dataClass = dataClass;
     }
 

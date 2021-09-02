@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +42,7 @@ public class AuditEventConverter {
     public AuditEvent convertToAuditEvent(PersistentAuditEvent persistentAuditEvent) {
         Instant instant = persistentAuditEvent.getAuditEventDate().atZone(ZoneId.systemDefault())
                 .toInstant();
-        return new AuditEvent(Date.from(instant), persistentAuditEvent.getPrincipal(),
+        return new AuditEvent(instant, persistentAuditEvent.getPrincipal(),
                 persistentAuditEvent.getAuditEventType(),
                 convertDataToObjects(persistentAuditEvent.getData()));
     }

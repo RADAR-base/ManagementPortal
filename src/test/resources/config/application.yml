@@ -67,10 +67,6 @@ spring:
 liquibase:
     contexts: test
 
-security:
-    basic:
-        enabled: false
-
 server:
     port: 10344
     address: localhost

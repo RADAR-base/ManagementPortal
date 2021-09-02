@@ -8,6 +8,8 @@ generated/
 /src/test/javascript/PhantomJS*/
 keystore.jks
 keystore.p12
+src/main/resources/config/keystore.p12
+src/main/docker/etc/config/keystore.p12
 /src/main/docker/etc/smtp.env
 ######################
 # Patch files

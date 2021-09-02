@@ -1,6 +1,9 @@
 package org.radarbase.management.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -87,6 +90,7 @@ public class PersistentAuditEvent implements Serializable {
         return data;
     }
 
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setData(Map<String, String> data) {
         this.data = data;
     }

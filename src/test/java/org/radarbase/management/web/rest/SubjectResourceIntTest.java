@@ -2,9 +2,10 @@ package org.radarbase.management.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.radarbase.management.service.SubjectServiceTest.DEFAULT_ENTERNAL_ID;
 import static org.radarbase.management.service.SubjectServiceTest.DEFAULT_EXTERNAL_LINK;
 import static org.radarbase.management.service.SubjectServiceTest.DEFAULT_REMOVED;
@@ -32,9 +33,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Subject;
@@ -59,7 +60,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -71,10 +72,10 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @see SubjectResource
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @WithMockUser
-public class SubjectResourceIntTest {
+class SubjectResourceIntTest {
 
     @Autowired
     private SubjectRepository subjectRepository;
@@ -108,7 +109,7 @@ public class SubjectResourceIntTest {
 
     private MockMvc restSubjectMockMvc;
 
-    @Before
+    @BeforeEach
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         SubjectResource subjectResource = new SubjectResource();
@@ -135,7 +136,7 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
-    public void createSubject() throws Exception {
+    void createSubject() throws Exception {
         final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
         // Create the Subject
@@ -152,12 +153,12 @@ public class SubjectResourceIntTest {
         assertThat(testSubject.getExternalLink()).isEqualTo(DEFAULT_EXTERNAL_LINK);
         assertThat(testSubject.getExternalId()).isEqualTo(DEFAULT_ENTERNAL_ID);
         assertThat(testSubject.isRemoved()).isEqualTo(DEFAULT_REMOVED);
-        assertEquals(testSubject.getUser().getRoles().size(), 1);
+        assertEquals(1, testSubject.getUser().getRoles().size());
     }
 
     @Test
     @Transactional
-    public void createSubjectWithExistingId() throws Exception {
+    void createSubjectWithExistingId() throws Exception {
         // Create a Subject
         SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO());
         final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
@@ -175,14 +176,14 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
-    public void getAllSubjects() throws Exception {
+    void getAllSubjects() throws Exception {
         // Initialize the database
         SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO());
 
         // Get all the subjectList
         restSubjectMockMvc.perform(get("/api/subjects?sort=id,desc"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(subjectDto.getId().intValue())))
                 .andExpect(jsonPath("$.[*].externalLink").value(hasItem(DEFAULT_EXTERNAL_LINK)))
                 .andExpect(jsonPath("$.[*].externalId").value(hasItem(DEFAULT_ENTERNAL_ID)))
@@ -191,14 +192,14 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
-    public void getSubject() throws Exception {
+    void getSubject() throws Exception {
         // Initialize the database
         SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO());
 
         // Get the subject
         restSubjectMockMvc.perform(get("/api/subjects/{login}", subjectDto.getLogin()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(subjectDto.getId().intValue()))
                 .andExpect(jsonPath("$.externalLink").value(DEFAULT_EXTERNAL_LINK))
                 .andExpect(jsonPath("$.externalId").value(DEFAULT_ENTERNAL_ID))
@@ -207,7 +208,7 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
-    public void getNonExistingSubject() throws Exception {
+    void getNonExistingSubject() throws Exception {
         // Get the subject
         restSubjectMockMvc.perform(get("/api/subjects/{id}", Long.MAX_VALUE))
                 .andExpect(status().isNotFound());
@@ -215,13 +216,13 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
-    public void updateSubject() throws Exception {
+    void updateSubject() throws Exception {
         // Initialize the database
         SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO());
         final int databaseSizeBeforeUpdate = subjectRepository.findAll().size();
 
         // Update the subject
-        Subject updatedSubject = subjectRepository.findOne(subjectDto.getId());
+        Subject updatedSubject = subjectRepository.findById(subjectDto.getId()).get();
         updatedSubject
                 .externalLink(UPDATED_EXTERNAL_LINK)
                 .externalId(UPDATED_ENTERNAL_ID)
@@ -244,13 +245,13 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
-    public void updateSubjectWithNewProject() throws Exception {
+    void updateSubjectWithNewProject() throws Exception {
         // Initialize the database
         SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO());
         final int databaseSizeBeforeUpdate = subjectRepository.findAll().size();
 
         // Update the subject
-        Subject updatedSubject = subjectRepository.findOne(subjectDto.getId());
+        Subject updatedSubject = subjectRepository.findById(subjectDto.getId()).get();
 
 
         updatedSubject
@@ -282,7 +283,7 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
-    public void updateNonExistingSubject() throws Exception {
+    void updateNonExistingSubject() throws Exception {
         final int databaseSizeBeforeUpdate = subjectRepository.findAll().size();
 
         // Create the Subject
@@ -301,7 +302,7 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
-    public void deleteSubject() throws Exception {
+    void deleteSubject() throws Exception {
         // Initialize the database
         SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO());
         final int databaseSizeBeforeDelete = subjectRepository.findAll().size();
@@ -318,14 +319,14 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Subject.class);
+    void equalsVerifier() throws Exception {
+        assertTrue(TestUtil.equalsVerifier(Subject.class));
     }
 
 
     @Test
     @Transactional
-    public void dynamicSourceRegistrationWithId() throws Exception {
+    void dynamicSourceRegistrationWithId() throws Exception {
         final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
         // Create the Subject
@@ -362,7 +363,7 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
-    public void dynamicSourceRegistrationWithoutId() throws Exception {
+    void dynamicSourceRegistrationWithoutId() throws Exception {
         final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
         // Create the Subject
@@ -400,14 +401,14 @@ public class SubjectResourceIntTest {
         restSubjectMockMvc
                 .perform(get("/api/subjects/{login}/sources?sort=id,desc", subjectDto.getLogin()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").isNotEmpty());
 
     }
 
     @Test
     @Transactional
-    public void dynamicSourceRegistrationWithoutDynamicRegistrationFlag() throws Exception {
+    void dynamicSourceRegistrationWithoutDynamicRegistrationFlag() throws Exception {
         final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
         // Create the Subject
@@ -438,7 +439,7 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
-    public void getSubjectSources() throws Exception {
+    void getSubjectSources() throws Exception {
         // Initialize the database
         SubjectDTO subjectDtoToCreate = createEntityDTO();
         SourceDTO createdSource = sourceService.save(createSource());
@@ -457,7 +458,7 @@ public class SubjectResourceIntTest {
         // Get the subject
         restSubjectMockMvc.perform(get("/api/subjects/{login}/sources", createdSubject.getLogin()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[0].id").value(createdSource.getId().intValue()))
                 .andExpect(
                         jsonPath("$.[0].sourceId").value(createdSource.getSourceId().toString()));
@@ -465,7 +466,7 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
-    public void getSubjectSourcesWithQueryParam() throws Exception {
+    void getSubjectSourcesWithQueryParam() throws Exception {
         // Initialize the database
         SubjectDTO subjectDtoToCreate = createEntityDTO();
         SourceDTO createdSource = sourceService.save(createSource());
@@ -486,7 +487,7 @@ public class SubjectResourceIntTest {
         restSubjectMockMvc.perform(get("/api/subjects/{login}/sources?withInactiveSources=true",
                 createdSubject.getLogin()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(createdSource.getId().intValue()))
                 .andExpect(
                         jsonPath("$.[*].sourceId").value(createdSource.getSourceId().toString()));
@@ -494,7 +495,7 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
-    public void getInactiveSubjectSourcesWithQueryParam() throws Exception {
+    void getInactiveSubjectSourcesWithQueryParam() throws Exception {
         // Initialize the database
         SubjectDTO subjectDtoToCreate = createEntityDTO();
         SourceDTO createdSource = sourceService.save(createSource());
@@ -520,7 +521,7 @@ public class SubjectResourceIntTest {
         restSubjectMockMvc.perform(get("/api/subjects/{login}/sources?withInactiveSources=true",
                 updatedSubject.getLogin()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(createdSource.getId().intValue()))
                 .andExpect(
                         jsonPath("$.[*].sourceId").value(createdSource.getSourceId().toString()));
@@ -530,7 +531,7 @@ public class SubjectResourceIntTest {
                 .perform(get("/api/subjects/{login}/sources?withInactiveSources=false",
                         updatedSubject.getLogin()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
     }
 
@@ -548,7 +549,7 @@ public class SubjectResourceIntTest {
         List<SourceTypeDTO> sourceTypes = sourceTypeService.findAll().stream()
                 .filter(SourceTypeDTO::getCanRegisterDynamically)
                 .collect(Collectors.toList());
-        assertThat(sourceTypes.size()).isGreaterThan(0);
+        assertThat(sourceTypes.size()).isPositive();
         SourceTypeDTO sourceType = sourceTypes.get(0);
 
         return getSource().sourceTypeId(sourceType.getId());
@@ -558,7 +559,7 @@ public class SubjectResourceIntTest {
         List<SourceTypeDTO> sourceTypes = sourceTypeService.findAll().stream()
                 .filter(SourceTypeDTO::getCanRegisterDynamically)
                 .collect(Collectors.toList());
-        assertThat(sourceTypes.size()).isGreaterThan(0);
+        assertThat(sourceTypes.size()).isPositive();
         SourceTypeDTO sourceType = sourceTypes.get(0);
         return getSource()
                 .sourceTypeCatalogVersion(sourceType.getCatalogVersion())
@@ -570,7 +571,7 @@ public class SubjectResourceIntTest {
         List<SourceTypeDTO> sourceTypes = sourceTypeService.findAll().stream()
                 .filter(it -> !it.getCanRegisterDynamically())
                 .collect(Collectors.toList());
-        assertThat(sourceTypes.size()).isGreaterThan(0);
+        assertThat(sourceTypes.size()).isPositive();
         SourceTypeDTO sourceType = sourceTypes.get(0);
         return getSource()
                 .sourceTypeCatalogVersion(sourceType.getCatalogVersion())
@@ -588,7 +589,7 @@ public class SubjectResourceIntTest {
 
     @Test
     @Transactional
-    public void testDynamicRegistrationAndUpdateSourceAttributes() throws Exception {
+    void testDynamicRegistrationAndUpdateSourceAttributes() throws Exception {
         final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
         // Create the Subject

@@ -8,12 +8,16 @@ import org.radarbase.management.domain.SourceData;
 import org.radarbase.management.repository.SourceDataRepository;
 import org.radarbase.management.service.dto.SourceDataDTO;
 import org.radarbase.management.service.mapper.SourceDataMapper;
+import org.radarbase.management.web.rest.errors.BadRequestException;
+import org.radarbase.management.web.rest.errors.ErrorConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_DATA;
 
 /**
  * Service Implementation for managing SourceData.
@@ -42,6 +46,10 @@ public class SourceDataService {
      */
     public SourceDataDTO save(SourceDataDTO sourceDataDto) {
         log.debug("Request to save SourceData : {}", sourceDataDto);
+        if (sourceDataDto.getSourceDataType() == null) {
+            throw new BadRequestException(ErrorConstants.ERR_VALIDATION, SOURCE_DATA,
+                    "Source Data must contain a type or a topic.");
+        }
         SourceData sourceData = sourceDataMapper.sourceDataDTOToSourceData(sourceDataDto);
         sourceData = sourceDataRepository.save(sourceData);
         return sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
@@ -83,7 +91,7 @@ public class SourceDataService {
     @Transactional(readOnly = true)
     public SourceDataDTO findOne(Long id) {
         log.debug("Request to get SourceData : {}", id);
-        SourceData sourceData = sourceDataRepository.findOne(id);
+        SourceData sourceData = sourceDataRepository.findById(id).get();
         return sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
     }
 
@@ -108,6 +116,6 @@ public class SourceDataService {
     @Transactional
     public void delete(Long id) {
         log.debug("Request to delete SourceData : {}", id);
-        sourceDataRepository.delete(id);
+        sourceDataRepository.deleteById(id);
     }
 }

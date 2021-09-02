@@ -1,8 +1,10 @@
 package org.radarbase.management.domain.audit;
 
-import org.joda.time.DateTime;
 import org.springframework.data.history.RevisionMetadata;
 import org.springframework.util.Assert;
+
+import java.time.Instant;
+import java.util.Optional;
 
 public class CustomRevisionMetadata implements RevisionMetadata<Integer> {
 
@@ -23,17 +25,23 @@ public class CustomRevisionMetadata implements RevisionMetadata<Integer> {
      * @see org.springframework.data.history.RevisionMetadata#getRevisionNumber()
      */
     @Override
-    public Integer getRevisionNumber() {
-        return entity.getId();
+    public Optional<Integer> getRevisionNumber() {
+        return Optional.of(entity.getId());
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.springframework.data.history.RevisionMetadata#getRevisionDate()
-     */
     @Override
-    public DateTime getRevisionDate() {
-        return new DateTime(entity.getTimestamp());
+    public Integer getRequiredRevisionNumber() {
+        return RevisionMetadata.super.getRequiredRevisionNumber();
+    }
+
+    @Override
+    public Optional<Instant> getRevisionInstant() {
+        return Optional.ofNullable(entity.getTimestamp()).map(ts -> ts.toInstant());
+    }
+
+    @Override
+    public Instant getRequiredRevisionInstant() {
+        return RevisionMetadata.super.getRequiredRevisionInstant();
     }
 
     /*
@@ -44,5 +52,10 @@ public class CustomRevisionMetadata implements RevisionMetadata<Integer> {
     @Override
     public <T> T getDelegate() {
         return (T) entity;
+    }
+
+    @Override
+    public RevisionType getRevisionType() {
+        return RevisionMetadata.super.getRevisionType();
     }
 }

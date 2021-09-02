@@ -37,7 +37,7 @@ docker-compose files.
 1. Make sure [Docker][] and [Docker-Compose][] are installed on your system.
 2. Generate a key pair for signing JWT tokens as follows:
    ```shell
-   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -keysize 256 -sigalg SHA256withECDSA -storetype PKCS12 -keystore src/main/docker/etc/config/keystore.p12 -storepass radarbase -keypass radarbase
+   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -validity 3650 -keysize 256 -sigalg SHA256withECDSA -storetype PKCS12 -keystore src/main/docker/etc/config/keystore.p12 -storepass radarbase -keypass radarbase
    ```
 3. Now, we can start the stack with `docker-compose -f src/main/docker/management-portal.yml up -d`.
 
@@ -52,7 +52,7 @@ you must install and configure the following dependencies on your machine to run
    Depending on your system, you can install Yarn either from source or as a pre-packaged bundle.
 3. Generate a key pair for signing JWT tokens as follows:
    ```shell
-   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -keysize 256 -sigalg SHA256withECDSA -storetype PKCS12 -keystore keystore.p12 -storepass radarbase -keypass radarbase
+   keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -validity 3650 -keysize 256 -sigalg SHA256withECDSA -storetype PKCS12 -keystore src/main/resources/config/keystore.p12 -storepass radarbase -keypass radarbase
    ```
    **Make sure the key password and store password are the same!** This is a requirement for Spring Security.
 
@@ -270,7 +270,7 @@ will generate few files:
 
 To optimize the ManagementPortal application for production, run:
 
-    ./gradlew -Pprod clean bootRepackage
+    ./gradlew -Pprod clean bootWar
 ### Hosting in production
 The latest Meta-QR code implementation requires REST resources on `api/meta-token/*` should definitely be rate-limited by upstream servers.
 
@@ -301,7 +301,11 @@ and can be run by starting Spring Boot in one terminal (`./gradlew bootRun`) and
 
 Performance tests are run by [Gatling][] and written in Scala. They're located in [src/test/gatling](src/test/gatling) and can be run with:
 
-    ./gradlew gatlingRun
+    ./gradlew gatlingRunAll
+
+or
+
+    ./gradlew gatlingRun<SIMULATION_CLASS_NAME> # E.g., gatlingRunProjectGatlingTest
 
 For more information, refer to the [Running tests page][].
 
@@ -319,7 +323,7 @@ To stop it and remove the container, run:
 You can also fully dockerize your application and all the services that it depends on.
 To achieve this, first build a docker image of your app by running:
 
-    ./gradlew bootRepackage -Pprod buildDocker
+    ./gradlew bootWar -Pprod buildDocker
 
 Then run:
 
@@ -330,6 +334,11 @@ For more information refer to [Using Docker and Docker-Compose][], this page als
 
 Visit our [Github pages](https://radar-base.github.io/ManagementPortal) site to find links to the
 Javadoc and API docs.
+* [management-portal-javadoc](https://radar-base.github.io/ManagementPortal/management-portal-javadoc/)
+* [oauth-client-util-javadoc](https://radar-base.github.io/ManagementPortal/oauth-client-util-javadoc/)
+* [radar-auth-javadoc](https://radar-base.github.io/ManagementPortal/radar-auth-javadoc/)
+* [managementportal-client-javadoc](https://radar-base.github.io/ManagementPortal/managementportal-client-javadoc/)
+* [apidoc](https://radar-base.github.io/ManagementPortal/apidoc/swagger.json)
 
 The pages site is published from the `gh-pages` branch, which has its own history. If you want to
 contribute to the documentation, it is probably more convenient to clone a separate copy of this

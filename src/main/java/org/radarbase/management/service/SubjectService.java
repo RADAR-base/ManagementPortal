@@ -111,8 +111,10 @@ public class SubjectService {
         Subject subject = subjectMapper.subjectDTOToSubject(subjectDto);
         //assign roles
         User user = subject.getUser();
-        user.getRoles().add(getProjectParticipantRole(
-                projectMapper.projectDTOToProject(subjectDto.getProject()), PARTICIPANT));
+        Project project = projectMapper.projectDTOToProject(subjectDto.getProject());
+        Role projectParticipantRole = getProjectParticipantRole(project, PARTICIPANT);
+        Set<Role> roles = user.getRoles();
+        roles.add(projectParticipantRole);
 
         // set password and reset keys
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
@@ -127,7 +129,7 @@ public class SubjectService {
         if (subject.getSources() != null && !subject.getSources().isEmpty()) {
             subject.getSources().forEach(s -> s.assigned(true).subject(subject));
         }
-        sourceRepository.save(subject.getSources());
+        sourceRepository.saveAll(subject.getSources());
         return subjectMapper.subjectToSubjectReducedProjectDTO(subjectRepository.save(subject));
     }
 
@@ -162,7 +164,7 @@ public class SubjectService {
         if (newSubjectDto.getId() == null) {
             return createSubject(newSubjectDto);
         }
-        Subject subjectFromDb = subjectRepository.findOne(newSubjectDto.getId());
+        Subject subjectFromDb = subjectRepository.findById(newSubjectDto.getId()).get();
         //reset all the sources assigned to a subject to unassigned
         Set<Source> sourcesToUpdate = subjectFromDb.getSources();
         sourcesToUpdate.forEach(s -> s.subject(null).assigned(false));
@@ -170,7 +172,7 @@ public class SubjectService {
         subjectMapper.safeUpdateSubjectFromDTO(newSubjectDto, subjectFromDb);
         sourcesToUpdate.addAll(subjectFromDb.getSources());
         subjectFromDb.getSources().forEach(s -> s.subject(subjectFromDb).assigned(true));
-        sourceRepository.save(sourcesToUpdate);
+        sourceRepository.saveAll(sourcesToUpdate);
         // update participant role
         subjectFromDb.getUser().setRoles(updateParticipantRoles(subjectFromDb, newSubjectDto));
         return subjectMapper.subjectToSubjectReducedProjectDTO(
@@ -215,7 +217,7 @@ public class SubjectService {
      * @return the discontinued subject
      */
     public SubjectDTO discontinueSubject(SubjectDTO subjectDto) {
-        Subject subject = subjectRepository.findOne(subjectDto.getId());
+        Subject subject = subjectRepository.findById(subjectDto.getId()).get();
         // reset all the sources assigned to a subject to unassigned
         unassignAllSources(subject);
 

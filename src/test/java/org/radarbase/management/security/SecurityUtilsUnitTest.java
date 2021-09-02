@@ -1,6 +1,6 @@
 package org.radarbase.management.security;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,10 +12,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 *
 * @see SecurityUtils
 */
-public class SecurityUtilsUnitTest {
+class SecurityUtilsUnitTest {
 
     @Test
-    public void testGetCurrentUserLogin() {
+    void testGetCurrentUserLogin() {
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("admin",
                 "admin"));

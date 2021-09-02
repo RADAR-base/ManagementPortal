@@ -6,8 +6,13 @@ import java.util.stream.Collectors;
 
 import org.radarbase.management.service.dto.ClientDetailsDTO;
 
-public final class OauthClientServiceTest {
-    private OauthClientServiceTest() {
+/**
+ * Test class for the OAuthClientService class.
+ *
+ * @see OAuthClientService
+ */
+public final class OAuthClientServiceTestUtil {
+    private OAuthClientServiceTestUtil() {
         // utility class
     }
 
