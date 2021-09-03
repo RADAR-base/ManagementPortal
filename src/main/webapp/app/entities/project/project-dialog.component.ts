@@ -37,6 +37,8 @@ export class ProjectDialogComponent implements OnInit {
         return this.sourceTypes.filter(t => !selectedTypeIds.includes(t.id));
     }
 
+    newGroupInputText: string;
+
     attributeComponentEventPrefix: 'projectAttributes';
 
     getMatchingSourceTypes = (text$: Observable<string>) => {
@@ -129,6 +131,18 @@ export class ProjectDialogComponent implements OnInit {
 
     formatSourceTypeOption(t: SourceType) {
         return `${t.producer}_${t.model}_${t.catalogVersion}`;
+    }
+
+    addGroup() {
+        // TODO implement group name validation
+        let currentGroups = this.project.groups || [];
+        this.project.groups = [ ...currentGroups, this.newGroupInputText ];
+        this.newGroupInputText = '';
+    }
+
+    removeGroups(groupName: string) {
+        // TODO warn if it will affect existing subjects (on save, expect HTTP 409)
+        this.project.groups = this.project.groups.filter(g => g !== groupName);
     }
 }
 

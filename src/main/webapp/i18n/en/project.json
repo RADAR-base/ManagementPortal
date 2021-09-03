@@ -25,6 +25,11 @@
             "endDate": "End Date",
             "projectAdmin": "Project Admin",
             "sourceType": "Source Type",
+            "groups": "Groups",
+            "newGroup": {
+                "label": "New group",
+                "button": "Add group"
+            },
             "attributeDataKey" : "Tag",
             "attributeDataValue" : "Value",
             "prettyProjectName" : "Human readable project Name",
