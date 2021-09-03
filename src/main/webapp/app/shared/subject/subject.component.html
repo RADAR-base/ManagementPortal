@@ -37,88 +37,131 @@
                 </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let subject of subjects ;trackBy: trackLogin">
-                <td><a [routerLink]="['/subject', subject.login ]">{{subject.login}}</a></td>
-                <td>
-                    <a *ngIf="subject.externalLink" target="_blank" [href]=subject.externalLink>{{subject.externalId}}</a>
-                    <span *ngIf="!subject.externalLink">{{subject.externalId}}</span>
-                </td>
-                <td>
-                    <span class="badge badge-danger" *ngIf="subject.status == 'DEACTIVATED'">DEACTIVATED</span>
-                    <span class="badge badge-success" *ngIf="subject.status == 'ACTIVATED'">ACTIVATED</span>
-                    <span class="badge badge-warning" *ngIf="subject.status == 'DISCONTINUED'">DISCONTINUED</span>
-                    <span class="badge badge-danger" *ngIf="subject.status == 'INVALID'">INVALID</span>
-                </td>
-                <td  *ngIf="!isProjectSpecific">
-                    <span *ngFor="let role of subject.roles; let last = last">
-
-                        <a  *ngIf="role.authorityName == 'ROLE_PARTICIPANT'"
-                            class="badge badge-success"
-                           [routerLink]="['/project', role.projectName ]">{{role.projectName}}</a>
-                        <a  *ngIf="role.authorityName == 'ROLE_INACTIVE_PARTICIPANT'"
-                           class="badge badge-warning"
-                           [routerLink]="['/project', role.projectName ]">{{role.projectName}}</a>
-                    </span>
-                </td>
-                <td>
-                    <span *ngFor="let sources of subject.sources; let last = last">
-                        <a class="form-control-static" [routerLink]="['/source', sources.sourceName ]">{{sources.sourceTypeModel}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
-                    </span>
-                </td>
-                <td>
-                    <div *ngFor="let entry of subject.attributes | keyvalue; trackBy: trackKey">
-                        <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
-                    </div>
-                </td>
-                <td class="text-right">
-                    <div class="btn-group flex-btn-group-container">
-                        <button [disabled]="subject.status != 'ACTIVATED'"
-                                type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'subject/' + subject.login + '/pairApp' } }]"
-                                replaceUrl="true"
-                                class="btn btn-success btn-sm">
-                            <span class="fa fa-qrcode"></span>
-                            <span [translate]="'managementPortalApp.subject.pairApp'"></span>
-                        </button>
-                        <button [disabled]="subject.status != 'ACTIVATED'"
-                                type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'subject/' + subject.login + '/sources' } }]"
-                                replaceUrl="true"
-                                class="btn btn-info btn-sm">
-                            <span class="fa fa-link"></span>
-                            <span [translate]="'managementPortalApp.subject.pairSources.button'"></span>
-                        </button>
-                    </div>
-                </td>
-                <td class="text-right">
-                    <div class="btn-group flex-btn-group-container">
-                        <button *ngIf='!isProjectSpecific' [disabled]="subject.status != 'ACTIVATED'"
-                                type="submit"
-                                [routerLink]="['/subject', subject.login ]"
-                                class="btn btn-info btn-sm">
-                            <span class="fa fa-eye"></span>
-                            <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
-                        </button>
-                        <button *ngIf='!isProjectSpecific' [disabled]="subject.status != 'ACTIVATED'"
-                                type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'general-subject/'+ subject.login + '/edit'} }]"
-                                replaceUrl="true"
-                                class="btn btn-primary btn-sm">
-                            <span class="fa fa-pencil"></span>
-                            <span class="hidden-md-down" [translate]="'entity.action.edit'"></span>
-                        </button>
-                        <button *ngIf='isProjectSpecific' [disabled]="subject.status != 'ACTIVATED'"
-                                type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'project-subject/'+ project.projectName + '/' + subject.login + '/edit'} }]"
-                                replaceUrl="true"
-                                class="btn btn-primary btn-sm">
-                            <span class="fa fa-pencil"></span>&nbsp;<span [translate]="'entity.action.edit'"></span>
-                        </button>
-                    </div>
-                </td>
-            </tr>
             </tbody>
         </table>
+        <div *ngFor="let subject of subjects ;trackBy: trackLogin" class="subject-row">
+            <div class="subject-row__content">
+                <div>
+                    <span class="subject-row__field-label"
+                        [translate]="'managementPortalApp.subject.subjectId'">
+                    </span>
+                    <div>
+                        <a [routerLink]="['/subject', subject.login ]">{{subject.login}}</a>
+                    </div>
+                </div>
+                <div>
+                    <span class="subject-row__field-label"
+                        [translate]="'managementPortalApp.subject.externalId'">
+                    </span>
+                    <div>
+                        <a *ngIf="subject.externalLink" target="_blank" [href]=subject.externalLink>
+                            {{subject.externalId}}
+                        </a>
+                        <span *ngIf="!subject.externalLink && subject.externalId">
+                            {{subject.externalId}}
+                        </span>
+                        <span *ngIf="!subject.externalLink && !subject.externalId">
+                            N/A
+                        </span>
+                    </div>
+                </div>
+                <div>
+                    <span class="subject-row__field-label"
+                        [translate]="'managementPortalApp.subject.status.title'">
+                    </span>
+                    <div>
+                        <span class="badge badge-danger" *ngIf="subject.status == 'DEACTIVATED'">DEACTIVATED</span>
+                        <span class="badge badge-success" *ngIf="subject.status == 'ACTIVATED'">ACTIVATED</span>
+                        <span class="badge badge-warning" *ngIf="subject.status == 'DISCONTINUED'">DISCONTINUED</span>
+                        <span class="badge badge-danger" *ngIf="subject.status == 'INVALID'">INVALID</span>
+                    </div>
+                </div>
+                <div *ngIf="!isProjectSpecific">
+                    <span class="subject-row__field-label"
+                        [translate]="'managementPortalApp.subject.project'">
+                    </span>
+                    <div>
+                        <span *ngIf="!subject.roles || subject.roles.length === 0">
+                            N/A
+                        </span>
+                        <span *ngFor="let role of subject.roles; let last = last">
+                            <a  *ngIf="role.authorityName == 'ROLE_PARTICIPANT'"
+                                class="badge badge-success"
+                                [routerLink]="['/project', role.projectName ]">{{role.projectName}}</a>
+                            <a  *ngIf="role.authorityName == 'ROLE_INACTIVE_PARTICIPANT'"
+                                class="badge badge-warning"
+                                [routerLink]="['/project', role.projectName ]">{{role.projectName}}</a>
+                        </span>
+                    </div>
+                </div>
+                <div>
+                    <span class="subject-row__field-label"
+                        [translate]="'managementPortalApp.subject.sources'">
+                    </span>
+                    <div>
+                        <span *ngIf="!subject.sources || subject.sources.length === 0">
+                            N/A
+                        </span>
+                        <span *ngFor="let sources of subject.sources; let last = last">
+                            <a class="form-control-static" [routerLink]="['/source', sources.sourceName ]">{{sources.sourceTypeModel}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
+                        </span>
+                    </div>
+                </div>
+                <div>
+                    <span class="subject-row__field-label"
+                        [translate]="'managementPortalApp.subject.attributeData'">
+                    </span>
+                    <div>
+                        <span *ngIf="(subject.attributes | keyvalue)?.length === 0">
+                            N/A
+                        </span>
+                        <div *ngFor="let entry of subject.attributes | keyvalue; trackBy: trackKey">
+                            <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="subject-row__actions">
+                <button *ngIf='!isProjectSpecific' [disabled]="subject.status != 'ACTIVATED'"
+                        type="submit"
+                        [routerLink]="['/subject', subject.login ]"
+                        class="btn btn-info btn-sm">
+                    <span class="fa fa-eye"></span>
+                    <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
+                </button>
+                <button *ngIf='!isProjectSpecific' [disabled]="subject.status != 'ACTIVATED'"
+                        type="submit"
+                        [routerLink]="['/', { outlets: { popup: 'general-subject/'+ subject.login + '/edit'} }]"
+                        replaceUrl="true"
+                        class="btn btn-primary btn-sm">
+                    <span class="fa fa-pencil"></span>
+                    <span class="hidden-md-down" [translate]="'entity.action.edit'"></span>
+                </button>
+                <button *ngIf='isProjectSpecific' [disabled]="subject.status != 'ACTIVATED'"
+                        type="submit"
+                        [routerLink]="['/', { outlets: { popup: 'project-subject/'+ project.projectName + '/' + subject.login + '/edit'} }]"
+                        replaceUrl="true"
+                        class="btn btn-primary btn-sm">
+                    <span class="fa fa-pencil"></span>&nbsp;<span [translate]="'entity.action.edit'"></span>
+                </button>
+                <button [disabled]="subject.status != 'ACTIVATED'"
+                        type="submit"
+                        [routerLink]="['/', { outlets: { popup: 'subject/' + subject.login + '/pairApp' } }]"
+                        replaceUrl="true"
+                        class="btn btn-success btn-sm">
+                    <span class="fa fa-qrcode"></span>
+                    <span [translate]="'managementPortalApp.subject.pairApp'"></span>
+                </button>
+                <button [disabled]="subject.status != 'ACTIVATED'"
+                        type="submit"
+                        [routerLink]="['/', { outlets: { popup: 'subject/' + subject.login + '/sources' } }]"
+                        replaceUrl="true"
+                        class="btn btn-info btn-sm">
+                    <span class="fa fa-link"></span>
+                    <span [translate]="'managementPortalApp.subject.pairSources.button'"></span>
+                </button>
+            </div>
+        </div>
     </div>
     <div *ngIf="subjects && totalItems !== undefined">
         <div class="row justify-content-center">

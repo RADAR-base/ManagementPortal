@@ -23,6 +23,7 @@ import { parseLinks } from '../util/parse-links-util';
 @Component({
     selector: 'jhi-subjects',
     templateUrl: './subject.component.html',
+    styleUrls: ['./subject.component.scss'],
 })
 export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     pagingParams$: Observable<PagingParams>;
