@@ -16,6 +16,10 @@
             "detail": {
                 "title": "Subject"
             },
+            "filter": {
+                "title": "Filter",
+                "applyButton": "Filter toepassen"
+            },
             "login": "Login",
             "email": "Email",
             "externalLink": "External Link",

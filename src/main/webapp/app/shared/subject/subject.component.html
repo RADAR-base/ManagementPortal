@@ -1,4 +1,22 @@
-<div>
+<div class="subject-wrapper">
+    <div class="subject-filter">
+        <h3 translate="managementPortalApp.subject.filter.title"></h3>
+
+        <label>
+            <span [translate]="'managementPortalApp.subject.subjectId'"></span>
+            <input type="text">
+        </label>
+        <label>
+            <span [translate]="'managementPortalApp.subject.externalId'"></span>
+            <input type="text">
+        </label>
+        <button class="btn btn-outline-secondary"
+            type="button"
+            [translate]="'managementPortalApp.subject.filter.applyButton'"
+        >
+        </button>
+    </div>
+<section>
     <h4>
         <div ngbDropdown class="d-inline-block">
             <button class="btn btn-outline-primary"
@@ -202,4 +220,5 @@
             [translateParams]="{ shown: subjects.length, total: totalItems }"
         ></a>
     </div>
+</section>
 </div>

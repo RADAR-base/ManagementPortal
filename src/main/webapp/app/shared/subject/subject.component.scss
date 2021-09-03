@@ -1,4 +1,26 @@
 
+.subject-wrapper {
+    display: flex;
+}
+.subject-filter {
+    flex-grow: 0;
+    max-width: 200px;
+    display: flex;
+    flex-direction: column;
+    padding: 8px 16px;
+    border-right: 1px solid #dadada;
+}
+.subject-filter input {
+    max-width: 100%;
+}
+.subject-filter > button {
+    margin-top: 16px
+}
+
+.subject-wrapper > section {
+    flex-grow: 1;
+    padding-left: 16px;
+}
 
 .subject-row {
     display: flex;
