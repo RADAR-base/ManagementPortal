@@ -79,6 +79,8 @@
             "tokenTimeoutDays": "{{days}} dagen",
             "validUntil": "Geldig tot",
             "validity": "Geldigheidsduur",
+            "selectAll": "Selecteer alles",
+            "addSelectedToGroup": "Aan groep toevoegen",
             "loadMore": "Meer laden ({{shown}}/{{total}} getoond)",
             "allLoaded": "Alle {{total}} subjects geladen",
             "generateToken": "Genereer QR code",

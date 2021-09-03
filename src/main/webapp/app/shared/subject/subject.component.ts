@@ -173,6 +173,14 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         this.transition();
     }
 
+    selectAll() {
+        // TODO implement subject selection
+    }
+
+    addSelectedToGroup() {
+        // TODO
+    }
+
     transition() {
         if (!this.isProjectSpecific) {
             this.router.navigate(['/subject'], {

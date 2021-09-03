@@ -28,6 +28,21 @@
 }
 
 
+.subject-list-actions {
+    margin-bottom: 8px;
+}
+.subject-list-actions > :not(:first-child) {
+    margin-left: 8px;
+}
+.subject-row__select-row {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    padding-top: 28px;
+    margin-right: 16px;
+}
+
+
 .subject-row__actions {
     display: flex;
     flex-direction: column;

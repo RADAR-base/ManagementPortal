@@ -46,8 +46,24 @@
     </h4>
 
     <jhi-alert></jhi-alert>
-    <div class="table-responsive" *ngIf="subjects">
+    <div *ngIf="subjects">
+        <div class="subject-list-actions">
+            <button type="button"
+                class="btn btn-light"
+                [translate]="'managementPortalApp.subject.selectAll'"
+                (click)="selectAll()"
+            ></button>
+            <button type="button"
+                class="btn btn-light"
+                disabled
+                [translate]="'managementPortalApp.subject.addSelectedToGroup'"
+                (click)="addSelectedToGroup()"
+            ></button>
+        </div>
         <div *ngFor="let subject of subjects ;trackBy: trackLogin" class="subject-row">
+            <div class="subject-row__select-row">
+                <input type="checkbox">
+            </div>
             <div class="subject-row__content">
                 <div>
                     <span class="subject-row__field-label"
