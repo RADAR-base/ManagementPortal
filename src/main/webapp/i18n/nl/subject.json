@@ -61,6 +61,15 @@
                 "question" : "Weet u zeker dat u het onderwerp wilt stoppen {{ id }}?"
             },
             "discontinued": "Een onderwerp wordt beëindigd met een identificatiecode {{ param }}",
+            "sorting": {
+                "label": "Sorteren op",
+                "externalId.asc": "External Id - A tot Z",
+                "externalId.desc": "External Id - Z tot A",
+                "user.login.asc": "Subject Id - A tot Z",
+                "user.login.desc": "Subject Id - Z tot A",
+                "user.activated.asc": "Status - Eerst geactiveerd",
+                "user.activated.desc": "Status - Eerst gedeactiveerd"
+            },
             "subjectId" : "Subject Id",
             "baseUrl" : "Base Url",
             "tokenName" : "Token naam",

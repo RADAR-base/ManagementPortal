@@ -26,6 +26,11 @@ import { parseLinks } from '../util/parse-links-util';
     styleUrls: ['./subject.component.scss'],
 })
 export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
+    sortingOptions = [
+        'user.login',
+        'externalId',
+        'user.activated',
+    ];
     pagingParams$: Observable<PagingParams>;
     project$ = new BehaviorSubject<Project>(null);
     @Input()
@@ -158,6 +163,14 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             this.previousPage = page;
             this.transition();
         }
+    }
+
+    updateSorting(predicate, direction) {
+        // TODO consider removing the page altogether
+        this.predicate = predicate;
+        this.ascending = direction === 'asc';
+        this.page = 1;
+        this.transition();
     }
 
     transition() {

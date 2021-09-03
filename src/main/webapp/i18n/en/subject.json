@@ -61,6 +61,15 @@
                 "question" : "Are you sure you want to discontinue Subject {{ id }}?"
             },
             "discontinued": "A Subject is discontinued with identifier {{ param }}",
+            "sorting": {
+                "label": "Sort by",
+                "externalId.asc": "External Id - A to Z",
+                "externalId.desc": "External Id - Z to A",
+                "user.login.asc": "Subject Id - A to Z",
+                "user.login.desc": "Subject Id - Z to A",
+                "user.activated.asc": "Status - Active first",
+                "user.activated.desc": "Status - Active last"
+            },
             "subjectId" : "Subject Id",
             "baseUrl" : "Base Url",
             "tokenName" : "Token Name",

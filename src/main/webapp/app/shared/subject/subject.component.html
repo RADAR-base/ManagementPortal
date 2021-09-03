@@ -1,6 +1,32 @@
 <div>
     <h4>
-        <span [translate]="'managementPortalApp.subject.home.title'"></span>
+        <div ngbDropdown class="d-inline-block">
+            <button class="btn btn-outline-primary"
+                ngbDropdownToggle
+            >
+                {{ 'managementPortalApp.subject.sorting.label' | translate }}:
+                <span *ngIf="ascending">
+                    {{ 'managementPortalApp.subject.sorting.' + predicate + '.asc' | translate }}
+                </span>
+                <span *ngIf="!ascending">
+                    {{ 'managementPortalApp.subject.sorting.' + predicate + '.desc' | translate }}
+                </span>
+            </button>
+            <div ngbDropdownMenu>
+                <span *ngFor="let k of sortingOptions">
+                    <button
+                        ngbDropdownItem
+                        (click)="updateSorting(k, 'asc')"
+                        [translate]="'managementPortalApp.subject.sorting.' + k + '.asc'">
+                    </button>
+                    <button
+                        ngbDropdownItem
+                        (click)="updateSorting(k, 'desc')"
+                        [translate]="'managementPortalApp.subject.sorting.' + k + '.desc'">
+                    </button>
+                </span>
+            </div>
+        </div>
         <button
                 class="btn btn-primary float-right create-subject"
                 *ngIf='isProjectSpecific'
@@ -18,27 +44,9 @@
             </span>
         </button>
     </h4>
-    <div class="row">
-    </div>
-    <br/>
+
     <jhi-alert></jhi-alert>
     <div class="table-responsive" *ngIf="subjects">
-        <table class="table table-striped">
-            <thead>
-                <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="transition.bind(this)">
-                    <th jhiSortBy="user.login" ><span [translate]="'managementPortalApp.subject.subjectId'"></span><span class="fa fa-sort"></span></th>
-                    <th jhiSortBy="externalId" ><span [translate]="'managementPortalApp.subject.externalId'"></span><span class="fa fa-sort"></span></th>
-                    <th jhiSortBy="user.activated"><span [translate]="'managementPortalApp.subject.status.title'"></span><span class="fa fa-sort"></span></th>
-                    <th *ngIf="!isProjectSpecific"><span [translate]="'managementPortalApp.subject.project'"></span></th>
-                    <th><span [translate]="'managementPortalApp.subject.sources'"></span></th>
-                    <th><span [translate]="'managementPortalApp.subject.attributeData'"></span></th>
-                    <th class="text-center"><span [translate]="'managementPortalApp.subject.pairing'"></span></th>
-                    <th class="text-center"><span [translate]="'managementPortalApp.subject.actions'"></span></th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
         <div *ngFor="let subject of subjects ;trackBy: trackLogin" class="subject-row">
             <div class="subject-row__content">
                 <div>
