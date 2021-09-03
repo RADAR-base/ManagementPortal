@@ -70,6 +70,8 @@
             "tokenTimeoutMinutes": "{{minutes}} minutes",
             "validUntil": "Valid until",
             "validity": "Validity",
+            "loadMore": "Load more ({{shown}}/{{total}} shown)",
+            "allLoaded": "All {{total}} subjects loaded",
             "generateToken": "Generate QR code",
             "generatePersistentToken": "Generate persistent QR code"
         }

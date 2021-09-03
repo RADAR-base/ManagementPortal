@@ -144,9 +144,13 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
 
     private onSuccess(data, headers) {
         this.links = parseLinks(headers.get('link'));
-        this.totalItems = headers.get('X-Total-Count');
+        this.totalItems = +headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
         this.subjects = data;
+    }
+
+    loadMore() {
+        // TODO implement loading
     }
 
     loadPage(page) {
