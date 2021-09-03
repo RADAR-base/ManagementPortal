@@ -18,6 +18,7 @@ export class Project {
             public endDate?: any,
             public attributes ?: any,
             public sourceTypes?: SourceType[],
+            public groups?: string[],
             public humanReadableProjectName ?: string,
             public persistentTokenTimeout?: number
     ) {

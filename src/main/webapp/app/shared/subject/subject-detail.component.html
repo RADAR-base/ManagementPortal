@@ -47,14 +47,39 @@
 
     </dl>
 
-    <button type="submit"
-            (click)="previousState()"
-            class="btn btn-info">
-        <span class="fa fa-arrow-left"></span>&nbsp;<span [translate]="'entity.action.back'"></span>
-    </button>
-    <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN']"
-        class="btn btn-dark"
-        [routerLink]="['/subject', subject.login, 'revisions']">
-        <span class="fa fa-history"></span>&nbsp;<span [translate]="'revisions.title'"></span>
-    </button>
+    <div class="subject-detail__actions">
+        <button type="submit"
+                (click)="previousState()"
+                class="btn btn-info">
+            <span class="fa fa-arrow-left"></span>
+            <span [translate]="'entity.action.back'"></span>
+        </button>
+        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN']"
+            class="btn btn-dark"
+            [routerLink]="['/subject', subject.login, 'revisions']">
+            <span class="fa fa-history"></span>
+            <span [translate]="'revisions.title'"></span>
+        </button>
+        <button
+            type="button"
+            class="btn btn-warning"
+            [disabled]="subject.status != 'ACTIVATED'"
+            [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.login + '/discontinue'} }]"
+            replaceUrl="true"
+        >
+            <span class="fa fa-stop"></span>
+            <span class="hidden-md-down"
+                [translate]="'managementPortalApp.subject.discontinue.operation'">
+            </span>
+        </button>
+        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN' ]"
+            class="btn btn-danger"
+            type="button"
+            [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.login + '/delete'} }]"
+            replaceUrl="true"
+        >
+            <span class="fa fa-remove"></span>
+            <span class="hidden-md-down" [translate]="'entity.action.delete'"></span>
+        </button>
+    </div>
 </div>

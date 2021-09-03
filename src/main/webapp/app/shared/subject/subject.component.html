@@ -114,24 +114,6 @@
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>&nbsp;<span [translate]="'entity.action.edit'"></span>
                         </button>
-                        <button
-                                [disabled]="subject.status != 'ACTIVATED'"
-                                type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.login + '/discontinue'} }]"
-                                replaceUrl="true"
-                                class="btn btn-warning btn-sm">
-                            <span class="fa fa-stop"></span>
-                            <span class="hidden-md-down" [translate]="'managementPortalApp.subject.discontinue.operation'"></span>
-                        </button>
-                        <button
-                                *jhiHasAnyAuthority="['ROLE_SYS_ADMIN' ]"
-                                type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.login + '/delete'} }]"
-                                replaceUrl="true"
-                                class="btn btn-danger btn-sm">
-                            <span class="fa fa-remove"></span>
-                            <span class="hidden-md-down" [translate]="'entity.action.delete'"></span>
-                        </button>
                     </div>
                 </td>
             </tr>
