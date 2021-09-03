@@ -12,6 +12,7 @@ export class Subject {
     public createdDate?: Date;
     public lastModifiedBy?: string;
     public lastModifiedDate?: Date;
+    public group?: string;
     public password?: string;
     public project?: Project;
     public sources?: MinimalSource[];
@@ -29,6 +30,7 @@ export class Subject {
             createdDate?: Date,
             lastModifiedBy?: string,
             lastModifiedDate?: Date,
+            group?: string,
             password?: string,
             project?: Project,
             sources?: MinimalSource[],
@@ -42,6 +44,7 @@ export class Subject {
         this.createdDate = createdDate ? createdDate : null;
         this.lastModifiedBy = lastModifiedBy ? lastModifiedBy : null;
         this.lastModifiedDate = lastModifiedDate ? lastModifiedDate : null;
+        this.group = group ? group : null;
         this.password = password ? password : null;
         this.project = project ? project : null;
         this.sources = sources ? sources : [];

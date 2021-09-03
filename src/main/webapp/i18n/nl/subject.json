@@ -81,6 +81,7 @@
             "validity": "Geldigheidsduur",
             "selectAll": "Selecteer alles",
             "addSelectedToGroup": "Aan groep toevoegen",
+            "group": "Groep",
             "loadMore": "Meer laden ({{shown}}/{{total}} getoond)",
             "allLoaded": "Alle {{total}} subjects geladen",
             "generateToken": "Genereer QR code",

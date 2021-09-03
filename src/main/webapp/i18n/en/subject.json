@@ -81,6 +81,7 @@
             "validity": "Validity",
             "selectAll": "Select all",
             "addSelectedToGroup": "Add to group",
+            "group": "Group",
             "loadMore": "Load more ({{shown}}/{{total}} shown)",
             "allLoaded": "All {{total}} subjects loaded",
             "generateToken": "Generate QR code",
