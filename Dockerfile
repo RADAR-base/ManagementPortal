@@ -1,11 +1,15 @@
 # Build stage
-FROM openjdk:11-jdk as builder
+FROM azul/zulu-openjdk:11 as builder
 
 # install node
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
-    apt-get install -yq nodejs build-essential && \
+RUN apt-get update && \
+    apt-get install --no-install-recommends -yq curl && \
+    curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
+    apt-get install --no-install-recommends -yq nodejs build-essential && \
     npm install -g npm && \
-    npm install -g yarn
+    npm install -g yarn && \
+    apt autoremove && \
+    rm -rf /var/lib/apt/lists/*
 
 # installing the node packages before adding the src directory will allow us to re-use these image layers when only the souce code changes
 WORKDIR /app
@@ -34,14 +38,13 @@ COPY src src
 RUN ./gradlew -s bootWar
 
 # Run stage
-FROM openjdk:11-jre-slim
+FROM azul/zulu-openjdk-alpine:11-jre-headless
 
 ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
-    JHIPSTER_SLEEP=0
+    JHIPSTER_SLEEP=0 \
+    JAVA_OPTS=""
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  curl \
-  && rm -rf /var/lib/apt/lists/*
+RUN apk --no-cache add curl
 
 # Add the war and changelogs files from build stage
 COPY --from=builder /app/build/libs/*.war /app.war
