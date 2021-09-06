@@ -162,12 +162,14 @@ jobs:
             echo "::set-output name=load::false"
             echo "::set-output name=platforms::linux/amd64,linux/arm64"
           fi
+
+      - name: Show docker build parameters
       - name: Build docker
         uses: docker/build-push-action@v2
         with:
-          load: "${{ steps.docker_params.load }}"
-          push: "${{ steps.docker_params.push }}"
-          platforms: "${{ steps.docker_params.platforms }}"
+          load: ${{ steps.docker_params.load == 'true' }}
+          push: ${{ steps.docker_params.push == 'true' }}
+          platforms: ${{ steps.docker_params.platforms }}
           tags: ${{ steps.docker_meta.outputs.tags }}
           # Use runtime labels from docker_meta as well as fixed labels
           labels: |
