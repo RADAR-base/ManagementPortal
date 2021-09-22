@@ -50,6 +50,8 @@ public class ProjectDTO implements Serializable {
 
     private Map<String, String> attributes;
 
+    private Set<GroupDTO> groups;
+
     private Long persistentTokenTimeout;
 
     public Long getId() {
@@ -130,6 +132,14 @@ public class ProjectDTO implements Serializable {
 
     public void setAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
+    }
+
+    public Set<GroupDTO> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Set<GroupDTO> groups) {
+        this.groups = groups;
     }
 
     public String getHumanReadableProjectName() {

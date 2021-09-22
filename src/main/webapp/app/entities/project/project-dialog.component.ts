@@ -136,13 +136,15 @@ export class ProjectDialogComponent implements OnInit {
     addGroup() {
         // TODO implement group name validation
         let currentGroups = this.project.groups || [];
-        this.project.groups = [ ...currentGroups, this.newGroupInputText ];
+        let newGroup = { groupName: this.newGroupInputText };
+        this.project.groups = [ ...currentGroups, newGroup ];
         this.newGroupInputText = '';
     }
 
-    removeGroups(groupName: string) {
+    removeGroup(groupName: string) {
         // TODO warn if it will affect existing subjects (on save, expect HTTP 409)
-        this.project.groups = this.project.groups.filter(g => g !== groupName);
+        let oldGroups = this.project.groups;
+        this.project.groups = oldGroups.filter(g => g.groupName !== groupName);
     }
 }
 

@@ -100,6 +100,10 @@ public class Project extends AbstractEntity implements Serializable {
     @CollectionTable(name = "project_metadata", joinColumns = @JoinColumn(name = "id"))
     private Map<String, String> attributes = new HashMap<>();
 
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, orphanRemoval = true)
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    private Set<Group> groups = new HashSet<>();
+
     @Override
     public Long getId() {
         return id;
@@ -254,6 +258,15 @@ public class Project extends AbstractEntity implements Serializable {
     @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
+    }
+
+    public Set<Group> getGroups() {
+        return groups;
+    }
+
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
+    public void setGroups(Set<Group> groups) {
+        this.groups = groups;
     }
 
     @Override

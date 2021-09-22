@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2017. The Hyve and respective contributors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~
+  ~ See the file LICENSE in the root of this repository.
+  ~
+  -->
+
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <property name="autoIncrement" value="true" dbms="mysql,h2,postgresql,oracle,mssql"/>
+    <property name="revtype" value="tinyint" dbms="h2"/>
+    <property name="revtype" value="smallint" dbms="postgresql"/>
+
+    <!--
+        Added the entity Group.
+    -->
+    <changeSet id="20210920101000-1" author="alexey@thehyve.nl">
+        <createTable tableName="radar_group">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="project_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="group_name" type="varchar(50)">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="project_id"
+                                 baseTableName="radar_group"
+                                 constraintName="fk_group_project_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="project"/>
+    </changeSet>
+    <changeSet id="20210920101000-2" author="alexey@thehyve.nl">
+        <createTable tableName="radar_group_aud">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rev" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revtype" type="${revtype}"/>
+            <column name="revend" type="INTEGER"/>
+            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+            <column name="project_id" type="bigint"/>
+            <column name="project_mod" type="BOOLEAN"/>
+            <column name="group_name" type="varchar(50)"/>
+            <column name="group_name_mod" type="BOOLEAN"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="rev"
+                                 baseTableName="radar_group_aud"
+                                 constraintName="b408680681a04cb6b8ce530104f"
+                                 deferrable="false"
+                                 initiallyDeferred="false"
+                                 onDelete="NO ACTION"
+                                 onUpdate="NO ACTION"
+                                 referencedColumnNames="id"
+                                 referencedTableName="_revisions_info"/>
+    </changeSet>
+
+    <changeSet id="20210920101000-3" author="alexey@thehyve.nl">
+        <addColumn tableName="project_aud">
+            <column name="groups_mod" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

@@ -59,3 +59,8 @@ export const enum SubjectStatus {
     'DISCONTINUED',
     'INVALID'
 }
+
+export class Group {
+    public id?: any;
+    public groupName?: string;
+}
