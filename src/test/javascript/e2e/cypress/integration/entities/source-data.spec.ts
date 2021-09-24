@@ -31,19 +31,21 @@ describe('SourceData e2e test', () => {
 
     it('should be able to create SourceData', () => {
         cy.get('button.create-source-data').click();
-        cy.wait(1000);
+        cy.wait(3000);
 
         cy.get('#field_sourceDataType').type('TEST-TYPE');
         cy.get('#field_sourceDataName').type('TEST-SENSOR');
+        cy.wait(3000);
         cy.get('jhi-source-data-dialog').contains('Save').click();
 
     });
 
     it('should be able to edit SourceData', () => {
-        cy.wait(1000);
+        cy.wait(3000);
         cy.get('td').contains('TEST-SENSOR').parents('tr')
             .find('button').contains('Edit').click();
 
+        cy.wait(3000);
         cy.get('button.btn-primary').contains('Save').click();
     });
 

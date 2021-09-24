@@ -30,16 +30,17 @@ describe('Project e2e test', () => {
 
     it('should be able to create Project', () => {
         cy.get('button.create-project').click();
-        cy.wait(1000);
+        cy.wait(3000);
         cy.get('#field_projectName').type('test-project');
         cy.get('#field_humanReadableProjectName').type('Test project');
         cy.get('#field_description').type('Best test project in the world');
         cy.get('#field_location').type('in-memory');
+        cy.wait(3000);
         cy.get('jhi-project-dialog button.btn-primary').contains('Save').click();
     });
 
     it('should be able to edit Project', () => {
-        cy.wait(1000);
+        cy.wait(3000);
         cy.get('td').contains('test-project').parents('tr')
             .find('button').contains('Edit').click();
         cy.get('button.btn-primary').contains('Save').click();
