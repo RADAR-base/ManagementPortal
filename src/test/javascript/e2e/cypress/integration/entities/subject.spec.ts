@@ -30,7 +30,7 @@ describe('Subject e2e test', () => {
 
     it('should be able to create new subject', () => {
         cy.get('button.btn-primary').contains('Create a new Subject').click();
-        cy.wait(500);
+        cy.wait(1000);
 
         cy.get('[name=externalId]').type('test-subject1');
         cy.get('[name=project]').select('radar');
@@ -40,7 +40,7 @@ describe('Subject e2e test', () => {
     });
 
     it('should be able to edit a subject', () => {
-        cy.wait(500);
+        cy.wait(1000);
         cy.get('jhi-subjects tbody tr td').contains('test-subject1')
             .parents('tr')
             .get('jhi-subjects tbody tr button').contains('Edit')

@@ -34,7 +34,7 @@ describe('account', () => {
         cy.get('#password').type('admin');
         cy.get('button[type=submit]').click();
 
-        cy.wait(500);
+        cy.wait(1000);
 
         cy.get('.alert-success span').should('exist');
     });

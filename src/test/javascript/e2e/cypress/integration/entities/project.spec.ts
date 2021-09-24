@@ -30,7 +30,7 @@ describe('Project e2e test', () => {
 
     it('should be able to create Project', () => {
         cy.get('button.create-project').click();
-        cy.wait(500);
+        cy.wait(1000);
         cy.get('#field_projectName').type('test-project');
         cy.get('#field_humanReadableProjectName').type('Test project');
         cy.get('#field_description').type('Best test project in the world');
@@ -39,7 +39,7 @@ describe('Project e2e test', () => {
     });
 
     it('should be able to edit Project', () => {
-        cy.wait(500);
+        cy.wait(1000);
         cy.get('td').contains('test-project').parents('tr')
             .find('button').contains('Edit').click();
         cy.get('button.btn-primary').contains('Save').click();

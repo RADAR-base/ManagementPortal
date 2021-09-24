@@ -31,7 +31,7 @@ describe('SourceData e2e test', () => {
 
     it('should be able to create SourceData', () => {
         cy.get('button.create-source-data').click();
-        cy.wait(500);
+        cy.wait(1000);
 
         cy.get('#field_sourceDataType').type('TEST-TYPE');
         cy.get('#field_sourceDataName').type('TEST-SENSOR');
@@ -40,7 +40,7 @@ describe('SourceData e2e test', () => {
     });
 
     it('should be able to edit SourceData', () => {
-        cy.wait(500);
+        cy.wait(1000);
         cy.get('td').contains('TEST-SENSOR').parents('tr')
             .find('button').contains('Edit').click();
 

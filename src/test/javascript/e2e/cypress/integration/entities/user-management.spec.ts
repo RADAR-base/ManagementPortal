@@ -45,14 +45,14 @@ describe('Create, edit, and delete user', () => {
 
     it('should be able to create new system admin user', () => {
         cy.get('button.btn-primary').contains('Create an admin user').click();
-        cy.wait(500);
+        cy.wait(1000);
         cy.get('[name=login]').type('test-sys-admin');
         cy.get('[name=firstName]').type('Alice');
         cy.get('[name=lastName]').type('Bob');
         cy.get('[name=email]').type('alice@radarbase.org');
 
         cy.get('button.btn-primary').contains('Save').click();
-        cy.wait(500);
+        cy.wait(1000);
         cy.get('jhi-user-mgmt tbody tr').should('have.length', 5);
     });
 
