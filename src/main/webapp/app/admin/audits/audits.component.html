@@ -28,8 +28,8 @@
                 <td><small>{{audit.principal}}</small></td>
                 <td>{{audit.type}}</td>
                 <td>
-                    <span *ngFor="let dataKey of objectKeys(audit.data); let last = last">
-                        <span class="badge badge-default">{{dataKey}}: {{audit.data[dataKey]}}</span><span *ngIf="last">&nbsp;</span>
+                    <span *ngFor="let entry of audit.data | keyvalue; let last = last">
+                        <span class="badge badge-default">{{entry.key}}: {{entry.value}}</span><span *ngIf="last">&nbsp;</span>
                     </span>
                 </td>
             </tr>
