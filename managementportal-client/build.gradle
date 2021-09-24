@@ -7,8 +7,8 @@
  * See the file LICENSE in the root of this repository.
  */
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version "1.5.20"
-    id 'org.jetbrains.dokka' version "1.4.32"
+    id 'org.jetbrains.kotlin.jvm' version "1.5.30"
+    id 'org.jetbrains.dokka' version "1.5.0"
     id 'maven-publish'
 }
 
@@ -22,14 +22,14 @@ repositories {
 }
 
 ext {
-    jacksonModuleVersion = "2.12.3"
+    jacksonModuleVersion = "2.12.5"
     okhttpVersion = "4.9.1"
     junitVersion = "5.7.2"
 }
 
 dependencies {
-    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.20")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.20")
+    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.30")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.30")
     api(project(":oauth-client-util"))
 
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion
@@ -40,14 +40,14 @@ dependencies {
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junitVersion
     testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.11.2'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.12.4'
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
 
-    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.31'
+    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.32'
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junitVersion
     testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonModuleVersion")
 
-    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.32")
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.5.0")
 }
 
 compileKotlin {

@@ -253,6 +253,7 @@ public class UserResource {
     public List<ProjectDTO> getUserProjects(@PathVariable String login)
             throws NotAuthorizedException {
         log.debug("REST request to get User's project : {}", login);
+        checkPermission(getJWT(servletRequest), USER_READ);
         checkPermission(getJWT(servletRequest), PROJECT_READ);
         return userService.getProjectsAssignedToUser(login);
     }

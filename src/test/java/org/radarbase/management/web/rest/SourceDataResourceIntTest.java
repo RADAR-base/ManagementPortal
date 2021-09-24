@@ -195,8 +195,8 @@ class SourceDataResourceIntTest {
 
     @Test
     @Transactional
-    void checkSourceDataTypeIsRequired() throws Exception {
-        int databaseSizeBeforeTest = sourceDataRepository.findAll().size();
+    void checkSourceDataTypeIsNotRequired() throws Exception {
+        final int databaseSizeBeforeTest = sourceDataRepository.findAll().size();
         // set the field null
         sourceData.setSourceDataType(null);
 
@@ -206,6 +206,26 @@ class SourceDataResourceIntTest {
         restSourceDataMockMvc.perform(post("/api/source-data")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(sourceDataDto)))
+                .andExpect(status().isCreated());
+
+        List<SourceData> sourceDataList = sourceDataRepository.findAll();
+        assertThat(sourceDataList).hasSize(databaseSizeBeforeTest + 1);
+    }
+
+
+    @Test
+    @Transactional
+    void checkSourceDataTypeOrTopicIsRequired() throws Exception {
+        final int databaseSizeBeforeTest = sourceDataRepository.findAll().size();
+        // set the field null
+        sourceData.setSourceDataType(null);
+        sourceData.setTopic(null);
+
+        // Create the SourceData, which fails.
+        SourceDataDTO sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
+        restSourceDataMockMvc.perform(post("/api/source-data")
+                        .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                        .content(TestUtil.convertObjectToJsonBytes(sourceDataDto)))
                 .andExpect(status().isBadRequest());
 
         List<SourceData> sourceDataList = sourceDataRepository.findAll();
