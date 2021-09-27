@@ -38,39 +38,28 @@
         <div *ngIf="project">
             <jhi-alert-error></jhi-alert-error>
             <h2>
-                <span jhiTranslate="managementPortalApp.project.home.title">Projects</span>
+                <span [translate]="'managementPortalApp.project.home.title'"></span>
                 <button type="button"
                         [routerLink]="['/', { outlets: { popup: 'project/'+ project.projectName + '/edit'} }]"
                         replaceUrl="true"
                         class="btn btn-primary float-right">
                     <span class="fa fa-pencil"></span>&nbsp;<span
-                    jhiTranslate="entity.action.edit"> Edit</span>
+                        [translate]="'entity.action.edit'"></span>
                 </button>
             </h2>
 
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <!--<th><span jhiTranslate="global.field.id">ID</span></th>-->
-                    <th><span
-                        jhiTranslate="managementPortalApp.project.projectName">Project Name</span>
-                    </th>
-                    <th><span
-                        jhiTranslate="managementPortalApp.project.description">Description</span>
-                    </th>
-                    <th><span
-                        jhiTranslate="managementPortalApp.project.organization">Organization</span>
-                    </th>
-                    <th><span jhiTranslate="managementPortalApp.project.location">Location</span>
-                    </th>
-                    <th><span jhiTranslate="managementPortalApp.project.startDate">Start Date</span>
-                    </th>
-                    <th><span jhiTranslate="managementPortalApp.project.projectStatus">Project Status</span>
-                    </th>
-                    <th><span jhiTranslate="managementPortalApp.project.endDate">End Date</span>
-                    </th>
-                    <th><span jhiTranslate="managementPortalApp.project.attributeDataKey">MetaData Key</span></th>
-                    <th><span jhiTranslate="managementPortalApp.project.attributeDataValue">MetaData value</span></th>
+                    <th><span [translate]="'managementPortalApp.project.projectName'"></span></th>
+                    <th><span [translate]="'managementPortalApp.project.description'"></span></th>
+                    <th><span [translate]="'managementPortalApp.project.organization'"></span></th>
+                    <th><span [translate]="'managementPortalApp.project.location'"></span></th>
+                    <th><span [translate]="'managementPortalApp.project.startDate'"></span></th>
+                    <th><span [translate]="'managementPortalApp.project.projectStatus'"></span></th>
+                    <th><span [translate]="'managementPortalApp.project.endDate'"></span></th>
+                    <th><span [translate]="'managementPortalApp.project.attributeDataKey'"></span></th>
+                    <th><span [translate]="'managementPortalApp.project.attributeDataValue'"></span></th>
                     <th></th>
                 </tr>
                 </thead>
@@ -81,17 +70,15 @@
                     <td>{{project.organization}}</td>
                     <td>{{project.location}}</td>
                     <td>{{project.startDate | date:'medium'}}</td>
-                    <td jhiTranslate="{{'managementPortalApp.ProjectStatus.' + project.projectStatus}}">
-                        {{project.projectStatus}}
-                    </td>
+                    <td [translate]="'managementPortalApp.ProjectStatus.' + project.projectStatus"></td>
                     <td>{{project.endDate | date:'medium'}}</td>
                     <td>
-                        <div *ngFor="let entry of project.attributes | keys; trackBy: trackKey">
+                        <div *ngFor="let entry of project.attributes | keyvalue; trackBy: trackKey">
                             <span class="form-control-static">{{entry.key}}</span>
                         </div>
                     </td>
                     <td>
-                        <div *ngFor="let entry of project.attributes | keys; trackBy: trackKey">
+                        <div *ngFor="let entry of project.attributes | keyvalue; trackBy: trackKey">
                             <span class="form-control-static">{{entry.value}}</span>
                         </div>
                     </td>

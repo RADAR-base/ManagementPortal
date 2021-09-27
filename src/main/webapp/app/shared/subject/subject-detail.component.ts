@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { EventManager, JhiLanguageService } from 'ng-jhipster';
-import { Subscription } from 'rxjs/Rx';
+import { Subscription } from 'rxjs';
 
+import { EventManager } from '../util/event-manager.service';
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
 
@@ -18,11 +18,9 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
 
     constructor(
             private eventManager: EventManager,
-            private jhiLanguageService: JhiLanguageService,
             private subjectService: SubjectService,
             private route: ActivatedRoute,
     ) {
-        this.jhiLanguageService.setLocations(['subject', 'audits']);
     }
 
     ngOnInit() {

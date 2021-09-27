@@ -1,92 +1,123 @@
 <form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
 
     <div class="modal-header">
-        <h4 class="modal-title" id="myProjectLabel" jhiTranslate="managementPortalApp.project.home.createOrEditLabel">Create or edit a Project</h4>
+        <h4 class="modal-title" id="myProjectLabel"
+            [translate]="'managementPortalApp.project.home.createOrEditLabel'">
+        </h4>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
                 (click)="clear()">&times;</button>
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
         <div class="form-group" [hidden]="!project.id">
-            <label for="id" jhiTranslate="global.field.id">ID</label>
+            <label for="id" [translate]="'global.field.id'"></label>
             <input type="text" class="form-control" id="id" name="id"
                    [(ngModel)]="project.id" readonly />
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.project.projectName" for="field_projectName">Project Name</label>
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.project.projectName'"
+                for="field_projectName">
+            </label>
             <input type="text" class="form-control" name="projectName" id="field_projectName"
                 [(ngModel)]="project.projectName" required pattern="[_'.@A-Za-z0-9- ]*" />
-            <small id="projectIdHelp" class="form-text text-muted">Unique identifier of project</small>
+            <small id="projectIdHelp" class="form-text text-muted"
+                [translate]="'managementPortalApp.project.projectName.fieldDescription'">
+            </small>
             <div [hidden]="!(editForm.controls.projectName?.dirty && editForm.controls.projectName?.invalid)">
                 <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.projectName?.errors?.required" jhiTranslate="entity.validation.required">
-                   This field is required.
+                   [hidden]="!editForm.controls.projectName?.errors?.required"
+                   [translate]="'entity.validation.required'">
                 </small>
                 <small class="form-text text-danger"
-                        [hidden]="!editForm.controls.projectName?.errors?.pattern" jhiTranslate="entity.validation.pattern" translateValues="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
-                    Validation error.
+                    [hidden]="!editForm.controls.projectName?.errors?.pattern"
+                    [translate]="'entity.validation.pattern'"
+                    [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
                 </small>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.project.prettyProjectName" for="field_humanReadableProjectName">Human readable Name</label>
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.project.prettyProjectName'"
+                for="field_humanReadableProjectName">
+            </label>
             <input type="text" class="form-control" name="prettyProjectName" id="field_humanReadableProjectName"
                    [(ngModel)]="project.humanReadableProjectName" value="{{projectIdAsPrettyValue? project.projectName : ''}}"/>
-            <small id="prettyProjectNameHelp" class="form-text text-muted">Human readable project name that doesn't have to follow url pattern.</small>
+            <small id="prettyProjectNameHelp" class="form-text text-muted"
+                [translate]="'managementPortalApp.project.prettyProjectName.fieldDescription'">
+            </small>
             <small>
-            <input type="checkbox" class="form-control-check" name="grantTypes" [checked]="projectIdAsPrettyValue" (change)="projectIdAsPrettyValue = !projectIdAsPrettyValue" />
-            Do you want to use the project-id as the human readable name?
+                <input type="checkbox" class="form-control-check" name="grantTypes" [checked]="projectIdAsPrettyValue" (change)="projectIdAsPrettyValue = !projectIdAsPrettyValue" />
+                {{ 'managementPortalApp.project.projectIdAsPrettyName' | translate }}
             </small>
         </div>
 
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.project.description" for="field_description">Description</label>
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.project.description'"
+                for="field_description">
+            </label>
             <input type="text" class="form-control" name="description" id="field_description"
                 [(ngModel)]="project.description"
             required />
             <div [hidden]="!(editForm.controls.description?.dirty && editForm.controls.description?.invalid)">
                 <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.description?.errors?.required" jhiTranslate="entity.validation.required">
-                   This field is required.
+                   [hidden]="!editForm.controls.description?.errors?.required"
+                   [translate]="'entity.validation.required'">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.project.organization" for="field_organization">Organization</label>
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.project.organization'"
+                for="field_organization">
+            </label>
             <input type="text" class="form-control" name="organization" id="field_organization"
                 [(ngModel)]="project.organization"
              />
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.project.location" for="field_location">Location</label>
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.project.location'"
+                for="field_location">
+            </label>
             <input type="text" class="form-control" name="location" id="field_location"
                 [(ngModel)]="project.location"
             required />
             <div [hidden]="!(editForm.controls.location?.dirty && editForm.controls.location?.invalid)">
                 <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.location?.errors?.required" jhiTranslate="entity.validation.required">
-                   This field is required.
+                   [hidden]="!editForm.controls.location?.errors?.required"
+                   [translate]="'entity.validation.required'">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.project.startDate" for="field_startDate">Start Date</label>
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.project.startDate'"
+                for="field_startDate">
+            </label>
             <div class="d-flex">
                 <input id="field_startDate" type="datetime-local" class="form-control" name="startDate" [(ngModel)]="project.startDate"
                   />
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.project.projectStatus" for="field_projectStatus">Project Status</label>
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.project.projectStatus'"
+                for="field_projectStatus">
+            </label>
             <select class="form-control" name="projectStatus" [(ngModel)]="project.projectStatus" id="field_projectStatus" >
-                <option value="PLANNING" jhiTranslate="managementPortalApp.ProjectStatus.PLANNING">PLANNING</option>
-                <option value="ONGOING" jhiTranslate="managementPortalApp.ProjectStatus.ONGOING">ONGOING</option>
-                <option value="ENDED" jhiTranslate="managementPortalApp.ProjectStatus.ENDED">ENDED</option>
+                <option value="PLANNING" [translate]="'managementPortalApp.ProjectStatus.PLANNING'"></option>
+                <option value="ONGOING" [translate]="'managementPortalApp.ProjectStatus.ONGOING'"></option>
+                <option value="ENDED" [translate]="'managementPortalApp.ProjectStatus.ENDED'"></option>
             </select>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.project.endDate" for="field_endDate">End Date</label>
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.project.endDate'"
+                for="field_endDate">
+            </label>
             <div class="d-flex">
                 <input id="field_endDate" type="datetime-local" class="form-control" name="endDate" [(ngModel)]="project.endDate"
                   />
@@ -94,7 +125,7 @@
         </div>
 
         <div class="form-group">
-            <label jhiTranslate="managementPortalApp.project.sourceType" for="field_sourceType">Source Type</label>
+            <label [translate]="'managementPortalApp.project.sourceType'" for="field_sourceType"></label>
             <input
                 id="field_sourceType"
                 type="text"
@@ -122,10 +153,10 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
-            <span class="fa fa-ban"></span>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+            <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
         </button>
         <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
-            <span class="fa fa-save"></span>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+            <span class="fa fa-save"></span>&nbsp;<span [translate]="'entity.action.save'"></span>
         </button>
     </div>
 </form>

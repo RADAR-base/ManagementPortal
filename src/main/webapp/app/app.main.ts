@@ -1,11 +1,12 @@
+import { enableProdMode } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+
 import { ManagementPortalAppModule } from './app.module';
-import { ProdConfig } from './blocks/config/prod.config';
+import { environment } from '../environments/environment';
 
-ProdConfig();
-
-if (module['hot']) {
-    module['hot'].accept();
+if (environment.production) {
+  enableProdMode();
 }
 
-platformBrowserDynamic().bootstrapModule(ManagementPortalAppModule);
+platformBrowserDynamic().bootstrapModule(ManagementPortalAppModule)
+  .catch(err => console.error(err));

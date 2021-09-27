@@ -1,13 +1,13 @@
 <div *ngIf="audits">
-    <h2 jhiTranslate="audits.title">Audits</h2>
+    <h2 [translate]="'audits.title'"></h2>
 
     <div class="row">
         <div class="col-md-5">
-            <h4 jhiTranslate="audits.filter.title">Filter by date</h4>
+            <h4 [translate]="'audits.filter.title'"></h4>
             <p class="d-flex">
-                <span jhiTranslate="audits.filter.from" class="input-group-addon">from</span>
+                <span [translate]="'audits.filter.from'" class="input-group-addon"></span>
                 <input type="date" class="form-control" name="start" [(ngModel)]="fromDate" (ngModelChange)="onChangeDate($event)" required/>
-                <span jhiTranslate="audits.filter.to" class="input-group-addon">to</span>
+                <span [translate]="'audits.filter.to'" class="input-group-addon"></span>
                 <input type="date" class="form-control" name="end" [(ngModel)]="toDate" (ngModelChange)="onChangeDate($event)" required/>
             </p>
         </div>
@@ -17,10 +17,10 @@
         <table class="table table-condensed table-striped table-bordered">
             <thead>
             <tr>
-                <th (click)="orderProp = 'timestamp'; reverse=!reverse"><span jhiTranslate="audits.table.header.date">Date</span></th>
-                <th (click)="orderProp = 'principal'; reverse=!reverse"><span jhiTranslate="audits.table.header.principal">User</span></th>
-                <th (click)="orderProp = 'type'; reverse=!reverse"><span jhiTranslate="audits.table.header.status">State</span></th>
-                <th (click)="orderProp = 'data.message'; reverse=!reverse"><span jhiTranslate="audits.table.header.data">Extra data</span></th>
+                <th (click)="orderProp = 'timestamp'; reverse=!reverse"><span [translate]="'audits.table.header.date'"></span></th>
+                <th (click)="orderProp = 'principal'; reverse=!reverse"><span [translate]="'audits.table.header.principal'"></span></th>
+                <th (click)="orderProp = 'type'; reverse=!reverse"><span [translate]="'audits.table.header.status'"></span></th>
+                <th (click)="orderProp = 'data.message'; reverse=!reverse"><span [translate]="'audits.table.header.data'"></span></th>
             </tr>
             </thead>
             <tr *ngFor="let audit of getAudits()">
@@ -28,8 +28,8 @@
                 <td><small>{{audit.principal}}</small></td>
                 <td>{{audit.type}}</td>
                 <td>
-                    <span *ngFor="let dataKey of objectKeys(audit.data); let last = last">
-                        <span class="badge badge-default">{{dataKey}}: {{audit.data[dataKey]}}</span><span *ngIf="last">&nbsp;</span>
+                    <span *ngFor="let entry of audit.data | keyvalue; let last = last">
+                        <span class="badge badge-default">{{entry.key}}: {{entry.value}}</span><span *ngIf="last">&nbsp;</span>
                     </span>
                 </td>
             </tr>

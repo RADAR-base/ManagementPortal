@@ -47,7 +47,6 @@ jobs:
       - name: Install dependencies
         run: |
           yarn install
-          yarn run install:webdriver
 
       - name: Run full end to end tests
         run: |

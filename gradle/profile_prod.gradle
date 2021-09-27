@@ -18,7 +18,7 @@ bootRun {
 }
 
 task webpack(type: YarnTask, dependsOn: 'yarn_install') {
-    args = ["run", "webpack:prod"]
+    args = ["build:prod"]
 }
 
 war {

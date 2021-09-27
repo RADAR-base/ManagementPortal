@@ -1,6 +1,11 @@
 {
     "error": {
         "title": "Foutpagina!",
-        "403": "U bent niet bevoegd om de pagina te openen."
+        "403": "U bent niet bevoegd om de pagina te openen.",
+        "loginLink": {
+            "prefix": "Gelieve opnieuw ",
+            "text": "in te loggen.",
+            "suffix": ""
+        }
     }
 }

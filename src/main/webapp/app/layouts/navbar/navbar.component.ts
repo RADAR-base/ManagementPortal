@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { EventManager, JhiLanguageService } from 'ng-jhipster';
-import { Subscription } from 'rxjs/Subscription';
+import { TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 import { DEBUG_INFO_ENABLED, VERSION } from '../../app.constants';
 import { JhiLanguageHelper, LoginModalService, LoginService, Principal, Project, UserService } from '../../shared';
+import { EventManager } from '../../shared/util/event-manager.service';
 
 import { ProfileService } from '../profiles/profile.service';
 
@@ -32,17 +33,16 @@ export class NavbarComponent implements OnInit {
     constructor(
             private loginService: LoginService,
             private languageHelper: JhiLanguageHelper,
-            private languageService: JhiLanguageService,
             private principal: Principal,
             private loginModalService: LoginModalService,
             private profileService: ProfileService,
             private router: Router,
             private eventManager: EventManager,
+            private translateService: TranslateService,
             private userService: UserService,
     ) {
         this.version = DEBUG_INFO_ENABLED ? 'v' + VERSION : '';
         this.isNavbarCollapsed = true;
-        this.languageService.addLocation('home');
     }
 
     ngOnInit() {
@@ -85,7 +85,7 @@ export class NavbarComponent implements OnInit {
     }
 
     changeLanguage(languageKey: string) {
-        this.languageService.changeLanguage(languageKey);
+        this.translateService.use(languageKey);
     }
 
     collapseNavbar() {
@@ -108,9 +108,5 @@ export class NavbarComponent implements OnInit {
 
     toggleNavbar() {
         this.isNavbarCollapsed = !this.isNavbarCollapsed;
-    }
-
-    getImageUrl() {
-        return this.isAuthenticated() ? this.principal.getImageUrl() : null;
     }
 }

@@ -13,11 +13,9 @@ import {
     SubjectPairPopupComponent,
     SubjectPopupComponent,
     subjectPopupRoute,
-    SubjectPopupService,
     SubjectRevisionComponent,
     SubjectRevisionListComponent,
     subjectRoute,
-    SubjectService,
 } from './';
 import {
     SubjectSourceAssignerDialogComponent,
@@ -59,10 +57,6 @@ const ENTITY_STATES = [
         SubjectPairPopupComponent,
         SubjectSourceAssignerDialogComponent,
         SubjectSourceAssignerPopupComponent,
-    ],
-    providers: [
-        SubjectService,
-        SubjectPopupService,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [

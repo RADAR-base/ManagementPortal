@@ -50,7 +50,7 @@ jobs:
         run: yarn install
 
       - name: Yarn build
-        run: yarn run webpack:build
+        run: yarn build:prod
 
       - name: Yarn check
         run: yarn test
@@ -77,7 +77,6 @@ jobs:
           cp src/test/resources/config/keystore.p12 src/main/resources/config/keystore.p12
           ./gradlew bootRun &>mp.log </dev/null &
           BOOTRUN_PROCESS=$!
-          yarn run install:webdriver
           yarn run wait-for-managementportal
           ./gradlew generateOpenApiSpec
           yarn e2e

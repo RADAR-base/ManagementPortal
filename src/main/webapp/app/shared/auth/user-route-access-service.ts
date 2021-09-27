@@ -4,7 +4,7 @@ import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from
 import { AuthService } from '../';
 import { StateStorageService } from './state-storage.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class UserRouteAccessService implements CanActivate {
 
     constructor(private router: Router,

@@ -1,11 +1,9 @@
 <div>
     <h2>
-        <span jhiTranslate="managementPortalApp.sourceType.home.title">Source Types</span>
+        <span [translate]="'managementPortalApp.sourceType.home.title'"></span>
         <button class="btn btn-primary float-right create-source-type" [routerLink]="['/', { outlets: { popup: ['source-type-new'] } }]">
             <span class="fa fa-plus"></span>
-            <span  jhiTranslate="managementPortalApp.sourceType.home.createLabel">
-            Create new Source Type
-            </span>
+            <span [translate]="'managementPortalApp.sourceType.home.createLabel'"></span>
         </button>
     </h2>
     <div class="row">
@@ -16,13 +14,13 @@
         <table class="table table-striped">
             <thead>
             <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="transition.bind(this)">
-            <th jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span><span class="fa fa-sort"></span></th>
-            <th jhiSortBy="producer"><span jhiTranslate="managementPortalApp.sourceType.producer">Producer</span><span class="fa fa-sort"></span></th>
-            <th jhiSortBy="model"><span jhiTranslate="managementPortalApp.sourceType.model">Model</span><span class="fa fa-sort"></span></th>
-            <th jhiSortBy="catalogVersion"><span jhiTranslate="managementPortalApp.sourceType.catalogVersion">Catalog Version</span><span class="fa fa-sort"></span></th>
-            <th jhiSortBy="canRegisterDynamically"><span jhiTranslate="managementPortalApp.sourceType.sourceRegistration">With dynamic id</span><span class="fa fa-sort"></span></th>
-            <th jhiSortBy="sourceTypeScope"><span jhiTranslate="managementPortalApp.sourceType.sourceTypeScope">Source Type Scope</span><span class="fa fa-sort"></span></th>
-            <th><span jhiTranslate="managementPortalApp.sourceType.sourceData">Source data</span></th>
+            <th jhiSortBy="id"><span [translate]="'global.field.id'"></span><span class="fa fa-sort"></span></th>
+            <th jhiSortBy="producer"><span [translate]="'managementPortalApp.sourceType.producer'"></span><span class="fa fa-sort"></span></th>
+            <th jhiSortBy="model"><span [translate]="'managementPortalApp.sourceType.model'"></span><span class="fa fa-sort"></span></th>
+            <th jhiSortBy="catalogVersion"><span [translate]="'managementPortalApp.sourceType.catalogVersion'"></span><span class="fa fa-sort"></span></th>
+            <th jhiSortBy="canRegisterDynamically"><span [translate]="'managementPortalApp.sourceType.sourceRegistration'"></span><span class="fa fa-sort"></span></th>
+            <th jhiSortBy="sourceTypeScope"><span [translate]="'managementPortalApp.sourceType.sourceTypeScope'"></span><span class="fa fa-sort"></span></th>
+            <th><span [translate]="'managementPortalApp.sourceType.sourceData'"></span></th>
             <th></th>
             </tr>
             </thead>
@@ -34,11 +32,11 @@
                 <td>{{sourceType.catalogVersion}}</td>
                 <td>
                     <span class="badge badge-info" *ngIf="!sourceType.canRegisterDynamically"
-                          jhiTranslate="managementPortalApp.sourceType.manualRegistration">Static Identifiers</span>
+                          [translate]="'managementPortalApp.sourceType.manualRegistration'"></span>
                     <span class="badge badge-success" *ngIf="sourceType.canRegisterDynamically"
-                          jhiTranslate="managementPortalApp.sourceType.dynamicRegistration">Dynamic Identifiers</span>
+                          [translate]="'managementPortalApp.sourceType.dynamicRegistration'"></span>
                 </td>
-                <td jhiTranslate="{{'managementPortalApp.SourceTypeScope.' + sourceType.sourceTypeScope}}">{{sourceType.sourceTypeScope}}</td>
+                <td [translate]="'managementPortalApp.SourceTypeScope.' + sourceType.sourceTypeScope"></td>
                 <td>
                     <span *ngFor="let sourceData of sourceType.sourceData; let last = last">
                             <a class="form-control-static" [routerLink]="['../source-data', sourceData?.sourceDataName ]">{{sourceData.sourceDataType}}</a>{{last ? '' : ', '}}
@@ -50,21 +48,21 @@
                                 [routerLink]="['../source-type', sourceType.producer, sourceType.model, sourceType.catalogVersion ]"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>
-                            <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
+                            <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
                         </button>
                         <button type="submit"
                                 [routerLink]="['/', { outlets: { popup: ['source-type', sourceType.producer, sourceType.model, sourceType.catalogVersion, 'edit']} }]"
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>
-                            <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
+                            <span class="hidden-md-down" [translate]="'entity.action.edit'"></span>
                         </button>
                         <button type="submit"
                                 [routerLink]="['/', { outlets: { popup: ['source-type', sourceType.producer, sourceType.model, sourceType.catalogVersion, 'delete']} }]"
                                 replaceUrl="true"
                                 class="btn btn-danger btn-sm">
                             <span class="fa fa-remove"></span>
-                            <span class="hidden-md-down" jhiTranslate="entity.action.delete">Delete</span>
+                            <span class="hidden-md-down" [translate]="'entity.action.delete'"></span>
                         </button>
                     </div>
                 </td>

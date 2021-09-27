@@ -5,18 +5,7 @@ import { PROJECT_ADMIN, SYSTEM_ADMIN } from '../../shared/constants/common.const
 
 import { RoleDetailComponent } from './role-detail.component';
 
-import { RolePopupComponent } from './role-dialog.component';
-
 export const roleRoute: Routes = [
-    // {
-    //   path: 'role',
-    //   component: RoleComponent,
-    //   data: {
-    //       authorities: ['ROLE_USER'],
-    //       pageTitle: 'managementPortalApp.role.home.title'
-    //   },
-    //   canActivate: [UserRouteAccessService]
-    // },
     {
         path: 'role/:projectName/:authorityName',
         component: RoleDetailComponent,
@@ -25,28 +14,5 @@ export const roleRoute: Routes = [
             pageTitle: 'managementPortalApp.role.home.title',
         },
         canActivate: [UserRouteAccessService],
-    },
-];
-
-export const rolePopupRoute: Routes = [
-    {
-        path: 'role-new',
-        component: RolePopupComponent,
-        data: {
-            authorities: [SYSTEM_ADMIN],
-            pageTitle: 'managementPortalApp.role.home.title',
-        },
-        canActivate: [UserRouteAccessService],
-        outlet: 'popup',
-    },
-    {
-        path: 'role/:projectName/:authorityName/edit',
-        component: RolePopupComponent,
-        data: {
-            authorities: [SYSTEM_ADMIN],
-            pageTitle: 'managementPortalApp.role.home.title',
-        },
-        canActivate: [UserRouteAccessService],
-        outlet: 'popup',
     },
 ];

@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs/Rx';
+import { Observable } from 'rxjs';
 import { Log } from './log.model';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class LogsService {
     constructor(private http: HttpClient) {
     }
@@ -13,6 +13,6 @@ export class LogsService {
     }
 
     findAll(): Observable<Log[]> {
-        return this.http.get('management/logs', { observe: 'response'}).map((res: HttpResponse<any>) => res.body);
+        return this.http.get<Log[]>('management/logs');
     }
 }

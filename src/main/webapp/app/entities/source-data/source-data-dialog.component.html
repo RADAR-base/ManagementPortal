@@ -1,87 +1,116 @@
 <form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
 
     <div class="modal-header">
-        <h4 class="modal-title" id="mySourceDataLabel" jhiTranslate="managementPortalApp.sourceData.home.createOrEditLabel">Create or edit a Source data</h4>
+        <h4 class="modal-title" id="mySourceDataLabel"
+            [translate]="'managementPortalApp.sourceData.home.createOrEditLabel'">
+        </h4>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
                 (click)="clear()">&times;</button>
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
         <div class="form-group" [hidden]="!sourceData.id">
-            <label for="id" jhiTranslate="global.field.id">ID</label>
+            <label for="id" [translate]="'global.field.id'"></label>
             <input type="text" class="form-control" id="id" name="id"
                    [(ngModel)]="sourceData.id" readonly />
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.sourceDataType" for="field_sourceDataType">Source Data Type</label>
+            <label class="form-control-label"
+                for="field_sourceDataType"
+                [translate]="'managementPortalApp.sourceData.sourceDataType'">
+            </label>
             <input type="text" class="form-control" name="sourceDataType" id="field_sourceDataType"
                 [(ngModel)]="sourceData.sourceDataType"
             required />
             <div [hidden]="!(editForm.controls.sourceDataType?.dirty && editForm.controls.sourceDataType?.invalid)">
                 <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.sourceDataType?.errors?.required" jhiTranslate="entity.validation.required">
-                   This field is required.
+                   [hidden]="!editForm.controls.sourceDataType?.errors?.required"
+                   [translate]="'entity.validation.required'">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label jhiTranslate="managementPortalApp.sourceData.sourceType" for="field_sourceType">Source Type</label>
+            <label for="field_sourceType"
+                [translate]="'managementPortalApp.sourceData.sourceType'">
+            </label>
             <select class="form-control" id="field_sourceType" name="sourceType" [(ngModel)]="sourceData.sourceType" >
                 <option [ngValue]="null"></option>
                 <option [ngValue]="sourceTypeOption.id === sourceData.sourceType?.id ? sourceData.sourceType: sourceTypeOption" *ngFor="let sourceTypeOption of sourceTypes; trackBy: trackSourceTypeById">{{sourceTypeOption.producer+"_"+sourceTypeOption.model+"_"+sourceTypeOption.catalogVersion}}</option>
             </select>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.sourceDataName" for="field_sourceDataName">Source Data Name</label>
+            <label class="form-control-label"
+                for="field_sourceDataName"
+                [translate]="'managementPortalApp.sourceData.sourceDataName'">
+            </label>
             <input type="text" class="form-control" name="sourceDataName" id="field_sourceDataName"
                    [(ngModel)]="sourceData.sourceDataName" required pattern="[_'.@A-Za-z0-9- ]*" />
             <div [hidden]="!(editForm.controls.sourceDataName?.dirty && editForm.controls.sourceDataName?.invalid)">
                 <small class="form-text text-danger"
-                       [hidden]="!editForm.controls.sourceDataName?.errors?.required" jhiTranslate="entity.validation.required">
-                    This field is required.
+                    [hidden]="!editForm.controls.sourceDataName?.errors?.required"
+                    [translate]="'entity.validation.required'">
                 </small>
                 <small class="form-text text-danger"
-                        [hidden]="!editForm.controls.sourceDataName?.errors?.pattern" jhiTranslate="entity.validation.pattern" translateValues="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
-                    Validation error.
+                    [hidden]="!editForm.controls.sourceDataName?.errors?.pattern"
+                    [translate]="'entity.validation.pattern'"
+                    [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.processingState" for="field_processingState">Processing State</label>
+            <label class="form-control-label"
+                for="field_processingState"
+                [translate]="'managementPortalApp.sourceData.processingState'">
+            </label>
             <select class="form-control" name="processingState" [(ngModel)]="sourceData.processingState" id="field_processingState" >
-                <option value="RAW" jhiTranslate="managementPortalApp.processingState.RAW">RAW</option>
-                <option value="DERIVED" jhiTranslate="managementPortalApp.processingState.DERIVED">DERIVED</option>
-                <option value="VENDOR" jhiTranslate="managementPortalApp.processingState.VENDOR">VENDOR</option>
-                <option value="RADAR" jhiTranslate="managementPortalApp.processingState.RADAR">RADAR</option>
-                <option value="UNKNOWN" jhiTranslate="managementPortalApp.processingState.UNKNOWN">UNKNOWN</option>
+                <option value="RAW" [translate]="'managementPortalApp.processingState.RAW'"></option>
+                <option value="DERIVED" [translate]="'managementPortalApp.processingState.DERIVED'"></option>
+                <option value="VENDOR" [translate]="'managementPortalApp.processingState.VENDOR'"></option>
+                <option value="RADAR" [translate]="'managementPortalApp.processingState.RADAR'"></option>
+                <option value="UNKNOWN" [translate]="'managementPortalApp.processingState.UNKNOWN'"></option>
             </select>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.topic" for="field_topic">Topic</label>
+            <label class="form-control-label"
+                for="field_topic"
+                [translate]="'managementPortalApp.sourceData.topic'">
+            </label>
             <input type="text" class="form-control" name="topic" id="field_topic"
                    [(ngModel)]="sourceData.topic"
             />
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.keySchema" for="field_keySchema">Key schema</label>
+            <label class="form-control-label"
+                for="field_keySchema"
+                [translate]="'managementPortalApp.sourceData.keySchema'">
+            </label>
             <input type="text" class="form-control" name="keySchema" id="field_keySchema"
                 [(ngModel)]="sourceData.keySchema"
              />
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.valueSchema" for="field_valueSchema">Value schema</label>
+            <label class="form-control-label"
+                for="field_valueSchema"
+                [translate]="'managementPortalApp.sourceData.valueSchema'">
+            </label>
             <input type="text" class="form-control" name="valueSchema" id="field_valueSchema"
                    [(ngModel)]="sourceData.valueSchema"
             />
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.frequency" for="field_frequency">Frequency</label>
+            <label class="form-control-label"
+                for="field_frequency"
+                [translate]="'managementPortalApp.sourceData.frequency'">
+            </label>
             <input type="text" class="form-control" name="frequency" id="field_frequency"
                 [(ngModel)]="sourceData.frequency"
              />
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceData.unit" for="field_unit">Unit</label>
+            <label class="form-control-label"
+                for="field_unit"
+                [translate]="'managementPortalApp.sourceData.unit'">
+            </label>
             <input type="text" class="form-control" name="unit" id="field_unit"
                    [(ngModel)]="sourceData.unit"
             />
@@ -91,10 +120,10 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
-            <span class="fa fa-ban"></span>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+            <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
         </button>
         <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
-            <span class="fa fa-save"></span>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+            <span class="fa fa-save"></span>&nbsp;<span [translate]="'entity.action.save'"></span>
         </button>
     </div>
 </form>

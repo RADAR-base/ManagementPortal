@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { EventManager, JhiLanguageService } from 'ng-jhipster';
-import { Subscription } from 'rxjs/Rx';
+import { Subscription } from 'rxjs';
 
+import { EventManager } from '../util/event-manager.service';
 import { Source } from './source.model';
 import { SourceService } from './source.service';
 
@@ -18,11 +18,9 @@ export class SourceDetailComponent implements OnInit, OnDestroy {
 
     constructor(
             private eventManager: EventManager,
-            private jhiLanguageService: JhiLanguageService,
             private sourceService: SourceService,
             private route: ActivatedRoute,
     ) {
-        this.jhiLanguageService.setLocations(['source']);
     }
 
     ngOnInit() {

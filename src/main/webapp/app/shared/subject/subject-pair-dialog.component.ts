@@ -1,23 +1,22 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { DatePipe, DOCUMENT } from '@angular/common';
+import { HttpResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { Observable } from 'rxjs';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { JhiLanguageService } from 'ng-jhipster';
+
 import { OAuthClient, OAuthClientService } from '../../entities/oauth-client';
 import { OAuthClientPairInfoService } from '../../entities/oauth-client/oauth-client-pair-info.service';
 
 import { SubjectPopupService } from './subject-popup.service';
 import { Subject } from './subject.model';
-import { DatePipe, DOCUMENT } from '@angular/common';
-import { TranslateService } from 'ng2-translate';
-import { Observable } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-subject-pair-dialog',
     templateUrl: './subject-pair-dialog.component.html',
     styleUrls: ['subject-pair-dialog.component.scss'],
-    providers: [OAuthClientService, OAuthClientPairInfoService],
 })
 export class SubjectPairDialogComponent implements OnInit {
     readonly authorities: string[];
@@ -29,13 +28,11 @@ export class SubjectPairDialogComponent implements OnInit {
     allowPersistentToken = false;
 
     constructor(public activeModal: NgbActiveModal,
-                private jhiLanguageService: JhiLanguageService,
                 private translate: TranslateService,
                 private oauthClientService: OAuthClientService,
                 private pairInfoService: OAuthClientPairInfoService,
                 private datePipe: DatePipe,
                 @Inject(DOCUMENT) private doc) {
-        this.jhiLanguageService.addLocation('subject');
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
     }
 

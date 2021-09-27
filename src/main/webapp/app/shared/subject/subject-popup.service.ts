@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+
 import { ProjectService } from '../project/project.service';
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class SubjectPopupService {
     private isOpen = false;
     login ? = 'xxxyxxxx';

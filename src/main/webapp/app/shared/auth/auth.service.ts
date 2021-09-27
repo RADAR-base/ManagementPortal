@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+
 import { LoginModalService } from '../login/login-modal.service';
 import { Principal } from './principal.service';
 import { StateStorageService } from './state-storage.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class AuthService {
 
     constructor(
@@ -19,12 +20,6 @@ export class AuthService {
         return this.principal.identity(force).then(() => {
             const isAuthenticated = this.principal.isAuthenticated();
             const toStateInfo = this.stateStorageService.getDestinationState().destination;
-
-            // an authenticated user can't access to login and register pages
-            if (isAuthenticated && (toStateInfo.name === 'register')) {
-                this.router.navigate(['']);
-                return false;
-            }
 
             // recover and clear previousState after external login redirect (e.g. oauth2)
             const fromStateInfo = this.stateStorageService.getDestinationState().from;

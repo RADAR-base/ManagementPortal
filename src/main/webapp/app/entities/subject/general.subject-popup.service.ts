@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+
 import { Subject, SubjectService } from '../../shared/subject';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class GeneralSubjectPopupService {
     private isOpen = false;
 

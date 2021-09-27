@@ -1,114 +1,147 @@
 <form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
 
     <div class="modal-header">
-        <h4 class="modal-title" id="mySourceTypeLabel" jhiTranslate="managementPortalApp.sourceType.home.createOrEditLabel">Create or edit a Source Type</h4>
+        <h4 class="modal-title" id="mySourceTypeLabel"
+            [translate]="'managementPortalApp.sourceType.home.createOrEditLabel'">
+        </h4>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
                 (click)="clear()">&times;</button>
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
         <div class="form-group" [hidden]="!sourceType.id">
-            <label for="id" jhiTranslate="global.field.id">ID</label>
+            <label for="id" [translate]="'global.field.id'"></label>
             <input type="text" class="form-control" id="id" name="id"
                    [(ngModel)]="sourceType.id" readonly />
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceType.producer" for="field_producer">Producer</label>
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.sourceType.producer'"
+                for="field_producer">
+            </label>
             <input type="text" class="form-control" name="producer" id="field_producer"
                 [(ngModel)]="sourceType.producer" required pattern="[_'.@A-Za-z0-9- ]*" />
             <div [hidden]="!(editForm.controls.producer?.dirty && editForm.controls.producer?.invalid)">
                 <small class="form-text text-danger"
-                       [hidden]="!editForm.controls.producer?.errors?.required" jhiTranslate="entity.validation.required">
-                    This field is required.
+                    [hidden]="!editForm.controls.producer?.errors?.required"
+                    [translate]="'entity.validation.required'">
                 </small>
                 <small class="form-text text-danger"
-                        [hidden]="!editForm.controls.producer?.errors?.pattern" jhiTranslate="entity.validation.pattern" translateValues="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
-                    Validation error.
+                    [hidden]="!editForm.controls.producer?.errors?.pattern"
+                    [translate]="'entity.validation.pattern'"
+                    [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceType.model" for="field_model">Model</label>
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.sourceType.model'"
+                for="field_model">
+            </label>
             <input type="text" class="form-control" name="model" id="field_model"
                 [(ngModel)]="sourceType.model" required pattern="[_'.@A-Za-z0-9- ]*" />
             <div [hidden]="!(editForm.controls.model?.dirty && editForm.controls.model?.invalid)">
                 <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.model?.errors?.required" jhiTranslate="entity.validation.required">
-                   This field is required.
+                   [hidden]="!editForm.controls.model?.errors?.required"
+                   [translate]="'entity.validation.required'">
                 </small>
                 <small class="form-text text-danger"
-                        [hidden]="!editForm.controls.model?.errors?.pattern" jhiTranslate="entity.validation.pattern" translateValues="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
-                    Validation error.
+                    [hidden]="!editForm.controls.model?.errors?.pattern"
+                    [translate]="'entity.validation.pattern'"
+                    [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceType.catalogVersion" for="field_catalogVersion">Device Version</label>
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.sourceType.catalogVersion'"
+                for="field_catalogVersion">
+            </label>
             <input type="text" class="form-control" name="catalogVersion" id="field_catalogVersion"
                    [(ngModel)]="sourceType.catalogVersion" required pattern="[_'.@A-Za-z0-9- ]*" />
             <div [hidden]="!(editForm.controls.catalogVersion?.dirty && editForm.controls.catalogVersion?.invalid)">
                 <small class="form-text text-danger"
-                       [hidden]="!editForm.controls.catalogVersion?.errors?.required" jhiTranslate="entity.validation.required">
-                    This field is required.
+                    [hidden]="!editForm.controls.catalogVersion?.errors?.required"
+                    [translate]="'entity.validation.required'">
                 </small>
                 <small class="form-text text-danger"
-                        [hidden]="!editForm.controls.catalogVersion?.errors?.pattern" jhiTranslate="entity.validation.pattern" translateValues="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
-                    Validation error.
+                    [hidden]="!editForm.controls.catalogVersion?.errors?.pattern"
+                    [translate]="'entity.validation.pattern'"
+                    [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceType.sourceTypeScope" for="field_sourceTypeScope">Source Type Scope</label>
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.sourceType.sourceTypeScope'"
+                for="field_sourceTypeScope">
+            </label>
             <select class="form-control" name="sourceTypeScope" [(ngModel)]="sourceType.sourceTypeScope" id="field_sourceTypeScope"  required>
-                <option value="ACTIVE" jhiTranslate="managementPortalApp.SourceTypeScope.ACTIVE">ACTIVE</option>
-                <option value="PASSIVE" jhiTranslate="managementPortalApp.SourceTypeScope.PASSIVE">PASSIVE</option>
+                <option value="ACTIVE"
+                    [translate]="'managementPortalApp.SourceTypeScope.ACTIVE'">
+                </option>
+                <option value="PASSIVE"
+                    [translate]="'managementPortalApp.SourceTypeScope.PASSIVE'">
+                </option>
             </select>
             <div [hidden]="!(editForm.controls.sourceTypeScope?.dirty && editForm.controls.sourceTypeScope?.invalid)">
                 <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.sourceTypeScope?.errors?.required" jhiTranslate="entity.validation.required">
-                   This field is required.
+                   [hidden]="!editForm.controls.sourceTypeScope?.errors?.required"
+                   [translate]="'entity.validation.required'">
                 </small>
             </div>
         </div>
 
         <div class="form-group">
             <label class="form-control-label" for="field_hasDynamicId"
-                   jhiTranslate="managementPortalApp.sourceType.dynamicRegistration">Dynamic Source Registraion
+                   [translate]="'managementPortalApp.sourceType.dynamicRegistration'">
             </label>
             <div class="form-check">
                 <label class="form-check-label">
                     <input type="checkbox" id="field_hasDynamicId" class="form-check-input"
                            name="hasDynamicId" [checked]="sourceType.canRegisterDynamically"
                            (change)="sourceType.canRegisterDynamically = !sourceType.canRegisterDynamically"/>
-                    Dynamic Source Registration
+                    {{'managementPortalApp.sourceType.canRegisterDynamically' | translate}}
                 </label>
             </div>
-            <small id="dynamicRegistrationHelp" class="form-text text-muted">If enabled this will
-                allow the OAuth client to dynamically register data sources.
+            <small id="dynamicRegistrationHelp" class="form-text text-muted"
+                [translate]="'managementPortalApp.sourceType.dynamicRegistrationHelp'">
             </small>
         </div>
 
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceType.name" for="field_name">Name</label>
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.sourceType.name'"
+                for="field_name">
+            </label>
             <input type="text" class="form-control" name="name" id="field_name"
                    [(ngModel)]="sourceType.name"
             />
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceType.description" for="field_description">Description</label>
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.sourceType.description'"
+                for="field_description">
+            </label>
             <input type="text" class="form-control" name="field_description" id="field_description"
                    [(ngModel)]="sourceType.description"
             />
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceType.assessmentType" for="field_assessmentType">Assessment Type</label>
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.sourceType.assessmentType'"
+                for="field_assessmentType">
+            </label>
             <input type="text" class="form-control" name="assessmentType" id="field_assessmentType"
                    [(ngModel)]="sourceType.assessmentType"
             />
         </div>
 
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.sourceType.appProvider" for="field_appProvider">App Provider</label>
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.sourceType.appProvider'"
+                for="field_appProvider">
+            </label>
             <input type="text" class="form-control" name="appProvider" id="field_appProvider"
                    [(ngModel)]="sourceType.appProvider"
             />
@@ -116,10 +149,10 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
-            <span class="fa fa-ban"></span>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+            <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
         </button>
         <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
-            <span class="fa fa-save"></span>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+            <span class="fa fa-save"></span>&nbsp;<span [translate]="'entity.action.save'"></span>
         </button>
     </div>
 </form>

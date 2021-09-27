@@ -1,16 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-    AlertService,
-    EventManager,
-    JhiLanguageService,
-    PaginationUtil,
-    ParseLinks,
-} from 'ng-jhipster';
-import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
 
 import { ITEMS_PER_PAGE, Principal, User, UserService } from '../../shared';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { AlertService } from '../../shared/util/alert.service';
+import { EventManager } from '../../shared/util/event-manager.service';
+import { parseLinks } from '../../shared/util/parse-links-util';
 
 @Component({
     selector: 'jhi-user-mgmt',
@@ -37,14 +32,10 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
     byEmail: string;
 
     constructor(
-            private jhiLanguageService: JhiLanguageService,
             private userService: UserService,
-            private parseLinks: ParseLinks,
             private alertService: AlertService,
             private principal: Principal,
             private eventManager: EventManager,
-            private paginationUtil: PaginationUtil,
-            private paginationConfig: PaginationConfig,
             private activatedRoute: ActivatedRoute,
             private router: Router,
     ) {
@@ -55,7 +46,6 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
             this.reverse = data['pagingParams'].ascending;
             this.predicate = data['pagingParams'].predicate;
         });
-        this.jhiLanguageService.setLocations(['user-management']);
     }
 
     ngOnInit() {
@@ -132,7 +122,7 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
     }
 
     private onSuccess(data, headers) {
-        this.links = this.parseLinks.parse(headers.get('link'));
+        this.links = parseLinks(headers.get('link'));
         this.totalItems = headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
         this.users = data;

@@ -5,7 +5,8 @@
 generated/
 /build/www/**
 /src/test/javascript/coverage/
-/src/test/javascript/PhantomJS*/
+/src/test/javascript/e2e/cypress/screenshots
+/src/test/javascript/e2e/cypress/videos
 keystore.jks
 keystore.p12
 src/main/resources/config/keystore.p12

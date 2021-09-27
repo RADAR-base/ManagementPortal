@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class JhiHealthService {
 
     separator: string;
@@ -12,7 +12,7 @@ export class JhiHealthService {
     }
 
     checkHealth(): Observable<any> {
-        return this.http.get('management/health', { observe: 'response'}).map((res: HttpResponse<any>) => res.body);
+        return this.http.get('management/health');
     }
 
     transformHealthData(data): any {
@@ -42,28 +42,16 @@ export class JhiHealthService {
         const healthData: any = {
             name,
         };
-
-        const details = {};
-        let hasDetails = false;
-
-        for (const key in healthObject) {
-            if (healthObject.hasOwnProperty(key)) {
-                const value = healthObject[key];
-                if (key === 'status' || key === 'error') {
-                    healthData[key] = value;
-                } else {
-                    if (!this.isHealthObject(value)) {
-                        details[key] = value;
-                        hasDetails = true;
-                    }
-                }
-            }
+        if (healthObject.details) {
+            healthData.details = healthObject.details;
         }
-
-        // Add the details
-        if (hasDetails) {
-            healthData.details = details;
+        if (healthObject.status) {
+            healthData.status = healthObject.status;
         }
+        if (healthObject.error) {
+            healthData.error = healthObject.error;
+        }
+        let hasDetails = !!healthData.details;
 
         // Only add nodes if they provide additional information
         if (isLeaf || hasDetails || healthData.error) {
@@ -73,16 +61,13 @@ export class JhiHealthService {
     }
 
     private flattenHealthData(result, path, data): any {
-        for (const key in data) {
-            if (data.hasOwnProperty(key)) {
-                const value = data[key];
-                if (this.isHealthObject(value)) {
-                    if (this.hasSubSystem(value)) {
-                        this.addHealthObject(result, false, value, this.getModuleName(path, key));
-                        this.flattenHealthData(result, this.getModuleName(path, key), value);
-                    } else {
-                        this.addHealthObject(result, true, value, this.getModuleName(path, key));
-                    }
+        for (const [key, value] of Object.entries(data.components || {})) {
+            if (this.isHealthObject(value)) {
+                if (this.hasSubSystem(value)) {
+                    this.addHealthObject(result, false, value, this.getModuleName(path, key));
+                    this.flattenHealthData(result, this.getModuleName(path, key), value);
+                } else {
+                    this.addHealthObject(result, true, value, this.getModuleName(path, key));
                 }
             }
         }
@@ -104,17 +89,7 @@ export class JhiHealthService {
     }
 
     private hasSubSystem(healthObject): boolean {
-        let result = false;
-
-        for (const key in healthObject) {
-            if (healthObject.hasOwnProperty(key)) {
-                const value = healthObject[key];
-                if (value && value.status) {
-                    result = true;
-                }
-            }
-        }
-        return result;
+        return 'components' in healthObject;
     }
 
     private isHealthObject(healthObject): boolean {

@@ -1,29 +1,27 @@
 <div>
     <h2>
-        <span jhiTranslate="userManagement.home.title">Users</span>
+        <span [translate]="'userManagement.home.title'"></span>
         <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']" class="btn btn-primary float-right" style="margin-left: 5px" [routerLink]="['/', { outlets: { popup: ['user-management-new-admin'] } }]">
-            <span class="fa fa-plus"></span> <span jhiTranslate="userManagement.home.createAdminLabel">Create an admin User</span>
+            <span class="fa fa-plus"></span> <span [translate]="'userManagement.home.createAdminLabel'"></span>
         </button>
         <button class="btn btn-primary float-right" [routerLink]="['/', { outlets: { popup: ['user-management-new'] } }]">
-            <span class="fa fa-plus"></span> <span jhiTranslate="userManagement.home.createLabel">Create a new User</span>
+            <span class="fa fa-plus"></span> <span [translate]="'userManagement.home.createLabel'"></span>
         </button>
     </h2>
     <jhi-alert></jhi-alert>
     <div>
-        <h4 jhiTranslate="userManagement.search.title">Filter by</h4>
+        <h4 [translate]="'userManagement.search.title'"></h4>
         <p class="d-flex">
-            <span jhiTranslate="userManagement.login" class="input-group-addon">Login</span>
+            <span [translate]="'userManagement.login'" class="input-group-addon"></span>
             <input type="text" class="form-control" name="byLogin" [(ngModel)]="byLogin" (ngModelChange)="onChange($event)"/>
 
-            <span jhiTranslate="userManagement.email" class="input-group-addon">Email</span>
+            <span [translate]="'userManagement.email'" class="input-group-addon"></span>
             <input type="text" class="form-control" name="byEmail" [(ngModel)]="byEmail" (ngModelChange)="onChange($event)"/>
 
-            <span jhiTranslate="userManagement.role.project"
-                  class="input-group-addon">Project</span>
+            <span [translate]="'userManagement.role.project'" class="input-group-addon"></span>
             <input type="text" class="form-control" name="byProject" [(ngModel)]="byProject" (ngModelChange)="onChange($event)"/>
 
-            <span jhiTranslate="userManagement.role.authorityName"
-                  class="input-group-addon">Role</span>
+            <span [translate]="'userManagement.role.authorityName'" class="input-group-addon"></span>
             <input type="text" class="form-control" name="byAuthority" [(ngModel)]="byAuthority" (ngModelChange)="onChange($event)"/>
         </p>
     </div>
@@ -32,16 +30,16 @@
         <table class="table table-striped">
             <thead>
             <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
-            <th jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span><span class="fa fa-sort"></span></th>
-                <th jhiSortBy="login"><span jhiTranslate="userManagement.login">Login</span> <span class="fa fa-sort"></span></th>
-                <th jhiSortBy="email"><span jhiTranslate="userManagement.email">Email</span> <span class="fa fa-sort"></span></th>
+                <th jhiSortBy="id"><span [translate]="'global.field.id'"></span><span class="fa fa-sort"></span></th>
+                <th jhiSortBy="login"><span [translate]="'userManagement.login'"></span> <span class="fa fa-sort"></span></th>
+                <th jhiSortBy="email"><span [translate]="'userManagement.email'"></span> <span class="fa fa-sort"></span></th>
                 <th></th>
-                <th jhiSortBy="langKey"> <span jhiTranslate="userManagement.langKey">Lang Key</span> <span class="fa fa-sort"></span></th>
-                <th><span jhiTranslate="userManagement.role.authorityName">Profiles</span></th>
-                <th><span jhiTranslate="userManagement.role.project">Project</span></th>
-                <th><span jhiTranslate="userManagement.createdDate">Created Date</span></th>
-                <th><span jhiTranslate="userManagement.lastModifiedBy">Last Modified By</span></th>
-                <th><span jhiTranslate="userManagement.lastModifiedDate">Last Modified Date</span></th>
+                <th jhiSortBy="langKey"> <span [translate]="'userManagement.langKey'"></span> <span class="fa fa-sort"></span></th>
+                <th><span [translate]="'userManagement.role.authorityName'"></span></th>
+                <th><span [translate]="'userManagement.role.project'"></span></th>
+                <th><span [translate]="'userManagement.createdDate'"></span></th>
+                <th><span [translate]="'userManagement.lastModifiedBy'"></span></th>
+                <th><span [translate]="'userManagement.lastModifiedDate'"></span></th>
                 <th></th>
             </tr>
             </thead>
@@ -51,10 +49,14 @@
                 <td>{{user.login}}</td>
                 <td>{{user.email}}</td>
                 <td>
-                    <span class="badge badge-danger "  *ngIf="!user.activated"
-                          jhiTranslate="userManagement.deactivated">Deactivated</span>
-                    <span class="badge badge-success "  *ngIf="user.activated"
-                          jhiTranslate="userManagement.activated">Activated</span>
+                    <span *ngIf="!user.activated"
+                        class="badge badge-danger"
+                        [translate]="'userManagement.deactivated'">
+                    </span>
+                    <span *ngIf="user.activated"
+                        class="badge badge-success"  
+                        [translate]="'userManagement.activated'">
+                    </span>
                 </td>
                 <td>{{user.langKey}}</td>
                 <td>
@@ -78,21 +80,21 @@
                                 [routerLink]="['../user-management', user.login]"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>
-                            <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
+                            <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
                         </button>
                         <button type="submit" [replaceUrl]="true"
                                 [routerLink]="['/', { outlets: { popup: 'user-management/'+ user.login + '/send-activation'} }]"
                                 [disabled]="user.activated"
                                 class="btn btn-warning btn-sm">
                             <span class="fa fa-mail-forward"></span>
-                            <span class="hidden-md-down" jhiTranslate="userManagement.sendActivation.title">Send activation link</span>
+                            <span class="hidden-md-down" [translate]="'userManagement.sendActivation.title'"></span>
                         </button>
                         <button [disabled]="user.roles[0].authorityName=='ROLE_SYS_ADMIN'" type="submit"
                                 [routerLink]="['/', { outlets: { popup: 'user-management/'+ user.login + '/edit'} }]"
                                 [replaceUrl]="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>
-                            <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
+                            <span class="hidden-md-down" [translate]="'entity.action.edit'"></span>
                         </button>
                         <button type="submit"
                                 [routerLink]="['/', { outlets: { popup: 'user-management/'+ user.login + '/delete'} }]"
@@ -102,7 +104,7 @@
                                 user.roles[0].authorityName=='ROLE_PARTICIPANT' ||
                                 user.roles[0].authorityName=='ROLE_INACTIVE_PARTICIPANT'">
                             <span class="fa fa-remove"></span>
-                            <span class="hidden-md-down" jhiTranslate="entity.action.delete">Delete</span>
+                            <span class="hidden-md-down" [translate]="'entity.action.delete'"></span>
                         </button>
                     </div>
                 </td>

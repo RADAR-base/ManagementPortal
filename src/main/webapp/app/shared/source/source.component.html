@@ -1,21 +1,17 @@
 <div>
     <h4>
-        <span jhiTranslate="managementPortalApp.source.home.title">Devices</span>
+        <span [translate]="'managementPortalApp.source.home.title'"></span>
         <button  *ngIf='!isProjectSpecific'
                 class="btn btn-primary float-right create-source"
                 [routerLink]="['/', { outlets: { popup: ['general-source-new'] } }]">
             <span class="fa fa-plus"></span>
-            <span  jhiTranslate="managementPortalApp.source.home.createLabel">
-            Create new Device
-            </span>
+            <span [translate]="'managementPortalApp.source.home.createLabel'"></span>
         </button>
         <button  *ngIf='isProjectSpecific'
                  class="btn btn-primary float-right create-source"
                  [routerLink]="['/', { outlets: { popup: ['project-source-new' , project.projectName] } }]">
             <span class="fa fa-plus"></span>
-            <span  jhiTranslate="managementPortalApp.source.home.createLabel">
-            Create new Device
-            </span>
+            <span [translate]="'managementPortalApp.source.home.createLabel'"></span>
         </button>
 
     </h4>
@@ -26,17 +22,17 @@
     <div class="table-responsive" *ngIf="sources">
         <table class="table table-striped">
             <thead>
-            <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="transition.bind(this)">
-            <th jhiSortBy="id" ><span jhiTranslate="global.field.id">ID</span><span class="fa fa-sort"></span></th>
-            <th jhiSortBy="sourceName" ><span jhiTranslate="managementPortalApp.source.sourceName">Source Name</span><span class="fa fa-sort"></span></th>
-            <th><span jhiTranslate="managementPortalApp.source.expectedSourceName">Expected Source Name</span></th>
-            <th jhiSortBy="sourceId" ><span jhiTranslate="managementPortalApp.source.sourceId">Source Id</span><span class="fa fa-sort"></span></th>
-            <th jhiSortBy="assigned" ><span jhiTranslate="managementPortalApp.source.assigned">Assigned</span><span class="fa fa-sort"></span></th>
-            <th jhiSortBy="sourceType" ><span jhiTranslate="managementPortalApp.source.sourceType">Source Type</span><span class="fa fa-sort"></span></th>
-            <th jhiSortBy="project" *ngIf="!isProjectSpecific"><span jhiTranslate="managementPortalApp.source.project">Project</span><span class="fa fa-sort"></span></th>
-            <th><span jhiTranslate="managementPortalApp.source.attributeData">Attributes</span></th>
-            <th></th>
-            </tr>
+                <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="transition.bind(this)">
+                    <th jhiSortBy="id" ><span [translate]="'global.field.id'"></span><span class="fa fa-sort"></span></th>
+                    <th jhiSortBy="sourceName" ><span [translate]="'managementPortalApp.source.sourceName'"></span><span class="fa fa-sort"></span></th>
+                    <th><span [translate]="'managementPortalApp.source.expectedSourceName'"></span></th>
+                    <th jhiSortBy="sourceId" ><span [translate]="'managementPortalApp.source.sourceId'"></span><span class="fa fa-sort"></span></th>
+                    <th jhiSortBy="assigned" ><span [translate]="'managementPortalApp.source.assigned'"></span><span class="fa fa-sort"></span></th>
+                    <th jhiSortBy="sourceType" ><span [translate]="'managementPortalApp.source.sourceType'"></span><span class="fa fa-sort"></span></th>
+                    <th jhiSortBy="project" *ngIf="!isProjectSpecific"><span [translate]="'managementPortalApp.source.project'"></span><span class="fa fa-sort"></span></th>
+                    <th><span [translate]="'managementPortalApp.source.attributeData'"></span></th>
+                    <th></th>
+                </tr>
             </thead>
             <tbody>
             <tr *ngFor="let source of sources ;trackBy: trackId">
@@ -45,10 +41,14 @@
                 <td>{{source.expectedSourceName}}</td>
                 <td>{{source.sourceId}}</td>
                 <td>
-                    <span class="badge badge-danger" *ngIf="!source.assigned"
-                          jhiTranslate="managementPortalApp.source.unassigned">Unassigned</span>
-                    <span class="badge badge-success" *ngIf="source.assigned"
-                          jhiTranslate="managementPortalApp.source.assigned">Assigned</span>
+                    <span class="badge badge-danger"
+                        *ngIf="!source.assigned"
+                        [translate]="'managementPortalApp.source.unassigned'">
+                    </span>
+                    <span class="badge badge-success"
+                        *ngIf="source.assigned"
+                        [translate]="'managementPortalApp.source.assigned'">
+                    </span>
                 </td>
                 <td>
                     <div *ngIf="source.sourceType">
@@ -61,7 +61,7 @@
                     </div>
                 </td>
                 <td>
-                  <div *ngFor="let entry of source.attributes | keys; trackBy: trackKey">
+                  <div *ngFor="let entry of source.attributes | keyvalue; trackBy: trackKey">
                     <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
                   </div>
                 </td>
@@ -71,7 +71,7 @@
                                 [routerLink]="['/source', source.sourceName ]"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>
-                            <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
+                            <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
                         </button>
                         <button *ngIf='isProjectSpecific'
                                 type="submit"
@@ -79,7 +79,7 @@
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>
-                            <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
+                            <span class="hidden-md-down" [translate]="'entity.action.edit'"></span>
                         </button>
                         <button *ngIf='!isProjectSpecific'
                                 type="submit"
@@ -87,14 +87,14 @@
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>
-                            <span class="hidden-md-down" jhiTranslate="entity.action.edit">Edit</span>
+                            <span class="hidden-md-down" [translate]="'entity.action.edit'"></span>
                         </button>
                         <button type="submit"
                                 [routerLink]="['/', { outlets: { popup: 'source/'+ source.sourceName + '/delete'} }]"
                                 replaceUrl="true"
                                 class="btn btn-danger btn-sm">
                             <span class="fa fa-remove"></span>
-                            <span class="hidden-md-down" jhiTranslate="entity.action.delete">Delete</span>
+                            <span class="hidden-md-down" [translate]="'entity.action.delete'"></span>
                         </button>
                     </div>
                 </td>

@@ -1,5 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, Renderer } from '@angular/core';
-import { JhiLanguageService } from 'ng-jhipster';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 
 import { PasswordResetInit } from './password-reset-init.service';
 
@@ -8,18 +7,16 @@ import { PasswordResetInit } from './password-reset-init.service';
     templateUrl: './password-reset-init.component.html',
 })
 export class PasswordResetInitComponent implements OnInit, AfterViewInit {
+    @ViewChild('emailField') emailField: ElementRef;
+
     error: string;
     errorEmailNotExists: string;
     resetAccount: any;
     success: string;
 
     constructor(
-            private jhiLanguageService: JhiLanguageService,
             private passwordResetInit: PasswordResetInit,
-            private elementRef: ElementRef,
-            private renderer: Renderer,
     ) {
-        this.jhiLanguageService.setLocations(['reset']);
     }
 
     ngOnInit() {
@@ -27,7 +24,7 @@ export class PasswordResetInitComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit() {
-        this.renderer.invokeElementMethod(this.elementRef.nativeElement.querySelector('#email'), 'focus', []);
+        this.emailField.nativeElement.focus();
     }
 
     requestReset() {
