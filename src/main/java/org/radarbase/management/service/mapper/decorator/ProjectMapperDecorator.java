@@ -2,6 +2,8 @@ package org.radarbase.management.service.mapper.decorator;
 
 import static org.radarbase.management.service.dto.ProjectDTO.HUMAN_READABLE_PROJECT_NAME;
 
+import java.util.HashSet;
+
 import org.radarbase.management.domain.Group;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.repository.ProjectRepository;
@@ -69,6 +71,9 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
         String projectName = projectDto.getHumanReadableProjectName();
         if (projectName != null && !projectName.isEmpty()) {
             project.getAttributes().put(HUMAN_READABLE_PROJECT_NAME, projectName);
+        }
+        if (project.getGroups() == null) {
+            project.setGroups(new HashSet<>());
         }
         // Ensure that project_id will be set on each group
         for (Group g : project.getGroups()) {
