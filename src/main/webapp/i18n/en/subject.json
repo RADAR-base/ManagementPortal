@@ -67,6 +67,8 @@
             "discontinued": "A Subject is discontinued with identifier {{ param }}",
             "sorting": {
                 "label": "Sort by",
+                "id.asc": "Id - Ascending",
+                "id.desc": "Id - Descending",
                 "externalId.asc": "External Id - A to Z",
                 "externalId.desc": "External Id - Z to A",
                 "user.login.asc": "Subject Id - A to Z",

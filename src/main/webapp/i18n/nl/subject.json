@@ -67,6 +67,8 @@
             "discontinued": "Een onderwerp wordt beëindigd met een identificatiecode {{ param }}",
             "sorting": {
                 "label": "Sorteren op",
+                "id.asc": "Id - Oplopend",
+                "id.desc": "Id - Aflopend",
                 "externalId.asc": "External Id - A tot Z",
                 "externalId.desc": "External Id - Z tot A",
                 "user.login.asc": "Subject Id - A tot Z",

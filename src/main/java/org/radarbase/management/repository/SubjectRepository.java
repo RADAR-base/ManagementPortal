@@ -5,9 +5,11 @@ import java.util.Optional;
 import java.util.UUID;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.domain.Subject;
+import org.radarbase.management.repository.filters.SubjectFilter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.RepositoryDefinition;
 import org.springframework.data.repository.history.RevisionRepository;
@@ -19,19 +21,9 @@ import org.springframework.data.repository.query.Param;
 @SuppressWarnings("unused")
 @RepositoryDefinition(domainClass = Subject.class, idClass = Long.class)
 public interface SubjectRepository extends JpaRepository<Subject, Long>,
-        RevisionRepository<Subject, Long, Integer> {
-
-    @Query(value = "select distinct subject from Subject subject left join fetch subject.sources",
-            countQuery = "select distinct count(subject) from Subject subject")
-    Page<Subject> findAllWithEagerRelationships(Pageable pageable);
-
-    @Query(value = "select distinct subject from Subject subject left join fetch subject.sources "
-            + "left join fetch subject.user user "
-            + "join user.roles roles where roles.project.projectName = :projectName",
-            countQuery = "select distinct count(subject) from Subject subject "
-                    + "left join subject.user user left join user.roles roles "
-                    + "where roles.project.projectName = :projectName")
-    Page<Subject> findAllByProjectName(Pageable pageable, @Param("projectName") String projectName);
+        RevisionRepository<Subject, Long, Integer>,
+        JpaSpecificationExecutor<Subject>
+{
 
     @Query(value = "select distinct subject from Subject subject left join fetch subject.sources "
             + "left join fetch subject.user user "

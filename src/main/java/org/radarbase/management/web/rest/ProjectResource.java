@@ -6,18 +6,19 @@ import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.repository.ProjectRepository;
-import org.radarbase.management.repository.SubjectRepository;
+import org.radarbase.management.repository.filters.SubjectFilter;
 import org.radarbase.management.service.ProjectService;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.RoleService;
 import org.radarbase.management.service.SourceService;
+import org.radarbase.management.service.SubjectService;
 import org.radarbase.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.service.dto.SourceDTO;
 import org.radarbase.management.service.dto.SourceTypeDTO;
 import org.radarbase.management.service.dto.SubjectDTO;
-import org.radarbase.management.service.mapper.SubjectMapper;
+import org.radarbase.management.web.rest.errors.BadRequestException;
 import org.radarbase.management.web.rest.errors.ErrorVM;
 import org.radarbase.management.web.rest.util.HeaderUtil;
 import org.radarbase.management.web.rest.util.PaginationUtil;
@@ -44,12 +45,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarbase.auth.authorization.Permission.PROJECT_CREATE;
 import static org.radarbase.auth.authorization.Permission.PROJECT_DELETE;
@@ -61,6 +59,8 @@ import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
 import static org.radarbase.management.security.SecurityUtils.getJWT;
+import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_PROJECT_NOT_EMPTY;
 
 /**
@@ -87,10 +87,7 @@ public class ProjectResource {
     private RoleService roleService;
 
     @Autowired
-    private SubjectRepository subjectRepository;
-
-    @Autowired
-    private SubjectMapper subjectMapper;
+    private SubjectService subjectService;
 
     @Autowired
     private SourceService sourceService;
@@ -302,10 +299,10 @@ public class ProjectResource {
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/subjects")
     @Timed
-    public ResponseEntity<List<SubjectDTO>> getAllSubjects(@ApiParam Pageable pageable,
-            @PathVariable String projectName,
-            @RequestParam(value = "withInactiveParticipants", required = false)
-                    Boolean inactiveParticipantsParam) throws NotAuthorizedException {
+    public ResponseEntity<List<SubjectDTO>> getAllSubjects(
+        SubjectFilter subjectFilter
+    ) throws NotAuthorizedException {
+        String projectName = subjectFilter.getProjectName();
         // this checks if the project exists
         projectService.findOneByName(projectName);
         RadarToken jwt = getJWT(servletRequest);
@@ -313,25 +310,16 @@ public class ProjectResource {
         if (!jwt.isClientCredentials() && jwt.hasAuthority(PARTICIPANT)) {
             throw new NotAuthorizedException("Cannot list all project subjects as a participant.");
         }
-
-        log.debug("REST request to get all subjects for project {}", projectName);
-        Page<SubjectDTO> page;
-        boolean includeInactiveParticipants = inactiveParticipantsParam != null
-                && inactiveParticipantsParam;
-        if (includeInactiveParticipants) {
-            page = subjectRepository.findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
-                    Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT))
-                    .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
-
-        } else {
-            page = subjectRepository.findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
-                    Collections.singletonList(PARTICIPANT))
-                    .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
+        String filterError = subjectFilter.getFilterValidationError();
+        if (filterError != null) {
+            throw new BadRequestException(filterError, SOURCE_TYPE, ERR_VALIDATION);
         }
 
-        HttpHeaders headers = PaginationUtil
-                .generatePaginationHttpHeaders(page, HeaderUtil.buildPath("api",
-                        "projects", projectName, "subjects"));
+        log.debug("REST request to get all subjects for project {}", projectName);
+        Page<SubjectDTO> page = subjectService.findAll(subjectFilter);
+
+        String baseUri = HeaderUtil.buildPath("api", "projects", projectName, "subjects");
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, baseUri);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 }

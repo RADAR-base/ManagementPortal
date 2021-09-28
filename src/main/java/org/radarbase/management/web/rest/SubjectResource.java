@@ -43,6 +43,7 @@ import org.radarbase.management.domain.SourceType;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.repository.SubjectRepository;
+import org.radarbase.management.repository.filters.SubjectFilter;
 import org.radarbase.management.security.SecurityUtils;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.RevisionService;
@@ -241,22 +242,23 @@ public class SubjectResource {
     @GetMapping("/subjects")
     @Timed
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(
-            @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable,
-            @RequestParam(value = "projectName", required = false) String projectName,
             @RequestParam(value = "externalId", required = false) String externalId,
-            @RequestParam(value = "withInactiveParticipants", required = false)
-                    Boolean withInactiveParticipantsParam)
-            throws NotAuthorizedException {
+            SubjectFilter subjectFilter
+    ) throws NotAuthorizedException {
         RadarToken jwt = getJWT(servletRequest);
+        String projectName = subjectFilter.getProjectName();
         checkPermissionOnProject(jwt, SUBJECT_READ, projectName);
         if (!jwt.isClientCredentials() && jwt.hasAuthority(PARTICIPANT)) {
             throw new NotAuthorizedException("Cannot list subjects as a participant.");
         }
+        String filterError = subjectFilter.getFilterValidationError();
+        if (filterError != null) {
+            throw new BadRequestException(filterError, SOURCE_TYPE, ERR_VALIDATION);
+        }
 
         log.debug("ProjectName {} and external {}", projectName, externalId);
         // if not specified do not include inactive patients
-        boolean withInactive = withInactiveParticipantsParam != null
-                && withInactiveParticipantsParam;
+        boolean withInactive = subjectFilter.getWithInactiveParticipants();
 
         List<String> authoritiesToInclude = withInactive ? Arrays.asList(PARTICIPANT,
                 INACTIVE_PARTICIPANT) : Collections.singletonList(PARTICIPANT);
@@ -273,18 +275,9 @@ public class SubjectResource {
                     .findAllByExternalIdAndAuthoritiesIn(externalId, authoritiesToInclude);
             List<SubjectDTO> dto = subjectMapper.subjectsToSubjectReducedProjectDTOs(subjects);
             return ResponseEntity.ok(dto);
-        } else if (projectName != null) {
-            Page<SubjectDTO> page = subjectRepository
-                    .findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
-                            authoritiesToInclude)
-                    .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
-
-            HttpHeaders headers = PaginationUtil
-                    .generatePaginationHttpHeaders(page, "/api/subjects");
-            return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
         } else {
-            log.debug("REST request to get all Subjects");
-            Page<SubjectDTO> page = subjectService.findAll(pageable);
+            Page<SubjectDTO> page = subjectService.findAll(subjectFilter);
+
             HttpHeaders headers = PaginationUtil
                     .generatePaginationHttpHeaders(page, "/api/subjects");
             return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);

@@ -14,7 +14,7 @@ import { map } from 'rxjs/operators';
 
 import { ITEMS_PER_PAGE, Project } from '..';
 import { Subject } from './subject.model';
-import { SubjectService } from './subject.service';
+import { SubjectService, SubjectsPaginationParams } from './subject.service';
 import { PagingParams } from '../commons';
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
@@ -80,11 +80,9 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     private loadAllFromProject() {
-        this.subjectService.findAllByProject(this.project.projectName, {
-            page: this.page - 1,
-            size: this.itemsPerPage,
-            sort: this.sort(),
-        }).subscribe(
+        this.subjectService.findAllByProject(this.project.projectName,
+            this.queryPaginationParams,
+        ).subscribe(
                 (res: HttpResponse<Subject[]>) => {
                     this.onSuccess(res.body, res.headers);
                 },
@@ -93,13 +91,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     loadAll() {
-        this.subjectService.query(
-                {
-                    page: this.page - 1,
-                    size: this.itemsPerPage,
-                    sort: this.sort(),
-                },
-        ).subscribe(
+        this.subjectService.query(this.queryPaginationParams).subscribe(
                 (res: HttpResponse<Subject[]>) => this.onSuccess(res.body, res.headers),
                 (res: HttpErrorResponse) => this.onError(res),
         );
@@ -143,8 +135,13 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
-    sort() {
-        return [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
+    get queryPaginationParams(): SubjectsPaginationParams {
+        return {
+            lastLoadedId: undefined,
+            pageSize: this.itemsPerPage,
+            sortBy: this.predicate,
+            sortDirection: this.ascending ? 'asc' : 'desc',
+        };
     }
 
     private onSuccess(data, headers) {

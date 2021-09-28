@@ -43,17 +43,31 @@ export class SubjectService {
 
     }
 
-    query(req?: any): Observable<HttpResponse<any>> {
-        const params = createRequestOption(req);
-        return this.http.get(this.resourceUrl, {params, observe: 'response'});
+    query(paginationParams: SubjectsPaginationParams): Observable<HttpResponse<any>> {
+        return this.http.get(this.resourceUrl, {
+            params: createRequestOption(paginationParams),
+            observe: 'response',
+        });
     }
 
     delete(login: string): Observable<any> {
         return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(login)}`);
     }
 
-    findAllByProject(projectName: string, req ?: any): Observable<HttpResponse<Subject[]>> {
-        const params = createRequestOption(req);
-        return this.http.get<Subject[]>(`${this.projectResourceUrl}/${projectName}/subjects`, {params, observe: 'response'});
+    findAllByProject(
+        projectName: string, paginationParams: SubjectsPaginationParams
+    ): Observable<HttpResponse<Subject[]>> {
+        let url = `${this.projectResourceUrl}/${projectName}/subjects`;
+        return this.http.get<Subject[]>(url, {
+            params: createRequestOption(paginationParams),
+            observe: 'response',
+        });
     }
+}
+
+export interface SubjectsPaginationParams {
+    lastLoadedId?: number,
+    pageSize?: number,
+    sortBy?: string,
+    sortDirection?: 'asc' | 'desc',
 }

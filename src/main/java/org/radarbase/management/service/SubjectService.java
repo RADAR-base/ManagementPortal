@@ -39,6 +39,7 @@ import org.radarbase.management.repository.AuthorityRepository;
 import org.radarbase.management.repository.RoleRepository;
 import org.radarbase.management.repository.SourceRepository;
 import org.radarbase.management.repository.SubjectRepository;
+import org.radarbase.management.repository.filters.SubjectFilter;
 import org.radarbase.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarbase.management.service.dto.SubjectDTO;
 import org.radarbase.management.service.dto.UserDTO;
@@ -55,6 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.Revisions;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -193,18 +195,6 @@ public class SubjectService {
         managedRoles.add(getProjectParticipantRole(projectMapper.projectDTOToProject(subjectDto
                 .getProject()), PARTICIPANT));
         return managedRoles;
-    }
-
-
-    /**
-     * Get a page of subjects.
-     *
-     * @param pageable the page information
-     * @return the requested page of subjects
-     */
-    public Page<SubjectDTO> findAll(Pageable pageable) {
-        return subjectRepository.findAllWithEagerRelationships(pageable)
-                .map(subjectMapper::subjectToSubjectReducedProjectDTO);
     }
 
     /**
@@ -453,6 +443,16 @@ public class SubjectService {
             new NotFoundException("Subject not found with login", SUBJECT,
                 ERR_SUBJECT_NOT_FOUND)
         );
+    }
+
+	public Page<SubjectDTO> findAll(SubjectFilter filter) {
+        // Pageable is required to set the page limit,
+        // but the page should always be zero
+        // since the lastLoadedId param defines the offset
+        // within the query specification
+        Pageable pageable = PageRequest.of(0, filter.getPageSize());
+        return subjectRepository.findAll(filter, pageable)
+            .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
     }
 
     /**
