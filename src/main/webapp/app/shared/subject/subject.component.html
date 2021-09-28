@@ -4,14 +4,15 @@
 
         <label>
             <span [translate]="'managementPortalApp.subject.subjectId'"></span>
-            <input type="text">
+            <input type="text" [(ngModel)]="filterSubjectId">
         </label>
         <label>
             <span [translate]="'managementPortalApp.subject.externalId'"></span>
-            <input type="text">
+            <input type="text" [(ngModel)]="filterExternalId">
         </label>
         <button class="btn btn-outline-secondary"
             type="button"
+            (click)="applyFilter()"
             [translate]="'managementPortalApp.subject.filter.applyButton'"
         >
         </button>

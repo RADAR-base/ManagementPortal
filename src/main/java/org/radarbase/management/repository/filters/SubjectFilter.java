@@ -29,15 +29,13 @@ public class SubjectFilter implements Specification<Subject> {
     private Long lastLoadedId = null;
     private Integer pageSize = 10;
     private String projectName = null;
+    private String externalId = null;
+    private String subjectId = null;
     private SubjectSortBy sortBy = SubjectSortBy.ID;
     private SubjectSortDirection sortDirection = SubjectSortDirection.ASC;
     
     @Override
     public Predicate toPredicate(Root<Subject> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-        System.out.println("Include inactive: " + includeInactive);
-        System.out.println("Project name: " + projectName);
-        System.out.println("Subject sort by: " + sortBy);
-        System.out.println("Subject sort direction: " + sortDirection);
         query.distinct(true);
 
         root.alias("subject");
@@ -66,7 +64,14 @@ public class SubjectFilter implements Specification<Subject> {
             rolesJoin.get("authority").get("name").in(authorities);
         predicates.add(filterAuthorities);
 
-        if (lastLoadedId != null) {
+        if (StringUtils.isNotEmpty(externalId)) {
+            predicates.add(builder.equal(root.get("externalId"), externalId));
+        }
+        if (StringUtils.isNotEmpty(subjectId)) {
+            predicates.add(builder.equal(userJoin.get("login"), subjectId));
+        }
+
+        if (!isCountQuery && lastLoadedId != null) {
             if (sortBy == SubjectSortBy.ID && sortDirection == SubjectSortDirection.DESC) {
                 predicates.add(builder.lessThan(root.get("id"), lastLoadedId));
             } else {
@@ -128,6 +133,14 @@ public class SubjectFilter implements Specification<Subject> {
 
     public Integer getPageSize() {
         return this.pageSize;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
+    }
+
+    public void setSubjectId(String subjectId) {
+        this.subjectId = subjectId;
     }
 
     public void setPageSize(Integer pageSize) {

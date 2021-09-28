@@ -43,9 +43,12 @@ export class SubjectService {
 
     }
 
-    query(paginationParams: SubjectsPaginationParams): Observable<HttpResponse<any>> {
+    query(
+        filterParams: SubjectFilterParams,
+        paginationParams: SubjectsPaginationParams,
+    ): Observable<HttpResponse<any>> {
         return this.http.get(this.resourceUrl, {
-            params: createRequestOption(paginationParams),
+            params: createRequestOption({ ...paginationParams, ...filterParams }),
             observe: 'response',
         });
     }
@@ -55,14 +58,21 @@ export class SubjectService {
     }
 
     findAllByProject(
-        projectName: string, paginationParams: SubjectsPaginationParams
+        projectName: string,
+        filterParams: SubjectFilterParams,
+        paginationParams: SubjectsPaginationParams,
     ): Observable<HttpResponse<Subject[]>> {
         let url = `${this.projectResourceUrl}/${projectName}/subjects`;
         return this.http.get<Subject[]>(url, {
-            params: createRequestOption(paginationParams),
+            params: createRequestOption({ ...paginationParams, ...filterParams }),
             observe: 'response',
         });
     }
+}
+
+export interface SubjectFilterParams {
+    subjectId?: string,
+    externalId?: string,
 }
 
 export interface SubjectsPaginationParams {

@@ -14,7 +14,11 @@ import { map } from 'rxjs/operators';
 
 import { ITEMS_PER_PAGE, Project } from '..';
 import { Subject } from './subject.model';
-import { SubjectService, SubjectsPaginationParams } from './subject.service';
+import {
+    SubjectService,
+    SubjectFilterParams,
+    SubjectsPaginationParams,
+} from './subject.service';
 import { PagingParams } from '../commons';
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
@@ -48,6 +52,9 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     routeData: any;
     previousPage: any;
 
+    filterExternalId = '';
+    filterSubjectId = '';
+
     @Input() isProjectSpecific: boolean;
 
     constructor(
@@ -80,7 +87,9 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     private loadAllFromProject() {
-        this.subjectService.findAllByProject(this.project.projectName,
+        this.subjectService.findAllByProject(
+            this.project.projectName,
+            this.queryFilterParams,
             this.queryPaginationParams,
         ).subscribe(
                 (res: HttpResponse<Subject[]>) => {
@@ -91,7 +100,10 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     loadAll() {
-        this.subjectService.query(this.queryPaginationParams).subscribe(
+        this.subjectService.query(
+            this.queryFilterParams,
+            this.queryPaginationParams,
+        ).subscribe(
                 (res: HttpResponse<Subject[]>) => this.onSuccess(res.body, res.headers),
                 (res: HttpErrorResponse) => this.onError(res),
         );
@@ -135,9 +147,17 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
-    get queryPaginationParams(): SubjectsPaginationParams {
+    get queryFilterParams(): SubjectFilterParams {
         return {
-            lastLoadedId: undefined,
+            subjectId: this.filterSubjectId.trim() || undefined,
+            externalId: this.filterExternalId.trim() || undefined,
+        };
+    }
+
+    get queryPaginationParams(): SubjectsPaginationParams {
+        let subjects = this.subjects || [];
+        return {
+            lastLoadedId: subjects[subjects.length - 1]?.id,
             pageSize: this.itemsPerPage,
             sortBy: this.predicate,
             sortDirection: this.ascending ? 'asc' : 'desc',
@@ -149,6 +169,11 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         this.totalItems = +headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
         this.subjects = data;
+    }
+
+    applyFilter() {
+        this.subjects = [];
+        this.loadSubjects();
     }
 
     loadMore() {
