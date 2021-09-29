@@ -22,7 +22,6 @@ export class AuditsComponent implements OnInit {
     reverse: boolean;
     toDate: string;
     totalItems: number;
-    objectKeys = Object.keys;
     datePipe: DatePipe;
 
     constructor(

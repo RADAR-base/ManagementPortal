@@ -1,10 +1,10 @@
 package org.radarbase.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.service.ProjectService;
@@ -48,7 +48,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
@@ -159,13 +158,13 @@ public class ProjectResource {
      */
     @GetMapping("/projects")
     @Timed
-    public ResponseEntity getAllProjects(
+    public ResponseEntity<?> getAllProjects(
             @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable,
             @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
                     minimized) throws NotAuthorizedException {
         log.debug("REST request to get Projects");
         checkPermission(getJWT(servletRequest), PROJECT_READ);
-        Page page = projectService.findAll(minimized, pageable);
+        Page<?> page = projectService.findAll(minimized, pageable);
         HttpHeaders headers = PaginationUtil
                 .generatePaginationHttpHeaders(page, "/api/projects");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
@@ -185,7 +184,7 @@ public class ProjectResource {
         log.debug("REST request to get Project : {}", projectName);
         ProjectDTO projectDto = projectService.findOneByName(projectName);
         checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ, projectDto.getProjectName());
-        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(projectDto));
+        return ResponseEntity.ok(projectDto);
     }
 
     /**
@@ -254,14 +253,18 @@ public class ProjectResource {
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/sources")
     @Timed
-    public ResponseEntity getAllSourcesForProject(@ApiParam Pageable pageable,
+    public ResponseEntity<?> getAllSourcesForProject(@ApiParam Pageable pageable,
             @PathVariable String projectName,
             @RequestParam(value = "assigned", required = false) Boolean assigned,
             @RequestParam(name = "minimized", required = false, defaultValue = "false")
                     Boolean minimized) throws NotAuthorizedException {
         log.debug("REST request to get all Sources");
         ProjectDTO projectDto = projectService.findOneByName(projectName);
-        checkPermissionOnProject(getJWT(servletRequest), SOURCE_READ, projectDto.getProjectName());
+        RadarToken jwt = getJWT(servletRequest);
+        checkPermissionOnProject(jwt, SOURCE_READ, projectDto.getProjectName());
+        if (!jwt.isClientCredentials() && jwt.hasAuthority(PARTICIPANT)) {
+            throw new NotAuthorizedException("Cannot list all project sources as a participant.");
+        }
 
         if (Objects.nonNull(assigned)) {
             if (minimized) {
@@ -305,7 +308,12 @@ public class ProjectResource {
                     Boolean inactiveParticipantsParam) throws NotAuthorizedException {
         // this checks if the project exists
         projectService.findOneByName(projectName);
-        checkPermissionOnProject(getJWT(servletRequest), SUBJECT_READ, projectName);
+        RadarToken jwt = getJWT(servletRequest);
+        checkPermissionOnProject(jwt, SUBJECT_READ, projectName);
+        if (!jwt.isClientCredentials() && jwt.hasAuthority(PARTICIPANT)) {
+            throw new NotAuthorizedException("Cannot list all project subjects as a participant.");
+        }
+
         log.debug("REST request to get all subjects for project {}", projectName);
         Page<SubjectDTO> page;
         boolean includeInactiveParticipants = inactiveParticipantsParam != null
@@ -314,6 +322,7 @@ public class ProjectResource {
             page = subjectRepository.findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
                     Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT))
                     .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
+
         } else {
             page = subjectRepository.findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
                     Collections.singletonList(PARTICIPANT))

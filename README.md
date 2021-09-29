@@ -5,7 +5,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d6945ebd1eba4a3fbb55882cda33655e)](https://www.codacy.com/app/RADAR-base/ManagementPortal?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RADAR-base/ManagementPortal&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/d6945ebd1eba4a3fbb55882cda33655e)](https://www.codacy.com/app/RADAR-base/ManagementPortal?utm_source=github.com&utm_medium=referral&utm_content=RADAR-base/ManagementPortal&utm_campaign=Badge_Coverage)
 
-ManagementPortal is an application which is used to manage pilot studies for [RADAR-base](http://www.radar-base.org/).
+Management Portal is an application which is used to manage clinical studies for [RADAR-base](http://www.radar-base.org/) platform.
 
 ## Table of contents
 
@@ -32,7 +32,7 @@ ManagementPortal is an application which is used to manage pilot studies for [RA
 Management Portal can be easily run either by running from source or by using the provided `docker-compose` file.
 ### Using Docker-Compose
 
-The quickest way to get ManagementPortal up and running in production mode is by using the included
+The quickest way to get Management Portal up and running in production mode is by using the included
 docker-compose files. 
 1. Make sure [Docker][] and [Docker-Compose][] are installed on your system.
 2. Generate a key pair for signing JWT tokens as follows:
@@ -57,7 +57,7 @@ you must install and configure the following dependencies on your machine to run
    **Make sure the key password and store password are the same!** This is a requirement for Spring Security.
 
 4. **Profile configurations :** ManagementPortal can be run with either `development` or `production` profile. The table below lists the
-main differences between the profiles are mentioned in the table below. Configure the application using the property file at `src/main/resources/config/application-<profile>.yml`.Read more about configurations [here](#configuration)
+main differences between the profiles. Configure the application using the property file at `src/main/resources/config/application-<profile>.yml`.Read more about configurations [here](#configuration)
     
 5. Run ManagementPortal by running `./gradlew bootRun -Pprod` or `./gradlew bootRun -Pdev`. Development mode will start an in
 memory database and ManagementPortal. 
@@ -73,7 +73,7 @@ memory database and ManagementPortal.
 
 
 
-The docker image can be pulled by running `docker pull radarbase/management-portal`.
+The docker image can be pulled by running `docker pull radarbase/management-portal:latest`.
 
 ## Configuration
 
@@ -217,39 +217,13 @@ auto-refreshes when files change on your hard drive.
     ./gradlew
     yarn start
 
-Then open <http://localhost:8080/> to start the interface and sign in with admin/admin.
+Then open <http://localhost:9000/> to start the interface and sign in with admin/admin.
 
 [Yarn][] is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
 specifying a newer version in [package.json](package.json). You can also run `yarn update` and `yarn install` to manage dependencies.
 Add the `help` flag on any command to see how you can use it. For example, `yarn help update`.
 
-The `yarn run` command will list all of the scripts available to run for this project.
-
-### Managing dependencies
-
-For example, to add [Leaflet][] library as a runtime dependency of your application, you would run following command:
-
-    yarn add --exact leaflet
-
-To benefit from TypeScript type definitions from [DefinitelyTyped][] repository in development, you would run following command:
-
-    yarn add --dev --exact @types/leaflet
-
-Then you would import the JS and CSS files specified in library's installation instructions so that [Webpack][] knows about them:
-
-Edit [src/main/webapp/app/vendor.ts](src/main/webapp/app/vendor.ts) file:
-~~~
-import 'leaflet/dist/leaflet.js';
-~~~
-
-Edit [src/main/webapp/content/css/vendor.css](src/main/webapp/content/css/vendor.css) file:
-~~~
-@import '~leaflet/dist/leaflet.css';
-~~~
-
-Note: there are still few other things remaining to do for Leaflet that we won't detail here.
-
-For further instructions on how to develop with JHipster, have a look at [Using JHipster in development][].
+The `yarn run` command will list all the scripts available to run for this project.
 
 ### Using angular-cli
 
@@ -281,7 +255,6 @@ To ensure everything worked, run:
 
 Then navigate to [http://localhost:8080](http://localhost:8080) in your browser.
 
-Refer to [Using JHipster in production][] for more details.
 
 ## Testing
 
@@ -295,7 +268,7 @@ Unit tests are run by [Karma][] and written with [Jasmine][]. They're located in
 
     yarn test
 
-UI end-to-end tests are powered by [Protractor][], which is built on top of WebDriverJS. They're located in [src/test/javascript/e2e](src/test/javascript/e2e)
+UI end-to-end tests are powered by [Cypress][], which is built on top of WebDriverJS. They're located in [src/test/javascript/e2e](src/test/javascript/e2e)
 and can be run by starting Spring Boot in one terminal (`./gradlew bootRun`) and running the tests (`yarn run e2e`) in a second one.
 ### Other tests
 
@@ -332,13 +305,12 @@ Then run:
 For more information refer to [Using Docker and Docker-Compose][], this page also contains information on the docker-compose sub-generator (`yo jhipster:docker-compose`), which is able to generate docker configurations for one or several JHipster applications.
 ## Documentation
 
-Visit our [Github pages](https://radar-base.github.io/ManagementPortal) site to find links to the
-Javadoc and API docs.
+Please find the links for some of the documentation per category/component
 * [management-portal-javadoc](https://radar-base.github.io/ManagementPortal/management-portal-javadoc/)
 * [oauth-client-util-javadoc](https://radar-base.github.io/ManagementPortal/oauth-client-util-javadoc/)
 * [radar-auth-javadoc](https://radar-base.github.io/ManagementPortal/radar-auth-javadoc/)
 * [managementportal-client-javadoc](https://radar-base.github.io/ManagementPortal/managementportal-client-javadoc/)
-* [apidoc](https://radar-base.github.io/ManagementPortal/apidoc/swagger.json)
+* [Swagger 2.0 apidoc](https://radar-base.github.io/ManagementPortal/apidoc/swagger.json)
 
 The pages site is published from the `gh-pages` branch, which has its own history. If you want to
 contribute to the documentation, it is probably more convenient to clone a separate copy of this
@@ -361,7 +333,6 @@ The resulting file can be imported into the [Swagger editor], or used with [Swag
 
 [Using JHipster in development]: https://jhipster.github.io/documentation-archive/v4.3.0/development/
 [Using Docker and Docker-Compose]: https://jhipster.github.io/documentation-archive/v4.3.0/docker-compose
-[Using JHipster in production]: https://jhipster.github.io/documentation-archive/v4.3.0/production/
 [Running tests page]: https://jhipster.github.io/documentation-archive/v4.3.0/running-tests/
 [Setting up Continuous Integration]: https://jhipster.github.io/documentation-archive/v4.3.0/setting-up-ci/
 

@@ -114,7 +114,7 @@ class RadarAuthorizationTest {
 
     @Test
     void testCheckPermissionOnSource() {
-        String project = "PROJECT1";
+        String project = "PROJECT2";
         // this token is participant in PROJECT2
         RadarToken token = new JwtRadarToken(TokenTestUtils.PROJECT_ADMIN_TOKEN);
         String subject = "some-subject";
@@ -142,22 +142,6 @@ class RadarAuthorizationTest {
         for (Permission p : permissions) {
             RadarAuthorization.checkPermissionOnSource(token, p, project, subject, source);
         }
-    }
-
-
-    @Test
-    void testCheckPermissionOnOtherSource() {
-        String project = "PROJECT2";
-        // this token is participant in PROJECT2
-        RadarToken token = new JwtRadarToken(TokenTestUtils.MULTIPLE_ROLES_IN_PROJECT_TOKEN);
-        String subject = token.getSubject();
-        String source = "source-2";  // source to use
-
-        Permission.allPermissions()
-                .forEach(p -> assertNotAuthorized(
-                    () -> RadarAuthorization.checkPermissionOnSource(
-                                token, p, project, subject, source),
-                        "Token should not have permission " + p + " on another subject"));
     }
 
     @Test

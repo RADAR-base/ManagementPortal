@@ -30,7 +30,7 @@ describe('Source e2e test', () => {
 
     it('should be able to create new source', () => {
         cy.get('button.btn-primary').contains('Create a new Source').click();
-        cy.wait(500);
+        cy.wait(1000);
         cy.get('[name=sourceName]').type('test-source1');
         cy.get('[name=expectedSourceName]').type('A007C');
         cy.get('[name=project]').select('radar');
@@ -41,7 +41,7 @@ describe('Source e2e test', () => {
     });
 
     it('should be able to edit a source', () => {
-        cy.wait(500);
+        cy.wait(1000);
         cy.get('jhi-source tbody tr td').contains('test-source1').parents('tr')
             .find('button').contains('Edit')
             .first().click();
