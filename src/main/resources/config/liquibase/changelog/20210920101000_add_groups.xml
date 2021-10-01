@@ -76,4 +76,16 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="20210920101000-4" author="alexey@thehyve.nl">
+        <addColumn tableName="subject">
+            <column name="group_name" type="varchar(50)" />
+        </addColumn>
+    </changeSet>
+    <changeSet id="20210920101000-5" author="alexey@thehyve.nl">
+        <addColumn tableName="subject_aud">
+            <column name="group_name" type="varchar(50)" />
+            <column name="group_mod" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

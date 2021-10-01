@@ -85,6 +85,9 @@ public class Subject extends AbstractEntity implements Serializable {
     @JsonIgnore
     private final Set<MetaToken> metaTokens = new HashSet<>();
 
+    @Column(name = "group_name")
+    private String group;
+
     @Override
     public Long getId() {
         return id;
@@ -172,6 +175,14 @@ public class Subject extends AbstractEntity implements Serializable {
         return metaTokens;
     }
 
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public String getGroup() {
+        return this.group;
+    }
+
     /**
      * Gets the active project of subject.
      *
@@ -217,6 +228,7 @@ public class Subject extends AbstractEntity implements Serializable {
                 + ", user=" + user
                 + ", sources=" + sources
                 + ", attributes=" + attributes
+                + ", group=" + group
                 + "}";
     }
 }
