@@ -22,6 +22,20 @@
                   <a [routerLink]="['/project', subject.project?.projectName ]" >{{subject.project?.projectName}}</a>
             </span>
         </dd>
+        <dt><span [translate]="'managementPortalApp.subject.name'"></span></dt>
+        <dd>
+            <span>{{subject.name || 'N/A'}}</span>
+        </dd>
+        <dt><span [translate]="'managementPortalApp.subject.dob'"></span></dt>
+        <dd>
+            <span>{{subject.dob || 'N/A'}}</span>
+        </dd>
+        <dt><span [translate]="'managementPortalApp.subject.group'"></span></dt>
+        <dd>
+            <span *ngIf="subject.group">
+<!--                <a [routerLink]="['/project', subject.project?.projectName ]" >{{subject.project?.projectName}}</a>-->
+            </span>
+        </dd>
         <dt><span [translate]="'managementPortalApp.subject.sources'"></span></dt>
         <dd>
             <span *ngFor="let sources of subject.sources; let last = last">

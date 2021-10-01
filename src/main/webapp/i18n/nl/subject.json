@@ -24,6 +24,8 @@
             "email": "Email",
             "externalLink": "External Link",
             "externalId": "External Id",
+            "name": "Naam",
+            "dob": "Geboortedatum",
             "removed": "Removed",
             "activated": "Activated",
             "langKey": "Taal",

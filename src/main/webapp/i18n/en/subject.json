@@ -24,6 +24,8 @@
             "email": "Email",
             "externalLink": "External Link",
             "externalId": "External Id",
+            "name": "Name",
+            "dob": "Date of Birth",
             "removed": "Removed",
             "activated": "Activated",
             "langKey": "Language",
