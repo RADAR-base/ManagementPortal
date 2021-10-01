@@ -40,6 +40,8 @@
             </div>
         </dd>
 
+        <dt><span [translate]="'managementPortalApp.subject.dateOfBirth'"></span></dt>
+        <dd>{{subject.dateOfBirth | date:'dd/MM/yy HH:mm' }}</dd>
         <dt><span [translate]="'managementPortalApp.subject.createdBy'"></span></dt>
         <dd>{{subject.createdBy}}</dd>
         <dt><span [translate]="'managementPortalApp.subject.createdDate'"></span></dt>
