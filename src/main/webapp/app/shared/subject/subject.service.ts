@@ -73,6 +73,10 @@ export class SubjectService {
 export interface SubjectFilterParams {
     subjectId?: string,
     externalId?: string,
+    humanReadableId?: string,
+    enrolmentDate?: string,
+    subjectName?: string,
+    subjectDOB?: string,
 }
 
 export interface SubjectsPaginationParams {

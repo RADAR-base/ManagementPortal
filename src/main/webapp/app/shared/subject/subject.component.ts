@@ -52,8 +52,14 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     routeData: any;
     previousPage: any;
 
-    filterExternalId = '';
+    filterSubjectExternalId = '';
     filterSubjectId = '';
+    filterSubjectHumanReadableId = '';
+    filterSubjectEnrolmentDate = '';
+    filterSubjectName = '';
+    filterSubjectDOB = '';
+
+    isAdvancedFilterCollapsed = true;
 
     @Input() isProjectSpecific: boolean;
 
@@ -150,7 +156,11 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     get queryFilterParams(): SubjectFilterParams {
         return {
             subjectId: this.filterSubjectId.trim() || undefined,
-            externalId: this.filterExternalId.trim() || undefined,
+            externalId: this.filterSubjectExternalId.trim() || undefined,
+            humanReadableId: this.filterSubjectHumanReadableId.trim() || undefined,
+            enrolmentDate: this.filterSubjectEnrolmentDate.trim() || undefined,
+            subjectName: this.filterSubjectName.trim() || undefined,
+            subjectDOB: this.filterSubjectDOB.trim() || undefined,
         };
     }
 
