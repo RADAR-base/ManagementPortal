@@ -90,6 +90,7 @@
             "validUntil": "Geldig tot",
             "validity": "Geldigheidsduur",
             "selectAll": "Selecteer alles",
+            "clearSelectedItems": "Geselecteerde items wissen",
             "addSelectedToGroup": "Aan groep toevoegen",
             "group": "Groep",
             "loadMore": "Meer laden ({{shown}}/{{total}} getoond)",

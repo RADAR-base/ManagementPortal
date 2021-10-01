@@ -61,6 +61,9 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
 
     isAdvancedFilterCollapsed = true;
 
+    checked = false;
+    setOfCheckedId = new Set<number>();
+
     @Input() isProjectSpecific: boolean;
 
     constructor(
@@ -205,8 +208,27 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         this.transition();
     }
 
-    selectAll() {
+    selectAll(checked: boolean = true): void {
         // TODO implement subject selection
+        this.subjects.forEach(({ id }) => this.updateCheckedSet(id, checked));
+        this.refreshCheckedStatus();
+    }
+
+    onItemChecked(id: number, checked: boolean): void {
+        this.updateCheckedSet(id, checked);
+        this.refreshCheckedStatus();
+    }
+
+    refreshCheckedStatus(): void {
+        this.checked = this.subjects.every(({ id }) => this.setOfCheckedId.has(id)) && (this.subjects.length > 0);
+    }
+
+    updateCheckedSet(id: number, checked: boolean): void {
+        if (checked) {
+            this.setOfCheckedId.add(id);
+        } else {
+            this.setOfCheckedId.delete(id);
+        }
     }
 
     addSelectedToGroup() {

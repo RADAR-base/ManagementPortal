@@ -105,8 +105,8 @@
             <div class="subject-list-actions">
                 <button type="button"
                     class="btn btn-light"
-                    [translate]="'managementPortalApp.subject.selectAll'"
-                    (click)="selectAll()"
+                    [translate]="!checked ? 'managementPortalApp.subject.selectAll' : 'managementPortalApp.subject.clearSelectedItems'"
+                    (click)="selectAll(!checked)"
                 ></button>
                 <button type="button"
                     class="btn btn-light"
@@ -117,7 +117,8 @@
             </div>
             <div *ngFor="let subject of subjects ;trackBy: trackLogin" class="subject-row">
                 <div class="subject-row__select-row">
-                    <input type="checkbox">
+                    <input type="checkbox" [checked]="setOfCheckedId.has(subject.id)"
+                           (change)="onItemChecked(subject.id, true)">
                 </div>
                 <div class="subject-row__content">
                     <div>

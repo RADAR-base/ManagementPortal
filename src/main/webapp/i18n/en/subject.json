@@ -90,6 +90,7 @@
             "validUntil": "Valid until",
             "validity": "Validity",
             "selectAll": "Select all",
+            "clearSelectedItems": "Clear selected items",
             "addSelectedToGroup": "Add to group",
             "group": "Group",
             "loadMore": "Load more ({{shown}}/{{total}} shown)",
