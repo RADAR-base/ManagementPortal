@@ -26,6 +26,8 @@
             "externalId": "External Id",
             "name": "Name",
             "dob": "Date of Birth",
+            "humanReadableId": "Human Readable ID",
+            "enrolmentDate": "Enrolment Date",
             "removed": "Removed",
             "activated": "Activated",
             "langKey": "Language",

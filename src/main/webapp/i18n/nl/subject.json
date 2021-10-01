@@ -26,6 +26,8 @@
             "externalId": "External Id",
             "name": "Naam",
             "dob": "Geboortedatum",
+            "humanReadableId": "Leesbare ID",
+            "enrolmentDate": "Inschrijvingsdatum",
             "removed": "Removed",
             "activated": "Activated",
             "langKey": "Taal",
