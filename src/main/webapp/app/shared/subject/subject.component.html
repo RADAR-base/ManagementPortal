@@ -246,13 +246,13 @@
         <div *ngIf="subjects && totalItems !== undefined"
             class="subject-pagination"
         >
-            <span *ngIf="totalItems === subjects.length"
+            <span *ngIf="totalItems <= subjects.length"
                 class="subject-pagination__all-loaded"
                 [translate]="'managementPortalApp.subject.allLoaded'"
-                [translateParams]="{ total: totalItems }"
+                [translateParams]="{ total: subjects.length }"
             ></span>
             <a *ngIf="totalItems > subjects.length"
-                href="#" class="subject-pagination__load-more"
+                class="subject-pagination__load-more"
                 (click)="loadMore()"
                 [translate]="'managementPortalApp.subject.loadMore'"
                 [translateParams]="{ shown: subjects.length, total: totalItems }"

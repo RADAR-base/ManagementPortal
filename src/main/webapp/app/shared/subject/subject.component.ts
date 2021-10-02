@@ -119,12 +119,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnInit() {
-        this.loadSubjects();
         this.registerChangeInSubjects();
-
-        this.pagingParams$.subscribe(() => {
-            this.loadSubjects();
-        });
     }
 
     ngOnDestroy() {
@@ -149,6 +144,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges) {
+        this.subjects = [];
         const project: SimpleChange = changes.project ? changes.project : null;
         if (project) {
             this.project = project.currentValue;
@@ -169,9 +165,11 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
 
     get queryPaginationParams(): SubjectsPaginationParams {
         let subjects = this.subjects || [];
+        const lastLoadedId = subjects[subjects.length - 1]?.id;
+        const pageSize = lastLoadedId? this.itemsPerPage : this.page*this.itemsPerPage;
         return {
-            lastLoadedId: subjects[subjects.length - 1]?.id,
-            pageSize: this.itemsPerPage,
+            lastLoadedId,
+            pageSize,
             sortBy: this.predicate,
             sortDirection: this.ascending ? 'asc' : 'desc',
         };
@@ -181,7 +179,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         this.links = parseLinks(headers.get('link'));
         this.totalItems = +headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
-        this.subjects = data;
+        this.subjects = [...this.subjects, ...data];
     }
 
     applyFilter() {
@@ -190,7 +188,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     loadMore() {
-        // TODO implement loading
+        this.page = this.page + 1;
+        this.transition();
     }
 
     loadPage(page) {
@@ -238,11 +237,10 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     transition() {
         if (!this.isProjectSpecific) {
             this.router.navigate(['/subject'], {
-                queryParams:
-                        {
-                            page: this.page,
-                            sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
-                        },
+                queryParams: {
+                    page: this.page,
+                    sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
+                },
             });
         }
         this.loadSubjects();
