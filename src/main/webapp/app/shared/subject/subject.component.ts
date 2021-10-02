@@ -101,10 +101,10 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             this.queryFilterParams,
             this.queryPaginationParams,
         ).subscribe(
-                (res: HttpResponse<Subject[]>) => {
-                    this.onSuccess(res.body, res.headers);
-                },
-                (res: HttpErrorResponse) => this.onError(res),
+            (res: HttpResponse<Subject[]>) => {
+                this.onSuccess(res.body, res.headers);
+            },
+            (res: HttpErrorResponse) => this.onError(res),
         );
     }
 
@@ -119,6 +119,9 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnInit() {
+        if (!this.isProjectSpecific) {
+            this.loadAll();
+        }
         this.registerChangeInSubjects();
     }
 
@@ -200,7 +203,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     updateSorting(predicate, direction) {
-        // TODO consider removing the page altogether
+        this.subjects = [];
         this.predicate = predicate;
         this.ascending = direction === 'asc';
         this.page = 1;
