@@ -70,15 +70,14 @@
             },
             "discontinued": "Een onderwerp wordt beëindigd met een identificatiecode {{ param }}",
             "sorting": {
-                "label": "Sorteren op",
-                "id.asc": "Id - Oplopend",
-                "id.desc": "Id - Aflopend",
-                "externalId.asc": "External Id - A tot Z",
-                "externalId.desc": "External Id - Z tot A",
-                "user.login.asc": "Subject Id - A tot Z",
-                "user.login.desc": "Subject Id - Z tot A",
-                "user.activated.asc": "Status - Eerst geactiveerd",
-                "user.activated.desc": "Status - Eerst gedeactiveerd"
+                "sortByLabel": "Sorteren op",
+                "sortOrderLabel": "Volgorde",
+                "id": "Id",
+                "externalId": "External Id",
+                "user.login": "Subject Id",
+                "user.activated": "Status",
+                "asc": "Oplopend",
+                "desc": "Aflopend"
             },
             "subjectId" : "Subject Id",
             "baseUrl" : "Base Url",

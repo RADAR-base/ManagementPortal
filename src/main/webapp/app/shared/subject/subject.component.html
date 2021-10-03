@@ -56,31 +56,46 @@
         </button>
     </div>
     <section>
-        <div ngbDropdown class="d-inline-block">
+        <div ngbDropdown class="d-inline-block subject-sorting-action" >
             <button class="btn btn-outline-primary"
                 ngbDropdownToggle
             >
-                {{ 'managementPortalApp.subject.sorting.label' | translate }}:
-                <span *ngIf="ascending">
-                    {{ 'managementPortalApp.subject.sorting.' + predicate + '.asc' | translate }}
-                </span>
-                <span *ngIf="!ascending">
-                    {{ 'managementPortalApp.subject.sorting.' + predicate + '.desc' | translate }}
+                {{ 'managementPortalApp.subject.sorting.sortByLabel' | translate }}:
+                <span>
+                    {{ 'managementPortalApp.subject.sorting.' + predicate  | translate }}
                 </span>
             </button>
             <div ngbDropdownMenu>
                 <span *ngFor="let k of sortingOptions">
                     <button
                         ngbDropdownItem
-                        (click)="updateSorting(k, 'asc')"
-                        [translate]="'managementPortalApp.subject.sorting.' + k + '.asc'">
-                    </button>
-                    <button
-                        ngbDropdownItem
-                        (click)="updateSorting(k, 'desc')"
-                        [translate]="'managementPortalApp.subject.sorting.' + k + '.desc'">
+                        (click)="updateSortingSortBy(k)"
+                        [translate]="'managementPortalApp.subject.sorting.' + k">
                     </button>
                 </span>
+            </div>
+        </div>
+        <div ngbDropdown class="d-inline-block subject-sorting-action">
+            <button class="btn btn-outline-primary" ngbDropdownToggle>
+                {{ 'managementPortalApp.subject.sorting.sortOrderLabel' | translate }}:
+                <span *ngIf="ascending">
+                    {{ 'managementPortalApp.subject.sorting.asc' | translate }}
+                </span>
+                <span *ngIf="!ascending">
+                    {{ 'managementPortalApp.subject.sorting.desc' | translate }}
+                </span>
+            </button>
+            <div ngbDropdownMenu>
+                <button
+                    ngbDropdownItem
+                    (click)="updateSortingOrder('asc')"
+                    [translate]="'managementPortalApp.subject.sorting.asc'">
+                </button>
+                <button
+                    ngbDropdownItem
+                    (click)="updateSortingOrder('desc')"
+                    [translate]="'managementPortalApp.subject.sorting.desc'">
+                </button>
             </div>
         </div>
         <button

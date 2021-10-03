@@ -113,8 +113,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             this.queryFilterParams,
             this.queryPaginationParams,
         ).subscribe(
-                (res: HttpResponse<Subject[]>) => this.onSuccess(res.body, res.headers),
-                (res: HttpErrorResponse) => this.onError(res),
+            (res: HttpResponse<Subject[]>) => this.onSuccess(res.body, res.headers),
+            (res: HttpErrorResponse) => this.onError(res),
         );
     }
 
@@ -202,16 +202,21 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
-    updateSorting(predicate, direction) {
+    updateSortingSortBy(predicate) {
         this.subjects = [];
         this.predicate = predicate;
+        this.page = 1;
+        this.transition();
+    }
+
+    updateSortingOrder(direction) {
+        this.subjects = [];
         this.ascending = direction === 'asc';
         this.page = 1;
         this.transition();
     }
 
     selectAll(checked: boolean = true): void {
-        // TODO implement subject selection
         this.subjects.forEach(({ id }) => this.updateCheckedSet(id, checked));
         this.refreshCheckedStatus();
     }
@@ -234,7 +239,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     addSelectedToGroup() {
-        // TODO
+        // TODO implement function
     }
 
     transition() {
