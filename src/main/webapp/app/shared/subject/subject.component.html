@@ -116,7 +116,7 @@
         </button>
 
         <jhi-alert></jhi-alert>
-        <div *ngIf="subjects">
+        <div *ngIf="subjects" class="subjects">
             <div class="subject-list-actions">
                 <button type="button"
                     class="btn btn-light"
@@ -136,7 +136,7 @@
                            (change)="onItemChecked(subject.id, true)">
                 </div>
                 <div class="subject-row__content">
-                    <div>
+                    <div class="subject-row__subject-id">
                         <span class="subject-row__field-label"
                             [translate]="'managementPortalApp.subject.subjectId'">
                         </span>
@@ -144,13 +144,13 @@
                             <a [routerLink]="['/subject', subject.login ]">{{subject.login}}</a>
                         </div>
                     </div>
-                    <div>
+                    <div class="subject-row__external-id">
                         <span class="subject-row__field-label"
                             [translate]="'managementPortalApp.subject.externalId'">
                         </span>
                         <div>
                             <a *ngIf="subject.externalLink" target="_blank" [href]=subject.externalLink>
-                                {{subject.externalId}}
+                                {{subject.externalId || subject.externalLink}}
                             </a>
                             <span *ngIf="!subject.externalLink && subject.externalId">
                                 {{subject.externalId}}
@@ -160,7 +160,7 @@
                             </span>
                         </div>
                     </div>
-                    <div>
+                    <div class="subject-row__status">
                         <span class="subject-row__field-label"
                             [translate]="'managementPortalApp.subject.status.title'">
                         </span>
@@ -171,7 +171,7 @@
                             <span class="badge badge-danger" *ngIf="subject.status == 'INVALID'">INVALID</span>
                         </div>
                     </div>
-                    <div *ngIf="!isProjectSpecific">
+                    <div *ngIf="!isProjectSpecific" class="subject-row__project">
                         <span class="subject-row__field-label"
                             [translate]="'managementPortalApp.subject.project'">
                         </span>
@@ -189,7 +189,7 @@
                             </span>
                         </div>
                     </div>
-                    <div>
+                    <div class="subject-row__sources">
                         <span class="subject-row__field-label"
                             [translate]="'managementPortalApp.subject.sources'">
                         </span>
@@ -202,7 +202,7 @@
                             </span>
                         </div>
                     </div>
-                    <div>
+                    <div class="subject-row__attribute-data">
                         <span class="subject-row__field-label"
                             [translate]="'managementPortalApp.subject.attributeData'">
                         </span>

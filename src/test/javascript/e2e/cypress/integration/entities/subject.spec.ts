@@ -76,7 +76,7 @@ describe('Subject e2e test', () => {
         cy.get('jhi-subjects .subjects .subject-row').first().find('.subject-row__content .subject-row__external-id .subject-row__field-label')
                 .should('have.text', 'External Id')
         cy.get('jhi-subjects .subjects .subject-row').first().find('.subject-row__content .subject-row__external-id a')
-                .should('have.text','sub-1')
+                .should('contain.text','www.radar-base.org')
                 .invoke('attr', 'href')
                 .should('eq', 'www.radar-base.org')
 

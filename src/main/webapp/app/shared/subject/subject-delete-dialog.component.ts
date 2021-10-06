@@ -32,16 +32,14 @@ export class SubjectDeleteDialogComponent {
     confirmDelete(login: string) {
         if (this.isDelete) {
             this.subjectService.delete(login).subscribe(() => {
-                this.eventManager.broadcast({
-                    name: 'subjectListModification',
-                    content: 'Deleted an subject',
-                });
                 this.activeModal.dismiss(true);
+                window.history.back();
             });
         } else {
             this.subjectService.discontinue(this.subject).subscribe(() => {
                 this.eventManager.broadcast({name: 'subjectListModification', content: 'OK'});
                 this.activeModal.dismiss(true);
+                window.history.back();
             });
         }
     }
