@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017. The Hyve and respective contributors
+  ~ Copyright (c) 2021. The Hyve and respective contributors
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -73,6 +73,18 @@
     <changeSet id="20210920101000-3" author="alexey@thehyve.nl">
         <addColumn tableName="project_aud">
             <column name="groups_mod" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="20210920101000-4" author="alexey@thehyve.nl">
+        <addColumn tableName="subject">
+            <column name="group_name" type="varchar(50)" />
+        </addColumn>
+    </changeSet>
+    <changeSet id="20210920101000-5" author="alexey@thehyve.nl">
+        <addColumn tableName="subject_aud">
+            <column name="group_name" type="varchar(50)" />
+            <column name="group_mod" type="BOOLEAN"/>
         </addColumn>
     </changeSet>
 

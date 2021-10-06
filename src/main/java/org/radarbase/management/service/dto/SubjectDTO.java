@@ -58,6 +58,10 @@ public class SubjectDTO implements Serializable {
     @JsonInclude(Include.NON_NULL)
     private ProjectDTO project;
 
+    private String group;
+
+    private ZonedDateTime dateOfBirth;
+
     private List<RoleDTO> roles = new ArrayList<>();
 
     private Set<MinimalSourceDetailsDTO> sources = new HashSet<>();
@@ -87,6 +91,22 @@ public class SubjectDTO implements Serializable {
 
     public void setProject(ProjectDTO project) {
         this.project = project;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public ZonedDateTime getDateOfBirth() {
+        return this.dateOfBirth;
+    }
+
+    public void setDateOfBirth(ZonedDateTime dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public Long getId() {

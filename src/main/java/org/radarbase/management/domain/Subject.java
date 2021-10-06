@@ -29,6 +29,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -84,6 +85,12 @@ public class Subject extends AbstractEntity implements Serializable {
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnore
     private final Set<MetaToken> metaTokens = new HashSet<>();
+
+    @Column(name = "group_name")
+    private String group;
+
+    @Column(name = "date_of_birth")
+    private ZonedDateTime dateOfBirth;
 
     @Override
     public Long getId() {
@@ -172,6 +179,22 @@ public class Subject extends AbstractEntity implements Serializable {
         return metaTokens;
     }
 
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public String getGroup() {
+        return this.group;
+    }
+
+    public void setDateOfBirth(ZonedDateTime dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public ZonedDateTime getDateOfBirth() {
+        return this.dateOfBirth;
+    }
+
     /**
      * Gets the active project of subject.
      *
@@ -217,6 +240,7 @@ public class Subject extends AbstractEntity implements Serializable {
                 + ", user=" + user
                 + ", sources=" + sources
                 + ", attributes=" + attributes
+                + ", group=" + group
                 + "}";
     }
 }

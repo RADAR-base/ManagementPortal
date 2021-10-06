@@ -35,6 +35,7 @@
             "sources": "Sources",
             "createdBy": "Created By",
             "createdDate": "Created Date",
+            "dateOfBirth": "Date of Birth",
             "lastModifiedBy": "Last Modified By",
             "lastModifiedDate": "Last Modified Date",
             "pairing": "Pairing",

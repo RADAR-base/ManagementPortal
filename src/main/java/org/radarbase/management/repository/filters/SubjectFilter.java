@@ -194,6 +194,7 @@ public class SubjectFilter implements Specification<Subject> {
                 return ID;
             }
             for (SubjectSortBy s : SubjectSortBy.values()) {
+                if (s == UNKNOWN) continue;
                 if (s.key.equalsIgnoreCase(text)) {
                     return s;
                 }
@@ -218,6 +219,7 @@ public class SubjectFilter implements Specification<Subject> {
                 return ASC;
             }
             for (SubjectSortDirection d : SubjectSortDirection.values()) {
+                if (d == UNKNOWN) continue;
                 if (d.key.equalsIgnoreCase(text)) {
                     return d;
                 }

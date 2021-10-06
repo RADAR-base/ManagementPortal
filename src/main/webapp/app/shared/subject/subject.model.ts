@@ -12,6 +12,7 @@ export class Subject {
     public dob?: Date;
     public createdBy?: string;
     public createdDate?: Date;
+    public dateOfBirth?: Date;
     public lastModifiedBy?: string;
     public lastModifiedDate?: Date;
     public group?: string;
@@ -30,6 +31,7 @@ export class Subject {
             status?: SubjectStatus,
             createdBy?: string,
             createdDate?: Date,
+            dateOfBirth?: Date,
             lastModifiedBy?: string,
             lastModifiedDate?: Date,
             group?: string,
@@ -44,6 +46,7 @@ export class Subject {
         this.externalId = externalId ? externalId : null;
         this.createdBy = createdBy ? createdBy : null;
         this.createdDate = createdDate ? createdDate : null;
+        this.dateOfBirth = dateOfBirth ? dateOfBirth : null;
         this.lastModifiedBy = lastModifiedBy ? lastModifiedBy : null;
         this.lastModifiedDate = lastModifiedDate ? lastModifiedDate : null;
         this.group = group ? group : null;
