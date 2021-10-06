@@ -324,7 +324,8 @@ public class ProjectResource {
             .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
 
         String baseUri = HeaderUtil.buildPath("api", "projects", projectName, "subjects");
-        HttpHeaders headers = PaginationUtil.generateSubjectPaginationHttpHeaders(page, baseUri);
+        HttpHeaders headers = PaginationUtil.generateSubjectPaginationHttpHeaders(
+            page, baseUri, subjectFilter);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 }

@@ -127,6 +127,10 @@ public class SubjectFilter implements Specification<Subject> {
         this.lastLoadedId = lastLoadedId;
     }
 
+    public Long getLastLoadedId() {
+        return this.lastLoadedId;
+    }
+
     public String getProjectName() {
         return this.projectName;
     }
@@ -147,6 +151,10 @@ public class SubjectFilter implements Specification<Subject> {
         this.subjectId = subjectId;
     }
 
+    public String getSubjectId() {
+        return this.subjectId;
+    }
+
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
     }
@@ -158,9 +166,17 @@ public class SubjectFilter implements Specification<Subject> {
     public void setSortBy(String sortBy) {
         this.sortBy = SubjectSortBy.fromString(sortBy);
     }
+
+    public SubjectSortBy getSortBy() {
+        return this.sortBy;
+    }
     
     public void setSortDirection(String sortDirection) {
         this.sortDirection = SubjectSortDirection.fromString(sortDirection);
+    }
+
+    public SubjectSortDirection getSortDirection() {
+        return this.sortDirection;
     }
 
     /**
@@ -180,7 +196,7 @@ public class SubjectFilter implements Specification<Subject> {
         return null;
     }
 
-    private enum SubjectSortBy {
+    public enum SubjectSortBy {
         ID("id"),
         EXTERNAL_ID("externalId"),
         USER_LOGIN("user.login"),
@@ -191,6 +207,10 @@ public class SubjectFilter implements Specification<Subject> {
 
         SubjectSortBy(String key) {
             this.key = key;
+        }
+
+        public String getKey() {
+            return this.key;
         }
 
         public static SubjectSortBy fromString(String text) {
@@ -207,7 +227,7 @@ public class SubjectFilter implements Specification<Subject> {
         }
     }
 
-    private enum SubjectSortDirection {
+    public enum SubjectSortDirection {
         ASC("asc"),
         DESC("desc"),
         UNKNOWN(null);
@@ -216,6 +236,10 @@ public class SubjectFilter implements Specification<Subject> {
 
         SubjectSortDirection(String key) {
             this.key = key;
+        }
+
+        public String getKey() {
+            return this.key;
         }
 
         public static SubjectSortDirection fromString(String text) {
