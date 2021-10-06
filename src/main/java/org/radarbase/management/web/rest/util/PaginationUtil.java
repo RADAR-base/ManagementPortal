@@ -78,6 +78,8 @@ public final class PaginationUtil {
 
     private static String generateUri(String baseUrl, SubjectFilter filter) {
         return UriComponentsBuilder.fromUriString(baseUrl)
+            .queryParam("dateOfBirthFrom", filter.getDateOfBirthFrom())
+            .queryParam("dateOfBirthTo", filter.getDateOfBirthTo())
             .queryParam("externalId", filter.getExternalId())
             .queryParam("groupName", filter.getGroupName())
             .queryParam("lastLoadedId", filter.getLastLoadedId())

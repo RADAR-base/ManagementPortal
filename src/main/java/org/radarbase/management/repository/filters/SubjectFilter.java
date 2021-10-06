@@ -18,6 +18,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,6 +27,8 @@ import java.util.List;
 
 public class SubjectFilter implements Specification<Subject> {
     private boolean includeInactive = false;
+    private ZonedDateTime dateOfBirthFrom = null;
+    private ZonedDateTime dateOfBirthTo = null;
     private String groupName = null;
     private Long lastLoadedId = null;
     private Integer pageSize = 10;
@@ -70,6 +73,14 @@ public class SubjectFilter implements Specification<Subject> {
         }
         if (StringUtils.isNotEmpty(groupName)) {
             predicates.add(builder.equal(root.get("group"), groupName));
+        }
+        if (dateOfBirthFrom != null) {
+            predicates.add(builder
+                .greaterThanOrEqualTo(root.get("dateOfBirth"), dateOfBirthFrom));
+        }
+        if (dateOfBirthTo != null) {
+            predicates.add(builder
+                .lessThan(root.get("dateOfBirth"), dateOfBirthTo));
         }
         if (StringUtils.isNotEmpty(subjectId)) {
             predicates.add(builder.equal(userJoin.get("login"), subjectId));
@@ -117,6 +128,22 @@ public class SubjectFilter implements Specification<Subject> {
         query.orderBy(orderList);
  
         return builder.and(predicates.toArray(new Predicate[0]));
+    }
+
+    public ZonedDateTime getDateOfBirthTo() {
+        return dateOfBirthTo;
+    }
+
+    public void setDateOfBirthTo(ZonedDateTime dateOfBirthTo) {
+        this.dateOfBirthTo = dateOfBirthTo;
+    }
+
+    public ZonedDateTime getDateOfBirthFrom() {
+        return dateOfBirthFrom;
+    }
+
+    public void setDateOfBirthFrom(ZonedDateTime dateOfBirthFrom) {
+        this.dateOfBirthFrom = dateOfBirthFrom;
     }
 
     public String getGroupName() {
