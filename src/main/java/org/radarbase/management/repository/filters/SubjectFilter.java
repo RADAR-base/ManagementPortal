@@ -26,6 +26,7 @@ import java.util.List;
 
 public class SubjectFilter implements Specification<Subject> {
     private boolean includeInactive = false;
+    private String groupName = null;
     private Long lastLoadedId = null;
     private Integer pageSize = 10;
     private String projectName = null;
@@ -66,6 +67,9 @@ public class SubjectFilter implements Specification<Subject> {
 
         if (StringUtils.isNotEmpty(externalId)) {
             predicates.add(builder.equal(root.get("externalId"), externalId));
+        }
+        if (StringUtils.isNotEmpty(groupName)) {
+            predicates.add(builder.equal(root.get("group"), groupName));
         }
         if (StringUtils.isNotEmpty(subjectId)) {
             predicates.add(builder.equal(userJoin.get("login"), subjectId));
@@ -113,6 +117,14 @@ public class SubjectFilter implements Specification<Subject> {
         query.orderBy(orderList);
  
         return builder.and(predicates.toArray(new Predicate[0]));
+    }
+
+    public String getGroupName() {
+        return this.groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
     public Boolean getWithInactiveParticipants() {

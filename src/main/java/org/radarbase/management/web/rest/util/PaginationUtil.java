@@ -79,6 +79,7 @@ public final class PaginationUtil {
     private static String generateUri(String baseUrl, SubjectFilter filter) {
         return UriComponentsBuilder.fromUriString(baseUrl)
             .queryParam("externalId", filter.getExternalId())
+            .queryParam("groupName", filter.getGroupName())
             .queryParam("lastLoadedId", filter.getLastLoadedId())
             .queryParam("pageSize", filter.getPageSize())
             .queryParam("projectName", filter.getProjectName())
