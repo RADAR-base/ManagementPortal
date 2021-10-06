@@ -15,6 +15,7 @@ export class Subject {
     public lastModifiedDate?: Date;
     public group?: string;
     public password?: string;
+    public personName?: string;
     public project?: Project;
     public sources?: MinimalSource[];
     public attributes: Dictionary;
@@ -34,6 +35,7 @@ export class Subject {
             lastModifiedDate?: Date,
             group?: string,
             password?: string,
+            personName?: string,
             project?: Project,
             sources?: MinimalSource[],
             roles?: Role[],
@@ -49,6 +51,7 @@ export class Subject {
         this.lastModifiedDate = lastModifiedDate ? lastModifiedDate : null;
         this.group = group ? group : null;
         this.password = password ? password : null;
+        this.personName = personName ? personName : null;
         this.project = project ? project : null;
         this.sources = sources ? sources : [];
         this.status = status ? status : SubjectStatus.DEACTIVATED;

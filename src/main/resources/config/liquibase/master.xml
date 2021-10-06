@@ -35,5 +35,6 @@
     <include file="classpath:config/liquibase/changelog/20200504145200_add_meta_token_persistence.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20210920101000_add_groups.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20210929120000_add_date_of_birth.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20211006150000_add_person_name.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>

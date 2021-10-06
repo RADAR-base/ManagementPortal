@@ -84,6 +84,7 @@ public final class PaginationUtil {
             .queryParam("groupName", filter.getGroupName())
             .queryParam("lastLoadedId", filter.getLastLoadedId())
             .queryParam("pageSize", filter.getPageSize())
+            .queryParam("personName", filter.getPersonName())
             .queryParam("projectName", filter.getProjectName())
             .queryParam("sortBy", filter.getSortBy().getKey())
             .queryParam("sortDirection", filter.getSortDirection().getKey())

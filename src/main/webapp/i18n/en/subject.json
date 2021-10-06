@@ -34,6 +34,7 @@
             "dateOfBirth": "Date of Birth",
             "lastModifiedBy": "Last Modified By",
             "lastModifiedDate": "Last Modified Date",
+            "personName": "Name",
             "pairing": "Pairing",
             "actions": "Actions",
             "pairApp": "Pair App",

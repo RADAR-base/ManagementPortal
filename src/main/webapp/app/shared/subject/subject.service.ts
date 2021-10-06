@@ -73,6 +73,9 @@ export class SubjectService {
 export interface SubjectFilterParams {
     subjectId?: string,
     externalId?: string,
+    dateTimeFrom?: string,
+    dateTimeTo?: string,
+    personName?: string,
 }
 
 export interface SubjectsPaginationParams {

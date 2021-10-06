@@ -32,6 +32,7 @@ public class SubjectFilter implements Specification<Subject> {
     private String groupName = null;
     private Long lastLoadedId = null;
     private Integer pageSize = 10;
+    private String personName = null;
     private String projectName = null;
     private String externalId = null;
     private String subjectId = null;
@@ -82,6 +83,10 @@ public class SubjectFilter implements Specification<Subject> {
             predicates.add(builder
                 .lessThan(root.get("dateOfBirth"), dateOfBirthTo));
         }
+        if (StringUtils.isNotEmpty(personName)) {
+            predicates.add(builder
+                .like(root.get("personName"), "%" + personName + "%"));
+        }
         if (StringUtils.isNotEmpty(subjectId)) {
             predicates.add(builder.equal(userJoin.get("login"), subjectId));
         }
@@ -128,6 +133,14 @@ public class SubjectFilter implements Specification<Subject> {
         query.orderBy(orderList);
  
         return builder.and(predicates.toArray(new Predicate[0]));
+    }
+
+    public String getPersonName() {
+        return personName;
+    }
+
+    public void setPersonName(String personName) {
+        this.personName = personName;
     }
 
     public ZonedDateTime getDateOfBirthTo() {

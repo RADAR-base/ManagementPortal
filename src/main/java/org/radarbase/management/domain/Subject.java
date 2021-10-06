@@ -92,6 +92,9 @@ public class Subject extends AbstractEntity implements Serializable {
     @Column(name = "date_of_birth")
     private ZonedDateTime dateOfBirth;
 
+    @Column(name = "person_name")
+    private String personName;
+
     @Override
     public Long getId() {
         return id;
@@ -193,6 +196,14 @@ public class Subject extends AbstractEntity implements Serializable {
 
     public ZonedDateTime getDateOfBirth() {
         return this.dateOfBirth;
+    }
+
+    public void setPersonName(String personName) {
+        this.personName = personName;
+    }
+
+    public String getPersonName() {
+        return this.personName;
     }
 
     /**
