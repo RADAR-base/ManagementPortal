@@ -54,6 +54,18 @@ public final class PaginationUtil {
         headers.add(HttpHeaders.LINK, link.toString());
         return headers;
     }
+    
+    public static HttpHeaders generateSubjectPaginationHttpHeaders(Page<?> page, String baseUrl) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Total-Count", Long.toString(page.getTotalElements()));
+        StringBuilder link = new StringBuilder(256);
+        // TODO: first & next links should use Subject Filter & lastLoadedId
+        link.append('<')
+                .append(baseUrl)
+                .append(">; rel=\"first\"");
+        headers.add(HttpHeaders.LINK, link.toString());
+        return headers;
+    }
 
     private static String generateUri(String baseUrl, int page, int size) {
         return UriComponentsBuilder.fromUriString(baseUrl)

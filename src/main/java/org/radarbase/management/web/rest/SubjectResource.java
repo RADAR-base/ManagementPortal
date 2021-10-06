@@ -271,15 +271,19 @@ public class SubjectResource {
                             subjectMapper.subjectToSubjectReducedProjectDTO(s)));
             return wrapOrNotFound(subject);
         } else if (projectName == null && externalId != null) {
-            List<Subject> subjects = subjectRepository
-                    .findAllByExternalIdAndAuthoritiesIn(externalId, authoritiesToInclude);
-            List<SubjectDTO> dto = subjectMapper.subjectsToSubjectReducedProjectDTOs(subjects);
-            return ResponseEntity.ok(dto);
+            Page<Subject> page = subjectService.findAll(subjectFilter);
+            List<SubjectDTO> items = subjectMapper
+                .subjectsToSubjectReducedProjectDTOs(page.getContent());
+            
+            HttpHeaders headers = PaginationUtil
+                .generateSubjectPaginationHttpHeaders(page, "/api/subjects");
+            return new ResponseEntity<>(items, headers, HttpStatus.OK);
         } else {
-            Page<SubjectDTO> page = subjectService.findAll(subjectFilter);
+            Page<SubjectDTO> page = subjectService.findAll(subjectFilter)
+                .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
 
             HttpHeaders headers = PaginationUtil
-                    .generatePaginationHttpHeaders(page, "/api/subjects");
+                .generateSubjectPaginationHttpHeaders(page, "/api/subjects");
             return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
         }
     }

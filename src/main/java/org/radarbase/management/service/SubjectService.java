@@ -445,14 +445,13 @@ public class SubjectService {
         );
     }
 
-	public Page<SubjectDTO> findAll(SubjectFilter filter) {
+	public Page<Subject> findAll(SubjectFilter filter) {
         // Pageable is required to set the page limit,
         // but the page should always be zero
         // since the lastLoadedId param defines the offset
         // within the query specification
         Pageable pageable = PageRequest.of(0, filter.getPageSize());
-        return subjectRepository.findAll(filter, pageable)
-            .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
+        return subjectRepository.findAll(filter, pageable);
     }
 
     /**
