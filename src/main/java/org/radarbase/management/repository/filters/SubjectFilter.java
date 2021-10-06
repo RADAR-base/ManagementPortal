@@ -139,6 +139,10 @@ public class SubjectFilter implements Specification<Subject> {
         this.externalId = externalId;
     }
 
+    public String getExternalId() {
+        return this.externalId;
+    }
+
     public void setSubjectId(String subjectId) {
         this.subjectId = subjectId;
     }
