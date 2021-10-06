@@ -12,7 +12,6 @@ import javax.persistence.FetchType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.envers.Audited;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,7 +32,6 @@ import java.util.Objects;
  * A Group.
  */
 @Entity
-@Audited
 @Table(name = "radar_group")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Group extends AbstractEntity implements Serializable {
