@@ -169,7 +169,7 @@ public class SubjectService {
         Subject subjectFromDb = subjectRepository.findById(newSubjectDto.getId()).get();
         //reset all the sources assigned to a subject to unassigned
         Set<Source> sourcesToUpdate = subjectFromDb.getSources();
-        sourcesToUpdate.forEach(s -> s.subject(null).assigned(false));
+        sourcesToUpdate.forEach(s -> s.subject(null).assigned(false).deleted(true));
         //set only the devices assigned to a subject as assigned
         subjectMapper.safeUpdateSubjectFromDTO(newSubjectDto, subjectFromDb);
         sourcesToUpdate.addAll(subjectFromDb.getSources());
@@ -228,6 +228,7 @@ public class SubjectService {
         subject.getSources().forEach(source -> {
             source.setAssigned(false);
             source.setSubject(null);
+            source.setDeleted(true);
             sourceRepository.save(source);
         });
         subject.getSources().clear();
@@ -445,14 +446,13 @@ public class SubjectService {
         );
     }
 
-	public Page<SubjectDTO> findAll(SubjectFilter filter) {
+	public Page<Subject> findAll(SubjectFilter filter) {
         // Pageable is required to set the page limit,
         // but the page should always be zero
         // since the lastLoadedId param defines the offset
         // within the query specification
         Pageable pageable = PageRequest.of(0, filter.getPageSize());
-        return subjectRepository.findAll(filter, pageable)
-            .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
+        return subjectRepository.findAll(filter, pageable);
     }
 
     /**

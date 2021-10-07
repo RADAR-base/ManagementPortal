@@ -242,7 +242,6 @@ public class SubjectResource {
     @GetMapping("/subjects")
     @Timed
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(
-            @RequestParam(value = "externalId", required = false) String externalId,
             SubjectFilter subjectFilter
     ) throws NotAuthorizedException {
         RadarToken jwt = getJWT(servletRequest);
@@ -256,6 +255,7 @@ public class SubjectResource {
             throw new BadRequestException(filterError, SOURCE_TYPE, ERR_VALIDATION);
         }
 
+        String externalId = subjectFilter.getExternalId();
         log.debug("ProjectName {} and external {}", projectName, externalId);
         // if not specified do not include inactive patients
         boolean withInactive = subjectFilter.getWithInactiveParticipants();
@@ -271,15 +271,19 @@ public class SubjectResource {
                             subjectMapper.subjectToSubjectReducedProjectDTO(s)));
             return wrapOrNotFound(subject);
         } else if (projectName == null && externalId != null) {
-            List<Subject> subjects = subjectRepository
-                    .findAllByExternalIdAndAuthoritiesIn(externalId, authoritiesToInclude);
-            List<SubjectDTO> dto = subjectMapper.subjectsToSubjectReducedProjectDTOs(subjects);
-            return ResponseEntity.ok(dto);
+            Page<Subject> page = subjectService.findAll(subjectFilter);
+            List<SubjectDTO> items = subjectMapper
+                .subjectsToSubjectReducedProjectDTOs(page.getContent());
+            
+            HttpHeaders headers = PaginationUtil.generateSubjectPaginationHttpHeaders(
+                page, "/api/subjects", subjectFilter);
+            return new ResponseEntity<>(items, headers, HttpStatus.OK);
         } else {
-            Page<SubjectDTO> page = subjectService.findAll(subjectFilter);
+            Page<SubjectDTO> page = subjectService.findAll(subjectFilter)
+                .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
 
-            HttpHeaders headers = PaginationUtil
-                    .generatePaginationHttpHeaders(page, "/api/subjects");
+            HttpHeaders headers = PaginationUtil.generateSubjectPaginationHttpHeaders(
+                page, "/api/subjects", subjectFilter);
             return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
         }
     }

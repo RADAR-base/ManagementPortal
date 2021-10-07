@@ -1,5 +1,6 @@
 package org.radarbase.management.web.rest.util;
 
+import org.radarbase.management.repository.filters.SubjectFilter;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -54,11 +55,41 @@ public final class PaginationUtil {
         headers.add(HttpHeaders.LINK, link.toString());
         return headers;
     }
+    
+    public static HttpHeaders generateSubjectPaginationHttpHeaders(
+        Page<?> page, String baseUrl, SubjectFilter filter
+    ) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Total-Count", Long.toString(page.getTotalElements()));
+        StringBuilder link = new StringBuilder(256);
+        link.append('<')
+                .append(generateUri(baseUrl, filter))
+                .append(">; rel=\"first\"");
+        headers.add(HttpHeaders.LINK, link.toString());
+        return headers;
+    }
 
     private static String generateUri(String baseUrl, int page, int size) {
         return UriComponentsBuilder.fromUriString(baseUrl)
                 .queryParam("page", page)
                 .queryParam("size", size)
                 .toUriString();
+    }
+
+    private static String generateUri(String baseUrl, SubjectFilter filter) {
+        return UriComponentsBuilder.fromUriString(baseUrl)
+            .queryParam("dateOfBirthFrom", filter.getDateOfBirthFrom())
+            .queryParam("dateOfBirthTo", filter.getDateOfBirthTo())
+            .queryParam("externalId", filter.getExternalId())
+            .queryParam("groupName", filter.getGroupName())
+            .queryParam("lastLoadedId", filter.getLastLoadedId())
+            .queryParam("pageSize", filter.getPageSize())
+            .queryParam("personName", filter.getPersonName())
+            .queryParam("projectName", filter.getProjectName())
+            .queryParam("sortBy", filter.getSortBy().getKey())
+            .queryParam("sortDirection", filter.getSortDirection().getKey())
+            .queryParam("subjectId", filter.getSubjectId())
+            .queryParam("withInactiveParticipants", filter.getWithInactiveParticipants())
+            .toUriString();
     }
 }

@@ -38,6 +38,7 @@
             "dateOfBirth": "Geboortedatum",
             "lastModifiedBy": "Laatst aangepast door",
             "lastModifiedDate": "Laatst aangepast datum",
+            "personName": "Naam",
             "pairing": "Koppelen",
             "actions": "Acties",
             "pairApp": "App koppelen",

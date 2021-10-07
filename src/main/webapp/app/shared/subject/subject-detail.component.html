@@ -22,19 +22,9 @@
                   <a [routerLink]="['/project', subject.project?.projectName ]" >{{subject.project?.projectName}}</a>
             </span>
         </dd>
-        <dt><span [translate]="'managementPortalApp.subject.name'"></span></dt>
-        <dd>
-            <span>{{subject.name || 'N/A'}}</span>
-        </dd>
-        <dt><span [translate]="'managementPortalApp.subject.dob'"></span></dt>
-        <dd>
-            <span>{{subject.dob || 'N/A'}}</span>
-        </dd>
         <dt><span [translate]="'managementPortalApp.subject.group'"></span></dt>
         <dd>
-            <span *ngIf="subject.group">
-<!--                <a [routerLink]="['/project', subject.project?.projectName ]" >{{subject.project?.projectName}}</a>-->
-            </span>
+            <span>{{subject.group || '-'}}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.subject.sources'"></span></dt>
         <dd>
@@ -50,6 +40,10 @@
             </div>
         </dd>
 
+        <dt><span [translate]="'managementPortalApp.subject.personName'"></span></dt>
+        <dd>{{subject.personName}}</dd>
+        <dt><span [translate]="'managementPortalApp.subject.dateOfBirth'"></span></dt>
+        <dd>{{subject.dateOfBirth | date:'dd/MM/yy HH:mm' }}</dd>
         <dt><span [translate]="'managementPortalApp.subject.createdBy'"></span></dt>
         <dd>{{subject.createdBy}}</dd>
         <dt><span [translate]="'managementPortalApp.subject.createdDate'"></span></dt>

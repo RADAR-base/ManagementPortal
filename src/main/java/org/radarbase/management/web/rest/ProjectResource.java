@@ -18,6 +18,7 @@ import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.service.dto.SourceDTO;
 import org.radarbase.management.service.dto.SourceTypeDTO;
 import org.radarbase.management.service.dto.SubjectDTO;
+import org.radarbase.management.service.mapper.SubjectMapper;
 import org.radarbase.management.web.rest.errors.BadRequestException;
 import org.radarbase.management.web.rest.errors.ErrorVM;
 import org.radarbase.management.web.rest.util.HeaderUtil;
@@ -85,6 +86,9 @@ public class ProjectResource {
 
     @Autowired
     private RoleService roleService;
+
+    @Autowired
+    private SubjectMapper subjectMapper;
 
     @Autowired
     private SubjectService subjectService;
@@ -316,10 +320,12 @@ public class ProjectResource {
         }
 
         log.debug("REST request to get all subjects for project {}", projectName);
-        Page<SubjectDTO> page = subjectService.findAll(subjectFilter);
+        Page<SubjectDTO> page = subjectService.findAll(subjectFilter)
+            .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
 
         String baseUri = HeaderUtil.buildPath("api", "projects", projectName, "subjects");
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, baseUri);
+        HttpHeaders headers = PaginationUtil.generateSubjectPaginationHttpHeaders(
+            page, baseUri, subjectFilter);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 }

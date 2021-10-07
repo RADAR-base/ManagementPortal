@@ -42,46 +42,19 @@
                                  referencedColumnNames="id"
                                  referencedTableName="project"/>
     </changeSet>
+
     <changeSet id="20210920101000-2" author="alexey@thehyve.nl">
-        <createTable tableName="radar_group_aud">
-            <column name="id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="rev" type="INTEGER">
-                <constraints nullable="false"/>
-            </column>
-            <column name="revtype" type="${revtype}"/>
-            <column name="revend" type="INTEGER"/>
-            <column name="revend_tstmp" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
-            <column name="project_id" type="bigint"/>
-            <column name="project_mod" type="BOOLEAN"/>
-            <column name="group_name" type="varchar(50)"/>
-            <column name="group_name_mod" type="BOOLEAN"/>
-        </createTable>
-
-        <addForeignKeyConstraint baseColumnNames="rev"
-                                 baseTableName="radar_group_aud"
-                                 constraintName="b408680681a04cb6b8ce530104f"
-                                 deferrable="false"
-                                 initiallyDeferred="false"
-                                 onDelete="NO ACTION"
-                                 onUpdate="NO ACTION"
-                                 referencedColumnNames="id"
-                                 referencedTableName="_revisions_info"/>
-    </changeSet>
-
-    <changeSet id="20210920101000-3" author="alexey@thehyve.nl">
         <addColumn tableName="project_aud">
             <column name="groups_mod" type="BOOLEAN"/>
         </addColumn>
     </changeSet>
 
-    <changeSet id="20210920101000-4" author="alexey@thehyve.nl">
+    <changeSet id="20210920101000-3" author="alexey@thehyve.nl">
         <addColumn tableName="subject">
             <column name="group_name" type="varchar(50)" />
         </addColumn>
     </changeSet>
-    <changeSet id="20210920101000-5" author="alexey@thehyve.nl">
+    <changeSet id="20210920101000-4" author="alexey@thehyve.nl">
         <addColumn tableName="subject_aud">
             <column name="group_name" type="varchar(50)" />
             <column name="group_mod" type="BOOLEAN"/>

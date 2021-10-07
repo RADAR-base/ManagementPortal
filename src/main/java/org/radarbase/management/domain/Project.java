@@ -7,6 +7,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.management.domain.enumeration.ProjectStatus;
 import org.radarbase.management.domain.support.AbstractEntityListener;
@@ -100,6 +101,7 @@ public class Project extends AbstractEntity implements Serializable {
     @CollectionTable(name = "project_metadata", joinColumns = @JoinColumn(name = "id"))
     private Map<String, String> attributes = new HashMap<>();
 
+    @NotAudited
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, orphanRemoval = true)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private Set<Group> groups = new HashSet<>();

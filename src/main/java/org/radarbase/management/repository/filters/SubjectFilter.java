@@ -18,6 +18,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,8 +27,12 @@ import java.util.List;
 
 public class SubjectFilter implements Specification<Subject> {
     private boolean includeInactive = false;
+    private ZonedDateTime dateOfBirthFrom = null;
+    private ZonedDateTime dateOfBirthTo = null;
+    private String groupName = null;
     private Long lastLoadedId = null;
     private Integer pageSize = 10;
+    private String personName = null;
     private String projectName = null;
     private String externalId = null;
     private String subjectId = null;
@@ -66,6 +71,21 @@ public class SubjectFilter implements Specification<Subject> {
 
         if (StringUtils.isNotEmpty(externalId)) {
             predicates.add(builder.equal(root.get("externalId"), externalId));
+        }
+        if (StringUtils.isNotEmpty(groupName)) {
+            predicates.add(builder.equal(root.get("group"), groupName));
+        }
+        if (dateOfBirthFrom != null) {
+            predicates.add(builder
+                .greaterThanOrEqualTo(root.get("dateOfBirth"), dateOfBirthFrom));
+        }
+        if (dateOfBirthTo != null) {
+            predicates.add(builder
+                .lessThan(root.get("dateOfBirth"), dateOfBirthTo));
+        }
+        if (StringUtils.isNotEmpty(personName)) {
+            predicates.add(builder
+                .like(root.get("personName"), "%" + personName + "%"));
         }
         if (StringUtils.isNotEmpty(subjectId)) {
             predicates.add(builder.equal(userJoin.get("login"), subjectId));
@@ -115,6 +135,38 @@ public class SubjectFilter implements Specification<Subject> {
         return builder.and(predicates.toArray(new Predicate[0]));
     }
 
+    public String getPersonName() {
+        return personName;
+    }
+
+    public void setPersonName(String personName) {
+        this.personName = personName;
+    }
+
+    public ZonedDateTime getDateOfBirthTo() {
+        return dateOfBirthTo;
+    }
+
+    public void setDateOfBirthTo(ZonedDateTime dateOfBirthTo) {
+        this.dateOfBirthTo = dateOfBirthTo;
+    }
+
+    public ZonedDateTime getDateOfBirthFrom() {
+        return dateOfBirthFrom;
+    }
+
+    public void setDateOfBirthFrom(ZonedDateTime dateOfBirthFrom) {
+        this.dateOfBirthFrom = dateOfBirthFrom;
+    }
+
+    public String getGroupName() {
+        return this.groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+
     public Boolean getWithInactiveParticipants() {
         return this.includeInactive;
     }
@@ -125,6 +177,10 @@ public class SubjectFilter implements Specification<Subject> {
 
     public void setLastLoadedId(Long lastLoadedId) {
         this.lastLoadedId = lastLoadedId;
+    }
+
+    public Long getLastLoadedId() {
+        return this.lastLoadedId;
     }
 
     public String getProjectName() {
@@ -139,8 +195,16 @@ public class SubjectFilter implements Specification<Subject> {
         this.externalId = externalId;
     }
 
+    public String getExternalId() {
+        return this.externalId;
+    }
+
     public void setSubjectId(String subjectId) {
         this.subjectId = subjectId;
+    }
+
+    public String getSubjectId() {
+        return this.subjectId;
     }
 
     public void setPageSize(Integer pageSize) {
@@ -154,9 +218,17 @@ public class SubjectFilter implements Specification<Subject> {
     public void setSortBy(String sortBy) {
         this.sortBy = SubjectSortBy.fromString(sortBy);
     }
+
+    public SubjectSortBy getSortBy() {
+        return this.sortBy;
+    }
     
     public void setSortDirection(String sortDirection) {
         this.sortDirection = SubjectSortDirection.fromString(sortDirection);
+    }
+
+    public SubjectSortDirection getSortDirection() {
+        return this.sortDirection;
     }
 
     /**
@@ -176,7 +248,7 @@ public class SubjectFilter implements Specification<Subject> {
         return null;
     }
 
-    private enum SubjectSortBy {
+    public enum SubjectSortBy {
         ID("id"),
         EXTERNAL_ID("externalId"),
         USER_LOGIN("user.login"),
@@ -187,6 +259,10 @@ public class SubjectFilter implements Specification<Subject> {
 
         SubjectSortBy(String key) {
             this.key = key;
+        }
+
+        public String getKey() {
+            return this.key;
         }
 
         public static SubjectSortBy fromString(String text) {
@@ -203,7 +279,7 @@ public class SubjectFilter implements Specification<Subject> {
         }
     }
 
-    private enum SubjectSortDirection {
+    public enum SubjectSortDirection {
         ASC("asc"),
         DESC("desc"),
         UNKNOWN(null);
@@ -212,6 +288,10 @@ public class SubjectFilter implements Specification<Subject> {
 
         SubjectSortDirection(String key) {
             this.key = key;
+        }
+
+        public String getKey() {
+            return this.key;
         }
 
         public static SubjectSortDirection fromString(String text) {

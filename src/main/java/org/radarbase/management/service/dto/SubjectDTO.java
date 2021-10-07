@@ -62,6 +62,8 @@ public class SubjectDTO implements Serializable {
 
     private ZonedDateTime dateOfBirth;
 
+    private String personName;
+
     private List<RoleDTO> roles = new ArrayList<>();
 
     private Set<MinimalSourceDetailsDTO> sources = new HashSet<>();
@@ -70,6 +72,14 @@ public class SubjectDTO implements Serializable {
 
     public SubjectStatus getStatus() {
         return status;
+    }
+
+    public String getPersonName() {
+        return personName;
+    }
+
+    public void setPersonName(String personName) {
+        this.personName = personName;
     }
 
     public void setStatus(SubjectStatus status) {
