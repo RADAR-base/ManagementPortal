@@ -3,6 +3,11 @@ package org.radarbase.management.repository.filters;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 
+import static java.time.temporal.ChronoField.HOUR_OF_DAY;
+import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
+import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
+import static java.time.temporal.ChronoField.NANO_OF_SECOND;
+
 import org.apache.commons.lang3.StringUtils;
 import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.Subject;
@@ -19,7 +24,11 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -158,32 +167,32 @@ public class SubjectFilter implements Specification<Subject> {
         return dateOfBirthTo;
     }
 
-    public void setDateOfBirthTo(LocalDate dateOfBirthTo) {
-        this.dateOfBirthTo = dateOfBirthTo;
+    public void setDateOfBirthTo(String date) {
+        this.dateOfBirthTo = LocalDate.parse(date, dateTimeFormatter);
     }
 
     public LocalDate getDateOfBirthFrom() {
         return dateOfBirthFrom;
     }
 
-    public void setDateOfBirthFrom(LocalDate dateOfBirthFrom) {
-        this.dateOfBirthFrom = dateOfBirthFrom;
+    public void setDateOfBirthFrom(String date) {
+        this.dateOfBirthFrom = LocalDate.parse(date, dateTimeFormatter);
     }
 
     public ZonedDateTime getEnrollmentDateTo() {
         return enrollmentDateTo;
     }
 
-    public void setEnrollmentDateTo(ZonedDateTime enrollmentDateTo) {
-        this.enrollmentDateTo = enrollmentDateTo;
+    public void setEnrollmentDateTo(String datetime) {
+        this.enrollmentDateTo = ZonedDateTime.parse(datetime, dateTimeFormatter);
     }
 
     public ZonedDateTime getEnrollmentDateFrom() {
         return enrollmentDateFrom;
     }
 
-    public void setEnrollmentDateFrom(ZonedDateTime enrollmentDateFrom) {
-        this.enrollmentDateFrom = enrollmentDateFrom;
+    public void setEnrollmentDateFrom(String datetime) {
+        this.enrollmentDateFrom = ZonedDateTime.parse(datetime, dateTimeFormatter);
     }
 
     public String getGroupName() {
@@ -273,6 +282,32 @@ public class SubjectFilter implements Specification<Subject> {
             return "Unexpected sortDirection value";
         }
         return null;
+    }
+
+    private static DateTimeFormatter dateTimeFormatter;
+    static {
+        // This lenient formatter handles
+        // both date and datetime strings (zoned and unzoned)
+        // in order to be easy for JS clients
+        // (i.e. it accepts ISO-formatted dates, unlike default LocalDate parser)
+        // and for humans (i.e. you can type '2020-10-10') to use.
+        dateTimeFormatter = new DateTimeFormatterBuilder()
+            .parseCaseInsensitive()
+            .append(DateTimeFormatter.ISO_LOCAL_DATE)
+            .optionalStart()
+            .appendLiteral('T')
+            .append(DateTimeFormatter.ISO_LOCAL_TIME)
+            .optionalStart()
+            .appendOffsetId()
+            .optionalEnd()
+            .optionalEnd()
+            .parseDefaulting(HOUR_OF_DAY, HOUR_OF_DAY.range().getMinimum())
+            .parseDefaulting(MINUTE_OF_HOUR, MINUTE_OF_HOUR.range().getMinimum())
+            .parseDefaulting(SECOND_OF_MINUTE, SECOND_OF_MINUTE.range().getMinimum())
+            .parseDefaulting(NANO_OF_SECOND, NANO_OF_SECOND.range().getMinimum())
+            .toFormatter()
+            .withZone(ZoneId.of("UTC"))
+            .withResolverStyle(ResolverStyle.LENIENT);
     }
 
     public enum SubjectSortBy {
