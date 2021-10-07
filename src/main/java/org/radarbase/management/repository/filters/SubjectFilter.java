@@ -18,6 +18,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.MapJoin;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
@@ -42,6 +43,7 @@ public class SubjectFilter implements Specification<Subject> {
     private ZonedDateTime enrollmentDateFrom = null;
     private ZonedDateTime enrollmentDateTo = null;
     private String groupName = null;
+    private String humanReadableIdentifier = null;
     private Long lastLoadedId = null;
     private Integer pageSize = 10;
     private String personName = null;
@@ -66,6 +68,8 @@ public class SubjectFilter implements Specification<Subject> {
         userJoin.alias("user");
         Join<User, Role> rolesJoin = userJoin.join("roles");
         rolesJoin.alias("roles");
+        MapJoin<Subject, String, String> attributesJoin =
+            root.joinMap("attributes", JoinType.LEFT);
 
         List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.isNotEmpty(projectName)) {
@@ -81,6 +85,11 @@ public class SubjectFilter implements Specification<Subject> {
             rolesJoin.get("authority").get("name").in(authorities);
         predicates.add(filterAuthorities);
 
+        if (StringUtils.isNotEmpty(humanReadableIdentifier)) {
+            predicates.add(builder.and(
+                builder.equal(attributesJoin.key(), "Human-readable-identifier"),
+                builder.like(attributesJoin.value(), "%" + humanReadableIdentifier + "%")));
+        }
         if (StringUtils.isNotEmpty(externalId)) {
             predicates.add(builder.equal(root.get("externalId"), externalId));
         }
@@ -153,6 +162,14 @@ public class SubjectFilter implements Specification<Subject> {
         query.orderBy(orderList);
  
         return builder.and(predicates.toArray(new Predicate[0]));
+    }
+
+    public String getHumanReadableIdentifier() {
+        return humanReadableIdentifier;
+    }
+
+    public void setHumanReadableIdentifier(String humanReadableIdentifier) {
+        this.humanReadableIdentifier = humanReadableIdentifier;
     }
 
     public String getPersonName() {

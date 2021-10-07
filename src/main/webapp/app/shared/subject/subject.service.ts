@@ -77,6 +77,7 @@ export interface SubjectFilterParams {
     dateOfBirthTo?: string,
     enrollmentDateFrom?: string,
     enrollmentDateTo?: string,
+    humanReadableIdentifier?: string,
     personName?: string,
 }
 
