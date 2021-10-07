@@ -63,6 +63,8 @@ public class SubjectDTO implements Serializable {
 
     private LocalDate dateOfBirth;
 
+    private ZonedDateTime enrollmentDate;
+
     private String personName;
 
     private List<RoleDTO> roles = new ArrayList<>();
@@ -118,6 +120,14 @@ public class SubjectDTO implements Serializable {
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    public void setEnrollmentDate(ZonedDateTime enrollmentDate) {
+        this.enrollmentDate = enrollmentDate;
+    }
+
+    public ZonedDateTime getEnrollmentDate() {
+        return this.enrollmentDate;
     }
 
     public Long getId() {

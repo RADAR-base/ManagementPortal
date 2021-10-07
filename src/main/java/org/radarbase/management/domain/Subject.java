@@ -93,6 +93,9 @@ public class Subject extends AbstractEntity implements Serializable {
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
+    @Column(name = "enrollment_date")
+    private ZonedDateTime enrollmentDate;
+
     @Column(name = "person_name")
     private String personName;
 
@@ -197,6 +200,14 @@ public class Subject extends AbstractEntity implements Serializable {
 
     public LocalDate getDateOfBirth() {
         return this.dateOfBirth;
+    }
+
+    public void setEnrollmentDate(ZonedDateTime enrollmentDate) {
+        this.enrollmentDate = enrollmentDate;
+    }
+
+    public ZonedDateTime getEnrollmentDate() {
+        return this.enrollmentDate;
     }
 
     public void setPersonName(String personName) {

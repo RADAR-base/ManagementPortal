@@ -80,6 +80,8 @@ public final class PaginationUtil {
         return UriComponentsBuilder.fromUriString(baseUrl)
             .queryParam("dateOfBirthFrom", filter.getDateOfBirthFrom())
             .queryParam("dateOfBirthTo", filter.getDateOfBirthTo())
+            .queryParam("enrollmentDateFrom", filter.getEnrollmentDateFrom())
+            .queryParam("enrollmentDateTo", filter.getEnrollmentDateTo())
             .queryParam("externalId", filter.getExternalId())
             .queryParam("groupName", filter.getGroupName())
             .queryParam("lastLoadedId", filter.getLastLoadedId())

@@ -30,6 +30,8 @@ public class SubjectFilter implements Specification<Subject> {
     private boolean includeInactive = false;
     private LocalDate dateOfBirthFrom = null;
     private LocalDate dateOfBirthTo = null;
+    private ZonedDateTime enrollmentDateFrom = null;
+    private ZonedDateTime enrollmentDateTo = null;
     private String groupName = null;
     private Long lastLoadedId = null;
     private Integer pageSize = 10;
@@ -83,6 +85,14 @@ public class SubjectFilter implements Specification<Subject> {
         if (dateOfBirthTo != null) {
             predicates.add(builder
                 .lessThan(root.get("dateOfBirth"), dateOfBirthTo));
+        }
+        if (enrollmentDateFrom != null) {
+            predicates.add(builder
+                .greaterThanOrEqualTo(root.get("enrollmentDate"), enrollmentDateFrom));
+        }
+        if (enrollmentDateTo != null) {
+            predicates.add(builder
+                .lessThan(root.get("enrollmentDate"), enrollmentDateTo));
         }
         if (StringUtils.isNotEmpty(personName)) {
             predicates.add(builder
@@ -158,6 +168,22 @@ public class SubjectFilter implements Specification<Subject> {
 
     public void setDateOfBirthFrom(LocalDate dateOfBirthFrom) {
         this.dateOfBirthFrom = dateOfBirthFrom;
+    }
+
+    public ZonedDateTime getEnrollmentDateTo() {
+        return enrollmentDateTo;
+    }
+
+    public void setEnrollmentDateTo(ZonedDateTime enrollmentDateTo) {
+        this.enrollmentDateTo = enrollmentDateTo;
+    }
+
+    public ZonedDateTime getEnrollmentDateFrom() {
+        return enrollmentDateFrom;
+    }
+
+    public void setEnrollmentDateFrom(ZonedDateTime enrollmentDateFrom) {
+        this.enrollmentDateFrom = enrollmentDateFrom;
     }
 
     public String getGroupName() {
