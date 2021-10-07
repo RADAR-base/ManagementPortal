@@ -154,9 +154,9 @@
                 <div
                     class="badge badge-pill badge-primary"
                     *ngFor="let g of project.groups"
-                    (click)="removeGroup(g.groupName)"
+                    (click)="removeGroup(g.name)"
                 >
-                    <span>{{g.groupName}}</span>
+                    <span>{{g.name}}</span>
                     <span aria-hidden="true">&times;</span>
                 </div>
             </div>

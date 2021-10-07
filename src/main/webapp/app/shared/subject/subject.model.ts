@@ -68,5 +68,5 @@ export const enum SubjectStatus {
 
 export class Group {
     public id?: any;
-    public groupName?: string;
+    public name?: string;
 }

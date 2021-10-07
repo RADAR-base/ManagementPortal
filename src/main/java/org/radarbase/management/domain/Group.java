@@ -45,8 +45,8 @@ public class Group extends AbstractEntity implements Serializable {
 
     @NotNull
     @Size(min = 1, max = 50)
-    @Column(name = "group_name", length = 50, nullable = false, unique = false)
-    private String groupName;
+    @Column(name = "name", length = 50, nullable = false, unique = false)
+    private String name;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
@@ -63,12 +63,12 @@ public class Group extends AbstractEntity implements Serializable {
         this.id = id;
     }
 
-    public String getGroupName() {
-        return groupName;
+    public String getName() {
+        return name;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Project getProject() {
@@ -103,7 +103,7 @@ public class Group extends AbstractEntity implements Serializable {
     public String toString() {
         return "Group{"
                + "id=" + id + ", "
-               + "groupName=" + groupName + ", "
+               + "name=" + name + ", "
                + "project='" + project.getProjectName() + "', "
                + "}";
     }

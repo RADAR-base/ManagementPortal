@@ -44,8 +44,8 @@
                 [(ngModel)]="subject.group"
             >
                 <option [ngValue]="null">-</option>
-                <option *ngFor="let g of subject.project.groups" [ngValue]="g.groupName">
-                    {{g.groupName}}
+                <option *ngFor="let g of subject.project.groups" [ngValue]="g.name">
+                    {{g.name}}
                 </option>
             </select>
         </div>

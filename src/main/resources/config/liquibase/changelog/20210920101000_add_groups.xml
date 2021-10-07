@@ -31,7 +31,7 @@
             <column name="project_id" type="bigint">
                 <constraints nullable="false" />
             </column>
-            <column name="group_name" type="varchar(50)">
+            <column name="name" type="varchar(50)">
                 <constraints nullable="false" />
             </column>
         </createTable>

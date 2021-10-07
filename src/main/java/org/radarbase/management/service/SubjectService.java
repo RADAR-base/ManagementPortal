@@ -173,7 +173,8 @@ public class SubjectService {
         //set only the devices assigned to a subject as assigned
         subjectMapper.safeUpdateSubjectFromDTO(newSubjectDto, subjectFromDb);
         sourcesToUpdate.addAll(subjectFromDb.getSources());
-        subjectFromDb.getSources().forEach(s -> s.subject(subjectFromDb).assigned(true));
+        subjectFromDb.getSources()
+            .forEach(s -> s.subject(subjectFromDb).assigned(true).deleted(false));
         sourceRepository.saveAll(sourcesToUpdate);
         // update participant role
         subjectFromDb.getUser().setRoles(updateParticipantRoles(subjectFromDb, newSubjectDto));

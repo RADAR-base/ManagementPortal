@@ -12,7 +12,7 @@ public class GroupDTO implements Serializable {
 
     private Long id;
 
-    private String groupName;
+    private String name;
 
     public Long getId() {
         return id;
@@ -22,12 +22,12 @@ public class GroupDTO implements Serializable {
         this.id = id;
     }
 
-    public String getGroupName() {
-        return groupName;
+    public String getName() {
+        return name;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -57,7 +57,7 @@ public class GroupDTO implements Serializable {
     public String toString() {
         return "GroupDTO{"
                 + "id=" + id
-                + ", groupName='" + groupName + "'"
+                + ", name='" + name + "'"
                 + '}';
     }
 }
