@@ -21,12 +21,12 @@
     -->
     <changeSet id="20210929120000-1" author="alexey@thehyve.nl">
         <addColumn tableName="subject">
-            <column name="date_of_birth" type="timestamp"/>
+            <column name="date_of_birth" type="date"/>
         </addColumn>
     </changeSet>
     <changeSet id="20210929120000-2" author="alexey@thehyve.nl">
         <addColumn tableName="subject_aud">
-            <column name="date_of_birth" type="timestamp"/>
+            <column name="date_of_birth" type="date"/>
             <column name="date_of_birth_mod" type="BOOLEAN"/>
         </addColumn>
     </changeSet>

@@ -29,6 +29,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -90,7 +91,7 @@ public class Subject extends AbstractEntity implements Serializable {
     private String group;
 
     @Column(name = "date_of_birth")
-    private ZonedDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @Column(name = "person_name")
     private String personName;
@@ -190,11 +191,11 @@ public class Subject extends AbstractEntity implements Serializable {
         return this.group;
     }
 
-    public void setDateOfBirth(ZonedDateTime dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public ZonedDateTime getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return this.dateOfBirth;
     }
 

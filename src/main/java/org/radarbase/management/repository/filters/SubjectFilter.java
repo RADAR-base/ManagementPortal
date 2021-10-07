@@ -18,6 +18,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,8 +28,8 @@ import java.util.List;
 
 public class SubjectFilter implements Specification<Subject> {
     private boolean includeInactive = false;
-    private ZonedDateTime dateOfBirthFrom = null;
-    private ZonedDateTime dateOfBirthTo = null;
+    private LocalDate dateOfBirthFrom = null;
+    private LocalDate dateOfBirthTo = null;
     private String groupName = null;
     private Long lastLoadedId = null;
     private Integer pageSize = 10;
@@ -143,19 +144,19 @@ public class SubjectFilter implements Specification<Subject> {
         this.personName = personName;
     }
 
-    public ZonedDateTime getDateOfBirthTo() {
+    public LocalDate getDateOfBirthTo() {
         return dateOfBirthTo;
     }
 
-    public void setDateOfBirthTo(ZonedDateTime dateOfBirthTo) {
+    public void setDateOfBirthTo(LocalDate dateOfBirthTo) {
         this.dateOfBirthTo = dateOfBirthTo;
     }
 
-    public ZonedDateTime getDateOfBirthFrom() {
+    public LocalDate getDateOfBirthFrom() {
         return dateOfBirthFrom;
     }
 
-    public void setDateOfBirthFrom(ZonedDateTime dateOfBirthFrom) {
+    public void setDateOfBirthFrom(LocalDate dateOfBirthFrom) {
         this.dateOfBirthFrom = dateOfBirthFrom;
     }
 
