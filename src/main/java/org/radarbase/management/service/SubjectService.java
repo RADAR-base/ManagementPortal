@@ -169,7 +169,7 @@ public class SubjectService {
         Subject subjectFromDb = subjectRepository.findById(newSubjectDto.getId()).get();
         //reset all the sources assigned to a subject to unassigned
         Set<Source> sourcesToUpdate = subjectFromDb.getSources();
-        sourcesToUpdate.forEach(s -> s.subject(null).assigned(false));
+        sourcesToUpdate.forEach(s -> s.subject(null).assigned(false).deleted(true));
         //set only the devices assigned to a subject as assigned
         subjectMapper.safeUpdateSubjectFromDTO(newSubjectDto, subjectFromDb);
         sourcesToUpdate.addAll(subjectFromDb.getSources());
@@ -228,6 +228,7 @@ public class SubjectService {
         subject.getSources().forEach(source -> {
             source.setAssigned(false);
             source.setSubject(null);
+            source.setDeleted(true);
             sourceRepository.save(source);
         });
         subject.getSources().clear();

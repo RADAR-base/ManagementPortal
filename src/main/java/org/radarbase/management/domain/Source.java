@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.management.domain.support.AbstractEntityListener;
@@ -38,6 +39,7 @@ import java.util.UUID;
 @Entity
 @Audited
 @Table(name = "radar_source")
+@Where(clause = "deleted=false")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EntityListeners({AbstractEntityListener.class})
 public class Source extends AbstractEntity implements Serializable {
@@ -64,6 +66,10 @@ public class Source extends AbstractEntity implements Serializable {
     @NotNull
     @Column(name = "assigned", nullable = false)
     private Boolean assigned;
+
+    @NotNull
+    @Column(name = "deleted", nullable = false)
+    private Boolean deleted = false;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "subject_id")
@@ -151,6 +157,19 @@ public class Source extends AbstractEntity implements Serializable {
 
     public void setAssigned(Boolean assigned) {
         this.assigned = assigned;
+    }
+
+    public Boolean isDeleted() {
+        return deleted;
+    }
+
+    public Source deleted(Boolean deleted) {
+        this.deleted = deleted;
+        return this;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
     }
 
     public void setSourceType(SourceType sourceType) {
