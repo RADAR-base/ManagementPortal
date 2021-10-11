@@ -14,11 +14,12 @@ public final class ErrorConstants {
     public static final String ERR_OAUTH_CLIENT_ALREADY_EXISTS = "error.oAuthClientExists";
     public static final String ERR_OAUTH_CLIENT_ID_NOT_FOUND = "error.oAuthClientIdNotFound";
     public static final String ERR_SUBJECT_NOT_FOUND = "error.subjectNotFound";
-    public static final String ERR_GROUP_NOT_FOUND = "error.groupNotFound";
     public static final String ERR_SOURCE_NAME_EXISTS = "error.sourceNameExists";
     public static final String ERR_SOURCE_NOT_FOUND = "error.sourceNotFound";
     public static final String ERR_SOURCE_TYPE_IN_USE = "error.sourceTypeInUse";
     public static final String ERR_SOURCE_TYPE_NOT_FOUND = "error.sourceTypeNotFound";
+    public static final String ERR_GROUP_NOT_FOUND = "error.groupNotFound";
+    public static final String ERR_GROUP_EXISTS = "error.groupExists";
     public static final String ERR_INVALID_AUTHORITY = "error.invalidAuthority";
     public static final String ERR_PROJECT_ID_NOT_FOUND = "error.projectIdNotFound";
     public static final String ERR_PROJECT_NAME_NOT_FOUND = "error.projectNameNotFound";

@@ -12,6 +12,7 @@ import org.radarbase.auth.config.Constants;
 import org.radarbase.management.domain.enumeration.ProjectStatus;
 import org.radarbase.management.domain.support.AbstractEntityListener;
 
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -28,6 +29,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -102,8 +104,10 @@ public class Project extends AbstractEntity implements Serializable {
     private Map<String, String> attributes = new HashMap<>();
 
     @NotAudited
-    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, orphanRemoval = true)
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true,
+            cascade = CascadeType.ALL)
+    @JoinColumn("project_id")
+    @OrderBy("name ASC")
     private Set<Group> groups = new HashSet<>();
 
     @Override

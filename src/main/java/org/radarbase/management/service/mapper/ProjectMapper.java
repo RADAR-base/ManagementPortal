@@ -14,7 +14,7 @@ import org.radarbase.management.service.mapper.decorator.ProjectMapperDecorator;
 /**
  * Mapper for the entity Project and its DTO ProjectDTO.
  */
-@Mapper(componentModel = "spring", uses = {SourceTypeMapper.class,})
+@Mapper(componentModel = "spring", uses = {GroupMapper.class, SourceTypeMapper.class,})
 @DecoratedWith(ProjectMapperDecorator.class)
 public interface ProjectMapper {
 
