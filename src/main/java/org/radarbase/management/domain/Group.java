@@ -12,6 +12,7 @@ import javax.persistence.FetchType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.radarbase.auth.config.Constants;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import java.io.Serializable;
@@ -44,6 +46,7 @@ public class Group extends AbstractEntity implements Serializable {
     private Long id;
 
     @NotNull
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
     @Size(min = 1, max = 50)
     @Column(name = "name", length = 50, nullable = false)
     private String name;
