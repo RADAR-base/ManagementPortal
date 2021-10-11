@@ -22,6 +22,7 @@ public interface SubjectMapper {
     @Mapping(source = "user.login", target = "login")
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "project", ignore = true)
+    @Mapping(source = "group.name", target = "group")
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "lastModifiedBy", ignore = true)
@@ -30,6 +31,7 @@ public interface SubjectMapper {
     SubjectDTO subjectToSubjectDTO(Subject subject);
 
     @Mapping(source = "user.login", target = "login")
+    @Mapping(source = "group.name", target = "group")
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "project", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
@@ -41,6 +43,7 @@ public interface SubjectMapper {
 
     @Named(value = "subjectReducedProjectDTO")
     @Mapping(source = "user.login", target = "login")
+    @Mapping(source = "group.name", target = "group")
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "project", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
@@ -54,6 +57,7 @@ public interface SubjectMapper {
     List<SubjectDTO> subjectsToSubjectReducedProjectDTOs(List<Subject> subjects);
 
     @Mapping(source = "login", target = "user.login")
+    @Mapping(source = "group.name", target = "group")
     @Mapping(target = "user.email", ignore = true)
     @Mapping(target = "user.activated", ignore = true)
     @Mapping(target = "removed", ignore = true)

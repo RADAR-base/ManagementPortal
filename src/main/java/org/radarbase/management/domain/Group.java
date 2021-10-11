@@ -45,7 +45,7 @@ public class Group extends AbstractEntity implements Serializable {
 
     @NotNull
     @Size(min = 1, max = 50)
-    @Column(name = "name", length = 50, nullable = false, unique = false)
+    @Column(name = "name", length = 50, nullable = false)
     private String name;
 
     @JsonIgnore

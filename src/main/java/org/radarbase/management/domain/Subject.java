@@ -22,6 +22,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -87,8 +88,9 @@ public class Subject extends AbstractEntity implements Serializable {
     @JsonIgnore
     private final Set<MetaToken> metaTokens = new HashSet<>();
 
-    @Column(name = "group_name")
-    private String group;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "group_id")
+    private Group group;
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
@@ -186,11 +188,11 @@ public class Subject extends AbstractEntity implements Serializable {
         return metaTokens;
     }
 
-    public void setGroup(String group) {
+    public void setGroup(Group group) {
         this.group = group;
     }
 
-    public String getGroup() {
+    public Group getGroup() {
         return this.group;
     }
 
