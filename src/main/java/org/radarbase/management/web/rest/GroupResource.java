@@ -12,7 +12,6 @@ package org.radarbase.management.web.rest;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.management.service.GroupService;
-import org.radarbase.management.service.ProjectService;
 import org.radarbase.management.service.dto.GroupDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,9 +36,6 @@ import static org.radarbase.management.security.SecurityUtils.getJWT;
 public class GroupResource {
     @Autowired
     private GroupService groupService;
-
-    @Autowired
-    private ProjectService projectService;
 
     @Autowired
     private ServletRequest servletRequest;
