@@ -49,6 +49,7 @@ public interface ProjectMapper {
     @Mapping(target = "projectStatus", ignore = true)
     @Mapping(target = "sourceTypes", ignore = true)
     @Mapping(target = "attributes", ignore = true)
+    @Mapping(target = "groups", ignore = true)
     Project descriptiveDTOToProject(MinimalProjectDetailsDTO minimalProjectDetailsDto);
 
     List<Project> descriptiveDTOsToProjects(

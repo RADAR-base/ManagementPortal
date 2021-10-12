@@ -5,7 +5,6 @@ import static org.radarbase.management.web.rest.errors.EntityName.PROJECT;
 
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.SourceType;
-import org.radarbase.management.repository.GroupRepository;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.service.dto.SourceTypeDTO;

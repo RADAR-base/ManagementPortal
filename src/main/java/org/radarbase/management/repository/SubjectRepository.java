@@ -1,11 +1,7 @@
 package org.radarbase.management.repository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.domain.Subject;
-import org.radarbase.management.repository.filters.SubjectFilter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +11,10 @@ import org.springframework.data.repository.RepositoryDefinition;
 import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 /**
  * Spring Data JPA repository for the Subject entity.
  */
@@ -22,8 +22,7 @@ import org.springframework.data.repository.query.Param;
 @RepositoryDefinition(domainClass = Subject.class, idClass = Long.class)
 public interface SubjectRepository extends JpaRepository<Subject, Long>,
         RevisionRepository<Subject, Long, Integer>,
-        JpaSpecificationExecutor<Subject>
-{
+        JpaSpecificationExecutor<Subject> {
 
     @Query(value = "select distinct subject from Subject subject left join fetch subject.sources "
             + "left join fetch subject.user user "

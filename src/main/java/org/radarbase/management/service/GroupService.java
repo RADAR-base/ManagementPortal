@@ -30,6 +30,9 @@ import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_GROUP_
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_GROUP_NOT_FOUND;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_PROJECT_NAME_NOT_FOUND;
 
+/**
+ * Service to manage project groups.
+ */
 @Service
 public class GroupService {
     @Autowired
@@ -41,42 +44,67 @@ public class GroupService {
     @Autowired
     private GroupMapper groupMapper;
 
+    /**
+     * Get the group by name.
+     * @param projectName project name
+     * @param groupName group name
+     * @return group
+     * @throws NotFoundException if the project or group is not found.
+     */
     @Transactional
     public GroupDTO getGroup(String projectName, String groupName) {
-        return groupMapper.groupToGroupDTOFull(groupRepository.findByProjectNameAndName(projectName, groupName)
+        return groupMapper.groupToGroupDTOFull(groupRepository.findByProjectNameAndName(projectName,
+                        groupName)
                 .orElseThrow(() -> new NotFoundException(
                         "Group " + groupName + " not found in project " + projectName,
                         GROUP, ERR_GROUP_NOT_FOUND)));
     }
 
+    /**
+     * Delete the group by name.
+     * @param projectName project name
+     * @param groupName group name
+     * @throws NotFoundException if the project or group is not found.
+     */
     @Transactional
     public void deleteGroup(String projectName, String groupName) {
-        int deletedRows = groupRepository.deleteByProjectNameAndName(projectName, groupName);
-        if (deletedRows < 1) {
-            throw new NotFoundException(
-                    "Group " + groupName + " not found in project " + projectName,
-                    GROUP, ERR_GROUP_NOT_FOUND);
-        }
+        Long projectId = projectRepository.findProjectIdByName(projectName)
+                .orElseThrow(() -> new NotFoundException(
+                        "Project " + projectName + " not found.",
+                        PROJECT, ERR_PROJECT_NAME_NOT_FOUND));
+        groupRepository.deleteByProjectNameAndName(projectId, groupName);
     }
 
+    /**
+     * Create the group.
+     * @param projectName project name
+     * @param groupDto group values
+     * @throws NotFoundException if the project is not found.
+     * @throws ConflictException if the group name already exists.
+     */
     @Transactional
-    public GroupDTO createGroup(String projectName, GroupDTO groupDTO) {
+    public GroupDTO createGroup(String projectName, GroupDTO groupDto) {
         Project project = projectRepository.findOneWithGroupsByName(projectName)
                 .orElseThrow(() -> new NotFoundException(
                         "Project with name " + projectName + " not found",
                         PROJECT, ERR_PROJECT_NAME_NOT_FOUND));
 
         if (project.getGroups().stream()
-                .anyMatch(g -> g.getName().equals(groupDTO.getName()))) {
+                .anyMatch(g -> g.getName().equals(groupDto.getName()))) {
             throw new ConflictException(
-                    "Group " + groupDTO.getName() + " already exists in project " + projectName,
+                    "Group " + groupDto.getName() + " already exists in project " + projectName,
                     GROUP, ERR_GROUP_EXISTS);
         }
-        Group group = groupMapper.groupDTOToGroup(groupDTO);
+        Group group = groupMapper.groupDTOToGroup(groupDto);
         group.setProject(project);
         return groupMapper.groupToGroupDTOFull(groupRepository.save(group));
     }
 
+    /**
+     * List all groups in a project.
+     * @param projectName project name
+     * @throws NotFoundException if the project is not found.
+     */
     public List<GroupDTO> listGroups(String projectName) {
         Project project = projectRepository.findOneWithGroupsByName(projectName)
                 .orElseThrow(() -> new NotFoundException(

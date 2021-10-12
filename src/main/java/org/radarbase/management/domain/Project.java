@@ -106,7 +106,7 @@ public class Project extends AbstractEntity implements Serializable {
     @NotAudited
     @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true,
             cascade = CascadeType.ALL)
-    @JoinColumn("project_id")
+    @JoinColumn(name = "project_id")
     @OrderBy("name ASC")
     private Set<Group> groups = new HashSet<>();
 
@@ -225,30 +225,6 @@ public class Project extends AbstractEntity implements Serializable {
 
     public Project sourceTypes(Set<SourceType> sourceTypes) {
         this.sourceTypes = sourceTypes;
-        return this;
-    }
-
-    /**
-     * Add a source type to this project.
-     *
-     * @param sourceType the source type to add
-     * @return this project
-     */
-    public Project addSourceType(SourceType sourceType) {
-        this.sourceTypes.add(sourceType);
-        sourceType.getProjects().add(this);
-        return this;
-    }
-
-    /**
-     * Remove a source type from this project.
-     *
-     * @param sourceType the source type to remove
-     * @return this project
-     */
-    public Project removeSourceType(SourceType sourceType) {
-        this.sourceTypes.remove(sourceType);
-        sourceType.getProjects().remove(this);
         return this;
     }
 

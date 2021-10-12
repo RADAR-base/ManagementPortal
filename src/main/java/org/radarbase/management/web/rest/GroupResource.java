@@ -40,6 +40,13 @@ public class GroupResource {
     @Autowired
     private ServletRequest servletRequest;
 
+    /**
+     * Create group.
+     * @param projectName project name
+     * @param groupDto group specification
+     * @return created response
+     * @throws NotAuthorizedException if PROJECT_UPDATE permissions are not present.
+     */
     @PostMapping
     public Response createGroup(
             @PathParam("projectName") String projectName,
@@ -49,6 +56,12 @@ public class GroupResource {
         return Response.created(URI.create(groupDto.getName())).build();
     }
 
+    /**
+     * List groups.
+     * @param projectName project name
+     * @return list of groups
+     * @throws NotAuthorizedException if PROJECT_READ permissions are not present.
+     */
     @GetMapping
     public List<GroupDTO> listGroups(
             @PathParam("projectName") String projectName) throws NotAuthorizedException {
@@ -56,6 +69,13 @@ public class GroupResource {
         return groupService.listGroups(projectName);
     }
 
+    /**
+     * Get a single group.
+     * @param projectName project name
+     * @param groupName group name
+     * @return group
+     * @throws NotAuthorizedException if PROJECT_READ permissions are not present.
+     */
     @GetMapping("{groupName:" + Constants.ENTITY_ID_REGEX + "}")
     public GroupDTO getGroup(
             @PathParam("projectName") String projectName,
@@ -64,6 +84,12 @@ public class GroupResource {
         return groupService.getGroup(projectName, groupName);
     }
 
+    /**
+     * Delete a single group.
+     * @param projectName project name
+     * @param groupName group name
+     * @throws NotAuthorizedException if PROJECT_UPDATE permissions are not present.
+     */
     @DeleteMapping
     public void deleteGroup(
             @PathParam("projectName") String projectName,

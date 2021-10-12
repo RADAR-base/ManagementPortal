@@ -57,7 +57,7 @@ public interface SubjectMapper {
     List<SubjectDTO> subjectsToSubjectReducedProjectDTOs(List<Subject> subjects);
 
     @Mapping(source = "login", target = "user.login")
-    @Mapping(source = "group.name", target = "group")
+    @Mapping(target = "group", ignore = true)
     @Mapping(target = "user.email", ignore = true)
     @Mapping(target = "user.activated", ignore = true)
     @Mapping(target = "removed", ignore = true)
@@ -68,6 +68,7 @@ public interface SubjectMapper {
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "removed", ignore = true)
     @Mapping(target = "metaTokens", ignore = true)
+    @Mapping(target = "group", ignore = true)
     Subject safeUpdateSubjectFromDTO(SubjectDTO subjectDto, @MappingTarget Subject subject);
 
     /**
