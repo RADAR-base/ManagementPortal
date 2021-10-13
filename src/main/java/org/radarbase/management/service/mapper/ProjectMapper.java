@@ -20,6 +20,7 @@ public interface ProjectMapper {
     @Mapping(target = "humanReadableProjectName", ignore = true)
     @Mapping(target = "persistentTokenTimeout", ignore = true)
     @Mapping(target = "groups", qualifiedByName = "groupToGroupDTO")
+    @Mapping(target = "sourceTypes", qualifiedByName = "sourceTypeToSourceTypeDTOReduced")
     ProjectDTO projectToProjectDTO(Project project);
 
     @Named(value = "projectReducedDTO")
@@ -33,6 +34,7 @@ public interface ProjectMapper {
     List<ProjectDTO> projectsToProjectDTOs(List<Project> projects);
 
     @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "groups", ignore = true)
     Project projectDTOToProject(ProjectDTO projectDto);
 
     List<Project> projectDTOsToProjects(List<ProjectDTO> projectDtos);
