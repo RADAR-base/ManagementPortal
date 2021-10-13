@@ -11,5 +11,6 @@ public interface EntityName {
     String META_TOKEN = "meta-token";
     String PROJECT = "project";
     String REVISION = "revision";
+    String GROUP = "group";
 
 }

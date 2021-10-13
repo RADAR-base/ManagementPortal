@@ -12,6 +12,7 @@ import org.radarbase.auth.config.Constants;
 import org.radarbase.management.domain.enumeration.ProjectStatus;
 import org.radarbase.management.domain.support.AbstractEntityListener;
 
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -28,6 +29,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -102,8 +104,10 @@ public class Project extends AbstractEntity implements Serializable {
     private Map<String, String> attributes = new HashMap<>();
 
     @NotAudited
-    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, orphanRemoval = true)
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true,
+            cascade = CascadeType.ALL)
+    @JoinColumn(name = "project_id")
+    @OrderBy("name ASC")
     private Set<Group> groups = new HashSet<>();
 
     @Override
@@ -221,30 +225,6 @@ public class Project extends AbstractEntity implements Serializable {
 
     public Project sourceTypes(Set<SourceType> sourceTypes) {
         this.sourceTypes = sourceTypes;
-        return this;
-    }
-
-    /**
-     * Add a source type to this project.
-     *
-     * @param sourceType the source type to add
-     * @return this project
-     */
-    public Project addSourceType(SourceType sourceType) {
-        this.sourceTypes.add(sourceType);
-        sourceType.getProjects().add(this);
-        return this;
-    }
-
-    /**
-     * Remove a source type from this project.
-     *
-     * @param sourceType the source type to remove
-     * @return this project
-     */
-    public Project removeSourceType(SourceType sourceType) {
-        this.sourceTypes.remove(sourceType);
-        sourceType.getProjects().remove(this);
         return this;
     }
 

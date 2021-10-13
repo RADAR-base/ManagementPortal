@@ -70,6 +70,6 @@ public interface ClientDetailsMapper {
             return Collections.emptyMap();
         }
         return additionalInformation.entrySet().stream().collect(
-                Collectors.toMap(e -> e.getKey(), e -> e.getValue().toString()));
+                Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
     }
 }

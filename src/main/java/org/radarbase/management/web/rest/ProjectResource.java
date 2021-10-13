@@ -6,7 +6,6 @@ import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.repository.ProjectRepository;
-import org.radarbase.management.repository.filters.SubjectFilter;
 import org.radarbase.management.service.ProjectService;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.RoleService;
@@ -19,7 +18,7 @@ import org.radarbase.management.service.dto.SourceDTO;
 import org.radarbase.management.service.dto.SourceTypeDTO;
 import org.radarbase.management.service.dto.SubjectDTO;
 import org.radarbase.management.service.mapper.SubjectMapper;
-import org.radarbase.management.web.rest.errors.BadRequestException;
+import org.radarbase.management.web.rest.criteria.SubjectCriteria;
 import org.radarbase.management.web.rest.errors.ErrorVM;
 import org.radarbase.management.web.rest.util.HeaderUtil;
 import org.radarbase.management.web.rest.util.PaginationUtil;
@@ -60,8 +59,6 @@ import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
 import static org.radarbase.management.security.SecurityUtils.getJWT;
-import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_PROJECT_NOT_EMPTY;
 
 /**
@@ -117,7 +114,7 @@ public class ProjectResource {
         if (projectRepository.findOneWithEagerRelationshipsByName(projectDto.getProjectName())
                 .isPresent()) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
-                    ENTITY_NAME, "nameexists", "A project with this name already exists"))
+                            ENTITY_NAME, "nameexists", "A project with this name already exists"))
                     .body(null);
         }
         ProjectDTO result = projectService.save(projectDto);
@@ -160,7 +157,7 @@ public class ProjectResource {
     @GetMapping("/projects")
     @Timed
     public ResponseEntity<?> getAllProjects(
-            @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable,
+            @PageableDefault(size = Integer.MAX_VALUE) Pageable pageable,
             @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
                     minimized) throws NotAuthorizedException {
         log.debug("REST request to get Projects");
@@ -298,34 +295,31 @@ public class ProjectResource {
     /**
      * Get /projects/{projectName}/subjects : get all subjects for a given project.
      *
-     * @param projectName The name of the project
      * @return The subjects in the project or 404 if there is no such project
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/subjects")
     @Timed
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(
-        SubjectFilter subjectFilter
+            @Valid SubjectCriteria subjectCriteria
     ) throws NotAuthorizedException {
-        String projectName = subjectFilter.getProjectName();
-        // this checks if the project exists
-        projectService.findOneByName(projectName);
+        String projectName = subjectCriteria.getProjectName();
         RadarToken jwt = getJWT(servletRequest);
         checkPermissionOnProject(jwt, SUBJECT_READ, projectName);
         if (!jwt.isClientCredentials() && jwt.hasAuthority(PARTICIPANT)) {
             throw new NotAuthorizedException("Cannot list all project subjects as a participant.");
         }
-        String filterError = subjectFilter.getFilterValidationError();
-        if (filterError != null) {
-            throw new BadRequestException(filterError, SOURCE_TYPE, ERR_VALIDATION);
-        }
+
+        // this checks if the project exists
+        projectService.findOneByName(projectName);
+        subjectCriteria.setProjectName(projectName);
 
         log.debug("REST request to get all subjects for project {}", projectName);
-        Page<SubjectDTO> page = subjectService.findAll(subjectFilter)
-            .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
+        Page<SubjectDTO> page = subjectService.findAll(subjectCriteria)
+                .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
 
         String baseUri = HeaderUtil.buildPath("api", "projects", projectName, "subjects");
         HttpHeaders headers = PaginationUtil.generateSubjectPaginationHttpHeaders(
-            page, baseUri, subjectFilter);
+                page, baseUri, subjectCriteria);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 }

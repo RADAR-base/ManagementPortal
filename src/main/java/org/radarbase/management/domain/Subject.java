@@ -10,6 +10,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.radarbase.management.domain.support.AbstractEntityListener;
 
 import javax.persistence.CollectionTable;
@@ -22,6 +23,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -29,6 +31,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -86,11 +89,16 @@ public class Subject extends AbstractEntity implements Serializable {
     @JsonIgnore
     private final Set<MetaToken> metaTokens = new HashSet<>();
 
-    @Column(name = "group_name")
-    private String group;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "group_id")
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    private Group group;
 
     @Column(name = "date_of_birth")
-    private ZonedDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
+
+    @Column(name = "enrollment_date")
+    private ZonedDateTime enrollmentDate;
 
     @Column(name = "person_name")
     private String personName;
@@ -182,20 +190,28 @@ public class Subject extends AbstractEntity implements Serializable {
         return metaTokens;
     }
 
-    public void setGroup(String group) {
+    public void setGroup(Group group) {
         this.group = group;
     }
 
-    public String getGroup() {
+    public Group getGroup() {
         return this.group;
     }
 
-    public void setDateOfBirth(ZonedDateTime dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public ZonedDateTime getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return this.dateOfBirth;
+    }
+
+    public void setEnrollmentDate(ZonedDateTime enrollmentDate) {
+        this.enrollmentDate = enrollmentDate;
+    }
+
+    public ZonedDateTime getEnrollmentDate() {
+        return this.enrollmentDate;
     }
 
     public void setPersonName(String personName) {

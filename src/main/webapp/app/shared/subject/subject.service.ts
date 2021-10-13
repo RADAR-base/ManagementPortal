@@ -73,8 +73,11 @@ export class SubjectService {
 export interface SubjectFilterParams {
     subjectId?: string,
     externalId?: string,
-    dateTimeFrom?: string,
-    dateTimeTo?: string,
+    dateOfBirthFrom?: string,
+    dateOfBirthTo?: string,
+    enrollmentDateFrom?: string,
+    enrollmentDateTo?: string,
+    humanReadableIdentifier?: string,
     personName?: string,
     subjectName?: string,
     subjectDOB?: string,

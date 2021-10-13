@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -60,7 +61,9 @@ public class SubjectDTO implements Serializable {
 
     private String group;
 
-    private ZonedDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
+
+    private ZonedDateTime enrollmentDate;
 
     private String personName;
 
@@ -111,12 +114,20 @@ public class SubjectDTO implements Serializable {
         this.group = group;
     }
 
-    public ZonedDateTime getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return this.dateOfBirth;
     }
 
-    public void setDateOfBirth(ZonedDateTime dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    public void setEnrollmentDate(ZonedDateTime enrollmentDate) {
+        this.enrollmentDate = enrollmentDate;
+    }
+
+    public ZonedDateTime getEnrollmentDate() {
+        return this.enrollmentDate;
     }
 
     public Long getId() {

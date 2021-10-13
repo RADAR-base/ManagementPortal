@@ -36,6 +36,7 @@
             "createdBy": "Created By",
             "createdDate": "Created Date",
             "dateOfBirth": "Date of Birth",
+            "enrollmentDate": "Enrollment Date",
             "lastModifiedBy": "Last Modified By",
             "lastModifiedDate": "Last Modified Date",
             "personName": "Name",

@@ -1,6 +1,6 @@
 package org.radarbase.management.web.rest.util;
 
-import org.radarbase.management.repository.filters.SubjectFilter;
+import org.radarbase.management.web.rest.criteria.SubjectCriteria;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -55,15 +55,22 @@ public final class PaginationUtil {
         headers.add(HttpHeaders.LINK, link.toString());
         return headers;
     }
-    
+
+    /**
+     * Generate pagination HTTP headers for subjects given a subject filter.
+     * @param page the page
+     * @param baseUrl the base URL
+     * @param criteria subject criteria
+     * @return the {@link HttpHeaders}
+     */
     public static HttpHeaders generateSubjectPaginationHttpHeaders(
-        Page<?> page, String baseUrl, SubjectFilter filter
+            Page<?> page, String baseUrl, SubjectCriteria criteria
     ) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-Total-Count", Long.toString(page.getTotalElements()));
         StringBuilder link = new StringBuilder(256);
         link.append('<')
-                .append(generateUri(baseUrl, filter))
+                .append(generateUri(baseUrl, criteria))
                 .append(">; rel=\"first\"");
         headers.add(HttpHeaders.LINK, link.toString());
         return headers;
@@ -76,20 +83,22 @@ public final class PaginationUtil {
                 .toUriString();
     }
 
-    private static String generateUri(String baseUrl, SubjectFilter filter) {
+    private static String generateUri(String baseUrl, SubjectCriteria criteria) {
         return UriComponentsBuilder.fromUriString(baseUrl)
-            .queryParam("dateOfBirthFrom", filter.getDateOfBirthFrom())
-            .queryParam("dateOfBirthTo", filter.getDateOfBirthTo())
-            .queryParam("externalId", filter.getExternalId())
-            .queryParam("groupName", filter.getGroupName())
-            .queryParam("lastLoadedId", filter.getLastLoadedId())
-            .queryParam("pageSize", filter.getPageSize())
-            .queryParam("personName", filter.getPersonName())
-            .queryParam("projectName", filter.getProjectName())
-            .queryParam("sortBy", filter.getSortBy().getKey())
-            .queryParam("sortDirection", filter.getSortDirection().getKey())
-            .queryParam("subjectId", filter.getSubjectId())
-            .queryParam("withInactiveParticipants", filter.getWithInactiveParticipants())
-            .toUriString();
+                .queryParam("dateOfBirthFrom", criteria.getDateOfBirthFrom())
+                .queryParam("dateOfBirthTo", criteria.getDateOfBirthTo())
+                .queryParam("enrollmentDateFrom", criteria.getEnrollmentDateFrom())
+                .queryParam("enrollmentDateTo", criteria.getEnrollmentDateTo())
+                .queryParam("externalId", criteria.getExternalId())
+                .queryParam("groupName", criteria.getGroupName())
+                .queryParam("lastLoadedId", criteria.getLastLoadedId())
+                .queryParam("pageSize", criteria.getPageSize())
+                .queryParam("personName", criteria.getPersonName())
+                .queryParam("projectName", criteria.getProjectName())
+                .queryParam("sortBy", criteria.getSortBy().getKey())
+                .queryParam("sortDirection", criteria.getSortDirection().getKey())
+                .queryParam("subjectId", criteria.getSubjectId())
+                .queryParam("includeInactive", criteria.isIncludeInactive())
+                .toUriString();
     }
 }

@@ -12,6 +12,7 @@ import javax.persistence.FetchType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.radarbase.auth.config.Constants;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import java.io.Serializable;
@@ -44,13 +46,14 @@ public class Group extends AbstractEntity implements Serializable {
     private Long id;
 
     @NotNull
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
     @Size(min = 1, max = 50)
-    @Column(name = "group_name", length = 50, nullable = false, unique = false)
-    private String groupName;
+    @Column(name = "name", length = 50, nullable = false)
+    private String name;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "project_id")
+    @JoinColumn(name = "project_id", nullable = false)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Project project;
 
@@ -63,12 +66,12 @@ public class Group extends AbstractEntity implements Serializable {
         this.id = id;
     }
 
-    public String getGroupName() {
-        return groupName;
+    public String getName() {
+        return name;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Project getProject() {
@@ -103,7 +106,7 @@ public class Group extends AbstractEntity implements Serializable {
     public String toString() {
         return "Group{"
                + "id=" + id + ", "
-               + "groupName=" + groupName + ", "
+               + "name=" + name + ", "
                + "project='" + project.getProjectName() + "', "
                + "}";
     }
