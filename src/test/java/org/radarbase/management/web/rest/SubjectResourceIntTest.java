@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -132,7 +133,6 @@ class SubjectResourceIntTest {
                 // add the oauth token by default to all requests for this mockMvc
                 .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
     }
-
 
     @Test
     @Transactional
@@ -540,7 +540,7 @@ class SubjectResourceIntTest {
         sourceDto.setAssigned(false);
         sourceDto.setSourceId(UUID.randomUUID());
         sourceDto.setSourceType(sourceTypeService.findAll().get(0));
-        sourceDto.setSourceName("something");
+        sourceDto.setSourceName("something" + UUID.randomUUID());
         return sourceDto;
     }
 
