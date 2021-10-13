@@ -58,6 +58,9 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     filterSubjectEnrolmentDate = '';
     filterSubjectName = '';
     filterSubjectDOB = '';
+    filterPersonName = '';
+    filterSubjectDOBFrom = '';
+    filterSubjectDOBTo = '';
 
     isAdvancedFilterCollapsed = true;
 
@@ -159,6 +162,9 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         return {
             subjectId: this.filterSubjectId.trim() || undefined,
             externalId: this.filterSubjectExternalId.trim() || undefined,
+            personName: this.filterPersonName.trim() || undefined,
+            dateTimeFrom: this.filterSubjectDOBFrom.trim() || undefined,
+            dateTimeTo: this.filterSubjectDOBTo.trim() || undefined,
             humanReadableId: this.filterSubjectHumanReadableId.trim() || undefined,
             enrolmentDate: this.filterSubjectEnrolmentDate.trim() || undefined,
             subjectName: this.filterSubjectName.trim() || undefined,
