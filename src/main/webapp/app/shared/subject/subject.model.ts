@@ -8,8 +8,6 @@ export class Subject {
     public login?: string;
     public externalLink?: string;
     public externalId?: string;
-    public name?: String;
-    public dob?: Date;
     public createdBy?: string;
     public createdDate?: Date;
     public dateOfBirth?: Date;

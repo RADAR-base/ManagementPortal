@@ -51,19 +51,19 @@
         </div>
         <div class="form-group">
             <label class="form-control-label"
-                   [translate]="'managementPortalApp.subject.name'"
-                   for="field_name">
+                   [translate]="'managementPortalApp.subject.personName'"
+                   for="field_person_name">
             </label>
-            <input type="text" class="form-control" name="externalId" id="field_name" [(ngModel)]="subject.name"/>
+            <input type="text" class="form-control" name="personName" id="field_person_name" [(ngModel)]="subject.personName"/>
         </div>
 
         <div class="form-group">
             <label class="form-control-label"
-                   [translate]="'managementPortalApp.subject.dob'"
-                   for="field_dob">
+                   [translate]="'managementPortalApp.subject.dateOfBirth'"
+                   for="field_date_of_birth">
             </label>
             <div class="d-flex">
-                <input id="field_dob" type="date" class="form-control" name="dob" [(ngModel)]="subject.dob"
+                <input id="field_date_of_birth" type="date" class="form-control" name="dateOfBirth" [(ngModel)]="subject.dateOfBirth"
                 />
             </div>
         </div>
