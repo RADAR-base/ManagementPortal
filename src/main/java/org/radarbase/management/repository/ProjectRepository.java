@@ -28,13 +28,13 @@ public interface ProjectRepository extends JpaRepository<Project, Long>,
     @Query("select project from Project project "
             + "left join fetch project.sourceTypes s "
             + "left join fetch project.groups "
-            + "where project.id =:id")
+            + "where project.id = :id")
     Optional<Project> findOneWithEagerRelationships(@Param("id") Long id);
 
     @Query("select project from Project project "
             + "left join fetch project.sourceTypes "
             + "left join fetch project.groups "
-            + "where project.projectName =:name")
+            + "where project.projectName = :name")
     Optional<Project> findOneWithEagerRelationshipsByName(@Param("name") String name);
 
     @Query("select project.id from Project project "
@@ -43,7 +43,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long>,
 
     @Query("select project from Project project "
             + "left join fetch project.groups "
-            + "where project.projectName =:name")
+            + "where project.projectName = :name")
     Optional<Project> findOneWithGroupsByName(@Param("name") String name);
 
     @Query("select project.sourceTypes from Project project WHERE project.id = :id")

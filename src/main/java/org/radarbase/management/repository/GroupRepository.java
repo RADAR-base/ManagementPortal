@@ -11,7 +11,6 @@ package org.radarbase.management.repository;
 
 import org.radarbase.management.domain.Group;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.RepositoryDefinition;
 import org.springframework.data.repository.history.RevisionRepository;
@@ -30,18 +29,10 @@ public interface GroupRepository extends JpaRepository<Group, Long>,
             @Param("group_name") String groupName);
 
     @Query("SELECT group FROM Group group "
-            + "LEFT JOIN Project project "
-            + "WHERE project.projectName = :project_name "
+            + "LEFT JOIN Project project on group.project = project "
+            + "WHERE group.project.projectName = :project_name "
             + "AND group.name = :group_name")
     Optional<Group> findByProjectNameAndName(
             @Param("project_name") String projectName,
-            @Param("group_name") String groupName);
-
-    @Modifying
-    @Query("DELETE FROM Group "
-            + "WHERE project_id = :project_id "
-            + "AND name = :group_name")
-    int deleteByProjectNameAndName(
-            @Param("project_id") Long projectId,
             @Param("group_name") String groupName);
 }

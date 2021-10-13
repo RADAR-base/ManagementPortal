@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-
 import java.util.List;
 
 import static org.radarbase.management.web.rest.errors.EntityName.GROUP;
@@ -68,11 +67,12 @@ public class GroupService {
      */
     @Transactional
     public void deleteGroup(String projectName, String groupName) {
-        Long projectId = projectRepository.findProjectIdByName(projectName)
+        Group group = groupRepository.findByProjectNameAndName(projectName, groupName)
                 .orElseThrow(() -> new NotFoundException(
-                        "Project " + projectName + " not found.",
-                        PROJECT, ERR_PROJECT_NAME_NOT_FOUND));
-        groupRepository.deleteByProjectNameAndName(projectId, groupName);
+                        "Group " + groupName + " not found in project " + projectName,
+                        GROUP, ERR_GROUP_NOT_FOUND));
+
+        groupRepository.delete(group);
     }
 
     /**
@@ -97,7 +97,11 @@ public class GroupService {
         }
         Group group = groupMapper.groupDTOToGroup(groupDto);
         group.setProject(project);
-        return groupMapper.groupToGroupDTOFull(groupRepository.save(group));
+
+        GroupDTO groupDtoResult = groupMapper.groupToGroupDTOFull(groupRepository.save(group));
+        project.getGroups().add(group);
+        projectRepository.save(project);
+        return groupDtoResult;
     }
 
     /**

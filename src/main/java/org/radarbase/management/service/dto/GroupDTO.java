@@ -1,19 +1,18 @@
 package org.radarbase.management.service.dto;
 
-import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**
  * A DTO for the Group entity.
  */
-public class GroupDTO implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class GroupDTO {
 
     private Long id;
 
     private Long projectId;
 
+    @NotNull
     private String name;
 
     public Long getId() {

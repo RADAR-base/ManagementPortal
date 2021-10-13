@@ -97,7 +97,8 @@ public class ProjectService {
         log.debug("Request to get Project by name: {}", name);
         return projectRepository.findOneWithEagerRelationshipsByName(name)
                 .map(projectMapper::projectToProjectDTO)
-                .orElseThrow(() -> new NotFoundException("Project not found with projectName",
+                .orElseThrow(() -> new NotFoundException(
+                        "Project not found with projectName " + name,
                         PROJECT, ErrorConstants.ERR_PROJECT_NAME_NOT_FOUND,
                         Collections.singletonMap("projectName", name)));
     }

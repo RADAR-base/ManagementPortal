@@ -17,15 +17,16 @@ import org.radarbase.management.service.mapper.decorator.ProjectMapperDecorator;
 @Mapper(componentModel = "spring", uses = {GroupMapper.class, SourceTypeMapper.class,})
 @DecoratedWith(ProjectMapperDecorator.class)
 public interface ProjectMapper {
-
     @Mapping(target = "humanReadableProjectName", ignore = true)
     @Mapping(target = "persistentTokenTimeout", ignore = true)
+    @Mapping(target = "groups", qualifiedByName = "groupToGroupDTO")
     ProjectDTO projectToProjectDTO(Project project);
 
     @Named(value = "projectReducedDTO")
     @Mapping(target = "humanReadableProjectName", ignore = true)
     @Mapping(target = "sourceTypes", ignore = true)
     @Mapping(target = "persistentTokenTimeout", ignore = true)
+    @Mapping(target = "groups", qualifiedByName = "groupToGroupDTO")
     ProjectDTO projectToProjectDTOReduced(Project project);
 
     @IterableMapping(qualifiedByName = "projectReducedDTO")

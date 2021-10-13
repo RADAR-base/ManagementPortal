@@ -14,15 +14,18 @@ import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.management.service.GroupService;
 import org.radarbase.management.service.dto.GroupDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import javax.servlet.ServletRequest;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Response;
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
@@ -48,12 +51,17 @@ public class GroupResource {
      * @throws NotAuthorizedException if PROJECT_UPDATE permissions are not present.
      */
     @PostMapping
-    public Response createGroup(
-            @PathParam("projectName") String projectName,
-            GroupDTO groupDto) throws NotAuthorizedException {
+    public ResponseEntity<GroupDTO> createGroup(
+            @PathVariable String projectName,
+            @Valid @RequestBody GroupDTO groupDto) throws NotAuthorizedException {
         checkPermissionOnProject(getJWT(servletRequest), PROJECT_UPDATE, projectName);
-        groupService.createGroup(projectName, groupDto);
-        return Response.created(URI.create(groupDto.getName())).build();
+        GroupDTO groupDtoResult = groupService.createGroup(projectName, groupDto);
+        URI location = MvcUriComponentsBuilder.fromController(getClass())
+                .path("/{groupName}")
+                .buildAndExpand(projectName, groupDtoResult.getName())
+                .toUri();
+        return ResponseEntity.created(location)
+                .body(groupDtoResult);
     }
 
     /**
@@ -64,7 +72,7 @@ public class GroupResource {
      */
     @GetMapping
     public List<GroupDTO> listGroups(
-            @PathParam("projectName") String projectName) throws NotAuthorizedException {
+            @PathVariable String projectName) throws NotAuthorizedException {
         checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ, projectName);
         return groupService.listGroups(projectName);
     }
@@ -76,10 +84,10 @@ public class GroupResource {
      * @return group
      * @throws NotAuthorizedException if PROJECT_READ permissions are not present.
      */
-    @GetMapping("{groupName:" + Constants.ENTITY_ID_REGEX + "}")
+    @GetMapping("/{groupName:" + Constants.ENTITY_ID_REGEX + "}")
     public GroupDTO getGroup(
-            @PathParam("projectName") String projectName,
-            @PathParam("groupName") String groupName) throws NotAuthorizedException {
+            @PathVariable String projectName,
+            @PathVariable String groupName) throws NotAuthorizedException {
         checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ, projectName);
         return groupService.getGroup(projectName, groupName);
     }
@@ -90,11 +98,12 @@ public class GroupResource {
      * @param groupName group name
      * @throws NotAuthorizedException if PROJECT_UPDATE permissions are not present.
      */
-    @DeleteMapping
-    public void deleteGroup(
-            @PathParam("projectName") String projectName,
-            @PathParam("groupName") String groupName) throws NotAuthorizedException {
+    @DeleteMapping("/{groupName:" + Constants.ENTITY_ID_REGEX + "}")
+    public ResponseEntity<?> deleteGroup(
+            @PathVariable String projectName,
+            @PathVariable String groupName) throws NotAuthorizedException {
         checkPermissionOnProject(getJWT(servletRequest), PROJECT_UPDATE, projectName);
         groupService.deleteGroup(projectName, groupName);
+        return ResponseEntity.noContent().build();
     }
 }

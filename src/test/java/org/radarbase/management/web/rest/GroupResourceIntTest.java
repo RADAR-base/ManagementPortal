@@ -1,5 +1,6 @@
 package org.radarbase.management.web.rest;
 
+import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -51,8 +51,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = ManagementPortalTestApp.class)
 @WithMockUser
 class GroupResourceIntTest {
-
-    private static final String DEFAULT_PROJECT_NAME = "AAAAAAAAAA";
 
     @Autowired
     private GroupService groupService;
@@ -85,7 +83,6 @@ class GroupResourceIntTest {
     private Project project;
 
     @BeforeEach
-    @Transactional
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         GroupResource projectResource = new GroupResource();
@@ -107,7 +104,6 @@ class GroupResourceIntTest {
     }
 
     @AfterEach
-    @Transactional
     public void tearDown() {
         groupRepository.deleteAll();
         projectRepository.delete(project);
@@ -132,7 +128,6 @@ class GroupResourceIntTest {
     }
 
     @Test
-    @Transactional
     void createGroup() throws Exception {
         assertThat(groupRepository.findAll().size()).isEqualTo(0);
 
@@ -154,7 +149,6 @@ class GroupResourceIntTest {
 
 
     @Test
-    @Transactional
     void createGroupNonExistingProject() throws Exception {
         assertThat(groupRepository.findAll().size()).isEqualTo(0);
         projectRepository.delete(project);
@@ -172,7 +166,6 @@ class GroupResourceIntTest {
     }
 
     @Test
-    @Transactional
     void createGroupWithExistingName() throws Exception {
         assertThat(groupRepository.findAll().size()).isEqualTo(0);
 
@@ -197,19 +190,16 @@ class GroupResourceIntTest {
 
 
     @Test
-    @Transactional
     void createGroupWithExistingNameInDifferentProject() throws Exception {
         assertThat(groupRepository.findAll().size()).isEqualTo(0);
 
         Project project2 = ProjectResourceIntTest.createEntity()
                 .projectName(project.getProjectName() + "2");
 
-
         projectRepository.saveAndFlush(project2);
         Group group2 = new Group();
         group2.setName(group.getName());
         group2.setProject(project2);
-        groupRepository.saveAndFlush(group2);
 
         // Create the Project
         GroupDTO groupDto = groupMapper.groupToGroupDTO(group);
@@ -229,17 +219,16 @@ class GroupResourceIntTest {
         // Validate the Alice in the database
         List<Group> groupList = groupRepository.findAll();
         assertThat(groupList).hasSize(2);
-        assertThat(groupList).hasOnlyOneElementSatisfying(g ->
-                assertThat(g.getProject().getId()).isEqualTo(project.getId()));
-        assertThat(groupList).hasOnlyOneElementSatisfying(g ->
-                assertThat(g.getProject().getId()).isEqualTo(project2.getId()));
+        assertThat(groupList).haveAtLeastOne(new Condition<>(
+                g -> project.getId().equals(g.getProject().getId()), "use project 1"));
+        assertThat(groupList).haveAtLeastOne(new Condition<>(
+                g -> project2.getId().equals(g.getProject().getId()), "use project 2"));
         assertThat(groupList).allSatisfy(g -> assertThat(g.getName()).isEqualTo(group.getName()));
 
         projectRepository.delete(project2);
     }
 
     @Test
-    @Transactional
     void checkGroupNameIsRequired() throws Exception {
         assertThat(groupRepository.findAll().size()).isEqualTo(0);
 
@@ -258,39 +247,37 @@ class GroupResourceIntTest {
     }
 
     @Test
-    @Transactional
-    void getAllProjects() throws Exception {
+    void getAllGroups() throws Exception {
         // Initialize the database
-        groupRepository.saveAndFlush(group);
+        project.getGroups().add(group);
+        projectRepository.saveAndFlush(project);
 
         // Get all the projectList
         restProjectMockMvc.perform(get("/api/projects/{projectName}/groups",
                         project.getProjectName()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.[*].id").value(hasItem(group.getId().intValue())))
-                .andExpect(jsonPath("$.[*].projectId").value(hasItem(DEFAULT_PROJECT_NAME)))
+                .andExpect(jsonPath("$.[*].projectId").value(
+                        hasItem(project.getId().intValue())))
                 .andExpect(jsonPath("$.[*].name").value(hasItem("group1")));
     }
 
     @Test
-    @Transactional
-    void getProject() throws Exception {
+    void getGroup() throws Exception {
         // Initialize the database
-        groupRepository.saveAndFlush(group);
+        project.getGroups().add(group);
+        projectRepository.saveAndFlush(project);
 
         // Get the project
         restProjectMockMvc.perform(get("/api/projects/{projectName}/groups/{groupName}",
                         project.getProjectName(), group.getName()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(group.getId().intValue()))
                 .andExpect(jsonPath("$.name").value("group1"))
                 .andExpect(jsonPath("$.projectId").value(project.getId().intValue()));
     }
 
     @Test
-    @Transactional
     void getNonExistingGroup() throws Exception {
         // Get the project
         restProjectMockMvc.perform(get("/api/projects/{projectName}/groups/{groupName}",
@@ -299,33 +286,33 @@ class GroupResourceIntTest {
     }
 
     @Test
-    @Transactional
     void deleteGroup() throws Exception {
-        assertThat(groupRepository.findAll().size()).isEqualTo(0);
+        assertThat(groupRepository.findAll()).hasSize(0);
 
         // Initialize the database
-        groupRepository.saveAndFlush(group);
+        project.getGroups().add(group);
+        projectRepository.saveAndFlush(project);
 
-        assertThat(groupRepository.findAll().size()).isEqualTo(1);
+        assertThat(groupRepository.findAll()).hasSize(1);
 
         // Get the project
         restProjectMockMvc.perform(delete(
                         "/api/projects/{projectName}/groups/{groupName}",
                         project.getProjectName(), group.getName())
                         .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         // Validate the database is empty
-        assertThat(groupRepository.findAll().size()).isEqualTo(0);
+        assertThat(groupRepository.findAll()).hasSize(0);
     }
 
     @Test
-    @Transactional
     void deleteGroupNonExisting() throws Exception {
         assertThat(groupRepository.findAll().size()).isEqualTo(0);
 
         // Initialize the database
-        groupRepository.saveAndFlush(group);
+        project.getGroups().add(group);
+        projectRepository.saveAndFlush(project);
 
         assertThat(groupRepository.findAll().size()).isEqualTo(1);
 
@@ -342,12 +329,12 @@ class GroupResourceIntTest {
 
 
     @Test
-    @Transactional
     void deleteGroupNonExistingProject() throws Exception {
         assertThat(groupRepository.findAll().size()).isEqualTo(0);
 
         // Initialize the database
-        groupRepository.saveAndFlush(group);
+        project.getGroups().add(group);
+        projectRepository.saveAndFlush(project);
 
         assertThat(groupRepository.findAll().size()).isEqualTo(1);
 

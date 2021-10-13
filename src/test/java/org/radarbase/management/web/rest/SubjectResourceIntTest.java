@@ -537,7 +537,6 @@ class SubjectResourceIntTest {
 
     private SourceDTO createSource() {
         SourceDTO sourceDto = new SourceDTO();
-        sourceDto.setId(1L);
         sourceDto.setAssigned(false);
         sourceDto.setSourceId(UUID.randomUUID());
         sourceDto.setSourceType(sourceTypeService.findAll().get(0));

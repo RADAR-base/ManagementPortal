@@ -44,7 +44,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.ws.rs.PathParam;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
@@ -296,15 +295,14 @@ public class ProjectResource {
     /**
      * Get /projects/{projectName}/subjects : get all subjects for a given project.
      *
-     * @param projectName The name of the project
      * @return The subjects in the project or 404 if there is no such project
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/subjects")
     @Timed
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(
-            @PathParam("projectName") String projectName,
             @Valid SubjectCriteria subjectCriteria
     ) throws NotAuthorizedException {
+        String projectName = subjectCriteria.getProjectName();
         RadarToken jwt = getJWT(servletRequest);
         checkPermissionOnProject(jwt, SUBJECT_READ, projectName);
         if (!jwt.isClientCredentials() && jwt.hasAuthority(PARTICIPANT)) {
