@@ -6,13 +6,13 @@ import com.fasterxml.jackson.annotation.Nulls;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.management.domain.enumeration.ProjectStatus;
 import org.radarbase.management.domain.support.AbstractEntityListener;
 
-import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -41,6 +41,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+
+import static javax.persistence.CascadeType.DETACH;
+import static javax.persistence.CascadeType.REFRESH;
+import static javax.persistence.CascadeType.REMOVE;
 
 /**
  * A Project.
@@ -87,7 +91,7 @@ public class Project extends AbstractEntity implements Serializable {
 
     @JsonIgnore
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @Cascade(CascadeType.ALL)
     private Set<Role> roles = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -104,9 +108,8 @@ public class Project extends AbstractEntity implements Serializable {
     private Map<String, String> attributes = new HashMap<>();
 
     @NotAudited
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true,
-            cascade = CascadeType.ALL)
-    @JoinColumn(name = "project_id")
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, orphanRemoval = true,
+            cascade = {REMOVE, REFRESH, DETACH})
     @OrderBy("name ASC")
     private Set<Group> groups = new HashSet<>();
 

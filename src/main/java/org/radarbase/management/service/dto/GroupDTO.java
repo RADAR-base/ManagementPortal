@@ -1,11 +1,14 @@
 package org.radarbase.management.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**
  * A DTO for the Group entity.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class GroupDTO {
 
     private Long id;
