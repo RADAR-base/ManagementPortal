@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2021. The Hyve and respective contributors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~
+  ~ See the file LICENSE in the root of this repository.
+  ~
+  -->
+
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+     Added indexes for Subject Entity
+    -->
+    <changeSet id="20211018210000" author="nivethika@thehyve.nl">
+        <createIndex tableName="subject" indexName="idx_subject_id" unique="true">
+            <column name="id" type="varchar(255)"/>
+        </createIndex>
+
+        <createIndex tableName="subject" indexName="idx_subject_external_id" unique="false">
+            <column name="external_id" type="varchar(255)"/>
+        </createIndex>
+
+        <createIndex tableName="subject" indexName="idx_subject_user_id" unique="false">
+            <column name="user_id" type="bigint"/>
+        </createIndex>
+
+        <createIndex tableName="subject" indexName="idx_subject_enrollment_date" unique="false">
+            <column name="enrollment_date" type="timestamp"/>
+        </createIndex>
+
+        <createIndex tableName="subject" indexName="idx_subject_date_of_birth" unique="false">
+            <column name="date_of_birth" type="date"/>
+        </createIndex>
+
+        <createIndex tableName="subject" indexName="idx_subject_group_id" unique="false">
+            <column name="group_id" type="bigint"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
