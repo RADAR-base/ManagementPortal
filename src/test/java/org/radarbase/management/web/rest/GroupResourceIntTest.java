@@ -249,8 +249,7 @@ class GroupResourceIntTest {
     @Test
     void getAllGroups() throws Exception {
         // Initialize the database
-        project.getGroups().add(group);
-        projectRepository.saveAndFlush(project);
+        groupRepository.saveAndFlush(group);
 
         // Get all the projectList
         restProjectMockMvc.perform(get("/api/projects/{projectName}/groups",
@@ -265,8 +264,7 @@ class GroupResourceIntTest {
     @Test
     void getGroup() throws Exception {
         // Initialize the database
-        project.getGroups().add(group);
-        projectRepository.saveAndFlush(project);
+        groupRepository.saveAndFlush(group);
 
         // Get the project
         restProjectMockMvc.perform(get("/api/projects/{projectName}/groups/{groupName}",
@@ -290,8 +288,7 @@ class GroupResourceIntTest {
         assertThat(groupRepository.findAll()).hasSize(0);
 
         // Initialize the database
-        project.getGroups().add(group);
-        projectRepository.saveAndFlush(project);
+        groupRepository.saveAndFlush(group);
 
         assertThat(groupRepository.findAll()).hasSize(1);
 
@@ -311,8 +308,7 @@ class GroupResourceIntTest {
         assertThat(groupRepository.findAll().size()).isEqualTo(0);
 
         // Initialize the database
-        project.getGroups().add(group);
-        projectRepository.saveAndFlush(project);
+        groupRepository.saveAndFlush(group);
 
         assertThat(groupRepository.findAll().size()).isEqualTo(1);
 
@@ -333,8 +329,7 @@ class GroupResourceIntTest {
         assertThat(groupRepository.findAll().size()).isEqualTo(0);
 
         // Initialize the database
-        project.getGroups().add(group);
-        projectRepository.saveAndFlush(project);
+        groupRepository.saveAndFlush(group);
 
         assertThat(groupRepository.findAll().size()).isEqualTo(1);
 

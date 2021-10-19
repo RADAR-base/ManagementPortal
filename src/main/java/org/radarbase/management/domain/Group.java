@@ -8,7 +8,6 @@
 package org.radarbase.management.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.persistence.FetchType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -16,6 +15,7 @@ import org.radarbase.auth.config.Constants;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
