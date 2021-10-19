@@ -4,15 +4,16 @@
 
         <label>
             <span [translate]="'managementPortalApp.subject.subjectId'"></span>
-            <input type="text" [(ngModel)]="filterSubjectId">
+            <input type="text" id="field-subject-id" [(ngModel)]="filterSubjectId">
         </label>
         <label>
             <span [translate]="'managementPortalApp.subject.externalId'"></span>
-            <input type="text" [(ngModel)]="filterSubjectExternalId">
+            <input type="text" id="field-subject-external-id" [(ngModel)]="filterSubjectExternalId">
         </label>
 
         <button type="button"
                 class="btn btn-outline-primary"
+                id="advanced-filter"
                 (click)="collapse.toggle()"
                 [attr.aria-expanded]="!isAdvancedFilterCollapsed"
                 aria-controls="collapseExample"
@@ -21,7 +22,7 @@
         <div #collapse="ngbCollapse" [(ngbCollapse)]="isAdvancedFilterCollapsed">
             <label>
                 <span [translate]="'managementPortalApp.subject.humanReadableId'"></span>
-                <input [(ngModel)]="filterSubjectHumanReadableId" type="text">
+                <input id="field-human-readable-id" [(ngModel)]="filterSubjectHumanReadableId" type="text">
             </label>
             <label>
                 <span [translate]="'managementPortalApp.subject.group'"></span>
@@ -47,7 +48,7 @@
 
             <label>
                 <span [translate]="'managementPortalApp.subject.personName'"></span>
-                <input [(ngModel)]="filterPersonName" type="text">
+                <input id="field-person-name" [(ngModel)]="filterPersonName" type="text">
             </label>
             <span [translate]="'managementPortalApp.subject.dateOfBirth'"></span>
             <label>
@@ -66,13 +67,14 @@
 
         <button class="btn btn-outline-secondary"
             type="button"
+                id="apply-filter"
             (click)="applyFilter()"
             [translate]="'managementPortalApp.subject.filter.applyButton'"
         >
         </button>
     </div>
     <section>
-        <div ngbDropdown class="d-inline-block subject-sorting-action" >
+        <div ngbDropdown class="d-inline-block subject-sorting-action" id="field-sort-by" >
             <button class="btn btn-outline-primary"
                 ngbDropdownToggle
             >
@@ -91,7 +93,7 @@
                 </span>
             </div>
         </div>
-        <div ngbDropdown class="d-inline-block subject-sorting-action">
+        <div ngbDropdown class="d-inline-block subject-sorting-action"  id="field-order-by">
             <button class="btn btn-outline-primary" ngbDropdownToggle>
                 {{ 'managementPortalApp.subject.sorting.sortOrderLabel' | translate }}:
                 <span *ngIf="ascending">
@@ -104,11 +106,13 @@
             <div ngbDropdownMenu>
                 <button
                     ngbDropdownItem
+                    id="order-by-asc"
                     (click)="updateSortingOrder('asc')"
                     [translate]="'managementPortalApp.subject.sorting.asc'">
                 </button>
                 <button
                     ngbDropdownItem
+                    id="order-by-desc"
                     (click)="updateSortingOrder('desc')"
                     [translate]="'managementPortalApp.subject.sorting.desc'">
                 </button>
