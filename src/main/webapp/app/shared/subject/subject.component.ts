@@ -57,10 +57,15 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     filterSubjectHumanReadableId = '';
     filterSubjectEnrolmentDate = '';
     filterSubjectName = '';
-    filterSubjectDOB = '';
+    filterDateOfBirthFrom = '';
+    filterDateOfBirthTo = '';
     filterPersonName = '';
     filterSubjectDOBFrom = '';
     filterSubjectDOBTo = '';
+    filterEnrollmentDateFrom = '';
+    filterEnrollmentDateTo = '';
+    filterCreatedDateFrom = '';
+    filterCreatedDateTo = '';
 
     isAdvancedFilterCollapsed = true;
 
@@ -91,6 +96,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     loadSubjects() {
+        console.log('loadSubjects', this.isProjectSpecific);
         if (this.isProjectSpecific) {
             this.loadAllFromProject();
         } else {
@@ -99,6 +105,9 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     private loadAllFromProject() {
+        console.log('loadAllFromProject',this.project.projectName,
+                this.queryFilterParams,
+                this.queryPaginationParams);
         this.subjectService.findAllByProject(
             this.project.projectName,
             this.queryFilterParams,
@@ -112,6 +121,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     loadAll() {
+        console.log('loadAll',this.queryFilterParams,
+                this.queryPaginationParams)
         this.subjectService.query(
             this.queryFilterParams,
             this.queryPaginationParams,
@@ -122,6 +133,13 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnInit() {
+        console.log('ngOnInit');
+        // this.loadSubjects();
+        // if(this.isProjectSpecific){
+        //     this.loadAllFromProject();
+        // } else {
+        //     this.loadAll();
+        // }
         if (!this.isProjectSpecific) {
             this.loadAll();
         }
@@ -142,6 +160,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     registerChangeInSubjects() {
+        console.log('registerChangeInSubjects');
         this.eventSubscriber = this.eventManager.subscribe('subjectListModification', () => this.loadSubjects());
     }
 
@@ -163,19 +182,26 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             subjectId: this.filterSubjectId.trim() || undefined,
             externalId: this.filterSubjectExternalId.trim() || undefined,
             personName: this.filterPersonName.trim() || undefined,
-            dateOfBirthFrom: this.filterSubjectDOBFrom.trim() || undefined,
-            dateOfBirthTo: this.filterSubjectDOBTo.trim() || undefined,
+            // dateOfBirthFrom: this.filterSubjectDOBFrom.trim() || undefined,
+            // dateOfBirthTo: this.filterSubjectDOBTo.trim() || undefined,
             humanReadableId: this.filterSubjectHumanReadableId.trim() || undefined,
-            enrolmentDate: this.filterSubjectEnrolmentDate.trim() || undefined,
-            subjectName: this.filterSubjectName.trim() || undefined,
-            subjectDOB: this.filterSubjectDOB.trim() || undefined,
+            // enrolmentDate: this.filterSubjectEnrolmentDate.trim() || undefined,
+            // subjectName: this.filterSubjectName.trim() || undefined,
+            dateOfBirthFrom: this.filterDateOfBirthFrom.trim() || undefined,
+            dateOfBirthTo: this.filterDateOfBirthTo.trim() || undefined,
+            enrollmentDateFrom: this.filterEnrollmentDateFrom.trim() || undefined,
+            enrollmentDateTo: this.filterEnrollmentDateTo.trim() || undefined,
+            createdDateFrom: this.filterCreatedDateFrom.trim() || undefined,
+            createdDateTo: this.filterCreatedDateTo.trim() || undefined,
         };
     }
 
     get queryPaginationParams(): SubjectsPaginationParams {
         let subjects = this.subjects || [];
         const lastLoadedId = subjects[subjects.length - 1]?.id;
+        // const lastLoadedId = undefined; //subjects[subjects.length - 1]?.id;
         const pageSize = lastLoadedId? this.itemsPerPage : this.page*this.itemsPerPage;
+        // const pageSize = this.itemsPerPage; // : this.page*this.itemsPerPage;
         return {
             lastLoadedId,
             pageSize,
@@ -185,10 +211,13 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     private onSuccess(data, headers) {
+        console.log(this.subjects, data, headers);
         this.links = parseLinks(headers.get('link'));
         this.totalItems = +headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
         this.subjects = [...this.subjects, ...data];
+        console.log('lastLoaded Subject', this.subjects[this.subjects.length - 1]?.id)
+        console.log('lastLoaded Data', data[data.length - 1]?.id);
     }
 
     applyFilter() {
@@ -249,6 +278,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     transition() {
+        console.log('transition');
         if (!this.isProjectSpecific) {
             this.router.navigate(['/subject'], {
                 queryParams: {

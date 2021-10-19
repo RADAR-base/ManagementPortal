@@ -15,8 +15,8 @@
                 class="btn btn-outline-primary"
                 (click)="collapse.toggle()"
                 [attr.aria-expanded]="!isAdvancedFilterCollapsed"
-                aria-controls="collapseExample">
-            Advanced Filter
+                aria-controls="collapseExample"
+                [translate]="'managementPortalApp.subject.filter.advancedFilter'">
         </button>
         <div #collapse="ngbCollapse" [(ngbCollapse)]="isAdvancedFilterCollapsed">
             <label>
@@ -30,21 +30,37 @@
                     <option></option>
                 </select>
             </label>
+
+            <span [translate]="'managementPortalApp.subject.enrollmentDate'"></span>
             <label>
-                <span [translate]="'managementPortalApp.subject.enrolmentDate'"></span>
+                <span [translate]="'managementPortalApp.subject.filter.enrollmentDate'"></span>
             </label>
             <div class="d-flex">
-                <input [(ngModel)]="filterSubjectEnrolmentDate" id="field_enrolment_date" type="date" class="form-control" name="enrolmentDate" />
+                <input [(ngModel)]="filterEnrollmentDateFrom" id="field_enrollment_date_from" type="date" class="form-control" name="enrollmentDateFrom" />
             </div>
             <label>
-                <span [translate]="'managementPortalApp.subject.name'"></span>
-                <input [(ngModel)]="filterSubjectName" type="text">
-            </label>
-            <label>
-                <span [translate]="'managementPortalApp.subject.dob'"></span>
+                <span [translate]="'managementPortalApp.subject.filter.enrollmentDateTo'"></span>
             </label>
             <div class="d-flex">
-                <input [(ngModel)]="filterSubjectDOB" id="field_dob" type="date" class="form-control" name="dob" />
+                <input [(ngModel)]="filterEnrollmentDateTo" id="field_enrollment_date_to" type="date" class="form-control" name="enrollmentDateTo" />
+            </div>
+
+            <label>
+                <span [translate]="'managementPortalApp.subject.personName'"></span>
+                <input [(ngModel)]="filterPersonName" type="text">
+            </label>
+            <span [translate]="'managementPortalApp.subject.dateOfBirth'"></span>
+            <label>
+                <span [translate]="'managementPortalApp.subject.filter.dateOfBirthFrom'"></span>
+            </label>
+            <div class="d-flex">
+                <input [(ngModel)]="filterDateOfBirthFrom" id="field_date_of_birth_from" type="date" class="form-control" name="dateOfBirthFrom" />
+            </div>
+            <label>
+                <span [translate]="'managementPortalApp.subject.filter.dateOfBirthTo'"></span>
+            </label>
+            <div class="d-flex">
+                <input [(ngModel)]="filterDateOfBirthTo" id="field_date_of_birth_to" type="date" class="form-control" name="dateOfBirthTo" />
             </div>
         </div>
 

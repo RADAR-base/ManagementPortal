@@ -18,14 +18,15 @@
             },
             "filter": {
                 "title": "Filter",
-                "applyButton": "Apply filter"
+                "applyButton": "Apply filter",
+                "advancedFilter": "Advanced Filter",
+                "dateOfBirthFrom": "From",
+                "dateOfBirthTo": "To"
             },
             "login": "Login",
             "email": "Email",
             "externalLink": "External Link",
             "externalId": "External Id",
-            "name": "Name",
-            "dob": "Date of Birth",
             "humanReadableId": "Human Readable ID",
             "enrolmentDate": "Enrolment Date",
             "removed": "Removed",

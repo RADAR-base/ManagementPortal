@@ -77,12 +77,15 @@ export interface SubjectFilterParams {
     dateOfBirthTo?: string,
     enrollmentDateFrom?: string,
     enrollmentDateTo?: string,
+    createdDateFrom?: string,
+    createdDateTo?: string,
     humanReadableIdentifier?: string,
+
     personName?: string,
-    subjectName?: string,
-    subjectDOB?: string,
+    // subjectName?: string,
+    // subjectDOB?: string,
     humanReadableId?: string,
-    enrolmentDate?: string,
+    // enrolmentDate?: string,
 }
 
 export interface SubjectsPaginationParams {
