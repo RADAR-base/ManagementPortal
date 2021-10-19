@@ -10,7 +10,7 @@ import { EventManager } from '../../shared/util/event-manager.service';
 import { SourceType, SourceTypeService } from '../source-type';
 import { ProjectPopupService } from './project-popup.service';
 
-import { Project, ProjectService } from '../../shared/project';
+import { GroupService, Project, ProjectService } from '../../shared';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
@@ -63,6 +63,7 @@ export class ProjectDialogComponent implements OnInit {
             private projectService: ProjectService,
             private sourceTypeService: SourceTypeService,
             private eventManager: EventManager,
+            private groupService: GroupService,
     ) {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN'];
@@ -134,19 +135,35 @@ export class ProjectDialogComponent implements OnInit {
     }
 
     addGroup() {
-        // TODO implement group name validation
         let currentGroups = this.project.groups || [];
         let newGroup = { name: this.newGroupInputText };
-        // TODO actually perform the group POST resource
-        this.project.groups = [ ...currentGroups, newGroup ];
-        this.newGroupInputText = '';
+        if (newGroup.name.length == 0 || newGroup.name.length > 50) {
+            // TODO: actually show error
+            return;
+        }
+        if (currentGroups.some(g => g.name === newGroup.name)) {
+            // TODO: actually show error
+            return;
+        }
+        this.groupService.create(this.project.projectName, newGroup).toPromise()
+          .then(g => {
+              this.project.groups = [ ...currentGroups, g];
+              this.newGroupInputText = '';
+          })
+          .catch(reason => {
+              // TODO: actually show error
+          })
     }
 
     removeGroup(groupName: string) {
-        // TODO warn that this may affect existing subjects
-        let oldGroups = this.project.groups;
-        // TODO: actually perform group DELETE resource
-        this.project.groups = oldGroups.filter(g => g.name !== groupName);
+        // TODO: warn that this may affect existing subjects
+        this.groupService.delete(this.project.projectName, groupName).toPromise()
+          .then(() => {
+              this.project.groups = this.project.groups.filter(g => g.name !== groupName);
+          })
+          .catch(() => {
+              // TODO: actually show error
+          });
     }
 }
 

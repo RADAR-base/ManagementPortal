@@ -10,18 +10,24 @@
 package org.radarbase.management.web.rest.criteria;
 
 public enum SubjectSortBy {
-    ID("id"),
-    EXTERNAL_ID("externalId"),
-    USER_LOGIN("user.login"),
-    USER_ACTIVATED("user.activated");
+    ID("id", true),
+    EXTERNAL_ID("externalId", false),
+    USER_LOGIN("login", true),
+    USER_AUTHORITY("authority", false);
 
     private final String key;
+    private final boolean isUnique;
 
-    SubjectSortBy(String key) {
+    SubjectSortBy(String key, boolean isUnique) {
         this.key = key;
+        this.isUnique = isUnique;
     }
 
     public String getKey() {
         return this.key;
+    }
+
+    public boolean isUnique() {
+        return isUnique;
     }
 }

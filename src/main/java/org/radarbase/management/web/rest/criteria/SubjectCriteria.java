@@ -1,69 +1,62 @@
 package org.radarbase.management.web.rest.criteria;
 
+import org.radarbase.management.web.rest.errors.BadRequestException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
 
 public class SubjectCriteria {
-    private boolean includeInactive = false;
-    private LocalDate dateOfBirthFrom = null;
-    private LocalDate dateOfBirthTo = null;
-    private ZonedDateTime enrollmentDateFrom = null;
-    private ZonedDateTime enrollmentDateTo = null;
+    private List<SubjectAuthority> authority = List.of(SubjectAuthority.ROLE_PARTICIPANT);
+    private CriteriaRange<LocalDate> dateOfBirth = null;
+    private CriteriaRange<ZonedDateTime> enrollmentDate = null;
     private String groupName = null;
     private String humanReadableIdentifier = null;
-    private Long lastLoadedId = null;
-    @NotNull
+    private SubjectCriteriaLast last = null;
+    @Min(0)
+    private int page = 0;
     @Min(1)
-    private Integer pageSize = 10;
+    private int size = 20;
+    private List<String> sort;
     private String personName = null;
     private String projectName = null;
     private String externalId = null;
-    private String subjectId = null;
-    @NotNull
-    private SubjectSortBy sortBy = SubjectSortBy.ID;
-    @NotNull
-    private SortDirection sortDirection = SortDirection.ASC;
+    private String login = null;
 
-    public boolean isIncludeInactive() {
-        return includeInactive;
+    public List<SubjectAuthority> getAuthority() {
+        return authority;
     }
 
-    public void setIncludeInactive(boolean includeInactive) {
-        this.includeInactive = includeInactive;
+    public void setAuthority(List<SubjectAuthority> authority) {
+        this.authority = authority;
     }
 
-    public LocalDate getDateOfBirthFrom() {
-        return dateOfBirthFrom;
+    public CriteriaRange<LocalDate> getDateOfBirth() {
+        return dateOfBirth;
     }
 
-    public void setDateOfBirthFrom(LocalDate dateOfBirthFrom) {
-        this.dateOfBirthFrom = dateOfBirthFrom;
+    public void setDateOfBirth(CriteriaRange<LocalDate> dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
-    public LocalDate getDateOfBirthTo() {
-        return dateOfBirthTo;
+    public CriteriaRange<ZonedDateTime> getEnrollmentDate() {
+        return enrollmentDate;
     }
 
-    public void setDateOfBirthTo(LocalDate dateOfBirthTo) {
-        this.dateOfBirthTo = dateOfBirthTo;
-    }
-
-    public ZonedDateTime getEnrollmentDateFrom() {
-        return enrollmentDateFrom;
-    }
-
-    public void setEnrollmentDateFrom(ZonedDateTime enrollmentDateFrom) {
-        this.enrollmentDateFrom = enrollmentDateFrom;
-    }
-
-    public ZonedDateTime getEnrollmentDateTo() {
-        return enrollmentDateTo;
-    }
-
-    public void setEnrollmentDateTo(ZonedDateTime enrollmentDateTo) {
-        this.enrollmentDateTo = enrollmentDateTo;
+    public void setEnrollmentDate(CriteriaRange<ZonedDateTime> enrollmentDate) {
+        this.enrollmentDate = enrollmentDate;
     }
 
     public String getGroupName() {
@@ -82,20 +75,33 @@ public class SubjectCriteria {
         this.humanReadableIdentifier = humanReadableIdentifier;
     }
 
-    public Long getLastLoadedId() {
-        return lastLoadedId;
+    public SubjectCriteriaLast getLast() {
+        return last;
     }
 
-    public void setLastLoadedId(Long lastLoadedId) {
-        this.lastLoadedId = lastLoadedId;
+    public void setLast(SubjectCriteriaLast last) {
+        this.last = last;
     }
 
-    public Integer getPageSize() {
-        return pageSize;
+    @NotNull
+    public Pageable getPageable() {
+        return PageRequest.of(page, size);
     }
 
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
     }
 
     public String getPersonName() {
@@ -122,27 +128,68 @@ public class SubjectCriteria {
         this.externalId = externalId;
     }
 
-    public String getSubjectId() {
-        return subjectId;
+    public String getLogin() {
+        return login;
     }
 
-    public void setSubjectId(String subjectId) {
-        this.subjectId = subjectId;
+    public void setLogin(String login) {
+        this.login = login;
     }
 
-    public SubjectSortBy getSortBy() {
-        return sortBy;
+    public List<String> getSort() {
+        return sort;
+    }
+    public List<SubjectSortOrder> getParsedSort() {
+        List<SubjectSortOrder> parsedSort = new ArrayList<>(sort.size());
+
+        List<String> flatSort = sort.stream()
+                .flatMap(s -> Arrays.stream(s.split(",")))
+                .collect(Collectors.toList());
+
+        int index = 0;
+
+        while (index < flatSort.size()) {
+            String part = flatSort.get(index);
+            SubjectSortBy sortBy = Arrays.stream(SubjectSortBy.values())
+                    .filter(s -> s.getKey().equalsIgnoreCase(part))
+                    .findAny()
+                    .orElseThrow(() -> new BadRequestException("Cannot convert sort property "
+                            + part + " to subject property", SUBJECT, ERR_VALIDATION));
+
+            Optional<Sort.Direction> direction = (index + 1 < flatSort.size())
+                ? Sort.Direction.fromOptionalString(flatSort.get(index + 1))
+                : Optional.empty();
+
+            if (direction.isPresent()) {
+                index += 2;
+                parsedSort.add(new SubjectSortOrder(sortBy, direction.get()));
+            } else {
+                index++;
+                parsedSort.add(new SubjectSortOrder(sortBy));
+            }
+        }
+
+        return parsedSort;
     }
 
-    public void setSortBy(SubjectSortBy sortBy) {
-        this.sortBy = sortBy;
+    public void setSort(List<String> sort) {
+        this.sort = sort;
     }
 
-    public SortDirection getSortDirection() {
-        return sortDirection;
-    }
-
-    public void setSortDirection(SortDirection sortDirection) {
-        this.sortDirection = sortDirection;
+    @Override
+    public String toString() {
+        return "SubjectCriteria{" + "authority=" + authority
+                + ", dateOfBirth=" + dateOfBirth
+                + ", enrollmentDate=" + enrollmentDate
+                + ", groupName='" + groupName + '\''
+                + ", humanReadableIdentifier='" + humanReadableIdentifier + '\''
+                + ", last=" + last
+                + ", page=" + page
+                + ", sort=" + sort
+                + ", personName='" + personName + '\''
+                + ", projectName='" + projectName + '\''
+                + ", externalId='" + externalId + '\''
+                + ", login='" + login + '\''
+                + '}';
     }
 }

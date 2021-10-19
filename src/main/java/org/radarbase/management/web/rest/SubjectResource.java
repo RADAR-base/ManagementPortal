@@ -1,7 +1,6 @@
 package org.radarbase.management.web.rest;
 
 import static io.github.jhipster.web.util.ResponseUtil.wrapOrNotFound;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_CREATE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_DELETE;
@@ -19,7 +18,6 @@ import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SOURCE
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
 
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +25,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -208,7 +207,7 @@ public class SubjectResource {
     @PutMapping("/subjects/discontinue")
     @Timed
     public ResponseEntity<SubjectDTO> discontinueSubject(@RequestBody SubjectDTO subjectDto)
-            throws URISyntaxException, NotAuthorizedException {
+            throws NotAuthorizedException {
         log.debug("REST request to update Subject : {}", subjectDto);
         if (subjectDto.getId() == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil
@@ -255,9 +254,10 @@ public class SubjectResource {
         String externalId = subjectCriteria.getExternalId();
         log.debug("ProjectName {} and external {}", projectName, externalId);
         // if not specified do not include inactive patients
-        List<String> authoritiesToInclude = subjectCriteria.isIncludeInactive()
-                ? Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT)
-                : Collections.singletonList(PARTICIPANT);
+        List<String> authoritiesToInclude = subjectCriteria.getAuthority().stream()
+                .filter(Objects::nonNull)
+                .map(Enum::toString)
+                .collect(Collectors.toList());
 
         if (projectName != null && externalId != null) {
             Optional<List<SubjectDTO>> subject = subjectRepository

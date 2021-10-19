@@ -1,5 +1,5 @@
 import {SourceType} from '../../entities/source-type';
-import { Group } from '../subject';
+import { Group } from '../group';
 
 export const enum ProjectStatus {
     'PLANNING',

@@ -15,7 +15,6 @@ import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SUBJEC
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,8 +60,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.Revisions;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -190,7 +187,7 @@ public class SubjectService {
         if (newSubjectDto.getId() == null) {
             return createSubject(newSubjectDto);
         }
-        Subject subjectFromDb = subjectRepository.findById(newSubjectDto.getId()).get();
+        Subject subjectFromDb = ensureSubject(newSubjectDto);
         //reset all the sources assigned to a subject to unassigned
         Set<Source> sourcesToUpdate = subjectFromDb.getSources();
         sourcesToUpdate.forEach(s -> s.subject(null).assigned(false).deleted(true));
@@ -236,7 +233,7 @@ public class SubjectService {
      * @return the discontinued subject
      */
     public SubjectDTO discontinueSubject(SubjectDTO subjectDto) {
-        Subject subject = subjectRepository.findById(subjectDto.getId()).get();
+        Subject subject = ensureSubject(subjectDto);
         // reset all the sources assigned to a subject to unassigned
         unassignAllSources(subject);
 
@@ -245,6 +242,13 @@ public class SubjectService {
         subject.setRemoved(true);
         subject.getUser().setActivated(false);
         return subjectMapper.subjectToSubjectReducedProjectDTO(subjectRepository.save(subject));
+    }
+
+    private Subject ensureSubject(SubjectDTO subjectDto) {
+        return subjectRepository.findById(subjectDto.getId())
+                .orElseThrow(() -> new NotFoundException(
+                        "Subject with ID " + subjectDto.getId() + " not found.",
+                        SUBJECT, ERR_SUBJECT_NOT_FOUND));
     }
 
     /**
@@ -272,7 +276,7 @@ public class SubjectService {
     @Transactional
     public MinimalSourceDetailsDTO assignOrUpdateSource(Subject subject, SourceType sourceType,
             Project project, MinimalSourceDetailsDTO sourceRegistrationDto) {
-        Source assignedSource = null;
+        Source assignedSource;
 
         if (sourceRegistrationDto.getSourceId() != null) {
             // update meta-data and source-name for existing sources
@@ -347,26 +351,25 @@ public class SubjectService {
     private Source updateSourceAssignedSubject(Subject subject,
             MinimalSourceDetailsDTO sourceRegistrationDto) {
         // for manually registered devices only add meta-data
-        Optional<Source> sourceToUpdate = subjectRepository.findSubjectSourcesBySourceId(
-                subject.getUser().getLogin(), sourceRegistrationDto.getSourceId());
+        Source source = subjectRepository.findSubjectSourcesBySourceId(
+                subject.getUser().getLogin(), sourceRegistrationDto.getSourceId())
+                .orElseThrow(() -> {
+                    Map<String, String> errorParams = new HashMap<>();
+                    errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
+                    errorParams.put("subject-login", subject.getUser().getLogin());
+                    return new NotFoundException( "No source with source-id to assigned to the "
+                            + "subject with subject-login", SUBJECT, ERR_SOURCE_NOT_FOUND,
+                            errorParams);
+                });
 
-        if (sourceToUpdate.isPresent()) {
-            Source source = sourceToUpdate.get();
-            if (sourceRegistrationDto.getSourceName() != null) {
-                source.setSourceName(sourceRegistrationDto.getSourceName());
-            }
-            source.getAttributes().putAll(sourceRegistrationDto.getAttributes());
-            source.setAssigned(true);
-            source.setSubject(subject);
-
-            return sourceRepository.save(source);
-        } else {
-            Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
-            errorParams.put("subject-login", subject.getUser().getLogin());
-            throw new NotFoundException( "No source with source-id to assigned to the subject"
-                + " with subject-login", SUBJECT, ERR_SOURCE_NOT_FOUND, errorParams);
+        if (sourceRegistrationDto.getSourceName() != null) {
+            source.setSourceName(sourceRegistrationDto.getSourceName());
         }
+        source.getAttributes().putAll(sourceRegistrationDto.getAttributes());
+        source.setAssigned(true);
+        source.setSubject(subject);
+
+        return sourceRepository.save(source);
     }
 
     /**
@@ -443,12 +446,12 @@ public class SubjectService {
      */
     public SubjectDTO getLatestRevision(String login) throws NotFoundException {
         UserDTO user = (UserDTO) revisionService.getLatestRevisionForEntity(User.class,
-                Arrays.asList(AuditEntity.property("login").eq(login)))
+                List.of(AuditEntity.property("login").eq(login)))
                 .orElseThrow(() -> new NotFoundException("Subject latest revision not found "
                     + "for login" , SUBJECT, ERR_SUBJECT_NOT_FOUND,
                         Collections.singletonMap("subjectLogin", login)));
         return (SubjectDTO) revisionService.getLatestRevisionForEntity(Subject.class,
-                Arrays.asList(AuditEntity.property("user").eq(user)))
+                List.of(AuditEntity.property("user").eq(user)))
                 .orElseThrow(() -> new NotFoundException("Subject latest revision not found "
                     + "for login" , SUBJECT, ERR_SUBJECT_NOT_FOUND,
                     Collections.singletonMap("subjectLogin", login)));
@@ -484,8 +487,7 @@ public class SubjectService {
         // but the page should always be zero
         // since the lastLoadedId param defines the offset
         // within the query specification
-        Pageable pageable = PageRequest.of(0, criteria.getPageSize());
-        return subjectRepository.findAll(new SubjectSpecification(criteria), pageable);
+        return subjectRepository.findAll(new SubjectSpecification(criteria), criteria.getPageable());
     }
 
     /**

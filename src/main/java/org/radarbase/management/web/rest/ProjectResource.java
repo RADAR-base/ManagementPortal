@@ -313,7 +313,8 @@ public class ProjectResource {
         projectService.findOneByName(projectName);
         subjectCriteria.setProjectName(projectName);
 
-        log.debug("REST request to get all subjects for project {}", projectName);
+        log.debug("REST request to get all subjects for project {} using criteria {}", projectName,
+                subjectCriteria);
         Page<SubjectDTO> page = subjectService.findAll(subjectCriteria)
                 .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
 

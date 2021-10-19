@@ -9,17 +9,7 @@
 
 package org.radarbase.management.web.rest.criteria;
 
-public enum SortDirection {
-    ASC("asc"),
-    DESC("desc");
-
-    private final String key;
-
-    SortDirection(String key) {
-        this.key = key;
-    }
-
-    public String getKey() {
-        return this.key;
-    }
+public enum SubjectAuthority {
+    ROLE_PARTICIPANT,
+    ROLE_INACTIVE_PARTICIPANT;
 }
