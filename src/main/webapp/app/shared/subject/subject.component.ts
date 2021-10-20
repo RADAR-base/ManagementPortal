@@ -162,7 +162,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             login: this.filterSubjectId.trim() || undefined,
             externalId: this.filterSubjectExternalId.trim() || undefined,
             personName: this.filterPersonName.trim() || undefined,
-            humanReadableId: this.filterSubjectHumanReadableId.trim() || undefined,
+            humanReadableIdentifier: this.filterSubjectHumanReadableId.trim() || undefined,
             dateOfBirth: undefined,
             enrollmentDate: undefined,
         };
