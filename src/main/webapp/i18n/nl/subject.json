@@ -18,7 +18,10 @@
             },
             "filter": {
                 "title": "Filter",
-                "applyButton": "Filter toepassen"
+                "applyButton": "Filter toepassen",
+                "dateOfBirthFrom": "Geboortedatum vanaf",
+                "dateOfBirthTo": "Geboortedatum tot",
+                "advancedFilter": "Uitgebreid filter"
             },
             "login": "Login",
             "email": "Email",
