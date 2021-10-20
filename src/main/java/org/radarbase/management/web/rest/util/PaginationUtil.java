@@ -1,5 +1,6 @@
 package org.radarbase.management.web.rest.util;
 
+import org.radarbase.management.service.dto.SubjectDTO;
 import org.radarbase.management.web.rest.criteria.CriteriaRange;
 import org.radarbase.management.web.rest.criteria.SubjectCriteria;
 import org.springframework.data.domain.Page;
@@ -30,7 +31,6 @@ public final class PaginationUtil {
      * @return the {@link HttpHeaders}
      */
     public static HttpHeaders generatePaginationHttpHeaders(Page<?> page, String baseUrl) {
-
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-Total-Count", Long.toString(page.getTotalElements()));
 
@@ -68,14 +68,16 @@ public final class PaginationUtil {
      * @return the {@link HttpHeaders}
      */
     public static HttpHeaders generateSubjectPaginationHttpHeaders(
-            Page<?> page, String baseUrl, SubjectCriteria criteria
+            Page<SubjectDTO> page, String baseUrl, SubjectCriteria criteria
     ) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-Total-Count", Long.toString(page.getTotalElements()));
-        String link = '<'
-                + generateUri(baseUrl, criteria)
-                + ">; rel=\"first\"";
-        headers.add(HttpHeaders.LINK, link);
+        if (!page.isEmpty()) {
+            String link = '<'
+                    + generateUri(page, baseUrl, criteria)
+                    + ">; rel=\"next\"";
+            headers.add(HttpHeaders.LINK, link);
+        }
         return headers;
     }
 
@@ -86,7 +88,8 @@ public final class PaginationUtil {
                 .toUriString();
     }
 
-    private static String generateUri(String baseUrl, SubjectCriteria criteria) {
+    private static String generateUri(Page<SubjectDTO> page, String baseUrl,
+            SubjectCriteria criteria) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(baseUrl);
         generateUriCriteriaRange(builder, "dateOfBirth", criteria.getDateOfBirth());
         generateUriCriteriaRange(builder, "enrollmentDate", criteria.getEnrollmentDate());
@@ -108,11 +111,11 @@ public final class PaginationUtil {
                     order.getSortBy().getQueryParam() + ','
                             + order.getDirection().name().toLowerCase(Locale.ROOT)));
         }
-        if (criteria.getLast() != null) {
-            generateUriParam(builder, "last.id", criteria.getLast().getId());
-            generateUriParam(builder, "last.login", criteria.getLast().getLogin());
-            generateUriParam(builder, "last.externalId", criteria.getLast().getExternalId());
-            generateUriParam(builder, "last.authority", criteria.getLast().getAuthority());
+        SubjectDTO lastSubject = page.getContent().get(page.getNumberOfElements() - 1);
+        generateUriParam(builder, "last.id", lastSubject.getId());
+        generateUriParam(builder, "last.login", lastSubject.getLogin());
+        if (lastSubject.getExternalId() != null && !lastSubject.getExternalId().isEmpty()) {
+            generateUriParam(builder, "last.externalId", lastSubject.getExternalId());
         }
         return builder.toUriString();
     }

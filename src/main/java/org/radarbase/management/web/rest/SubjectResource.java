@@ -15,6 +15,7 @@ import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;
 import static org.radarbase.management.web.rest.errors.EntityName.PROJECT;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SOURCE_TYPE_NOT_PROVIDED;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SUBJECT_NOT_FOUND;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
 
 import java.net.URISyntaxException;
@@ -202,7 +203,6 @@ public class SubjectResource {
      * @return the ResponseEntity with status 200 (OK) and with body the updated subjectDto, or with
      *      status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal
      *      Server Error) if the subjectDto couldnt be updated
-     * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/subjects/discontinue")
     @Timed
@@ -267,13 +267,12 @@ public class SubjectResource {
                             subjectMapper.subjectToSubjectReducedProjectDTO(s)));
             return wrapOrNotFound(subject);
         } else if (projectName == null && externalId != null) {
-            Page<Subject> page = subjectService.findAll(subjectCriteria);
-            List<SubjectDTO> items = subjectMapper
-                    .subjectsToSubjectReducedProjectDTOs(page.getContent());
+            Page<SubjectDTO> page = subjectService.findAll(subjectCriteria)
+                    .map(s -> subjectMapper.subjectToSubjectWithoutProjectDTO(s));
 
             HttpHeaders headers = PaginationUtil.generateSubjectPaginationHttpHeaders(
                     page, "/api/subjects", subjectCriteria);
-            return new ResponseEntity<>(items, headers, HttpStatus.OK);
+            return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
         } else {
             Page<SubjectDTO> page = subjectService.findAll(subjectCriteria)
                     .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
@@ -538,13 +537,10 @@ public class SubjectResource {
             throws NotFoundException, NotAuthorizedException,
             URISyntaxException {
         // check the subject id
-        Optional<Subject> subjectOptional = subjectRepository.findOneWithEagerBySubjectLogin(login);
-        if (!subjectOptional.isPresent()) {
-            throw new NotFoundException("Subject ID not found", SUBJECT, ErrorConstants
-                    .ERR_SUBJECT_NOT_FOUND, Collections.singletonMap("subjectLogin", login));
-        }
-        // check the permission to update source
-        Subject subject = subjectOptional.get();
+        Subject subject = subjectRepository.findOneWithEagerBySubjectLogin(login)
+                .orElseThrow(() -> new NotFoundException("Subject ID not found",
+                        SUBJECT, ERR_SUBJECT_NOT_FOUND,
+                        Collections.singletonMap("subjectLogin", login)));
 
         String projectName = subject.getActiveProject()
                 .map(Project::getProjectName)
@@ -560,7 +556,7 @@ public class SubjectResource {
                     errorParams.put("subjectLogin", login);
                     errorParams.put("sourceName", sourceName);
                     return new NotFoundException("Source not found under assigned sources of "
-                            + "subject", SUBJECT, ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                            + "subject", SUBJECT, ERR_SUBJECT_NOT_FOUND,
                             errorParams);
                 });
 
