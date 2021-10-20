@@ -16,10 +16,19 @@
 .subject-filter > button {
     margin-top: 16px
 }
+.subject-filter label{
+    width: 100%;
+}
+
 
 .subject-wrapper > section {
     flex-grow: 1;
     padding-left: 16px;
+}
+
+.subject-sorting-action {
+    margin-right: 8px;
+    margin-bottom: 8px;
 }
 
 .subject-row {

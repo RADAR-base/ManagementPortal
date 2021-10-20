@@ -52,8 +52,21 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     routeData: any;
     previousPage: any;
 
-    filterExternalId = '';
+    filterSubjectExternalId = '';
     filterSubjectId = '';
+    filterSubjectHumanReadableId = '';
+    filterDateOfBirthFrom = '';
+    filterDateOfBirthTo = '';
+    filterPersonName = '';
+    filterEnrollmentDateFrom = '';
+    filterEnrollmentDateTo = '';
+    filterCreatedDateFrom = '';
+    filterCreatedDateTo = '';
+
+    isAdvancedFilterCollapsed = true;
+
+    checked = false;
+    setOfCheckedId = new Set<number>();
 
     @Input() isProjectSpecific: boolean;
 
@@ -92,10 +105,10 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             this.queryFilterParams,
             this.queryPaginationParams,
         ).subscribe(
-                (res: HttpResponse<Subject[]>) => {
-                    this.onSuccess(res.body, res.headers);
-                },
-                (res: HttpErrorResponse) => this.onError(res),
+            (res: HttpResponse<Subject[]>) => {
+                this.onSuccess(res.body, res.headers);
+            },
+            (res: HttpErrorResponse) => this.onError(res),
         );
     }
 
@@ -104,18 +117,18 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             this.queryFilterParams,
             this.queryPaginationParams,
         ).subscribe(
-                (res: HttpResponse<Subject[]>) => this.onSuccess(res.body, res.headers),
-                (res: HttpErrorResponse) => this.onError(res),
+            (res: HttpResponse<Subject[]>) => this.onSuccess(res.body, res.headers),
+            (res: HttpErrorResponse) => this.onError(res),
         );
     }
 
     ngOnInit() {
-        this.loadSubjects();
+        if(this.isProjectSpecific){
+            this.loadAllFromProject();
+        } else {
+            this.loadAll();
+        }
         this.registerChangeInSubjects();
-
-        this.pagingParams$.subscribe(() => {
-            this.loadSubjects();
-        });
     }
 
     ngOnDestroy() {
@@ -140,6 +153,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges) {
+        this.subjects = [];
         const project: SimpleChange = changes.project ? changes.project : null;
         if (project) {
             this.project = project.currentValue;
@@ -150,15 +164,25 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     get queryFilterParams(): SubjectFilterParams {
         return {
             subjectId: this.filterSubjectId.trim() || undefined,
-            externalId: this.filterExternalId.trim() || undefined,
+            externalId: this.filterSubjectExternalId.trim() || undefined,
+            personName: this.filterPersonName.trim() || undefined,
+            humanReadableId: this.filterSubjectHumanReadableId.trim() || undefined,
+            dateOfBirthFrom: this.filterDateOfBirthFrom.trim() || undefined,
+            dateOfBirthTo: this.filterDateOfBirthTo.trim() || undefined,
+            enrollmentDateFrom: this.filterEnrollmentDateFrom.trim() || undefined,
+            enrollmentDateTo: this.filterEnrollmentDateTo.trim() || undefined,
+            createdDateFrom: this.filterCreatedDateFrom.trim() || undefined,
+            createdDateTo: this.filterCreatedDateTo.trim() || undefined,
         };
     }
 
     get queryPaginationParams(): SubjectsPaginationParams {
         let subjects = this.subjects || [];
+        const lastLoadedId = subjects[subjects.length - 1]?.id;
+        const pageSize = this.itemsPerPage;
         return {
-            lastLoadedId: subjects[subjects.length - 1]?.id,
-            pageSize: this.itemsPerPage,
+            lastLoadedId,
+            pageSize,
             sortBy: this.predicate,
             sortDirection: this.ascending ? 'asc' : 'desc',
         };
@@ -168,7 +192,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         this.links = parseLinks(headers.get('link'));
         this.totalItems = +headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
-        this.subjects = data;
+        this.subjects = [...this.subjects, ...data];
     }
 
     applyFilter() {
@@ -177,7 +201,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     loadMore() {
-        // TODO implement loading
+        this.page = this.page + 1;
+        this.transition();
     }
 
     loadPage(page) {
@@ -187,30 +212,53 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
-    updateSorting(predicate, direction) {
-        // TODO consider removing the page altogether
+    updateSortingSortBy(predicate) {
+        this.subjects = [];
         this.predicate = predicate;
+        this.page = 1;
+        this.transition();
+    }
+
+    updateSortingOrder(direction) {
+        this.subjects = [];
         this.ascending = direction === 'asc';
         this.page = 1;
         this.transition();
     }
 
-    selectAll() {
-        // TODO implement subject selection
+    selectAll(checked: boolean = true): void {
+        this.subjects.forEach(({ id }) => this.updateCheckedSet(id, checked));
+        this.refreshCheckedStatus();
+    }
+
+    onItemChecked(id: number, checked: boolean): void {
+        this.updateCheckedSet(id, checked);
+        this.refreshCheckedStatus();
+    }
+
+    refreshCheckedStatus(): void {
+        this.checked = this.subjects.every(({ id }) => this.setOfCheckedId.has(id)) && (this.subjects.length > 0);
+    }
+
+    updateCheckedSet(id: number, checked: boolean): void {
+        if (checked) {
+            this.setOfCheckedId.add(id);
+        } else {
+            this.setOfCheckedId.delete(id);
+        }
     }
 
     addSelectedToGroup() {
-        // TODO
+        // TODO implement function
     }
 
     transition() {
         if (!this.isProjectSpecific) {
             this.router.navigate(['/subject'], {
-                queryParams:
-                        {
-                            page: this.page,
-                            sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
-                        },
+                queryParams: {
+                    page: this.page,
+                    sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
+                },
             });
         }
         this.loadSubjects();
