@@ -77,9 +77,9 @@
                 "sortByLabel": "Sort by",
                 "sortOrderLabel": "Order",
                 "id": "Id",
-                "user.login": "Subject Id",
+                "login": "Subject Id",
                 "externalId": "External Id",
-                "user.activated": "Status",
+                "authority": "Status",
                 "asc": "Ascending",
                 "desc": "Descending"
             },

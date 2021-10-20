@@ -45,7 +45,7 @@ export class SubjectService {
 
     query(
         filterParams: SubjectFilterParams,
-        paginationParams: SubjectsPaginationParams,
+        paginationParams: SubjectPaginationParams,
     ): Observable<HttpResponse<any>> {
         return this.http.get(this.resourceUrl, {
             params: createRequestOption({ ...paginationParams, ...filterParams }),
@@ -60,7 +60,7 @@ export class SubjectService {
     findAllByProject(
         projectName: string,
         filterParams: SubjectFilterParams,
-        paginationParams: SubjectsPaginationParams,
+        paginationParams: SubjectPaginationParams,
     ): Observable<HttpResponse<Subject[]>> {
         let url = `${this.projectResourceUrl}/${projectName}/subjects`;
         return this.http.get<Subject[]>(url, {
@@ -71,23 +71,29 @@ export class SubjectService {
 }
 
 export interface SubjectFilterParams {
-    subjectId?: string,
+    login?: string,
     externalId?: string,
-    dateOfBirthFrom?: string,
-    dateOfBirthTo?: string,
-    enrollmentDateFrom?: string,
-    enrollmentDateTo?: string,
-    createdDateFrom?: string,
-    createdDateTo?: string,
+    dateOfBirth?: SubjectFilterRange,
+    enrollmentDate?: SubjectFilterRange,
     humanReadableIdentifier?: string,
-
     personName?: string,
     humanReadableId?: string,
 }
 
-export interface SubjectsPaginationParams {
-    lastLoadedId?: number,
-    pageSize?: number,
-    sortBy?: string,
-    sortDirection?: 'asc' | 'desc',
+export interface SubjectFilterRange {
+    from?: string,
+    to?: string,
+    is?: string,
+}
+
+export interface SubjectPaginationParams {
+    last?: SubjectLastParams,
+    size?: number,
+    sort?: [string],
+}
+
+export interface SubjectLastParams {
+    id?: number,
+    login?: string,
+    externalId?: string,
 }

@@ -17,7 +17,7 @@ import { Subject } from './subject.model';
 import {
     SubjectService,
     SubjectFilterParams,
-    SubjectsPaginationParams,
+    SubjectPaginationParams, SubjectLastParams,
 } from './subject.service';
 import { PagingParams } from '../commons';
 import { AlertService } from '../util/alert.service';
@@ -31,9 +31,8 @@ import { parseLinks } from '../util/parse-links-util';
 })
 export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     sortingOptions = [
-        'user.login',
+        'login',
         'externalId',
-        'user.activated',
     ];
     pagingParams$: Observable<PagingParams>;
     project$ = new BehaviorSubject<Project>(null);
@@ -77,7 +76,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         this.subjects = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
         this.pagingParams$ = this.activatedRoute.data.pipe(map(data => {
-            const fallback = { page: 1, predicate: 'user.login', ascending: true };
+            const fallback = { page: 1, predicate: 'login', ascending: true };
             return data['pagingParams'] || fallback;
         }));
         this.routeData = this.pagingParams$.subscribe(params => {
@@ -185,15 +184,25 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         return params;
     }
 
-    get queryPaginationParams(): SubjectsPaginationParams {
-        let subjects = this.subjects || [];
-        const lastLoadedId = subjects[subjects.length - 1]?.id;
-        const pageSize = this.itemsPerPage;
+    get queryPaginationParams(): SubjectPaginationParams {
+        const subjects = this.subjects || [];
+
+        let last: SubjectLastParams | null;
+        if (subjects.length > 0) {
+            const lastSubject = subjects[subjects.length - 1]
+            last = {
+                id: lastSubject.id,
+                login: lastSubject.login,
+                externalId: lastSubject.externalId,
+            }
+        } else {
+            last = null;
+        }
+
         return {
-            lastLoadedId,
-            pageSize,
-            sortBy: this.predicate,
-            sortDirection: this.ascending ? 'asc' : 'desc',
+            last,
+            size: this.itemsPerPage,
+            sort: [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')],
         };
     }
 

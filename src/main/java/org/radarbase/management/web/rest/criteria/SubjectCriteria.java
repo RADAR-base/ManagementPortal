@@ -88,16 +88,10 @@ public class SubjectCriteria {
         this.last = last;
     }
 
-    /** Get the criteria paging settings, including sorting. */
+    /** Get the criteria paging settings, excluding sorting. */
     @NotNull
     public Pageable getPageable() {
-        Sort sort = Sort.unsorted();
-
-        for (SubjectSortOrder order : getParsedSort()) {
-            sort = sort.and(Sort.by(order.getDirection(), order.getSortBy().getDbField()));
-        }
-
-        return PageRequest.of(page, size, sort);
+        return PageRequest.of(page, size);
     }
 
     public int getPage() {
@@ -180,17 +174,21 @@ public class SubjectCriteria {
                             ? Sort.Direction.fromOptionalString(flatSort.get(index + 1))
                             : Optional.empty();
 
+                    SubjectSortOrder order;
                     if (direction.isPresent()) {
                         index += 2;
-                        parsedSort.add(new SubjectSortOrder(sortBy, direction.get()));
+                        order = new SubjectSortOrder(sortBy, direction.get());
                     } else {
                         index++;
-                        parsedSort.add(new SubjectSortOrder(sortBy));
+                        order = new SubjectSortOrder(sortBy);
                     }
-                    // No need to sort beyond a unique element: the order will not change.
-                    if (sortBy.isUnique()) {
-                        hasUniqueField = true;
-                        break;
+                    if (parsedSort.stream().noneMatch(o -> o.getSortBy() == sortBy)) {
+                        parsedSort.add(order);
+                        // No need to sort beyond a unique element: the order will not change.
+                        if (sortBy.isUnique()) {
+                            hasUniqueField = true;
+                            break;
+                        }
                     }
                 }
             } else {

@@ -10,6 +10,7 @@ import org.radarbase.management.web.rest.criteria.SubjectCriteria;
 import org.radarbase.management.web.rest.criteria.SubjectCriteriaLast;
 import org.radarbase.management.web.rest.criteria.SubjectSortBy;
 import org.radarbase.management.web.rest.criteria.SubjectSortOrder;
+import org.radarbase.management.web.rest.errors.BadRequestException;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.annotation.Nullable;
@@ -18,6 +19,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.MapJoin;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -28,6 +30,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
 
 public class SubjectSpecification implements Specification<Subject> {
     private final CriteriaRange<LocalDate> dateOfBirth;
@@ -41,6 +46,7 @@ public class SubjectSpecification implements Specification<Subject> {
     private final String subjectId;
     private final List<SubjectSortOrder> sort;
     private final Set<String> authority;
+    private final List<String> sortLastValues;
 
     /**
      * Subject specification based on criteria.
@@ -61,9 +67,11 @@ public class SubjectSpecification implements Specification<Subject> {
         this.subjectId = criteria.getLogin();
         this.sort = criteria.getParsedSort();
         if (last != null) {
-            for (SubjectSortOrder subjectSortOrder : this.sort) {
-                getLastValue(subjectSortOrder.getSortBy());
-            }
+            this.sortLastValues = this.sort.stream()
+                    .map(o -> getLastValue(o.getSortBy()))
+                    .collect(Collectors.toList());
+        } else {
+            this.sortLastValues = null;
         }
     }
 
@@ -110,16 +118,19 @@ public class SubjectSpecification implements Specification<Subject> {
 
         addContentPredicates(root, builder, query.getResultType(), predicates);
 
+        query.orderBy(getSortOrder(root, builder));
+
         return builder.and(predicates.toArray(new Predicate[0]));
     }
 
     private void addContentPredicates(Root<Subject> root, CriteriaBuilder builder,
             Class<?> queryResult, List<Predicate> predicates) {
+        // Don't add content for count queries.
         if (queryResult == Long.class || queryResult == long.class) {
             return;
         }
         root.fetch("sources", JoinType.LEFT);
-        root.fetch("user", JoinType.LEFT);
+        root.fetch("user", JoinType.INNER);
 
         if (last != null) {
             predicates.add(filterLastValues(root, builder));
@@ -129,23 +140,21 @@ public class SubjectSpecification implements Specification<Subject> {
     private Predicate filterLastValues(Root<Subject> root, CriteriaBuilder builder) {
         Predicate[] lastPredicates = new Predicate[sort.size()];
         List<Path<String>> paths = new ArrayList<>(sort.size());
-        List<String> values = new ArrayList<>(sort.size());
         for (SubjectSortOrder order : sort) {
             paths.add(getPropertyPath(order.getSortBy(), root));
-            values.add(getLastValue(order.getSortBy()));
         }
         for (int i = 0; i < sort.size(); i++) {
             Predicate[] lastAndPredicates = i > 0 ? new Predicate[i + 1] : null;
             for (int j = 0; j < i; j++) {
-                lastAndPredicates[j] = builder.equal(paths.get(j), values.get(j));
+                lastAndPredicates[j] = builder.equal(paths.get(j), sortLastValues.get(j));
             }
 
             SubjectSortOrder order = sort.get(i);
             Predicate currentSort;
             if (order.getDirection().isAscending()) {
-                currentSort = builder.greaterThan(paths.get(i), values.get(i));
+                currentSort = builder.greaterThan(paths.get(i), sortLastValues.get(i));
             } else {
-                currentSort = builder.lessThan(paths.get(i), values.get(i));
+                currentSort = builder.lessThan(paths.get(i), sortLastValues.get(i));
             }
 
             if (lastAndPredicates != null) {
@@ -174,14 +183,12 @@ public class SubjectSpecification implements Specification<Subject> {
             case EXTERNAL_ID:
                 result = last.getExternalId();
                 break;
-            case USER_AUTHORITY:
-                result = Objects.toString(last.getAuthority(), null);
-                break;
             default:
                 throw new IllegalArgumentException("Unknown sort property " + property);
         }
-        if (result == null) {
-            throw new IllegalArgumentException("No last value given for sort property " + property);
+        if (property.isUnique() && result == null) {
+            throw new BadRequestException("No last value given for sort property " + property,
+                    SUBJECT, ERR_VALIDATION);
         }
         return result;
     }
@@ -195,8 +202,6 @@ public class SubjectSpecification implements Specification<Subject> {
                 return root.get("user").get("login");
             case EXTERNAL_ID:
                 return root.get("externalId");
-            case USER_AUTHORITY:
-                return root.get("user").get("authority").get("name");
             default:
                 throw new IllegalArgumentException("Unknown sort property " + property);
         }
@@ -238,5 +243,19 @@ public class SubjectSpecification implements Specification<Subject> {
                         .lessThanOrEqualTo(path, range.getTo()));
             }
         }
+    }
+
+    private List<Order> getSortOrder(Root<Subject> root,
+            CriteriaBuilder builder) {
+        return sort.stream()
+                .map(order -> {
+                    Path<String> path = getPropertyPath(order.getSortBy(), root);
+                    if (order.getDirection().isAscending()) {
+                        return builder.asc(path);
+                    } else {
+                        return builder.desc(path);
+                    }
+                })
+                .collect(Collectors.toList());
     }
 }

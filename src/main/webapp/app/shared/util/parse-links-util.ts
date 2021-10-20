@@ -6,7 +6,7 @@ export function parseLinks(header: string): { [name: string]: any; } {
     }
 
     // Split parts by comma
-    const parts: string[] = header.split(',');
+    const parts: string[] = header.split(/,\s+</);
     const links: { [name: string]: any; } = {};
 
     // Parse each part into a named link
@@ -17,11 +17,11 @@ export function parseLinks(header: string): { [name: string]: any; } {
             throw new Error('section could not be split on ";"');
         }
 
-        const url: string = section[0].replace(/<(.*)>/, '$1').trim();
+        const url: string = section[0].replace(/<?(.*)>/, '$1').trim();
         const queryString: any = {};
 
         url.replace(
-            new RegExp('([^?=&]+)(=([^&]*))?', 'g'),
+            /([^?=&]+)(=([^&]*))?/g,
             ($0, $1, $2, $3) => queryString[$1] = $3
         );
 
