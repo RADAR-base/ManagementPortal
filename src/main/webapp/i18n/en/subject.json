@@ -80,8 +80,8 @@
                 "user.login": "Subject Id",
                 "externalId": "External Id",
                 "user.activated": "Status",
-                "asc": "Ascendant",
-                "desc": "Descendant"
+                "asc": "Ascending",
+                "desc": "Descending"
             },
             "subjectId" : "Subject Id",
             "baseUrl" : "Base Url",
