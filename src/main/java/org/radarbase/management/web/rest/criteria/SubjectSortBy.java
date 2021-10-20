@@ -10,23 +10,32 @@
 package org.radarbase.management.web.rest.criteria;
 
 public enum SubjectSortBy {
-    ID("id", true),
-    EXTERNAL_ID("externalId", false),
-    USER_LOGIN("login", true),
-    USER_AUTHORITY("authority", false);
+    ID("id", "id", true),
+    EXTERNAL_ID("externalId", "externalId", false),
+    USER_LOGIN("login", "user.login", true),
+    USER_AUTHORITY("authority", "user.authority.name", false);
 
-    private final String key;
+    private final String queryParam;
+    private final String dbField;
     private final boolean isUnique;
 
-    SubjectSortBy(String key, boolean isUnique) {
-        this.key = key;
+    SubjectSortBy(String queryParam, String dbField, boolean isUnique) {
+        this.queryParam = queryParam;
+        this.dbField = dbField;
         this.isUnique = isUnique;
     }
 
-    public String getKey() {
-        return this.key;
+    /** Query parameter name. */
+    public String getQueryParam() {
+        return this.queryParam;
     }
 
+    /** Database field relative to the Subject entity. */
+    public String getDbField() {
+        return dbField;
+    }
+
+    /** Whether this property is unique across all subjects. */
     public boolean isUnique() {
         return isUnique;
     }

@@ -487,7 +487,8 @@ public class SubjectService {
         // but the page should always be zero
         // since the lastLoadedId param defines the offset
         // within the query specification
-        return subjectRepository.findAll(new SubjectSpecification(criteria), criteria.getPageable());
+        return subjectRepository.findAll(new SubjectSpecification(criteria),
+                criteria.getPageable());
     }
 
     /**

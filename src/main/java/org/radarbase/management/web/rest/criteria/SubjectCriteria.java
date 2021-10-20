@@ -1,6 +1,7 @@
 package org.radarbase.management.web.rest.criteria;
 
 import org.radarbase.management.web.rest.errors.BadRequestException;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,8 +22,8 @@ import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDA
 
 public class SubjectCriteria {
     private List<SubjectAuthority> authority = List.of(SubjectAuthority.ROLE_PARTICIPANT);
-    private CriteriaRange<LocalDate> dateOfBirth = null;
-    private CriteriaRange<ZonedDateTime> enrollmentDate = null;
+    private LocalDateCriteriaRange dateOfBirth = null;
+    private ZonedDateTimeCriteriaRange enrollmentDate = null;
     private String groupName = null;
     private String humanReadableIdentifier = null;
     private SubjectCriteriaLast last = null;
@@ -35,6 +37,9 @@ public class SubjectCriteria {
     private String externalId = null;
     private String login = null;
 
+    @Transient
+    private List<SubjectSortOrder> parsedSort = null;
+
     public List<SubjectAuthority> getAuthority() {
         return authority;
     }
@@ -47,7 +52,7 @@ public class SubjectCriteria {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(CriteriaRange<LocalDate> dateOfBirth) {
+    public void setDateOfBirth(LocalDateCriteriaRange dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -55,7 +60,7 @@ public class SubjectCriteria {
         return enrollmentDate;
     }
 
-    public void setEnrollmentDate(CriteriaRange<ZonedDateTime> enrollmentDate) {
+    public void setEnrollmentDate(ZonedDateTimeCriteriaRange enrollmentDate) {
         this.enrollmentDate = enrollmentDate;
     }
 
@@ -83,9 +88,16 @@ public class SubjectCriteria {
         this.last = last;
     }
 
+    /** Get the criteria paging settings, including sorting. */
     @NotNull
     public Pageable getPageable() {
-        return PageRequest.of(page, size);
+        Sort sort = Sort.unsorted();
+
+        for (SubjectSortOrder order : getParsedSort()) {
+            sort = sort.and(Sort.by(order.getDirection(), order.getSortBy().getDbField()));
+        }
+
+        return PageRequest.of(page, size, sort);
     }
 
     public int getPage() {
@@ -139,40 +151,64 @@ public class SubjectCriteria {
     public List<String> getSort() {
         return sort;
     }
+
+    /** Parse the sort criteria. */
     public List<SubjectSortOrder> getParsedSort() {
-        List<SubjectSortOrder> parsedSort = new ArrayList<>(sort.size());
+        if (this.parsedSort == null) {
+            boolean hasUniqueField = false;
+            List<SubjectSortOrder> parsedSort;
 
-        List<String> flatSort = sort.stream()
-                .flatMap(s -> Arrays.stream(s.split(",")))
-                .collect(Collectors.toList());
+            if (sort != null) {
+                parsedSort = new ArrayList<>(sort.size());
 
-        int index = 0;
+                List<String> flatSort = sort.stream()
+                        .flatMap(s -> Arrays.stream(s.split(",")))
+                        .collect(Collectors.toList());
 
-        while (index < flatSort.size()) {
-            String part = flatSort.get(index);
-            SubjectSortBy sortBy = Arrays.stream(SubjectSortBy.values())
-                    .filter(s -> s.getKey().equalsIgnoreCase(part))
-                    .findAny()
-                    .orElseThrow(() -> new BadRequestException("Cannot convert sort property "
-                            + part + " to subject property", SUBJECT, ERR_VALIDATION));
+                int index = 0;
 
-            Optional<Sort.Direction> direction = (index + 1 < flatSort.size())
-                ? Sort.Direction.fromOptionalString(flatSort.get(index + 1))
-                : Optional.empty();
+                while (index < flatSort.size()) {
+                    String part = flatSort.get(index);
+                    SubjectSortBy sortBy = Arrays.stream(SubjectSortBy.values())
+                            .filter(s -> s.getQueryParam().equalsIgnoreCase(part))
+                            .findAny()
+                            .orElseThrow(() -> new BadRequestException(
+                                    "Cannot convert sort property " + part
+                                            + " to subject property", SUBJECT, ERR_VALIDATION));
 
-            if (direction.isPresent()) {
-                index += 2;
-                parsedSort.add(new SubjectSortOrder(sortBy, direction.get()));
+                    Optional<Sort.Direction> direction = (index + 1 < flatSort.size())
+                            ? Sort.Direction.fromOptionalString(flatSort.get(index + 1))
+                            : Optional.empty();
+
+                    if (direction.isPresent()) {
+                        index += 2;
+                        parsedSort.add(new SubjectSortOrder(sortBy, direction.get()));
+                    } else {
+                        index++;
+                        parsedSort.add(new SubjectSortOrder(sortBy));
+                    }
+                    // No need to sort beyond a unique element: the order will not change.
+                    if (sortBy.isUnique()) {
+                        hasUniqueField = true;
+                        break;
+                    }
+                }
             } else {
-                index++;
-                parsedSort.add(new SubjectSortOrder(sortBy));
+                parsedSort = new ArrayList<>(1);
             }
-        }
 
-        return parsedSort;
+            // Ensure that the result has a fully defined order.
+            if (!hasUniqueField) {
+                parsedSort.add(new SubjectSortOrder(SubjectSortBy.ID));
+            }
+
+            this.parsedSort = Collections.unmodifiableList(parsedSort);
+        }
+        return this.parsedSort;
     }
 
     public void setSort(List<String> sort) {
+        this.parsedSort = null;
         this.sort = sort;
     }
 

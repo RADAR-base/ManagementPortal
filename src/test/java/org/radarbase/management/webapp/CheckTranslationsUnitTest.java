@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Test class for checking that the i18n JSON files in all languages have the same fields. This
@@ -31,14 +31,11 @@ class CheckTranslationsUnitTest {
 
     private static final String PATH = "src/main/webapp/i18n";
     private static final String BASE_LANG = "en";
-    private static File baseLangPath;
     private static Map<String, List<String>> baseDictionary;
-
-    private static final Logger log = LoggerFactory.getLogger(CheckTranslationsUnitTest.class);
 
     @BeforeAll
     public static void loadBaseDictionary() {
-        baseLangPath = new File(PATH, BASE_LANG);
+        File baseLangPath = new File(PATH, BASE_LANG);
         baseDictionary = loadJsonKeysFromDirectory(baseLangPath);
     }
 
@@ -55,17 +52,10 @@ class CheckTranslationsUnitTest {
                             .stream()
                             .collect(Collectors.toMap(
                                     e -> String.join("/", path.getName(), e.getKey()),
-                                    e -> e.getValue())));
+                                    Map.Entry::getValue)));
                 });
-        // If there were missing elements, first print out all of them and only then fail the
-        // test, so we can fix all translations at once.
-        if (!differencesFound.isEmpty()) {
-            for (String key : differencesFound.keySet()) {
-                log.error("Missing translations in {}: {}", key,
-                        String.join(", ", differencesFound.get(key)));
-            }
-            Assertions.fail("There were missing keys in some of the translations.");
-        }
+        assertEquals(Map.of(), differencesFound,
+                "There were missing keys in some of the translations.");
     }
 
     /**

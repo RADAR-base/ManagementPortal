@@ -18,7 +18,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.MapJoin;
-import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -60,35 +59,12 @@ public class SubjectSpecification implements Specification<Subject> {
         this.projectName = criteria.getProjectName();
         this.externalId = criteria.getExternalId();
         this.subjectId = criteria.getLogin();
-        if (criteria.getSort() != null) {
-            List<SubjectSortOrder> sortInput = new ArrayList<>(criteria.getParsedSort());
-            int uniqueSort = -1;
-            for (int i = 0; i < sortInput.size(); i++) {
-                SubjectSortBy sortProperty = sortInput.get(i).getSortBy();
-                if (last != null) {
-                    getLastValue(sortProperty);
-                }
-                if (sortProperty.isUnique()) {
-                    uniqueSort = i;
-                    break;
-                }
+        this.sort = criteria.getParsedSort();
+        if (last != null) {
+            for (SubjectSortOrder subjectSortOrder : this.sort) {
+                getLastValue(subjectSortOrder.getSortBy());
             }
-            if (uniqueSort != -1) {
-                this.sort = sortInput.subList(0, uniqueSort + 1);
-            } else {
-                if (last != null) {
-                    getLastValue(SubjectSortBy.ID);
-                }
-                sortInput.add(new SubjectSortOrder(SubjectSortBy.ID));
-                this.sort = sortInput;
-            }
-        } else {
-            if (last != null) {
-                getLastValue(SubjectSortBy.ID);
-            }
-            this.sort = List.of(new SubjectSortOrder(SubjectSortBy.ID));
         }
-
     }
 
     @Override
@@ -133,8 +109,6 @@ public class SubjectSpecification implements Specification<Subject> {
         }
 
         addContentPredicates(root, builder, query.getResultType(), predicates);
-
-        query.orderBy(getSortOrder(root, builder));
 
         return builder.and(predicates.toArray(new Predicate[0]));
     }
@@ -264,18 +238,5 @@ public class SubjectSpecification implements Specification<Subject> {
                         .lessThanOrEqualTo(path, range.getTo()));
             }
         }
-    }
-
-    private List<Order> getSortOrder(Root<Subject> root, CriteriaBuilder builder) {
-        return sort.stream()
-                .map(order -> {
-                    Path<String> path = getPropertyPath(order.getSortBy(), root);
-                    if (order.getDirection().isAscending()) {
-                        return builder.asc(path);
-                    } else {
-                        return builder.desc(path);
-                    }
-                })
-                .collect(Collectors.toList());
     }
 }

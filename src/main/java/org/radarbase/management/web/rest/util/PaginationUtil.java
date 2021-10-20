@@ -105,7 +105,7 @@ public final class PaginationUtil {
         generateUriParam(builder, "page", criteria.getPage());
         if (criteria.getSort() != null) {
             criteria.getParsedSort().forEach(order -> generateUriParam(builder, "sort",
-                    order.getSortBy().getKey() + ','
+                    order.getSortBy().getQueryParam() + ','
                             + order.getDirection().name().toLowerCase(Locale.ROOT)));
         }
         if (criteria.getLast() != null) {
