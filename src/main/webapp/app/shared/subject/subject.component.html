@@ -37,31 +37,24 @@
                 <span [translate]="'managementPortalApp.subject.filter.from'"></span>
             </label>
             <div class="d-flex">
-                <input [(ngModel)]="filterEnrollmentDateFrom" id="field_enrollment_date_from" type="date" class="form-control" name="enrollmentDateFrom" />
+                <input [(ngModel)]="filterEnrollmentDateFrom" id="field_enrollment_date_from" type="datetime-local" class="form-control" name="enrollmentDateFrom" />
             </div>
             <label>
                 <span [translate]="'managementPortalApp.subject.filter.to'"></span>
             </label>
             <div class="d-flex">
-                <input [(ngModel)]="filterEnrollmentDateTo" id="field_enrollment_date_to" type="date" class="form-control" name="enrollmentDateTo" />
+                <input [(ngModel)]="filterEnrollmentDateTo" id="field_enrollment_date_to" type="datetime-local" class="form-control" name="enrollmentDateTo" />
             </div>
 
             <label>
                 <span [translate]="'managementPortalApp.subject.personName'"></span>
                 <input id="field-person-name" [(ngModel)]="filterPersonName" type="text">
             </label>
-            <span [translate]="'managementPortalApp.subject.dateOfBirth'"></span>
             <label>
-                <span [translate]="'managementPortalApp.subject.filter.from'"></span>
+                <span [translate]="'managementPortalApp.subject.dateOfBirth'"></span>
             </label>
             <div class="d-flex">
-                <input [(ngModel)]="filterDateOfBirthFrom" id="field_date_of_birth_from" type="date" class="form-control" name="dateOfBirthFrom" />
-            </div>
-            <label>
-                <span [translate]="'managementPortalApp.subject.filter.to'"></span>
-            </label>
-            <div class="d-flex">
-                <input [(ngModel)]="filterDateOfBirthTo" id="field_date_of_birth_to" type="date" class="form-control" name="dateOfBirthTo" />
+                <input [(ngModel)]="filterDateOfBirth" id="field_date_of_birth" type="date" class="form-control" name="dateOfBirth" />
             </div>
         </div>
 

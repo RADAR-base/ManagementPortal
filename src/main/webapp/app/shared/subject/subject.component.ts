@@ -55,13 +55,10 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     filterSubjectExternalId = '';
     filterSubjectId = '';
     filterSubjectHumanReadableId = '';
-    filterDateOfBirthFrom = '';
-    filterDateOfBirthTo = '';
+    filterDateOfBirth = '';
     filterPersonName = '';
     filterEnrollmentDateFrom = '';
     filterEnrollmentDateTo = '';
-    filterCreatedDateFrom = '';
-    filterCreatedDateTo = '';
 
     isAdvancedFilterCollapsed = true;
 
@@ -162,18 +159,30 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     get queryFilterParams(): SubjectFilterParams {
-        return {
-            subjectId: this.filterSubjectId.trim() || undefined,
+        const params = {
+            login: this.filterSubjectId.trim() || undefined,
             externalId: this.filterSubjectExternalId.trim() || undefined,
             personName: this.filterPersonName.trim() || undefined,
             humanReadableId: this.filterSubjectHumanReadableId.trim() || undefined,
-            dateOfBirthFrom: this.filterDateOfBirthFrom.trim() || undefined,
-            dateOfBirthTo: this.filterDateOfBirthTo.trim() || undefined,
-            enrollmentDateFrom: this.filterEnrollmentDateFrom.trim() || undefined,
-            enrollmentDateTo: this.filterEnrollmentDateTo.trim() || undefined,
-            createdDateFrom: this.filterCreatedDateFrom.trim() || undefined,
-            createdDateTo: this.filterCreatedDateTo.trim() || undefined,
+            dateOfBirth: undefined,
+            enrollmentDate: undefined,
         };
+        let enrollmentDateFrom = this.filterEnrollmentDateFrom.trim();
+        let enrollmentDateTo = this.filterEnrollmentDateTo.trim();
+        if (enrollmentDateFrom || enrollmentDateTo) {
+            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            params.enrollmentDate = {
+                from: enrollmentDateFrom ? enrollmentDateFrom + '[' + timeZone + ']' : undefined,
+                to: enrollmentDateTo ? enrollmentDateTo + '[' + timeZone + ']' : undefined,
+            };
+        }
+        if (this.filterDateOfBirth) {
+            params.dateOfBirth = {
+                is: this.filterDateOfBirth,
+            };
+        }
+
+        return params;
     }
 
     get queryPaginationParams(): SubjectsPaginationParams {
@@ -253,15 +262,15 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     transition() {
-        if (!this.isProjectSpecific) {
+        if (this.isProjectSpecific) {
+            this.loadSubjects();
+        } else {
             this.router.navigate(['/subject'], {
                 queryParams: {
                     page: this.page,
                     sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
                 },
-            });
+            }).then(() => this.loadSubjects());
         }
-        this.loadSubjects();
     }
-
 }
