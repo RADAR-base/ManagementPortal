@@ -19,8 +19,8 @@
             "filter": {
                 "title": "Filter",
                 "applyButton": "Filter toepassen",
-                "dateOfBirthFrom": "Geboortedatum vanaf",
-                "dateOfBirthTo": "Geboortedatum tot",
+                "from": "Vanaf",
+                "to": "Tot en met",
                 "advancedFilter": "Uitgebreid filter"
             },
             "login": "Login",

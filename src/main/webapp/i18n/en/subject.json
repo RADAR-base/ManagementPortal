@@ -20,8 +20,8 @@
                 "title": "Filter",
                 "applyButton": "Apply filter",
                 "advancedFilter": "Advanced Filter",
-                "dateOfBirthFrom": "From",
-                "dateOfBirthTo": "To"
+                "from": "From",
+                "to": "To"
             },
             "login": "Login",
             "email": "Email",
