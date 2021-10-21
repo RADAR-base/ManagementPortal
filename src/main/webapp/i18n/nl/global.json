@@ -8,10 +8,10 @@
             "entities": {
                 "main": "Entiteiten",
                 "source": "Source",
-                "sourceType": "Source Type",
+                "sourceType": "Source-type",
                 "project": "Project",
-                "oauth-clients": "OAuth Clients",
-                "sourceData": "Source Data",
+                "oauth-clients": "OAuth clienten",
+                "sourceData": "Source-data",
                 "subject": "Subject",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
@@ -19,7 +19,7 @@
                 "main": "Gebruiker",
                 "settings": "Instellingen",
                 "password": "Wachtwoord",
-                "sessions": "Sessions",
+                "sessions": "Sessies",
                 "login": "Aanmelden",
                 "logout": "Afmelden",
                 "register": "Registreren"
@@ -43,14 +43,14 @@
             "language": "Taal"
         },
         "form": {
-            "username": "Username",
-            "username.placeholder": "Uw username",
+            "username": "Gebruikersnaam",
+            "username.placeholder": "Uw gebruikersnaam",
             "newpassword": "Nieuw wachtwoord",
             "newpassword.placeholder": "Nieuw wachtwoord",
             "confirmpassword": "Nieuw wachtwoord bevestigen",
             "confirmpassword.placeholder": "Bevestig het nieuwe wachtwoord",
-            "email": "Email",
-            "email.placeholder": "Uw email"
+            "email": "E-mailadres",
+            "email.placeholder": "Uw e-mail"
         },
         "messages": {
             "info": {
@@ -119,7 +119,7 @@
             "value": "Waarde"
         },
         "delete": {
-            "title": "Bevestig wisbewerking"
+            "title": "Bevestig wissen"
         },
         "validation": {
             "required": "Dit veld is vereist.",
@@ -138,14 +138,14 @@
         "internalServerError": "Internal server error",
         "projectNotEmpty": "Kan project niet verwijderen: het heeft nog gebruikers",
         "internalParameterized": "Internal server error: {{ message }}",
-        "server.not.reachable": "Server not reachable",
+        "server.not.reachable": "Server niet bereikbaar.",
         "url.not.found": "Not found",
-        "NotNull": "Field {{fieldName}} cannot be empty!",
-        "Size": "Field {{fieldName}} does not meet min/max size requirements!",
-        "userexists": "Login name already used!",
-        "emailexists": "Email is already in use!",
-        "idexists": "A new {{entityName}} cannot already have an ID",
-        "invalidsubjectstate": "Een stopgezette deelnemer kan niet geactiveerd worden",
+        "NotNull": "Veld {{fieldName}} mag niet leeg zijn",
+        "Size": "Veld {{fieldName}} voldoet niet aan de mininum/maximum lengte!",
+        "userexists": "De opgegeven gebruikersnaam is al in gebruik.",
+        "emailexists": "Het opgegeven e-mailadres is al in gebruik.",
+        "idexists": "Een nieuwe {{entityName}} mag geen explicit ID hebben.",
+        "invalidsubjectstate": "Een stopgezet deelname door een subject kan niet gereactiveerd worden",
         "nameexists": "Er bestaat reeds een {{ entityName }} met deze naam"
     },
     "footer": "Voor meer details, lees <a target=\"_blank\" href=\"https://radar-base.atlassian.net/wiki/spaces/RAD/pages/1913978881/User+Guide+for+Management+Portal\">de gebruikershandleiding</a>.",

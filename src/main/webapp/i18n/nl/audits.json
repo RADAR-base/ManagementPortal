@@ -28,7 +28,7 @@
         "title": "Geschiedenis",
         "revision": "Revisie",
         "revisionList": "Geschiedenis voor",
-        "revisionType": "Revisie Type",
+        "revisionType": "Revisietype",
         "number": "Revisienummer",
         "author": "Auteur",
         "modifications": "Wijzigingen",
@@ -43,8 +43,8 @@
             "subject": "Subject",
             "source": "Source",
             "project": "Project",
-            "sourceType": "Source Type",
-            "sourceData": "Source Data"
+            "sourceType": "Source-type",
+            "sourceData": "Source-data"
         }
     }
 }

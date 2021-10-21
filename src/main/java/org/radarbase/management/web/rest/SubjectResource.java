@@ -56,7 +56,6 @@ import org.radarbase.management.service.dto.SubjectDTO;
 import org.radarbase.management.service.mapper.SubjectMapper;
 import org.radarbase.management.web.rest.criteria.SubjectCriteria;
 import org.radarbase.management.web.rest.errors.BadRequestException;
-import org.radarbase.management.web.rest.errors.ErrorConstants;
 import org.radarbase.management.web.rest.errors.InvalidRequestException;
 import org.radarbase.management.web.rest.errors.NotFoundException;
 import org.radarbase.management.web.rest.util.HeaderUtil;

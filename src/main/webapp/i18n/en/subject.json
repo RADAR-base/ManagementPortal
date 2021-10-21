@@ -11,7 +11,7 @@
             "updated": "A Subject is updated with identifier {{ param }}",
             "deleted": "A Subject is deleted with identifier {{ param }}",
             "delete": {
-                "question": "Are you sure you want to delete Subject {{ id }}?"
+                "question": "Are you sure you want to delete Subject {{ id }}? This operation cannot be undone."
             },
             "detail": {
                 "title": "Subject"
@@ -70,7 +70,7 @@
             "discontinue" : {
                 "operation" : "Discontinue",
                 "title" : "Confirm discontinue operation",
-                "question" : "Are you sure you want to discontinue Subject {{ id }}?"
+                "question" : "Are you sure you want to discontinue Subject {{ id }}? This operation cannot be undone."
             },
             "discontinued": "A Subject is discontinued with identifier {{ param }}",
             "sorting": {
