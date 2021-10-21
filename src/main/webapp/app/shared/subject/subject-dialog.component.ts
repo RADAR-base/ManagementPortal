@@ -58,7 +58,7 @@ export class SubjectDialogComponent implements OnInit {
     }
 
     private onSaveSuccess(result: Subject) {
-        this.eventManager.broadcast({name: 'subjectListModification', content: 'OK'});
+        this.eventManager.broadcast({name: 'subjectListModification', content: result});
         this.isSaving = false;
         this.activeModal.dismiss(result);
     }

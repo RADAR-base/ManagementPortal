@@ -119,9 +119,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnInit() {
-        if(this.isProjectSpecific){
-            this.loadAllFromProject();
-        } else {
+        if(!this.isProjectSpecific){
             this.loadAll();
         }
         this.registerChangeInSubjects();
@@ -141,7 +139,16 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     registerChangeInSubjects() {
-        this.eventSubscriber = this.eventManager.subscribe('subjectListModification', () => this.loadSubjects());
+        this.eventSubscriber = this.eventManager.subscribe('subjectListModification', (result) => {
+            const modifiedSubject = result.content;
+            const subjectIndex = this.subjects.findIndex((s => s.id == modifiedSubject.id));
+            if (subjectIndex < 0) {
+                this.totalItems++;
+                this.subjects = [modifiedSubject, ...this.subjects];
+            } else {
+                this.subjects[subjectIndex] = modifiedSubject;
+            }
+        });
     }
 
     private onError(error) {
@@ -207,10 +214,18 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     private onSuccess(data, headers) {
-        this.links = parseLinks(headers.get('link'));
+        console.log(data, headers)
+        if(headers.get('link')){
+            this.links = parseLinks(headers.get('link'));
+        }
         this.totalItems = +headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
+        // remove redundant subjects from the list
         this.subjects = [...this.subjects, ...data];
+        this.subjects = Array.from(new Set(this.subjects.map(a => a.id)))
+            .map(id => {
+                return this.subjects.find(a => a.id === id)
+            })
     }
 
     applyFilter() {
