@@ -12,21 +12,21 @@ sourceSets {
 }
 
 dependencies {
-    gatlingCompile "io.gatling.highcharts:gatling-charts-highcharts:${gatling_version}"
+    gatlingImplementation "io.gatling.highcharts:gatling-charts-highcharts:${gatling_version}"
 }
 
 //noinspection GroovyAssignabilityCheck
 tasks.withType(ScalaCompile) {
-    scalaClasspath = scalaRuntime.inferScalaClasspath(configurations.gatlingCompile)
+    scalaClasspath = scalaRuntime.inferScalaClasspath(configurations.gatlingCompileClasspath)
 }
 
 task manifestJar(type: Jar) {
-    from configurations.gatlingCompile
+    from configurations.gatlingRuntimeClasspath
     archiveFileName.set 'gatlingBooter.jar'
     doFirst {
         manifest {
             // uri is just needed for Windows-compatibility
-            attributes 'Class-Path': configurations.gatlingCompile.files.collect{ project.uri(it) }.join(' ')
+            attributes 'Class-Path': configurations.gatlingCompileClasspath.files.collect{ project.uri(it) }.join(' ')
         }
     }
 }
