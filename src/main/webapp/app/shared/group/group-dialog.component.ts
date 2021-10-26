@@ -5,39 +5,24 @@ import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
-import { MinimalSource } from '../source';
-import { SubjectPopupService } from './subject-popup.service';
-
-import { Subject } from './subject.model';
-import { SubjectService } from './subject.service';
+import { GroupPopupService } from './group-popup.service';
+import {Group} from "./group.model";
+import {GroupService} from "./group.service";
 
 @Component({
-    selector: 'jhi-subject-dialog',
-    templateUrl: './subject-dialog.component.html',
+    selector: 'jhi-group-dialog',
+    templateUrl: './group-dialog.component.html',
 })
-export class SubjectDialogComponent implements OnInit {
+export class GroupDialogComponent {
 
-    readonly authorities: string[];
-    readonly options: string[];
-
-    subject: Subject;
+    group: Group;
     isSaving: boolean;
-
-    attributeComponentEventPrefix: 'subjectAttributes';
 
     constructor(public activeModal: NgbActiveModal,
                 private alertService: AlertService,
-                private subjectService: SubjectService,
+                private groupService: GroupService,
                 private eventManager: EventManager) {
         this.isSaving = false;
-        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
-        this.options = ['Human-readable-identifier'];
-    }
-
-    ngOnInit() {
-        this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
-            this.subject.attributes = response.content;
-        });
     }
 
     clear() {
@@ -46,19 +31,15 @@ export class SubjectDialogComponent implements OnInit {
 
     save() {
         this.isSaving = true;
-        if (this.subject.id !== null) {
-            this.subjectService.update(this.subject)
-            .subscribe((res: Subject) =>
-                    this.onSaveSuccess(res), (res: any) => this.onSaveError(res));
-        } else {
-            this.subjectService.create(this.subject)
-            .subscribe((res: Subject) =>
-                    this.onSaveSuccess(res), (res: any) => this.onSaveError(res));
-        }
+        this.groupService.create(this.group.projectName, this.group)
+            .subscribe(
+                    (res: Group) => this.onSaveSuccess(res),
+                    (res: any) => this.onSaveError(res)
+            );
     }
 
-    private onSaveSuccess(result: Subject) {
-        this.eventManager.broadcast({name: 'subjectListModification', content: result});
+    private onSaveSuccess(result: Group) {
+        this.eventManager.broadcast({name: 'groupListModification', content: result});
         this.isSaving = false;
         this.activeModal.dismiss(result);
     }
@@ -71,29 +52,27 @@ export class SubjectDialogComponent implements OnInit {
     private onError(error) {
         this.alertService.error(error.message, null, null);
     }
-
-    trackDeviceById(index: number, item: MinimalSource) {
-        return item.id;
-    }
 }
 
 @Component({
-    selector: 'jhi-subject-popup',
+    selector: 'jhi-group-popup',
     template: '',
 })
-export class SubjectPopupComponent implements OnInit, OnDestroy {
+export class GroupPopupComponent implements OnInit, OnDestroy {
 
     modalRef: NgbModalRef;
     routeSub: any;
 
-    constructor(private route: ActivatedRoute,
-                private subjectPopupService: SubjectPopupService) {
-    }
+    constructor(
+        private route: ActivatedRoute,
+        private groupPopupService: GroupPopupService
+    ) {}
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
-            this.modalRef = this.subjectPopupService
-                    .open(SubjectDialogComponent, params['login'], false, params['projectName']);
+            console.log(params)
+            this.modalRef = this.groupPopupService
+                    .open(GroupDialogComponent, params['id'], false, params['projectName']);
         });
     }
 

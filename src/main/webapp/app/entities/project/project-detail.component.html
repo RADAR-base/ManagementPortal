@@ -64,6 +64,11 @@
                 Subjects
             </span>
         </li>
+        <li class="nav-item" (click)="viewProjectGroups()">
+            <span class="nav-link" [ngClass]="{active: showProjectGroups}">
+                Groups
+            </span>
+        </li>
         <li class="nav-item" (click)="viewProjectAdmins()">
             <span class="nav-link" [ngClass]="{active: showProjectAdmins}">
                 Admins
@@ -80,7 +85,7 @@
         <jhi-alert-error></jhi-alert-error>
 
         <jhi-subjects *ngIf="showSubjects" [project]='project' [isProjectSpecific]="true"></jhi-subjects>
-        <jhi-sources *ngIf="showSources" [project]='project' [isProjectSpecific]="true"></jhi-sources>
+        <jhi-groups *ngIf="showProjectGroups" [project]='project'></jhi-groups>
         <jhi-common-user-mgmt *ngIf="showProjectAdmins" [project]='project' [authority]="'ROLE_PROJECT_ADMIN'"></jhi-common-user-mgmt>
         <jhi-common-user-mgmt *ngIf="showProjectAnalysts" [project]='project' [authority]="'ROLE_PROJECT_ANALYST'"></jhi-common-user-mgmt>
     </div>

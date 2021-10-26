@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Group } from "./group.model";
+import {map} from "rxjs/operators";
 
 @Injectable({ providedIn: 'root' })
 export class GroupService {
     constructor(private http: HttpClient) {
     }
 
-    private resourceUrl(projectName: string, groupName?: string): string {
+    protected resourceUrl(projectName: string, groupName?: string): string {
         let url = 'api/projects/' + encodeURIComponent(projectName) + '/groups';
         if (groupName) {
             url += '/' + encodeURIComponent(groupName);
@@ -18,6 +19,15 @@ export class GroupService {
 
     list(projectName: string): Observable<Group[]> {
         return this.http.get<Group[]>(this.resourceUrl(projectName));
+    }
+
+    find(id: number, projectName: string): Observable<Group> {
+        return this.list(projectName).pipe(
+            map(groups => {
+                console.log(groups, id)
+                return groups.filter(g => g.id == id)[0]
+            })
+        )
     }
 
     create(projectName: string, group: Group): Observable<Group> {

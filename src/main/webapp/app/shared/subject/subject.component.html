@@ -26,9 +26,15 @@
             </label>
             <label>
                 <span [translate]="'managementPortalApp.subject.group'"></span>
-                <!--  TODO add groups to options -->
-                <select class="form-control" id="field_group">
-                    <option></option>
+                <select class="form-control"
+                        id="field_group"
+                        name="group"
+                        [(ngModel)]="filterSubjectGroup"
+                >
+                    <option [ngValue]="null">-</option>
+                    <option *ngFor="let g of groups" [ngValue]="g.id">
+                        {{g.name}}
+                    </option>
                 </select>
             </label>
 
@@ -79,6 +85,7 @@
             <div ngbDropdownMenu>
                 <span *ngFor="let k of sortingOptions">
                     <button
+                            [id]="'sort-by-'+k"
                         ngbDropdownItem
                         (click)="updateSortingSortBy(k)"
                         [translate]="'managementPortalApp.subject.sorting.' + k">
@@ -226,6 +233,16 @@
                             <div *ngFor="let entry of subject.attributes | keyvalue; trackBy: trackKey">
                                 <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
                             </div>
+                        </div>
+                    </div>
+                    <div class="subject-row__group">
+                        <span class="subject-row__field-label"
+                              [translate]="'managementPortalApp.subject.group'">
+                        </span>
+                        <div>
+                            <span>
+                                {{subject.group || 'N/A'}}
+                            </span>
                         </div>
                     </div>
                 </div>

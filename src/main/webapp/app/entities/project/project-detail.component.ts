@@ -21,6 +21,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
     showSources: boolean;
     showSubjects: boolean;
+    showProjectGroups: boolean;
     showSourceTypes: boolean;
     showProjectAdmins: boolean;
     showProjectAnalysts: boolean;
@@ -63,6 +64,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     viewSources() {
         this.showSources = true;
         this.showSubjects = false;
+        this.showProjectGroups = false;
         this.showSourceTypes = false;
         this.showProjectAdmins = false;
         this.showProjectAnalysts = false;
@@ -71,6 +73,16 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     viewSubjects() {
         this.showSources = false;
         this.showSubjects = true;
+        this.showProjectGroups = false;
+        this.showSourceTypes = false;
+        this.showProjectAdmins = false;
+        this.showProjectAnalysts = false;
+    }
+
+    viewProjectGroups() {
+        this.showSources = false;
+        this.showSubjects = false;
+        this.showProjectGroups = true;
         this.showSourceTypes = false;
         this.showProjectAdmins = false;
         this.showProjectAnalysts = false;
@@ -79,6 +91,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     viewProjectAdmins() {
         this.showSources = false;
         this.showSubjects = false;
+        this.showProjectGroups = false;
         this.showSourceTypes = false;
         this.showProjectAdmins = true;
         this.showProjectAnalysts = false;
@@ -87,6 +100,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     viewProjectAnalysts() {
         this.showSources = false;
         this.showSubjects = false;
+        this.showProjectGroups = false;
         this.showSourceTypes = false;
         this.showProjectAdmins = false;
         this.showProjectAnalysts = true;

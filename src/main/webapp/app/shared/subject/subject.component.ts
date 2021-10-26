@@ -12,7 +12,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ITEMS_PER_PAGE, Project } from '..';
+import {Group, GroupService, ITEMS_PER_PAGE, Project} from '..';
 import { Subject } from './subject.model';
 import {
     SubjectService,
@@ -40,6 +40,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     get project() { return this.project$.value; }
     set project(v: Project) { this.project$.next(v); }
     subjects: Subject[];
+    groups: Group[];
     eventSubscriber: Subscription;
     itemsPerPage: number;
     links: any;
@@ -58,6 +59,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     filterPersonName = '';
     filterEnrollmentDateFrom = '';
     filterEnrollmentDateTo = '';
+    filterSubjectGroup = '';
 
     isAdvancedFilterCollapsed = true;
 
@@ -68,6 +70,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
 
     constructor(
             private subjectService: SubjectService,
+            private groupService: GroupService,
             private alertService: AlertService,
             private eventManager: EventManager,
             private activatedRoute: ActivatedRoute,
@@ -161,7 +164,15 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         if (project) {
             this.project = project.currentValue;
             this.loadAllFromProject();
+            this.loadAllGroups();
         }
+    }
+
+    private loadAllGroups() {
+        this.groupService.list(this.project.projectName).subscribe(
+                (res: Group[]) => this.groups = res,
+                (res: HttpErrorResponse) => this.onError(res),
+        );
     }
 
     get queryFilterParams(): SubjectFilterParams {
@@ -170,6 +181,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             externalId: this.filterSubjectExternalId.trim() || undefined,
             personName: this.filterPersonName.trim() || undefined,
             humanReadableIdentifier: this.filterSubjectHumanReadableId.trim() || undefined,
+            group: this.filterSubjectGroup,
             dateOfBirth: undefined,
             enrollmentDate: undefined,
         };
@@ -200,12 +212,11 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             last = {
                 id: lastSubject.id,
                 login: lastSubject.login,
-                externalId: lastSubject.externalId,
+                externalId: lastSubject.externalId || '',
             }
         } else {
             last = null;
         }
-
         return {
             last,
             size: this.itemsPerPage,
@@ -214,7 +225,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     private onSuccess(data, headers) {
-        console.log(data, headers)
         if(headers.get('link')){
             this.links = parseLinks(headers.get('link'));
         }

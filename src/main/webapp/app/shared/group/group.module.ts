@@ -1,67 +1,40 @@
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { QRCodeModule } from 'angularx-qrcode';
 
 import { ManagementPortalSharedModule } from '../../shared';
-import {
-    SubjectComponent,
-    SubjectDeleteDialogComponent,
-    SubjectDeletePopupComponent,
-    SubjectDetailComponent,
-    SubjectDialogComponent,
-    SubjectPairDialogComponent,
-    SubjectPairPopupComponent,
-    SubjectPopupComponent,
-    subjectPopupRoute,
-    SubjectRevisionComponent,
-    SubjectRevisionListComponent,
-    subjectRoute,
-} from './';
-import {
-    SubjectSourceAssignerDialogComponent,
-    SubjectSourceAssignerPopupComponent,
-} from './source-assigner/source-assigner.component';
+import {GroupComponent} from "./group.component";
+import {GroupDialogComponent, GroupPopupComponent} from "./group-dialog.component";
+import {GroupDeleteDialogComponent, GroupDeletePopupComponent} from "./group-delete-dialog.component";
+import {groupPopupRoute, groupRoute} from "./group.route";
 
 const ENTITY_STATES = [
-    ...subjectRoute,
-    ...subjectPopupRoute,
+    ...groupRoute,
+    ...groupPopupRoute,
 ];
 
 @NgModule({
     imports: [
         ManagementPortalSharedModule,
         RouterModule.forRoot(ENTITY_STATES, {useHash: true}),
-        QRCodeModule,
     ],
     declarations: [
-        SubjectComponent,
-        SubjectDetailComponent,
-        SubjectRevisionComponent,
-        SubjectRevisionListComponent,
-        SubjectDialogComponent,
-        SubjectDeleteDialogComponent,
-        SubjectPairDialogComponent,
-        SubjectPopupComponent,
-        SubjectDeletePopupComponent,
-        SubjectPairPopupComponent,
-        SubjectSourceAssignerDialogComponent,
-        SubjectSourceAssignerPopupComponent,
+        GroupComponent,
+        GroupDialogComponent,
+        GroupDeleteDialogComponent,
+        GroupPopupComponent,
+        GroupDeletePopupComponent,
     ],
     entryComponents: [
-        SubjectComponent,
-        SubjectDialogComponent,
-        SubjectPopupComponent,
-        SubjectDeleteDialogComponent,
-        SubjectDeletePopupComponent,
-        SubjectPairDialogComponent,
-        SubjectPairPopupComponent,
-        SubjectSourceAssignerDialogComponent,
-        SubjectSourceAssignerPopupComponent,
+        GroupComponent,
+        GroupDialogComponent,
+        GroupDeleteDialogComponent,
+        GroupPopupComponent,
+        GroupDeletePopupComponent,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [
-        SubjectComponent,
+        GroupComponent,
     ],
 })
-export class ManagementPortalSharedSubjectModule {
+export class ManagementPortalSharedGroupModule {
 }
