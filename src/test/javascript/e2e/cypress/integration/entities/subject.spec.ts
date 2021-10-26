@@ -29,7 +29,7 @@ describe('Subject e2e test', () => {
         cy.get('jhi-subject-dialog input[name=externalId]').type('test-subject-1');
         cy.get('jhi-subject-dialog input[name=personName]').type('Test Subject 1');
         cy.get('jhi-subject-dialog input[name=dateOfBirth]').type('1980-01-01');
-        cy.get('jhi-subject-dialog select#field_group').select('group1');
+        cy.get('jhi-subject-dialog select#field_group').select('Test Group C');
         cy.get('jhi-subject-dialog jhi-dictionary-mapper select').first().select('Human-readable-identifier');
         cy.get('jhi-subject-dialog jhi-dictionary-mapper input').first().type('Test Subject 1');
         cy.contains('jhi-subject-dialog jhi-dictionary-mapper button', 'Add').click()
@@ -82,7 +82,7 @@ describe('Subject e2e test', () => {
                 .should('have.text', 'Group')
 
         cy.get('jhi-subjects .subject-row').first().find('.subject-row__content .subject-row__group')
-                .should('have.text','Group group1 ')
+                .should('have.text','Group Test Group C ')
     })
 
     it('should be able to filter subjects by subject id', () => {
@@ -168,21 +168,21 @@ describe('Subject e2e test', () => {
 
     it('should be able to delete a group', () => {
         cy.contains('jhi-project-detail ul.nav-tabs .nav-item', 'Groups').click();
-        cy.contains('jhi-groups .group-row', 'group1').contains('button', 'Delete').click();
+        cy.contains('jhi-groups .group-row', 'Test Group C').contains('button', 'Delete').click();
         cy.contains('jhi-group-delete-dialog button', 'Delete').click();
-        cy.get('jhi-groups .group-row').should('have.length', 0);
+        cy.get('jhi-groups .group-row').should('have.length', 2);
     });
 
     it('should show number of loaded subjects and total number of subjects', () => {
         cy.contains('jhi-project-detail ul.nav-tabs .nav-item', 'Subjects').click();
-        cy.get('jhi-subjects a.subject-pagination__load-more').should('have.text', 'Load more (20/24 shown)');
+        cy.get('jhi-subjects a.subject-pagination__load-more').should('have.text', 'Load more (20/25 shown)');
         cy.get('jhi-subjects .subject-row').should('have.length', 20);
     });
 
     it('should be able to load subjects on loadMore click', () => {
         cy.get('jhi-subjects a.subject-pagination__load-more').click();
-        cy.get('jhi-subjects span.subject-pagination__all-loaded').should('have.text', 'All 24 subjects loaded');
-        cy.get('jhi-subjects .subject-row').should('have.length', 24);
+        cy.get('jhi-subjects span.subject-pagination__all-loaded').should('have.text', 'All 25 subjects loaded');
+        cy.get('jhi-subjects .subject-row').should('have.length', 25);
     });
 
 });
