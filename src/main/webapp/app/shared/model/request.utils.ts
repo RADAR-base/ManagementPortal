@@ -1,7 +1,7 @@
 import { HttpParams } from '@angular/common/http';
 
 const addRequestOptions = (options: HttpParams, key: string, value?: any): HttpParams => {
-    if (typeof value === 'undefined' || value === null || value === '') {
+    if (typeof value === 'undefined' || value === null) { // || value === ''
         // do nothing
     } else if (Array.isArray(value)) {
         value.forEach((v) => {
@@ -24,6 +24,5 @@ export const createRequestOption = (req?: any): HttpParams => {
             options = addRequestOptions(options, key, req[key]);
         });
     }
-    console.log(options);
     return options;
 };

@@ -1,0 +1,81 @@
+<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+
+    <div class="modal-header">
+        <h4 class="modal-title" id="mySubjectLabel"
+            [translate]="'managementPortalApp.subject.home.createOrEditLabel'">
+        </h4>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                (click)="clear()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" [hidden]="!subject.id">
+            <label for="id" [translate]="'global.field.id'"></label>
+            <input type="text" class="form-control" id="id" name="id"
+                   [(ngModel)]="subject.id" readonly />
+        </div>
+
+        <div class="form-group">
+            <label class="form-control-label"
+                for="field_externalLink"
+                [translate]="'managementPortalApp.subject.externalLink'">
+            </label>
+            <input type="text" class="form-control" name="externalLink" id="field_externalLink"
+                [(ngModel)]="subject.externalLink"
+             />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label"
+                for="field_externalId"
+                [translate]="'managementPortalApp.subject.externalId'">
+            </label>
+            <input type="text" class="form-control" name="externalId" id="field_externalId"
+                [(ngModel)]="subject.externalId"
+             />
+        </div>
+        <div class="form-group" *ngIf="subject.project">
+            <label class="form-control-label"
+                for="field_group"
+                [translate]="'managementPortalApp.subject.group'">
+            </label>
+            <select class="form-control"
+                id="field_group"
+                name="group"
+                [(ngModel)]="subject.group"
+            >
+                <option [ngValue]="null">-</option>
+                <option *ngFor="let g of subject.project.groups" [ngValue]="g.name">
+                    {{g.name}}
+                </option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label"
+                   [translate]="'managementPortalApp.subject.personName'"
+                   for="field_person_name">
+            </label>
+            <input type="text" class="form-control" name="personName" id="field_person_name" [(ngModel)]="subject.personName"/>
+        </div>
+
+        <div class="form-group">
+            <label class="form-control-label"
+                   [translate]="'managementPortalApp.subject.dateOfBirth'"
+                   for="field_date_of_birth">
+            </label>
+            <div class="d-flex">
+                <input id="field_date_of_birth" type="date" class="form-control" name="dateOfBirth" [(ngModel)]="subject.dateOfBirth"
+                />
+            </div>
+        </div>
+
+        <jhi-dictionary-mapper [attributes]='subject.attributes' [options]="options" [eventPrefix]='attributeComponentEventPrefix'></jhi-dictionary-mapper>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+            <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
+        </button>
+        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+            <span class="fa fa-save"></span>&nbsp;<span [translate]="'entity.action.save'"></span>
+        </button>
+    </div>
+</form>
