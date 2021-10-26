@@ -1,117 +1,32 @@
 {
     "managementPortalApp": {
-        "subject" : {
+        "group" : {
             "home": {
-                "title": "Subjects",
-                "createLabel": "Create a new Subject",
-                "createOrEditLabel": "Create or edit a Subject",
-                "pairAppLabel": "Pair an application"
+                "title": "Groups",
+                "createLabel": "Create a new Group",
+                "createOrEditLabel": "Create or edit a Group"
             },
-            "created": "A new Subject is created with identifier {{ param }}",
-            "updated": "A Subject is updated with identifier {{ param }}",
-            "deleted": "A Subject is deleted with identifier {{ param }}",
+            "created": "A new Group is created with identifier {{ param }}",
+            "updated": "A Group is updated with identifier {{ param }}",
+            "deleted": "A Group is deleted with identifier {{ param }}",
             "delete": {
-                "question": "Are you sure you want to delete Subject {{ id }}?"
+                "question": "Are you sure you want to delete Group {{ id }}?"
             },
             "detail": {
-                "title": "Subject"
+                "title": "Group"
             },
-            "filter": {
-                "title": "Filter",
-                "applyButton": "Apply filter",
-                "advancedFilter": "Advanced Filter",
-                "from": "From",
-                "to": "To"
-            },
-            "login": "Login",
-            "email": "Email",
-            "externalLink": "External Link",
-            "externalId": "External Id",
-            "humanReadableId": "Human Readable ID",
-            "enrolmentDate": "Enrolment Date",
-            "removed": "Removed",
-            "activated": "Activated",
-            "langKey": "Language",
+            "id": "ID",
+            "name": "Name",
             "project": "Project",
-            "sources": "Sources",
-            "createdBy": "Created By",
-            "createdDate": "Created Date",
-            "dateOfBirth": "Date of Birth",
-            "enrollmentDate": "Enrollment Date",
-            "lastModifiedBy": "Last Modified By",
-            "lastModifiedDate": "Last Modified Date",
-            "personName": "Name",
-            "pairing": "Pairing",
             "actions": "Actions",
-            "pairApp": "Pair App",
-            "pairSources": {
-                "button" : "Pair Sources",
-                "title" : "Assign or Remove sources ",
-                "Id" : "Id",
-                "sourceDescription" : "Source Description",
-                "remove" : "Remove",
-                "assignedSources" : "Assigned sources",
-                "availableSources" : "Available sources",
-                "sourceType": "Device type",
-                "sourceId": "Source ID",
-                "sourceName": "Source Name",
-                "expectedSourceName": "Physical ID"
-            },
-            "clientApp": "Client app",
-            "resource": "Protected resource",
-            "attributeData" : "Attributes",
-            "status" : {
-                "title" : "Status",
-                "discontinued" : "DISCONTINUED",
-                "active" : "ACTIVATED",
-                "deactivated" : "DEACTIVATED",
-                "invalid": "INVALID"
-            },
-            "discontinue" : {
-                "operation" : "Discontinue",
-                "title" : "Confirm discontinue operation",
-                "question" : "Are you sure you want to discontinue Subject {{ id }}?"
-            },
-            "discontinued": "A Subject is discontinued with identifier {{ param }}",
-            "sorting": {
-                "sortByLabel": "Sort by",
-                "sortOrderLabel": "Order",
-                "id": "Id",
-                "login": "Subject Id",
-                "externalId": "External Id",
-                "authority": "Status",
-                "asc": "Ascending",
-                "desc": "Descending"
-            },
-            "subjectId" : "Subject Id",
-            "baseUrl" : "Base Url",
-            "tokenName" : "Token Name",
-            "tokenTimeoutHour": "1 hour",
-            "tokenTimeoutHours": "{{hours}} hours",
-            "tokenTimeoutDays": "{{days}} days",
-            "tokenTimeoutMinutes": "{{minutes}} minutes",
-            "validUntil": "Valid until",
-            "validity": "Validity",
-            "selectAll": "Select all",
-            "clearSelectedItems": "Clear selected items",
-            "addSelectedToGroup": "Add to group",
+            "groupId" : "Group Id",
             "group": "Group",
-            "loadMore": "Load more ({{shown}}/{{total}} shown)",
-            "allLoaded": "All {{total}} subjects loaded",
-            "generateToken": "Generate QR code",
-            "generatePersistentToken": "Generate persistent QR code"
+            "noGroup": "No group available."
         }
     },
     "error": {
-        "patientEmailRequired": "A valid email is required to activate the subject account",
-        "subjectExists" : "A subject with given project-id and external-id already exists",
+        "groupExists" : "A group with given project-id and name already exists",
         "validation": "Validation error, check the entered values in the fields.",
-        "loginNotParticipant": "Supplied login is not a participant in any study",
-        "loginRequired": "A subject login is required",
-        "sourceNotFound": "A source with that sourceName is not assigned to the subject.",
-        "sourceNameExists": "A source with that name already exists.",
-        "sourceTypeExists": "The subject has already been assigned a source of this type.",
-        "activeParticipantProjectNotFound": "The subject does not have an active participant project",
-        "sourceTypeNotProvided": "The request does not include valid source-type properties"
+        "nameRequired": "A group name is required"
     }
 }
