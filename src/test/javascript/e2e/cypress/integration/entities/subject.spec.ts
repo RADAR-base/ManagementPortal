@@ -29,6 +29,7 @@ describe('Subject e2e test', () => {
         cy.get('jhi-subject-dialog input[name=externalId]').type('test-subject-1');
         cy.get('jhi-subject-dialog input[name=personName]').type('Test Subject 1');
         cy.get('jhi-subject-dialog input[name=dateOfBirth]').type('1980-01-01');
+        cy.get('jhi-subject-dialog select#field_group').select('group1');
         cy.get('jhi-subject-dialog jhi-dictionary-mapper select').first().select('Human-readable-identifier');
         cy.get('jhi-subject-dialog jhi-dictionary-mapper input').first().type('Test Subject 1');
         cy.contains('jhi-subject-dialog jhi-dictionary-mapper button', 'Add').click()
@@ -47,41 +48,41 @@ describe('Subject e2e test', () => {
 
     it('should have load subject row with subject-id, external-id, status, project, sources and attributes columns', () => {
 
-        // TODO better to test first with all added props
-        cy.get('jhi-subjects .subject-row').last().find('.subject-row__select-row input')
+        cy.get('jhi-subjects .subject-row').first().find('.subject-row__select-row input')
                 .invoke('attr', 'type')
                 .should('eq', 'checkbox')
 
-        cy.get('jhi-subjects .subject-row').last().find('.subject-row__content .subject-row__subject-id .subject-row__field-label')
+        cy.get('jhi-subjects .subject-row').first().find('.subject-row__content .subject-row__subject-id .subject-row__field-label')
                 .should('have.text', 'Subject Id')
 
-        cy.get('jhi-subjects .subject-row').last().find('.subject-row__content .subject-row__subject-id a')
-                .should('have.text','sub-3')
-                .invoke('attr', 'href')
-                .should('eq', '#/subject/sub-3')
-
-        cy.get('jhi-subjects .subject-row').last().find('.subject-row__content .subject-row__external-id .subject-row__field-label')
+        cy.get('jhi-subjects .subject-row').first().find('.subject-row__content .subject-row__external-id .subject-row__field-label')
                 .should('have.text', 'External Id')
 
-        cy.get('jhi-subjects .subject-row').last().find('.subject-row__content .subject-row__status .subject-row__field-label')
+        cy.get('jhi-subjects .subject-row').first().find('.subject-row__content .subject-row__external-id a')
+                .should('have.text',' test-subject-1 ')
+                .invoke('attr', 'href')
+                .should('eq', 'https://radar-base-test-edited.org')
+
+        cy.get('jhi-subjects .subject-row').first().find('.subject-row__content .subject-row__status .subject-row__field-label')
                 .should('have.text', 'Status')
 
-        cy.get('jhi-subjects .subject-row').last().find('.subject-row__content .subject-row__status span.badge')
+        cy.get('jhi-subjects .subject-row').first().find('.subject-row__content .subject-row__status span.badge')
                 .should('have.text','ACTIVATED')
 
-        cy.get('jhi-subjects .subject-row').last().find('.subject-row__content .subject-row__sources .subject-row__field-label')
+        cy.get('jhi-subjects .subject-row').first().find('.subject-row__content .subject-row__sources .subject-row__field-label')
                 .should('have.text', 'Sources')
 
-        // cy.get('jhi-subjects .subject-row').first().find('.subject-row__content .subject-row__sources a.form-control-static')
-        //         .should('have.text','E4: source-1')
-        //         .invoke('attr', 'href')
-        //         .should('eq', '#/source/source-1')
-
-        cy.get('jhi-subjects .subject-row').last().find('.subject-row__content .subject-row__attribute-data .subject-row__field-label')
+        cy.get('jhi-subjects .subject-row').first().find('.subject-row__content .subject-row__attribute-data .subject-row__field-label')
                 .should('have.text', 'Attributes')
 
-        cy.get('jhi-subjects .subject-row').last().find('.subject-row__content .subject-row__attribute-data div span')
-                .should('have.text',' N/A ')
+        cy.get('jhi-subjects .subject-row').first().find('.subject-row__content .subject-row__attribute-data div span')
+                .should('have.text','Human-readable-identifier: Test Subject 1')
+
+        cy.get('jhi-subjects .subject-row').first().find('.subject-row__content .subject-row__group .subject-row__field-label')
+                .should('have.text', 'Group')
+
+        cy.get('jhi-subjects .subject-row').first().find('.subject-row__content .subject-row__group')
+                .should('have.text','Group group1 ')
     })
 
     it('should be able to filter subjects by subject id', () => {
@@ -139,24 +140,26 @@ describe('Subject e2e test', () => {
 
     // TODO Filter by Enrollment Date
 
-    // TODO one of them doesn't work
     it('should be able to sort subjects by subject id in asc/desc order', () => {
         cy.get('jhi-subjects #field-order-by').click();
         cy.get('jhi-subjects #order-by-desc').click();
         cy.get('jhi-subjects .subject-row').first().should('contain.text', 'sub-3');
         cy.get('jhi-subjects #field-order-by').click();
         cy.get('jhi-subjects #order-by-asc').click();
-        cy.get('jhi-subjects .subject-row').first().should('contain.text', 'sub-1');
+        cy.get('jhi-subjects .subject-row').eq(1).should('contain.text', 'sub-1');
     });
 
 
     it('should be able to sort subjects by external id in asc/desc order', () => {
-        // cy.get('jhi-subjects #field-order-by').click();
-        // cy.get('jhi-subjects #order-by-desc').click();
-        // cy.get('jhi-subjects .subject-row').first().should('contain.text', 'sub-3');
-        // cy.get('jhi-subjects #field-order-by').click();
-        // cy.get('jhi-subjects #order-by-asc').click();
-        // cy.get('jhi-subjects .subject-row').first().should('contain.text', 'sub-1');
+        cy.get('jhi-subjects #field-sort-by').click();
+        cy.get('jhi-subjects #sort-by-externalId').click();
+        cy.get('jhi-subjects .subject-row').first().should('contain.text', 'sub-1');
+        cy.get('jhi-subjects #field-order-by').click();
+        cy.get('jhi-subjects #order-by-desc').click();
+        cy.get('jhi-subjects .subject-row').first().should('contain.text', 'test-subject-1');
+        cy.get('jhi-subjects #field-order-by').click();
+        cy.get('jhi-subjects #order-by-asc').click();
+        cy.get('jhi-subjects .subject-row').first().should('contain.text', 'sub-1');
     });
 
     it('should be able to delete a subject without source', () => {
@@ -164,6 +167,13 @@ describe('Subject e2e test', () => {
         cy.contains('jhi-subject-detail button', 'Delete').click();
         cy.contains('jhi-subject-delete-dialog button', 'Delete').click();
         cy.get('jhi-subjects .subject-row').should('have.length', 3);
+    });
+
+    it('should be able to delete a group', () => {
+        cy.contains('jhi-project-detail ul.nav-tabs .nav-item', 'Groups').click();
+        cy.contains('jhi-groups .group-row', 'group1').contains('button', 'Delete').click();
+        cy.contains('jhi-group-delete-dialog button', 'Delete').click();
+        cy.get('jhi-groups .group-row').should('have.length', 0);
     });
 
     // it('should be able to create 20 new subject', () => {
