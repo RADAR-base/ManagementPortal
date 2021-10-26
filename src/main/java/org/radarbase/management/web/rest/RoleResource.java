@@ -1,10 +1,10 @@
 package org.radarbase.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import io.github.jhipster.web.util.ResponseUtil;
 import org.radarbase.auth.authorization.AuthoritiesConstants;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.RoleService;
 import org.radarbase.management.service.dto.RoleDTO;
@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import tech.jhipster.web.util.ResponseUtil;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -31,7 +31,6 @@ import static org.radarbase.auth.authorization.Permission.ROLE_CREATE;
 import static org.radarbase.auth.authorization.Permission.ROLE_READ;
 import static org.radarbase.auth.authorization.Permission.ROLE_UPDATE;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
-import static org.radarbase.management.security.SecurityUtils.getJWT;
 
 /**
  * REST controller for managing Role.
@@ -45,10 +44,10 @@ public class RoleResource {
     private static final String ENTITY_NAME = "role";
 
     @Autowired
-    private RoleService roleService;
+    private RadarToken token;
 
     @Autowired
-    private HttpServletRequest servletRequest;
+    private RoleService roleService;
 
     /**
      * POST  /Roles : Create a new role.
@@ -64,7 +63,7 @@ public class RoleResource {
     public ResponseEntity<RoleDTO> createRole(@Valid @RequestBody RoleDTO roleDto)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Role : {}", roleDto);
-        checkPermissionOnProject(getJWT(servletRequest), ROLE_CREATE, roleDto.getProjectName());
+        checkPermissionOnProject(token, ROLE_CREATE, roleDto.getProjectName());
         if (roleDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
                     "idexists", "A new role cannot already have an ID")).body(null);
@@ -93,7 +92,7 @@ public class RoleResource {
         if (roleDto.getId() == null) {
             return createRole(roleDto);
         }
-        checkPermissionOnProject(getJWT(servletRequest), ROLE_UPDATE, roleDto.getProjectName());
+        checkPermissionOnProject(token, ROLE_UPDATE, roleDto.getProjectName());
         RoleDTO result = roleService.save(roleDto);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, displayName(roleDto)))
@@ -140,7 +139,7 @@ public class RoleResource {
     @Timed
     public ResponseEntity<RoleDTO> getRole(@PathVariable String projectName,
             @PathVariable String authorityName) throws NotAuthorizedException {
-        checkPermissionOnProject(getJWT(servletRequest), ROLE_READ, projectName);
+        checkPermissionOnProject(token, ROLE_READ, projectName);
         return ResponseUtil.wrapOrNotFound(roleService
                 .findOneByProjectNameAndAuthorityName(projectName, authorityName));
     }

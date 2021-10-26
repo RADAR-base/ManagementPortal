@@ -14,24 +14,19 @@ export class LoginService {
     ) {
     }
 
-    login(credentials, callback?) {
-        const cb = callback || function() {};
-
+    login(credentials): Promise<void> {
         return new Promise((resolve, reject) => {
-            this.authServerProvider.login(credentials).subscribe((data) => {
-                this.principal.identity(true).then((account) => {
-                    // After the login the language will be changed to
-                    // the language selected by the user during his registration
-                    if (account !== null) {
-                        this.translateService.use(account.langKey);
-                    }
-                    resolve(data);
-                });
-                return cb();
+            this.authServerProvider.login(credentials).subscribe((account) => {
+                this.principal.authenticate(account);
+                // After the login the language will be changed to
+                // the language selected by the user during his registration
+                if (account !== null) {
+                    this.translateService.use(account.langKey);
+                }
+                resolve();
             }, (err) => {
                 this.logout();
                 reject(err);
-                return cb(err);
             });
         });
     }

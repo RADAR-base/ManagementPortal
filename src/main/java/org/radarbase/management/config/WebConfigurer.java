@@ -3,23 +3,10 @@ package org.radarbase.management.config;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.servlet.InstrumentedFilter;
 import com.codahale.metrics.servlets.MetricsServlet;
-import io.github.jhipster.config.JHipsterConstants;
-import io.github.jhipster.config.JHipsterProperties;
-import io.github.jhipster.web.filter.CachingHttpHeadersFilter;
-import io.undertow.UndertowOptions;
-import java.io.File;
-import java.nio.file.Paths;
-import java.util.EnumSet;
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterRegistration;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.server.MimeMappings;
-import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
@@ -29,6 +16,18 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import tech.jhipster.config.JHipsterConstants;
+import tech.jhipster.config.JHipsterProperties;
+import tech.jhipster.web.filter.CachingHttpHeadersFilter;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRegistration;
+import java.io.File;
+import java.nio.file.Paths;
+import java.util.EnumSet;
 
 /**
  * Configuration of web application with Servlet 3.0 APIs.
@@ -80,21 +79,6 @@ public class WebConfigurer implements ServletContextInitializer,
         factory.setMimeMappings(mappings);
         // When running in an IDE or with ./gradlew bootRun, set location of the static web assets.
         setLocationForStaticAssets(factory);
-
-        /*
-         * Enable HTTP/2 for Undertow - https://twitter.com/ankinson/status/829256167700492288
-         * HTTP/2 requires HTTPS, so HTTP requests will fallback to HTTP/1.1.
-         * See the JHipsterProperties class and your application-*.yml configuration files
-         * for more information.
-         */
-        if (jHipsterProperties.getHttp().getVersion().equals(JHipsterProperties.Http.Version.V_2_0)
-                &&
-                factory instanceof UndertowServletWebServerFactory) {
-
-            ((UndertowServletWebServerFactory) factory)
-                    .addBuilderCustomizers(builder ->
-                            builder.setServerOption(UndertowOptions.ENABLE_HTTP2, true));
-        }
     }
 
     private void setLocationForStaticAssets(ConfigurableServletWebServerFactory factory) {

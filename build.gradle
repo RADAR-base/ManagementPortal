@@ -12,9 +12,10 @@ buildscript {
 }
 
 plugins {
+    id 'application'
     id 'org.springframework.boot' version "${spring_boot_version}"
     id "com.github.node-gradle.node" version "3.1.1"
-    id "io.spring.dependency-management" version "1.0.10.RELEASE"
+    id "io.spring.dependency-management" version "1.0.11.RELEASE"
     id 'de.undercouch.download' version '4.1.1' apply false
     id "io.github.gradle-nexus.publish-plugin" version "1.0.0"
 }
@@ -70,21 +71,31 @@ configurations {
     compile.exclude module: "spring-boot-starter-tomcat"
 }
 
+application {
+    mainClass.set('org.radarbase.management.ManagementPortalApp')
+    applicationDefaultJvmArgs = [
+            '--add-modules', 'java.se',
+            '--add-exports', 'java.base/jdk.internal.ref=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.nio=ALL-UNNAMED',
+            '--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED',
+            '--add-opens', 'java.management/sun.management=ALL-UNNAMED',
+            '--add-opens', 'jdk.management/com.sun.management.internal=ALL-UNNAMED',
+    ]
+}
 
 bootWar {
-    mainClassName = 'org.radarbase.management.ManagementPortalApp'
     launchScript()
 }
 
 springBoot {
-    mainClassName = 'org.radarbase.management.ManagementPortalApp'
     buildInfo()
 }
 
 if (OperatingSystem.current().isWindows()) {
     task pathingJar(type: Jar) {
         dependsOn configurations.runtime
-        appendix = 'pathing'
+        archiveAppendix.set('pathing')
 
         doFirst {
             manifest {
@@ -142,8 +153,8 @@ if (project.hasProperty('graphite')) {
 ext.findbugAnnotationVersion = '3.0.2'
 
 dependencies {
-
-    implementation("io.github.jhipster:jhipster:${jhipster_server_version}") {
+    implementation("tech.jhipster:jhipster-framework:${jhipster_server_version}")
+    implementation("tech.jhipster:jhipster-dependencies:${jhipster_server_version}") {
         exclude group: "org.springframework.boot", module: "spring-boot-autoconfigure"
     }
     implementation "io.dropwizard.metrics:metrics-core:${dropwizard_metrics_version}"
@@ -163,9 +174,9 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-annotations:${jackson_dataformat_version}"
     implementation "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
     implementation("com.ryantenney.metrics:metrics-spring:${metrics_spring_version}")
-    implementation "com.hazelcast:hazelcast"
-    implementation "com.hazelcast:hazelcast-hibernate52:${hazelcast_hibernate52_version}"
-    implementation "com.hazelcast:hazelcast-spring"
+    implementation "com.hazelcast:hazelcast:${hazelcast_version}"
+    implementation "com.hazelcast:hazelcast-hibernate53:${hazelcast_hibernate53_version}"
+    implementation "com.hazelcast:hazelcast-spring:${hazelcast_version}"
     implementation "javax.cache:cache-api"
     implementation "org.hibernate:hibernate-core:${hibernate_version}"
     implementation("com.zaxxer:HikariCP:${hikaricp_version}")
@@ -188,9 +199,6 @@ dependencies {
         exclude group: 'org.hibernate', module: 'hibernate-entitymanager'
     }
     implementation "org.springframework.boot:spring-boot-starter-security"
-    implementation("org.springframework.cloud:spring-cloud-starter-netflix-zuul") {
-        exclude group: "org.springframework.boot", module: "spring-boot-autoconfigure"
-    }
     implementation "org.springframework.cloud:spring-cloud-context"
     implementation "org.springframework.cloud:spring-cloud-commons"
     implementation("org.springframework.boot:spring-boot-starter-web") {
@@ -205,15 +213,15 @@ dependencies {
     implementation ("org.springframework.security:spring-security-web") {
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
     }
-    implementation "org.springframework.cloud:spring-cloud-starter-security"
-    implementation("org.springframework.cloud:spring-cloud-starter-oauth2") {
-        exclude group: "org.springframework.boot", module: "spring-boot-autoconfigure"
-        exclude group: "org.springframework.security.oauth", module: "spring-security-oauth2"
-    }
-    implementation("org.springframework.security.oauth:spring-security-oauth2:2.3.5.RELEASE")
+    implementation("org.springframework.session:spring-session-hazelcast")
+
+    implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.1.RELEASE")
+    implementation("org.springframework.security:spring-security-oauth2-resource-server")
+    implementation("org.springframework.security:spring-security-oauth2-jose")
     implementation("io.springfox:springfox-swagger2:${springfox_version}") {
         exclude module: 'mapstruct'
     }
+    implementation("javax.inject:javax.inject:1")
     implementation "io.springfox:springfox-bean-validators:${springfox_version}"
     implementation "org.postgresql:postgresql:${postgresql_version}"
     implementation "com.h2database:h2"
@@ -223,6 +231,8 @@ dependencies {
     runtimeOnly("org.glassfish.jaxb:jaxb-core:${javax_jaxb_core_version}")
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime:${javax_jaxb_runtime_version}")
     runtimeOnly("javax.activation:activation:${javax_activation}")
+
+    implementation 'org.javassist:javassist:3.28.0-GA'
 
     testImplementation "org.awaitility:awaitility:${awaitility_version}"
     testImplementation "com.jayway.jsonpath:json-path"
@@ -245,7 +255,8 @@ dependencies {
 
 dependencyManagement {
     imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:Hoxton.SR9"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2020.0.4"
+        mavenBom "org.springframework.session:spring-session-bom:2021.0.2"
     }
 }
 

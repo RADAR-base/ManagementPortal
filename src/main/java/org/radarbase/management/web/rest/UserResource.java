@@ -1,9 +1,9 @@
 package org.radarbase.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import io.github.jhipster.web.util.ResponseUtil;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.domain.User;
@@ -35,8 +35,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import tech.jhipster.web.util.ResponseUtil;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Locale;
@@ -50,7 +50,6 @@ import static org.radarbase.auth.authorization.Permission.USER_READ;
 import static org.radarbase.auth.authorization.Permission.USER_UPDATE;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkAuthorityAndPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarbase.management.security.SecurityUtils.getJWT;
 import static org.radarbase.management.web.rest.errors.EntityName.USER;
 
 /**
@@ -97,7 +96,7 @@ public class UserResource {
     private SubjectRepository subjectRepository;
 
     @Autowired
-    private HttpServletRequest servletRequest;
+    private RadarToken token;
 
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
@@ -117,7 +116,7 @@ public class UserResource {
     public ResponseEntity createUser(@RequestBody ManagedUserVM managedUserVm)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save User : {}", managedUserVm);
-        checkAuthorityAndPermission(getJWT(servletRequest), SYS_ADMIN, USER_CREATE);
+        checkAuthorityAndPermission(token, SYS_ADMIN, USER_CREATE);
         if (managedUserVm.getId() != null) {
             return ResponseEntity.badRequest()
                     .headers(HeaderUtil.createFailureAlert(USER, "idexists",
@@ -165,7 +164,7 @@ public class UserResource {
     public ResponseEntity<UserDTO> updateUser(@RequestBody ManagedUserVM managedUserVm)
             throws NotAuthorizedException {
         log.debug("REST request to update User : {}", managedUserVm);
-        checkAuthorityAndPermission(getJWT(servletRequest), SYS_ADMIN, USER_UPDATE);
+        checkAuthorityAndPermission(token, SYS_ADMIN, USER_UPDATE);
         Optional<User> existingUser = userRepository.findOneByEmail(managedUserVm.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getId()
                 .equals(managedUserVm.getId()))) {
@@ -219,7 +218,7 @@ public class UserResource {
             @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable,
             UserFilter userFilter)
             throws NotAuthorizedException {
-        checkAuthorityAndPermission(getJWT(servletRequest), SYS_ADMIN, USER_READ);
+        checkAuthorityAndPermission(token, SYS_ADMIN, USER_READ);
 
         Page<UserDTO> page = userService.findUsers(userFilter, pageable);
 
@@ -239,7 +238,7 @@ public class UserResource {
     public ResponseEntity<UserDTO> getUser(@PathVariable String login)
             throws NotAuthorizedException {
         log.debug("REST request to get User : {}", login);
-        checkPermission(getJWT(servletRequest), USER_READ);
+        checkPermission(token, USER_READ);
         return ResponseUtil.wrapOrNotFound(
                 userService.getUserWithAuthoritiesByLogin(login));
     }
@@ -253,8 +252,8 @@ public class UserResource {
     public List<ProjectDTO> getUserProjects(@PathVariable String login)
             throws NotAuthorizedException {
         log.debug("REST request to get User's project : {}", login);
-        checkPermission(getJWT(servletRequest), USER_READ);
-        checkPermission(getJWT(servletRequest), PROJECT_READ);
+        checkPermission(token, USER_READ);
+        checkPermission(token, PROJECT_READ);
         return userService.getProjectsAssignedToUser(login);
     }
 
@@ -269,7 +268,7 @@ public class UserResource {
     public ResponseEntity<Void> deleteUser(@PathVariable String login)
             throws NotAuthorizedException {
         log.debug("REST request to delete User: {}", login);
-        checkPermission(getJWT(servletRequest), USER_DELETE);
+        checkPermission(token, USER_DELETE);
         userService.deleteUser(login);
         return ResponseEntity.ok().headers(HeaderUtil.createAlert("userManagement.deleted", login))
                 .build();

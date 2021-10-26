@@ -21,7 +21,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -43,8 +42,7 @@ public class SourceType extends AbstractEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
+    @GeneratedValue
     private Long id;
 
     @NotNull
@@ -159,30 +157,6 @@ public class SourceType extends AbstractEntity implements Serializable {
 
     public SourceType sourceData(Set<SourceData> sourceData) {
         this.sourceData = sourceData;
-        return this;
-    }
-
-    /**
-     * Add source data to this source type.
-     *
-     * @param sourceData the source data to add
-     * @return this source type
-     */
-    public SourceType addSourceData(SourceData sourceData) {
-        this.sourceData.add(sourceData);
-        sourceData.setSourceType(this);
-        return this;
-    }
-
-    /**
-     * Remove source data from this source type.
-     *
-     * @param sourceData the source data to remove
-     * @return this source type
-     */
-    public SourceType removeSourceData(SourceData sourceData) {
-        this.sourceData.remove(sourceData);
-        sourceData.setSourceType(null);
         return this;
     }
 

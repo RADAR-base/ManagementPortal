@@ -17,7 +17,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -33,9 +32,7 @@ public class CustomRevisionEntity implements Serializable {
     private static final long serialVersionUID = 8530213963961662300L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "revisionGenerator")
-    @SequenceGenerator(name = "revisionGenerator", initialValue = 2, allocationSize = 50,
-            sequenceName = "sequence_revision")
+    @GeneratedValue
     @RevisionNumber
     private int id;
 

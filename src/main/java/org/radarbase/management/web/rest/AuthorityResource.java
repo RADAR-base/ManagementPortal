@@ -2,14 +2,13 @@ package org.radarbase.management.web.rest;
 
 import static org.radarbase.auth.authorization.Permission.AUTHORITY_READ;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarbase.management.security.SecurityUtils.getJWT;
 
 import com.codahale.metrics.annotation.Timed;
 import java.util.Arrays;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.radarbase.auth.authorization.AuthoritiesConstants;
 import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.auth.token.RadarToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class AuthorityResource {
-
     @Autowired
-    private HttpServletRequest servletRequest;
+    private RadarToken token;
 
     private static final Logger log = LoggerFactory.getLogger(AuthorityResource.class);
 
@@ -38,7 +36,7 @@ public class AuthorityResource {
     @Timed
     public List<String> getAllAuthorities() throws NotAuthorizedException {
         log.debug("REST request to get all Authorities");
-        checkPermission(getJWT(servletRequest), AUTHORITY_READ);
+        checkPermission(token, AUTHORITY_READ);
         return Arrays.asList(AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.PROJECT_OWNER,
                 AuthoritiesConstants.PROJECT_AFFILIATE, AuthoritiesConstants.PROJECT_ANALYST);
     }

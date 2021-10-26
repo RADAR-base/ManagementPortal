@@ -1,16 +1,8 @@
 package org.radarbase.management.web.rest;
 
-import static org.radarbase.auth.authorization.Permission.AUDIT_READ;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarbase.management.security.SecurityUtils.getJWT;
-
-import io.github.jhipster.web.util.ResponseUtil;
 import io.swagger.annotations.ApiParam;
-import java.time.LocalDate;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-
 import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.service.AuditEventService;
 import org.radarbase.management.web.rest.util.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +17,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import tech.jhipster.web.util.ResponseUtil;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.radarbase.auth.authorization.Permission.AUDIT_READ;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 
 /**
  * REST controller for getting the audit events.
@@ -32,9 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/management/audits")
 public class AuditResource {
-
     @Autowired
-    private HttpServletRequest servletRequest;
+    private RadarToken token;
 
     @Autowired
     private AuditEventService auditEventService;
@@ -48,7 +46,7 @@ public class AuditResource {
     @GetMapping
     public ResponseEntity<List<AuditEvent>> getAll(@ApiParam Pageable pageable)
             throws NotAuthorizedException {
-        checkPermission(getJWT(servletRequest), AUDIT_READ);
+        checkPermission(token, AUDIT_READ);
         Page<AuditEvent> page = auditEventService.findAll(pageable);
         HttpHeaders headers = PaginationUtil
                 .generatePaginationHttpHeaders(page, "/management/audits");
@@ -69,7 +67,7 @@ public class AuditResource {
             @RequestParam(value = "fromDate") LocalDate fromDate,
             @RequestParam(value = "toDate") LocalDate toDate,
             @ApiParam Pageable pageable) throws NotAuthorizedException {
-        checkPermission(getJWT(servletRequest), AUDIT_READ);
+        checkPermission(token, AUDIT_READ);
         Page<AuditEvent> page = auditEventService
                 .findByDates(fromDate.atTime(0, 0), toDate.atTime(23, 59), pageable);
         HttpHeaders headers = PaginationUtil
@@ -86,7 +84,7 @@ public class AuditResource {
      */
     @GetMapping("/{id:.+}")
     public ResponseEntity<AuditEvent> get(@PathVariable Long id) throws NotAuthorizedException {
-        checkPermission(getJWT(servletRequest), AUDIT_READ);
+        checkPermission(token, AUDIT_READ);
         return ResponseUtil.wrapOrNotFound(auditEventService.find(id));
     }
 }

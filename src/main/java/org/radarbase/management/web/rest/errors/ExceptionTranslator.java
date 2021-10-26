@@ -132,7 +132,7 @@ public class ExceptionTranslator {
     private ResponseEntity<RadarWebApplicationExceptionVM> processRadarWebApplicationException(
             RadarWebApplicationException exception) {
         return ResponseEntity
-            .status(exception.getResponse().getStatus())
+            .status(exception.getStatus())
             .headers(HeaderUtil.createExceptionAlert(exception.getEntityName(),
                     exception.getErrorCode(), exception.getMessage()))
             .body(exception.getExceptionVM());

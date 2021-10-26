@@ -1,6 +1,6 @@
 package org.radarbase.management.web.rest;
 
-import static io.github.jhipster.web.util.ResponseUtil.wrapOrNotFound;
+import static tech.jhipster.web.util.ResponseUtil.wrapOrNotFound;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_CREATE;
@@ -9,7 +9,6 @@ import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_UPDATE;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
-import static org.radarbase.management.security.SecurityUtils.getJWT;
 import static org.radarbase.management.web.rest.errors.EntityName.SOURCE;
 import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
 import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;
@@ -90,6 +89,9 @@ public class SubjectResource {
     private static final Logger log = LoggerFactory.getLogger(SubjectResource.class);
 
     @Autowired
+    private RadarToken token;
+
+    @Autowired
     private SubjectService subjectService;
 
     @Autowired
@@ -134,7 +136,7 @@ public class SubjectResource {
                     .createFailureAlert(SUBJECT, "projectrequired",
                             "A subject should be assigned to a project")).build();
         }
-        checkPermissionOnProject(getJWT(servletRequest), SUBJECT_CREATE,
+        checkPermissionOnProject(token, SUBJECT_CREATE,
                 subjectDto.getProject().getProjectName());
 
         if (subjectDto.getId() != null) {
@@ -185,7 +187,7 @@ public class SubjectResource {
         if (subjectDto.getId() == null) {
             return createSubject(subjectDto);
         }
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
+        checkPermissionOnSubject(token, SUBJECT_UPDATE,
                 subjectDto.getProject().getProjectName(), subjectDto.getLogin());
         SubjectDTO result = subjectService.updateSubject(subjectDto);
         return ResponseEntity.ok()
@@ -219,7 +221,7 @@ public class SubjectResource {
                     .createFailureAlert(SUBJECT, "projectrequired",
                             "A subject should be assigned to a project")).body(null);
         }
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
+        checkPermissionOnSubject(token, SUBJECT_UPDATE,
                 subjectDto.getProject().getProjectName(), subjectDto.getLogin());
 
         // In principle this is already captured by the PostUpdate event listener, adding this
@@ -247,7 +249,7 @@ public class SubjectResource {
             @RequestParam(value = "withInactiveParticipants", required = false)
                     Boolean withInactiveParticipantsParam)
             throws NotAuthorizedException {
-        RadarToken jwt = getJWT(servletRequest);
+        RadarToken jwt = token;
         checkPermissionOnProject(jwt, SUBJECT_READ, projectName);
         if (!jwt.isClientCredentials() && jwt.hasAuthority(PARTICIPANT)) {
             throw new NotAuthorizedException("Cannot list subjects as a participant.");
@@ -309,7 +311,7 @@ public class SubjectResource {
                 .orElse(null);
 
         String projectName = project != null ? project.getProjectName() : null;
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, projectName,
+        checkPermissionOnSubject(token, SUBJECT_READ, projectName,
                 subject.getUser().getLogin());
 
         SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject);
@@ -338,7 +340,7 @@ public class SubjectResource {
                         PROJECT,
                         ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND));
 
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, project,
+        checkPermissionOnSubject(token, SUBJECT_READ, project,
                 login);
         Page<RevisionDTO> page = revisionService.getRevisionsForEntity(pageable, subject);
 
@@ -363,7 +365,7 @@ public class SubjectResource {
             @PathVariable Integer revisionNb) throws NotAuthorizedException {
         log.debug("REST request to get Subject : {}, for revisionNb: {}", login, revisionNb);
         SubjectDTO subjectDto = subjectService.findRevision(login, revisionNb);
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, subjectDto.getProject()
+        checkPermissionOnSubject(token, SUBJECT_READ, subjectDto.getProject()
                 .getProjectName(), subjectDto.getLogin());
         return ResponseEntity.ok(subjectDto);
     }
@@ -382,7 +384,7 @@ public class SubjectResource {
         Subject subject = subjectService.findOneByLogin(login);
 
         String projectName = subject.getActiveProject().map(Project::getProjectName).orElse(null);
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_DELETE, projectName, login);
+        checkPermissionOnSubject(token, SUBJECT_DELETE, projectName, login);
         subjectService.deleteSubject(login);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityDeletionAlert(SUBJECT, login)).build();
@@ -455,7 +457,7 @@ public class SubjectResource {
                 + "source-type that is assigned to project", SUBJECT, ERR_SOURCE_TYPE_NOT_PROVIDED)
         );
 
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, currentProject
+        checkPermissionOnSubject(token, SUBJECT_UPDATE, currentProject
                 .getProjectName(), sub.getUser().getLogin());
 
         // check if any of id, sourceID, sourceName were non-null
@@ -503,7 +505,7 @@ public class SubjectResource {
                 .map(Project::getProjectName)
                 .orElse(null);
 
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_READ, projectName, login);
+        checkPermissionOnSubject(token, SUBJECT_READ, projectName, login);
 
         if (withInactiveSources) {
             return ResponseEntity.ok(subjectService.findSubjectSourcesFromRevisions(subject));
@@ -554,7 +556,7 @@ public class SubjectResource {
         String projectName = subject.getActiveProject()
                 .map(Project::getProjectName)
                 .orElse(null);
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, projectName, login);
+        checkPermissionOnSubject(token, SUBJECT_UPDATE, projectName, login);
 
         // find source under subject
         Source source = subject.getSources().stream()

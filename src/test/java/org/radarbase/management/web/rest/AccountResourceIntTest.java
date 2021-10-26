@@ -3,7 +3,9 @@ package org.radarbase.management.web.rest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.radarbase.management.security.JwtAuthenticationFilter.TOKEN_ATTRIBUTE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -19,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.authorization.AuthoritiesConstants;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.Role;
@@ -86,16 +89,17 @@ class AccountResourceIntTest {
 
     @Test
     void testNonAuthenticatedUser() throws Exception {
-        restUserMockMvc.perform(get("/api/authenticate")
+        restUserMockMvc.perform(post("/api/login")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(""));
+                .andExpect(status().isForbidden());
     }
 
     @Test
     void testAuthenticatedUser() throws Exception {
-        restUserMockMvc.perform(get("/api/authenticate")
+        final RadarToken token = mock(RadarToken.class);
+        restUserMockMvc.perform(get("/api/login")
                 .with(request -> {
+                    request.setAttribute(TOKEN_ATTRIBUTE, token);
                     request.setRemoteUser("test");
                     return request;
                 })

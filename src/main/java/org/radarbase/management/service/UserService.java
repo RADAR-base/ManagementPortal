@@ -3,6 +3,8 @@ package org.radarbase.management.service;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarbase.management.web.rest.errors.EntityName.USER;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_EMAIL_EXISTS;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_ENTITY_NOT_FOUND;
 
 import java.time.Period;
 import java.time.ZonedDateTime;
@@ -10,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
@@ -34,6 +37,7 @@ import org.radarbase.management.service.dto.UserDTO;
 import org.radarbase.management.service.mapper.ProjectMapper;
 import org.radarbase.management.service.mapper.UserMapper;
 import org.radarbase.management.service.util.RandomUtil;
+import org.radarbase.management.web.rest.errors.ConflictException;
 import org.radarbase.management.web.rest.errors.ErrorConstants;
 import org.radarbase.management.web.rest.errors.NotFoundException;
 import org.slf4j.Logger;
@@ -230,14 +234,29 @@ public class UserService {
      * @param email email id of user
      * @param langKey language key
      */
-    public void updateUser(String firstName, String lastName, String email, String langKey) {
-        userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setEmail(email);
-            user.setLangKey(langKey);
-            log.debug("Changed Information for User: {}", user);
-        });
+    public void updateUser(String userName, String firstName, String lastName,
+            String email, String langKey) {
+        Optional<User> userWithEmail = userRepository.findOneByEmail(email);
+        User user;
+        if (userWithEmail.isPresent()) {
+            user = userWithEmail.get();
+            if (user.getLogin().equalsIgnoreCase(userName)) {
+                throw new ConflictException("Email address " + email + " already in use", USER,
+                        ERR_EMAIL_EXISTS, Map.of("email", email));
+            }
+        } else {
+            user = userRepository.findOneByLogin(userName)
+                    .orElseThrow(() -> new NotFoundException(
+                            "User with login " + userName + " not found", USER,
+                            ERR_ENTITY_NOT_FOUND, Map.of("user", userName)));
+        }
+
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEmail(email);
+        user.setLangKey(langKey);
+        log.debug("Changed Information for User: {}", user);
+        userRepository.save(user);
     }
 
     /**
@@ -328,7 +347,8 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<ProjectDTO> getProjectsAssignedToUser(String login) {
         User userByLogin = userRepository.findOneWithRolesByLogin(login)
-                .orElseThrow(NoSuchElementException::new);
+                .orElseThrow(() -> new NotFoundException("User with login " + login + " not found.",
+                        USER, ERR_ENTITY_NOT_FOUND));
 
         List<Project> projectsOfUser;
 

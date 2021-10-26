@@ -5,7 +5,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import io.github.jhipster.config.JHipsterProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +18,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import tech.jhipster.config.JHipsterProperties;
 
 /**
  * Test class for the ProfileInfoResource REST controller.
@@ -40,11 +40,6 @@ class ProfileInfoResourceIntTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        String[] mockProfile = {"test"};
-        JHipsterProperties.Ribbon ribbon = new JHipsterProperties.Ribbon();
-        ribbon.setDisplayOnActiveProfiles(mockProfile);
-        when(jHipsterProperties.getRibbon()).thenReturn(ribbon);
-
         String[] activeProfiles = {"test"};
         when(environment.getDefaultProfiles()).thenReturn(activeProfiles);
         when(environment.getActiveProfiles()).thenReturn(activeProfiles);
@@ -66,10 +61,6 @@ class ProfileInfoResourceIntTest {
 
     @Test
     void getProfileInfoWithoutRibbon() throws Exception {
-        JHipsterProperties.Ribbon ribbon = new JHipsterProperties.Ribbon();
-        ribbon.setDisplayOnActiveProfiles(null);
-        when(jHipsterProperties.getRibbon()).thenReturn(ribbon);
-
         restProfileMockMvc.perform(get("/api/profile-info"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));

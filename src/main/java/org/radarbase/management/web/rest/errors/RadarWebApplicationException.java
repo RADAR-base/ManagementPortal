@@ -1,14 +1,15 @@
 package org.radarbase.management.web.rest.errors;
 
-import static java.util.Collections.emptyMap;
+import org.springframework.web.server.ResponseStatusException;
 
+import javax.ws.rs.core.Response.Status;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response.Status;
+
+import static java.util.Collections.emptyMap;
 
 /**
  * A base parameterized exception, which can be translated on the client side.
@@ -22,13 +23,13 @@ import javax.ws.rs.core.Response.Status;
  *
  * <p>{@code "error.myCustomError" : "The server says {{param0}} to {{param1}}"}</p>
  */
-public abstract class RadarWebApplicationException extends WebApplicationException {
+public class RadarWebApplicationException extends ResponseStatusException {
 
-    private String message;
+    private final String message;
 
-    private String entityName;
+    private final String entityName;
 
-    private String errorCode;
+    private final String errorCode;
 
     private final Map<String, String> paramMap = new HashMap<>();
 
@@ -56,7 +57,7 @@ public abstract class RadarWebApplicationException extends WebApplicationExcepti
      */
     public RadarWebApplicationException(Status status, String message, String entityName,
             String errorCode, Map<String, String> params) {
-        super(status);
+        super(status.getStatusCode(), message, null);
         // add default timestamp first, so a timestamp key in the paramMap will overwrite it
         this.paramMap.put("timestamp",
                 new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)

@@ -1,6 +1,6 @@
 package org.radarbase.management;
 
-import io.github.jhipster.config.JHipsterConstants;
+import tech.jhipster.config.JHipsterConstants;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -15,7 +15,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
+//import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
 
@@ -28,7 +28,7 @@ import org.springframework.core.env.Environment;
         "org.radarbase.management.security",
         "org.radarbase.management.web"
 })
-@EnableZuulProxy
+//@EnableZuulProxy
 @EnableAutoConfiguration
 @EnableConfigurationProperties({LiquibaseProperties.class, ApplicationProperties.class,
         ManagementPortalProperties.class})
