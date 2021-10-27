@@ -1,11 +1,13 @@
 package org.radarbase.management.repository;
 
+import org.radarbase.management.domain.Group;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.domain.Subject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.RepositoryDefinition;
 import org.springframework.data.repository.history.RevisionRepository;
@@ -39,6 +41,21 @@ public interface SubjectRepository extends JpaRepository<Subject, Long>,
     @Query("select subject from Subject subject left join fetch subject.sources "
             + "WHERE subject.user.login = :login")
     Optional<Subject> findOneWithEagerBySubjectLogin(@Param("login") String login);
+
+    @Query("select subject from Subject subject "
+            + "WHERE subject.user.login in :logins")
+    List<Subject> findAllBySubjectLogins(@Param("logins") List<String> logins);
+
+    @Modifying
+    @Query("UPDATE Subject subject "
+            + "SET subject.group.id = :groupId "
+            // Without the subquery Hibernate generates an invalid CROSS JOIN
+            + "WHERE subject.id in "
+            + " (SELECT subject.id from Subject subject "
+            + "  WHERE subject.user.login in :logins)")
+    void setGroupIdByLoginsIn(
+            @Param("groupId") Long groupId,
+            @Param("logins") List<String> logins);
 
     @Query("select subject.sources from Subject subject WHERE subject.id = :id")
     List<Source> findSourcesBySubjectId(@Param("id") Long id);

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,7 +32,9 @@ import java.util.List;
 
 import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
 import static org.radarbase.auth.authorization.Permission.PROJECT_UPDATE;
+import static org.radarbase.auth.authorization.Permission.SUBJECT_UPDATE;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
 import static org.radarbase.management.security.SecurityUtils.getJWT;
 
 @RestController
@@ -104,6 +107,26 @@ public class GroupResource {
             @PathVariable String groupName) throws NotAuthorizedException {
         checkPermissionOnProject(getJWT(servletRequest), PROJECT_UPDATE, projectName);
         groupService.deleteGroup(projectName, groupName);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Add subjects to a single group.
+     * @param projectName project name
+     * @param groupName group name
+     * @param subjects subject logins
+     * @throws NotAuthorizedException if PROJECT_UPDATE permissions are not present.
+     */
+    @PostMapping("/{groupName:" + Constants.ENTITY_ID_REGEX + "}/subjects/new")
+    public ResponseEntity<?> addSubjectsToGroup(
+            @PathVariable String projectName,
+            @PathVariable String groupName,
+            @RequestBody List<String> subjects) throws NotAuthorizedException {
+        for (String subjectLogin : subjects) {
+            checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
+                projectName, subjectLogin);
+        }
+        groupService.addSubjectsToGroup(projectName, groupName, subjects);
         return ResponseEntity.noContent().build();
     }
 }
