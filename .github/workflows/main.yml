@@ -5,8 +5,7 @@ name: Main
 on:
   push:
     branches: [ master, dev, "Mp2.0-rc" ]
-  pull_request:
-    branches: [ master, dev, "Mp2.0-rc" ]
+  pull_request: {}
 
 env:
   DOCKER_IMAGE: radarbase/management-portal
