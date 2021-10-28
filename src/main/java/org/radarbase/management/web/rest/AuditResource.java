@@ -1,6 +1,6 @@
 package org.radarbase.management.web.rest;
 
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.service.AuditEventService;
@@ -44,7 +44,7 @@ public class AuditResource {
      * @return the ResponseEntity with status 200 (OK) and the list of AuditEvents in body
      */
     @GetMapping
-    public ResponseEntity<List<AuditEvent>> getAll(@ApiParam Pageable pageable)
+    public ResponseEntity<List<AuditEvent>> getAll(@Parameter Pageable pageable)
             throws NotAuthorizedException {
         checkPermission(token, AUDIT_READ);
         Page<AuditEvent> page = auditEventService.findAll(pageable);
@@ -66,7 +66,7 @@ public class AuditResource {
     public ResponseEntity<List<AuditEvent>> getByDates(
             @RequestParam(value = "fromDate") LocalDate fromDate,
             @RequestParam(value = "toDate") LocalDate toDate,
-            @ApiParam Pageable pageable) throws NotAuthorizedException {
+            @Parameter Pageable pageable) throws NotAuthorizedException {
         checkPermission(token, AUDIT_READ);
         Page<AuditEvent> page = auditEventService
                 .findByDates(fromDate.atTime(0, 0), toDate.atTime(23, 59), pageable);

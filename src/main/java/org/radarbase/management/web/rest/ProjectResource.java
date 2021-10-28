@@ -1,7 +1,7 @@
 package org.radarbase.management.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
@@ -251,7 +251,7 @@ public class ProjectResource {
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/sources")
     @Timed
-    public ResponseEntity<?> getAllSourcesForProject(@ApiParam Pageable pageable,
+    public ResponseEntity<?> getAllSourcesForProject(@Parameter Pageable pageable,
             @PathVariable String projectName,
             @RequestParam(value = "assigned", required = false) Boolean assigned,
             @RequestParam(name = "minimized", required = false, defaultValue = "false")
@@ -300,7 +300,7 @@ public class ProjectResource {
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/subjects")
     @Timed
-    public ResponseEntity<List<SubjectDTO>> getAllSubjects(@ApiParam Pageable pageable,
+    public ResponseEntity<List<SubjectDTO>> getAllSubjects(@Parameter Pageable pageable,
             @PathVariable String projectName,
             @RequestParam(value = "withInactiveParticipants", required = false)
                     Boolean inactiveParticipantsParam) throws NotAuthorizedException {

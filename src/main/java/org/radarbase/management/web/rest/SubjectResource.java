@@ -29,9 +29,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.codahale.metrics.annotation.Timed;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
@@ -325,7 +325,8 @@ public class SubjectResource {
     @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/revisions")
     @Timed
     public ResponseEntity<List<RevisionDTO>> getSubjectRevisions(
-            @ApiParam Pageable pageable, @PathVariable String login) throws NotAuthorizedException {
+            @Parameter Pageable pageable,
+            @PathVariable String login) throws NotAuthorizedException {
         log.debug("REST request to get revisions for Subject : {}", login);
         Subject subject = subjectService.findOneByLogin(login);
         String project = subject.getActiveProject()
@@ -404,12 +405,14 @@ public class SubjectResource {
      */
     @PostMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/sources")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "An existing source was assigned"),
-            @ApiResponse(code = 201, message = "A new source was created and assigned"),
-            @ApiResponse(code = 400, message = "You must supply either a Source Type ID, or the "
-                    + "combination of (sourceTypeProducer, sourceTypeModel, catalogVersion)"),
-            @ApiResponse(code = 404, message = "Either the subject or the source type was not "
-                    + "found.")
+            @ApiResponse(responseCode = "200", description = "An existing source was assigned"),
+            @ApiResponse(responseCode = "201", description = "A new source was created and"
+                    + " assigned"),
+            @ApiResponse(responseCode = "400", description = "You must supply either a"
+                    + " Source Type ID, or the combination of (sourceTypeProducer, sourceTypeModel,"
+                    + " catalogVersion)"),
+            @ApiResponse(responseCode = "404", description = "Either the subject or the source type"
+                    + " was not found.")
     })
     @Timed
     public ResponseEntity<MinimalSourceDetailsDTO> assignSources(@PathVariable String login,
@@ -531,9 +534,10 @@ public class SubjectResource {
     @PostMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/sources/{sourceName:"
             + Constants.ENTITY_ID_REGEX + "}")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "An existing source was updated"),
-            @ApiResponse(code = 400, message = "You must supply existing sourceId)"),
-            @ApiResponse(code = 404, message = "Either the subject or the source was not found.")
+            @ApiResponse(responseCode = "200", description = "An existing source was updated"),
+            @ApiResponse(responseCode = "400", description = "You must supply existing sourceId)"),
+            @ApiResponse(responseCode = "404", description = "Either the subject or the source was"
+                    + " not found.")
     })
     @Timed
     public ResponseEntity<MinimalSourceDetailsDTO> updateSubjectSource(@PathVariable String login,

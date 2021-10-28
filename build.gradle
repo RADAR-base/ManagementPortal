@@ -195,7 +195,7 @@ dependencies {
     implementation group: 'javax.ws.rs', name: 'jsr311-api', version: '1.1.1'
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: findbugAnnotationVersion
     implementation "org.hibernate:hibernate-envers:${hibernate_version}"
-    implementation "org.hibernate:hibernate-validator:6.2.0.Final"
+    implementation "org.hibernate:hibernate-validator:7.0.1.Final"
     implementation("org.liquibase:liquibase-core:${liquibase_version}")
     implementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     implementation "org.springframework.boot:spring-boot-starter-actuator"

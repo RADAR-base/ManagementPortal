@@ -50,6 +50,13 @@ spring:
     thymeleaf:
         mode: XHTML
 
+springdoc:
+    api-docs:
+        path: /api-docs
+        enabled: true
+    swagger-ui:
+        enabled: true
+
 server:
     servlet:
         session:
