@@ -23,7 +23,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     inProduction: boolean;
     isNavbarCollapsed: boolean;
     languages: any[];
-    swaggerEnabled: boolean;
+    apiDocsEnabled: boolean;
     modalRef: NgbModalRef;
     version: string;
 
@@ -48,6 +48,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        this.principal.identity().then(account => this.currentAccount = account);
         this.loadRelevantProjects();
         this.languageHelper.getAll().then((languages) => {
             this.languages = languages;
@@ -55,7 +56,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
         this.profileService.getProfileInfo().then((profileInfo) => {
             this.inProduction = profileInfo.inProduction;
-            this.swaggerEnabled = profileInfo.swaggerEnabled;
+            this.apiDocsEnabled = profileInfo.apiDocsEnabled;
         });
     }
 

@@ -19,9 +19,9 @@ export class ProfileService {
                 .pipe(map(data => {
                     const pi = new ProfileInfo();
                     pi.activeProfiles = data.activeProfiles;
-                    pi.ribbonEnv = data.ribbonEnv;
+                    pi.ribbonEnv = data.activeProfiles.includes('dev') ? 'dev' : ''
                     pi.inProduction = data.activeProfiles.includes('prod');
-                    pi.swaggerEnabled = data.activeProfiles.includes('swagger');
+                    pi.apiDocsEnabled = data.activeProfiles.includes('api-docs');
                     return pi;
                 })).toPromise();
         }

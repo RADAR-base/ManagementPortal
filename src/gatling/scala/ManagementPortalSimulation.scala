@@ -52,7 +52,7 @@ abstract class ManagementPortalSimulation extends Simulation {
     def run(): Unit = {
         val users = scenario("Users").exec(scn)
         setUp(
-            users.inject(rampUsers(100) during (1 minutes))
+            users.inject(rampUsers(100) during (1.minutes))
         ).protocols(httpConf)
     }
 }

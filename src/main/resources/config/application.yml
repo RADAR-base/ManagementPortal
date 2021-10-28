@@ -53,9 +53,9 @@ spring:
 springdoc:
     api-docs:
         path: /api-docs
-        enabled: true
+        enabled: false
     swagger-ui:
-        enabled: true
+        enabled: false
 
 server:
     servlet:
