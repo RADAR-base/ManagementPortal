@@ -4,9 +4,9 @@ name: Main
 # Run in master and dev branches and in all pull requests to those branches
 on:
   push:
-    branches: [ master, dev ]
+    branches: [ master, dev, "Mp2.0-rc" ]
   pull_request:
-    branches: [ master, dev ]
+    branches: [ master, dev, "Mp2.0-rc" ]
 
 env:
   DOCKER_IMAGE: radarbase/management-portal
