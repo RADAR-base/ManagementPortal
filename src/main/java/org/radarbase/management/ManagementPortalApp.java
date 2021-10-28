@@ -1,7 +1,5 @@
 package org.radarbase.management;
 
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.Profiles;
 import tech.jhipster.config.JHipsterConstants;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
