@@ -1,6 +1,15 @@
 package org.radarbase.auth.authentication;
 
-import static org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import org.radarbase.auth.authorization.Permission;
+import org.radarbase.auth.config.TokenValidatorConfig;
+import org.radarbase.management.security.JwtAuthenticationFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -15,18 +24,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import java.util.stream.Stream;
-import org.radarbase.auth.authorization.Permission;
-import org.radarbase.auth.config.TokenValidatorConfig;
-import org.radarbase.management.security.JwtAuthenticationFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
+
+import static org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL;
 
 /**
  * Created by dverbeec on 29/06/2017.
@@ -131,7 +131,7 @@ public final class OAuthHelper {
      * @return an initialized JwtAuthenticationFilter
      */
     public static JwtAuthenticationFilter createAuthenticationFilter() {
-        return new JwtAuthenticationFilter(createTokenValidator());
+        return new JwtAuthenticationFilter(createTokenValidator(), auth -> auth);
     }
 
     /**

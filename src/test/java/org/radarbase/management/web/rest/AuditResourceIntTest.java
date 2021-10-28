@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.config.audit.AuditEventConverter;
 import org.radarbase.management.domain.PersistentAuditEvent;
@@ -25,7 +26,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -68,7 +68,7 @@ class AuditResourceIntTest {
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
     @Autowired
-    private HttpServletRequest servletRequest;
+    private RadarToken radarToken;
 
     private PersistentAuditEvent auditEvent;
 
@@ -83,7 +83,7 @@ class AuditResourceIntTest {
         ReflectionTestUtils.setField(auditEventService, "auditEventConverter", auditEventConverter);
         AuditResource auditResource = new AuditResource();
         ReflectionTestUtils.setField(auditResource, "auditEventService", auditEventService);
-        ReflectionTestUtils.setField(auditResource, "servletRequest", servletRequest);
+        ReflectionTestUtils.setField(auditResource, "token", radarToken);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());

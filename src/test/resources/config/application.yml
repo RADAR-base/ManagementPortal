@@ -33,7 +33,7 @@ spring:
         username:
         password:
     jpa:
-        database-platform: tech.jhipster.domain.util.FixedH2Dialect
+        database-platform: org.hibernate.dialect.H2Dialect
         database: H2
         open-in-view: false
         show-sql: false
@@ -58,9 +58,6 @@ spring:
         host: localhost
     messages:
         basename: i18n/messages
-    mvc:
-        favicon:
-            enabled: false
     thymeleaf:
         mode: XHTML
 

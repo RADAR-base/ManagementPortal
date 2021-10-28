@@ -1,27 +1,25 @@
 package org.radarbase.management.config;
 
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
-import org.springframework.core.env.Profiles;
-import tech.jhipster.async.ExceptionHandlingAsyncTaskExecutor;
-import tech.jhipster.config.JHipsterConstants;
-import tech.jhipster.config.liquibase.AsyncSpringLiquibase;
-import java.sql.SQLException;
-import javax.sql.DataSource;
 import liquibase.integration.spring.SpringLiquibase;
 import org.h2.tools.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.data.envers.repository.support.EnversRevisionRepositoryFactoryBean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import tech.jhipster.config.JHipsterConstants;
+
+import javax.sql.DataSource;
+import java.sql.SQLException;
 
 @Configuration
 @EnableJpaRepositories(basePackages = "org.radarbase.management.repository",

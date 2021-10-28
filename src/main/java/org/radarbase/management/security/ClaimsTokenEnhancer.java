@@ -5,7 +5,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.radarbase.auth.token.JwtRadarToken;
@@ -49,13 +48,13 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
         Map<String, Object> additionalInfo = new HashMap<>();
 
-        String principalName = authentication.getName();
+        String userName = authentication.getName();
 
         if (authentication.getPrincipal() instanceof Principal) {
             // add the 'sub' claim in accordance with JWT spec
-            additionalInfo.put("sub", principalName);
+            additionalInfo.put("sub", userName);
 
-            userRepository.findOneByLogin(principalName)
+            userRepository.findOneByLogin(userName)
                     .ifPresent(user -> {
                         List<String> roles = user.getRoles().stream()
                                 .filter(role -> role.getProject() != null)
@@ -65,7 +64,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
                         additionalInfo.put(JwtRadarToken.ROLES_CLAIM, roles);
                     });
 
-            List<Source> assignedSources = subjectRepository.findSourcesBySubjectLogin(principalName);
+            List<Source> assignedSources = subjectRepository.findSourcesBySubjectLogin(userName);
 
             List<String> sourceIds = assignedSources.stream()
                     .map(s -> s.getSourceId().toString())
@@ -85,9 +84,9 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
         // spring security but it has been inactive for a long time:
         // https://github.com/spring-projects/spring-security-oauth/issues/223
         Map<String, Object> auditData = auditData(accessToken, authentication);
-        auditEventRepository.add(new AuditEvent(principalName, GRANT_TOKEN_EVENT,
+        auditEventRepository.add(new AuditEvent(userName, GRANT_TOKEN_EVENT,
                 auditData));
-        logger.info("[{}] for {}: {}", GRANT_TOKEN_EVENT, principalName, auditData);
+        logger.info("[{}] for {}: {}", GRANT_TOKEN_EVENT, userName, auditData);
 
         return accessToken;
     }

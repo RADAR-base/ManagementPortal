@@ -15,7 +15,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-//import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
 
@@ -28,7 +27,6 @@ import org.springframework.core.env.Environment;
         "org.radarbase.management.security",
         "org.radarbase.management.web"
 })
-//@EnableZuulProxy
 @EnableAutoConfiguration
 @EnableConfigurationProperties({LiquibaseProperties.class, ApplicationProperties.class,
         ManagementPortalProperties.class})

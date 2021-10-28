@@ -27,6 +27,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -46,7 +47,9 @@ public class Role extends AbstractEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000,
+            sequenceName = "hibernate_sequence")
     private Long id;
 
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)

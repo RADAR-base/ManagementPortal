@@ -34,6 +34,7 @@ public class SessionRadarToken extends AbstractRadarToken implements Serializabl
     private final String type;
     private final String username;
 
+    /** Instantiate a serializable session token by copying an existing RadarToken. */
     public SessionRadarToken(RadarToken token) {
         this.roles = token.getRoles().entrySet().stream()
                         .collect(Collectors.toMap(

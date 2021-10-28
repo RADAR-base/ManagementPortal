@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.authorization.AuthoritiesConstants;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Authority;
@@ -34,7 +35,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.Collections;
 import java.util.List;
@@ -99,7 +99,7 @@ class UserResourceIntTest {
     private SubjectRepository subjectRepository;
 
     @Autowired
-    private HttpServletRequest servletRequest;
+    private RadarToken radarToken;
 
     private MockMvc restUserMockMvc;
 
@@ -113,7 +113,7 @@ class UserResourceIntTest {
         ReflectionTestUtils.setField(userResource, "mailService", mailService);
         ReflectionTestUtils.setField(userResource, "userRepository", userRepository);
         ReflectionTestUtils.setField(userResource, "subjectRepository", subjectRepository);
-        ReflectionTestUtils.setField(userResource, "servletRequest", servletRequest);
+        ReflectionTestUtils.setField(userResource, "token", radarToken);
         ReflectionTestUtils.setField(userResource,
                 "managementPortalProperties", managementPortalProperties);
 

@@ -164,18 +164,17 @@ public class SourceResource {
     public ResponseEntity<SourceDTO> getSource(@PathVariable String sourceName)
             throws NotAuthorizedException {
         log.debug("REST request to get Source : {}", sourceName);
-        RadarToken jwt = token;
-        checkPermission(jwt, SOURCE_READ);
+        checkPermission(token, SOURCE_READ);
         Optional<SourceDTO> sourceOpt = sourceService.findOneByName(sourceName);
         if (sourceOpt.isPresent()) {
             SourceDTO source = sourceOpt.get();
             String projectName = source.getProject() != null
                     ? source.getProject().getProjectName()
                     : null;
-            checkPermissionOnSource(jwt, SOURCE_READ, projectName, source.getSubjectLogin(),
+            checkPermissionOnSource(token, SOURCE_READ, projectName, source.getSubjectLogin(),
                     source.getSourceName());
         }
-        return wrapOrNotFound(sourceService.findOneByName(sourceName));
+        return wrapOrNotFound(sourceOpt);
     }
 
     /**

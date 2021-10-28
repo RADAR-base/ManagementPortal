@@ -173,17 +173,6 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
             refreshTokenToEnhance.setScope(accessToken.getScope());
             // set info of access token to refresh-token and add token-id and access-token-id for
             // reference.
-//
-//            try {
-//                Map<String, Object> claims = jsonParser.readValue(new String(
-//                        Base64.getUrlDecoder().decode(accessToken.getValue()),
-//                        StandardCharsets.UTF_8));
-//                if (claims.containsKey(TOKEN_ID)) {
-//                    refreshTokenToEnhance.setValue(claims.get(TOKEN_ID).toString());
-//                }
-//            } catch (JsonProcessingException e) {
-//                logger.debug("Could not decode refresh token ", e);
-//            }
 
             Map<String, Object> refreshTokenInfo =
                     new HashMap<>(accessToken.getAdditionalInformation());

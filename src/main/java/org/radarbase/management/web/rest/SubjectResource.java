@@ -27,7 +27,6 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
-import javax.servlet.http.HttpServletRequest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.swagger.annotations.ApiParam;
@@ -105,9 +104,6 @@ public class SubjectResource {
 
     @Autowired
     private SourceTypeService sourceTypeService;
-
-    @Autowired
-    private HttpServletRequest servletRequest;
 
     @Autowired
     private AuditEventRepository eventRepository;

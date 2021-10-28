@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import javax.ws.rs.core.Response;
-import java.security.Principal;
 import java.util.Optional;
 
 import static org.radarbase.management.security.JwtAuthenticationFilter.TOKEN_ATTRIBUTE;
@@ -90,8 +89,8 @@ public class AccountResource {
      */
     @PostMapping("/login")
     @Timed
-    public ResponseEntity<UserDTO> login(HttpSession session, Authentication authentication) {
-        log.debug("Logging in user to session with principal {}", authentication.getPrincipal());
+    public ResponseEntity<UserDTO> login(HttpSession session) {
+        log.debug("Logging in user to session with principal {}", token.getUsername());
         RadarToken sessionToken = new SessionRadarToken(token);
         session.setAttribute(TOKEN_ATTRIBUTE, sessionToken);
         return getAccount();
@@ -180,9 +179,9 @@ public class AccountResource {
     @Timed
     public ResponseEntity<Void>  requestActivationReset(@RequestBody String login) {
         User user = userService.requestActivationReset(login)
-            .orElseThrow(() -> new BadRequestException(
-                    "Cannot find a deactivated user with login " + login,
-                    USER, ERR_EMAIL_NOT_REGISTERED));
+                .orElseThrow(() -> new BadRequestException(
+                        "Cannot find a deactivated user with login " + login,
+                        USER, ERR_EMAIL_NOT_REGISTERED));
 
         mailService.sendCreationEmail(user, managementPortalProperties.getCommon()
                 .getActivationKeyTimeoutInSeconds());

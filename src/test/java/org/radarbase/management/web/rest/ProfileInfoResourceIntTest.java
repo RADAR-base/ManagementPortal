@@ -18,7 +18,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import tech.jhipster.config.JHipsterProperties;
 
 /**
  * Test class for the ProfileInfoResource REST controller.
@@ -32,9 +31,6 @@ class ProfileInfoResourceIntTest {
     @Mock
     private Environment environment;
 
-    @Mock
-    private JHipsterProperties jHipsterProperties;
-
     private MockMvc restProfileMockMvc;
 
     @BeforeEach
@@ -46,21 +42,13 @@ class ProfileInfoResourceIntTest {
 
         ProfileInfoResource profileInfoResource = new ProfileInfoResource();
         ReflectionTestUtils.setField(profileInfoResource, "env", environment);
-        ReflectionTestUtils.setField(profileInfoResource, "jHipsterProperties", jHipsterProperties);
         this.restProfileMockMvc = MockMvcBuilders
                 .standaloneSetup(profileInfoResource)
                 .build();
     }
 
     @Test
-    void getProfileInfoWithRibbon() throws Exception {
-        restProfileMockMvc.perform(get("/api/profile-info"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-    }
-
-    @Test
-    void getProfileInfoWithoutRibbon() throws Exception {
+    void getProfileInfo() throws Exception {
         restProfileMockMvc.perform(get("/api/profile-info"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));

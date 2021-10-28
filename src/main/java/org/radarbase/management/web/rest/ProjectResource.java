@@ -157,7 +157,7 @@ public class ProjectResource {
     @GetMapping("/projects")
     @Timed
     public ResponseEntity<?> getAllProjects(
-            @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable,
+            @PageableDefault(size = Integer.MAX_VALUE) Pageable pageable,
             @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
                     minimized) throws NotAuthorizedException {
         log.debug("REST request to get Projects");

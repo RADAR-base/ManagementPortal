@@ -25,16 +25,13 @@ public class RadarAuthentication implements Authentication, Principal {
     private final List<GrantedAuthority> authorities;
     private boolean isAuthenticated;
 
+    /** Instantiate authentication via a token. */
     public RadarAuthentication(@Nonnull RadarToken token) {
         this.token = token;
         isAuthenticated = true;
-        if (token.getAuthorities() != null) {
-            authorities = token.getAuthorities().stream()
-                    .map(a -> (GrantedAuthority) () -> a)
-                    .collect(Collectors.toList());
-        } else {
-            authorities = List.of();
-        }
+        authorities = token.getAuthorities().stream()
+                .map(a -> (GrantedAuthority) () -> a)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -82,8 +79,12 @@ public class RadarAuthentication implements Authentication, Principal {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         RadarAuthentication that = (RadarAuthentication) o;
 

@@ -4,9 +4,6 @@ package org.radarbase.management.config;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.security.Http401UnauthorizedEntryPoint;
 import org.radarbase.management.security.RadarAuthenticationProvider;
-import org.radarbase.management.security.jwt.ManagementPortalOauthKeyStoreHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,15 +33,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import static org.radarbase.management.security.JwtAuthenticationFilter.TOKEN_ATTRIBUTE;
-import static org.springframework.context.annotation.ScopedProxyMode.INTERFACES;
 import static org.springframework.context.annotation.ScopedProxyMode.TARGET_CLASS;
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-    private static final Logger logger = LoggerFactory.getLogger(SecurityConfiguration.class);
-
     @Autowired
     private AuthenticationManagerBuilder authenticationManagerBuilder;
 
@@ -53,9 +47,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
-
-    @Autowired
-    private ManagementPortalOauthKeyStoreHandler keyStoreHandler;
 
     @PostConstruct
     public void init() {

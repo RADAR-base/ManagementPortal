@@ -120,6 +120,15 @@ if (OperatingSystem.current().isWindows()) {
 }
 
 test {
+    jvmArgs = [
+            '--add-modules', 'java.se',
+            '--add-exports', 'java.base/jdk.internal.ref=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.nio=ALL-UNNAMED',
+            '--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED',
+            '--add-opens', 'java.management/sun.management=ALL-UNNAMED',
+            '--add-opens', 'jdk.management/com.sun.management.internal=ALL-UNNAMED',
+    ]
     testLogging {
         exceptionFormat = 'full'
     }
@@ -199,8 +208,6 @@ dependencies {
         exclude group: 'org.hibernate', module: 'hibernate-entitymanager'
     }
     implementation "org.springframework.boot:spring-boot-starter-security"
-    implementation "org.springframework.cloud:spring-cloud-context"
-    implementation "org.springframework.cloud:spring-cloud-commons"
     implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude module: 'spring-boot-starter-tomcat'
     }
@@ -218,14 +225,12 @@ dependencies {
     implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.1.RELEASE")
     implementation("org.springframework.security:spring-security-oauth2-resource-server")
     implementation("org.springframework.security:spring-security-oauth2-jose")
-    implementation("io.springfox:springfox-swagger2:${springfox_version}") {
-        exclude module: 'mapstruct'
-    }
+    implementation 'org.springdoc:springdoc-openapi-ui:1.5.2'
     implementation("javax.inject:javax.inject:1")
-    implementation "io.springfox:springfox-bean-validators:${springfox_version}"
     implementation "org.postgresql:postgresql:${postgresql_version}"
     implementation "com.h2database:h2"
     implementation project(path: ':radar-auth', configuration: 'shadow')
+    implementation project(path: ':radar-auth:deprecated-auth0', configuration: 'shadow')
     implementation "org.springframework.data:spring-data-envers:${spring_data_envers_version}"
     runtimeOnly("jakarta.xml.bind:jakarta.xml.bind-api:${javax_xml_bind_version}")
     runtimeOnly("org.glassfish.jaxb:jaxb-core:${javax_jaxb_core_version}")
@@ -255,7 +260,6 @@ dependencies {
 
 dependencyManagement {
     imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2020.0.4"
         mavenBom "org.springframework.session:spring-session-bom:2021.0.2"
     }
 }

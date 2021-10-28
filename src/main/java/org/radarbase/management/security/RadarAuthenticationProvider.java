@@ -15,7 +15,8 @@ import org.springframework.security.core.AuthenticationException;
 
 public class RadarAuthenticationProvider implements AuthenticationProvider {
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    public Authentication authenticate(Authentication authentication)
+            throws AuthenticationException {
         if (authentication.isAuthenticated()) {
             return authentication;
         }

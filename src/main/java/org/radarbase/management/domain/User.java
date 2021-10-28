@@ -23,6 +23,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -47,7 +48,9 @@ public class User extends AbstractEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000,
+            sequenceName = "hibernate_sequence")
     private Long id;
 
     @NotNull
@@ -204,6 +207,7 @@ public class User extends AbstractEntity implements Serializable {
         this.roles = roles;
     }
 
+    /** Authorities tha ta user has. */
     public Set<Authority> getAuthorities() {
         return roles.stream()
                 .map(Role::getAuthority)

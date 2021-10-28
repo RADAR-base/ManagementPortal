@@ -37,6 +37,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String TOKEN_ATTRIBUTE = "jwt";
     private final List<AntPathRequestMatcher> ignoreUrls;
 
+    /**
+     * Authentication filter using given validator.
+     * @param validator validates the JWT token.
+     * @param authenticationManager authentication manager to pass valid authentication to.
+     */
     public JwtAuthenticationFilter(TokenValidator validator,
             AuthenticationManager authenticationManager) {
         this.validator = validator;
