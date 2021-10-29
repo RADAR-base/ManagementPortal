@@ -1,6 +1,5 @@
 package org.radarbase.management.web.rest;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +15,7 @@ import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
 import org.radarbase.management.service.MailService;
+import org.radarbase.management.service.PasswordService;
 import org.radarbase.management.service.UserService;
 import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.web.rest.errors.ExceptionTranslator;
@@ -54,8 +54,8 @@ import static org.radarbase.management.service.UserServiceIntTest.UPDATED_LANGKE
 import static org.radarbase.management.service.UserServiceIntTest.UPDATED_LASTNAME;
 import static org.radarbase.management.service.UserServiceIntTest.UPDATED_LOGIN;
 import static org.radarbase.management.service.UserServiceIntTest.UPDATED_PASSWORD;
-import static org.radarbase.management.service.UserServiceIntTest.createEntity;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
+import static org.radarbase.management.service.UserServiceIntTest.createEntity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -101,6 +101,9 @@ class UserResourceIntTest {
     @Autowired
     private RadarToken radarToken;
 
+    @Autowired
+    private PasswordService passwordService;
+
     private MockMvc restUserMockMvc;
 
     private User user;
@@ -131,7 +134,7 @@ class UserResourceIntTest {
 
     @BeforeEach
     public void initTest() {
-        user = createEntity();
+        user = createEntity(passwordService);
     }
 
     @Test
@@ -248,7 +251,7 @@ class UserResourceIntTest {
 
         User userWithRole = new User();
         userWithRole.setLogin(DEFAULT_LOGIN);
-        userWithRole.setPassword(RandomStringUtils.random(60));
+        userWithRole.setPassword(passwordService.generateEncodedPassword());
         userWithRole.setActivated(true);
         userWithRole.setEmail(DEFAULT_EMAIL);
         userWithRole.setFirstName(DEFAULT_FIRSTNAME);
@@ -384,7 +387,7 @@ class UserResourceIntTest {
 
         User anotherUser = new User();
         anotherUser.setLogin("jhipster");
-        anotherUser.setPassword(RandomStringUtils.random(60));
+        anotherUser.setPassword(passwordService.generateEncodedPassword());
         anotherUser.setActivated(true);
         anotherUser.setEmail("jhipster@localhost");
         anotherUser.setFirstName("java");
@@ -424,7 +427,7 @@ class UserResourceIntTest {
 
         User anotherUser = new User();
         anotherUser.setLogin("jhipster");
-        anotherUser.setPassword(RandomStringUtils.random(60));
+        anotherUser.setPassword(passwordService.generateEncodedPassword());
         anotherUser.setActivated(true);
         anotherUser.setEmail("jhipster@localhost");
         anotherUser.setFirstName("java");

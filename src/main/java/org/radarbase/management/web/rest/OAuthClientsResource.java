@@ -16,7 +16,6 @@ import java.util.List;
 import javax.validation.Valid;
 
 import io.micrometer.core.annotation.Timed;
-import javax.ws.rs.DefaultValue;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
@@ -189,7 +188,7 @@ public class OAuthClientsResource {
     @Timed
     public ResponseEntity<ClientPairInfoDTO> getRefreshToken(@RequestParam String login,
             @RequestParam(value = "clientId") String clientId,
-            @RequestParam(value = "persistent") @DefaultValue("false") Boolean persistent)
+            @RequestParam(value = "persistent", defaultValue = "false") Boolean persistent)
             throws NotAuthorizedException, URISyntaxException, MalformedURLException {
         User currentUser = userService.getUserWithAuthorities();
         if (currentUser == null) {

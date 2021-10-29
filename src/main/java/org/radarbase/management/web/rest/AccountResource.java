@@ -6,10 +6,10 @@ import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.security.SessionRadarToken;
 import org.radarbase.management.service.MailService;
+import org.radarbase.management.service.PasswordService;
 import org.radarbase.management.service.UserService;
 import org.radarbase.management.service.dto.UserDTO;
 import org.radarbase.management.service.mapper.UserMapper;
-import org.radarbase.management.service.util.PasswordUtil;
 import org.radarbase.management.web.rest.errors.BadRequestException;
 import org.radarbase.management.web.rest.errors.RadarWebApplicationException;
 import org.radarbase.management.web.rest.vm.KeyAndPasswordVM;
@@ -30,15 +30,12 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import javax.ws.rs.core.Response;
 import java.util.Optional;
 
 import static org.radarbase.management.security.JwtAuthenticationFilter.TOKEN_ATTRIBUTE;
 import static org.radarbase.management.web.rest.errors.EntityName.USER;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_ACCESS_DENIED;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_EMAIL_NOT_REGISTERED;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_PASSWORD_TOO_LONG;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_PASSWORD_TOO_WEAK;
 
 /**
  * REST controller for managing the current user's account.
@@ -64,7 +61,8 @@ public class AccountResource {
     @Autowired(required = false)
     private RadarToken token;
 
-    private final PasswordUtil passwordUtil = new PasswordUtil();
+    @Autowired
+    private PasswordService passwordService;
 
     /**
      * GET  /activate : activate the registered user.
@@ -124,7 +122,7 @@ public class AccountResource {
     public ResponseEntity<UserDTO> getAccount() {
         return Optional.ofNullable(userService.getUserWithAuthorities())
                 .map(user -> new ResponseEntity<>(userMapper.userToUserDTO(user), HttpStatus.OK))
-                .orElseThrow(() -> new RadarWebApplicationException(Response.Status.FORBIDDEN,
+                .orElseThrow(() -> new RadarWebApplicationException(HttpStatus.FORBIDDEN,
                         "Cannot get account without user", USER, ERR_ACCESS_DENIED));
     }
 
@@ -140,7 +138,7 @@ public class AccountResource {
     public ResponseEntity<Void> saveAccount(@Valid @RequestBody UserDTO userDto,
             Authentication authentication) {
         if (authentication.getPrincipal() == null) {
-            throw new RadarWebApplicationException(Response.Status.FORBIDDEN,
+            throw new RadarWebApplicationException(HttpStatus.FORBIDDEN,
                     "Cannot update account without user", USER, ERR_ACCESS_DENIED);
         }
 
@@ -161,7 +159,7 @@ public class AccountResource {
             produces = MediaType.TEXT_PLAIN_VALUE)
     @Timed
     public ResponseEntity<String> changePassword(@RequestBody String password) {
-        checkPasswordLength(password);
+        passwordService.checkPasswordStrength(password);
         userService.changePassword(password);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -218,19 +216,10 @@ public class AccountResource {
     @Timed
     public ResponseEntity<Void> finishPasswordReset(
             @RequestBody KeyAndPasswordVM keyAndPassword) {
-        checkPasswordLength(keyAndPassword.getNewPassword());
+        passwordService.checkPasswordStrength(keyAndPassword.getNewPassword());
         return userService
                 .completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey())
                 .map(user -> new ResponseEntity<Void>(HttpStatus.NO_CONTENT))
                 .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
-    }
-
-    private void checkPasswordLength(String password) {
-        if (passwordUtil.isPasswordWeak(password)) {
-            throw new BadRequestException("Weak password. Use a password with more variety of"
-                    + "numeric, alphabetical and symbol characters.", USER, ERR_PASSWORD_TOO_WEAK);
-        } else if (password.length() > 100) {
-            throw new BadRequestException("Password too long", USER, ERR_PASSWORD_TOO_LONG);
-        }
     }
 }

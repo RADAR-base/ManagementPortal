@@ -6,13 +6,13 @@ import java.security.cert.Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Date;
 import java.util.stream.Collectors;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.apache.commons.codec.binary.Base64;
 import org.radarbase.auth.authorization.Permission;
 
 /**
@@ -62,7 +62,7 @@ public final class TokenTestUtils {
                 "radarbase".toCharArray());
         Certificate cert = ks.getCertificate("selfsigned");
         RSAPublicKey publicKey = (RSAPublicKey) cert.getPublicKey();
-        PUBLIC_KEY_STRING = new String(new Base64().encode(publicKey.getEncoded()));
+        PUBLIC_KEY_STRING = new String(Base64.getEncoder().encode(publicKey.getEncoded()));
         initVars(PUBLIC_KEY_STRING, Algorithm.RSA256(publicKey, privateKey));
     }
 
