@@ -15,7 +15,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import javax.validation.Valid;
 
-import com.codahale.metrics.annotation.Timed;
+import io.micrometer.core.annotation.Timed;
 import javax.ws.rs.DefaultValue;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;

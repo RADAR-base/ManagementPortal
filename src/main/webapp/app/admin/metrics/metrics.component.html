@@ -1,215 +1,51 @@
 <div>
     <h2>
-        <span [translate]="'metrics.title'"></span>
+        <span id="metrics-page-heading" [translate]="'metrics.title'" data-cy="metricsPageHeading">Application Metrics</span>
+
         <button class="btn btn-primary float-right" (click)="refresh()">
-            <span class="fa fa-refresh"></span> <span [translate]="'metrics.refresh.button'"></span>
+            <fa-icon icon="sync"></fa-icon> <span [translate]="'metrics.refresh.button'">Refresh</span>
         </button>
     </h2>
 
-    <h3 [translate]="'metrics.jvm.title'"></h3>
-    <div class="row" *ngIf="!updatingMetrics">
-        <div class="col-md-4">
-            <b [translate]="'metrics.jvm.memory.title'"></b>
-            <p><span [translate]="'metrics.jvm.memory.total'"></span> ({{metrics.gauges['jvm.memory.total.used'].value / 1000000 | number:'1.0-0'}}M / {{metrics.gauges['jvm.memory.total.max'].value / 1000000 | number:'1.0-0'}}M)</p>
-            <ngb-progressbar type="success" [max]="metrics.gauges['jvm.memory.total.max'].value" [value]="metrics.gauges['jvm.memory.total.used'].value" [striped]="true" [animated]="true">
-                <span>{{metrics.gauges['jvm.memory.total.used'].value * 100 / metrics.gauges['jvm.memory.total.max'].value  | number:'1.0-0'}}%</span>
-            </ngb-progressbar>
-            <p><span [translate]="'metrics.jvm.memory.heap'"></span> ({{metrics.gauges['jvm.memory.heap.used'].value / 1000000 | number:'1.0-0'}}M / {{metrics.gauges['jvm.memory.heap.max'].value / 1000000 | number:'1.0-0'}}M)</p>
-            <ngb-progressbar [max]="metrics.gauges['jvm.memory.heap.max'].value" [value]="metrics.gauges['jvm.memory.heap.used'].value" [striped]="true" [animated]="true" type="success">
-                <span>{{metrics.gauges['jvm.memory.heap.used'].value * 100 / metrics.gauges['jvm.memory.heap.max'].value  | number:'1.0-0'}}%</span>
-            </ngb-progressbar>
-            <p><span [translate]="'metrics.jvm.memory.nonheap'"></span> ({{metrics.gauges['jvm.memory.non-heap.used'].value / 1000000 | number:'1.0-0'}}M / {{metrics.gauges['jvm.memory.non-heap.committed'].value / 1000000 | number:'1.0-0'}}M)</p>
-            <ngb-progressbar [max]="metrics.gauges['jvm.memory.non-heap.committed'].value" [value]="metrics.gauges['jvm.memory.non-heap.used'].value" [striped]="true" [animated]="true" type="success">
-                <span>{{metrics.gauges['jvm.memory.non-heap.used'].value * 100 / metrics.gauges['jvm.memory.non-heap.committed'].value  | number:'1.0-0'}}%</span>
-            </ngb-progressbar>
-        </div>
-        <div class="col-md-4">
-            <b [translate]="'metrics.jvm.threads.title'"></b> (Total: {{metrics.gauges['jvm.threads.count'].value}}) <a class="hand" (click)="refreshThreadDumpData()" data-toggle="modal" data-target="#threadDump"><i class="fa fa-eye"></i></a>
-            <p><span [translate]="'metrics.jvm.threads.runnable'"></span> {{metrics.gauges['jvm.threads.runnable.count'].value}}</p>
-            <ngb-progressbar [value]="metrics.gauges['jvm.threads.runnable.count'].value" [max]="metrics.gauges['jvm.threads.count'].value" [striped]="true" [animated]="true" type="success">
-                <span>{{metrics.gauges['jvm.threads.runnable.count'].value * 100 / metrics.gauges['jvm.threads.count'].value  | number:'1.0-0'}}%</span>
-            </ngb-progressbar>
-            <p><span [translate]="'metrics.jvm.threads.timedwaiting'"></span> ({{metrics.gauges['jvm.threads.timed_waiting.count'].value}})</p>
-            <ngb-progressbar [value]="metrics.gauges['jvm.threads.timed_waiting.count'].value" [max]="metrics.gauges['jvm.threads.count'].value" [striped]="true" [animated]="true" type="warning">
-                <span>{{metrics.gauges['jvm.threads.timed_waiting.count'].value * 100 / metrics.gauges['jvm.threads.count'].value  | number:'1.0-0'}}%</span>
-            </ngb-progressbar>
-            <p><span [translate]="'metrics.jvm.threads.waiting'"></span> ({{metrics.gauges['jvm.threads.waiting.count'].value}})</p>
-            <ngb-progressbar [value]="metrics.gauges['jvm.threads.waiting.count'].value" [max]="metrics.gauges['jvm.threads.count'].value" [striped]="true" [animated]="true" type="warning">
-                <span>{{metrics.gauges['jvm.threads.waiting.count'].value * 100 / metrics.gauges['jvm.threads.count'].value  | number:'1.0-0'}}%</span>
-            </ngb-progressbar>
-            <p><span [translate]="'metrics.jvm.threads.blocked'"></span> ({{metrics.gauges['jvm.threads.blocked.count'].value}})</p>
-            <ngb-progressbar [value]="metrics.gauges['jvm.threads.blocked.count'].value" [max]="metrics.gauges['jvm.threads.count'].value" [striped]="true" [animated]="true" type="success">
-                <span>{{metrics.gauges['jvm.threads.blocked.count'].value * 100 / metrics.gauges['jvm.threads.count'].value  | number:'1.0-0'}}%</span>
-            </ngb-progressbar>
-        </div>
-        <div class="col-md-4">
-            <b [translate]="'metrics.jvm.gc.title'"></b>
-            <div class="row" *ngIf="metrics.gauges['jvm.garbage.PS-MarkSweep.count']">
-                <div class="col-md-9" [translate]="'metrics.jvm.gc.marksweepcount'"></div>
-                <div class="col-md-3 text-right">{{metrics.gauges['jvm.garbage.PS-MarkSweep.count'].value}}</div>
-            </div>
-            <div class="row" *ngIf="metrics.gauges['jvm.garbage.PS-MarkSweep.time']">
-                <div class="col-md-9" [translate]="'metrics.jvm.gc.marksweeptime'"></div>
-                <div class="col-md-3 text-right">{{metrics.gauges['jvm.garbage.PS-MarkSweep.time'].value}}ms</div>
-            </div>
-            <div class="row" *ngIf="metrics.gauges['jvm.garbage.PS-Scavenge.count']">
-                <div class="col-md-9" [translate]="'metrics.jvm.gc.scavengecount'"></div>
-                <div class="col-md-3 text-right">{{metrics.gauges['jvm.garbage.PS-Scavenge.count'].value}}</div>
-            </div>
-            <div class="row" *ngIf="metrics.gauges['jvm.garbage.PS-Scavenge.time']">
-                <div class="col-md-9" [translate]="'metrics.jvm.gc.scavengetime'"></div>
-                <div class="col-md-3 text-right">{{metrics.gauges['jvm.garbage.PS-Scavenge.time'].value}}ms</div>
-            </div>
-        </div>
-    </div>
-    <div class="well well-lg" *ngIf="updatingMetrics" [translate]="'metrics.updating'"></div>
+    <h3 [translate]="'metrics.jvm.title'">JVM Metrics</h3>
 
-    <h3 [translate]="'metrics.jvm.http.title'"></h3>
-    <p *ngIf="metrics.counters">
-        <span [translate]="'metrics.jvm.http.active'"></span> <b>{{metrics.counters['com.codahale.metrics.servlet.InstrumentedFilter.activeRequests'].count | number:'1.0-0'}}</b> - <span [translate]="'metrics.jvm.http.total'"></span> <b>{{metrics.timers['com.codahale.metrics.servlet.InstrumentedFilter.requests'].count | number:'1.0-0'}}</b>
-    </p>
-    <div class="table-responsive" *ngIf="!updatingMetrics">
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th [translate]="'metrics.jvm.http.table.code'"></th>
-                <th [translate]="'metrics.jvm.http.table.count'"></th>
-                <th class="text-right" [translate]="'metrics.jvm.http.table.mean'"></th>
-                <th class="text-right"><span [translate]="'metrics.jvm.http.table.average'"></span> (1 min)</th>
-                <th class="text-right"><span [translate]="'metrics.jvm.http.table.average'"></span> (5 min)</th>
-                <th class="text-right"><span [translate]="'metrics.jvm.http.table.average'"></span> (15 min)</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td [translate]="'metrics.jvm.http.code.ok'"></td>
-                <td>
-                    <ngb-progressbar [max]="metrics.timers['com.codahale.metrics.servlet.InstrumentedFilter.requests'].count" [value]="metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.ok'].count" [striped]="true" [animated]="true" type="success">
-                        <span>{{metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.ok'].count}}</span>
-                    </ngb-progressbar>
-                </td>
-                <td class="text-right">
-                    {{metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.ok'].mean_rate | number:'1.0-2'}}
-                </td>
-                <td class="text-right">{{metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.ok'].m1_rate | number:'1.0-2'}}
-                </td>
-                <td class="text-right">{{metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.ok'].m5_rate | number:'1.0-2'}}
-                </td>
-                <td class="text-right">
-                    {{metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.ok'].m15_rate | number:'1.0-2'}}
-                </td>
-            </tr>
-            <tr>
-                <td [translate]="'metrics.jvm.http.code.notfound'"></td>
-                <td>
-                    <ngb-progressbar [max]="metrics.timers['com.codahale.metrics.servlet.InstrumentedFilter.requests'].count" [value]="metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.notFound'].count" [striped]="true" [animated]="true" type="success">
-                        <span>{{metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.notFound'].count}}</span>
-                    </ngb-progressbar>
-                </td>
-                <td class="text-right">
-                    {{metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.notFound'].mean_rate | number:'1.0-2'}}
-                </td>
-                <td class="text-right">
-                    {{metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.notFound'].m1_rate | number:'1.0-2'}}
-                </td>
-                <td class="text-right">
-                    {{metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.notFound'].m5_rate | number:'1.0-2'}}
-                </td>
-                <td class="text-right">
-                    {{metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.notFound'].m15_rate | number:'1.0-2'}}
-                </td>
-            </tr>
-            <tr>
-                <td [translate]="'metrics.jvm.http.code.servererror'"></td>
-                <td>
-                    <ngb-progressbar [max]="metrics.timers['com.codahale.metrics.servlet.InstrumentedFilter.requests'].count" [value]="metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.serverError'].count" [striped]="true" [animated]="true" type="success">
-                        <span>{{metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.serverError'].count}}</span>
-                    </ngb-progressbar>
-                </td>
-                <td class="text-right">
-                    {{metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.serverError'].mean_rate | number:'1.0-2'}}
-                </td>
-                <td class="text-right">
-                    {{metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.serverError'].m1_rate | number:'1.0-2'}}
-                </td>
-                <td class="text-right">
-                    {{metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.serverError'].m5_rate | number:'1.0-2'}}
-                </td>
-                <td class="text-right">
-                    {{metrics.meters['com.codahale.metrics.servlet.InstrumentedFilter.responseCodes.serverError'].m15_rate | number:'1.0-2'}}
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+    <div class="row" *ngIf="metrics && !updatingMetrics">
+        <jhi-jvm-memory class="col-md-4" [updating]="updatingMetrics" [jvmMemoryMetrics]="metrics.jvm"></jhi-jvm-memory>
 
-    <h3 [translate]="'metrics.servicesstats.title'"></h3>
-    <div class="table-responsive" *ngIf="!updatingMetrics">
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th [translate]="'metrics.servicesstats.table.name'"></th>
-                <th class="text-right" [translate]="'metrics.servicesstats.table.count'"></th>
-                <th class="text-right" [translate]="'metrics.servicesstats.table.mean'"></th>
-                <th class="text-right" [translate]="'metrics.servicesstats.table.min'"></th>
-                <th class="text-right" [translate]="'metrics.servicesstats.table.p50'"></th>
-                <th class="text-right" [translate]="'metrics.servicesstats.table.p75'"></th>
-                <th class="text-right" [translate]="'metrics.servicesstats.table.p95'"></th>
-                <th class="text-right" [translate]="'metrics.servicesstats.table.p99'"></th>
-                <th class="text-right" [translate]="'metrics.servicesstats.table.max'"></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let entry of servicesStats | keyvalue">
-                <td>{{entry.key}}</td>
-                <td class="text-right">{{entry.value.count}}</td>
-                <td class="text-right">{{entry.value.mean * 1000 | number:'1.0-0'}}</td>
-                <td class="text-right">{{entry.value.min * 1000 | number:'1.0-0'}}</td>
-                <td class="text-right">{{entry.value.p50 * 1000 | number:'1.0-0'}}</td>
-                <td class="text-right">{{entry.value.p75 * 1000 | number:'1.0-0'}}</td>
-                <td class="text-right">{{entry.value.p95 * 1000 | number:'1.0-0'}}</td>
-                <td class="text-right">{{entry.value.p99 * 1000 | number:'1.0-0'}}</td>
-                <td class="text-right">{{entry.value.max * 1000 | number:'1.0-0'}}</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-    
-    <h3 [translate]="'metrics.datasource.title'" *ngIf="metrics.gauges && metrics.gauges['HikariPool-1.pool.TotalConnections'] && metrics.gauges['HikariPool-1.pool.TotalConnections'].value > 0"></h3>
-    <div class="table-responsive" *ngIf="!updatingMetrics && metrics.gauges && metrics.gauges['HikariPool-1.pool.TotalConnections'] && metrics.gauges['HikariPool-1.pool.TotalConnections'].value > 0">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th><span [translate]="'metrics.datasource.usage'"></span> ({{metrics.gauges['HikariPool-1.pool.ActiveConnections'].value}} / {{metrics.gauges['HikariPool-1.pool.TotalConnections'].value}})</th>
-                    <th class="text-right" [translate]="'metrics.datasource.count'"></th>
-                    <th class="text-right" [translate]="'metrics.datasource.mean'"></th>
-                    <th class="text-right" [translate]="'metrics.datasource.min'"></th>
-                    <th class="text-right" [translate]="'metrics.datasource.p50'"></th>
-                    <th class="text-right" [translate]="'metrics.datasource.p75'"></th>
-                    <th class="text-right" [translate]="'metrics.datasource.p95'"></th>
-                    <th class="text-right" [translate]="'metrics.datasource.p99'"></th>
-                    <th class="text-right" [translate]="'metrics.datasource.max'"></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <div class="progress progress-striped">
-                            <ngb-progressbar [max]="metrics.gauges['HikariPool-1.pool.TotalConnections'].value" [value]="metrics.gauges['HikariPool-1.pool.ActiveConnections'].value" [striped]="true" [animated]="true" type="success">
-                                <span>{{metrics.gauges['HikariPool-1.pool.ActiveConnections'].value * 100 / metrics.gauges['HikariPool-1.pool.TotalConnections'].value  | number:'1.0-0'}}%</span>
-                            </ngb-progressbar>
-                        </div>
-                    </td>
-                    <td class="text-right">{{metrics.histograms['HikariPool-1.pool.Usage'].count}}</td>
-                    <td class="text-right">{{metrics.histograms['HikariPool-1.pool.Usage'].mean | number:'1.0-2'}}</td>
-                    <td class="text-right">{{metrics.histograms['HikariPool-1.pool.Usage'].min | number:'1.0-2'}}</td>
-                    <td class="text-right">{{metrics.histograms['HikariPool-1.pool.Usage'].p50 | number:'1.0-2'}}</td>
-                    <td class="text-right">{{metrics.histograms['HikariPool-1.pool.Usage'].p75 | number:'1.0-2'}}</td>
-                    <td class="text-right">{{metrics.histograms['HikariPool-1.pool.Usage'].p95 | number:'1.0-2'}}</td>
-                    <td class="text-right">{{metrics.histograms['HikariPool-1.pool.Usage'].p99 | number:'1.0-2'}}</td>
-                    <td class="text-right">{{metrics.histograms['HikariPool-1.pool.Usage'].max | number:'1.0-2'}}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <jhi-jvm-threads class="col-md-4" [threads]="threads"></jhi-jvm-threads>
+
+<jhi-metrics-system class="col-md-4" [updating]="updatingMetrics" [systemMetrics]="metrics.processMetrics"></jhi-metrics-system>
+</div>
+
+<jhi-metrics-garbagecollector
+*ngIf="metrics && metricsKeyExists('garbageCollector')"
+[updating]="updatingMetrics"
+[garbageCollectorMetrics]="metrics.garbageCollector"
+></jhi-metrics-garbagecollector>
+
+<div class="well well-lg" *ngIf="updatingMetrics" [translate]="'metrics.updating'">Updating...</div>
+
+<jhi-metrics-request
+*ngIf="metrics && metricsKeyExists('http.server.requests')"
+[updating]="updatingMetrics"
+[requestMetrics]="metrics['http.server.requests']"
+></jhi-metrics-request>
+
+<jhi-metrics-endpoints-requests
+*ngIf="metrics && metricsKeyExists('services')"
+[updating]="updatingMetrics"
+[endpointsRequestsMetrics]="metrics.services"
+></jhi-metrics-endpoints-requests>
+
+<jhi-metrics-cache
+*ngIf="metrics && metricsKeyExists('cache')"
+[updating]="updatingMetrics"
+[cacheMetrics]="metrics.cache"
+></jhi-metrics-cache>
+
+<jhi-metrics-datasource
+*ngIf="metrics && metricsKeyExistsAndObjectNotEmpty('databases')"
+[updating]="updatingMetrics"
+[datasourceMetrics]="metrics.databases"
+></jhi-metrics-datasource>
 </div>

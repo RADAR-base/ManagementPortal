@@ -13,7 +13,6 @@ import com.hazelcast.spring.cache.HazelcastCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -32,7 +31,6 @@ import static com.hazelcast.config.MaxSizePolicy.USED_HEAP_SIZE;
 
 @Configuration
 @EnableCaching
-@AutoConfigureAfter(value = {MetricsConfiguration.class})
 @AutoConfigureBefore(value = {WebConfigurer.class, DatabaseConfiguration.class})
 public class CacheConfiguration {
 

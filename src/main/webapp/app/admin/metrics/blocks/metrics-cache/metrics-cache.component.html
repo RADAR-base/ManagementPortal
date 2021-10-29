@@ -1,0 +1,51 @@
+<!--
+  ~ Copyright (c) 2021. The Hyve
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~
+  ~ See the file LICENSE in the root of this repository.
+  -->
+
+<h3 id="cacheMetrics" [translate]="'metrics.cache.title'">Cache statistics</h3>
+
+<div class="table-responsive" *ngIf="!updating && cacheMetrics">
+    <table class="table table-striped" aria-describedby="cacheMetrics">
+        <thead>
+        <tr>
+            <th scope="col" [translate]="'metrics.cache.cachename'">Cache name</th>
+            <th scope="col" class="text-right" [translate]="'metrics.cache.hits'">Cache Hits</th>
+            <th scope="col" class="text-right" [translate]="'metrics.cache.misses'">Cache Misses</th>
+            <th scope="col" class="text-right" [translate]="'metrics.cache.gets'">Cache Gets</th>
+            <th scope="col" class="text-right" [translate]="'metrics.cache.puts'">Cache Puts</th>
+            <th scope="col" class="text-right" [translate]="'metrics.cache.removals'">Cache Removals</th>
+            <th scope="col" class="text-right" [translate]="'metrics.cache.evictions'">Cache Evictions</th>
+            <th scope="col" class="text-right" [translate]="'metrics.cache.hitPercent'">Cache Hit %</th>
+            <th scope="col" class="text-right" [translate]="'metrics.cache.missPercent'">Cache Miss %</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let entry of cacheMetrics | keyvalue">
+            <td>{{ entry.key }}</td>
+            <td class="text-right">{{ entry.value['cache.gets.hit'] }}</td>
+            <td class="text-right">{{ entry.value['cache.gets.miss'] }}</td>
+            <td class="text-right">{{ entry.value['cache.gets.hit'] + entry.value['cache.gets.miss'] }}</td>
+            <td class="text-right">{{ entry.value['cache.puts'] }}</td>
+            <td class="text-right">{{ entry.value['cache.removals'] }}</td>
+            <td class="text-right">{{ entry.value['cache.evictions'] }}</td>
+            <td class="text-right">
+                {{
+                filterNaN((100 * entry.value['cache.gets.hit']) / (entry.value['cache.gets.hit'] + entry.value['cache.gets.miss']))
+                        | number: '1.0-4'
+                }}
+            </td>
+            <td class="text-right">
+                {{
+                filterNaN((100 * entry.value['cache.gets.miss']) / (entry.value['cache.gets.hit'] + entry.value['cache.gets.miss']))
+                        | number: '1.0-4'
+                }}
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>

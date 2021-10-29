@@ -1,6 +1,6 @@
 package org.radarbase.management.web.rest;
 
-import com.codahale.metrics.annotation.Timed;
+import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;

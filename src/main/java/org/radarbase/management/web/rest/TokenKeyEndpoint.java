@@ -1,6 +1,6 @@
 package org.radarbase.management.web.rest;
 
-import com.codahale.metrics.annotation.Timed;
+import io.micrometer.core.annotation.Timed;
 import org.radarbase.auth.security.jwk.JavaWebKeySet;
 import org.radarbase.management.security.jwt.ManagementPortalOauthKeyStoreHandler;
 import org.slf4j.Logger;

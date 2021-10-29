@@ -3,7 +3,7 @@ package org.radarbase.management.web.rest;
 import static org.radarbase.auth.authorization.Permission.AUTHORITY_READ;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 
-import com.codahale.metrics.annotation.Timed;
+import io.micrometer.core.annotation.Timed;
 import java.util.Arrays;
 import java.util.List;
 import org.radarbase.auth.authorization.AuthoritiesConstants;
