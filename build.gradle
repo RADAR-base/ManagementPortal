@@ -174,9 +174,8 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
     implementation "com.hazelcast:hazelcast:${hazelcast_version}"
     implementation "com.hazelcast:hazelcast-spring:${hazelcast_version}"
-    implementation "javax.cache:cache-api"
+    implementation "com.hazelcast:hazelcast-hibernate53"
     implementation("com.zaxxer:HikariCP:${hikaricp_version}")
-    implementation "javax.transaction:javax.transaction-api"
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: findbugAnnotationVersion
     implementation("org.liquibase:liquibase-core:${liquibase_version}")
     implementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
