@@ -37,6 +37,9 @@
             "styles": [
               "src/main/webapp/content/scss/global.scss"
             ],
+            "allowedCommonJsDependencies": [
+              "qrcode"
+            ],
             "scripts": []
           },
           "configurations": {

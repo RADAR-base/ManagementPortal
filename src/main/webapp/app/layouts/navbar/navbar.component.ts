@@ -70,7 +70,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
               tap(account => this.currentAccount = account),
               switchMap(account => {
                   if (account) {
-                      console.log(account)
                       return this.userService.findProject(account.login);
                   } else {
                       return of([]);

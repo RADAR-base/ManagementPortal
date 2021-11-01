@@ -43,7 +43,6 @@ export class HomeComponent implements OnInit, OnDestroy {
               tap(account => this.account = account),
               switchMap(account => {
                 if (account) {
-                    console.log(account)
                     return this.userService.findProject(account.login);
                 } else {
                   return of([]);

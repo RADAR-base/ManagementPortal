@@ -16,7 +16,8 @@ WORKDIR /code
 ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.project.prod=true" \
     GRADLE_USER_HOME=/code/.gradlecache
 
-COPY package.json yarn.lock /code/
+COPY package.json yarn.lock .yarnrc.yml /code/
+COPY .yarn /code/.yarn
 RUN yarn install
 
 COPY gradle/*.gradle gradle/
