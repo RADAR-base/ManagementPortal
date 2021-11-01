@@ -41,7 +41,6 @@
                     INNER JOIN _revisions_info r ON a.rev = r.id
                 WHERE a.id = subject.id
                     AND a.revtype = 0
-                GROUP BY a.id
                 )
             WHERE subject.enrollment_date IS NULL
         </sql>
