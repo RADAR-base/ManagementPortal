@@ -24,10 +24,26 @@
             <column name="enrollment_date" type="timestamp"/>
         </addColumn>
     </changeSet>
+
     <changeSet id="20211006170000-2" author="alexey@thehyve.nl">
         <addColumn tableName="subject_aud">
             <column name="enrollment_date" type="timestamp"/>
             <column name="enrollment_date_mod" type="BOOLEAN"/>
         </addColumn>
+    </changeSet>
+
+    <changeSet id="add subject enrollment date" author="joris@thehyve.nl">
+        <sql>
+            UPDATE subject
+            SET subject.enrollment_date = (
+                SELECT MIN(r.timestamp)
+                FROM subject_aud a
+                    INNER JOIN _revisions_info r ON a.rev = r.id
+                WHERE a.id = subject.id
+                    AND a.revtype = 0
+                GROUP BY a.id
+                )
+            WHERE subject.enrollment_date IS NULL
+        </sql>
     </changeSet>
 </databaseChangeLog>
