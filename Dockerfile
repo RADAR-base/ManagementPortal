@@ -1,5 +1,5 @@
 # Build stage
-FROM gradle:7.2-jdk11 as builder
+FROM gradle:7.2-jdk17 as builder
 
 # Install NodeJS and Yarn
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
@@ -39,7 +39,7 @@ COPY src src
 RUN gradle -s bootWar --no-watch-fs
 
 # Run stage
-FROM azul/zulu-openjdk-alpine:11-jre-headless
+FROM azul/zulu-openjdk-alpine:17-jre-headless
 
 ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
     JHIPSTER_SLEEP=0 \
