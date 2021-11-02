@@ -190,8 +190,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         if (enrollmentDateFrom || enrollmentDateTo) {
             const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             params.enrollmentDate = {
-                from: enrollmentDateFrom ? enrollmentDateFrom + '[' + timeZone + ']' : undefined,
-                to: enrollmentDateTo ? enrollmentDateTo + '[' + timeZone + ']' : undefined,
+                from: enrollmentDateFrom ? enrollmentDateFrom + 'T00:00' + '[' + timeZone + ']' : undefined,
+                to: enrollmentDateTo ? enrollmentDateTo + 'T23:59' + '[' + timeZone + ']' : undefined,
             };
         }
         if (this.filterDateOfBirth) {
