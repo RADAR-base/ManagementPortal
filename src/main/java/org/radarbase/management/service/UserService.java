@@ -1,21 +1,5 @@
 package org.radarbase.management.service;
 
-import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
-import static org.radarbase.management.web.rest.errors.EntityName.USER;
-
-import java.time.Period;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import java.util.stream.Collectors;
 import org.radarbase.auth.authorization.AuthoritiesConstants;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.management.config.ManagementPortalProperties;
@@ -33,7 +17,7 @@ import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.service.dto.UserDTO;
 import org.radarbase.management.service.mapper.ProjectMapper;
 import org.radarbase.management.service.mapper.UserMapper;
-import org.radarbase.management.service.util.RandomUtil;
+import org.radarbase.management.web.rest.errors.ConflictException;
 import org.radarbase.management.web.rest.errors.ErrorConstants;
 import org.radarbase.management.web.rest.errors.NotFoundException;
 import org.slf4j.Logger;
@@ -43,9 +27,26 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Period;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
+import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarbase.management.web.rest.errors.EntityName.USER;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_EMAIL_EXISTS;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_ENTITY_NOT_FOUND;
 
 /**
  * Service class for managing users.
@@ -63,7 +64,7 @@ public class UserService {
     private ProjectRepository projectRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private PasswordService passwordService;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -119,7 +120,7 @@ public class UserService {
                     return user.getResetDate().isAfter(oneDayAgo);
                 })
                 .map(user -> {
-                    user.setPassword(passwordEncoder.encode(newPassword));
+                    user.setPassword(passwordService.encode(newPassword));
                     user.setResetKey(null);
                     user.setResetDate(null);
                     user.setActivated(true);
@@ -140,7 +141,7 @@ public class UserService {
         return userRepository.findOneByLogin(login)
             .filter((p) -> !p.getActivated())
             .map(user -> {
-                user.setResetKey(RandomUtil.generateResetKey());
+                user.setResetKey(passwordService.generateResetKey());
                 user.setResetDate(ZonedDateTime.now());
                 return user;
             });
@@ -156,7 +157,7 @@ public class UserService {
         return userRepository.findOneByEmail(mail)
                 .filter(User::getActivated)
                 .map(user -> {
-                    user.setResetKey(RandomUtil.generateResetKey());
+                    user.setResetKey(passwordService.generateResetKey());
                     user.setResetDate(ZonedDateTime.now());
                     return user;
                 });
@@ -182,9 +183,8 @@ public class UserService {
         } else {
             user.setLangKey(userDto.getLangKey());
         }
-        String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
-        user.setPassword(encryptedPassword);
-        user.setResetKey(RandomUtil.generateResetKey());
+        user.setPassword(passwordService.generateEncodedPassword());
+        user.setResetKey(passwordService.generateResetKey());
         user.setResetDate(ZonedDateTime.now());
         user.setActivated(false);
 
@@ -230,14 +230,29 @@ public class UserService {
      * @param email email id of user
      * @param langKey language key
      */
-    public void updateUser(String firstName, String lastName, String email, String langKey) {
-        userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setEmail(email);
-            user.setLangKey(langKey);
-            log.debug("Changed Information for User: {}", user);
-        });
+    public void updateUser(String userName, String firstName, String lastName,
+            String email, String langKey) {
+        Optional<User> userWithEmail = userRepository.findOneByEmail(email);
+        User user;
+        if (userWithEmail.isPresent()) {
+            user = userWithEmail.get();
+            if (!user.getLogin().equalsIgnoreCase(userName)) {
+                throw new ConflictException("Email address " + email + " already in use", USER,
+                        ERR_EMAIL_EXISTS, Map.of("email", email));
+            }
+        } else {
+            user = userRepository.findOneByLogin(userName)
+                    .orElseThrow(() -> new NotFoundException(
+                            "User with login " + userName + " not found", USER,
+                            ERR_ENTITY_NOT_FOUND, Map.of("user", userName)));
+        }
+
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEmail(email);
+        user.setLangKey(langKey);
+        log.debug("Changed Information for User: {}", user);
+        userRepository.save(user);
     }
 
     /**
@@ -291,7 +306,7 @@ public class UserService {
      */
     public void changePassword(String login, String password) {
         userRepository.findOneByLogin(login).ifPresent(user -> {
-            String encryptedPassword = passwordEncoder.encode(password);
+            String encryptedPassword = passwordService.encode(password);
             user.setPassword(encryptedPassword);
             log.debug("Changed password for User: {}", user);
         });
@@ -328,7 +343,8 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<ProjectDTO> getProjectsAssignedToUser(String login) {
         User userByLogin = userRepository.findOneWithRolesByLogin(login)
-                .orElseThrow(NoSuchElementException::new);
+                .orElseThrow(() -> new NotFoundException("User with login " + login + " not found.",
+                        USER, ERR_ENTITY_NOT_FOUND));
 
         List<Project> projectsOfUser;
 

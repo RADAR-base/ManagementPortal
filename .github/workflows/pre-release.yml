@@ -19,14 +19,14 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Use Node.js 15
+      - name: Use Node.js 16
         uses: actions/setup-node@v1
         with:
-          node-version: 15
+          node-version: 16
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "::set-output name=dir::.yarn/cache"
 
       - uses: actions/setup-java@v1
         with:

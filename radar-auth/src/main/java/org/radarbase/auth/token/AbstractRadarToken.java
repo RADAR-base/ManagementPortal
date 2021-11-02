@@ -170,6 +170,7 @@ public abstract class AbstractRadarToken implements RadarToken {
     public String toString() {
         return getClass().getSimpleName() + "{"
             + "scopes=" + getScopes()
+            + ", username='" + getUsername() + '\''
             + ", subject='" + getSubject() + '\''
             + ", roles=" + getRoles()
             + ", sources=" + getSources()
@@ -180,7 +181,6 @@ public abstract class AbstractRadarToken implements RadarToken {
             + ", issuedAt=" + getIssuedAt()
             + ", expiresAt=" + getExpiresAt()
             + ", type='" + getType() + '\''
-            + ", token='" + getToken() + '\''
             + '}';
     }
 }

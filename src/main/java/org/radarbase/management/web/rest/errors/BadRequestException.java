@@ -1,7 +1,8 @@
 package org.radarbase.management.web.rest.errors;
 
+import org.springframework.http.HttpStatus;
+
 import java.util.Map;
-import javax.ws.rs.core.Response;
 
 /**
  * The request could not be understood by the server due to malformed syntax.
@@ -19,7 +20,7 @@ public class BadRequestException extends RadarWebApplicationException {
      * @param errorCode  errorCode from {@link ErrorConstants}
      */
     public BadRequestException(String message, String entityName, String errorCode) {
-        super(Response.Status.BAD_REQUEST, message, entityName, errorCode);
+        super(HttpStatus.BAD_REQUEST, message, entityName, errorCode);
     }
 
     /**
@@ -32,6 +33,6 @@ public class BadRequestException extends RadarWebApplicationException {
      */
     public BadRequestException(String message, String entityName, String errorCode,
             Map<String, String> paramMap) {
-        super(Response.Status.BAD_REQUEST, message, entityName, errorCode, paramMap);
+        super(HttpStatus.BAD_REQUEST, message, entityName, errorCode, paramMap);
     }
 }

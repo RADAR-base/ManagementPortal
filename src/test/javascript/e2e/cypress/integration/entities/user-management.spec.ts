@@ -1,21 +1,14 @@
 import { login } from '../util/login';
-import * as navBarPage from '../util/nav-bar';
+import { clickOnAdminMenu, clickOnEntity } from "../util/nav-bar";
 
 describe('Create, edit, and delete user', () => {
-    before(() => {
-        login();
-        cy.visit('./');
-    });
-
     beforeEach(() => {
-        cy.wait(100);
-        Cypress.Cookies.preserveOnce('oAtkn');
+        login();
+        clickOnAdminMenu();
+        clickOnEntity('user-management');
     });
 
     it('should load user management view', () => {
-        navBarPage.clickOnAdminMenu();
-        navBarPage.clickOnEntity('user-management');
-
         cy.get('h2 span').first().should('have.text', 'Users');
     });
 

@@ -80,7 +80,7 @@ public class ManagementPortalSecurityConfigLoader {
         ManagementPortalProperties.Frontend frontend = managementPortalProperties.getFrontend();
         BaseClientDetails details = new BaseClientDetails();
         details.setClientId(frontend.getClientId());
-        details.setClientSecret(frontend.getClientSecret());
+        details.setClientSecret(null);
         details.setAccessTokenValiditySeconds(frontend.getAccessTokenValiditySeconds());
         details.setRefreshTokenValiditySeconds(frontend.getRefreshTokenValiditySeconds());
         details.setResourceIds(Collections.singletonList("res_ManagementPortal"));

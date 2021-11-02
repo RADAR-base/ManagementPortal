@@ -1,24 +1,18 @@
 package org.radarbase.management.security.jwt;
 
-import java.time.Instant;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import org.radarbase.auth.authentication.AlgorithmLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.jwt.Jwt;
-import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.oauth2.common.DefaultExpiringOAuth2RefreshToken;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
@@ -26,13 +20,21 @@ import org.springframework.security.oauth2.common.ExpiringOAuth2RefreshToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
-import org.springframework.security.oauth2.common.util.JsonParser;
-import org.springframework.security.oauth2.common.util.JsonParserFactory;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtClaimsSetVerifier;
 import org.springframework.util.Assert;
+
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Implementation of {@link JwtAccessTokenConverter} for the RADAR-base ManagementPortal platform.
@@ -44,7 +46,7 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
 
     public static final String RES_MANAGEMENT_PORTAL = "res_ManagementPortal";
 
-    private final JsonParser jsonParser = JsonParserFactory.create();
+    private final ObjectReader jsonParser = new ObjectMapper().readerFor(Map.class);
 
     private static final Logger logger =
             LoggerFactory.getLogger(ManagementPortalJwtAccessTokenConverter.class);
@@ -163,7 +165,6 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
         // add additional information for refresh-token
         OAuth2RefreshToken refreshToken = accessToken.getRefreshToken();
         if (refreshToken != null) {
-
             DefaultOAuth2AccessToken refreshTokenToEnhance =
                     new DefaultOAuth2AccessToken(accessToken);
             refreshTokenToEnhance.setValue(refreshToken.getValue());
@@ -172,16 +173,6 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
             refreshTokenToEnhance.setScope(accessToken.getScope());
             // set info of access token to refresh-token and add token-id and access-token-id for
             // reference.
-
-            try {
-                Map<String, Object> claims = jsonParser
-                        .parseMap(JwtHelper.decode(refreshToken.getValue()).getClaims());
-                if (claims.containsKey(TOKEN_ID)) {
-                    refreshTokenToEnhance.setValue(claims.get(TOKEN_ID).toString());
-                }
-            } catch (IllegalArgumentException e) {
-                logger.debug("Could not decode refresh token ", e);
-            }
 
             Map<String, Object> refreshTokenInfo =
                     new HashMap<>(accessToken.getAdditionalInformation());
@@ -242,19 +233,26 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
 
     @Override
     public Map<String, Object> decode(String token) {
-        Jwt jwt = JwtHelper.decode(token);
-        String claimsStr = jwt.getClaims();
-        Map<String, Object> claims = jsonParser.parseMap(claimsStr);
-        if (claims.containsKey(EXP) && claims.get(EXP) instanceof Integer) {
-            Integer intValue = (Integer) claims.get(EXP);
-            claims.put(EXP, Long.valueOf(intValue));
-        }
-        if (this.getJwtClaimsSetVerifier() != null) {
-            this.getJwtClaimsSetVerifier().verify(claims);
-        }
+        DecodedJWT jwt = JWT.decode(token);
+        List<JWTVerifier> verifierToUse;
+        Map<String, Object> claims;
+        try {
+            String decodedPayload = new String(Base64.getUrlDecoder().decode(jwt.getPayload()),
+                    StandardCharsets.UTF_8);
+            claims = jsonParser.readValue(decodedPayload);
+            if (claims.containsKey(EXP) && claims.get(EXP) instanceof Integer) {
+                Integer intValue = (Integer) claims.get(EXP);
+                claims.put(EXP, Long.valueOf(intValue));
+            }
+            if (this.getJwtClaimsSetVerifier() != null) {
+                this.getJwtClaimsSetVerifier().verify(claims);
+            }
 
-        List<JWTVerifier> verifierToUse = claims.get(ACCESS_TOKEN_ID) != null
-                ? refreshTokenVerifiers : verifiers;
+            verifierToUse = claims.get(ACCESS_TOKEN_ID) != null
+                    ? refreshTokenVerifiers : verifiers;
+        } catch (JsonProcessingException ex) {
+            throw new InvalidTokenException("Invalid token", ex);
+        }
 
         for (JWTVerifier verifier : verifierToUse) {
             try {
@@ -264,11 +262,10 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
                 logger.warn("Client presented a token with an incorrect signature");
             } catch (JWTVerificationException ex) {
                 logger.debug("Verifier {} with implementation {} did not accept token: {}",
-                        verifier.toString(), verifier.getClass().toString(), ex.getMessage());
+                        verifier, verifier.getClass(), ex.getMessage());
             }
         }
 
         throw new InvalidTokenException("No registered validator could authenticate this token");
     }
-
 }

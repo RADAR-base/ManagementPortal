@@ -1,32 +1,35 @@
 package org.radarbase.management;
 
-import io.github.jhipster.config.JHipsterConstants;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import javax.annotation.PostConstruct;
 import org.radarbase.management.config.ApplicationProperties;
-import org.radarbase.management.config.DefaultProfileUtil;
 import org.radarbase.management.config.ManagementPortalProperties;
-import org.radarbase.management.config.SourceTypeLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
+import tech.jhipster.config.JHipsterConstants;
+
+import javax.annotation.PostConstruct;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * This is the application configuration that excludes CommandLineRunner(i.e the sourceTypeLoader).
  * This is used for testing to replicate the application setup without SourceTypeLoader.
  */
-@ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
-        value = SourceTypeLoader.class))
-@EnableZuulProxy
+@ComponentScan({
+        "org.radarbase.management.config",
+        "org.radarbase.management.domain.support",
+        "org.radarbase.management.filters",
+        "org.radarbase.management.repository",
+        "org.radarbase.management.service",
+        "org.radarbase.management.security",
+        "org.radarbase.management.web"
+})
 @EnableAutoConfiguration
 @EnableConfigurationProperties({LiquibaseProperties.class, ApplicationProperties.class,
         ManagementPortalProperties.class})
@@ -73,7 +76,6 @@ public class ManagementPortalTestApp {
      */
     public static void main(String[] args) throws UnknownHostException {
         SpringApplication app = new SpringApplication(ManagementPortalTestApp.class);
-        DefaultProfileUtil.addDefaultProfile(app);
         Environment env = app.run(args).getEnvironment();
         String protocol = "http";
         if (env.getProperty("server.ssl.key-store") != null) {

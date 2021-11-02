@@ -6,8 +6,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.common.DefaultExpiringOAuth2RefreshToken;
 import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
@@ -37,10 +35,6 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
  * @author nivethika
  */
 public class ManagementPortalJwtTokenStore implements TokenStore {
-
-    private static final Logger logger =
-            LoggerFactory.getLogger(ManagementPortalJwtTokenStore.class);
-
     private final JwtAccessTokenConverter jwtAccessTokenConverter;
 
     private ApprovalStore approvalStore;
@@ -95,7 +89,6 @@ public class ManagementPortalJwtTokenStore implements TokenStore {
 
     @Override
     public OAuth2AccessToken readAccessToken(String tokenValue) {
-        logger.debug("Access token is {}", tokenValue);
         OAuth2AccessToken accessToken = convertAccessToken(tokenValue);
 
         if (jwtAccessTokenConverter.isRefreshToken(accessToken)) {

@@ -11,6 +11,7 @@ package org.radarbase.management.web.rest;
 
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.service.GroupService;
 import org.radarbase.management.service.dto.GroupDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
-import javax.servlet.ServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -32,7 +32,6 @@ import java.util.List;
 import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
 import static org.radarbase.auth.authorization.Permission.PROJECT_UPDATE;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
-import static org.radarbase.management.security.SecurityUtils.getJWT;
 
 @RestController
 @RequestMapping("/api/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/groups")
@@ -41,7 +40,7 @@ public class GroupResource {
     private GroupService groupService;
 
     @Autowired
-    private ServletRequest servletRequest;
+    private RadarToken token;
 
     /**
      * Create group.
@@ -54,7 +53,7 @@ public class GroupResource {
     public ResponseEntity<GroupDTO> createGroup(
             @PathVariable String projectName,
             @Valid @RequestBody GroupDTO groupDto) throws NotAuthorizedException {
-        checkPermissionOnProject(getJWT(servletRequest), PROJECT_UPDATE, projectName);
+        checkPermissionOnProject(token, PROJECT_UPDATE, projectName);
         GroupDTO groupDtoResult = groupService.createGroup(projectName, groupDto);
         URI location = MvcUriComponentsBuilder.fromController(getClass())
                 .path("/{groupName}")
@@ -73,7 +72,7 @@ public class GroupResource {
     @GetMapping
     public List<GroupDTO> listGroups(
             @PathVariable String projectName) throws NotAuthorizedException {
-        checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ, projectName);
+        checkPermissionOnProject(token, PROJECT_READ, projectName);
         return groupService.listGroups(projectName);
     }
 
@@ -88,7 +87,7 @@ public class GroupResource {
     public GroupDTO getGroup(
             @PathVariable String projectName,
             @PathVariable String groupName) throws NotAuthorizedException {
-        checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ, projectName);
+        checkPermissionOnProject(token, PROJECT_READ, projectName);
         return groupService.getGroup(projectName, groupName);
     }
 
@@ -102,7 +101,7 @@ public class GroupResource {
     public ResponseEntity<?> deleteGroup(
             @PathVariable String projectName,
             @PathVariable String groupName) throws NotAuthorizedException {
-        checkPermissionOnProject(getJWT(servletRequest), PROJECT_UPDATE, projectName);
+        checkPermissionOnProject(token, PROJECT_UPDATE, projectName);
         groupService.deleteGroup(projectName, groupName);
         return ResponseEntity.noContent().build();
     }

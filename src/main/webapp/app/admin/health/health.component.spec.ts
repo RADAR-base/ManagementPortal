@@ -1,319 +1,77 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+/*
+ * Copyright (c) 2021. The Hyve
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * See the file LICENSE in the root of this repository.
+ */
 
-import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { of, throwError } from 'rxjs';
+
 import { JhiHealthCheckComponent } from './health.component';
 import { JhiHealthService } from './health.service';
+import { Health } from './health.model';
 
-describe('Component Tests', () => {
+describe('HealthComponent', () => {
+    let comp: JhiHealthCheckComponent;
+    let fixture: ComponentFixture<JhiHealthCheckComponent>;
+    let service: JhiHealthService;
 
-    describe('JhiHealthCheckComponent', () => {
+    beforeEach(
+      waitForAsync(() => {
+          TestBed.configureTestingModule({
+              imports: [HttpClientTestingModule],
+              declarations: [JhiHealthCheckComponent],
+          })
+          .overrideTemplate(JhiHealthCheckComponent, '')
+          .compileComponents();
+      })
+    );
 
-        let comp: JhiHealthCheckComponent;
-        let fixture: ComponentFixture<JhiHealthCheckComponent>;
-        let service: JhiHealthService;
+    beforeEach(() => {
+        fixture = TestBed.createComponent(JhiHealthCheckComponent);
+        comp = fixture.componentInstance;
+        service = TestBed.inject(JhiHealthService);
+    });
 
-        beforeEach(waitForAsync(() => {
-            TestBed.configureTestingModule({
-                imports: [ManagementPortalTestModule],
-                declarations: [JhiHealthCheckComponent],
-                providers: [
-                    JhiHealthService,
-                    {
-                        provide: NgbModal,
-                        useValue: null
-                    }
-                ]
-            })
-            .overrideTemplate(JhiHealthCheckComponent, '')
-            .compileComponents();
-        }));
+    describe('getBadgeClass', () => {
+        it('should get badge class', () => {
+            const upBadgeClass = comp.getBadgeClass('UP');
+            const downBadgeClass = comp.getBadgeClass('DOWN');
+            expect(upBadgeClass).toEqual('badge-success');
+            expect(downBadgeClass).toEqual('badge-danger');
+        });
+    });
 
-        beforeEach(() => {
-            fixture = TestBed.createComponent(JhiHealthCheckComponent);
-            comp = fixture.componentInstance;
-            service = fixture.debugElement.injector.get(JhiHealthService);
+    describe('refresh', () => {
+        it('should call refresh on init', () => {
+            // GIVEN
+            const health: Health = { status: 'UP', components: { mail: { status: 'UP', details: { mailDetail: 'mail' } } } };
+            spyOn(service, 'checkHealth').and.returnValue(of(health));
+
+            // WHEN
+            comp.ngOnInit();
+
+            // THEN
+            expect(service.checkHealth).toHaveBeenCalled();
+            expect(comp.health).toEqual(health);
         });
 
-        describe('baseName and subSystemName', () => {
-            it('should return the basename when it has no sub system', () => {
-                expect(comp.baseName('base')).toBe('base');
-            });
+        it('should handle a 503 on refreshing health data', () => {
+            // GIVEN
+            const health: Health = { status: 'DOWN', components: { mail: { status: 'DOWN' } } };
+            spyOn(service, 'checkHealth').and.returnValue(throwError(new HttpErrorResponse({ status: 503, error: health })));
 
-            it('should return the basename when it has sub systems', () => {
-                expect(comp.baseName('base.subsystem.system')).toBe('base');
-            });
+            // WHEN
+            comp.refresh();
 
-            it('should return the sub system name', () => {
-                expect(comp.subSystemName('subsystem')).toBe('');
-            });
-
-            it('should return the subsystem when it has multiple options', () => {
-                expect(comp.subSystemName('subsystem.subsystem.system')).toBe(' - subsystem.system');
-            });
-        });
-
-        describe('transformHealthData', () => {
-            it('should flatten empty health data', () => {
-                const data = {};
-                const expected = [];
-                expect(service.transformHealthData(data)).toEqual(expected);
-            });
-        });
-
-        it('should flatten health data with no subsystems', () => {
-            const data = {
-                'status': 'UP',
-                'components': {
-                    'db': {
-                        'status': 'UP',
-                        'details': {
-                            'database': 'H2',
-                            'hello': '1'
-                        }
-                    },
-                    'mail': {
-                        'status': 'UP',
-                        'error': 'mail.a.b.c'
-                    }
-                }
-            };
-            const expected = [
-                {
-                    'name': 'db',
-                    'status': 'UP',
-                    'details': {
-                        'database': 'H2',
-                        'hello': '1'
-                    }
-                },
-                {
-                    'name': 'mail',
-                    'error': 'mail.a.b.c',
-                    'status': 'UP'
-                }
-            ];
-            expect(service.transformHealthData(data)).toEqual(expected);
-        });
-
-        it('should flatten health data with subsystems at level 1, main system has no additional information', () => {
-            const data = {
-                'status': 'UP',
-                'components': {
-                    'db': {
-                        'status': 'UP',
-                        'details': {
-                            'database': 'H2',
-                            'hello': '1'
-                        }
-                    },
-                    'mail': {
-                        'status': 'UP',
-                        'error': 'mail.a.b.c'
-                    },
-                    'system': {
-                        'status': 'DOWN',
-                        'components': {
-                            'subsystem1': {
-                                'status': 'UP',
-                                'details': {
-                                    'property1': 'system.subsystem1.property1'
-                                }
-                            },
-                            'subsystem2': {
-                                'status': 'DOWN',
-                                'error': 'system.subsystem1.error',
-                                'details': {
-                                    'property2': 'system.subsystem2.property2'
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-            const expected = [
-                {
-                    'name': 'db',
-                    'status': 'UP',
-                    'details': {
-                        'database': 'H2',
-                        'hello': '1'
-                    }
-                },
-                {
-                    'name': 'mail',
-                    'error': 'mail.a.b.c',
-                    'status': 'UP'
-                },
-                {
-                    'name': 'system.subsystem1',
-                    'status': 'UP',
-                    'details': {
-                        'property1': 'system.subsystem1.property1'
-                    }
-                },
-                {
-                    'name': 'system.subsystem2',
-                    'error': 'system.subsystem1.error',
-                    'status': 'DOWN',
-                    'details': {
-                        'property2': 'system.subsystem2.property2'
-                    }
-                }
-            ];
-            expect(service.transformHealthData(data)).toEqual(expected);
-        });
-
-        it('should flatten health data with subsystems at level 1, main system has additional information', () => {
-            const data = {
-                'status': 'UP',
-                'components': {
-                    'db': {
-                        'status': 'UP',
-                        'details': {
-                            'database': 'H2',
-                            'hello': '1'
-                        }
-                    },
-                    'mail': {
-                        'status': 'UP',
-                        'error': 'mail.a.b.c'
-                    },
-                    'system': {
-                        'status': 'DOWN',
-                        'details': {
-                            'property1': 'system.property1',
-                        },
-                        'components': {
-                            'subsystem1': {
-                                'status': 'UP',
-                                'details': {
-                                    'property1': 'system.subsystem1.property1'
-                                }
-                            },
-                            'subsystem2': {
-                                'status': 'DOWN',
-                                'error': 'system.subsystem1.error',
-                                'details': {
-                                    'property2': 'system.subsystem2.property2'
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-            const expected = [
-                {
-                    'name': 'db',
-                    'status': 'UP',
-                    'details': {
-                        'database': 'H2',
-                        'hello': '1'
-                    }
-                },
-                {
-                    'name': 'mail',
-                    'error': 'mail.a.b.c',
-                    'status': 'UP'
-                },
-                {
-                    'name': 'system',
-                    'status': 'DOWN',
-                    'details': {
-                        'property1': 'system.property1'
-                    }
-                },
-                {
-                    'name': 'system.subsystem1',
-                    'status': 'UP',
-                    'details': {
-                        'property1': 'system.subsystem1.property1'
-                    }
-                },
-                {
-                    'name': 'system.subsystem2',
-                    'error': 'system.subsystem1.error',
-                    'status': 'DOWN',
-                    'details': {
-                        'property2': 'system.subsystem2.property2'
-                    }
-                }
-            ];
-            expect(service.transformHealthData(data)).toEqual(expected);
-        });
-
-        it('should flatten health data with subsystems at level 1, main system has additional error', () => {
-            const data = {
-                'status': 'UP',
-                'components': {
-                    'db': {
-                        'status': 'UP',
-                        'details': {
-                            'database': 'H2',
-                            'hello': '1'
-                        }
-                    },
-                    'mail': {
-                        'status': 'UP',
-                        'error': 'mail.a.b.c'
-                    },
-                    'system': {
-                        'status': 'DOWN',
-                        'error': 'show me',
-                        'components': {
-                            'subsystem1': {
-                                'status': 'UP',
-                                'details': {
-                                    'property1': 'system.subsystem1.property1'
-                                }
-                            },
-                            'subsystem2': {
-                                'status': 'DOWN',
-                                'error': 'system.subsystem1.error',
-                                'details': {
-                                    'property2': 'system.subsystem2.property2'
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-            const expected = [
-                {
-                    'name': 'db',
-                    'status': 'UP',
-                    'details': {
-                        'database': 'H2',
-                        'hello': '1'
-                    }
-                },
-                {
-                    'name': 'mail',
-                    'error': 'mail.a.b.c',
-                    'status': 'UP'
-                },
-                {
-                    'name': 'system',
-                    'error': 'show me',
-                    'status': 'DOWN'
-                },
-                {
-                    'name': 'system.subsystem1',
-                    'status': 'UP',
-                    'details': {
-                        'property1': 'system.subsystem1.property1'
-                    }
-                },
-                {
-                    'name': 'system.subsystem2',
-                    'error': 'system.subsystem1.error',
-                    'status': 'DOWN',
-                    'details': {
-                        'property2': 'system.subsystem2.property2'
-                    }
-                }
-            ];
-            expect(service.transformHealthData(data)).toEqual(expected);
+            // THEN
+            expect(service.checkHealth).toHaveBeenCalled();
+            expect(comp.health).toEqual(health);
         });
     });
 });

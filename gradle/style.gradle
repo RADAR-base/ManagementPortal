@@ -34,15 +34,15 @@ pmdTest {
 
 jacocoTestReport {
     reports {
-        xml.enabled true
-        csv.enabled false
-        html.enabled true
+        xml.required = true
+        csv.required = false
+        html.required = true
     }
     dependsOn test
 }
 
 task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
-    main = 'com.codacy.CodacyCoverageReporter'
+    mainClass.set('com.codacy.CodacyCoverageReporter')
     classpath = configurations.codacy
     args = ['report', '-l', 'Java', '-r', "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"]
 }

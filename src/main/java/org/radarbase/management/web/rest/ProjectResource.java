@@ -1,7 +1,7 @@
 package org.radarbase.management.web.rest;
 
-import com.codahale.metrics.annotation.Timed;
-import io.swagger.annotations.ApiParam;
+import io.micrometer.core.annotation.Timed;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
@@ -42,7 +42,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -58,7 +57,6 @@ import static org.radarbase.auth.authorization.Permission.SOURCE_READ;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
-import static org.radarbase.management.security.SecurityUtils.getJWT;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_PROJECT_NOT_EMPTY;
 
 /**
@@ -79,7 +77,7 @@ public class ProjectResource {
     private ProjectService projectService;
 
     @Autowired
-    private HttpServletRequest servletRequest;
+    private RadarToken token;
 
     @Autowired
     private RoleService roleService;
@@ -106,7 +104,7 @@ public class ProjectResource {
     public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDto)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Project : {}", projectDto);
-        checkPermission(getJWT(servletRequest), PROJECT_CREATE);
+        checkPermission(token, PROJECT_CREATE);
         if (projectDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
                     ENTITY_NAME, "idexists", "A new project cannot already have an ID")).body(null);
@@ -140,7 +138,7 @@ public class ProjectResource {
         if (projectDto.getId() == null) {
             return createProject(projectDto);
         }
-        checkPermissionOnProject(getJWT(servletRequest), PROJECT_UPDATE,
+        checkPermissionOnProject(token, PROJECT_UPDATE,
                 projectDto.getProjectName());
         ProjectDTO result = projectService.save(projectDto);
         return ResponseEntity.ok()
@@ -161,7 +159,7 @@ public class ProjectResource {
             @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
                     minimized) throws NotAuthorizedException {
         log.debug("REST request to get Projects");
-        checkPermission(getJWT(servletRequest), PROJECT_READ);
+        checkPermission(token, PROJECT_READ);
         Page<?> page = projectService.findAll(minimized, pageable);
         HttpHeaders headers = PaginationUtil
                 .generatePaginationHttpHeaders(page, "/api/projects");
@@ -181,7 +179,7 @@ public class ProjectResource {
             throws NotAuthorizedException {
         log.debug("REST request to get Project : {}", projectName);
         ProjectDTO projectDto = projectService.findOneByName(projectName);
-        checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ, projectDto.getProjectName());
+        checkPermissionOnProject(token, PROJECT_READ, projectDto.getProjectName());
         return ResponseEntity.ok(projectDto);
     }
 
@@ -198,7 +196,7 @@ public class ProjectResource {
             throws NotAuthorizedException {
         log.debug("REST request to get Project : {}", projectName);
         ProjectDTO projectDto = projectService.findOneByName(projectName);
-        checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ, projectDto.getProjectName());
+        checkPermissionOnProject(token, PROJECT_READ, projectDto.getProjectName());
         return projectService.findSourceTypesByProjectId(projectDto.getId());
     }
 
@@ -215,7 +213,7 @@ public class ProjectResource {
             throws NotAuthorizedException {
         log.debug("REST request to delete Project : {}", projectName);
         ProjectDTO projectDto = projectService.findOneByName(projectName);
-        checkPermissionOnProject(getJWT(servletRequest), PROJECT_DELETE,
+        checkPermissionOnProject(token, PROJECT_DELETE,
                 projectDto.getProjectName());
 
         try {
@@ -240,7 +238,7 @@ public class ProjectResource {
             throws NotAuthorizedException {
         log.debug("REST request to get all Roles for project {}", projectName);
         ProjectDTO projectDto = projectService.findOneByName(projectName);
-        checkPermissionOnProject(getJWT(servletRequest), ROLE_READ, projectDto.getProjectName());
+        checkPermissionOnProject(token, ROLE_READ, projectDto.getProjectName());
         return ResponseEntity.ok(roleService.getRolesByProject(projectName));
     }
 
@@ -251,14 +249,14 @@ public class ProjectResource {
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/sources")
     @Timed
-    public ResponseEntity<?> getAllSourcesForProject(@ApiParam Pageable pageable,
+    public ResponseEntity<?> getAllSourcesForProject(@Parameter Pageable pageable,
             @PathVariable String projectName,
             @RequestParam(value = "assigned", required = false) Boolean assigned,
             @RequestParam(name = "minimized", required = false, defaultValue = "false")
                     Boolean minimized) throws NotAuthorizedException {
         log.debug("REST request to get all Sources");
         ProjectDTO projectDto = projectService.findOneByName(projectName);
-        RadarToken jwt = getJWT(servletRequest);
+        RadarToken jwt = token;
         checkPermissionOnProject(jwt, SOURCE_READ, projectDto.getProjectName());
         if (!jwt.isClientCredentials() && jwt.hasAuthority(PARTICIPANT)) {
             throw new NotAuthorizedException("Cannot list all project sources as a participant.");
@@ -303,9 +301,10 @@ public class ProjectResource {
             @Valid SubjectCriteria subjectCriteria
     ) throws NotAuthorizedException {
         String projectName = subjectCriteria.getProjectName();
-        RadarToken jwt = getJWT(servletRequest);
-        checkPermissionOnProject(jwt, SUBJECT_READ, projectName);
-        if (!jwt.isClientCredentials() && jwt.hasAuthority(PARTICIPANT)) {
+        // this checks if the project exists
+        projectService.findOneByName(projectName);
+        checkPermissionOnProject(token, SUBJECT_READ, projectName);
+        if (!token.isClientCredentials() && token.hasAuthority(PARTICIPANT)) {
             throw new NotAuthorizedException("Cannot list all project subjects as a participant.");
         }
 

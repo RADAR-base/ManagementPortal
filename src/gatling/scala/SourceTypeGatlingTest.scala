@@ -38,7 +38,7 @@ class SourceTypeGatlingTest extends ManagementPortalSimulation {
             .get("/api/source-types")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
-            .pause(5 seconds, 10 seconds)
+            .pause(5.seconds, 10.seconds)
             .feed(randomString)
             .exec(http("Create new sourceType")
               .post("/api/source-types")

@@ -25,9 +25,7 @@ export class ProjectService {
 
     update(project: Project): Observable<Project> {
         const copy: Project = Object.assign({}, project);
-
         copy.startDate = toDate(project.startDate);
-
         copy.endDate = toDate(project.endDate);
         return this.http.put<Project>(this.resourceUrl, copy);
     }
@@ -66,5 +64,4 @@ export class ProjectService {
         }
         return jsonResponse;
     }
-
 }

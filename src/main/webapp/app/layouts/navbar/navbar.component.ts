@@ -1,14 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import { of, Subscription } from 'rxjs';
 
 import { DEBUG_INFO_ENABLED, VERSION } from '../../app.constants';
 import { JhiLanguageHelper, LoginModalService, LoginService, Principal, Project, UserService } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 
 import { ProfileService } from '../profiles/profile.service';
+import { switchMap, tap } from "rxjs/operators";
 
 @Component({
     selector: 'jhi-navbar',
@@ -17,18 +18,18 @@ import { ProfileService } from '../profiles/profile.service';
         'navbar.scss',
     ],
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
 
     inProduction: boolean;
     isNavbarCollapsed: boolean;
     languages: any[];
-    swaggerEnabled: boolean;
+    apiDocsEnabled: boolean;
     modalRef: NgbModalRef;
     version: string;
-    eventSubscriber: Subscription;
 
     projects: Project[];
     currentAccount: any;
+    private subscriptions: Subscription;
 
     constructor(
             private loginService: LoginService,
@@ -43,41 +44,39 @@ export class NavbarComponent implements OnInit {
     ) {
         this.version = DEBUG_INFO_ENABLED ? 'v' + VERSION : '';
         this.isNavbarCollapsed = true;
+        this.subscriptions = new Subscription();
     }
 
     ngOnInit() {
-        this.registerChangeInAuthentication();
+        this.principal.identity().then(account => this.currentAccount = account);
+        this.loadRelevantProjects();
         this.languageHelper.getAll().then((languages) => {
             this.languages = languages;
         });
 
         this.profileService.getProfileInfo().then((profileInfo) => {
             this.inProduction = profileInfo.inProduction;
-            this.swaggerEnabled = profileInfo.swaggerEnabled;
+            this.apiDocsEnabled = profileInfo.apiDocsEnabled;
         });
-        this.loadRelevantProjects();
-        this.registerChangeInUsers();
     }
 
-    registerChangeInAuthentication() {
-        this.eventManager.subscribe('authenticationSuccess', () => {
-            this.loadRelevantProjects();
-        });
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
     }
 
     loadRelevantProjects() {
-        this.principal.identity().then((account) => {
-            this.currentAccount = account;
-            if (this.currentAccount) {
-                this.userService.findProject(this.currentAccount.login).subscribe((res: Project[]) => {
-                    this.projects = res;
-                });
-            }
-        });
-    }
-
-    registerChangeInUsers() {
-        this.eventSubscriber = this.eventManager.subscribe('userListModification', () => this.loadRelevantProjects());
+        this.subscriptions.add(this.principal.getAuthenticationState()
+            .pipe(
+              tap(account => this.currentAccount = account),
+              switchMap(account => {
+                  if (account) {
+                      return this.userService.findProject(account.login);
+                  } else {
+                      return of([]);
+                  }
+              })
+            )
+            .subscribe(projects => this.projects = projects));
     }
 
     trackProjectName(index: number, item: Project) {
