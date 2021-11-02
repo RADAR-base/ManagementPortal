@@ -71,6 +71,14 @@
             [translate]="'managementPortalApp.subject.filter.applyButton'"
         >
         </button>
+
+        <button class="btn btn-outline-secondary"
+                type="button"
+                id="clear-filter"
+                (click)="clearFilter()"
+                [translate]="'managementPortalApp.subject.filter.clearButton'"
+        >
+        </button>
     </div>
     <section>
         <div ngbDropdown class="d-inline-block subject-sorting-action" id="field-sort-by" >

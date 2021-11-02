@@ -19,6 +19,7 @@
             "filter": {
                 "title": "Filter",
                 "applyButton": "Apply filter",
+                "clearButton": "Clear filter",
                 "advancedFilter": "Advanced Filter",
                 "from": "From",
                 "to": "To"

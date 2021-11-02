@@ -243,6 +243,18 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         this.loadSubjects();
     }
 
+    clearFilter() {
+        this.filterSubjectExternalId = '';
+        this.filterSubjectId = '';
+        this.filterSubjectHumanReadableId = '';
+        this.filterDateOfBirth = '';
+        this.filterPersonName = '';
+        this.filterEnrollmentDateFrom = '';
+        this.filterEnrollmentDateTo = '';
+        this.filterSubjectGroup = '';
+        this.applyFilter();
+    }
+
     loadMore() {
         this.page = this.page + 1;
         this.transition();
@@ -307,4 +319,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             }).then(() => this.loadSubjects());
         }
     }
+
+
 }
