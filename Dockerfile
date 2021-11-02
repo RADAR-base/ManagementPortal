@@ -1,32 +1,27 @@
 # Build stage
-FROM gradle:7.2-jdk17 as builder
+FROM azul/zulu-openjdk-alpine:17 as builder
 
 # Install NodeJS and Yarn
-RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
-    apt-get install --no-install-recommends -yq nodejs build-essential && \
-    npm install -g yarn && \
-# ...and clean up the dependencies
-    apt autoremove && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache nodejs npm && \
+    npm install -g yarn
 
-# installing the node and java packages before adding the src directory
-# will allow us to re-use these image layers when only the souce code changes
+## installing the node and java packages before adding the src directory
+## will allow us to re-use these image layers when only the souce code changes
 WORKDIR /code
 
-ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.project.prod=true" \
-    GRADLE_USER_HOME=/code/.gradlecache
+ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.project.prod=true"
 
 COPY package.json yarn.lock .yarnrc.yml /code/
 COPY .yarn /code/.yarn
 RUN yarn install
 
-COPY gradle/*.gradle gradle/
-COPY build.gradle gradle.properties settings.gradle /code/
+COPY gradle gradle
+COPY gradlew build.gradle gradle.properties settings.gradle /code/
 COPY radar-auth/build.gradle radar-auth/
 COPY radar-auth/deprecated-auth0/build.gradle radar-auth/deprecated-auth0/
 COPY oauth-client-util/build.gradle oauth-client-util/
 
-RUN gradle downloadDependencies :radar-auth:shadowJar --no-watch-fs
+RUN ./gradlew downloadDependencies :radar-auth:shadowJar --no-watch-fs --info --stacktrace
 
 # now we copy our application source code and build it
 
@@ -36,7 +31,7 @@ COPY webpack webpack
 
 COPY radar-auth radar-auth
 COPY src src
-RUN gradle -s bootWar --no-watch-fs
+RUN ./gradlew -s bootWar --no-watch-fs
 
 # Run stage
 FROM azul/zulu-openjdk-alpine:17-jre-headless
