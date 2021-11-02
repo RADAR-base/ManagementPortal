@@ -1,11 +1,11 @@
 package org.radarbase.management.web.rest;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.authorization.AuthoritiesConstants;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Authority;
@@ -15,6 +15,7 @@ import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
 import org.radarbase.management.service.MailService;
+import org.radarbase.management.service.PasswordService;
 import org.radarbase.management.service.UserService;
 import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.web.rest.errors.ExceptionTranslator;
@@ -34,7 +35,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.Collections;
 import java.util.List;
@@ -54,8 +54,8 @@ import static org.radarbase.management.service.UserServiceIntTest.UPDATED_LANGKE
 import static org.radarbase.management.service.UserServiceIntTest.UPDATED_LASTNAME;
 import static org.radarbase.management.service.UserServiceIntTest.UPDATED_LOGIN;
 import static org.radarbase.management.service.UserServiceIntTest.UPDATED_PASSWORD;
-import static org.radarbase.management.service.UserServiceIntTest.createEntity;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
+import static org.radarbase.management.service.UserServiceIntTest.createEntity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -99,7 +99,10 @@ class UserResourceIntTest {
     private SubjectRepository subjectRepository;
 
     @Autowired
-    private HttpServletRequest servletRequest;
+    private RadarToken radarToken;
+
+    @Autowired
+    private PasswordService passwordService;
 
     private MockMvc restUserMockMvc;
 
@@ -113,7 +116,7 @@ class UserResourceIntTest {
         ReflectionTestUtils.setField(userResource, "mailService", mailService);
         ReflectionTestUtils.setField(userResource, "userRepository", userRepository);
         ReflectionTestUtils.setField(userResource, "subjectRepository", subjectRepository);
-        ReflectionTestUtils.setField(userResource, "servletRequest", servletRequest);
+        ReflectionTestUtils.setField(userResource, "token", radarToken);
         ReflectionTestUtils.setField(userResource,
                 "managementPortalProperties", managementPortalProperties);
 
@@ -131,7 +134,7 @@ class UserResourceIntTest {
 
     @BeforeEach
     public void initTest() {
-        user = createEntity();
+        user = createEntity(passwordService);
     }
 
     @Test
@@ -248,7 +251,7 @@ class UserResourceIntTest {
 
         User userWithRole = new User();
         userWithRole.setLogin(DEFAULT_LOGIN);
-        userWithRole.setPassword(RandomStringUtils.random(60));
+        userWithRole.setPassword(passwordService.generateEncodedPassword());
         userWithRole.setActivated(true);
         userWithRole.setEmail(DEFAULT_EMAIL);
         userWithRole.setFirstName(DEFAULT_FIRSTNAME);
@@ -384,7 +387,7 @@ class UserResourceIntTest {
 
         User anotherUser = new User();
         anotherUser.setLogin("jhipster");
-        anotherUser.setPassword(RandomStringUtils.random(60));
+        anotherUser.setPassword(passwordService.generateEncodedPassword());
         anotherUser.setActivated(true);
         anotherUser.setEmail("jhipster@localhost");
         anotherUser.setFirstName("java");
@@ -424,7 +427,7 @@ class UserResourceIntTest {
 
         User anotherUser = new User();
         anotherUser.setLogin("jhipster");
-        anotherUser.setPassword(RandomStringUtils.random(60));
+        anotherUser.setPassword(passwordService.generateEncodedPassword());
         anotherUser.setActivated(true);
         anotherUser.setEmail("jhipster@localhost");
         anotherUser.setFirstName("java");

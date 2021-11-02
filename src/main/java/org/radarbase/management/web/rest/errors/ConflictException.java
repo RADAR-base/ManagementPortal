@@ -1,7 +1,8 @@
 package org.radarbase.management.web.rest.errors;
 
+import org.springframework.http.HttpStatus;
+
 import java.util.Map;
-import javax.ws.rs.core.Response;
 
 
 /**
@@ -25,7 +26,7 @@ public class ConflictException extends RadarWebApplicationException {
      * @param errorCode  errorCode from {@link ErrorConstants}
      */
     public ConflictException(String message, String entityName, String errorCode) {
-        super(Response.Status.CONFLICT, message, entityName, errorCode);
+        super(HttpStatus.CONFLICT, message, entityName, errorCode);
     }
 
     /**
@@ -38,6 +39,6 @@ public class ConflictException extends RadarWebApplicationException {
      */
     public ConflictException(String message, String entityName, String errorCode,
             Map<String, String> paramMap) {
-        super(Response.Status.CONFLICT, message, entityName, errorCode, paramMap);
+        super(HttpStatus.CONFLICT, message, entityName, errorCode, paramMap);
     }
 }

@@ -2,22 +2,14 @@ import { login } from '../util/login';
 import * as navBarPage from '../util/nav-bar';
 
 describe('SourceData e2e test', () => {
-    before(() => {
-        login();
-        cy.visit('./');
-    });
-
     beforeEach(() => {
-        cy.wait(100);
-        Cypress.Cookies.preserveOnce('oAtkn');
+        login();
+        navBarPage.clickOnEntityMenu();
+        cy.get('[routerLink="source-data"]').first().click();
     });
 
     it('should load SourceData', () => {
-        navBarPage.clickOnEntityMenu();
-        cy.get('[routerLink="source-data"]').first().click();
-
-        const pageTitle = cy.get('h2 span').first();
-        pageTitle.should('have.text', 'Source Data');
+        cy.get('h2 span').first().should('have.text', 'Source Data');
     });
 
     it('should load create SourceData dialog', () => {

@@ -1,6 +1,6 @@
 package org.radarbase.management.web.rest;
 
-import com.codahale.metrics.annotation.Timed;
+import io.micrometer.core.annotation.Timed;
 import org.radarbase.auth.authorization.AuthoritiesConstants;
 import org.radarbase.management.service.RevisionService;
 import org.radarbase.management.service.dto.RevisionInfoDTO;

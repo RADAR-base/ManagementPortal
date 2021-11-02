@@ -1,15 +1,17 @@
 package org.radarbase.management.web.rest;
 
-import com.codahale.metrics.annotation.Timed;
+import io.micrometer.core.annotation.Timed;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.config.ManagementPortalProperties;
-import org.radarbase.management.repository.UserRepository;
-import org.radarbase.management.security.SecurityUtils;
+import org.radarbase.management.domain.User;
+import org.radarbase.management.security.SessionRadarToken;
 import org.radarbase.management.service.MailService;
+import org.radarbase.management.service.PasswordService;
 import org.radarbase.management.service.UserService;
 import org.radarbase.management.service.dto.UserDTO;
 import org.radarbase.management.service.mapper.UserMapper;
-import org.radarbase.management.service.util.PasswordUtil;
-import org.radarbase.management.web.rest.util.HeaderUtil;
+import org.radarbase.management.web.rest.errors.BadRequestException;
+import org.radarbase.management.web.rest.errors.RadarWebApplicationException;
 import org.radarbase.management.web.rest.vm.KeyAndPasswordVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,8 +28,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.Optional;
+
+import static org.radarbase.management.security.JwtAuthenticationFilter.TOKEN_ATTRIBUTE;
+import static org.radarbase.management.web.rest.errors.EntityName.USER;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_ACCESS_DENIED;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_EMAIL_NOT_REGISTERED;
 
 /**
  * REST controller for managing the current user's account.
@@ -36,9 +45,6 @@ import java.util.Optional;
 public class AccountResource {
 
     private static final Logger log = LoggerFactory.getLogger(AccountResource.class);
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
     private UserService userService;
@@ -52,7 +58,11 @@ public class AccountResource {
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
 
-    private final PasswordUtil passwordUtil = new PasswordUtil();
+    @Autowired(required = false)
+    private RadarToken token;
+
+    @Autowired
+    private PasswordService passwordService;
 
     /**
      * GET  /activate : activate the registered user.
@@ -70,16 +80,35 @@ public class AccountResource {
     }
 
     /**
-     * GET  /authenticate : check if the user is authenticated, and return its login.
+     * POST /login : check if the user is authenticated.
+     *
+     * @param session the HTTP session
+     * @return user account details if the user is authenticated
+     */
+    @PostMapping("/login")
+    @Timed
+    public ResponseEntity<UserDTO> login(HttpSession session) {
+        log.debug("Logging in user to session with principal {}", token.getUsername());
+        RadarToken sessionToken = new SessionRadarToken(token);
+        session.setAttribute(TOKEN_ATTRIBUTE, sessionToken);
+        return getAccount();
+    }
+
+    /**
+     * POST /logout : log out.
      *
      * @param request the HTTP request
-     * @return the login if the user is authenticated
+     * @return no content response if the user is authenticated
      */
-    @GetMapping("/authenticate")
+    @PostMapping("/logout")
     @Timed
-    public String authenticate(HttpServletRequest request) {
-        log.debug("REST request to check if the current user is authenticated");
-        return request.getRemoteUser();
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        log.debug("Unauthenticate a user");
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     /**
@@ -93,7 +122,8 @@ public class AccountResource {
     public ResponseEntity<UserDTO> getAccount() {
         return Optional.ofNullable(userService.getUserWithAuthorities())
                 .map(user -> new ResponseEntity<>(userMapper.userToUserDTO(user), HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new RadarWebApplicationException(HttpStatus.FORBIDDEN,
+                        "Cannot get account without user", USER, ERR_ACCESS_DENIED));
     }
 
     /**
@@ -105,26 +135,17 @@ public class AccountResource {
      */
     @PostMapping("/account")
     @Timed
-    public ResponseEntity<Void> saveAccount(@Valid @RequestBody UserDTO userDto) {
-        boolean hasConflictingLogin = userRepository.findOneByEmail(userDto.getEmail())
-                .filter(u -> !u.getLogin().equalsIgnoreCase(userDto.getLogin()))
-                .isPresent();
-
-        if (hasConflictingLogin) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                    .createFailureAlert("user-management", "emailexists", "Email already in use"))
-                    .body(null);
+    public ResponseEntity<Void> saveAccount(@Valid @RequestBody UserDTO userDto,
+            Authentication authentication) {
+        if (authentication.getPrincipal() == null) {
+            throw new RadarWebApplicationException(HttpStatus.FORBIDDEN,
+                    "Cannot update account without user", USER, ERR_ACCESS_DENIED);
         }
 
-        return userRepository
-                .findOneByLogin(SecurityUtils.getCurrentUserLogin())
-                .map(u -> {
-                    userService.updateUser(userDto.getFirstName(), userDto.getLastName(),
-                            userDto.getEmail(),
-                            userDto.getLangKey());
-                    return new ResponseEntity<Void>(HttpStatus.OK);
-                })
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
+        userService.updateUser(authentication.getName(), userDto.getFirstName(),
+                userDto.getLastName(), userDto.getEmail(), userDto.getLangKey());
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     /**
@@ -138,12 +159,9 @@ public class AccountResource {
             produces = MediaType.TEXT_PLAIN_VALUE)
     @Timed
     public ResponseEntity<String> changePassword(@RequestBody String password) {
-        ResponseEntity<String> passFail = checkPasswordLength(password);
-        if (passFail != null) {
-            return passFail;
-        }
+        passwordService.checkPasswordStrength(password);
         userService.changePassword(password);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 
@@ -155,18 +173,17 @@ public class AccountResource {
      * @return the ResponseEntity with status 200 (OK) if the email was sent, or status 400 (Bad
      *     Request) if the email address is not registered or user is not deactivated
      */
-    @PostMapping(path = "/account/reset-activation/init",
-            produces = MediaType.TEXT_PLAIN_VALUE)
+    @PostMapping(path = "/account/reset-activation/init")
     @Timed
-    public ResponseEntity<String>  requestActivationReset(@RequestBody String login) {
-        return userService.requestActivationReset(login)
-            .map(user -> {
-                // this will be the similar email with newly set reset-key
-                mailService.sendCreationEmail(user, managementPortalProperties.getCommon()
-                        .getActivationKeyTimeoutInSeconds());
-                return new ResponseEntity<>("Activation email was sent", HttpStatus.OK);
-            }).orElse(new ResponseEntity<>("Cannot find a deactivated user with login " + login,
-                HttpStatus.BAD_REQUEST));
+    public ResponseEntity<Void>  requestActivationReset(@RequestBody String login) {
+        User user = userService.requestActivationReset(login)
+                .orElseThrow(() -> new BadRequestException(
+                        "Cannot find a deactivated user with login " + login,
+                        USER, ERR_EMAIL_NOT_REGISTERED));
+
+        mailService.sendCreationEmail(user, managementPortalProperties.getCommon()
+                .getActivationKeyTimeoutInSeconds());
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     /**
@@ -176,16 +193,15 @@ public class AccountResource {
      * @return the ResponseEntity with status 200 (OK) if the email was sent, or status 400 (Bad
      *     Request) if the email address is not registered
      */
-    @PostMapping(path = "/account/reset_password/init",
-            produces = MediaType.TEXT_PLAIN_VALUE)
+    @PostMapping(path = "/account/reset_password/init")
     @Timed
-    public ResponseEntity<String>  requestPasswordReset(@RequestBody String mail) {
-        return userService.requestPasswordReset(mail)
-                .map(user -> {
-                    mailService.sendPasswordResetMail(user);
-                    return new ResponseEntity<>("email was sent", HttpStatus.OK);
-                }).orElse(new ResponseEntity<>("email address not registered",
-                        HttpStatus.BAD_REQUEST));
+    public ResponseEntity<Void>  requestPasswordReset(@RequestBody String mail) {
+        User user = userService.requestPasswordReset(mail)
+                .orElseThrow(() -> new BadRequestException("email address not registered",
+                        USER, ERR_EMAIL_NOT_REGISTERED));
+
+        mailService.sendPasswordResetMail(user);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     /**
@@ -198,29 +214,12 @@ public class AccountResource {
     @PostMapping(path = "/account/reset_password/finish",
             produces = MediaType.TEXT_PLAIN_VALUE)
     @Timed
-    public ResponseEntity<String> finishPasswordReset(
+    public ResponseEntity<Void> finishPasswordReset(
             @RequestBody KeyAndPasswordVM keyAndPassword) {
-        ResponseEntity<String> passFail = checkPasswordLength(keyAndPassword.getNewPassword());
-        if (passFail != null) {
-            return passFail;
-        }
+        passwordService.checkPasswordStrength(keyAndPassword.getNewPassword());
         return userService
                 .completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey())
-                .map(user -> new ResponseEntity<String>(HttpStatus.OK))
+                .map(user -> new ResponseEntity<Void>(HttpStatus.NO_CONTENT))
                 .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
-    }
-
-    private ResponseEntity<String> checkPasswordLength(String password) {
-        if (passwordUtil.isPasswordWeak(password)) {
-            return new ResponseEntity<>(
-                    "Weak password. Use a password with more variety of numeric, alphabetical and "
-                            + "symbol characters.",
-                    HttpStatus.BAD_REQUEST);
-        } else if (password.length() > 100) {
-            return new ResponseEntity<>(
-                    "Password too long", HttpStatus.BAD_REQUEST);
-        } else {
-            return null;
-        }
     }
 }

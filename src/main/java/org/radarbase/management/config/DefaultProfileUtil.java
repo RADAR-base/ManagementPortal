@@ -1,6 +1,6 @@
 package org.radarbase.management.config;
 
-import io.github.jhipster.config.JHipsterConstants;
+import tech.jhipster.config.JHipsterConstants;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.boot.SpringApplication;

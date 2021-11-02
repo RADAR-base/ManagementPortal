@@ -33,7 +33,7 @@ spring:
         username:
         password:
     jpa:
-        database-platform: io.github.jhipster.domain.util.FixedH2Dialect
+        database-platform: org.hibernate.dialect.H2Dialect
         database: H2
         open-in-view: false
         show-sql: false
@@ -58,9 +58,6 @@ spring:
         host: localhost
     messages:
         basename: i18n/messages
-    mvc:
-        favicon:
-            enabled: false
     thymeleaf:
         mode: XHTML
 
@@ -84,13 +81,10 @@ jhipster:
         queue-capacity: 10000
     security:
         authentication:
-            oauth:
-                client-id: ManagementPortalapp
-                client-secret: my-secret-token-to-change-in-production
+            jwt:
+                secret: my-secret-token-to-change-in-production
                 # Token is valid 30 minutes
                 token-validity-in-seconds: 1800
-    metrics: # DropWizard Metrics configuration, used by MetricsConfiguration
-        jmx.enabled: true
 
 # ===================================================================
 # Application specific properties

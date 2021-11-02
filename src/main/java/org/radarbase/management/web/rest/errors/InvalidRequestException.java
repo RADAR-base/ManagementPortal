@@ -1,7 +1,8 @@
 package org.radarbase.management.web.rest.errors;
 
+import org.springframework.http.HttpStatus;
+
 import java.util.Map;
-import javax.ws.rs.core.Response;
 
 /**
  * The server understood the request, but is refusing to fulfill it.
@@ -17,7 +18,7 @@ public class InvalidRequestException extends RadarWebApplicationException {
      * @param errorCode  errorCode from {@link ErrorConstants}
      */
     public InvalidRequestException(String message, String entityName, String errorCode) {
-        super(Response.Status.FORBIDDEN, message, entityName, errorCode);
+        super(HttpStatus.FORBIDDEN, message, entityName, errorCode);
     }
 
     /**
@@ -30,7 +31,7 @@ public class InvalidRequestException extends RadarWebApplicationException {
      */
     public InvalidRequestException(String message, String entityName, String errorCode,
             Map<String, String> params) {
-        super(Response.Status.FORBIDDEN, message, entityName, errorCode, params);
+        super(HttpStatus.FORBIDDEN, message, entityName, errorCode, params);
     }
 
 }

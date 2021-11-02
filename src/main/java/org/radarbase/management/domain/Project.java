@@ -53,7 +53,8 @@ public class Project extends AbstractEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
+    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000,
+            sequenceName = "hibernate_sequence")
     private Long id;
 
     @NotNull
@@ -215,30 +216,6 @@ public class Project extends AbstractEntity implements Serializable {
 
     public Project sourceTypes(Set<SourceType> sourceTypes) {
         this.sourceTypes = sourceTypes;
-        return this;
-    }
-
-    /**
-     * Add a source type to this project.
-     *
-     * @param sourceType the source type to add
-     * @return this project
-     */
-    public Project addSourceType(SourceType sourceType) {
-        this.sourceTypes.add(sourceType);
-        sourceType.getProjects().add(this);
-        return this;
-    }
-
-    /**
-     * Remove a source type from this project.
-     *
-     * @param sourceType the source type to remove
-     * @return this project
-     */
-    public Project removeSourceType(SourceType sourceType) {
-        this.sourceTypes.remove(sourceType);
-        sourceType.getProjects().remove(this);
         return this;
     }
 

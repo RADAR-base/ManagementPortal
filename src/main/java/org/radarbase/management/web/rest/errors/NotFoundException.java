@@ -1,7 +1,8 @@
 package org.radarbase.management.web.rest.errors;
 
+import org.springframework.http.HttpStatus;
+
 import java.util.Map;
-import javax.ws.rs.core.Response;
 
 /**
  * Created by dverbeec on 7/09/2017.
@@ -20,7 +21,7 @@ public class NotFoundException extends RadarWebApplicationException {
      * @param errorCode  errorCode from {@link ErrorConstants}
      */
     public NotFoundException(String message, String entityName, String errorCode) {
-        super(Response.Status.NOT_FOUND, message, entityName, errorCode);
+        super(HttpStatus.NOT_FOUND, message, entityName, errorCode);
     }
 
     /**
@@ -33,6 +34,6 @@ public class NotFoundException extends RadarWebApplicationException {
      */
     public NotFoundException(String message, String entityName, String errorCode,
             Map<String, String> paramMap) {
-        super(Response.Status.NOT_FOUND, message, entityName, errorCode, paramMap);
+        super(HttpStatus.NOT_FOUND, message, entityName, errorCode, paramMap);
     }
 }

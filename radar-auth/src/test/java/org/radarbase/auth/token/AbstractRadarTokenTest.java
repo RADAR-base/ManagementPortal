@@ -55,6 +55,11 @@ class AbstractRadarTokenTest {
         }
 
         @Override
+        public String getUsername() {
+            return "";
+        }
+
+        @Override
         public Date getIssuedAt() {
             return null;
         }

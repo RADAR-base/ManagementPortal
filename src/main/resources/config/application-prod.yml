@@ -12,12 +12,6 @@
 # Full reference is available at:
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
-zuul:
-    sensitiveHeaders: Cookie,Set-Cookie
-    routes:
-        oauth:
-            path: /oauthserver/oauth/**
-            url: http://localhost:8080/managementportal/oauth
 spring:
     devtools:
         restart:
@@ -54,11 +48,9 @@ spring:
         host: smtp
         port: 25
         protocol: smtp
-        tls: false
         properties.mail.smtp:
             auth: false
             starttls.enable: false
-        debug: true
     thymeleaf:
         cache: true
     liquibase:

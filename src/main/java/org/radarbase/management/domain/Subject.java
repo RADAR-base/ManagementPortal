@@ -1,7 +1,5 @@
 package org.radarbase.management.domain;
 
-import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
@@ -36,6 +34,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+
 /**
  * A Subject.
  */
@@ -45,12 +45,12 @@ import java.util.Set;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EntityListeners({AbstractEntityListener.class})
 public class Subject extends AbstractEntity implements Serializable {
-
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
+    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000,
+            sequenceName = "hibernate_sequence")
     private Long id;
 
     @Column(name = "external_link")

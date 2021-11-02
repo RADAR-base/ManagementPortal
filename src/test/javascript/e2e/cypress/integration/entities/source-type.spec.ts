@@ -2,20 +2,13 @@ import { login } from '../util/login';
 import * as navBarPage from '../util/nav-bar';
 
 describe('SourceType e2e test', () => {
-    before(() => {
-        login();
-        cy.visit('./');
-    });
-
     beforeEach(() => {
-        cy.wait(100);
-        Cypress.Cookies.preserveOnce('oAtkn');
+        login();
+        navBarPage.clickOnEntityMenu();
+        navBarPage.clickOnEntity('source-type');
     });
 
     it('should load SourceTypes', () => {
-        navBarPage.clickOnEntityMenu();
-        navBarPage.clickOnEntity('source-type');
-
         cy.get('h2 span').first().should('have.text', 'Source Types');
     });
 
