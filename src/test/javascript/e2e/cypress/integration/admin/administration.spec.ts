@@ -8,7 +8,6 @@ describe('administration', () => {
 
     beforeEach(() => {
         login();
-        cy.wait(100);
         navBarPage.clickOnAdminMenu();
     });
 
