@@ -134,7 +134,7 @@ public class GroupService {
      * @param projectName project name
      * @param groupName group name
      * @param subjectsToAdd patch items for subjects to be added
-     * @param subjectsToRemoved patch items for subjects to be removed
+     * @param subjectsToRemove patch items for subjects to be removed
      * @throws NotFoundException if the project or group is not found.
      */
     @Transactional
