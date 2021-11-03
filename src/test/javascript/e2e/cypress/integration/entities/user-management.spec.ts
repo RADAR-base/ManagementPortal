@@ -37,22 +37,19 @@ describe('Create, edit, and delete user', () => {
     });
 
     it('should be able to create new system admin user', () => {
-        cy.get('button.btn-primary').contains('Create an admin user').click();
-        cy.wait(1000);
+        cy.contains('button.btn-primary', 'Create an admin user').click();
         cy.get('[name=login]').type('test-sys-admin');
         cy.get('[name=firstName]').type('Alice');
         cy.get('[name=lastName]').type('Bob');
         cy.get('[name=email]').type('alice@radarbase.org');
 
-        cy.get('button.btn-primary').contains('Save').click();
-        cy.wait(1000);
+        cy.contains('button.btn-primary', 'Save').click();
         cy.get('jhi-user-mgmt tbody tr').should('have.length', 5);
     });
 
     it('should be able to edit a user with roles', () => {
-        cy.get('jhi-user-mgmt tbody tr td').contains('test-user-radar')
-            .parents('tr')
-            .find('button').contains('Edit')
+        cy.contains('jhi-user-mgmt tbody tr', 'test-user-radar')
+            .contains('button', 'Edit')
             .first().click();
         cy.get('[name=lastName]').type('Robert');
         cy.get('button.btn-primary').contains('Save').click();

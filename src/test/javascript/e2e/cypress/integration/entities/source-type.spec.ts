@@ -23,7 +23,6 @@ describe('SourceType e2e test', () => {
 
     it('should be able to create SourceType', () => {
         cy.get('button.create-source-type').click();
-        cy.wait(1000);
         cy.get('#field_producer').type('test-producer');
         cy.get('#field_model').type('test-model');
         cy.get('#field_catalogVersion').type('v1');
@@ -33,11 +32,9 @@ describe('SourceType e2e test', () => {
     });
 
     it('should be able to edit SourceType', () => {
-        cy.wait(1000);
-        cy.get('td').contains('test-producer').parents('tr')
-            .find('button').contains('Edit').click();
-        cy.wait(1000);
-        cy.get('button.btn-primary').contains('Save').click();
+        cy.contains('tr', 'test-producer')
+            .contains('button', 'Edit').click();
+        cy.contains('button.btn-primary', 'Save').click();
     });
 
     it('should be able to delete SourceType', () => {

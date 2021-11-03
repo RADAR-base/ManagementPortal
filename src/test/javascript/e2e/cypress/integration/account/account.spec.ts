@@ -30,7 +30,7 @@ describe('account', () => {
     it('should be able to update settings', () => {
         login('admin', 'admin')
         navBarPage.clickOnAccountMenu();
-        cy.get('[routerLink="settings"]').click();
+        navBarPage.clickOnEntity('settings');
 
         cy.get('h2').first()
             .should('have.text', 'User settings for [admin]');

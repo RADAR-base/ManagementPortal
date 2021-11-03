@@ -60,8 +60,8 @@ allprojects {
     }
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 description = 'MangementPortal application to manage studies and participants'
 
@@ -263,15 +263,6 @@ task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {
 task ghPagesOpenApiSpec(type: Copy) {
     from file("$buildDir/swagger-spec")
     into file("$rootDir/public/apidoc")
-}
-
-if (project.hasProperty('nodeInstall')) {
-    node {
-        version = "${node_version}"
-        npmVersion = "${npm_version}"
-        yarnVersion = "${yarn_version}"
-        download = true
-    }
 }
 
 compileJava.dependsOn processResources
