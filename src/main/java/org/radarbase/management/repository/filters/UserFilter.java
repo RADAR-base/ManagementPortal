@@ -1,6 +1,5 @@
 package org.radarbase.management.repository.filters;
 
-import org.apache.commons.lang.StringUtils;
 import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Role;
@@ -104,6 +103,6 @@ public class UserFilter implements Specification<User> {
     }
 
     private static boolean isValid(String str) {
-        return StringUtils.isNotBlank(str) && !str.equals("null");
+        return str != null && !str.isBlank() && !str.equals("null");
     }
 }

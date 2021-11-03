@@ -13,7 +13,7 @@ import { ManagementPortalAccountModule } from './account/account.module';
 import { ManagementPortalAdminModule } from './admin/admin.module';
 import { PaginationConfig } from './blocks/config/uib-pagination.config';
 import { ManagementPortalEntityModule } from './entities/entity.module';
-import { ManagementPortalHomeModule } from './home/home.module';
+import { ManagementPortalHomeModule } from './home';
 
 import {
     ActiveMenuDirective,
@@ -26,10 +26,13 @@ import {
 } from './layouts';
 
 import { LANGUAGES, ManagementPortalSharedModule } from './shared';
-import { AuthInterceptor } from './blocks/interceptor/auth.interceptor';
-import { AuthExpiredInterceptor } from './blocks/interceptor/auth-expired.interceptor';
 import { ErrorHandlerInterceptor } from './blocks/interceptor/errorhandler.interceptor';
 import { NotificationInterceptor } from './blocks/interceptor/notification.interceptor';
+import { APP_BASE_HREF, PlatformLocation } from "@angular/common";
+
+export function getBaseHref(platformLocation: PlatformLocation): string {
+    return platformLocation.getBaseHrefFromDOM();
+}
 
 @NgModule({
     imports: [
@@ -63,16 +66,6 @@ import { NotificationInterceptor } from './blocks/interceptor/notification.inter
         PaginationConfig,
         {
             provide: HTTP_INTERCEPTORS,
-            useClass: AuthInterceptor,
-            multi: true,
-        },
-        {
-            provide: HTTP_INTERCEPTORS,
-            useClass: AuthExpiredInterceptor,
-            multi: true,
-        },
-        {
-            provide: HTTP_INTERCEPTORS,
             useClass: ErrorHandlerInterceptor,
             multi: true,
         },
@@ -81,6 +74,11 @@ import { NotificationInterceptor } from './blocks/interceptor/notification.inter
             useClass: NotificationInterceptor,
             multi: true,
         },
+        {
+            provide: APP_BASE_HREF,
+            useFactory: getBaseHref,
+            deps: [PlatformLocation]
+        }
     ],
     bootstrap: [JhiMainComponent],
 })

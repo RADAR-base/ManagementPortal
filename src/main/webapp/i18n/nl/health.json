@@ -14,8 +14,7 @@
             "diskSpace": "Schijfruimte",
             "mail": "Email",
             "db": "Databank",
-            "refreshScope": "Refresh Scope",
-            "hystrix": "Hystrix"
+            "refreshScope": "Refresh Scope"
         },
         "table": {
             "service": "Dienstnaam",

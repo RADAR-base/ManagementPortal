@@ -59,7 +59,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     filterPersonName = '';
     filterEnrollmentDateFrom = '';
     filterEnrollmentDateTo = '';
-    filterSubjectGroup = '';
+    filterSubjectGroupId = '';
 
     isAdvancedFilterCollapsed = true;
 
@@ -181,7 +181,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             externalId: this.filterSubjectExternalId.trim() || undefined,
             personName: this.filterPersonName.trim() || undefined,
             humanReadableIdentifier: this.filterSubjectHumanReadableId.trim() || undefined,
-            group: this.filterSubjectGroup,
+            groupId: this.filterSubjectGroupId,
             dateOfBirth: undefined,
             enrollmentDate: undefined,
         };
@@ -190,8 +190,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         if (enrollmentDateFrom || enrollmentDateTo) {
             const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             params.enrollmentDate = {
-                from: enrollmentDateFrom ? enrollmentDateFrom + '[' + timeZone + ']' : undefined,
-                to: enrollmentDateTo ? enrollmentDateTo + '[' + timeZone + ']' : undefined,
+                from: enrollmentDateFrom ? enrollmentDateFrom + 'T00:00' + '[' + timeZone + ']' : undefined,
+                to: enrollmentDateTo ? enrollmentDateTo + 'T23:59' + '[' + timeZone + ']' : undefined,
             };
         }
         if (this.filterDateOfBirth) {
@@ -241,6 +241,18 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     applyFilter() {
         this.subjects = [];
         this.loadSubjects();
+    }
+
+    clearFilter() {
+        this.filterSubjectExternalId = '';
+        this.filterSubjectId = '';
+        this.filterSubjectHumanReadableId = '';
+        this.filterDateOfBirth = '';
+        this.filterPersonName = '';
+        this.filterEnrollmentDateFrom = '';
+        this.filterEnrollmentDateTo = '';
+        this.filterSubjectGroupId = '';
+        this.applyFilter();
     }
 
     loadMore() {
@@ -307,4 +319,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             }).then(() => this.loadSubjects());
         }
     }
+
+
 }

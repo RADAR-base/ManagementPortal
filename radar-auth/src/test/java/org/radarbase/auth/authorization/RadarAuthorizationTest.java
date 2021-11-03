@@ -22,7 +22,6 @@ import org.radarbase.auth.util.TokenTestUtils;
  * Created by dverbeec on 25/09/2017.
  */
 class RadarAuthorizationTest {
-
     @BeforeAll
     public static void loadToken() throws Exception {
         TokenTestUtils.setUp();

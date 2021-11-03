@@ -4,7 +4,8 @@
             "null": "NOT STATED",
             "ACTIVE": "ACTIVE",
             "PASSIVE": "PASSIVE",
-            "MONITOR": "MONITOR"
+            "MONITOR": "MONITOR",
+            "CONNECTOR": "CONNECTOR"
         }
     }
 }

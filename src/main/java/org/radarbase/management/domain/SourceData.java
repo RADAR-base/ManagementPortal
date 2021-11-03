@@ -36,7 +36,8 @@ public class SourceData extends AbstractEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
+    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000,
+            sequenceName = "hibernate_sequence")
     private Long id;
 
     //SourceData type e.g. ACCELEROMETER, TEMPERATURE.

@@ -1,10 +1,10 @@
 package org.radarbase.management.service;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Locale;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.commons.lang3.CharEncoding;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.User;
 import org.slf4j.Logger;
@@ -63,7 +63,7 @@ public class MailService {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
             MimeMessageHelper message = new MimeMessageHelper(mimeMessage, isMultipart,
-                    CharEncoding.UTF_8);
+                    StandardCharsets.UTF_8.name());
             message.setTo(to);
             message.setFrom(managementPortalProperties.getMail().getFrom());
             message.setSubject(subject);

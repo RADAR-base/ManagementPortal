@@ -26,6 +26,7 @@ public class JwtRadarToken extends AbstractRadarToken {
     public static final String SOURCES_CLAIM = "sources";
     public static final String GRANT_TYPE_CLAIM = "grant_type";
     public static final String CLIENT_ID_CLAIM = "client_id";
+    public static final String USER_NAME_CLAIM = "user_name";
 
     private final Map<String, List<String>> roles;
     private final List<String> authorities;
@@ -41,6 +42,7 @@ public class JwtRadarToken extends AbstractRadarToken {
     private final String type;
     private final String clientId;
     private final DecodedJWT jwt;
+    private final String username;
 
     /**
      * Initialize this {@code JwtRadarToken} based on the {@link DecodedJWT}. All relevant
@@ -71,6 +73,7 @@ public class JwtRadarToken extends AbstractRadarToken {
         sources = emptyIfNull(jwt.getClaim(SOURCES_CLAIM).asList(String.class));
         grantType = emptyIfNull(jwt.getClaim(GRANT_TYPE_CLAIM).asString());
         subject = emptyIfNull(jwt.getSubject());
+        username = emptyIfNull(jwt.getClaim(USER_NAME_CLAIM).asString());
         issuedAt = jwt.getIssuedAt();
         expiresAt = jwt.getExpiresAt();
         audience = emptyIfNull(jwt.getAudience());
@@ -108,6 +111,11 @@ public class JwtRadarToken extends AbstractRadarToken {
     @Override
     public String getSubject() {
         return subject;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
     }
 
     @Override

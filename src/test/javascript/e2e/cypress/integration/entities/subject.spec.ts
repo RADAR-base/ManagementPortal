@@ -1,14 +1,11 @@
 import { login } from '../util/login';
+import { clickOnEntity, clickOnEntityMenu } from "../util/nav-bar";
 
 describe('Subject e2e test', () => {
-    before(() => {
-        login();
-        cy.visit('./');
-    });
-
     beforeEach(() => {
-        cy.wait(100);
-        Cypress.Cookies.preserveOnce('oAtkn');
+        login();
+        clickOnEntityMenu();
+        clickOnEntity('subject');
     });
 
     it('should load Subjects', () => {
@@ -47,7 +44,6 @@ describe('Subject e2e test', () => {
     });
 
     it('should have load subject row with subject-id, external-id, status, project, sources and attributes columns', () => {
-
         cy.get('jhi-subjects .subject-row').first().find('.subject-row__select-row input')
                 .invoke('attr', 'type')
                 .should('eq', 'checkbox')

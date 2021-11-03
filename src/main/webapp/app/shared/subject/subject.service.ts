@@ -75,6 +75,7 @@ export interface SubjectFilterParams {
     externalId?: string,
     dateOfBirth?: SubjectFilterRange,
     enrollmentDate?: SubjectFilterRange,
+    groupId?: string | number,
     humanReadableIdentifier?: string,
     personName?: string,
     humanReadableId?: string,

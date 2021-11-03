@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 
 import { AccountService } from './account.service';
+import { catchError, map } from "rxjs/operators";
 
 @Injectable({ providedIn: 'root' })
 export class Principal {
     private userIdentity: any;
     private authenticated = false;
-    private authenticationState = new Subject<any>();
+    private authenticationState = new BehaviorSubject<any>(null);
 
     constructor(
         private account: AccountService
@@ -33,46 +34,30 @@ export class Principal {
         return Promise.resolve(false);
     }
 
-    hasAuthority(authority: string): Promise<boolean> {
-        if (!this.authenticated) {
-           return Promise.resolve(false);
-        }
-
-        return this.identity().then((id) => {
-            return Promise.resolve(id.authorities && id.authorities.indexOf(authority) !== -1);
-        }, () => {
-            return Promise.resolve(false);
-        });
-    }
-
     identity(force?: boolean): Promise<any> {
-        if (force === true) {
-            this.userIdentity = undefined;
-        }
-
         // check and see if we have retrieved the userIdentity data from the server.
         // if we have, reuse it by immediately resolving
-        if (this.userIdentity) {
+        if (!force && this.userIdentity) {
             return Promise.resolve(this.userIdentity);
         }
 
         // retrieve the userIdentity data from the server, update the identity object, and then resolve.
-        return this.account.get().toPromise().then((account) => {
-            if (account) {
-                this.userIdentity = account;
-                this.authenticated = true;
-            } else {
-                this.userIdentity = null;
-                this.authenticated = false;
-            }
-            this.authenticationState.next(this.userIdentity);
-            return this.userIdentity;
-        }).catch((err) => {
-            this.userIdentity = null;
-            this.authenticated = false;
-            this.authenticationState.next(this.userIdentity);
-            return null;
-        });
+        return this.account.get()
+            .pipe(
+              catchError(() => of()),
+              map((account) => {
+                  if (account) {
+                      this.userIdentity = account;
+                      this.authenticated = true;
+                  } else {
+                      this.userIdentity = null;
+                      this.authenticated = false;
+                  }
+                  this.authenticationState.next(this.userIdentity);
+                  return this.userIdentity;
+              }),
+            )
+            .toPromise();
     }
 
     isAuthenticated(): boolean {

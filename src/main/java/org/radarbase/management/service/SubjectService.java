@@ -49,7 +49,6 @@ import org.radarbase.management.service.dto.UserDTO;
 import org.radarbase.management.service.mapper.ProjectMapper;
 import org.radarbase.management.service.mapper.SourceMapper;
 import org.radarbase.management.service.mapper.SubjectMapper;
-import org.radarbase.management.service.util.RandomUtil;
 import org.radarbase.management.web.rest.criteria.SubjectCriteria;
 import org.radarbase.management.web.rest.errors.BadRequestException;
 import org.radarbase.management.web.rest.errors.ConflictException;
@@ -61,7 +60,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.history.Revisions;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,9 +94,6 @@ public class SubjectService {
     private RoleRepository roleRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private GroupRepository groupRepository;
 
     @Autowired
@@ -106,6 +101,9 @@ public class SubjectService {
 
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
+
+    @Autowired
+    private PasswordService passwordService;
 
     /**
      * Create a new subject.
@@ -127,9 +125,8 @@ public class SubjectService {
         subject.setGroup(getSubjectGroup(project, subjectDto.getGroup()));
 
         // set password and reset keys
-        String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
-        user.setPassword(encryptedPassword);
-        user.setResetKey(RandomUtil.generateResetKey());
+        user.setPassword(passwordService.generateEncodedPassword());
+        user.setResetKey(passwordService.generateResetKey());
         // setting default language key to "en", required to set email context, Find a workaround
         user.setLangKey("en");
         user.setResetDate(ZonedDateTime.now());

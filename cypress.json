@@ -1,7 +1,8 @@
 {
   "integrationFolder": "src/test/javascript/e2e/cypress/integration",
   "supportFile": false,
-  "videosFolder": "src/test/javascript/e2e/cypress/videos",
+  "video": false,
+  "experimentalSessionSupport": true,
   "screenshotsFolder": "src/test/javascript/e2e/cypress/screenshots",
   "pluginsFile": false,
   "fixturesFolder": false,

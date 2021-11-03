@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.authentication.OAuthHelper;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Group;
 import org.radarbase.management.domain.Project;
@@ -30,7 +31,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,7 +74,7 @@ class GroupResourceIntTest {
     private GroupRepository groupRepository;
 
     @Autowired
-    private HttpServletRequest servletRequest;
+    private RadarToken token;
 
     private MockMvc restProjectMockMvc;
 
@@ -87,7 +87,7 @@ class GroupResourceIntTest {
         MockitoAnnotations.initMocks(this);
         GroupResource projectResource = new GroupResource();
         ReflectionTestUtils.setField(projectResource, "groupService", groupService);
-        ReflectionTestUtils.setField(projectResource, "servletRequest", servletRequest);
+        ReflectionTestUtils.setField(projectResource, "token", token);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());

@@ -24,7 +24,7 @@ public class SubjectCriteria {
     private List<SubjectAuthority> authority = List.of(SubjectAuthority.ROLE_PARTICIPANT);
     private LocalDateCriteriaRange dateOfBirth = null;
     private ZonedDateTimeCriteriaRange enrollmentDate = null;
-    private String groupName = null;
+    private Long groupId = null;
     private String humanReadableIdentifier = null;
     private SubjectCriteriaLast last = null;
     @Min(0)
@@ -64,12 +64,12 @@ public class SubjectCriteria {
         this.enrollmentDate = enrollmentDate;
     }
 
-    public String getGroupName() {
-        return groupName;
+    public Long getGroupId() {
+        return groupId;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
     }
 
     public String getHumanReadableIdentifier() {
@@ -215,7 +215,7 @@ public class SubjectCriteria {
         return "SubjectCriteria{" + "authority=" + authority
                 + ", dateOfBirth=" + dateOfBirth
                 + ", enrollmentDate=" + enrollmentDate
-                + ", groupName='" + groupName + '\''
+                + ", groupId='" + groupId + '\''
                 + ", humanReadableIdentifier='" + humanReadableIdentifier + '\''
                 + ", last=" + last
                 + ", page=" + page

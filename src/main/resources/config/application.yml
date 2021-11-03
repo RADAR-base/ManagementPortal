@@ -1,60 +1,50 @@
-# ===================================================================
-# Spring Boot configuration.
-#
-# This configuration will be overriden by the Spring profile you use,
-# for example application-dev.yml if you use the "dev" profile.
-#
-# More information on profiles: https://jhipster.github.io/profiles/
-# More information on configuration properties: https://jhipster.github.io/common-application-properties/
-# ===================================================================
-
-# ===================================================================
-# Standard Spring Boot properties.
-# Full reference is available at:
-# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
-# ===================================================================
-zuul:
-    sensitiveHeaders: Cookie,Set-Cookie
-    host:
-        max-total-connections: 1000
-        max-per-route-connections: 100
-    semaphore:
-        max-semaphores: 500
-    retryable: true
-    routes:
-        oauth:
-            path: /oauthserver/oauth/**
-            url: http://localhost:8080/oauth
-ribbon:
-    eureka:
-        enabled: false
-
-hystrix:
-    command:
-        default:
-            execution:
-                isolation:
-                    thread:
-                        timeoutInMilliseconds: 60000
-
 management:
     endpoints:
         web:
             base-path: /management
+            exposure:
+                include: [ "configprops", "env", "health", "info", "jhimetrics", "logfile", "loggers", "prometheus", "threaddump", "caches", "liquibase"]
     endpoint:
         health:
-            show-details: "ALWAYS"
+            show-details: ALWAYS
+            probes:
+                enabled: true
+        jhimetrics:
+            enabled: true
     health:
         diskspace:
-            enabled: false # disabling diskspace as the standard config, since we have removed security check for health endpoint
+            # disabling diskspace as the standard config, since we have removed
+            # security check for health endpoint
+            enabled: false
         mail:
             enabled: false # When using the MailService, configure an SMTP server and set this to true
-        datasource:
+        db:
             enabled: true
     metrics:
         export:
             defaults:
-                enabled: false
+                enabled: true
+            prometheus:
+                enabled: true
+                step: 60
+        enable:
+            http: true
+            jvm: true
+            logback: true
+            process: true
+            system: true
+        distribution:
+            percentiles-histogram:
+                all: true
+            percentiles:
+                all: 0, 0.5, 0.75, 0.95, 0.99, 1.0
+        tags:
+            application: ${spring.application.name}
+        web:
+            server:
+                request:
+                    autotime:
+                        enabled: true
 
 spring:
     application:
@@ -86,21 +76,24 @@ spring:
                         non_contextual_creation: true
     messages:
         basename: i18n/messages
-    mvc:
-        favicon:
-            enabled: false
     thymeleaf:
-        mode: XHTML
+        mode: HTML
 
-security:
-    oauth2:
-        resource:
-            filter-order: 3
+springdoc:
+    api-docs:
+        path: /api-docs
+        enabled: false
+    swagger-ui:
+        enabled: false
 
 server:
-    session:
-        cookie:
-            http-only: true
+    servlet:
+        session:
+            cookie:
+                http-only: true
+                secure: true
+                max-age: 30m
+            timeout: 15m
 
 info:
     project:
@@ -132,24 +125,11 @@ jhipster:
     # By default CORS is disabled. Uncomment to enable.
     cors:
         allowed-origins: '*'
-        allowed-methods: GET, PUT, POST, DELETE, OPTIONS
+        allowed-methods: GET, PUT, POST, DELETE, OPTIONS, PATCH
         allowed-headers: Authorization, Content-Type
         #exposed-headers:
         allow-credentials: true
         max-age: 1800
-    swagger:
-        default-include-pattern: /api/.*
-        title: ManagementPortal API
-        description: ManagementPortal API documentation
-        version: #project.version#
-        terms-of-service-url:
-        contact-name:
-        contact-url:
-        contact-email:
-        license: Apache 2.0
-        license-url: https://github.com/RADAR-base/ManagementPortal/blob/master/LICENSE.md
-    ribbon:
-        display-on-active-profiles: dev
 
 # ===================================================================
 # Application specific properties

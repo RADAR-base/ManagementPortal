@@ -1,8 +1,9 @@
 package org.radarbase.management.web.rest.errors;
 
 
+import org.springframework.http.HttpStatus;
+
 import java.util.Map;
-import javax.ws.rs.core.Response;
 
 /**
  * The server encountered an unexpected condition which prevented it from fulfilling the request.
@@ -17,7 +18,7 @@ public class InvalidStateException extends RadarWebApplicationException {
      * @param errorCode  errorCode from {@link ErrorConstants}
      */
     public InvalidStateException(String message, String entityName, String errorCode) {
-        super(Response.Status.INTERNAL_SERVER_ERROR, message, entityName, errorCode);
+        super(HttpStatus.INTERNAL_SERVER_ERROR, message, entityName, errorCode);
     }
 
     /**
@@ -30,6 +31,6 @@ public class InvalidStateException extends RadarWebApplicationException {
      */
     public InvalidStateException(String message, String entityName, String errorCode,
             Map<String, String> params) {
-        super(Response.Status.INTERNAL_SERVER_ERROR, message, entityName, errorCode, params);
+        super(HttpStatus.INTERNAL_SERVER_ERROR, message, entityName, errorCode, params);
     }
 }

@@ -1,16 +1,17 @@
+import * as navBarPage from "./nav-bar";
+
 export function login(username = "admin", password = "admin") {
-    return cy.request({
-        url: "/oauthserver/oauth/token",
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `username=${username}&password=${password}&grant_type=password`
-    }).then(res => {
-        let token = res.body;
-        const expiredAt = new Date();
-        expiredAt.setSeconds(expiredAt.getSeconds() + token.expires_in);
-        token.expires_at = expiredAt.getTime();
-        cy.setCookie("oAtkn", JSON.stringify(token));
-    });
+    cy.session([username, password], () => {
+        cy.visit('/');
+        navBarPage.clickOnAccountMenu();
+        navBarPage.clickOnSignIn();
+        cy.get('.modal-content h1').first().should('have.text', 'Sign in');
+        cy.get('#username').type(username);
+        cy.get('#password').type(password);
+        cy.get('button[type=submit]').click();
+        cy.get('.alert-success span').should('exist');
+    }, { validate() {
+        cy.getCookie('SESSION').should('exist')}
+    })
+    cy.visit('/');
 }

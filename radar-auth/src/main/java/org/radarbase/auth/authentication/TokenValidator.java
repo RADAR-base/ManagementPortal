@@ -166,8 +166,8 @@ public class TokenValidator {
                     return validateAccessToken(token, false);
                 }
             } catch (JWTVerificationException ex) {
-                LOGGER.debug("Verifier {} with implementation {} did not accept token {}",
-                        verifier.toString(), verifier.getClass().toString(), token);
+                LOGGER.debug("Verifier {} with implementation {} did not accept token",
+                        verifier, verifier.getClass());
             }
         }
         throw new TokenValidationException("No registered validator could authenticate this token");

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.management.domain.support.AbstractEntityListener;
@@ -39,7 +38,6 @@ import java.util.UUID;
 @Entity
 @Audited
 @Table(name = "radar_source")
-@Where(clause = "deleted=false")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EntityListeners({AbstractEntityListener.class})
 public class Source extends AbstractEntity implements Serializable {
@@ -48,7 +46,8 @@ public class Source extends AbstractEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
+    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000,
+            sequenceName = "hibernate_sequence")
     private Long id;
 
     @NotNull

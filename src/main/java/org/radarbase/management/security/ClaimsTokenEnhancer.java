@@ -1,5 +1,6 @@
 package org.radarbase.management.security;
 
+import java.security.Principal;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +36,6 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
     @Autowired
     private AuditEventRepository auditEventRepository;
 
-
     @Value("${spring.application.name}")
     private String appName;
 
@@ -48,9 +48,9 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
         Map<String, Object> additionalInfo = new HashMap<>();
 
-        String userName = SecurityUtils.getUserName(authentication);
+        String userName = authentication.getName();
 
-        if (userName != null) {
+        if (authentication.getPrincipal() instanceof Principal) {
             // add the 'sub' claim in accordance with JWT spec
             additionalInfo.put("sub", userName);
 
@@ -86,7 +86,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
         Map<String, Object> auditData = auditData(accessToken, authentication);
         auditEventRepository.add(new AuditEvent(userName, GRANT_TOKEN_EVENT,
                 auditData));
-        logger.info("[{}] for {}: {}", GRANT_TOKEN_EVENT, userName, auditData.toString());
+        logger.info("[{}] for {}: {}", GRANT_TOKEN_EVENT, userName, auditData);
 
         return accessToken;
     }

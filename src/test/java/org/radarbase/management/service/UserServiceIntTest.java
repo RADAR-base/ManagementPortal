@@ -1,7 +1,6 @@
 package org.radarbase.management.service;
 
 import javax.persistence.EntityManager;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.query.AuditEntity;
@@ -19,7 +18,6 @@ import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.repository.filters.UserFilter;
 import org.radarbase.management.service.dto.UserDTO;
 import org.radarbase.management.service.mapper.UserMapper;
-import org.radarbase.management.service.util.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
@@ -86,6 +84,9 @@ public class UserServiceIntTest {
     @Autowired
     private EntityManagerFactory entityManagerFactory;
 
+    @Autowired
+    private PasswordService passwordService;
+
     private EntityManager entityManager;
 
     private UserDTO userDto;
@@ -94,7 +95,7 @@ public class UserServiceIntTest {
     public void setUp() {
         entityManager = entityManagerFactory.createEntityManager(
                 entityManagerFactory.getProperties());
-        userDto = userMapper.userToUserDTO(createEntity());
+        userDto = userMapper.userToUserDTO(createEntity(passwordService));
         ReflectionTestUtils.setField(revisionService, "revisionEntityRepository",
                 revisionEntityRepository);
         ReflectionTestUtils.setField(revisionService, "entityManager", entityManager);
@@ -108,10 +109,10 @@ public class UserServiceIntTest {
      * <p>This is a static method, as tests for other entities might also need it,
      * if they test an entity which has a required relationship to the User entity.</p>
      */
-    public static User createEntity() {
+    public static User createEntity(PasswordService passwordService) {
         User user = new User();
         user.setLogin(DEFAULT_LOGIN);
-        user.setPassword(RandomStringUtils.random(60));
+        user.setPassword(passwordService.generateEncodedPassword());
         user.setActivated(true);
         user.setEmail(DEFAULT_EMAIL);
         user.setFirstName(DEFAULT_FIRSTNAME);
@@ -146,7 +147,7 @@ public class UserServiceIntTest {
         User user = userService.createUser(userDto);
 
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(25);
-        String resetKey = RandomUtil.generateResetKey();
+        String resetKey = passwordService.generateResetKey();
         user.setActivated(true);
         user.setResetDate(daysAgo);
         user.setResetKey(resetKey);
@@ -180,7 +181,7 @@ public class UserServiceIntTest {
         User user = userService.createUser(userDto);
         final String oldPassword = user.getPassword();
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(2);
-        String resetKey = RandomUtil.generateResetKey();
+        String resetKey = passwordService.generateResetKey();
         user.setActivated(true);
         user.setResetDate(daysAgo);
         user.setResetKey(resetKey);
@@ -249,7 +250,7 @@ public class UserServiceIntTest {
      * @param userRepository The UserRepository that will be used to save the object
      * @return the saved object
      */
-    public static User addExpiredUser(UserRepository userRepository) {
+    public User addExpiredUser(UserRepository userRepository) {
 
         Role adminRole = new Role();
         adminRole.setId(1L);
@@ -263,7 +264,7 @@ public class UserServiceIntTest {
         user.setLastName("pired");
         user.setRoles(Collections.singleton(adminRole));
         user.setActivated(false);
-        user.setPassword(RandomStringUtils.random(60));
+        user.setPassword(passwordService.generateEncodedPassword());
         return userRepository.save(user);
     }
 

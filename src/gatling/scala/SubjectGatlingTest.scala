@@ -44,7 +44,7 @@ class SubjectGatlingTest extends ManagementPortalSimulation {
             .get("/api/subjects")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
-            .pause(5 seconds, 10 seconds)
+            .pause(5.seconds, 10.seconds)
             .feed(randomString)
             .exec(http("Create new subject")
               .post("/api/subjects")
