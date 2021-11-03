@@ -140,7 +140,7 @@ public class GroupResource {
             String opCode = operation.getOp();
             switch (opCode) {
                 case "add": addedItems.addAll(operation.getValue()); break;
-                case "removed": removedItems.addAll(operation.getValue()); break;
+                case "remove": removedItems.addAll(operation.getValue()); break;
                 default:
                     throw new BadRequestException(
                             "Group patch operation '" + opCode + "' is not supported",
