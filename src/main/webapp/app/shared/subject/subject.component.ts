@@ -251,7 +251,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         this.filterPersonName = '';
         this.filterEnrollmentDateFrom = '';
         this.filterEnrollmentDateTo = '';
-        this.filterSubjectGroup = '';
+        this.filterSubjectGroupId = '';
         this.applyFilter();
     }
 
