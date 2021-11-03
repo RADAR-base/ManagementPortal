@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 import static org.radarbase.management.web.rest.errors.EntityName.GROUP;
 import static org.radarbase.management.web.rest.errors.EntityName.PROJECT;
-import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;;
+import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_GROUP_EXISTS;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_GROUP_NOT_FOUND;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_PROJECT_NAME_NOT_FOUND;
