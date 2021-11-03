@@ -28,6 +28,7 @@ import javax.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.radarbase.management.web.rest.errors.EntityName.GROUP;
@@ -151,7 +152,7 @@ public class GroupService {
         
         List<String> loginsToAdd = subjectsToAdd.stream()
             .map(GroupPatchOperation.SubjectPatchValue::getLogin)
-            .filter(Objects::notNull)
+            .filter(Objects::nonNull)
             .collect(Collectors.toList());
         List<Long> idsToAdd = subjectsToAdd.stream()
             .filter(e -> e.getId() != null)
