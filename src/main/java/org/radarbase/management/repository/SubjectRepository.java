@@ -57,6 +57,16 @@ public interface SubjectRepository extends JpaRepository<Subject, Long>,
             @Param("groupId") Long groupId,
             @Param("logins") List<String> logins);
 
+    @Modifying
+    @Query("UPDATE Subject subject "
+            + "SET subject.group.id = null "
+            // Without the subquery Hibernate generates an invalid CROSS JOIN
+            + "WHERE subject.id in "
+            + " (SELECT subject.id from Subject subject "
+            + "  WHERE subject.user.login in :logins)")
+    void unsetGroupIdByLoginsIn(
+            @Param("logins") List<String> logins);
+
     @Query("select subject.sources from Subject subject WHERE subject.id = :id")
     List<Source> findSourcesBySubjectId(@Param("id") Long id);
 

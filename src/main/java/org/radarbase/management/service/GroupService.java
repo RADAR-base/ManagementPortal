@@ -20,11 +20,15 @@ import org.radarbase.management.service.mapper.GroupMapper;
 import org.radarbase.management.web.rest.errors.BadRequestException;
 import org.radarbase.management.web.rest.errors.ConflictException;
 import org.radarbase.management.web.rest.errors.NotFoundException;
+import org.radarbase.management.web.rest.vm.GroupPatchOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.radarbase.management.web.rest.errors.EntityName.GROUP;
 import static org.radarbase.management.web.rest.errors.EntityName.PROJECT;
@@ -129,12 +133,15 @@ public class GroupService {
      * Add subjects to group.
      * @param projectName project name
      * @param groupName group name
-     * @param subjectLogins subject logins
+     * @param subjectsToAdd patch items for subjects to be added
+     * @param subjectsToRemoved patch items for subjects to be removed
      * @throws NotFoundException if the project or group is not found.
      */
     @Transactional
-    public void addSubjectsToGroup(
-        String projectName, String groupName, List<String> subjectLogins
+    public void updateGroupSubjects(
+        String projectName, String groupName,
+        List<GroupPatchOperation.SubjectPatchValue> subjectsToAdd,
+        List<GroupPatchOperation.SubjectPatchValue> subjectsToRemove
     ) {
         Group group = groupRepository
             .findByProjectNameAndName(projectName, groupName)
@@ -142,8 +149,35 @@ public class GroupService {
                 "Group " + groupName + " not found in project " + projectName,
                 GROUP, ERR_GROUP_NOT_FOUND));
         
-        List<Subject> subjects = subjectRepository.findAllBySubjectLogins(subjectLogins);
-        for (Subject s : subjects) {
+        List<String> loginsToAdd = subjectsToAdd.stream()
+            .filter(e -> e.getLogin() != null)
+            .map(e -> e.getLogin())
+            .collect(Collectors.toList());
+        List<Long> idsToAdd = subjectsToAdd.stream()
+            .filter(e -> e.getId() != null)
+            .map(e -> e.getId())
+            .collect(Collectors.toList());
+        List<Subject> subjectEntitiesToAdd = new ArrayList<>();
+        subjectEntitiesToAdd.addAll(subjectRepository.findAllById(idsToAdd));
+        subjectEntitiesToAdd.addAll(subjectRepository.findAllBySubjectLogins(loginsToAdd));
+
+        List<String> loginsToRemove = subjectsToRemove.stream()
+            .filter(e -> e.getLogin() != null)
+            .map(e -> e.getLogin())
+            .collect(Collectors.toList());
+        List<Long> idsToRemove = subjectsToRemove.stream()
+            .filter(e -> e.getId() != null)
+            .map(e -> e.getId())
+            .collect(Collectors.toList());
+        List<Subject> subjectEntitiesToRemove = new ArrayList<>();
+        subjectEntitiesToRemove.addAll(subjectRepository.findAllById(idsToRemove));
+        subjectEntitiesToRemove.addAll(subjectRepository.findAllBySubjectLogins(loginsToRemove));
+
+        List<Subject> allSubjectEntities = new ArrayList<>();
+        allSubjectEntities.addAll(subjectEntitiesToAdd);
+        allSubjectEntities.addAll(subjectEntitiesToRemove);
+
+        for (Subject s : allSubjectEntities) {
             String login = s.getUser().getLogin();
             if (s.getActiveProject().isEmpty()) {
                 throw new BadRequestException(
@@ -156,6 +190,13 @@ public class GroupService {
                     SUBJECT, ERR_VALIDATION);
             }
         }
-        subjectRepository.setGroupIdByLoginsIn(group.getId(), subjectLogins);
+
+        List<String> subjectLoginsToAdd = subjectEntitiesToAdd.stream()
+            .map(e -> e.getUser().getLogin()).collect(Collectors.toList());
+        subjectRepository.setGroupIdByLoginsIn(group.getId(), subjectLoginsToAdd);
+
+        List<String> subjectLoginsToRemove = subjectEntitiesToRemove.stream()
+            .map(e -> e.getUser().getLogin()).collect(Collectors.toList());
+        subjectRepository.unsetGroupIdByLoginsIn(subjectLoginsToRemove);
     }
 }

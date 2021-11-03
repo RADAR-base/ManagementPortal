@@ -11,8 +11,11 @@ package org.radarbase.management.web.rest;
 
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.service.GroupService;
 import org.radarbase.management.service.dto.GroupDTO;
+import org.radarbase.management.web.rest.errors.BadRequestException;
+import org.radarbase.management.web.rest.vm.GroupPatchOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,14 +31,16 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 import javax.servlet.ServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
 import static org.radarbase.auth.authorization.Permission.PROJECT_UPDATE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_UPDATE;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
 import static org.radarbase.management.security.SecurityUtils.getJWT;
+import static org.radarbase.management.web.rest.errors.EntityName.GROUP;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
 
 @RestController
 @RequestMapping("/api/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/groups")
@@ -114,19 +119,58 @@ public class GroupResource {
      * Add subjects to a single group.
      * @param projectName project name
      * @param groupName group name
-     * @param subjects subject logins
+     * @param patchOperations json-patch request body
      * @throws NotAuthorizedException if PROJECT_UPDATE permissions are not present.
      */
-    @PostMapping("/{groupName:" + Constants.ENTITY_ID_REGEX + "}/subjects/new")
-    public ResponseEntity<?> addSubjectsToGroup(
+    @PatchMapping("/{groupName:" + Constants.ENTITY_ID_REGEX + "}/subjects")
+    public ResponseEntity<?> changeGroupSubjects(
             @PathVariable String projectName,
             @PathVariable String groupName,
-            @RequestBody List<String> subjects) throws NotAuthorizedException {
-        for (String subjectLogin : subjects) {
-            checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE,
-                projectName, subjectLogin);
+            @RequestBody List<GroupPatchOperation> patchOperations) throws NotAuthorizedException {
+        RadarToken jwt = getJWT(servletRequest);
+        // Technically, this request modifies subjects,
+        // so it would make sense to check permissions per subject,
+        // but I assume that only those who are authorized to perform project-wide actions
+        // should be allowed to use this endpoint
+        checkPermissionOnProject(jwt, SUBJECT_UPDATE, projectName);
+        
+        List<GroupPatchOperation.SubjectPatchValue> addedItems = new ArrayList<>();
+        List<GroupPatchOperation.SubjectPatchValue> removedItems = new ArrayList<>();
+        for (GroupPatchOperation operation : patchOperations) {
+            String opCode = operation.getOp();
+            switch (opCode) {
+                case "add": addedItems.addAll(operation.getValue()); break;
+                case "removed": removedItems.addAll(operation.getValue()); break;
+                default:
+                    throw new BadRequestException(
+                            "Group patch operation '" + opCode + "' is not supported",
+                            GROUP, ERR_VALIDATION);
+            }
         }
-        groupService.addSubjectsToGroup(projectName, groupName, subjects);
+
+        // Each item should specify either a login or an ID,
+        // since having both will require an extra validation step
+        // to reject e.g. {id: 1, login: "subject-id-42"}.
+        // Whether the IDs and logins exist and belong to the project
+        // should be checked later
+        List<GroupPatchOperation.SubjectPatchValue> allItems = new ArrayList<>();
+        allItems.addAll(addedItems);
+        allItems.addAll(removedItems);
+        for (GroupPatchOperation.SubjectPatchValue item : allItems) {
+            if (item.getId() == null && item.getLogin() == null) {
+                throw new BadRequestException(
+                    "Subject identification must be specified",
+                    GROUP, ERR_VALIDATION);
+            }
+            if (item.getId() != null && item.getLogin() != null) {
+                throw new BadRequestException(
+                    "Subject identification must be specify either ID or Login. " +
+                        "Do not provide both values to avoid potential confusion.",
+                    GROUP, ERR_VALIDATION);
+            }
+        }
+
+        groupService.updateGroupSubjects(projectName, groupName, addedItems, removedItems);
         return ResponseEntity.noContent().build();
     }
 }
