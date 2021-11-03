@@ -32,7 +32,7 @@ jobs:
 
       - uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 17
 
       - name: Cache
         uses: actions/cache@v2
@@ -41,7 +41,7 @@ jobs:
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-java-${{ hashFiles('**/build.gradle', '**/gradle.properties', '**/yarn.lock') }}
+          key: ${{ runner.os }}-java-${{ hashFiles('**/build.gradle', '**/gradle.properties', '**/yarn.lock', '.yarnrc.yml') }}
           restore-keys: |
             ${{ runner.os }}-java-
 
@@ -122,6 +122,38 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::.yarn/cache"
+
+      - name: Cache Docker layers
+        id: cache-buildx
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile', '**/*.gradle', 'gradle.properties', 'src/main/**', 'radar-auth/src/**', 'yarn.lock', '*.json', '.yarnrc.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Cache parameters
+        id: cache-parameters
+        run: |
+          if [ "${{ steps.cache-buildx.outputs.cache-hit }}" = "true" ]; then
+            echo "::set-output name=cache-to::"
+          else
+            echo "::set-output name=cache-to::type=local,dest=/tmp/.buildx-cache-new,mode=max"
+          fi
+
+      - name: Use Node.js 16
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+
+      - name: Prime yarn cache
+        run: yarn install
+
       # Add Docker labels and tags
       - name: Docker meta
         id: docker_meta
@@ -152,6 +184,8 @@ jobs:
       - name: Build docker
         uses: docker/build-push-action@v2
         with:
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: ${{ steps.cache-parameters.outputs.cache-to }}
           load: ${{ steps.docker_params.outputs.load }}
           push: ${{ steps.docker_params.outputs.push }}
           platforms: ${{ steps.docker_params.outputs.platforms }}
@@ -163,6 +197,15 @@ jobs:
             org.opencontainers.image.authors=Joris Borgdorff <joris@thehyve.nl>
             org.opencontainers.image.vendor=RADAR-base
             org.opencontainers.image.licenses=Apache-2.0
+
+      # Temp fix
+      # https://github.com/docker/build-push-action/issues/252
+      # https://github.com/moby/buildkit/issues/1896
+      - name: Move docker build cache
+        if: steps.cache-buildx.outputs.cache-hit != 'true'
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Pull docker image
         if: steps.docker_params.outputs.load == 'false'

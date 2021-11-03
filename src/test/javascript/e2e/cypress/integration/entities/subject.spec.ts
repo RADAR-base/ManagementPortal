@@ -44,7 +44,6 @@ describe('Subject e2e test', () => {
     });
 
     it('should have load subject row with subject-id, external-id, status, project, sources and attributes columns', () => {
-
         cy.get('jhi-subjects .subject-row').first().find('.subject-row__select-row input')
                 .invoke('attr', 'type')
                 .should('eq', 'checkbox')
