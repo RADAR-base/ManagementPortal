@@ -171,13 +171,17 @@ public class GroupService {
             }
         }
 
-        List<Long> subjectIdsToAdd = subjectEntitiesToAdd.stream()
-            .map(Subject::getId).collect(Collectors.toList());
-        subjectRepository.setGroupIdByIds(group.getId(), subjectIdsToAdd);
+        if (!subjectEntitiesToAdd.isEmpty()) {
+            List<Long> subjectIdsToAdd = subjectEntitiesToAdd.stream()
+                .map(Subject::getId).collect(Collectors.toList());
+            subjectRepository.setGroupIdByIds(group.getId(), subjectIdsToAdd);
+        }
 
-        List<Long> subjectIdsToRemove = subjectEntitiesToRemove.stream()
-            .map(Subject::getId).collect(Collectors.toList());
-        subjectRepository.unsetGroupIdByIds(subjectIdsToRemove);
+        if (!subjectEntitiesToRemove.isEmpty()) {
+            List<Long> subjectIdsToRemove = subjectEntitiesToRemove.stream()
+                .map(Subject::getId).collect(Collectors.toList());
+            subjectRepository.unsetGroupIdByIds(subjectIdsToRemove);
+        }
     }
 
     private List<Subject> getSubjectEntities(
