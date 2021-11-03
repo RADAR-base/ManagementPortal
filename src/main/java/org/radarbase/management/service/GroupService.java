@@ -149,30 +149,9 @@ public class GroupService {
             .orElseThrow(() -> new NotFoundException(
                 "Group " + groupName + " not found in project " + projectName,
                 GROUP, ERR_GROUP_NOT_FOUND));
-        
-        List<String> loginsToAdd = subjectsToAdd.stream()
-            .map(GroupPatchOperation.SubjectPatchValue::getLogin)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
-        List<Long> idsToAdd = subjectsToAdd.stream()
-            .filter(e -> e.getId() != null)
-            .map(e -> e.getId())
-            .collect(Collectors.toList());
-        List<Subject> subjectEntitiesToAdd = new ArrayList<>(subjectsToAdd.size());
-        subjectEntitiesToAdd.addAll(subjectRepository.findAllById(idsToAdd));
-        subjectEntitiesToAdd.addAll(subjectRepository.findAllBySubjectLogins(loginsToAdd));
 
-        List<String> loginsToRemove = subjectsToRemove.stream()
-            .filter(e -> e.getLogin() != null)
-            .map(e -> e.getLogin())
-            .collect(Collectors.toList());
-        List<Long> idsToRemove = subjectsToRemove.stream()
-            .filter(e -> e.getId() != null)
-            .map(e -> e.getId())
-            .collect(Collectors.toList());
-        List<Subject> subjectEntitiesToRemove = new ArrayList<>();
-        subjectEntitiesToRemove.addAll(subjectRepository.findAllById(idsToRemove));
-        subjectEntitiesToRemove.addAll(subjectRepository.findAllBySubjectLogins(loginsToRemove));
+        List<Subject> subjectEntitiesToAdd = getSubjectEntities(subjectsToAdd);
+        List<Subject> subjectEntitiesToRemove = getSubjectEntities(subjectsToRemove);
 
         List<Subject> allSubjectEntities = new ArrayList<>();
         allSubjectEntities.addAll(subjectEntitiesToAdd);
@@ -199,5 +178,49 @@ public class GroupService {
         List<String> subjectLoginsToRemove = subjectEntitiesToRemove.stream()
             .map(e -> e.getUser().getLogin()).collect(Collectors.toList());
         subjectRepository.unsetGroupIdByLoginsIn(subjectLoginsToRemove);
+    }
+
+    private List<Subject> getSubjectEntities(
+        List<GroupPatchOperation.SubjectPatchValue> subjectsToModify
+    ) {
+        List<String> logins = new ArrayList<>();
+        List<Long> ids = new ArrayList<>();
+
+        // Each item should specify either a login or an ID,
+        // since having both will require an extra validation step
+        // to reject e.g. {id: 1, login: "subject-id-42"}.
+        // Whether the IDs and logins exist and belong to the project
+        // should be checked later
+        for (GroupPatchOperation.SubjectPatchValue item : subjectsToModify) {
+            String login = item.getLogin();
+            Long id = item.getId();
+            if (id == null && login == null) {
+                throw new BadRequestException(
+                    "Subject identification must be specified",
+                    GROUP, ERR_VALIDATION);
+            }
+            if (id != null && login != null) {
+                throw new BadRequestException(
+                    "Subject identification must be specify either ID or Login. " +
+                        "Do not provide both values to avoid potential confusion.",
+                    GROUP, ERR_VALIDATION);
+            }
+
+            if (id != null) {
+                ids.add(id);
+            }
+            if (login != null) {
+                logins.add(login);
+            }
+        }
+
+        List<Subject> subjectEntities = new ArrayList<>(subjectsToModify.size());
+        if (!ids.isEmpty()) {
+            subjectEntities.addAll(subjectRepository.findAllById(ids));
+        }
+        if (!logins.isEmpty()) {
+            subjectEntities.addAll(subjectRepository.findAllBySubjectLogins(logins));
+        }
+        return subjectEntities;
     }
 }

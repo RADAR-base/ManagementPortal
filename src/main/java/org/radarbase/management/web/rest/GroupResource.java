@@ -146,28 +146,6 @@ public class GroupResource {
             }
         }
 
-        // Each item should specify either a login or an ID,
-        // since having both will require an extra validation step
-        // to reject e.g. {id: 1, login: "subject-id-42"}.
-        // Whether the IDs and logins exist and belong to the project
-        // should be checked later
-        List<GroupPatchOperation.SubjectPatchValue> allItems = new ArrayList<>();
-        allItems.addAll(addedItems);
-        allItems.addAll(removedItems);
-        for (GroupPatchOperation.SubjectPatchValue item : allItems) {
-            if (item.getId() == null && item.getLogin() == null) {
-                throw new BadRequestException(
-                    "Subject identification must be specified",
-                    GROUP, ERR_VALIDATION);
-            }
-            if (item.getId() != null && item.getLogin() != null) {
-                throw new BadRequestException(
-                    "Subject identification must be specify either ID or Login. " +
-                        "Do not provide both values to avoid potential confusion.",
-                    GROUP, ERR_VALIDATION);
-            }
-        }
-
         groupService.updateGroupSubjects(projectName, groupName, addedItems, removedItems);
         return ResponseEntity.noContent().build();
     }
