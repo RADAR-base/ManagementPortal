@@ -29,7 +29,7 @@
                 <select class="form-control"
                         id="field_group"
                         name="group"
-                        [(ngModel)]="filterSubjectGroup"
+                        [(ngModel)]="filterSubjectGroupId"
                 >
                     <option [ngValue]="null">-</option>
                     <option *ngFor="let g of groups" [ngValue]="g.id">

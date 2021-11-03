@@ -36,7 +36,7 @@ import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDA
 public class SubjectSpecification implements Specification<Subject> {
     private final CriteriaRange<LocalDate> dateOfBirth;
     private final CriteriaRange<ZonedDateTime> enrollmentDate;
-    private final String groupName;
+    private final Long groupId;
     private final String humanReadableIdentifier;
     private final SubjectCriteriaLast last;
     private final String personName;
@@ -57,7 +57,7 @@ public class SubjectSpecification implements Specification<Subject> {
                 .collect(Collectors.toSet());
         this.dateOfBirth = criteria.getDateOfBirth();
         this.enrollmentDate = criteria.getEnrollmentDate();
-        this.groupName = criteria.getGroupName();
+        this.groupId = criteria.getGroupId();
         this.humanReadableIdentifier = criteria.getHumanReadableIdentifier();
         this.last = criteria.getLast();
         this.personName = criteria.getPersonName();
@@ -100,8 +100,8 @@ public class SubjectSpecification implements Specification<Subject> {
         if (StringUtils.isNotEmpty(externalId)) {
             predicates.add(builder.like(root.get("externalId"), "%" + externalId + "%"));
         }
-        if (StringUtils.isNotEmpty(groupName)) {
-            predicates.add(builder.equal(root.get("group"), groupName));
+        if (groupId != null) {
+            predicates.add(builder.equal(root.get("group"), groupId));
         }
 
         addCriteriaRangePredicates(root.get("dateOfBirth"), builder, predicates, dateOfBirth);

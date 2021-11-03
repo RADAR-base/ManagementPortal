@@ -94,7 +94,7 @@ public final class PaginationUtil {
         generateUriCriteriaRange(builder, "dateOfBirth", criteria.getDateOfBirth());
         generateUriCriteriaRange(builder, "enrollmentDate", criteria.getEnrollmentDate());
         generateUriParam(builder, "externalId", criteria.getExternalId());
-        generateUriParam(builder, "groupName", criteria.getGroupName());
+        generateUriParam(builder, "groupId", criteria.getGroupId());
         generateUriParam(builder, "personName", criteria.getPersonName());
         generateUriParam(builder, "humanReadableIdentifier",
                 criteria.getHumanReadableIdentifier());

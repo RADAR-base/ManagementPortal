@@ -59,7 +59,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     filterPersonName = '';
     filterEnrollmentDateFrom = '';
     filterEnrollmentDateTo = '';
-    filterSubjectGroup = '';
+    filterSubjectGroupId = '';
 
     isAdvancedFilterCollapsed = true;
 
@@ -181,7 +181,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             externalId: this.filterSubjectExternalId.trim() || undefined,
             personName: this.filterPersonName.trim() || undefined,
             humanReadableIdentifier: this.filterSubjectHumanReadableId.trim() || undefined,
-            group: this.filterSubjectGroup,
+            groupId: this.filterSubjectGroupId,
             dateOfBirth: undefined,
             enrollmentDate: undefined,
         };
