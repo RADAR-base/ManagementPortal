@@ -157,7 +157,7 @@ public class GroupService {
             .filter(e -> e.getId() != null)
             .map(e -> e.getId())
             .collect(Collectors.toList());
-        List<Subject> subjectEntitiesToAdd = new ArrayList<>();
+        List<Subject> subjectEntitiesToAdd = new ArrayList<>(subjectsToAdd.size());
         subjectEntitiesToAdd.addAll(subjectRepository.findAllById(idsToAdd));
         subjectEntitiesToAdd.addAll(subjectRepository.findAllBySubjectLogins(loginsToAdd));
 
