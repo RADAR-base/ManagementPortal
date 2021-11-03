@@ -150,41 +150,24 @@ public class GroupService {
                 "Group " + groupName + " not found in project " + projectName,
                 GROUP, ERR_GROUP_NOT_FOUND));
 
-        List<Subject> subjectEntitiesToAdd = getSubjectEntities(subjectsToAdd);
-        List<Subject> subjectEntitiesToRemove = getSubjectEntities(subjectsToRemove);
+        List<Subject> entitiesToAdd = getSubjectEntities(projectName, subjectsToAdd);
+        List<Subject> entitiesToRemove = getSubjectEntities(projectName, subjectsToRemove);
 
-        List<Subject> allSubjectEntities = new ArrayList<>();
-        allSubjectEntities.addAll(subjectEntitiesToAdd);
-        allSubjectEntities.addAll(subjectEntitiesToRemove);
-
-        for (Subject s : allSubjectEntities) {
-            String login = s.getUser().getLogin();
-            if (s.getActiveProject().isEmpty()) {
-                throw new BadRequestException(
-                    "Subject " + login + " is not assigned to a project",
-                    SUBJECT, ERR_VALIDATION);
-            }
-            if (!projectName.equals(s.getActiveProject().get().getProjectName())) {
-                throw new BadRequestException(
-                    "Subject " + login + " belongs to a different project",
-                    SUBJECT, ERR_VALIDATION);
-            }
+        if (!entitiesToAdd.isEmpty()) {
+            List<Long> idsToAdd = entitiesToAdd.stream()
+                .map(Subject::getId).collect(Collectors.toList());
+            subjectRepository.setGroupIdByIds(group.getId(), idsToAdd);
         }
 
-        if (!subjectEntitiesToAdd.isEmpty()) {
-            List<Long> subjectIdsToAdd = subjectEntitiesToAdd.stream()
+        if (!entitiesToRemove.isEmpty()) {
+            List<Long> idsToRemove = entitiesToRemove.stream()
                 .map(Subject::getId).collect(Collectors.toList());
-            subjectRepository.setGroupIdByIds(group.getId(), subjectIdsToAdd);
-        }
-
-        if (!subjectEntitiesToRemove.isEmpty()) {
-            List<Long> subjectIdsToRemove = subjectEntitiesToRemove.stream()
-                .map(Subject::getId).collect(Collectors.toList());
-            subjectRepository.unsetGroupIdByIds(subjectIdsToRemove);
+            subjectRepository.unsetGroupIdByIds(idsToRemove);
         }
     }
 
     private List<Subject> getSubjectEntities(
+        String projectName,
         List<GroupPatchOperation.SubjectPatchValue> subjectsToModify
     ) {
         List<String> logins = new ArrayList<>();
@@ -225,6 +208,21 @@ public class GroupService {
         if (!logins.isEmpty()) {
             subjectEntities.addAll(subjectRepository.findAllBySubjectLogins(logins));
         }
+
+        for (Subject s : subjectEntities) {
+            String login = s.getUser().getLogin();
+            if (s.getActiveProject().isEmpty()) {
+                throw new BadRequestException(
+                    "Subject " + login + " is not assigned to a project",
+                    SUBJECT, ERR_VALIDATION);
+            }
+            if (!projectName.equals(s.getActiveProject().get().getProjectName())) {
+                throw new BadRequestException(
+                    "Subject " + login + " belongs to a different project",
+                    SUBJECT, ERR_VALIDATION);
+            }
+        }
+
         return subjectEntities;
     }
 }
