@@ -150,8 +150,8 @@ public class GroupService {
                 GROUP, ERR_GROUP_NOT_FOUND));
         
         List<String> loginsToAdd = subjectsToAdd.stream()
-            .filter(e -> e.getLogin() != null)
-            .map(e -> e.getLogin())
+            .map(GroupPatchOperation.SubjectPatchValue::getLogin)
+            .filter(Objects::notNull)
             .collect(Collectors.toList());
         List<Long> idsToAdd = subjectsToAdd.stream()
             .filter(e -> e.getId() != null)
