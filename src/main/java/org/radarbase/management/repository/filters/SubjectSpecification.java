@@ -89,41 +89,39 @@ public class SubjectSpecification implements Specification<Subject> {
 
         addRolePredicates(builder, userJoin, predicates);
 
-        if (StringUtils.isNotEmpty(humanReadableIdentifier)) {
-            MapJoin<Subject, String, String> attributesJoin =
-                    root.joinMap("attributes", JoinType.LEFT);
-            predicates.add(builder.and(
-                    builder.equal(attributesJoin.key(), "Human-readable-identifier"),
-                    builder.like(attributesJoin.value(),
-                            "%" + humanReadableIdentifier + "%")));
-        }
-        if (StringUtils.isNotEmpty(externalId)) {
-            predicates.add(builder.like(root.get("externalId"), "%" + externalId + "%"));
-        }
-        if (groupId != null) {
-            predicates.add(builder.equal(root.get("group"), groupId));
-        }
+        addAttributeLikePredicate(predicates, builder, root, "Human-readable-identifier",
+                humanReadableIdentifier);
+        addLikeCriteria(predicates, builder, root.get("externalId"), externalId);
 
-        addCriteriaRangePredicates(root.get("dateOfBirth"), builder, predicates, dateOfBirth);
-        addCriteriaRangePredicates(root.get("enrollmentDate"), builder, predicates, enrollmentDate);
+        addEqualCriteria(predicates, builder, root.get("group"), groupId);
 
-        if (StringUtils.isNotEmpty(personName)) {
-            predicates.add(builder
-                    .like(root.get("personName"), "%" + personName + "%"));
-        }
-        if (StringUtils.isNotEmpty(subjectId)) {
-            predicates.add(builder.like(userJoin.get("login"), "%" + subjectId + "%"));
-        }
+        addCriteriaRangePredicates(predicates, builder, root.get("dateOfBirth"), dateOfBirth);
+        addCriteriaRangePredicates(predicates, builder, root.get("enrollmentDate"), enrollmentDate);
 
-        addContentPredicates(root, builder, query.getResultType(), predicates);
+        addLikeCriteria(predicates, builder, root.get("personName"), personName);
+        addLikeCriteria(predicates, builder, userJoin.get("login"), subjectId);
+
+        addContentPredicates(predicates, builder, root, query.getResultType());
 
         query.orderBy(getSortOrder(root, builder));
 
         return builder.and(predicates.toArray(new Predicate[0]));
     }
 
-    private void addContentPredicates(Root<Subject> root, CriteriaBuilder builder,
-            Class<?> queryResult, List<Predicate> predicates) {
+    private void addAttributeLikePredicate(List<Predicate> predicates, CriteriaBuilder builder,
+            Root<Subject> root, String attributeKey, String attributeValue) {
+        if (StringUtils.isNotEmpty(attributeValue)) {
+            MapJoin<Subject, String, String> attributesJoin =
+                    root.joinMap("attributes", JoinType.LEFT);
+            predicates.add(builder.and(
+                    builder.equal(attributesJoin.key(), attributeKey),
+                    builder.like(attributesJoin.value(),
+                            "%" + attributeValue + "%")));
+        }
+    }
+
+    private void addContentPredicates(List<Predicate> predicates, CriteriaBuilder builder,
+            Root<Subject> root, Class<?> queryResult) {
         // Don't add content for count queries.
         if (queryResult == Long.class || queryResult == long.class) {
             return;
@@ -171,20 +169,11 @@ public class SubjectSpecification implements Specification<Subject> {
     }
 
     private String getLastValue(SubjectSortBy property) {
-        String result;
-        switch (property) {
-            case ID:
-                result = last.getId();
-                break;
-            case USER_LOGIN:
-                result = last.getLogin();
-                break;
-            case EXTERNAL_ID:
-                result = last.getExternalId();
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown sort property " + property);
-        }
+        String result = switch (property) {
+            case ID -> last.getId();
+            case USER_LOGIN -> last.getLogin();
+            case EXTERNAL_ID -> last.getExternalId();
+        };
         if (property.isUnique() && result == null) {
             throw new BadRequestException("No last value given for sort property " + property,
                     SUBJECT, ERR_VALIDATION);
@@ -194,16 +183,11 @@ public class SubjectSpecification implements Specification<Subject> {
 
 
     private Path<String> getPropertyPath(SubjectSortBy property, Root<Subject> root) {
-        switch (property) {
-            case ID:
-                return root.get("id");
-            case USER_LOGIN:
-                return root.get("user").get("login");
-            case EXTERNAL_ID:
-                return root.get("externalId");
-            default:
-                throw new IllegalArgumentException("Unknown sort property " + property);
-        }
+        return switch (property) {
+            case ID -> root.get("id");
+            case USER_LOGIN -> root.get("user").get("login");
+            case EXTERNAL_ID -> root.get("externalId");
+        };
     }
 
     private void addRolePredicates(CriteriaBuilder builder, Join<Subject, User> userJoin,
@@ -221,10 +205,28 @@ public class SubjectSpecification implements Specification<Subject> {
         }
     }
 
-    private <T extends Comparable<? super T>> void addCriteriaRangePredicates(
-            Path<? extends T> path,
-            CriteriaBuilder builder,
+    private <T> void addEqualCriteria(
             List<Predicate> predicates,
+            CriteriaBuilder builder,
+            Path<T> path,
+            T value) {
+        if (StringUtils.isNotEmpty(personName)) {
+            predicates.add(builder.equal(path, value));
+        }
+    }
+
+    private void addLikeCriteria(
+            List<Predicate> predicates,
+            CriteriaBuilder builder,
+            Path<String> path,
+            String value) {
+        if (StringUtils.isNotEmpty(personName)) {
+            predicates.add(builder.like(path, "%" + value + "%"));
+        }
+    }
+
+    private <T extends Comparable<? super T>> void addCriteriaRangePredicates(
+            List<Predicate> predicates, CriteriaBuilder builder, Path<? extends T> path,
             CriteriaRange<T> range) {
         if (range == null || range.isEmpty()) {
             return;
