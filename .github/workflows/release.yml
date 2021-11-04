@@ -78,7 +78,7 @@ jobs:
           node-version: 16
 
       - name: Prime yarn cache
-        run: yarn install --check-cache --mode=update-lockfile
+        run: yarn install --check-cache --mode=skip-build
 
       # Setup docker build environment
       - name: Set up QEMU
