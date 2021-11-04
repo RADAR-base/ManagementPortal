@@ -13,7 +13,7 @@ ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.project.prod=true"
 
 COPY package.json yarn.lock .yarnrc.yml /code/
 COPY .yarn /code/.yarn
-RUN du -shc .yarn/* && yarn install
+RUN yarn config && du -shc .yarn/* && yarn install
 
 COPY gradle gradle
 COPY gradlew build.gradle gradle.properties settings.gradle /code/

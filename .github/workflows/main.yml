@@ -164,7 +164,9 @@ jobs:
           node-version: 16
 
       - name: Prime yarn cache
-        run: yarn install
+        run: |
+            yarn config
+            yarn install
 
       # Add Docker labels and tags
       - name: Docker meta
