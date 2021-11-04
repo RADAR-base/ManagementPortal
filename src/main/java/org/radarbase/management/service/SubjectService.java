@@ -249,7 +249,7 @@ public class SubjectService {
     @Transactional
     public MinimalSourceDetailsDTO assignOrUpdateSource(Subject subject, SourceType sourceType,
             Project project, MinimalSourceDetailsDTO sourceRegistrationDto) {
-        Source assignedSource = null;
+        Source assignedSource;
 
         if (sourceRegistrationDto.getSourceId() != null) {
             // update meta-data and source-name for existing sources

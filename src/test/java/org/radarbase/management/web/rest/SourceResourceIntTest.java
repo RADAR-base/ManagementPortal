@@ -130,10 +130,9 @@ class SourceResourceIntTest {
      * if they test an entity which requires the current entity.</p>
      */
     public static Source createEntity() {
-        Source source = new Source()
+        return new Source()
                 .assigned(DEFAULT_ASSIGNED)
                 .sourceName(DEFAULT_SOURCE_NAME);
-        return source;
     }
 
     @BeforeEach
