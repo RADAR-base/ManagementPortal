@@ -3,6 +3,7 @@ package org.radarbase.management.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
@@ -82,6 +83,7 @@ public class Subject extends AbstractEntity implements Serializable {
     @Column(name = "attribute_value")
     @CollectionTable(name = "subject_metadata", joinColumns = @JoinColumn(name = "id"))
     @Cascade(CascadeType.ALL)
+    @BatchSize(size=50)
     private Map<String, String> attributes = new HashMap<>();
 
     @OneToMany(mappedBy = "subject", orphanRemoval = true, fetch = FetchType.LAZY)
