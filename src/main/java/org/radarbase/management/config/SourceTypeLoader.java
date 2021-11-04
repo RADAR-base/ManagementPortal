@@ -3,6 +3,7 @@ package org.radarbase.management.config;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import org.radarbase.management.domain.SourceData;
 import org.radarbase.management.domain.SourceType;
@@ -50,54 +51,46 @@ public class SourceTypeLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        if (!managementPortalProperties.getCatalogueServer().isEnableAutoImport()) {
+            log.info("Auto source-type import is disabled");
+            return;
+        }
 
         String catalogServerUrl = managementPortalProperties.getCatalogueServer().getServerUrl();
 
-        if (managementPortalProperties.getCatalogueServer().isEnableAutoImport()) {
-
-            try {
-                if (HttpUtil.isReachable(new URL(catalogServerUrl))) {
-                    RestTemplate restTemplate = new RestTemplate();
-                    ResponseEntity<SourceTypeResponse> catalogues = null;
-                    log.debug("Requesting source-types from catalogue server...");
-                    catalogues = restTemplate
-                            .getForEntity(
-                                    managementPortalProperties.getCatalogueServer().getServerUrl(),
-                                    SourceTypeResponse.class);
-                    SourceTypeResponse catalogueDto = catalogues.getBody();
-                    List<CatalogSourceType> catalogSourceTypes = new ArrayList<>();
-                    if (catalogueDto.getPassiveSources() != null) {
-                        catalogSourceTypes.addAll(catalogueDto.getPassiveSources());
-                    }
-
-                    if (catalogueDto.getActiveSources() != null) {
-                        catalogSourceTypes.addAll(catalogueDto.getActiveSources());
-                    }
-
-                    if (catalogueDto.getMonitorSources() != null) {
-                        catalogSourceTypes.addAll(catalogueDto.getMonitorSources());
-                    }
-
-                    if (catalogueDto.getConnectorSources() != null) {
-                        catalogSourceTypes.addAll(catalogueDto.getConnectorSources());
-                    }
-
-                    saveSourceTypesFromCatalogServer(catalogSourceTypes);
-
-                } else {
-                    log.warn("Catalog Service {} is unreachable", catalogServerUrl);
-                }
-            } catch (MalformedURLException e) {
-                log.warn("Invalid Url provided for Catalog server url {} : {}", catalogServerUrl,
-                        e.getMessage());
-            } catch (RuntimeException exe) {
-                log.warn("An error has occurred during auto import of source-types: {}", exe
-                        .getMessage());
+        try {
+            if (HttpUtil.isReachable(new URL(catalogServerUrl))) {
+                log.warn("Catalog Service {} is unreachable", catalogServerUrl);
+                return;
             }
-        } else {
-            log.info("Auto source-type import is disabled");
+            RestTemplate restTemplate = new RestTemplate();
+            log.debug("Requesting source-types from catalogue server...");
+            ResponseEntity<SourceTypeResponse> catalogues = restTemplate
+                    .getForEntity(catalogServerUrl, SourceTypeResponse.class);
+            SourceTypeResponse catalogueDto = catalogues.getBody();
+            if (catalogueDto == null) {
+                log.warn("Catalog Service {} returned empty response", catalogServerUrl);
+                return;
+            }
+            List<CatalogSourceType> catalogSourceTypes = new ArrayList<>();
+            addNonNull(catalogSourceTypes, catalogueDto.getPassiveSources());
+            addNonNull(catalogSourceTypes, catalogueDto.getActiveSources());
+            addNonNull(catalogSourceTypes, catalogueDto.getMonitorSources());
+            addNonNull(catalogSourceTypes, catalogueDto.getConnectorSources());
+            saveSourceTypesFromCatalogServer(catalogSourceTypes);
+        } catch (MalformedURLException e) {
+            log.warn("Invalid Url provided for Catalog server url {} : {}", catalogServerUrl,
+                    e.getMessage());
+        } catch (RuntimeException exe) {
+            log.warn("An error has occurred during auto import of source-types: {}", exe
+                    .getMessage());
         }
+    }
 
+    private static <T> void addNonNull(Collection<T> collection, Collection<? extends T> toAdd) {
+        if (toAdd != null && !toAdd.isEmpty()) {
+            collection.addAll(toAdd);
+        }
     }
 
     /**
@@ -107,64 +100,74 @@ public class SourceTypeLoader implements CommandLineRunner {
      */
     @Transactional
     public void saveSourceTypesFromCatalogServer(List<CatalogSourceType> catalogSourceTypes) {
-
         for (CatalogSourceType catalogSourceType : catalogSourceTypes) {
-
             SourceType sourceType = catalogSourceTypeMapper
                     .catalogSourceTypeToSourceType(catalogSourceType);
 
-            if (sourceType.getProducer() == null) {
-                log.warn("Catalog source-type {} does not have a vendor. "
-                        + "Skipping importing this type", catalogSourceType.getName());
+            if (!isSourceTypeValid(sourceType)) {
                 continue;
             }
 
-            if (sourceType.getModel() == null) {
-                log.warn("Catalog source-type {} does not have a model. "
-                        + "Skipping importing this type", catalogSourceType.getName());
-                continue;
-            }
-
-            if (sourceType.getCatalogVersion() == null) {
-                log.warn("Catalog source-type {} does not have a version. "
-                        + "Skipping importing this type", catalogSourceType.getName());
-                continue;
-            }
             // check whether a source-type is already available with given config
-            if (!sourceTypeRepository.findOneWithEagerRelationshipsByProducerAndModelAndVersion(
+            if (sourceTypeRepository.hasOneByProducerAndModelAndVersion(
                     sourceType.getProducer(), sourceType.getModel(),
-                    sourceType.getCatalogVersion()).isPresent()) {
+                    sourceType.getCatalogVersion())) {
+                // skip for existing source-types
+                log.info("Source-type {} is already available ", sourceType.getProducer()
+                        + "_" + sourceType.getModel()
+                        + "_" + sourceType.getCatalogVersion());
+            } else {
                 try {
                     // create new source-type
                     sourceTypeRepository.save(sourceType);
 
                     // create source-data for the new source-type
                     for (CatalogSourceData catalogSourceData : catalogSourceType.getData()) {
-                        try {
-                            SourceData sourceData = catalogSourceDataMapper
-                                    .catalogSourceDataToSourceData(catalogSourceData);
-                            // sourceDataName should be unique
-                            // generated by combining sourceDataType and source-type configs
-                            sourceData.sourceDataName(sourceType.getProducer()
-                                    + "_" + sourceType.getModel()
-                                    + "_" + sourceType.getCatalogVersion()
-                                    + "_" + sourceData.getSourceDataType());
-                            sourceData.sourceType(sourceType);
-                            sourceDataRepository.save(sourceData);
-                        } catch (RuntimeException ex) {
-                            log.error("Failed to import source data {}", catalogSourceData, ex);
-                        }
+                        saveSourceData(sourceType, catalogSourceData);
                     }
                 } catch (RuntimeException ex) {
                     log.error("Failed to import source type {}", sourceType, ex);
                 }
-            } else {
-                // skip for existing source-types
-                log.info("Source-type {} is already available ", sourceType.getProducer()
-                        + "_" + sourceType.getModel()
-                        + "_" + sourceType.getCatalogVersion());
             }
         }
         log.info("Completed source-type import from catalog-server");
+    }
+
+    private void saveSourceData(SourceType sourceType, CatalogSourceData catalogSourceData) {
+        try {
+            SourceData sourceData = catalogSourceDataMapper
+                    .catalogSourceDataToSourceData(catalogSourceData);
+            // sourceDataName should be unique
+            // generated by combining sourceDataType and source-type configs
+            sourceData.sourceDataName(sourceType.getProducer()
+                    + "_" + sourceType.getModel()
+                    + "_" + sourceType.getCatalogVersion()
+                    + "_" + sourceData.getSourceDataType());
+            sourceData.sourceType(sourceType);
+            sourceDataRepository.save(sourceData);
+        } catch (RuntimeException ex) {
+            log.error("Failed to import source data {}", catalogSourceData, ex);
+        }
+    }
+
+    private static boolean isSourceTypeValid(SourceType sourceType) {
+        if (sourceType.getProducer() == null) {
+            log.warn("Catalog source-type {} does not have a vendor. "
+                    + "Skipping importing this type", sourceType.getName());
+            return false;
+        }
+
+        if (sourceType.getModel() == null) {
+            log.warn("Catalog source-type {} does not have a model. "
+                    + "Skipping importing this type", sourceType.getName());
+            return false;
+        }
+
+        if (sourceType.getCatalogVersion() == null) {
+            log.warn("Catalog source-type {} does not have a version. "
+                    + "Skipping importing this type", sourceType.getName());
+            return false;
+        }
+        return true;
     }
 }

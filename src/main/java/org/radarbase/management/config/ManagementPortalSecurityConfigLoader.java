@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.radarbase.auth.authorization.Permission;
@@ -109,20 +110,21 @@ public class ManagementPortalSecurityConfigLoader {
             return;
         }
         Path file = Paths.get(path);
-        try (InputStream inputStream = Files.newInputStream(file)) {
+        CsvMapper mapper = new CsvMapper();
+        CsvSchema schema = mapper.schemaFor(CustomBaseClientDetails.class)
+                // CsvSchema uses the @JsonPropertyOrder to define column order, it does not
+                // read the header. Let's read the header ourselves and provide that as
+                // column order
+                .withColumnReordering(true)
+                .sortedBy(getCsvFileColumnOrder(file))
+                .withColumnSeparator(SEPARATOR)
+                .withHeader();
+        ObjectReader reader = mapper
+                .readerFor(CustomBaseClientDetails.class)
+                .with(schema);
+        try (InputStream inputStream = Files.newInputStream(file);
+                MappingIterator<BaseClientDetails> iterator = reader.readValues(inputStream)) {
             logger.info("Loading OAuth clients from {}", file.toAbsolutePath());
-            CsvMapper mapper = new CsvMapper();
-            CsvSchema schema = mapper.schemaFor(CustomBaseClientDetails.class)
-                    // CsvSchema uses the @JsonPropertyOrder to define column order, it does not
-                    // read the header. Let's read the header ourselves and provide that as
-                    // column order
-                    .withColumnReordering(true)
-                    .sortedBy(getCsvFileColumnOrder(file))
-                    .withColumnSeparator(SEPARATOR)
-                    .withHeader();
-            MappingIterator<BaseClientDetails> iterator = mapper
-                    .readerFor(CustomBaseClientDetails.class)
-                    .with(schema).readValues(inputStream);
             while (iterator.hasNext()) {
                 loadOAuthClient(iterator.nextValue());
             }

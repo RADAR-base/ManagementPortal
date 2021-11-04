@@ -63,11 +63,10 @@ public class SourceDataService {
     @Transactional(readOnly = true)
     public List<SourceDataDTO> findAll() {
         log.debug("Request to get all SourceData");
-        List<SourceDataDTO> result = sourceDataRepository.findAll().stream()
+
+        return sourceDataRepository.findAll().stream()
                 .map(sourceDataMapper::sourceDataToSourceDataDTO)
                 .collect(Collectors.toCollection(LinkedList::new));
-
-        return result;
     }
 
     /**
