@@ -83,7 +83,7 @@ public class Subject extends AbstractEntity implements Serializable {
     @Column(name = "attribute_value")
     @CollectionTable(name = "subject_metadata", joinColumns = @JoinColumn(name = "id"))
     @Cascade(CascadeType.ALL)
-    @BatchSize(size=50)
+    @BatchSize(size = 50)
     private Map<String, String> attributes = new HashMap<>();
 
     @OneToMany(mappedBy = "subject", orphanRemoval = true, fetch = FetchType.LAZY)
