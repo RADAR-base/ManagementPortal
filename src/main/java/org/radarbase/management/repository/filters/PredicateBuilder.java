@@ -131,13 +131,12 @@ public class PredicateBuilder {
         if (range.getIs() != null) {
             add(builder.equal(path, range.getIs()));
         } else {
-            if (range.getFrom() != null) {
-                add(builder
-                        .greaterThanOrEqualTo(path, range.getFrom()));
-            }
-            if (range.getTo() != null) {
-                add(builder
-                        .lessThanOrEqualTo(path, range.getTo()));
+            if (range.getFrom() != null && range.getTo() != null) {
+                add(builder.between(path, range.getFrom(), range.getTo()));
+            } else if (range.getFrom() != null) {
+                add(builder.greaterThanOrEqualTo(path, range.getFrom()));
+            } else if (range.getTo() != null) {
+                add(builder.lessThanOrEqualTo(path, range.getTo()));
             }
         }
     }
