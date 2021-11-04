@@ -167,6 +167,7 @@ jobs:
         run: |
             yarn config
             yarn install
+            du -shc .yarn/*
 
       # Add Docker labels and tags
       - name: Docker meta

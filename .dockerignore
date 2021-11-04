@@ -1,5 +1,3 @@
-.yarn/unplugged
-.yarn/install-state.gz
 build
 out
 radar-auth/build
@@ -15,3 +13,5 @@ oauth-client-util/src/test
 radar-auth/deprecated-auth0/build
 src/test/java
 src/gatling
+.yarn/unplugged
+.yarn/install-state.gz
