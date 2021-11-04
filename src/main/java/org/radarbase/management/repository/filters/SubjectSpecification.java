@@ -1,6 +1,5 @@
 package org.radarbase.management.repository.filters;
 
-import org.apache.commons.lang3.StringUtils;
 import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.domain.User;
@@ -18,7 +17,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.MapJoin;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
@@ -85,53 +83,28 @@ public class SubjectSpecification implements Specification<Subject> {
         root.alias("subject");
         Join<Subject, User> userJoin = root.join("user");
         userJoin.alias("user");
-        List<Predicate> predicates = new ArrayList<>();
 
-        addRolePredicates(builder, userJoin, predicates);
+        PredicateBuilder predicates = new PredicateBuilder(builder);
 
-        addAttributeLikePredicate(predicates, builder, root, "Human-readable-identifier",
+        addRolePredicates(userJoin, predicates);
+
+        predicates.attributeLike(root, "Human-readable-identifier",
                 humanReadableIdentifier);
-        addLikeCriteria(predicates, builder, root.get("externalId"), externalId);
+        predicates.likeLower(root.get("externalId"), externalId);
 
-        addEqualCriteria(predicates, builder, root.get("group"), groupId);
+        predicates.equal(root.get("group"), groupId);
 
-        addCriteriaRangePredicates(predicates, builder, root.get("dateOfBirth"), dateOfBirth);
-        addCriteriaRangePredicates(predicates, builder, root.get("enrollmentDate"), enrollmentDate);
+        predicates.range(root.get("dateOfBirth"), dateOfBirth);
+        predicates.range(root.get("enrollmentDate"), enrollmentDate);
 
-        addLikeCriteria(predicates, builder, root.get("personName"), personName);
-        addLikeCriteria(predicates, builder, userJoin.get("login"), subjectId);
+        predicates.likeLower(root.get("personName"), personName);
+        predicates.likeLower(userJoin.get("login"), subjectId);
 
         addContentPredicates(predicates, builder, root, query.getResultType());
 
         query.orderBy(getSortOrder(root, builder));
 
-        return builder.and(predicates.toArray(new Predicate[0]));
-    }
-
-    private void addAttributeLikePredicate(List<Predicate> predicates, CriteriaBuilder builder,
-            Root<Subject> root, String attributeKey, String attributeValue) {
-        if (StringUtils.isNotEmpty(attributeValue)) {
-            MapJoin<Subject, String, String> attributesJoin =
-                    root.joinMap("attributes", JoinType.LEFT);
-            predicates.add(builder.and(
-                    builder.equal(attributesJoin.key(), attributeKey),
-                    builder.like(attributesJoin.value(),
-                            "%" + attributeValue + "%")));
-        }
-    }
-
-    private void addContentPredicates(List<Predicate> predicates, CriteriaBuilder builder,
-            Root<Subject> root, Class<?> queryResult) {
-        // Don't add content for count queries.
-        if (queryResult == Long.class || queryResult == long.class) {
-            return;
-        }
-        root.fetch("sources", JoinType.LEFT);
-        root.fetch("user", JoinType.INNER);
-
-        if (last != null) {
-            predicates.add(filterLastValues(root, builder));
-        }
+        return predicates.toAndPredicate();
     }
 
     private Predicate filterLastValues(Root<Subject> root, CriteriaBuilder builder) {
@@ -168,6 +141,20 @@ public class SubjectSpecification implements Specification<Subject> {
         }
     }
 
+    private void addContentPredicates(PredicateBuilder predicates, CriteriaBuilder builder,
+            Root<Subject> root, Class<?> queryResult) {
+        // Don't add content for count queries.
+        if (queryResult == Long.class || queryResult == long.class) {
+            return;
+        }
+        root.fetch("sources", JoinType.LEFT);
+        root.fetch("user", JoinType.INNER);
+
+        if (last != null) {
+            predicates.add(filterLastValues(root, builder));
+        }
+    }
+
     private String getLastValue(SubjectSortBy property) {
         String result = switch (property) {
             case ID -> last.getId();
@@ -190,59 +177,13 @@ public class SubjectSpecification implements Specification<Subject> {
         };
     }
 
-    private void addRolePredicates(CriteriaBuilder builder, Join<Subject, User> userJoin,
-            List<Predicate> predicates) {
+    private void addRolePredicates(Join<Subject, User> userJoin, PredicateBuilder predicates) {
         Join<User, Role> rolesJoin = userJoin.join("roles");
         rolesJoin.alias("roles");
 
-        if (StringUtils.isNotEmpty(projectName)) {
-            predicates.add(builder.equal(
-                    rolesJoin.get("project").get("projectName"),
-                    projectName));
-        }
+        predicates.equal(() -> rolesJoin.get("project").get("projectName"), projectName);
         if (!authority.isEmpty() && authority.size() != SubjectAuthority.values().length) {
             predicates.add(rolesJoin.get("authority").get("name").in(authority));
-        }
-    }
-
-    private <T> void addEqualCriteria(
-            List<Predicate> predicates,
-            CriteriaBuilder builder,
-            Path<T> path,
-            T value) {
-        if (StringUtils.isNotEmpty(personName)) {
-            predicates.add(builder.equal(path, value));
-        }
-    }
-
-    private void addLikeCriteria(
-            List<Predicate> predicates,
-            CriteriaBuilder builder,
-            Path<String> path,
-            String value) {
-        if (StringUtils.isNotEmpty(personName)) {
-            predicates.add(builder.like(path, "%" + value + "%"));
-        }
-    }
-
-    private <T extends Comparable<? super T>> void addCriteriaRangePredicates(
-            List<Predicate> predicates, CriteriaBuilder builder, Path<? extends T> path,
-            CriteriaRange<T> range) {
-        if (range == null || range.isEmpty()) {
-            return;
-        }
-        range.validate();
-        if (range.getIs() != null) {
-            predicates.add(builder.equal(path, range.getIs()));
-        } else {
-            if (range.getFrom() != null) {
-                predicates.add(builder
-                        .greaterThanOrEqualTo(path, range.getFrom()));
-            }
-            if (range.getTo() != null) {
-                predicates.add(builder
-                        .lessThanOrEqualTo(path, range.getTo()));
-            }
         }
     }
 
