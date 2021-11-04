@@ -26,7 +26,7 @@ public final class HttpUtil {
             urlConn.connect();
             return urlConn.getResponseCode() == 200;
         } catch (IOException e) {
-            log.warn("Server {} is unreachable: {}", urlServer.toString(), e.getMessage());
+            log.warn("Server {} is unreachable: {}", urlServer, e.getMessage());
             return false;
         }
     }

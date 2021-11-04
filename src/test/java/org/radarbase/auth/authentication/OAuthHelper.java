@@ -3,7 +3,6 @@ package org.radarbase.auth.authentication;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import org.radarbase.auth.authorization.Permission;
 import org.radarbase.auth.config.TokenValidatorConfig;
 import org.radarbase.management.security.JwtAuthenticationFilter;
@@ -33,9 +32,8 @@ import static org.radarbase.management.security.jwt.ManagementPortalJwtAccessTok
  */
 public final class OAuthHelper {
     private static final Logger logger = LoggerFactory.getLogger(OAuthHelper.class);
-    public static String validEcToken;
-    public static DecodedJWT superUserToken;
-    public static String validRsaToken;
+    private static String validEcToken;
+    private static String validRsaToken;
 
     public static final String TEST_KEYSTORE_PASSWORD = "radarbase";
     public static final String TEST_SIGNKEY_ALIAS = "radarbase-managementportal-ec";
@@ -109,7 +107,6 @@ public final class OAuthHelper {
 
             Algorithm ecdsa = Algorithm.ECDSA256(publicKey, privateKey);
             validEcToken = createValidToken(ecdsa);
-            superUserToken = JWT.decode(validEcToken);
 
             // also get an RSA keypair to test accepting multiple keys
             RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) ks.getKey(TEST_CHECKKEY_ALIAS,

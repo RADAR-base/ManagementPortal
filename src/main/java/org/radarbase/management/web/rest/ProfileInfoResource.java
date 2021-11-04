@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
+
 /**
  * Resource to return information about the currently running Spring profiles.
  */
@@ -33,7 +35,7 @@ public class ProfileInfoResource {
         }
 
         public String[] getActiveProfiles() {
-            return activeProfiles;
+            return Arrays.copyOf(activeProfiles, activeProfiles.length);
         }
     }
 }

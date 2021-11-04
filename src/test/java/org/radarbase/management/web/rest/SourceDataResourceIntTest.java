@@ -129,7 +129,7 @@ class SourceDataResourceIntTest {
      * if they test an entity which requires the current entity.</p>
      */
     public static SourceData createEntity(EntityManager em) {
-        SourceData sourceData = new SourceData()
+        return new SourceData()
                 .sourceDataType(DEFAULT_SOURCE_DATA_TYPE)
                 .sourceDataName(DEFAULT_SOURCE_DATA_NAME)
                 .processingState(DEFAULT_PROCESSING_STATE)
@@ -138,8 +138,6 @@ class SourceDataResourceIntTest {
                 .topic(DEFAULT_TOPIC)
                 .unit(DEFAULT_UNTI)
                 .frequency(DEFAULT_FREQUENCY);
-
-        return sourceData;
     }
 
     @BeforeEach
