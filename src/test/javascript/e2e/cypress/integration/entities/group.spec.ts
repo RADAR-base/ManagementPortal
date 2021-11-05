@@ -1,19 +1,13 @@
 import { login } from '../util/login';
 
 describe('Group e2e test', () => {
-    before(() => {
-        login();
-        cy.visit('./');
-    });
-
     beforeEach(() => {
-        cy.wait(100);
-        Cypress.Cookies.preserveOnce('oAtkn');
+        login();
+        cy.contains('jhi-home .card-title', 'radar').click();
+        cy.contains('jhi-project-detail ul.nav-tabs .nav-item', 'Groups').click();
     });
 
     it('should load Groups', () => {
-        cy.contains('jhi-home .card-title', 'radar').click();
-        cy.contains('jhi-project-detail ul.nav-tabs .nav-item', 'Groups').click();
         cy.get('jhi-groups .group-row').should('have.length', 2);
     });
 

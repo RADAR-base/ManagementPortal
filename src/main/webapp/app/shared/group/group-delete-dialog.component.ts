@@ -31,7 +31,6 @@ export class GroupDeleteDialogComponent {
                 () => {
                     this.eventManager.broadcast({name: 'groupListModification', content: null});
                     this.activeModal.dismiss(true);
-                    window.history.back();
                 }
             );
     }

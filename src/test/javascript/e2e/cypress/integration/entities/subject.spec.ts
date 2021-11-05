@@ -1,15 +1,12 @@
 import { login } from '../util/login';
-import { clickOnEntity, clickOnEntityMenu } from "../util/nav-bar";
 
 describe('Subject e2e test', () => {
     beforeEach(() => {
         login();
-        clickOnEntityMenu();
-        clickOnEntity('subject');
+        cy.contains('jhi-home .card-title', 'radar').click();
     });
 
     it('should load Subjects', () => {
-        cy.contains('jhi-home .card-title', 'radar').click();
         cy.get('jhi-subjects .subject-row').should('have.length', 20);
     });
 
@@ -40,7 +37,7 @@ describe('Subject e2e test', () => {
         // cy.wait(1000);
         cy.get('jhi-subject-dialog input[name=externalLink]').clear().type('https://radar-base-test-edited.org');
         cy.contains('jhi-subject-dialog button.btn-primary', 'Save').click();
-        cy.get('jhi-subjects .subject-row').should('have.length', 21);
+        cy.get('jhi-subjects .subject-row').should('have.length', 20);
     });
 
     it('should have load subject row with subject-id, external-id, status, project, sources and attributes columns', () => {
@@ -83,29 +80,23 @@ describe('Subject e2e test', () => {
 
     it('should be able to filter subjects by subject id', () => {
         cy.get('#field-subject-id').type('b-1');
-        cy.get('#apply-filter').click();
         cy.get('jhi-subjects .subject-row').should('have.length', 11);
         cy.get('#field-subject-id').clear();
-        cy.get('#apply-filter').click();
         cy.get('jhi-subjects .subject-row').should('have.length', 20);
     });
 
     it('should be able to filter subjects by subject external id', () => {
         cy.get('#field-subject-external-id').type('test-subject-1');
-        cy.get('#apply-filter').click();
         cy.get('jhi-subjects .subject-row').should('have.length', 1);
         cy.get('#field-subject-external-id').clear();
-        cy.get('#apply-filter').click();
         cy.get('jhi-subjects .subject-row').should('have.length', 20);
     });
 
     it('should be able to filter subjects by human readable id', () => {
         cy.get('#advanced-filter').click();
         cy.get('#field-human-readable-id').type('Test');
-        cy.get('#apply-filter').click();
         cy.get('jhi-subjects .subject-row').should('have.length', 1);
         cy.get('#field-human-readable-id').clear();
-        cy.get('#apply-filter').click();
         cy.get('jhi-subjects .subject-row').should('have.length', 20);
         cy.get('#advanced-filter').click();
     });
@@ -113,10 +104,8 @@ describe('Subject e2e test', () => {
     it('should be able to filter subjects by person name', () => {
         cy.get('#advanced-filter').click();
         cy.get('#field-person-name').type('Test');
-        cy.get('#apply-filter').click();
         cy.get('jhi-subjects .subject-row').should('have.length', 1);
         cy.get('#field-person-name').clear();
-        cy.get('#apply-filter').click();
         cy.get('jhi-subjects .subject-row').should('have.length', 20);
         cy.get('#advanced-filter').click();
     });
@@ -126,10 +115,8 @@ describe('Subject e2e test', () => {
     it('should be able to filter subjects by date of birth', () => {
         cy.get('#advanced-filter').click();
         cy.get('#field_date_of_birth').type('1980-01-01');
-        cy.get('#apply-filter').click();
         cy.get('jhi-subjects .subject-row').should('have.length', 1);
         cy.get('#field_date_of_birth').clear();
-        cy.get('#apply-filter').click();
         cy.get('jhi-subjects .subject-row').should('have.length', 20);
         cy.get('#advanced-filter').click();
     });
