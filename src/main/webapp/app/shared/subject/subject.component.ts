@@ -10,7 +10,7 @@ import {
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, map} from 'rxjs/operators';
 
 import {Group, GroupService, ITEMS_PER_PAGE, Project} from '..';
 import { Subject } from './subject.model';
@@ -23,6 +23,7 @@ import { PagingParams } from '../commons';
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
 import { parseLinks } from '../util/parse-links-util';
+import {NgbCalendar, NgbDate, NgbDateParserFormatter} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
     selector: 'jhi-subjects',
@@ -52,14 +53,30 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     routeData: any;
     previousPage: any;
 
-    filterSubjectExternalId = '';
-    filterSubjectId = '';
-    filterSubjectHumanReadableId = '';
-    filterDateOfBirth = '';
-    filterPersonName = '';
-    filterEnrollmentDateFrom = '';
-    filterEnrollmentDateTo = '';
-    filterSubjectGroupId = '';
+    filters = {
+        subjectId: '',
+        externalId: '',
+        humanReadableId: '',
+        dateOfBirth: undefined,
+        personName: '',
+        enrollmentDateFrom: undefined,
+        enrollmentDateTo: undefined,
+        groupId: '',
+    }
+
+    appliedFilters = {
+        dateOfBirth: undefined,
+        enrollmentDateFrom: undefined,
+        enrollmentDateTo: undefined,
+        group: '',
+    }
+
+    filterTriggerUpdate$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+
+    isFilterApplied = false;
+
+    enrollmentDateFromError = false;
+    enrollmentDateToError = false;
 
     isAdvancedFilterCollapsed = true;
 
@@ -75,6 +92,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             private eventManager: EventManager,
             private activatedRoute: ActivatedRoute,
             private router: Router,
+            private calendar: NgbCalendar,
+            public formatter: NgbDateParserFormatter
     ) {
         this.subjects = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
@@ -88,6 +107,11 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             this.ascending = params.ascending;
             this.predicate = params.predicate;
         });
+
+        this.filterTriggerUpdate$.pipe(
+            debounceTime(300),
+            distinctUntilChanged()
+        ).subscribe(() => this.applyFilter());
     }
 
     loadSubjects() {
@@ -177,30 +201,65 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
 
     get queryFilterParams(): SubjectFilterParams {
         const params = {
-            login: this.filterSubjectId.trim() || undefined,
-            externalId: this.filterSubjectExternalId.trim() || undefined,
-            personName: this.filterPersonName.trim() || undefined,
-            humanReadableIdentifier: this.filterSubjectHumanReadableId.trim() || undefined,
-            groupId: this.filterSubjectGroupId,
+            login: this.filters.subjectId.trim() || undefined,
+            externalId: this.filters.externalId.trim() || undefined,
+            personName: this.filters.personName.trim() || undefined,
+            humanReadableIdentifier: this.filters.humanReadableId.trim() || undefined,
+            groupId: this.filters.groupId,
             dateOfBirth: undefined,
             enrollmentDate: undefined,
         };
-        let enrollmentDateFrom = this.filterEnrollmentDateFrom.trim();
-        let enrollmentDateTo = this.filterEnrollmentDateTo.trim();
-        if (enrollmentDateFrom || enrollmentDateTo) {
+
+        const filteredGroup = this.groups?.filter(g => g.id.toString() == this.filters.groupId)[0];
+        this.appliedFilters.group = filteredGroup? filteredGroup.name : '';
+
+        if(this.isRange(this.filters.enrollmentDateFrom, this.filters.enrollmentDateTo)){
+            let enrollmentDateFrom = this.formatter.format(this.filters.enrollmentDateFrom); //this.formatDate(this.filters.enrollmentDateFrom);
+            let enrollmentDateTo = this.formatter.format(this.filters.enrollmentDateTo);
+            this.appliedFilters.enrollmentDateFrom = enrollmentDateFrom;
+            this.appliedFilters.enrollmentDateTo = enrollmentDateTo;
             const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             params.enrollmentDate = {
                 from: enrollmentDateFrom ? enrollmentDateFrom + 'T00:00' + '[' + timeZone + ']' : undefined,
                 to: enrollmentDateTo ? enrollmentDateTo + 'T23:59' + '[' + timeZone + ']' : undefined,
             };
         }
-        if (this.filterDateOfBirth) {
+        if (this.filters.dateOfBirth && this.calendar.isValid(NgbDate.from(this.filters.dateOfBirth))){
+            const dateOfBirth = this.formatter.format(this.filters.dateOfBirth);
+            this.appliedFilters.dateOfBirth = dateOfBirth;
             params.dateOfBirth = {
-                is: this.filterDateOfBirth,
+                is: dateOfBirth,
             };
         }
 
         return params;
+    }
+
+    isRange(from: NgbDate, to: NgbDate): boolean {
+        if(from && !this.calendar.isValid(NgbDate.from(from))){
+            this.enrollmentDateFromError = true;
+            return false;
+        }
+        if(to && !this.calendar.isValid(NgbDate.from(to))){
+            this.enrollmentDateToError = true;
+            return false;
+        }
+        if(from && to) {
+            const dateFrom: NgbDate = new NgbDate(from.year, from.month, from.day);
+            const dateTo: NgbDate = new NgbDate(to.year, to.month, to.day);
+            if(dateTo.equals(dateFrom) || dateTo.after(dateFrom)){
+                this.enrollmentDateFromError = false;
+                this.enrollmentDateToError = false;
+                return true;
+            }
+            this.enrollmentDateFromError = false;
+            this.enrollmentDateToError = true;
+            return false;
+        } else {
+            this.enrollmentDateFromError = false;
+            this.enrollmentDateToError = false;
+            return !!(from || to);
+        }
     }
 
     get queryPaginationParams(): SubjectPaginationParams {
@@ -238,20 +297,49 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             })
     }
 
+    filterChanged(text) {
+        this.filterTriggerUpdate$.next(text);
+    }
+
     applyFilter() {
+        const {subjectId, externalId, personName, humanReadableId, dateOfBirth, enrollmentDateFrom, enrollmentDateTo, groupId} = this.filters;
+        this.isFilterApplied = !!(subjectId || externalId || personName || humanReadableId ||
+                dateOfBirth || enrollmentDateFrom || enrollmentDateTo || groupId);
         this.subjects = [];
         this.loadSubjects();
     }
 
-    clearFilter() {
-        this.filterSubjectExternalId = '';
-        this.filterSubjectId = '';
-        this.filterSubjectHumanReadableId = '';
-        this.filterDateOfBirth = '';
-        this.filterPersonName = '';
-        this.filterEnrollmentDateFrom = '';
-        this.filterEnrollmentDateTo = '';
-        this.filterSubjectGroupId = '';
+    clearFilter(filterName: string){
+        this.filters[filterName] = '';
+        this.applyFilter();
+    }
+
+    clearDateFilter(filterName: string) {
+        this.appliedFilters[filterName] = undefined;
+        this.filters[filterName] = undefined;
+        this.applyFilter();
+    }
+
+    clearSelectFilter(filterName: string){
+        this.appliedFilters[filterName] = '';
+        this.filters[filterName] = '';
+        this.applyFilter();
+    }
+
+    clearFilters() {
+        this.filters.externalId = '';
+        this.filters.subjectId = '';
+        this.filters.humanReadableId = '';
+        this.filters.personName = '';
+        this.filters.groupId = '';
+        this.filters.dateOfBirth = undefined;
+        this.filters.enrollmentDateFrom = undefined;
+        this.filters.enrollmentDateTo = undefined;
+        this.appliedFilters.group = '';
+        this.appliedFilters.dateOfBirth = undefined;
+        this.appliedFilters.enrollmentDateFrom = undefined;
+        this.appliedFilters.enrollmentDateTo = undefined;
+
         this.applyFilter();
     }
 
@@ -319,6 +407,4 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             }).then(() => this.loadSubjects());
         }
     }
-
-
 }
