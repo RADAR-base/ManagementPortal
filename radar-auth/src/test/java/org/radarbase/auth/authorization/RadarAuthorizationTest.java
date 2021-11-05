@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.radarbase.auth.authorization.Permission.Entity;
 import org.radarbase.auth.exception.NotAuthorizedException;
@@ -22,11 +21,6 @@ import org.radarbase.auth.util.TokenTestUtils;
  * Created by dverbeec on 25/09/2017.
  */
 class RadarAuthorizationTest {
-    @BeforeAll
-    public static void loadToken() throws Exception {
-        TokenTestUtils.setUp();
-    }
-
     @Test
     void testCheckPermissionOnProject() throws NotAuthorizedException {
         String project = "PROJECT1";

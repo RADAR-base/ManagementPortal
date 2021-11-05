@@ -1,6 +1,5 @@
 package org.radarbase.management.repository.filters;
 
-import org.apache.commons.lang3.StringUtils;
 import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.domain.User;
@@ -18,7 +17,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.MapJoin;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
@@ -85,55 +83,28 @@ public class SubjectSpecification implements Specification<Subject> {
         root.alias("subject");
         Join<Subject, User> userJoin = root.join("user");
         userJoin.alias("user");
-        List<Predicate> predicates = new ArrayList<>();
 
-        addRolePredicates(builder, userJoin, predicates);
+        PredicateBuilder predicates = new PredicateBuilder(builder);
 
-        if (StringUtils.isNotEmpty(humanReadableIdentifier)) {
-            MapJoin<Subject, String, String> attributesJoin =
-                    root.joinMap("attributes", JoinType.LEFT);
-            predicates.add(builder.and(
-                    builder.equal(attributesJoin.key(), "Human-readable-identifier"),
-                    builder.like(attributesJoin.value(),
-                            "%" + humanReadableIdentifier + "%")));
-        }
-        if (StringUtils.isNotEmpty(externalId)) {
-            predicates.add(builder.like(root.get("externalId"), "%" + externalId + "%"));
-        }
-        if (groupId != null) {
-            predicates.add(builder.equal(root.get("group"), groupId));
-        }
+        addRolePredicates(userJoin, predicates);
 
-        addCriteriaRangePredicates(root.get("dateOfBirth"), builder, predicates, dateOfBirth);
-        addCriteriaRangePredicates(root.get("enrollmentDate"), builder, predicates, enrollmentDate);
+        predicates.attributeLike(root, "Human-readable-identifier",
+                humanReadableIdentifier);
+        predicates.likeLower(root.get("externalId"), externalId);
 
-        if (StringUtils.isNotEmpty(personName)) {
-            predicates.add(builder
-                    .like(root.get("personName"), "%" + personName + "%"));
-        }
-        if (StringUtils.isNotEmpty(subjectId)) {
-            predicates.add(builder.like(userJoin.get("login"), "%" + subjectId + "%"));
-        }
+        predicates.equal(root.get("group"), groupId);
 
-        addContentPredicates(root, builder, query.getResultType(), predicates);
+        predicates.range(root.get("dateOfBirth"), dateOfBirth);
+        predicates.range(root.get("enrollmentDate"), enrollmentDate);
+
+        predicates.likeLower(root.get("personName"), personName);
+        predicates.likeLower(userJoin.get("login"), subjectId);
+
+        addContentPredicates(predicates, builder, root, query.getResultType());
 
         query.orderBy(getSortOrder(root, builder));
 
-        return builder.and(predicates.toArray(new Predicate[0]));
-    }
-
-    private void addContentPredicates(Root<Subject> root, CriteriaBuilder builder,
-            Class<?> queryResult, List<Predicate> predicates) {
-        // Don't add content for count queries.
-        if (queryResult == Long.class || queryResult == long.class) {
-            return;
-        }
-        root.fetch("sources", JoinType.LEFT);
-        root.fetch("user", JoinType.INNER);
-
-        if (last != null) {
-            predicates.add(filterLastValues(root, builder));
-        }
+        return predicates.toAndPredicate();
     }
 
     private Predicate filterLastValues(Root<Subject> root, CriteriaBuilder builder) {
@@ -170,21 +141,26 @@ public class SubjectSpecification implements Specification<Subject> {
         }
     }
 
-    private String getLastValue(SubjectSortBy property) {
-        String result;
-        switch (property) {
-            case ID:
-                result = last.getId();
-                break;
-            case USER_LOGIN:
-                result = last.getLogin();
-                break;
-            case EXTERNAL_ID:
-                result = last.getExternalId();
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown sort property " + property);
+    private void addContentPredicates(PredicateBuilder predicates, CriteriaBuilder builder,
+            Root<Subject> root, Class<?> queryResult) {
+        // Don't add content for count queries.
+        if (queryResult == Long.class || queryResult == long.class) {
+            return;
         }
+        root.fetch("sources", JoinType.LEFT);
+        root.fetch("user", JoinType.INNER);
+
+        if (last != null) {
+            predicates.add(filterLastValues(root, builder));
+        }
+    }
+
+    private String getLastValue(SubjectSortBy property) {
+        String result = switch (property) {
+            case ID -> last.getId();
+            case USER_LOGIN -> last.getLogin();
+            case EXTERNAL_ID -> last.getExternalId();
+        };
         if (property.isUnique() && result == null) {
             throw new BadRequestException("No last value given for sort property " + property,
                     SUBJECT, ERR_VALIDATION);
@@ -194,53 +170,20 @@ public class SubjectSpecification implements Specification<Subject> {
 
 
     private Path<String> getPropertyPath(SubjectSortBy property, Root<Subject> root) {
-        switch (property) {
-            case ID:
-                return root.get("id");
-            case USER_LOGIN:
-                return root.get("user").get("login");
-            case EXTERNAL_ID:
-                return root.get("externalId");
-            default:
-                throw new IllegalArgumentException("Unknown sort property " + property);
-        }
+        return switch (property) {
+            case ID -> root.get("id");
+            case USER_LOGIN -> root.get("user").get("login");
+            case EXTERNAL_ID -> root.get("externalId");
+        };
     }
 
-    private void addRolePredicates(CriteriaBuilder builder, Join<Subject, User> userJoin,
-            List<Predicate> predicates) {
+    private void addRolePredicates(Join<Subject, User> userJoin, PredicateBuilder predicates) {
         Join<User, Role> rolesJoin = userJoin.join("roles");
         rolesJoin.alias("roles");
 
-        if (StringUtils.isNotEmpty(projectName)) {
-            predicates.add(builder.equal(
-                    rolesJoin.get("project").get("projectName"),
-                    projectName));
-        }
+        predicates.equal(() -> rolesJoin.get("project").get("projectName"), projectName);
         if (!authority.isEmpty() && authority.size() != SubjectAuthority.values().length) {
             predicates.add(rolesJoin.get("authority").get("name").in(authority));
-        }
-    }
-
-    private <T extends Comparable<? super T>> void addCriteriaRangePredicates(
-            Path<? extends T> path,
-            CriteriaBuilder builder,
-            List<Predicate> predicates,
-            CriteriaRange<T> range) {
-        if (range == null || range.isEmpty()) {
-            return;
-        }
-        range.validate();
-        if (range.getIs() != null) {
-            predicates.add(builder.equal(path, range.getIs()));
-        } else {
-            if (range.getFrom() != null) {
-                predicates.add(builder
-                        .greaterThanOrEqualTo(path, range.getFrom()));
-            }
-            if (range.getTo() != null) {
-                predicates.add(builder
-                        .lessThanOrEqualTo(path, range.getTo()));
-            }
         }
     }
 

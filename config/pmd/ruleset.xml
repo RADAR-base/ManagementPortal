@@ -42,6 +42,7 @@
 
   <rule ref="category/java/design.xml">
     <exclude name="AvoidCatchingGenericException"/>
+    <exclude name="AvoidUncheckedExceptionsInSignatures"/>
     <exclude name="AvoidDeeplyNestedIfStmts"/>
     <exclude name="SwitchDensity"/>
     <exclude name="CyclomaticComplexity"/>
@@ -58,7 +59,7 @@
 
   <rule ref="category/java/bestpractices.xml">
     <exclude name="GuardLogStatement"/>
-    <exclude name="PositionLiteralsFirstInComparisons"/>
+    <exclude name="LiteralsFirstInComparisons"/>
     <exclude name="AbstractClassWithoutAbstractMethod"/>
     <exclude name="ConstantsInInterface"/>
     <exclude name="PreserveStackTrace"/>
@@ -72,7 +73,7 @@
     <exclude name="AvoidLiteralsInIfCondition"/>
     <exclude name="BeanMembersShouldSerialize"/>
     <exclude name="NullAssignment"/>
-    <exclude name="DoNotCallSystemExit"/>
+    <exclude name="DoNotTerminateVM"/>
     <exclude name="AvoidDuplicateLiterals"/>
     <exclude name="MissingSerialVersionUID"/>
     <exclude name="AvoidFieldNameMatchingMethodName"/>

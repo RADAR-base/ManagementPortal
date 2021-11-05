@@ -14,7 +14,6 @@ import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.radarbase.exception.TokenException;
 
 /**
@@ -131,12 +130,11 @@ public class OAuth2Client {
         // make the client execute the POST request
         try (Response response = httpClient.newCall(request).execute()) {
             if (response.isSuccessful()) {
-                ResponseBody responseBody = response.body();
-                if (responseBody == null) {
+                if (response.body() == null) {
                     throw new TokenException("No response from server");
                 }
                 OAuth2AccessTokenDetails localToken = OAuth2AccessTokenDetails.getObject(
-                        responseBody.string());
+                        response.body().string());
 
                 synchronized (this) {
                     token = localToken;

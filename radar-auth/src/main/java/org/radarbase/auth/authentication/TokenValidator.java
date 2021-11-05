@@ -137,10 +137,10 @@ public class TokenValidator {
 
     private RadarToken validateAccessToken(String token, boolean tryRefresh) {
         List<JWTVerifier> localVerifiers = getVerifiers();
+        boolean signatureFailed = false;
         for (JWTVerifier verifier : localVerifiers) {
             try {
                 DecodedJWT jwt = verifier.verify(token);
-
                 Map<String, Claim> claims = jwt.getClaims();
 
                 // Do not print full token with signature to avoid exposing valid token in logs.
@@ -155,22 +155,25 @@ public class TokenValidator {
                 return new JwtRadarToken(jwt);
             } catch (SignatureVerificationException sve) {
                 LOGGER.debug("Client presented a token with an incorrect signature.");
-                if (tryRefresh) {
-                    LOGGER.info("Trying to fetch public keys again...");
-                    try {
-                        refresh();
-                    } catch (TokenValidationException ex) {
-                        // Log and Continue with validation
-                        LOGGER.warn("Could not fetch public keys.", ex);
-                    }
-                    return validateAccessToken(token, false);
-                }
+                signatureFailed = true;
             } catch (JWTVerificationException ex) {
                 LOGGER.debug("Verifier {} with implementation {} did not accept token",
                         verifier, verifier.getClass());
             }
         }
-        throw new TokenValidationException("No registered validator could authenticate this token");
+        if (signatureFailed && tryRefresh) {
+            LOGGER.info("Trying to fetch public keys again...");
+            try {
+                refresh();
+            } catch (TokenValidationException ex) {
+                // Log and Continue with validation
+                LOGGER.warn("Could not fetch public keys.", ex);
+            }
+            return validateAccessToken(token, false);
+        } else {
+            throw new TokenValidationException(
+                    "No registered validator could authenticate this token");
+        }
     }
 
     private List<JWTVerifier> getVerifiers() {
@@ -234,19 +237,18 @@ public class TokenValidator {
                     .url(serverUri.toURL())
                     .header("Accept", "application/json")
                     .build();
-            Response response = client.newCall(request).execute();
-            if (response.isSuccessful() && response.body() != null) {
-                JavaWebKeySet publicKeyInfo = mapper.readValue(response.body().string(),
-                        JavaWebKeySet.class);
-                response.close();
-                LOGGER.debug("Processing {} public keys from public-key endpoint {}", publicKeyInfo
-                        .getKeys().size(), serverUri.toURL());
-                return algorithmLoader.loadAlgorithmsFromJavaWebKeys(publicKeyInfo);
-            } else {
-                throw new TokenValidationException("Invalid token signature. Could not load "
-                        + "newer public keys");
+            try (Response response = client.newCall(request).execute()) {
+                if (response.isSuccessful() && response.body() != null) {
+                    JavaWebKeySet publicKeyInfo = mapper.readValue(response.body().string(),
+                            JavaWebKeySet.class);
+                    LOGGER.debug("Processing {} public keys from public-key endpoint {}",
+                            publicKeyInfo.getKeys().size(), serverUri.toURL());
+                    return algorithmLoader.loadAlgorithmsFromJavaWebKeys(publicKeyInfo);
+                } else {
+                    throw new TokenValidationException("Invalid token signature. Could not load "
+                            + "newer public keys");
+                }
             }
-
         } catch (Exception ex) {
             throw new TokenValidationException(ex);
         }
