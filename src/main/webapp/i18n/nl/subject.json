@@ -19,6 +19,7 @@
             "filter": {
                 "title": "Filter",
                 "applyButton": "Filter toepassen",
+                "clearButton": "Filters wissen",
                 "from": "Vanaf",
                 "to": "Tot en met",
                 "advancedFilter": "Uitgebreid filter"
