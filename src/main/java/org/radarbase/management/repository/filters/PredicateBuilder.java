@@ -58,7 +58,7 @@ public class PredicateBuilder {
      * @param <T> type of field.
      */
     public <T> void equal(Supplier<Expression<T>> path, T value) {
-        if (value != null && !(value instanceof String && isValidValue((String) value))) {
+        if (isValidValue(value)) {
             add(builder.equal(path.get(), value));
         }
     }
@@ -70,7 +70,7 @@ public class PredicateBuilder {
      * @param <T> type of field.
      */
     public <T> void equal(Expression<T> path, T value) {
-        if (value != null && !(value instanceof String && isValidValue((String) value))) {
+        if (isValidValue(value)) {
             add(builder.equal(path, value));
         }
     }
@@ -144,7 +144,13 @@ public class PredicateBuilder {
     /**
      * Whether given String a proper value.
      */
-    public boolean isValidValue(String value) {
-        return value != null && !value.isBlank() && !value.equals("null");
+    public boolean isValidValue(Object value) {
+        if (value == null) {
+            return false;
+        }
+        if (value instanceof String str) {
+            return !str.isBlank() && !str.equals("null");
+        }
+        return true;
     }
 }
