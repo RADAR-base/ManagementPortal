@@ -18,19 +18,21 @@
             },
             "filter": {
                 "title": "Filter",
+                "filters": "Filters",
                 "applyButton": "Filter toepassen",
                 "clearButton": "Filters wissen",
                 "from": "Vanaf",
                 "to": "Tot en met",
-                "clearButton": "Wis filters",
-                "advancedFilter": "Uitgebreid filter"
+                "advancedFilter": "Uitgebreid filter",
+                "error": {
+                    "invalidDate": "De datum is niet geldig.",
+                    "invalidRange": "De datum is niet geldig of ligt na de Van-datum."
+                }
             },
             "login": "Login",
             "email": "E-mail",
             "externalLink": "Externe link",
             "externalId": "Extern ID",
-            "name": "Naam",
-            "dob": "Geboortedatum",
             "humanReadableId": "Leesbare ID",
             "enrolmentDate": "Inschrijvingsdatum",
             "removed": "Verwijderd",
@@ -42,6 +44,8 @@
             "createdDate": "Aanmaakdatum",
             "dateOfBirth": "Geboortedatum",
             "enrollmentDate": "Inschrijvingsdatum",
+            "enrollmentDateFrom": "Inschrijvingsdatum Vanaf",
+            "enrollmentDateTo": "Inschrijvingsdatum Tot",
             "lastModifiedBy": "Laatst aangepast door",
             "lastModifiedDate": "Laatst aangepaste datum",
             "personName": "Naam",
@@ -118,5 +122,4 @@
         "activeParticipantProjectNotFound": "Het subject neemt niet deel aan een project",
         "sourceTypeNotProvided" : "De opgegeven eigenschappen van het source-type zijn incompleet."
     }
-
 }

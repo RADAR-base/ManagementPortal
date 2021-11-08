@@ -89,7 +89,7 @@
                                 <button class="btn btn-outline-secondary calendar" (click)="enrollmentFromDatePicker.toggle()" type="button"></button>
                             </div>
                         </div>
-                        <span *ngIf="enrollmentDateFromError" class="error">The date is not valid.</span>
+                        <span *ngIf="enrollmentDateFromError" class="error" [translate]="'managementPortalApp.subject.filter.error.invalidDate'"></span>
                     </div>
                     <div class="form-group">
                         <span [translate]="'managementPortalApp.subject.filter.to'"></span>
@@ -106,7 +106,7 @@
                                 <button class="btn btn-outline-secondary calendar" (click)="enrollmentToDatePicker.toggle()" type="button"></button>
                             </div>
                         </div>
-                        <span *ngIf="enrollmentDateToError" class="error">The date is not valid or it is after From Date.</span>
+                        <span *ngIf="enrollmentDateToError" class="error" [translate]="'managementPortalApp.subject.filter.error.invalidRange'"></span>
                     </div>
                 </div>
 
@@ -205,39 +205,38 @@
             </span>
         </button>
         <div class="applied-filters"
-             *ngIf="isFilterApplied"
-             style="margin: 8px 0; display: flex; align-items: center; flex-wrap: wrap;">
-            <span>Filters: </span>
+             *ngIf="isFilterApplied">
+            <span>{{ 'managementPortalApp.subject.filter.filters' | translate}}: </span>
             <div class="badge badge-pill badge-primary" *ngIf="filters.subjectId" (click)="clearFilter('subjectId')">
-                <span>Subject ID: {{filters.subjectId}}</span>
+                <span>{{ 'managementPortalApp.subject.subjectId' | translate }}: {{filters.subjectId}}</span>
                 <span aria-hidden="true"> &times;</span>
             </div>
             <div class="badge badge-pill badge-primary" *ngIf="filters.externalId" (click)="clearFilter('externalId')">
-                <span>External ID: {{filters.externalId}}</span>
+                <span>{{ 'managementPortalApp.subject.externalId' | translate }}: {{filters.externalId}}</span>
                 <span aria-hidden="true"> &times;</span>
             </div>
             <div class="badge badge-pill badge-primary" *ngIf="filters.personName" (click)="clearFilter('personName')">
-                <span>Person Name: {{filters.personName}}</span>
+                <span>{{ 'managementPortalApp.subject.personName' | translate }}: {{filters.personName}}</span>
                 <span aria-hidden="true"> &times;</span>
             </div>
             <div class="badge badge-pill badge-primary" *ngIf="filters.humanReadableId" (click)="clearFilter('humanReadableId')">
-                <span>Human Readable ID: {{filters.humanReadableId}}</span>
+                <span>{{ 'managementPortalApp.subject.humanReadableId' | translate }}: {{filters.humanReadableId}}</span>
                 <span aria-hidden="true"> &times;</span>
             </div>
             <div class="badge badge-pill badge-primary" *ngIf="appliedFilters.dateOfBirth" (click)="clearDateFilter('dateOfBirth')">
-                <span>Date of Birth: {{appliedFilters.dateOfBirth}}</span>
+                <span>{{ 'managementPortalApp.subject.dateOfBirth' | translate }}: {{appliedFilters.dateOfBirth}}</span>
                 <span aria-hidden="true"> &times;</span>
             </div>
             <div class="badge badge-pill badge-primary" *ngIf="appliedFilters.enrollmentDateFrom" (click)="clearDateFilter('enrollmentDateFrom')">
-                <span>Enrollment Date From: {{appliedFilters.enrollmentDateFrom}}</span>
+                <span>{{ 'managementPortalApp.subject.enrollmentDateFrom' | translate }}: {{appliedFilters.enrollmentDateFrom}}</span>
                 <span aria-hidden="true"> &times;</span>
             </div>
             <div class="badge badge-pill badge-primary" *ngIf="appliedFilters.enrollmentDateTo" (click)="clearDateFilter('enrollmentDateTo')">
-                <span>Enrollment Date To: {{appliedFilters.enrollmentDateTo}}</span>
+                <span>{{ 'managementPortalApp.subject.enrollmentDateFrom' | translate }}: {{appliedFilters.enrollmentDateTo}}</span>
                 <span aria-hidden="true"> &times;</span>
             </div>
             <div class="badge badge-pill badge-primary" *ngIf="appliedFilters.group" (click)="clearSelectFilter('groupId')">
-                <span>Group: {{appliedFilters.group}}</span>
+                <span>{{ 'managementPortalApp.subject.group' | translate }}: {{appliedFilters.group}}</span>
                 <span aria-hidden="true"> &times;</span>
             </div>
         </div>
