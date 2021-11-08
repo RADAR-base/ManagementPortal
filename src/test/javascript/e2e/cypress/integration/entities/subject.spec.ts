@@ -18,7 +18,6 @@ describe('Subject e2e test', () => {
 
     it('should be able to create new subject', () => {
         cy.get('jhi-subjects button.create-subject').click();
-        // cy.wait(1000);
         cy.get('jhi-subject-dialog input[name=externalLink]').type('https://radar-base-test.org');
         cy.get('jhi-subject-dialog input[name=externalId]').type('test-subject-1');
         cy.get('jhi-subject-dialog input[name=personName]').type('Test Subject 1');
@@ -32,9 +31,8 @@ describe('Subject e2e test', () => {
     });
 
     it('should be able to edit a subject', () => {
-        // cy.wait(1000);
+        cy.wait(1000);
         cy.contains('jhi-subjects .subject-row', 'test-subject-1').contains('button', 'Edit').click();
-        // cy.wait(1000);
         cy.get('jhi-subject-dialog input[name=externalLink]').clear().type('https://radar-base-test-edited.org');
         cy.contains('jhi-subject-dialog button.btn-primary', 'Save').click();
         cy.get('jhi-subjects .subject-row').should('have.length', 20);
