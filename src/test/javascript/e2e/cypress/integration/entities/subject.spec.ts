@@ -161,6 +161,7 @@ describe('Subject e2e test', () => {
     });
 
     it('should be able to load subjects on loadMore click', () => {
+        cy.wait(1000);
         cy.get('jhi-subjects a.subject-pagination__load-more').click();
         cy.get('jhi-subjects span.subject-pagination__all-loaded').should('have.text', 'All 25 subjects loaded');
         cy.get('jhi-subjects .subject-row').should('have.length', 25);

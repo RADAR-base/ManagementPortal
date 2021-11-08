@@ -1,13 +1,13 @@
 import { login } from '../util/login';
-import { loadProjectView } from "../util/nav-bar";
 
 describe('Project view: Generate QR code', () => {
     beforeEach(() => {
-        login()
-        loadProjectView();
+        login();
+        cy.contains('jhi-home .card-title', 'radar').click();
     });
 
     it('should open pair app dialog', () => {
+        cy.wait(1000);
         cy.contains('button', 'Pair App').first().click();
         cy.get('[name=pairForm]').find('h4').first()
             .should('have.text', 'Pair an application');
