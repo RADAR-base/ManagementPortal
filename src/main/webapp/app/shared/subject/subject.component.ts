@@ -84,7 +84,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
 
     isAdvancedFilterCollapsed = true;
 
-    checked = false;
+    allChecked = false;
     setOfCheckedId = new Set<number>();
 
     @Input() isProjectSpecific: boolean;
@@ -379,13 +379,15 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         this.refreshCheckedStatus();
     }
 
-    onItemChecked(id: number, checked: boolean): void {
-        this.updateCheckedSet(id, checked);
+    onItemChanged(id: number, event: Event) {
+        const itemChecked = !(event.target as HTMLInputElement).checked;
+        this.updateCheckedSet(id, itemChecked);
         this.refreshCheckedStatus();
     }
 
     refreshCheckedStatus(): void {
-        this.checked = this.subjects.every(({ id }) => this.setOfCheckedId.has(id)) && (this.subjects.length > 0);
+        this.allChecked = (this.subjects.length > 0
+          && this.subjects.every(({ id }) => this.setOfCheckedId.has(id)));
     }
 
     updateCheckedSet(id: number, checked: boolean): void {

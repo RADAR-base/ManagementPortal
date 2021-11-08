@@ -115,7 +115,7 @@ public final class TestUtil {
      * Creates a matcher that matches when the examined string reprensents the same instant as the
      * reference datetime.
      *
-     * @param date the reference datetime against which the examined string is checked
+     * @param date the reference datetime against which the examined string is allChecked
      */
     public static ZonedDateTimeMatcher sameInstant(ZonedDateTime date) {
         return new ZonedDateTimeMatcher(date);

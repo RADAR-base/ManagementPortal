@@ -177,7 +177,7 @@ public class GroupService {
         // since having both will require an extra validation step
         // to reject e.g. {id: 1, login: "subject-id-42"}.
         // Whether the IDs and logins exist and belong to the project
-        // should be checked later
+        // should be allChecked later
         for (GroupPatchOperation.SubjectPatchValue item : subjectsToModify) {
             String login = item.getLogin();
             Long id = item.getId();
