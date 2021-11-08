@@ -9,10 +9,14 @@ import {
 } from '@angular/core';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import {Group, GroupService, ITEMS_PER_PAGE, Project} from '..';
+import {
+    AddSubjectsToGroupDialogComponent
+} from "./add-subjects-to-group-dialog.component";
 import { Subject } from './subject.model';
 import {
     SubjectService,
@@ -73,6 +77,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             private groupService: GroupService,
             private alertService: AlertService,
             private eventManager: EventManager,
+            private modalService: NgbModal,
             private activatedRoute: ActivatedRoute,
             private router: Router,
     ) {
@@ -304,7 +309,12 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     addSelectedToGroup() {
-        // TODO implement function
+        let ids = this.setOfCheckedId;
+        let subjects = this.subjects.filter(s => ids.has(s.id));
+        let modalRef = this.modalService.open(AddSubjectsToGroupDialogComponent);
+        modalRef.componentInstance.groups = this.groups;
+        modalRef.componentInstance.projectName = this.project.projectName;
+        modalRef.componentInstance.subjects = subjects;
     }
 
     transition() {

@@ -152,8 +152,9 @@
                     (click)="selectAll(!checked)"
                 ></button>
                 <button type="button"
+                    *ngIf='isProjectSpecific'
                     class="btn btn-light"
-                    disabled
+                    [disabled]="setOfCheckedId.size === 0"
                     [translate]="'managementPortalApp.subject.addSelectedToGroup'"
                     (click)="addSelectedToGroup()"
                 ></button>
