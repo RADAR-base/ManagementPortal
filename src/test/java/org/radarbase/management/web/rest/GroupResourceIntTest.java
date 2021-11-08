@@ -11,13 +11,20 @@ import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Group;
 import org.radarbase.management.domain.Project;
+import org.radarbase.management.domain.Subject;
 import org.radarbase.management.repository.GroupRepository;
 import org.radarbase.management.repository.ProjectRepository;
+import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
 import org.radarbase.management.service.GroupService;
+import org.radarbase.management.service.SubjectService;
 import org.radarbase.management.service.dto.GroupDTO;
+import org.radarbase.management.service.dto.ProjectDTO;
+import org.radarbase.management.service.dto.SubjectDTO;
 import org.radarbase.management.service.mapper.GroupMapper;
+import org.radarbase.management.service.mapper.ProjectMapper;
 import org.radarbase.management.web.rest.errors.ExceptionTranslator;
+import org.radarbase.management.web.rest.vm.GroupPatchOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -31,12 +38,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import javax.servlet.ServletException;
+
+import java.util.ArrayList;
 import java.util.List;
+
+import static org.radarbase.management.service.dto.SubjectDTO.SubjectStatus.ACTIVATED;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -59,7 +71,16 @@ class GroupResourceIntTest {
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
+    private ProjectMapper projectMapper;
+
+    @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private SubjectRepository subjectRepository;
+
+    @Autowired
+    private SubjectService subjectService;
 
     @Autowired
     private GroupMapper groupMapper;
@@ -105,6 +126,7 @@ class GroupResourceIntTest {
 
     @AfterEach
     public void tearDown() {
+        subjectRepository.deleteAll();
         groupRepository.deleteAll();
         projectRepository.delete(project);
     }
@@ -342,5 +364,66 @@ class GroupResourceIntTest {
 
         // Validate the database is empty
         assertThat(groupRepository.findAll().size()).isEqualTo(1);
+    }
+
+    @Test
+    void addSubjectsToGroup() throws Exception {
+        assertThat(groupRepository.findAll().size()).isEqualTo(0);
+        assertThat(subjectRepository.findAll().size()).isEqualTo(0);
+
+        // Initialize the database
+        groupRepository.saveAndFlush(group);
+
+        ProjectDTO projectDto = projectMapper.projectToProjectDTO(project);
+
+        SubjectDTO sub1 = new SubjectDTO();
+        sub1.setExternalLink("exLink1");
+        sub1.setExternalId("exId1");
+        sub1.setStatus(ACTIVATED);
+        sub1.setProject(projectDto);
+
+        SubjectDTO sub2 = new SubjectDTO();
+        sub1.setExternalLink("exLink2");
+        sub1.setExternalId("exId2");
+        sub1.setStatus(ACTIVATED);
+        sub1.setProject(projectDto);
+        
+        SubjectDTO savedSub1 = subjectService.createSubject(sub1);
+        SubjectDTO savedSub2 = subjectService.createSubject(sub2);
+
+        assertThat(groupRepository.findAll().size()).isEqualTo(1);
+        assertThat(subjectRepository.findAll().size()).isEqualTo(2);
+
+        GroupPatchOperation.SubjectPatchValue sub1Patch =
+                new GroupPatchOperation.SubjectPatchValue();
+        sub1Patch.setId(savedSub1.getId());
+        GroupPatchOperation.SubjectPatchValue sub2Patch =
+                new GroupPatchOperation.SubjectPatchValue();
+        sub1Patch.setLogin(savedSub2.getLogin());
+        GroupPatchOperation patchOp = new GroupPatchOperation();
+        patchOp.setOp("add");
+        List<GroupPatchOperation.SubjectPatchValue> patchValue = new ArrayList<>();
+        patchValue.add(sub1Patch);
+        patchValue.add(sub2Patch);
+        patchOp.setValue(patchValue);
+
+        List<GroupPatchOperation> body = new ArrayList<>();
+        body.add(patchOp);
+
+        // Get the project
+        restProjectMockMvc.perform(patch(
+                        "/api/projects/{projectName}/groups/{groupName}/subjects",
+                        project.getProjectName() + "2", group.getName())
+                        
+                        .contentType(TestUtil.APPLICATION_JSON_PATCH)
+                        .content(TestUtil.convertObjectToJsonBytes(body)))
+                .andExpect(status().isNotFound());
+
+        // Validate that the group was set for both subjects
+        List<Subject> subjectList = subjectRepository.findAll();
+        assertThat(subjectList).hasSize(2);
+        assertThat(subjectList)
+                .filteredOn(e -> e.getGroup().getId() == group.getId())
+                .hasSize(2);
     }
 }

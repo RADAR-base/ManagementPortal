@@ -18,8 +18,16 @@ public class GroupPatchOperation {
         return op;
     }
 
+    public void setOp(String op) {
+        this.op = op;
+    }
+
     public List<SubjectPatchValue> getValue() {
         return value;
+    }
+
+    public void setValue(List<SubjectPatchValue> value) {
+        this.value = value;
     }
 
     public static class SubjectPatchValue {
