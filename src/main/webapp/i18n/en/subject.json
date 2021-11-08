@@ -18,11 +18,16 @@
             },
             "filter": {
                 "title": "Filter",
+                "filters": "Filters",
                 "applyButton": "Apply filter",
                 "clearButton": "Clear filter",
                 "advancedFilter": "Advanced Filter",
                 "from": "From",
-                "to": "To"
+                "to": "To",
+                "error": {
+                    "invalidDate": "The date is not valid.",
+                    "invalidRange": "The date is not valid or it is after From Date."
+                }
             },
             "login": "Login",
             "email": "Email",
@@ -39,6 +44,8 @@
             "createdDate": "Created Date",
             "dateOfBirth": "Date of Birth",
             "enrollmentDate": "Enrollment Date",
+            "enrollmentDateFrom": "Enrollment Date From",
+            "enrollmentDateTo": "Enrollment Date To",
             "lastModifiedBy": "Last Modified By",
             "lastModifiedDate": "Last Modified Date",
             "personName": "Name",
