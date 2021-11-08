@@ -1,7 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {
+    NgbActiveModal,
+    NgbCalendar,
+    NgbDate,
+    NgbDateParserFormatter,
+    NgbDateStruct,
+    NgbModalRef
+} from '@ng-bootstrap/ng-bootstrap';
 
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
@@ -25,16 +32,23 @@ export class SubjectDialogComponent implements OnInit {
 
     attributeComponentEventPrefix: 'subjectAttributes';
 
+    dateOfBirth: NgbDateStruct;
+
     constructor(public activeModal: NgbActiveModal,
                 private alertService: AlertService,
                 private subjectService: SubjectService,
-                private eventManager: EventManager) {
+                private eventManager: EventManager,
+                private calendar: NgbCalendar,
+                public formatter: NgbDateParserFormatter) {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.options = ['Human-readable-identifier'];
     }
 
     ngOnInit() {
+        if(this.subject.dateOfBirth) {
+            this.dateOfBirth = this.formatter.parse(this.subject.dateOfBirth.toString());
+        }
         this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
             this.subject.attributes = response.content;
         });
@@ -46,6 +60,9 @@ export class SubjectDialogComponent implements OnInit {
 
     save() {
         this.isSaving = true;
+        if (this.dateOfBirth && this.calendar.isValid(NgbDate.from(this.dateOfBirth))) {
+            this.subject.dateOfBirth = new Date(this.formatter.format(this.dateOfBirth));
+        }
         if (this.subject.id !== null) {
             this.subjectService.update(this.subject)
             .subscribe((res: Subject) =>

@@ -158,6 +158,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnDestroy() {
+        this.filterTriggerUpdate$.next('');
+        this.filterTriggerUpdate$.complete();
         this.eventManager.destroy(this.eventSubscriber);
         this.routeData.unsubscribe();
     }
@@ -310,8 +312,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         ]);
     }
 
-    filterChanged(text) {
-        this.filterTriggerUpdate$.next(text);
+    filterChanged(field: string, text: string) {
+        this.filterTriggerUpdate$.next(field + text);
     }
 
     applyFilter() {

@@ -3,7 +3,13 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { NgbActiveModal, NgbModalRef, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import {
+    NgbActiveModal,
+    NgbCalendar, NgbDate, NgbDateParserFormatter,
+    NgbDateStruct,
+    NgbModalRef,
+    NgbTypeaheadSelectItemEvent
+} from '@ng-bootstrap/ng-bootstrap';
 
 import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
@@ -41,6 +47,9 @@ export class ProjectDialogComponent implements OnInit {
 
     attributeComponentEventPrefix: 'projectAttributes';
 
+    startDate: NgbDateStruct;
+    endDate: NgbDateStruct;
+
     getMatchingSourceTypes = (text$: Observable<string>) => {
         const debouncedText$ = text$.pipe(debounceTime(200), distinctUntilChanged());
         const inputFocus$ = this.sourceTypeInputFocus$;
@@ -64,6 +73,8 @@ export class ProjectDialogComponent implements OnInit {
             private sourceTypeService: SourceTypeService,
             private eventManager: EventManager,
             private groupService: GroupService,
+            private calendar: NgbCalendar,
+            public formatter: NgbDateParserFormatter
     ) {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN'];
@@ -72,6 +83,12 @@ export class ProjectDialogComponent implements OnInit {
     }
 
     ngOnInit() {
+        if(this.project.startDate) {
+            this.startDate = this.formatter.parse(this.project.startDate.toString());
+        }
+        if(this.project.endDate) {
+            this.endDate = this.formatter.parse(this.project.endDate.toString());
+        }
         this.sourceTypeService.query().subscribe(
                 (res: HttpResponse<SourceType[]>) => {
                     this.sourceTypes = res.body;
@@ -87,6 +104,12 @@ export class ProjectDialogComponent implements OnInit {
 
     save() {
         this.isSaving = true;
+        if (this.startDate && this.calendar.isValid(NgbDate.from(this.startDate))) {
+            this.project.startDate = this.formatter.format(this.startDate) + 'T00:00';
+        }
+        if (this.endDate && this.calendar.isValid(NgbDate.from(this.endDate))) {
+            this.project.endDate = this.formatter.format(this.endDate) + 'T23:59';
+        }
         if (this.project.id !== undefined) {
             this.projectService.update(this.project)
             .subscribe((res: Project) =>

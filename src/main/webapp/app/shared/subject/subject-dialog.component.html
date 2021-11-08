@@ -62,9 +62,17 @@
                    [translate]="'managementPortalApp.subject.dateOfBirth'"
                    for="field_date_of_birth">
             </label>
-            <div class="d-flex">
-                <input id="field_date_of_birth" type="date" class="form-control" name="dateOfBirth" [(ngModel)]="subject.dateOfBirth"
-                />
+            <div class="input-group">
+                <input [(ngModel)]="dateOfBirth"
+                       id="field_date_of_birth"
+                       class="form-control"
+                       name="dateOfBirth"
+                       placeholder="yyyy-mm-dd"
+                       ngbDatepicker
+                       #dateOfBirthDatePicker="ngbDatepicker">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary calendar" (click)="dateOfBirthDatePicker.toggle()" type="button"></button>
+                </div>
             </div>
         </div>
 

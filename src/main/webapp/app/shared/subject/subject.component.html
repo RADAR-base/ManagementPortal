@@ -19,7 +19,7 @@
                        type="text"
                        id="field-subject-id"
                        [(ngModel)]="filters.subjectId"
-                       (ngModelChange)='filterChanged(filters.subjectId)'>
+                       (ngModelChange)='filterChanged("subjectId", filters.subjectId)'>
             </label>
         </div>
 
@@ -30,7 +30,7 @@
                        type="text"
                        id="field-subject-external-id"
                        [(ngModel)]="filters.externalId"
-                       (ngModelChange)='filterChanged(filters.externalId)'>
+                       (ngModelChange)='filterChanged("externalId", filters.externalId)'>
             </label>
         </div>
 
@@ -52,7 +52,7 @@
                                id="field-human-readable-id"
                                [(ngModel)]="filters.humanReadableId"
                                type="text"
-                               (ngModelChange)='filterChanged(filters.humanReadableId)'>
+                               (ngModelChange)='filterChanged("humanReadableId", filters.humanReadableId)'>
                     </label>
                 </div>
 
@@ -63,7 +63,7 @@
                                 id="field_group"
                                 name="group"
                                 [(ngModel)]="filters.groupId"
-                                (ngModelChange)='filterChanged(filters.groupId)'>
+                                (ngModelChange)='filterChanged("group", filters.groupId)'>
                             <option [ngValue]="null">-</option>
                             <option *ngFor="let g of groups" [ngValue]="g.id">
                                 {{g.name}}
@@ -84,7 +84,7 @@
                                    [(ngModel)]="filters.enrollmentDateFrom"
                                    ngbDatepicker
                                    #enrollmentFromDatePicker="ngbDatepicker"
-                                   (ngModelChange)='filterChanged(filters.enrollmentDateFrom)'>
+                                   (ngModelChange)='filterChanged("enrollmentDateFrom", filters.enrollmentDateFrom)'>
                             <div class="input-group-append">
                                 <button class="btn btn-outline-secondary calendar" (click)="enrollmentFromDatePicker.toggle()" type="button"></button>
                             </div>
@@ -101,7 +101,7 @@
                                    name="enrollmentDateTo"
                                    ngbDatepicker
                                    #enrollmentToDatePicker="ngbDatepicker"
-                                   (ngModelChange)='filterChanged(filters.enrollmentDateTo)'>
+                                   (ngModelChange)='filterChanged("enrollmentDateTo", filters.enrollmentDateTo)'>
                             <div class="input-group-append">
                                 <button class="btn btn-outline-secondary calendar" (click)="enrollmentToDatePicker.toggle()" type="button"></button>
                             </div>
@@ -117,7 +117,7 @@
                                id="field-person-name"
                                [(ngModel)]="filters.personName"
                                type="text"
-                               (ngModelChange)='filterChanged(filters.personName)'>
+                               (ngModelChange)='filterChanged("personName", filters.personName)'>
                     </label>
                 </div>
 
@@ -131,7 +131,7 @@
                                placeholder="yyyy-mm-dd"
                                ngbDatepicker
                                #dateOfBirthDatePicker="ngbDatepicker"
-                               (ngModelChange)='filterChanged(filters.dateOfBirth)'>
+                               (ngModelChange)='filterChanged("dateOfBirth", filters.dateOfBirth)'>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary calendar" (click)="dateOfBirthDatePicker.toggle()" type="button"></button>
                         </div>
