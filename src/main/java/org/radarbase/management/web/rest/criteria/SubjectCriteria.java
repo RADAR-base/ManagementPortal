@@ -12,9 +12,13 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;
@@ -149,60 +153,66 @@ public class SubjectCriteria {
     /** Parse the sort criteria. */
     public List<SubjectSortOrder> getParsedSort() {
         if (this.parsedSort == null) {
-            boolean hasUniqueField = false;
-            List<SubjectSortOrder> parsedSort;
+            List<String> flatSort = sort != null
+                    ? sort.stream()
+                            .flatMap(s -> Arrays.stream(s.split(",")))
+                            .collect(Collectors.toList())
+                    : List.of();
 
-            if (sort != null) {
-                parsedSort = new ArrayList<>(sort.size());
+            List<SubjectSortOrder> parsedSort = new ArrayList<>(flatSort.size());
 
-                List<String> flatSort = sort.stream()
-                        .flatMap(s -> Arrays.stream(s.split(",")))
-                        .collect(Collectors.toList());
-
-                int index = 0;
-
-                while (index < flatSort.size()) {
-                    String part = flatSort.get(index);
-                    SubjectSortBy sortBy = Arrays.stream(SubjectSortBy.values())
-                            .filter(s -> s.getQueryParam().equalsIgnoreCase(part))
-                            .findAny()
-                            .orElseThrow(() -> new BadRequestException(
-                                    "Cannot convert sort property " + part
-                                            + " to subject property", SUBJECT, ERR_VALIDATION));
-
-                    Optional<Sort.Direction> direction = (index + 1 < flatSort.size())
-                            ? Sort.Direction.fromOptionalString(flatSort.get(index + 1))
-                            : Optional.empty();
-
-                    SubjectSortOrder order;
+            boolean hasDirection = true;
+            for (String part : flatSort) {
+                if (!hasDirection) {
+                    Optional<Sort.Direction> direction = Sort.Direction.fromOptionalString(
+                            part);
                     if (direction.isPresent()) {
-                        index += 2;
-                        order = new SubjectSortOrder(sortBy, direction.get());
-                    } else {
-                        index++;
-                        order = new SubjectSortOrder(sortBy);
-                    }
-                    if (parsedSort.stream().noneMatch(o -> o.getSortBy() == sortBy)) {
-                        parsedSort.add(order);
-                        // No need to sort beyond a unique element: the order will not change.
-                        if (sortBy.isUnique()) {
-                            hasUniqueField = true;
-                            break;
-                        }
+                        SubjectSortOrder previous = parsedSort.get(parsedSort.size() - 1);
+                        previous.setDirection(direction.get());
+                        hasDirection = true;
+                        continue;
                     }
                 }
-            } else {
-                parsedSort = new ArrayList<>(1);
+                SubjectSortOrder order = new SubjectSortOrder(getSubjectSortBy(part));
+                parsedSort.add(order);
+                hasDirection = false;
             }
 
-            // Ensure that the result has a fully defined order.
-            if (!hasUniqueField) {
-                parsedSort.add(new SubjectSortOrder(SubjectSortBy.ID));
-            }
-
+            optimizeSortList(parsedSort);
             this.parsedSort = Collections.unmodifiableList(parsedSort);
         }
         return this.parsedSort;
+    }
+
+    /**
+     * Remove duplication and redundancy from sort list.
+     * @param sort modifiable ordered sort collection.
+     */
+    private static void optimizeSortList(Collection<SubjectSortOrder> sort) {
+        Set<SubjectSortBy> seenSortBy = EnumSet.noneOf(SubjectSortBy.class);
+        boolean hasUnique = false;
+        Iterator<SubjectSortOrder> iterator = sort.iterator();
+        while (iterator.hasNext()) {
+            SubjectSortOrder order = iterator.next();
+            if (hasUnique || !seenSortBy.add(order.getSortBy())) {
+                iterator.remove();
+            }
+            if (order.getSortBy().isUnique()) {
+                hasUnique = true;
+            }
+        }
+        if (!hasUnique) {
+            sort.add(new SubjectSortOrder(SubjectSortBy.ID));
+        }
+    }
+
+    private static SubjectSortBy getSubjectSortBy(String param) {
+        return Arrays.stream(SubjectSortBy.values())
+                .filter(s -> s.getQueryParam().equalsIgnoreCase(param))
+                .findAny()
+                .orElseThrow(() -> new BadRequestException(
+                        "Cannot convert sort parameter " + param
+                                + " to subject property", SUBJECT, ERR_VALIDATION));
     }
 
     public void setSort(List<String> sort) {

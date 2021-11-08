@@ -1,84 +1,146 @@
-<div class="subject-wrapper">
+<div class="subject-wrapper" xmlns="http://www.w3.org/1999/html">
     <div class="subject-filter">
-        <h3 [translate]="'managementPortalApp.subject.filter.title'"></h3>
-
-        <label>
-            <span [translate]="'managementPortalApp.subject.subjectId'"></span>
-            <input type="text" id="field-subject-id" [(ngModel)]="filterSubjectId">
-        </label>
-        <label>
-            <span [translate]="'managementPortalApp.subject.externalId'"></span>
-            <input type="text" id="field-subject-external-id" [(ngModel)]="filterSubjectExternalId">
-        </label>
-
-        <button type="button"
-                class="btn btn-outline-primary"
-                id="advanced-filter"
-                (click)="collapse.toggle()"
-                [attr.aria-expanded]="!isAdvancedFilterCollapsed"
-                aria-controls="collapseExample"
-                [translate]="'managementPortalApp.subject.filter.advancedFilter'">
-        </button>
-        <div #collapse="ngbCollapse" [(ngbCollapse)]="isAdvancedFilterCollapsed">
-            <label>
-                <span [translate]="'managementPortalApp.subject.humanReadableId'"></span>
-                <input id="field-human-readable-id" [(ngModel)]="filterSubjectHumanReadableId" type="text">
-            </label>
-            <label>
-                <span [translate]="'managementPortalApp.subject.group'"></span>
-                <select class="form-control"
-                        id="field_group"
-                        name="group"
-                        [(ngModel)]="filterSubjectGroupId"
-                >
-                    <option [ngValue]="null">-</option>
-                    <option *ngFor="let g of groups" [ngValue]="g.id">
-                        {{g.name}}
-                    </option>
-                </select>
-            </label>
-
-            <span [translate]="'managementPortalApp.subject.enrollmentDate'"></span>
-            <label>
-                <span [translate]="'managementPortalApp.subject.filter.from'"></span>
-            </label>
-            <div class="d-flex">
-                <input [(ngModel)]="filterEnrollmentDateFrom" id="field_enrollment_date_from" type="date" class="form-control" name="enrollmentDateFrom" />
-            </div>
-            <label>
-                <span [translate]="'managementPortalApp.subject.filter.to'"></span>
-            </label>
-            <div class="d-flex">
-                <input [(ngModel)]="filterEnrollmentDateTo" id="field_enrollment_date_to" type="date" class="form-control" name="enrollmentDateTo" />
-            </div>
-
-            <label>
-                <span [translate]="'managementPortalApp.subject.personName'"></span>
-                <input id="field-person-name" [(ngModel)]="filterPersonName" type="text">
-            </label>
-            <label>
-                <span [translate]="'managementPortalApp.subject.dateOfBirth'"></span>
-            </label>
-            <div class="d-flex">
-                <input [(ngModel)]="filterDateOfBirth" id="field_date_of_birth" type="date" class="form-control" name="dateOfBirth" />
-            </div>
+        <div class="subject-filter-header">
+            <h5 [translate]="'managementPortalApp.subject.filter.title'"></h5>
+            <button class="btn" [ngClass]="isFilterApplied? 'btn-danger': 'btn-outline-danger'"
+                    type="button"
+                    id="clear-filter"
+                    (click)="clearFilters()"
+                    [translate]="'managementPortalApp.subject.filter.clearButton'"
+                    [disabled]="!isFilterApplied"
+            >
+            </button>
         </div>
 
-        <button class="btn btn-outline-secondary"
-            type="button"
-                id="apply-filter"
-            (click)="applyFilter()"
-            [translate]="'managementPortalApp.subject.filter.applyButton'"
-        >
-        </button>
+        <div class="form-group">
+            <label>
+                <span [translate]="'managementPortalApp.subject.subjectId'"></span>
+                <input class="form-control"
+                       type="text"
+                       id="field-subject-id"
+                       [(ngModel)]="filters.subjectId"
+                       (ngModelChange)='filterChanged(filters.subjectId)'>
+            </label>
+        </div>
 
-        <button class="btn btn-outline-secondary"
-                type="button"
-                id="clear-filter"
-                (click)="clearFilter()"
-                [translate]="'managementPortalApp.subject.filter.clearButton'"
-        >
-        </button>
+        <div class="form-group">
+            <label>
+                <span [translate]="'managementPortalApp.subject.externalId'"></span>
+                <input class="form-control"
+                       type="text"
+                       id="field-subject-external-id"
+                       [(ngModel)]="filters.externalId"
+                       (ngModelChange)='filterChanged(filters.externalId)'>
+            </label>
+        </div>
+
+        <div class="advanced-filter">
+            <span class="advanced-filter-header"
+                    id="advanced-filter"
+                    (click)="collapse.toggle()"
+                    [attr.aria-expanded]="!isAdvancedFilterCollapsed"
+                    aria-controls="collapseExample">
+                <span [translate]="'managementPortalApp.subject.filter.advancedFilter'"></span>
+                <span *ngIf="isAdvancedFilterCollapsed" class="fa fa-chevron-down"></span>
+                <span *ngIf="!isAdvancedFilterCollapsed" class="fa fa-chevron-up"></span>
+            </span>
+            <div #collapse="ngbCollapse" [(ngbCollapse)]="isAdvancedFilterCollapsed">
+                <div class="form-group">
+                    <label>
+                        <span [translate]="'managementPortalApp.subject.humanReadableId'"></span>
+                        <input class="form-control"
+                               id="field-human-readable-id"
+                               [(ngModel)]="filters.humanReadableId"
+                               type="text"
+                               (ngModelChange)='filterChanged(filters.humanReadableId)'>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <span [translate]="'managementPortalApp.subject.group'"></span>
+                        <select class="form-control"
+                                id="field_group"
+                                name="group"
+                                [(ngModel)]="filters.groupId"
+                                (ngModelChange)='filterChanged(filters.groupId)'>
+                            <option [ngValue]="null">-</option>
+                            <option *ngFor="let g of groups" [ngValue]="g.id">
+                                {{g.name}}
+                            </option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="field-enrollment-date">
+                    <span class="field-enrollment-date__header" [translate]="'managementPortalApp.subject.enrollmentDate'"></span>
+                    <div class="form-group">
+                        <span [translate]="'managementPortalApp.subject.filter.from'"></span>
+                        <div class="input-group">
+                            <input class="form-control"
+                                   placeholder="yyyy-mm-dd"
+                                   id="field_enrollment_date_from"
+                                   name="enrollmentDateFrom"
+                                   [(ngModel)]="filters.enrollmentDateFrom"
+                                   ngbDatepicker
+                                   #enrollmentFromDatePicker="ngbDatepicker"
+                                   (ngModelChange)='filterChanged(filters.enrollmentDateFrom)'>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary calendar" (click)="enrollmentFromDatePicker.toggle()" type="button"></button>
+                            </div>
+                        </div>
+                        <span *ngIf="enrollmentDateFromError" class="error">The date is not valid.</span>
+                    </div>
+                    <div class="form-group">
+                        <span [translate]="'managementPortalApp.subject.filter.to'"></span>
+                        <div class="input-group">
+                            <input class="form-control"
+                                   placeholder="yyyy-mm-dd"
+                                   id="field_enrollment_date_to"
+                                   [(ngModel)]="filters.enrollmentDateTo"
+                                   name="enrollmentDateTo"
+                                   ngbDatepicker
+                                   #enrollmentToDatePicker="ngbDatepicker"
+                                   (ngModelChange)='filterChanged(filters.enrollmentDateTo)'>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary calendar" (click)="enrollmentToDatePicker.toggle()" type="button"></button>
+                            </div>
+                        </div>
+                        <span *ngIf="enrollmentDateToError" class="error">The date is not valid or it is after From Date.</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <span [translate]="'managementPortalApp.subject.personName'"></span>
+                        <input class="form-control"
+                               id="field-person-name"
+                               [(ngModel)]="filters.personName"
+                               type="text"
+                               (ngModelChange)='filterChanged(filters.personName)'>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <span [translate]="'managementPortalApp.subject.dateOfBirth'"></span>
+                    <div class="input-group">
+                        <input [(ngModel)]="filters.dateOfBirth"
+                               id="field_date_of_birth"
+                               class="form-control"
+                               name="dateOfBirth"
+                               placeholder="yyyy-mm-dd"
+                               ngbDatepicker
+                               #dateOfBirthDatePicker="ngbDatepicker"
+                               (ngModelChange)='filterChanged(filters.dateOfBirth)'>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary calendar" (click)="dateOfBirthDatePicker.toggle()" type="button"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
     </div>
     <section>
         <div ngbDropdown class="d-inline-block subject-sorting-action" id="field-sort-by" >
@@ -142,7 +204,43 @@
             <span [translate]="'managementPortalApp.subject.home.createLabel'">
             </span>
         </button>
-
+        <div class="applied-filters"
+             *ngIf="isFilterApplied"
+             style="margin: 8px 0; display: flex; align-items: center; flex-wrap: wrap;">
+            <span>Filters: </span>
+            <div class="badge badge-pill badge-primary" *ngIf="filters.subjectId" (click)="clearFilter('subjectId')">
+                <span>Subject ID: {{filters.subjectId}}</span>
+                <span aria-hidden="true"> &times;</span>
+            </div>
+            <div class="badge badge-pill badge-primary" *ngIf="filters.externalId" (click)="clearFilter('externalId')">
+                <span>External ID: {{filters.externalId}}</span>
+                <span aria-hidden="true"> &times;</span>
+            </div>
+            <div class="badge badge-pill badge-primary" *ngIf="filters.personName" (click)="clearFilter('personName')">
+                <span>Person Name: {{filters.personName}}</span>
+                <span aria-hidden="true"> &times;</span>
+            </div>
+            <div class="badge badge-pill badge-primary" *ngIf="filters.humanReadableId" (click)="clearFilter('humanReadableId')">
+                <span>Human Readable ID: {{filters.humanReadableId}}</span>
+                <span aria-hidden="true"> &times;</span>
+            </div>
+            <div class="badge badge-pill badge-primary" *ngIf="appliedFilters.dateOfBirth" (click)="clearDateFilter('dateOfBirth')">
+                <span>Date of Birth: {{appliedFilters.dateOfBirth}}</span>
+                <span aria-hidden="true"> &times;</span>
+            </div>
+            <div class="badge badge-pill badge-primary" *ngIf="appliedFilters.enrollmentDateFrom" (click)="clearDateFilter('enrollmentDateFrom')">
+                <span>Enrollment Date From: {{appliedFilters.enrollmentDateFrom}}</span>
+                <span aria-hidden="true"> &times;</span>
+            </div>
+            <div class="badge badge-pill badge-primary" *ngIf="appliedFilters.enrollmentDateTo" (click)="clearDateFilter('enrollmentDateTo')">
+                <span>Enrollment Date To: {{appliedFilters.enrollmentDateTo}}</span>
+                <span aria-hidden="true"> &times;</span>
+            </div>
+            <div class="badge badge-pill badge-primary" *ngIf="appliedFilters.group" (click)="clearSelectFilter('groupId')">
+                <span>Group: {{appliedFilters.group}}</span>
+                <span aria-hidden="true"> &times;</span>
+            </div>
+        </div>
         <jhi-alert></jhi-alert>
         <div *ngIf="subjects" class="subjects">
             <div class="subject-list-actions">

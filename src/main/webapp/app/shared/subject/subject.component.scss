@@ -3,12 +3,14 @@
     display: flex;
 }
 .subject-filter {
-    flex-grow: 0;
-    max-width: 200px;
+    flex-shrink: 0;
+    width: 250px;
     display: flex;
     flex-direction: column;
-    padding: 8px 16px;
+    padding: 0;
     border-right: 1px solid #dadada;
+    font-size: 14px;
+    font-weight: bold;
 }
 .subject-filter input {
     max-width: 100%;
@@ -20,6 +22,49 @@
     width: 100%;
 }
 
+.subject-filter .form-group {
+    margin: 4px 0;
+    padding: 4px 8px;
+    background: #f9f9f9;
+}
+
+.subject-filter .subject-filter-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 8px;
+    margin-bottom: 8px;
+    h5 {
+        margin: 0;
+    }
+}
+
+.advanced-filter{
+    margin-top: 16px;
+    border-top: 1px solid #ccc;
+}
+
+.advanced-filter-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 8px;
+    border-bottom: 1px solid #ccc;
+    cursor: pointer;
+    margin-bottom: 16px;
+}
+
+.field-enrollment-date{
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 8px 0;
+    margin: 16px 0;
+    background-color: #f9f9f9;
+}
+
+.field-enrollment-date__header{
+    padding: 0 8px;
+}
 
 .subject-wrapper > section {
     flex-grow: 1;
@@ -27,81 +72,89 @@
 }
 
 .subject-sorting-action {
-    margin-right: 8px;
-    margin-bottom: 8px;
+margin-right: 8px;
+margin-bottom: 8px;
 }
 
 .subject-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 16px;
+display: flex;
+justify-content: space-between;
+padding: 8px 16px;
 }
 .subject-row:nth-child(even) {
-    border-top: #eceeef;
-    background-color: #eceeef;
+border-top: #eceeef;
+background-color: #eceeef;
 }
 .subject-row__content {
-    display: flex;
-    flex-grow: 1;
-    flex-wrap: wrap;
+display: flex;
+flex-grow: 1;
+flex-wrap: wrap;
 }
 .subject-row__content > * {
-    flex-basis: 80px;
-    flex-grow: 1;
+flex-basis: 80px;
+flex-grow: 1;
 }
 
 .subject-row__field-label {
-    position: relative;
-    font-weight: bold;
-    font-size: 12px;
-    line-height: 12px;
-    color: #5e5e5e;
+position: relative;
+font-weight: bold;
+font-size: 12px;
+line-height: 12px;
+color: #5e5e5e;
 }
 
 
 .subject-list-actions {
-    margin-bottom: 8px;
+margin-bottom: 8px;
 }
 .subject-list-actions > :not(:first-child) {
-    margin-left: 8px;
+margin-left: 8px;
 }
 .subject-row__select-row {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 0;
-    padding-top: 28px;
-    margin-right: 16px;
+display: flex;
+flex-direction: column;
+flex-grow: 0;
+padding-top: 28px;
+margin-right: 16px;
 }
 
 
 .subject-row__actions {
-    display: flex;
-    flex-direction: column;
-    flex-basis: unset;
-    flex-grow: 0 !important;
-    margin-left: 16px;
+display: flex;
+flex-direction: column;
+flex-basis: unset;
+flex-grow: 0 !important;
+margin-left: 16px;
 }
 .subject-row__actions > *:not(:last-child) {
-    width: 100%;
-    margin-bottom: 4px;
+width: 100%;
+margin-bottom: 4px;
 }
 
 .subject-pagination {
-    display: flex;
-    margin-top: 8px;
+display: flex;
+margin-top: 8px;
 }
 .subject-pagination > * {
-    text-align: center;
-    flex-grow: 1;
-    padding: 16px;
+text-align: center;
+flex-grow: 1;
+padding: 16px;
 }
 .subject-pagination__all-loaded {
-    color: #dadada;
-    cursor: not-allowed;
+color: #dadada;
+cursor: not-allowed;
 }
 .subject-pagination__load-more:hover {
-    background: rgba(169, 209, 255, 0.3);
+background: rgba(169, 209, 255, 0.3);
 }
 .subject-pagination__load-more:active {
-    background: rgba(0, 120, 255, 0.15);
+background: rgba(0, 120, 255, 0.15);
+}
+
+button.calendar, button.calendar:active {
+width: 2.75rem;
+background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAcCAYAAAAEN20fAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAEUSURBVEiJ7ZQxToVAEIY/YCHGxN6XGOIpnpaEsBSeQC9ArZbm9TZ6ADyBNzAhQGGl8Riv4BLAWAgmkpBYkH1b8FWT2WK/zJ8ZJ4qiI6XUI3ANnGKWBnht2/ZBDRK3hgVGNsCd7/ui+JkEIrKtqurLpEWaphd933+IyI3LEIdpCYCiKD6HcuOa/nwOa0ScJEnk0BJg0UTUWJRl6RxCYEzEmomsIlPU3IPW+grIAbquy+q6fluy/28RIBeRMwDXdXMgXLj/B2uimRXpui4D9sBeRLKl+1N+L+t6RwbWrZliTTTr1oxYtzVWiTQAcRxvTX+eJMnlUDaO1vpZRO5NS0x48sIwfPc87xg4B04MCzQi8hIEwe4bl1DnFMCN2zsAAAAASUVORK5CYII=') !important;
+background-repeat: no-repeat;
+background-size: 23px;
+background-position: center;
 }

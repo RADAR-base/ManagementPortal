@@ -19,8 +19,10 @@
             "filter": {
                 "title": "Filter",
                 "applyButton": "Filter toepassen",
+                "clearButton": "Filters wissen",
                 "from": "Vanaf",
                 "to": "Tot en met",
+                "clearButton": "Wis filters",
                 "advancedFilter": "Uitgebreid filter"
             },
             "login": "Login",
