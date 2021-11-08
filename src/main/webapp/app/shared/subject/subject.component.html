@@ -259,7 +259,7 @@
             <div *ngFor="let subject of subjects ;trackBy: trackLogin" class="subject-row">
                 <div class="subject-row__select-row">
                     <input type="checkbox" [checked]="setOfCheckedId.has(subject.id)"
-                           (change)="onItemChanged(subject.id, $event)">
+                           (change)="onItemChanged(subject.id)">
                 </div>
                 <div class="subject-row__content">
                     <div class="subject-row__subject-id">
