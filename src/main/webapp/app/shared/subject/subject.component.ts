@@ -313,6 +313,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             } else {
                 this.dateOfBirthError = true;
             }
+        } else {
+            this.filterTriggerUpdate$.next(field);
         }
     }
 
