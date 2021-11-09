@@ -10,7 +10,7 @@ import {
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import {debounceTime, distinctUntilChanged, map} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, filter, map} from 'rxjs/operators';
 
 import {Group, GroupService, ITEMS_PER_PAGE, Project} from '..';
 import { Subject } from './subject.model';
@@ -111,6 +111,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
 
         this.filterTriggerUpdate$.pipe(
             debounceTime(300),
+            filter(f => f !== ''),
             distinctUntilChanged()
         ).subscribe(() => this.applyFilter());
     }
