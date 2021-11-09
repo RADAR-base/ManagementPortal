@@ -394,17 +394,22 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     updateSortingSortBy(predicate) {
-        this.subjects = [];
-        this.predicate = predicate;
-        this.page = 1;
-        this.transition();
+        if (this.predicate !== predicate) {
+            this.subjects = [];
+            this.predicate = predicate;
+            this.page = 1;
+            this.transition();
+        }
     }
 
     updateSortingOrder(direction) {
-        this.subjects = [];
-        this.ascending = direction === 'asc';
-        this.page = 1;
-        this.transition();
+        if ((this.ascending && direction !== 'asc') ||
+            (!this.ascending && direction === 'asc')){
+            this.subjects = [];
+            this.ascending = direction === 'asc';
+            this.page = 1;
+            this.transition();
+        }
     }
 
     selectAll(checked: boolean = true): void {
