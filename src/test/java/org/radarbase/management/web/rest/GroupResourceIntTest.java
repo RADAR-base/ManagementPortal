@@ -13,11 +13,18 @@ import org.radarbase.management.domain.Group;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.repository.GroupRepository;
 import org.radarbase.management.repository.ProjectRepository;
+import org.radarbase.management.repository.RoleRepository;
+import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
 import org.radarbase.management.service.GroupService;
+import org.radarbase.management.service.SubjectService;
 import org.radarbase.management.service.dto.GroupDTO;
+import org.radarbase.management.service.dto.ProjectDTO;
+import org.radarbase.management.service.dto.SubjectDTO;
 import org.radarbase.management.service.mapper.GroupMapper;
+import org.radarbase.management.service.mapper.ProjectMapper;
 import org.radarbase.management.web.rest.errors.ExceptionTranslator;
+import org.radarbase.management.web.rest.vm.GroupPatchOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -31,12 +38,18 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import javax.servlet.ServletException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static org.radarbase.management.service.dto.SubjectDTO.SubjectStatus.ACTIVATED;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -59,7 +72,19 @@ class GroupResourceIntTest {
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
+    private ProjectMapper projectMapper;
+
+    @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private SubjectRepository subjectRepository;
+
+    @Autowired
+    private SubjectService subjectService;
 
     @Autowired
     private GroupMapper groupMapper;
@@ -105,15 +130,17 @@ class GroupResourceIntTest {
 
     @AfterEach
     public void tearDown() {
-        groupRepository.deleteAll();
+        groupRepository.delete(group);
+        var roles = roleRepository.findAllRolesByProjectName(project.getProjectName());
+        for (var r : roles) {
+            r.setProject(null);
+        }
+        roleRepository.saveAll(roles);
         projectRepository.delete(project);
     }
 
     /**
      * Create an entity for this test.
-     *
-     * <p>This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.</p>
      */
     private Group createEntity() {
         Group group = new Group();
@@ -122,15 +149,8 @@ class GroupResourceIntTest {
         return group;
     }
 
-    @BeforeEach
-    public void initTest() {
-        group = createEntity();
-    }
-
     @Test
     void createGroup() throws Exception {
-        assertThat(groupRepository.findAll().size()).isEqualTo(0);
-
         // Create the Project
         GroupDTO groupDto = groupMapper.groupToGroupDTO(group);
         restProjectMockMvc.perform(post("/api/projects/{projectName}/groups",
@@ -138,19 +158,18 @@ class GroupResourceIntTest {
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(groupDto)))
                 .andExpect(status().isCreated());
+        
+        var savedGroup = groupRepository.findByProjectNameAndName(
+                project.getProjectName(), groupDto.getName()).get();
 
-        // Validate the Project in the database
-        List<Group> groupList = groupRepository.findAll();
-        assertThat(groupList).hasSize(1);
-        Group testGroup = groupList.get(groupList.size() - 1);
-        assertThat(testGroup.getProject().getId()).isEqualTo(project.getId());
-        assertThat(testGroup.getName()).isEqualTo("group1");
+        // Validate the Group in the database
+        assertThat(savedGroup.getProject().getId()).isEqualTo(project.getId());
+        assertThat(savedGroup.getName()).isEqualTo("group1");
     }
 
 
     @Test
     void createGroupNonExistingProject() throws Exception {
-        assertThat(groupRepository.findAll().size()).isEqualTo(0);
         projectRepository.delete(project);
 
         // Create the Project
@@ -160,15 +179,10 @@ class GroupResourceIntTest {
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(groupDto)))
                 .andExpect(status().isNotFound());
-
-        // Validate the Project in the database
-        assertThat(groupRepository.findAll()).hasSize(0);
     }
 
     @Test
     void createGroupWithExistingName() throws Exception {
-        assertThat(groupRepository.findAll().size()).isEqualTo(0);
-
         // Create the Project
         GroupDTO groupDto = groupMapper.groupToGroupDTO(group);
         restProjectMockMvc.perform(post("/api/projects/{projectName}/groups",
@@ -182,17 +196,11 @@ class GroupResourceIntTest {
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(groupDto)))
                 .andExpect(status().isConflict());
-
-        // Validate the Alice in the database
-        List<Group> groupList = groupRepository.findAll();
-        assertThat(groupList).hasSize(1);
     }
 
 
     @Test
     void createGroupWithExistingNameInDifferentProject() throws Exception {
-        assertThat(groupRepository.findAll().size()).isEqualTo(0);
-
         Project project2 = ProjectResourceIntTest.createEntity()
                 .projectName(project.getProjectName() + "2");
 
@@ -216,22 +224,25 @@ class GroupResourceIntTest {
                         .content(TestUtil.convertObjectToJsonBytes(group2Dto)))
                 .andExpect(status().isCreated());
 
-        // Validate the Alice in the database
-        List<Group> groupList = groupRepository.findAll();
+        // Validate groups are saved for both projects
+        var savedGroup1 = groupRepository.findByProjectNameAndName(
+                project.getProjectName(), group.getName()).get();
+        var savedGroup2 = groupRepository.findByProjectNameAndName(
+                project2.getProjectName(), group2.getName()).get();
+        var groupList = Arrays.asList(savedGroup1, savedGroup2);
         assertThat(groupList).hasSize(2);
         assertThat(groupList).haveAtLeastOne(new Condition<>(
                 g -> project.getId().equals(g.getProject().getId()), "use project 1"));
         assertThat(groupList).haveAtLeastOne(new Condition<>(
                 g -> project2.getId().equals(g.getProject().getId()), "use project 2"));
-        assertThat(groupList).allSatisfy(g -> assertThat(g.getName()).isEqualTo(group.getName()));
+        assertThat(groupList).allSatisfy(
+                g -> assertThat(g.getName()).isEqualTo(group.getName()));
 
         projectRepository.delete(project2);
     }
 
     @Test
     void checkGroupNameIsRequired() throws Exception {
-        assertThat(groupRepository.findAll().size()).isEqualTo(0);
-
         group.setName(null);
 
         // Create the Project
@@ -241,9 +252,6 @@ class GroupResourceIntTest {
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(groupDto)))
                 .andExpect(status().isBadRequest());
-
-        // Validate the Project in the database
-        assertThat(groupRepository.findAll()).hasSize(0);
     }
 
     @Test
@@ -285,12 +293,8 @@ class GroupResourceIntTest {
 
     @Test
     void deleteGroup() throws Exception {
-        assertThat(groupRepository.findAll()).hasSize(0);
-
         // Initialize the database
         groupRepository.saveAndFlush(group);
-
-        assertThat(groupRepository.findAll()).hasSize(1);
 
         // Get the project
         restProjectMockMvc.perform(delete(
@@ -299,18 +303,16 @@ class GroupResourceIntTest {
                         .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isNoContent());
 
-        // Validate the database is empty
-        assertThat(groupRepository.findAll()).hasSize(0);
+        // Validate the Group is not present in the database
+        var savedGroup = groupRepository.findByProjectNameAndName(
+                project.getProjectName(), group.getName());
+        assertThat(savedGroup).isEmpty();
     }
 
     @Test
     void deleteGroupNonExisting() throws Exception {
-        assertThat(groupRepository.findAll().size()).isEqualTo(0);
-
         // Initialize the database
         groupRepository.saveAndFlush(group);
-
-        assertThat(groupRepository.findAll().size()).isEqualTo(1);
 
         // Get the project
         restProjectMockMvc.perform(delete(
@@ -319,19 +321,15 @@ class GroupResourceIntTest {
                         .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isNotFound());
 
-        // Validate the database is empty
-        assertThat(groupRepository.findAll().size()).isEqualTo(1);
+        // Validate the database still contains the group
+        assertThat(groupRepository.findById(group.getId())).isNotEmpty();
     }
 
 
     @Test
     void deleteGroupNonExistingProject() throws Exception {
-        assertThat(groupRepository.findAll().size()).isEqualTo(0);
-
         // Initialize the database
         groupRepository.saveAndFlush(group);
-
-        assertThat(groupRepository.findAll().size()).isEqualTo(1);
 
         // Get the project
         restProjectMockMvc.perform(delete(
@@ -340,7 +338,63 @@ class GroupResourceIntTest {
                         .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isNotFound());
 
-        // Validate the database is empty
-        assertThat(groupRepository.findAll().size()).isEqualTo(1);
+        // Validate the database still contains the group
+        assertThat(groupRepository.findById(group.getId())).isNotEmpty();
+    }
+
+    @Test
+    void addSubjectsToGroup() throws Exception {
+        // Initialize the database
+        groupRepository.saveAndFlush(group);
+
+        ProjectDTO projectDto = projectMapper.projectToProjectDTO(project);
+
+        SubjectDTO sub1 = new SubjectDTO();
+        sub1.setExternalLink("exLink1");
+        sub1.setExternalId("exId1");
+        sub1.setStatus(ACTIVATED);
+        sub1.setProject(projectDto);
+
+        SubjectDTO sub2 = new SubjectDTO();
+        sub2.setExternalLink("exLink2");
+        sub2.setExternalId("exId2");
+        sub2.setStatus(ACTIVATED);
+        sub2.setProject(projectDto);
+        
+        var savedSub1 = subjectService.createSubject(sub1);
+        var savedSub2 = subjectService.createSubject(sub2);
+
+        var sub1Patch = new GroupPatchOperation.SubjectPatchValue();
+        sub1Patch.setId(savedSub1.getId());
+        var sub2Patch = new GroupPatchOperation.SubjectPatchValue();
+        sub2Patch.setLogin(savedSub2.getLogin());
+
+        var patchOp = new GroupPatchOperation();
+        patchOp.setOp("add");
+        var patchValue = new ArrayList<GroupPatchOperation.SubjectPatchValue>();
+        patchValue.add(sub1Patch);
+        patchValue.add(sub2Patch);
+        patchOp.setValue(patchValue);
+
+        List<GroupPatchOperation> body = new ArrayList<>();
+        body.add(patchOp);
+
+        // Get the project
+        restProjectMockMvc.perform(patch(
+                        "/api/projects/{projectName}/groups/{groupName}/subjects",
+                        project.getProjectName(), group.getName())
+                        
+                        .contentType(TestUtil.APPLICATION_JSON_PATCH)
+                        .content(TestUtil.convertObjectToJsonBytes(body)))
+                .andExpect(status().isNoContent());
+
+        // Validate that the group was set for both subjects
+        var subjectLogins = Arrays.asList(savedSub1.getLogin(), savedSub2.getLogin());
+        var subjects = subjectRepository.findAllBySubjectLogins(subjectLogins);
+        assertThat(subjects).hasSize(2);
+        assertThat(subjects).allSatisfy(
+                s -> assertThat(s.getGroup().getId()).isEqualTo(group.getId()));
+        
+        subjectRepository.deleteAll(subjects);
     }
 }

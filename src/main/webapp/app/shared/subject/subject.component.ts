@@ -9,10 +9,14 @@ import {
 } from '@angular/core';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import {debounceTime, distinctUntilChanged, filter, map} from 'rxjs/operators';
 
 import {Group, GroupService, ITEMS_PER_PAGE, Project} from '..';
+import {
+    AddSubjectsToGroupDialogComponent
+} from "./add-subjects-to-group-dialog.component";
 import { Subject } from './subject.model';
 import {
     SubjectService,
@@ -81,7 +85,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
 
     isAdvancedFilterCollapsed = true;
 
-    checked = false;
+    allChecked = false;
     setOfCheckedId = new Set<number>();
 
     @Input() isProjectSpecific: boolean;
@@ -91,6 +95,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             private groupService: GroupService,
             private alertService: AlertService,
             private eventManager: EventManager,
+            private modalService: NgbModal,
             private activatedRoute: ActivatedRoute,
             private router: Router,
             private calendar: NgbCalendar,
@@ -175,7 +180,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             const subjectIndex = this.subjects.findIndex((s => s.id == modifiedSubject.id));
             if (subjectIndex < 0) {
                 this.totalItems++;
-                this.subjects = [modifiedSubject, ...this.subjects];
+                this.updateSubjects([modifiedSubject, ...this.subjects]);
             } else {
                 this.subjects[subjectIndex] = modifiedSubject;
             }
@@ -187,7 +192,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        this.subjects = [];
+        this.clearSubjects();
         const project: SimpleChange = changes.project ? changes.project : null;
         if (project) {
             this.project = project.currentValue;
@@ -287,18 +292,26 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         };
     }
 
-    private onSuccess(data, headers) {
+    private onSuccess(data: Subject[], headers) {
         if(headers.get('link')){
             this.links = parseLinks(headers.get('link'));
         }
         this.totalItems = +headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
         // remove redundant subjects from the list
-        this.subjects = [...this.subjects, ...data];
-        this.subjects = Array.from(new Set(this.subjects.map(a => a.id)))
-            .map(id => {
-                return this.subjects.find(a => a.id === id)
-            })
+        const fetchedSubjects = new Map<number, Subject>(data.map(a => [a.id, a]));
+        this.updateSubjects([
+            ...this.subjects.map(s => {
+                const newSubject = fetchedSubjects.get(s.id);
+                if (newSubject !== undefined) {
+                    fetchedSubjects.delete(s.id);
+                    return newSubject;
+                } else {
+                    return s;
+                }
+            }),
+            ...data.filter(s => fetchedSubjects.has(s.id)),
+        ]);
     }
 
     filterChanged(field: string, text: string) {
@@ -334,7 +347,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         const {subjectId, externalId, personName, humanReadableId, dateOfBirth, enrollmentDateFrom, enrollmentDateTo, groupId} = this.filters;
         this.isFilterApplied = !!(subjectId || externalId || personName || humanReadableId ||
                 dateOfBirth || enrollmentDateFrom || enrollmentDateTo || groupId);
-        this.subjects = [];
+        this.clearSubjects();
         this.loadSubjects();
     }
 
@@ -395,6 +408,16 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
+    private updateSubjects(newSubjects) {
+        this.subjects = newSubjects;
+        this.allChecked = this.subjects.length !== 0
+          && this.subjects.every(({ id }) => this.setOfCheckedId.has(id));
+    }
+
+    private clearSubjects() {
+        this.updateSubjects([]);
+    }
+
     updateSortingSortBy(predicate) {
         if (this.predicate !== predicate) {
             this.subjects = [];
@@ -415,17 +438,18 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     selectAll(checked: boolean = true): void {
+        if (this.subjects.length === 0) {
+            return;
+        }
         this.subjects.forEach(({ id }) => this.updateCheckedSet(id, checked));
-        this.refreshCheckedStatus();
+        this.allChecked = checked;
     }
 
-    onItemChecked(id: number, checked: boolean): void {
-        this.updateCheckedSet(id, checked);
-        this.refreshCheckedStatus();
-    }
-
-    refreshCheckedStatus(): void {
-        this.checked = this.subjects.every(({ id }) => this.setOfCheckedId.has(id)) && (this.subjects.length > 0);
+    onItemChanged(id: number) {
+        const nextIsChecked = !this.setOfCheckedId.has(id);
+        this.updateCheckedSet(id, nextIsChecked);
+        this.allChecked = nextIsChecked
+          && this.subjects.every(({ id }) => this.setOfCheckedId.has(id));
     }
 
     updateCheckedSet(id: number, checked: boolean): void {
@@ -437,7 +461,11 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     addSelectedToGroup() {
-        // TODO implement function
+        const selectedSubjects = this.subjects.filter(s => this.setOfCheckedId.has(s.id))
+        const modalRef = this.modalService.open(AddSubjectsToGroupDialogComponent);
+        modalRef.componentInstance.groups = this.groups;
+        modalRef.componentInstance.projectName = this.project.projectName;
+        modalRef.componentInstance.subjects = selectedSubjects;
     }
 
     transition() {

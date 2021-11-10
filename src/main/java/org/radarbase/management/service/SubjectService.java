@@ -136,6 +136,9 @@ public class SubjectService {
         if (subject.getSources() != null && !subject.getSources().isEmpty()) {
             subject.getSources().forEach(s -> s.assigned(true).subject(subject));
         }
+        if (subject.getEnrollmentDate() == null) {
+            subject.setEnrollmentDate(ZonedDateTime.now());
+        }
         sourceRepository.saveAll(subject.getSources());
         return subjectMapper.subjectToSubjectReducedProjectDTO(subjectRepository.save(subject));
     }

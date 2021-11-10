@@ -24,6 +24,10 @@ public final class TestUtil {
             MediaType.APPLICATION_JSON.getType(),
             MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
 
+    public static final MediaType APPLICATION_JSON_PATCH = new MediaType(
+            "application",
+            "json-patch+json", Charset.forName("utf8"));
+
 
     private  static final  JavaTimeModule module = new JavaTimeModule();
 

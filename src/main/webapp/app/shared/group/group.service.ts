@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from "rxjs/operators";
 import { Group } from "./group.model";
-import {map} from "rxjs/operators";
 
 @Injectable({ providedIn: 'root' })
 export class GroupService {
@@ -23,11 +23,8 @@ export class GroupService {
 
     find(id: number, projectName: string): Observable<Group> {
         return this.list(projectName).pipe(
-            map(groups => {
-                console.log(groups, id)
-                return groups.filter(g => g.id == id)[0]
-            })
-        )
+            map(groups => groups.filter(g => g.id == id)[0])
+        );
     }
 
     create(projectName: string, group: Group): Observable<Group> {
@@ -37,5 +34,14 @@ export class GroupService {
 
     delete(projectName: string, groupName: string): Observable<any> {
         return this.http.delete(this.resourceUrl(projectName, groupName));
+    }
+
+    addSubjectsToGroup(
+        projectName: string, groupName: string,
+        subjects: { login?: string, id?: number; }[]
+    ) {
+        let baseUrl = this.resourceUrl(projectName, groupName);
+        let body = [{ op: "add", value: subjects }];
+        return this.http.patch(`${baseUrl}/subjects`, body);
     }
 }
