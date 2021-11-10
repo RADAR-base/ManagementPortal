@@ -132,13 +132,17 @@ public class GroupResource {
         // should be allowed to use this endpoint
         checkPermissionOnProject(token, SUBJECT_UPDATE, projectName);
         
-        List<GroupPatchOperation.SubjectPatchValue> addedItems = new ArrayList<>();
-        List<GroupPatchOperation.SubjectPatchValue> removedItems = new ArrayList<>();
+        var addedItems = new ArrayList<GroupPatchOperation.SubjectPatchValue>();
+        var removedItems = new ArrayList<GroupPatchOperation.SubjectPatchValue>();
         for (GroupPatchOperation operation : patchOperations) {
             String opCode = operation.getOp();
             switch (opCode) {
-                case "add": addedItems.addAll(operation.getValue()); break;
-                case "remove": removedItems.addAll(operation.getValue()); break;
+                case "add":
+                    addedItems.addAll(operation.getValue());
+                    break;
+                case "remove":
+                    removedItems.addAll(operation.getValue());
+                    break;
                 default:
                     throw new BadRequestException(
                             "Group patch operation '" + opCode + "' is not supported",

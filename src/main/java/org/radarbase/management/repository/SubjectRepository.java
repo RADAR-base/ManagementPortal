@@ -1,6 +1,5 @@
 package org.radarbase.management.repository;
 
-import org.radarbase.management.domain.Group;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.domain.Subject;
 import org.springframework.data.domain.Page;

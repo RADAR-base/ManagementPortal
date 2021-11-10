@@ -28,7 +28,6 @@ import javax.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.radarbase.management.web.rest.errors.EntityName.GROUP;
@@ -140,66 +139,40 @@ public class GroupService {
      */
     @Transactional
     public void updateGroupSubjects(
-        String projectName, String groupName,
-        List<GroupPatchOperation.SubjectPatchValue> subjectsToAdd,
-        List<GroupPatchOperation.SubjectPatchValue> subjectsToRemove
+            String projectName, String groupName,
+            List<GroupPatchOperation.SubjectPatchValue> subjectsToAdd,
+            List<GroupPatchOperation.SubjectPatchValue> subjectsToRemove
     ) {
         Group group = groupRepository
-            .findByProjectNameAndName(projectName, groupName)
-            .orElseThrow(() -> new NotFoundException(
-                "Group " + groupName + " not found in project " + projectName,
-                GROUP, ERR_GROUP_NOT_FOUND));
+                .findByProjectNameAndName(projectName, groupName)
+                .orElseThrow(() -> new NotFoundException(
+                    "Group " + groupName + " not found in project " + projectName,
+                    GROUP, ERR_GROUP_NOT_FOUND));
 
         List<Subject> entitiesToAdd = getSubjectEntities(projectName, subjectsToAdd);
         List<Subject> entitiesToRemove = getSubjectEntities(projectName, subjectsToRemove);
 
         if (!entitiesToAdd.isEmpty()) {
             List<Long> idsToAdd = entitiesToAdd.stream()
-                .map(Subject::getId).collect(Collectors.toList());
+                    .map(Subject::getId).collect(Collectors.toList());
             subjectRepository.setGroupIdByIds(group.getId(), idsToAdd);
         }
 
         if (!entitiesToRemove.isEmpty()) {
             List<Long> idsToRemove = entitiesToRemove.stream()
-                .map(Subject::getId).collect(Collectors.toList());
+                    .map(Subject::getId).collect(Collectors.toList());
             subjectRepository.unsetGroupIdByIds(idsToRemove);
         }
     }
 
     private List<Subject> getSubjectEntities(
-        String projectName,
-        List<GroupPatchOperation.SubjectPatchValue> subjectsToModify
+            String projectName,
+            List<GroupPatchOperation.SubjectPatchValue> subjectsToModify
     ) {
         List<String> logins = new ArrayList<>();
         List<Long> ids = new ArrayList<>();
 
-        // Each item should specify either a login or an ID,
-        // since having both will require an extra validation step
-        // to reject e.g. {id: 1, login: "subject-id-42"}.
-        // Whether the IDs and logins exist and belong to the project
-        // should be checked later
-        for (GroupPatchOperation.SubjectPatchValue item : subjectsToModify) {
-            String login = item.getLogin();
-            Long id = item.getId();
-            if (id == null && login == null) {
-                throw new BadRequestException(
-                    "Subject identification must be specified",
-                    GROUP, ERR_VALIDATION);
-            }
-            if (id != null && login != null) {
-                throw new BadRequestException(
-                    "Subject identification must be specify either ID or Login. " +
-                        "Do not provide both values to avoid potential confusion.",
-                    GROUP, ERR_VALIDATION);
-            }
-
-            if (id != null) {
-                ids.add(id);
-            }
-            if (login != null) {
-                logins.add(login);
-            }
-        }
+        extractSubjectIdentities(subjectsToModify, logins, ids);
 
         List<Subject> subjectEntities = new ArrayList<>(subjectsToModify.size());
         if (!ids.isEmpty()) {
@@ -224,5 +197,39 @@ public class GroupService {
         }
 
         return subjectEntities;
+    }
+
+    private void extractSubjectIdentities(
+            List<GroupPatchOperation.SubjectPatchValue> subjectsToModify,
+            List<String> logins,
+            List<Long> ids
+    ) {
+        // Each item should specify either a login or an ID,
+        // since having both will require an extra validation step
+        // to reject e.g. {id: 1, login: "subject-id-42"}.
+        // Whether the IDs and logins exist and belong to the project
+        // should be checked later
+        for (var item : subjectsToModify) {
+            String login = item.getLogin();
+            Long id = item.getId();
+            if (id == null && login == null) {
+                throw new BadRequestException(
+                    "Subject identification must be specified",
+                    GROUP, ERR_VALIDATION);
+            }
+            if (id != null && login != null) {
+                throw new BadRequestException(
+                    "Subject identification must be specify either ID or Login. "
+                        + "Do not provide both values to avoid potential confusion.",
+                    GROUP, ERR_VALIDATION);
+            }
+
+            if (id != null) {
+                ids.add(id);
+            }
+            if (login != null) {
+                logins.add(login);
+            }
+        }
     }
 }
