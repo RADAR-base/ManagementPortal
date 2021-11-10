@@ -134,6 +134,14 @@ public interface RadarToken {
     boolean hasPermission(Permission permission);
 
     /**
+     * Check if this token gives a permission in a specific organization.
+     * @param permission the permission
+     * @param organizationName the organization name
+     * @return true if this token has the permission in the organization, false otherwise
+     */
+    boolean hasPermissionOnOrganization(Permission permission, String organizationName);
+
+    /**
      * Check if this token gives a permission in a specific project.
      * @param permission the permission
      * @param projectName the project name

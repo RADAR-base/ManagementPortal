@@ -56,9 +56,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Test class for the ProjectResource REST controller.
+ * Test class for the GroupResource REST controller.
  *
- * @see ProjectResource
+ * @see GroupResource
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
@@ -101,7 +101,7 @@ class GroupResourceIntTest {
     @Autowired
     private RadarToken token;
 
-    private MockMvc restProjectMockMvc;
+    private MockMvc restGroupMockMvc;
 
     private Group group;
 
@@ -110,14 +110,14 @@ class GroupResourceIntTest {
     @BeforeEach
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
-        GroupResource projectResource = new GroupResource();
-        ReflectionTestUtils.setField(projectResource, "groupService", groupService);
-        ReflectionTestUtils.setField(projectResource, "token", token);
+        var groupResource = new GroupResource();
+        ReflectionTestUtils.setField(groupResource, "groupService", groupService);
+        ReflectionTestUtils.setField(groupResource, "token", token);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
 
-        this.restProjectMockMvc = MockMvcBuilders.standaloneSetup(projectResource)
+        this.restGroupMockMvc = MockMvcBuilders.standaloneSetup(groupResource)
                 .setCustomArgumentResolvers(pageableArgumentResolver)
                 .setControllerAdvice(exceptionTranslator)
                 .setMessageConverters(jacksonMessageConverter)
@@ -151,9 +151,9 @@ class GroupResourceIntTest {
 
     @Test
     void createGroup() throws Exception {
-        // Create the Project
-        GroupDTO groupDto = groupMapper.groupToGroupDTO(group);
-        restProjectMockMvc.perform(post("/api/projects/{projectName}/groups",
+        // Create the Group
+        var groupDto = groupMapper.groupToGroupDTO(group);
+        restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
                         project.getProjectName())
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(groupDto)))
@@ -172,9 +172,9 @@ class GroupResourceIntTest {
     void createGroupNonExistingProject() throws Exception {
         projectRepository.delete(project);
 
-        // Create the Project
-        GroupDTO groupDto = groupMapper.groupToGroupDTO(group);
-        restProjectMockMvc.perform(post("/api/projects/{projectName}/groups",
+        // Create the Group
+        var groupDto = groupMapper.groupToGroupDTO(group);
+        restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
                         project.getProjectName())
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(groupDto)))
@@ -183,15 +183,15 @@ class GroupResourceIntTest {
 
     @Test
     void createGroupWithExistingName() throws Exception {
-        // Create the Project
-        GroupDTO groupDto = groupMapper.groupToGroupDTO(group);
-        restProjectMockMvc.perform(post("/api/projects/{projectName}/groups",
+        // Create the Group
+        var groupDto = groupMapper.groupToGroupDTO(group);
+        restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
                         project.getProjectName())
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(groupDto)))
                 .andExpect(status().isCreated());
 
-        restProjectMockMvc.perform(post("/api/projects/{projectName}/groups",
+        restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
                         project.getProjectName())
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(groupDto)))
@@ -209,16 +209,16 @@ class GroupResourceIntTest {
         group2.setName(group.getName());
         group2.setProject(project2);
 
-        // Create the Project
-        GroupDTO groupDto = groupMapper.groupToGroupDTO(group);
-        restProjectMockMvc.perform(post("/api/projects/{projectName}/groups",
+        // Create the Group
+        var groupDto = groupMapper.groupToGroupDTO(group);
+        restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
                         project.getProjectName())
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(groupDto)))
                 .andExpect(status().isCreated());
 
-        GroupDTO group2Dto = groupMapper.groupToGroupDTO(group2);
-        restProjectMockMvc.perform(post("/api/projects/{projectName}/groups",
+        var group2Dto = groupMapper.groupToGroupDTO(group2);
+        restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
                         project2.getProjectName())
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(group2Dto)))
@@ -245,9 +245,9 @@ class GroupResourceIntTest {
     void checkGroupNameIsRequired() throws Exception {
         group.setName(null);
 
-        // Create the Project
-        GroupDTO groupDto = groupMapper.groupToGroupDTO(group);
-        restProjectMockMvc.perform(post("/api/projects/{projectName}/groups",
+        // Create the Group
+        var groupDto = groupMapper.groupToGroupDTO(group);
+        restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
                         project.getProjectName())
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(groupDto)))
@@ -259,8 +259,8 @@ class GroupResourceIntTest {
         // Initialize the database
         groupRepository.saveAndFlush(group);
 
-        // Get all the projectList
-        restProjectMockMvc.perform(get("/api/projects/{projectName}/groups",
+        // Get all the groups
+        restGroupMockMvc.perform(get("/api/projects/{projectName}/groups",
                         project.getProjectName()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -274,8 +274,8 @@ class GroupResourceIntTest {
         // Initialize the database
         groupRepository.saveAndFlush(group);
 
-        // Get the project
-        restProjectMockMvc.perform(get("/api/projects/{projectName}/groups/{groupName}",
+        // Get the Group
+        restGroupMockMvc.perform(get("/api/projects/{projectName}/groups/{groupName}",
                         project.getProjectName(), group.getName()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -285,8 +285,8 @@ class GroupResourceIntTest {
 
     @Test
     void getNonExistingGroup() throws Exception {
-        // Get the project
-        restProjectMockMvc.perform(get("/api/projects/{projectName}/groups/{groupName}",
+        // Get the Group
+        restGroupMockMvc.perform(get("/api/projects/{projectName}/groups/{groupName}",
                         project.getProjectName(), group.getName()))
                 .andExpect(status().isNotFound());
     }
@@ -296,8 +296,8 @@ class GroupResourceIntTest {
         // Initialize the database
         groupRepository.saveAndFlush(group);
 
-        // Get the project
-        restProjectMockMvc.perform(delete(
+        // Get the Group
+        restGroupMockMvc.perform(delete(
                         "/api/projects/{projectName}/groups/{groupName}",
                         project.getProjectName(), group.getName())
                         .accept(TestUtil.APPLICATION_JSON_UTF8))
@@ -314,8 +314,8 @@ class GroupResourceIntTest {
         // Initialize the database
         groupRepository.saveAndFlush(group);
 
-        // Get the project
-        restProjectMockMvc.perform(delete(
+        // Get the Group
+        restGroupMockMvc.perform(delete(
                         "/api/projects/{projectName}/groups/{groupName}",
                         project.getProjectName(), group.getName() + "2")
                         .accept(TestUtil.APPLICATION_JSON_UTF8))
@@ -331,8 +331,8 @@ class GroupResourceIntTest {
         // Initialize the database
         groupRepository.saveAndFlush(group);
 
-        // Get the project
-        restProjectMockMvc.perform(delete(
+        // Get the Group
+        restGroupMockMvc.perform(delete(
                         "/api/projects/{projectName}/groups/{groupName}",
                         project.getProjectName() + "2", group.getName())
                         .accept(TestUtil.APPLICATION_JSON_UTF8))
@@ -347,15 +347,15 @@ class GroupResourceIntTest {
         // Initialize the database
         groupRepository.saveAndFlush(group);
 
-        ProjectDTO projectDto = projectMapper.projectToProjectDTO(project);
+        var projectDto = projectMapper.projectToProjectDTO(project);
 
-        SubjectDTO sub1 = new SubjectDTO();
+        var sub1 = new SubjectDTO();
         sub1.setExternalLink("exLink1");
         sub1.setExternalId("exId1");
         sub1.setStatus(ACTIVATED);
         sub1.setProject(projectDto);
 
-        SubjectDTO sub2 = new SubjectDTO();
+        var sub2 = new SubjectDTO();
         sub2.setExternalLink("exLink2");
         sub2.setExternalId("exId2");
         sub2.setStatus(ACTIVATED);
@@ -379,8 +379,8 @@ class GroupResourceIntTest {
         List<GroupPatchOperation> body = new ArrayList<>();
         body.add(patchOp);
 
-        // Get the project
-        restProjectMockMvc.perform(patch(
+        // Get the Group
+        restGroupMockMvc.perform(patch(
                         "/api/projects/{projectName}/groups/{groupName}/subjects",
                         project.getProjectName(), group.getName())
                         
