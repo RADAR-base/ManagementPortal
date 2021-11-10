@@ -2,12 +2,12 @@
     <div class="subject-filter">
         <div class="subject-filter-header">
             <h5 [translate]="'managementPortalApp.subject.filter.title'"></h5>
-            <button class="btn" [ngClass]="isFilterApplied? 'btn-danger': 'btn-outline-danger'"
+            <button class="btn" [ngClass]="(isFilterApplied$ | async) ? 'btn-danger': 'btn-outline-danger'"
                     type="button"
                     id="clear-filter"
                     (click)="clearFilters()"
                     [translate]="'managementPortalApp.subject.filter.clearButton'"
-                    [disabled]="!isFilterApplied"
+                    [disabled]="!(isFilterApplied$ | async)"
             >
             </button>
         </div>
@@ -18,8 +18,8 @@
                 <input class="form-control"
                        type="text"
                        id="field-subject-id"
-                       [(ngModel)]="filters.subjectId"
-                       (ngModelChange)='filterChanged("subjectId", filters.subjectId)'>
+                       [ngModel]="filters.subjectId.rawValue$ | async"
+                       (ngModelChange)='filters.subjectId.next($event)'>
             </label>
         </div>
 
@@ -29,8 +29,8 @@
                 <input class="form-control"
                        type="text"
                        id="field-subject-external-id"
-                       [(ngModel)]="filters.externalId"
-                       (ngModelChange)='filterChanged("externalId", filters.externalId)'>
+                       [ngModel]="filters.externalId.rawValue$ | async"
+                       (ngModelChange)='filters.externalId.next($event)'>
             </label>
         </div>
 
@@ -50,9 +50,9 @@
                         <span [translate]="'managementPortalApp.subject.humanReadableId'"></span>
                         <input class="form-control"
                                id="field-human-readable-id"
-                               [(ngModel)]="filters.humanReadableId"
+                               [ngModel]="filters.humanReadableId.rawValue$ | async"
                                type="text"
-                               (ngModelChange)='filterChanged("humanReadableId", filters.humanReadableId)'>
+                               (ngModelChange)='filters.humanReadableId.next($event)'>
                     </label>
                 </div>
 
@@ -62,10 +62,10 @@
                         <select class="form-control"
                                 id="field_group"
                                 name="group"
-                                [(ngModel)]="filters.groupId"
-                                (ngModelChange)='filterChanged("group", filters.groupId)'>
+                                [ngModel]="filters.groupId.rawValue$ | async"
+                                (ngModelChange)='filters.groupId.next($event)'>
                             <option [ngValue]="null">-</option>
-                            <option *ngFor="let g of groups" [ngValue]="g.id">
+                            <option *ngFor="let g of groups$ | async" [ngValue]="g.id">
                                 {{g.name}}
                             </option>
                         </select>
@@ -81,10 +81,11 @@
                                    placeholder="yyyy-mm-dd"
                                    id="field_enrollment_date_from"
                                    name="enrollmentDateFrom"
-                                   [(ngModel)]="filters.enrollmentDateFrom"
+                                   [ngModel]="filters.enrollmentDateFrom.rawValue$ | async"
+                                   [maxDate]="filters.enrollmentDateTo.value$ | async"
                                    ngbDatepicker
                                    #enrollmentFromDatePicker="ngbDatepicker"
-                                   (ngModelChange)='filterChanged("enrollmentDateFrom", filters.enrollmentDateFrom)'>
+                                   (ngModelChange)='filters.enrollmentDateFrom.next($event)'>
                             <div class="input-group-append">
                                 <button class="btn btn-outline-secondary calendar" (click)="enrollmentFromDatePicker.toggle()" type="button"></button>
                             </div>
@@ -97,11 +98,12 @@
                             <input class="form-control"
                                    placeholder="yyyy-mm-dd"
                                    id="field_enrollment_date_to"
-                                   [(ngModel)]="filters.enrollmentDateTo"
+                                   [ngModel]="filters.enrollmentDateTo.rawValue$ | async"
+                                   [minDate]="filters.enrollmentDateFrom.value$ | async"
                                    name="enrollmentDateTo"
                                    ngbDatepicker
                                    #enrollmentToDatePicker="ngbDatepicker"
-                                   (ngModelChange)='filterChanged("enrollmentDateTo", filters.enrollmentDateTo)'>
+                                   (ngModelChange)='filters.enrollmentDateTo.next($event)'>
                             <div class="input-group-append">
                                 <button class="btn btn-outline-secondary calendar" (click)="enrollmentToDatePicker.toggle()" type="button"></button>
                             </div>
@@ -115,23 +117,23 @@
                         <span [translate]="'managementPortalApp.subject.personName'"></span>
                         <input class="form-control"
                                id="field-person-name"
-                               [(ngModel)]="filters.personName"
+                               [ngModel]="filters.personName.rawValue$ | async"
                                type="text"
-                               (ngModelChange)='filterChanged("personName", filters.personName)'>
+                               (ngModelChange)='filters.personName.next($event)'>
                     </label>
                 </div>
 
                 <div class="form-group">
                     <span [translate]="'managementPortalApp.subject.dateOfBirth'"></span>
                     <div class="input-group">
-                        <input [(ngModel)]="filters.dateOfBirth"
+                        <input [ngModel]="filters.dateOfBirth.rawValue$"
                                id="field_date_of_birth"
                                class="form-control"
                                name="dateOfBirth"
                                placeholder="yyyy-mm-dd"
                                ngbDatepicker
                                #dateOfBirthDatePicker="ngbDatepicker"
-                               (ngModelChange)='filterChanged("dateOfBirth", filters.dateOfBirth)'>
+                               (ngModelChange)='filters.dateOfBirth.next($event)'>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary calendar" (click)="dateOfBirthDatePicker.toggle()" type="button"></button>
                         </div>
@@ -149,7 +151,7 @@
             >
                 {{ 'managementPortalApp.subject.sorting.sortByLabel' | translate }}:
                 <span>
-                    {{ 'managementPortalApp.subject.sorting.' + predicate  | translate }}
+                    {{ 'managementPortalApp.subject.sorting.' + (sortBy$ | async)  | translate }}
                 </span>
             </button>
             <div ngbDropdownMenu>
@@ -166,24 +168,24 @@
         <div ngbDropdown class="d-inline-block subject-sorting-action"  id="field-order-by">
             <button class="btn btn-outline-primary" ngbDropdownToggle>
                 {{ 'managementPortalApp.subject.sorting.sortOrderLabel' | translate }}:
-                <span *ngIf="ascending">
+                <span *ngIf="ascending$ | async; else descending">
                     {{ 'managementPortalApp.subject.sorting.asc' | translate }}
                 </span>
-                <span *ngIf="!ascending">
+                <ng-template #descending>
                     {{ 'managementPortalApp.subject.sorting.desc' | translate }}
-                </span>
+                </ng-template>
             </button>
             <div ngbDropdownMenu>
                 <button
                     ngbDropdownItem
                     id="order-by-asc"
-                    (click)="updateSortingOrder('asc')"
+                    (click)="updateSortAscending(true)"
                     [translate]="'managementPortalApp.subject.sorting.asc'">
                 </button>
                 <button
                     ngbDropdownItem
                     id="order-by-desc"
-                    (click)="updateSortingOrder('desc')"
+                    (click)="updateSortAscending(false)"
                     [translate]="'managementPortalApp.subject.sorting.desc'">
                 </button>
             </div>
@@ -205,48 +207,35 @@
             </span>
         </button>
         <div class="applied-filters"
-             *ngIf="isFilterApplied">
+             *ngIf="isFilterApplied$ | async">
             <span>{{ 'managementPortalApp.subject.filter.filters' | translate}}: </span>
-            <div class="badge badge-pill badge-primary" *ngIf="filters.subjectId" (click)="clearFilter('subjectId')">
-                <span>{{ 'managementPortalApp.subject.subjectId' | translate }}: {{filters.subjectId}}</span>
-                <span aria-hidden="true"> &times;</span>
-            </div>
-            <div class="badge badge-pill badge-primary" *ngIf="filters.externalId" (click)="clearFilter('externalId')">
-                <span>{{ 'managementPortalApp.subject.externalId' | translate }}: {{filters.externalId}}</span>
-                <span aria-hidden="true"> &times;</span>
-            </div>
-            <div class="badge badge-pill badge-primary" *ngIf="filters.personName" (click)="clearFilter('personName')">
-                <span>{{ 'managementPortalApp.subject.personName' | translate }}: {{filters.personName}}</span>
-                <span aria-hidden="true"> &times;</span>
-            </div>
-            <div class="badge badge-pill badge-primary" *ngIf="filters.humanReadableId" (click)="clearFilter('humanReadableId')">
-                <span>{{ 'managementPortalApp.subject.humanReadableId' | translate }}: {{filters.humanReadableId}}</span>
-                <span aria-hidden="true"> &times;</span>
-            </div>
-            <div class="badge badge-pill badge-primary" *ngIf="appliedFilters.dateOfBirth" (click)="clearDateFilter('dateOfBirth')">
-                <span>{{ 'managementPortalApp.subject.dateOfBirth' | translate }}: {{appliedFilters.dateOfBirth}}</span>
-                <span aria-hidden="true"> &times;</span>
-            </div>
-            <div class="badge badge-pill badge-primary" *ngIf="appliedFilters.enrollmentDateFrom" (click)="clearDateFilter('enrollmentDateFrom')">
-                <span>{{ 'managementPortalApp.subject.enrollmentDateFrom' | translate }}: {{appliedFilters.enrollmentDateFrom}}</span>
-                <span aria-hidden="true"> &times;</span>
-            </div>
-            <div class="badge badge-pill badge-primary" *ngIf="appliedFilters.enrollmentDateTo" (click)="clearDateFilter('enrollmentDateTo')">
-                <span>{{ 'managementPortalApp.subject.enrollmentDateFrom' | translate }}: {{appliedFilters.enrollmentDateTo}}</span>
-                <span aria-hidden="true"> &times;</span>
-            </div>
-            <div class="badge badge-pill badge-primary" *ngIf="appliedFilters.group" (click)="clearSelectFilter('groupId')">
-                <span>{{ 'managementPortalApp.subject.group' | translate }}: {{appliedFilters.group}}</span>
-                <span aria-hidden="true"> &times;</span>
-            </div>
+            <app-filter-badge [text]="'managementPortalApp.subject.subjectId'"
+                              (clear)="filters.subjectId.clear()" [value]="filters.subjectId.formattedValue$ | async"></app-filter-badge>
+            <app-filter-badge [text]="'managementPortalApp.subject.externalId'"
+                              (clear)="filters.externalId.clear()" [value]="filters.externalId.formattedValue$ | async"></app-filter-badge>
+            <app-filter-badge [text]="'managementPortalApp.subject.personName'"
+                              (clear)="filters.personName.clear()" [value]="filters.personName.formattedValue$ | async"></app-filter-badge>
+            <app-filter-badge [text]="'managementPortalApp.subject.humanReadableId'"
+                              (clear)="filters.humanReadableId.clear()" [value]="filters.humanReadableId.formattedValue$ | async"></app-filter-badge>
+            <app-filter-badge [text]="'managementPortalApp.subject.dateOfBirth'"
+                              (clear)="filters.dateOfBirth.clear()" [value]="filters.dateOfBirth.formattedValue$ | async"></app-filter-badge>
+            <app-filter-badge [text]="'managementPortalApp.subject.enrollmentDateFrom'"
+                              (clear)="filters.enrollmentDateFrom.clear()"
+                              [value]="filters.enrollmentDateFrom.formattedValue$ | async"></app-filter-badge>
+            <app-filter-badge [text]="'managementPortalApp.subject.enrollmentDateTo'"
+                              (clear)="filters.enrollmentDateTo.clear()"
+                              [value]="filters.enrollmentDateTo.formattedValue$ | async"></app-filter-badge>
+            <app-filter-badge [text]="'managementPortalApp.subject.group'"
+                              (clear)="filters.groupId.clear()"
+                              [value]="filters.groupId.formattedValue$ | async"></app-filter-badge>
         </div>
         <jhi-alert></jhi-alert>
-        <div *ngIf="subjects" class="subjects">
+        <div *ngIf="subjects$" class="subjects">
             <div class="subject-list-actions">
                 <button type="button"
                     class="btn btn-light"
-                    [translate]="!checked ? 'managementPortalApp.subject.selectAll' : 'managementPortalApp.subject.clearSelectedItems'"
-                    (click)="selectAll(!checked)"
+                    [translate]="!(checked$ | async) ? 'managementPortalApp.subject.selectAll' : 'managementPortalApp.subject.clearSelectedItems'"
+                    (click)="selectAll()"
                 ></button>
                 <button type="button"
                     class="btn btn-light"
@@ -255,10 +244,10 @@
                     (click)="addSelectedToGroup()"
                 ></button>
             </div>
-            <div *ngFor="let subject of subjects ;trackBy: trackLogin" class="subject-row">
+            <div *ngFor="let subject of subjects$ | async; trackBy: trackLogin" class="subject-row">
                 <div class="subject-row__select-row">
-                    <input type="checkbox" [checked]="setOfCheckedId.has(subject.id)"
-                           (change)="onItemChecked(subject.id, true)">
+                    <input type="checkbox" [ngModel]="(setOfCheckedId$ | async).has(subject.id)"
+                           (ngModelChange)="onItemChecked(subject.id, $event)">
                 </div>
                 <div class="subject-row__content">
                     <div class="subject-row__subject-id">
@@ -393,20 +382,6 @@
                 </div>
             </div>
         </div>
-        <div *ngIf="subjects && totalItems !== undefined"
-            class="subject-pagination"
-        >
-            <span *ngIf="totalItems <= subjects.length"
-                class="subject-pagination__all-loaded"
-                [translate]="'managementPortalApp.subject.allLoaded'"
-                [translateParams]="{ total: subjects.length }"
-            ></span>
-            <a *ngIf="totalItems > subjects.length"
-                class="subject-pagination__load-more"
-                (click)="loadMore()"
-                [translate]="'managementPortalApp.subject.loadMore'"
-                [translateParams]="{ shown: subjects.length, total: totalItems }"
-            ></a>
-        </div>
+        <app-load-more (load)="loadMore()" [shownItems]="(subjects$ | async).length" [totalItems]="totalItems"></app-load-more>
     </section>
 </div>

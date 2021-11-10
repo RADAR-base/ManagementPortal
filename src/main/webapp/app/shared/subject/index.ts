@@ -1,3 +1,5 @@
+export * from './filter-badge.component';
+export * from './load-more.component';
 export * from './subject.model';
 export * from './subject-popup.service';
 export * from './subject.service';

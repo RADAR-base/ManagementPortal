@@ -133,20 +133,23 @@ describe('Subject e2e test', () => {
         cy.wait(1000);
         cy.get('jhi-subjects #field-order-by').click();
         cy.get('jhi-subjects #order-by-desc').click();
+        cy.wait(100);
         cy.get('jhi-subjects .subject-row').first().should('contain.text', 'sub-9');
         cy.get('jhi-subjects #field-order-by').click();
         cy.get('jhi-subjects #order-by-asc').click();
+        cy.wait(100);
         cy.get('jhi-subjects .subject-row').eq(1).should('contain.text', 'sub-1');
     });
-
 
     it('should be able to sort subjects by external id in asc/desc order', () => {
         cy.wait(1000);
         cy.get('jhi-subjects #field-sort-by').click();
         cy.get('jhi-subjects #sort-by-externalId').click();
+        cy.wait(100);
         cy.get('jhi-subjects .subject-row').first().should('contain.text', 'sub-1');
         cy.get('jhi-subjects #field-order-by').click();
         cy.get('jhi-subjects #order-by-desc').click();
+        cy.wait(100);
         cy.get('jhi-subjects .subject-row').first().should('contain.text', 'test-subject-1');
     });
 
@@ -169,15 +172,14 @@ describe('Subject e2e test', () => {
     it('should show number of loaded subjects and total number of subjects', () => {
         cy.wait(1000);
         cy.contains('jhi-project-detail ul.nav-tabs .nav-item', 'Subjects').click();
-        cy.get('jhi-subjects a.subject-pagination__load-more').should('have.text', 'Load more (20/25 shown)');
+        cy.get('app-load-more a.load-more').should('have.text', 'Load more (20/25 shown)');
         cy.get('jhi-subjects .subject-row').should('have.length', 20);
     });
 
     it('should be able to load subjects on loadMore click', () => {
         cy.wait(1000);
-        cy.get('jhi-subjects a.subject-pagination__load-more').click();
-        cy.get('jhi-subjects span.subject-pagination__all-loaded').should('have.text', 'All 25 subjects loaded');
+        cy.get('app-load-more a.load-more').click();
+        cy.get('app-load-more span.all-loaded').should('have.text', 'All 25 subjects loaded');
         cy.get('jhi-subjects .subject-row').should('have.length', 25);
     });
-
 });

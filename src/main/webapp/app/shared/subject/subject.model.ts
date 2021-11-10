@@ -19,7 +19,7 @@ export class Subject {
     public personName?: string;
     public project?: Project;
     public sources?: MinimalSource[];
-    public attributes: Dictionary;
+    public attributes: Record<string, string>;
     public status: SubjectStatus;
     public roles?: Role[];
 
