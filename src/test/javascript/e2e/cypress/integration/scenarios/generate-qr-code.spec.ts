@@ -1,10 +1,9 @@
 import { login } from '../util/login';
-import { loadProjectView } from "../util/nav-bar";
 
 describe('Project view: Generate QR code', () => {
     beforeEach(() => {
-        login()
-        loadProjectView();
+        login();
+        cy.contains('jhi-home .card-title', 'radar').click();
     });
 
     it('should open pair app dialog', () => {

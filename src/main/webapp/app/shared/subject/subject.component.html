@@ -84,7 +84,7 @@
                                    [(ngModel)]="filters.enrollmentDateFrom"
                                    ngbDatepicker
                                    #enrollmentFromDatePicker="ngbDatepicker"
-                                   (ngModelChange)='filterChanged("enrollmentDateFrom", filters.enrollmentDateFrom)'>
+                                   (ngModelChange)='enrollmentDateFromFilterChanged("enrollmentDateFrom", filters.enrollmentDateFrom)'>
                             <div class="input-group-append">
                                 <button class="btn btn-outline-secondary calendar" (click)="enrollmentFromDatePicker.toggle()" type="button"></button>
                             </div>
@@ -101,7 +101,7 @@
                                    name="enrollmentDateTo"
                                    ngbDatepicker
                                    #enrollmentToDatePicker="ngbDatepicker"
-                                   (ngModelChange)='filterChanged("enrollmentDateTo", filters.enrollmentDateTo)'>
+                                   (ngModelChange)='enrollmentDateToFilterChanged("enrollmentDateTo", filters.enrollmentDateTo)'>
                             <div class="input-group-append">
                                 <button class="btn btn-outline-secondary calendar" (click)="enrollmentToDatePicker.toggle()" type="button"></button>
                             </div>
@@ -131,11 +131,12 @@
                                placeholder="yyyy-mm-dd"
                                ngbDatepicker
                                #dateOfBirthDatePicker="ngbDatepicker"
-                               (ngModelChange)='filterChanged("dateOfBirth", filters.dateOfBirth)'>
+                               (ngModelChange)='dateOfBirthFilterChanged("dateOfBirth", filters.dateOfBirth)'>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary calendar" (click)="dateOfBirthDatePicker.toggle()" type="button"></button>
                         </div>
                     </div>
+                    <span *ngIf="dateOfBirthError" class="error" [translate]="'managementPortalApp.subject.filter.error.invalidDate'"></span>
                 </div>
             </div>
 

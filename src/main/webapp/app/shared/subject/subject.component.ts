@@ -11,7 +11,7 @@ import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import {debounceTime, distinctUntilChanged, map} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, filter, map} from 'rxjs/operators';
 
 import {Group, GroupService, ITEMS_PER_PAGE, Project} from '..';
 import {
@@ -27,7 +27,7 @@ import { PagingParams } from '../commons';
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
 import { parseLinks } from '../util/parse-links-util';
-import {NgbCalendar, NgbDate, NgbDateParserFormatter} from "@ng-bootstrap/ng-bootstrap";
+import {NgbCalendar, NgbDate, NgbDateParserFormatter, NgbDateStruct} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
     selector: 'jhi-subjects',
@@ -81,6 +81,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
 
     enrollmentDateFromError = false;
     enrollmentDateToError = false;
+    dateOfBirthError = false;
 
     isAdvancedFilterCollapsed = true;
 
@@ -115,6 +116,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
 
         this.filterTriggerUpdate$.pipe(
             debounceTime(300),
+            filter(f => f !== ''),
             distinctUntilChanged()
         ).subscribe(() => this.applyFilter());
     }
@@ -242,7 +244,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         return params;
     }
 
-    isRange(from: NgbDate, to: NgbDate): boolean {
+    isRange(from: NgbDateStruct, to: NgbDateStruct): boolean {
         if(from && !this.calendar.isValid(NgbDate.from(from))){
             this.enrollmentDateFromError = true;
             return false;
@@ -313,7 +315,32 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     filterChanged(field: string, text: string) {
-        this.filterTriggerUpdate$.next(field + text);
+        this.filterTriggerUpdate$.next(field + ',' + text);
+    }
+
+    dateOfBirthFilterChanged(field: string, date: NgbDateStruct){
+        this.dateOfBirthError = false;
+        if (date) {
+            if (this.calendar.isValid(NgbDate.from(date))) {
+                this.filterTriggerUpdate$.next(field + ',' + this.formatter.format(date));
+            } else {
+                this.dateOfBirthError = true;
+            }
+        } else {
+            this.filterTriggerUpdate$.next(field);
+        }
+    }
+
+    enrollmentDateFromFilterChanged(field: string, date: NgbDateStruct){
+        if (this.isRange(date, this.filters.enrollmentDateTo)) {
+            this.filterTriggerUpdate$.next(field + ',' + this.formatter.format(date));
+        }
+    }
+
+    enrollmentDateToFilterChanged(field: string, date: NgbDateStruct){
+        if (this.isRange(this.filters.enrollmentDateFrom, date)) {
+            this.filterTriggerUpdate$.next(field + ',' + this.formatter.format(date));
+        }
     }
 
     applyFilter() {
@@ -332,6 +359,17 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     clearDateFilter(filterName: string) {
         this.appliedFilters[filterName] = undefined;
         this.filters[filterName] = undefined;
+        switch (filterName) {
+            case 'dateOfBirth':
+                this.dateOfBirthError = false;
+                break;
+            case 'enrollmentDateFrom':
+                this.enrollmentDateFromError = false;
+                break;
+            case 'enrollmentDateTo':
+                this.enrollmentDateToError = false;
+                break;
+        }
         this.applyFilter();
     }
 
@@ -381,17 +419,22 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     updateSortingSortBy(predicate) {
-        this.clearSubjects();
-        this.predicate = predicate;
-        this.page = 1;
-        this.transition();
+        if (this.predicate !== predicate) {
+            this.subjects = [];
+            this.predicate = predicate;
+            this.page = 1;
+            this.transition();
+        }
     }
 
     updateSortingOrder(direction) {
-        this.clearSubjects();
-        this.ascending = direction === 'asc';
-        this.page = 1;
-        this.transition();
+        if ((this.ascending && direction !== 'asc') ||
+            (!this.ascending && direction === 'asc')){
+            this.subjects = [];
+            this.ascending = direction === 'asc';
+            this.page = 1;
+            this.transition();
+        }
     }
 
     selectAll(checked: boolean = true): void {

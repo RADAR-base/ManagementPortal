@@ -157,3 +157,12 @@ background: rgba(169, 209, 255, 0.3);
 .subject-pagination__load-more:active {
 background: rgba(0, 120, 255, 0.15);
 }
+
+.form-group .error{
+    color: red;
+    background-color: inherit;
+}
+
+.applied-filters .badge {
+    cursor: pointer;
+}
