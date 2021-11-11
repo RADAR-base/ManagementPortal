@@ -21,7 +21,7 @@
 
             <div *ngSwitchCase="true">
                 <div class="card-columns ">
-                    <div class="card mb-3" *ngFor="let project of projects;" [routerLink]="['../project', project.projectName ]">
+                    <div class="card mb-3" *ngFor="let project of projectService.projects$ | async;" [routerLink]="['../project', project.projectName ]">
 
                         <div class="card-body text-center">
                             <h5 class="card-title" style="text-transform: uppercase"> {{project.projectName}}</h5>

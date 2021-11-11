@@ -2,14 +2,20 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { of, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import { DEBUG_INFO_ENABLED, VERSION } from '../../app.constants';
-import { JhiLanguageHelper, LoginModalService, LoginService, Principal, Project, UserService } from '../../shared';
+import {
+    JhiLanguageHelper,
+    LoginModalService,
+    LoginService,
+    Principal,
+    Project,
+    ProjectService,
+} from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 
 import { ProfileService } from '../profiles/profile.service';
-import { switchMap, tap } from "rxjs/operators";
 
 @Component({
     selector: 'jhi-navbar',
@@ -28,19 +34,18 @@ export class NavbarComponent implements OnInit, OnDestroy {
     version: string;
 
     projects: Project[];
-    currentAccount: any;
     private subscriptions: Subscription;
 
     constructor(
-            private loginService: LoginService,
-            private languageHelper: JhiLanguageHelper,
-            private principal: Principal,
-            private loginModalService: LoginModalService,
-            private profileService: ProfileService,
-            private router: Router,
-            private eventManager: EventManager,
-            private translateService: TranslateService,
-            private userService: UserService,
+      private loginService: LoginService,
+      private languageHelper: JhiLanguageHelper,
+      public principal: Principal,
+      private loginModalService: LoginModalService,
+      private profileService: ProfileService,
+      private router: Router,
+      private eventManager: EventManager,
+      private translateService: TranslateService,
+      public projectService: ProjectService,
     ) {
         this.version = DEBUG_INFO_ENABLED ? 'v' + VERSION : '';
         this.isNavbarCollapsed = true;
@@ -48,8 +53,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.principal.identity().then(account => this.currentAccount = account);
-        this.loadRelevantProjects();
         this.languageHelper.getAll().then((languages) => {
             this.languages = languages;
         });
@@ -64,21 +67,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.subscriptions.unsubscribe();
     }
 
-    loadRelevantProjects() {
-        this.subscriptions.add(this.principal.getAuthenticationState()
-            .pipe(
-              tap(account => this.currentAccount = account),
-              switchMap(account => {
-                  if (account) {
-                      return this.userService.findProject(account.login);
-                  } else {
-                      return of([]);
-                  }
-              })
-            )
-            .subscribe(projects => this.projects = projects));
-    }
-
     trackProjectName(index: number, item: Project) {
         return item.projectName;
     }
@@ -89,10 +77,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     collapseNavbar() {
         this.isNavbarCollapsed = true;
-    }
-
-    isAuthenticated() {
-        return this.principal.isAuthenticated();
     }
 
     login() {

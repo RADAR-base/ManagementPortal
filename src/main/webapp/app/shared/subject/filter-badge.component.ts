@@ -12,7 +12,7 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 @Component({
   selector: 'app-filter-badge',
   template: `
-      <div class="badge badge-pill badge-primary" *ngIf="value"
+      <div class="badge badge-pill badge-primary mx-1" *ngIf="value"
            (click)="clear.emit()">
           <span>{{ text | translate }}
               : {{value}}</span>

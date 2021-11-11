@@ -8,15 +8,17 @@ import {
 } from '@ngx-translate/core';
 
 import { LANGUAGES } from './language.constants';
+import { Observable, of } from "rxjs";
 
 @Injectable({ providedIn: 'root' })
 export class JhiLanguageHelper {
+    languages$: Observable<string[]> = of(LANGUAGES);
 
     constructor(private translateService: TranslateService, private titleService: Title, private router: Router) {
         this.init();
     }
 
-    getAll(): Promise<any> {
+    getAll(): Promise<string[]> {
         return Promise.resolve(LANGUAGES);
     }
 

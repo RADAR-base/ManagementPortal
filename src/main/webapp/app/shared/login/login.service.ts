@@ -6,7 +6,6 @@ import { Principal } from '../auth/principal.service';
 
 @Injectable({ providedIn: 'root' })
 export class LoginService {
-
     constructor(
             private principal: Principal,
             private authServerProvider: AuthServerProvider,

@@ -14,8 +14,7 @@ import { EventManager } from '../../shared/util/event-manager.service';
 export class ProjectDetailComponent implements OnInit, OnDestroy {
 
     project: Project;
-    private subscription: any;
-    private eventSubscriber: Subscription;
+    private subscription = new Subscription();
 
     sources: Source[];
 
@@ -34,17 +33,16 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.subscription = this.route.params.subscribe((params) => {
+        this.subscription.add(this.route.params.subscribe((params) => {
             this.load(params['projectName']);
-        });
-        this.registerChangeInProjects();
+        }));
         this.viewSubjects();
     }
 
     load(projectName) {
-        this.projectService.find(projectName).subscribe((project) => {
+        this.subscription.add(this.projectService.find(projectName).subscribe((project) => {
             this.project = project;
-        });
+        }));
     }
 
     previousState() {
@@ -53,12 +51,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
-        this.eventManager.destroy(this.eventSubscriber);
-    }
-
-    registerChangeInProjects() {
-        this.eventSubscriber = this.eventManager.subscribe('projectListModification',
-                () => this.load(this.project.projectName));
     }
 
     viewSources() {

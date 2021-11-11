@@ -2,73 +2,54 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 
 import { AccountService } from './account.service';
-import { catchError, map } from "rxjs/operators";
+import { catchError, filter, first, map, mergeMap, switchMap, tap } from "rxjs/operators";
+import { Account } from "../user/account.model";
 
 @Injectable({ providedIn: 'root' })
 export class Principal {
-    private userIdentity: any;
-    private authenticated = false;
-    private authenticationState = new BehaviorSubject<any>(null);
+    private _account$ = new BehaviorSubject<Account | null>(null);
+    readonly account$: Observable<Account | null> = this._account$.asObservable();
 
     constructor(
         private account: AccountService
-    ) {}
-
-    authenticate(identity) {
-        this.userIdentity = identity;
-        this.authenticated = identity !== null;
-        this.authenticationState.next(this.userIdentity);
+    ) {
+        // initial fetch
+        this.account.get().pipe(
+          filter(a => !!a)
+        ).subscribe(account => this._account$.next(account));
     }
 
-    hasAnyAuthority(authorities: string[]): Promise<boolean> {
-        if (!this.authenticated || !this.userIdentity || !this.userIdentity.authorities) {
-            return Promise.resolve(false);
-        }
+    authenticate(identity?: Account) {
+        this._account$.next(identity ? identity : null);
+    }
 
+    userHasAnyAuthority(userIdentity: any, authorities: string[]): boolean {
+        if (!userIdentity || !userIdentity.authorities) {
+            return false;
+        }
         for (let i = 0; i < authorities.length; i++) {
-            if (this.userIdentity.authorities.indexOf(authorities[i]) !== -1) {
-                return Promise.resolve(true);
+            if (userIdentity.authorities.indexOf(authorities[i]) !== -1) {
+                return true;
             }
         }
-
-        return Promise.resolve(false);
+        return false;
     }
 
-    identity(force?: boolean): Promise<any> {
+    reset(): Observable<Account | null> {
+        return this.account.get().pipe(
+          catchError(() => of(null)),
+          tap(account => this._account$.next(account ? account : null))
+        );
+    }
+
+    identity(): Observable<Account | null> {
         // check and see if we have retrieved the userIdentity data from the server.
         // if we have, reuse it by immediately resolving
-        if (!force && this.userIdentity) {
-            return Promise.resolve(this.userIdentity);
-        }
-
-        // retrieve the userIdentity data from the server, update the identity object, and then resolve.
-        return this.account.get()
-            .pipe(
-              catchError(() => of()),
-              map((account) => {
-                  if (account) {
-                      this.userIdentity = account;
-                      this.authenticated = true;
-                  } else {
-                      this.userIdentity = null;
-                      this.authenticated = false;
-                  }
-                  this.authenticationState.next(this.userIdentity);
-                  return this.userIdentity;
-              }),
-            )
-            .toPromise();
-    }
-
-    isAuthenticated(): boolean {
-        return this.authenticated;
-    }
-
-    isIdentityResolved(): boolean {
-        return this.userIdentity !== undefined;
-    }
-
-    getAuthenticationState(): Observable<any> {
-        return this.authenticationState.asObservable();
+        return this._account$.pipe(
+          first(),
+          mergeMap((user?: Account) => {
+              return user ? of(user) : this.reset();
+          })
+        );
     }
 }

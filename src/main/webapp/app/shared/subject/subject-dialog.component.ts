@@ -12,18 +12,17 @@ import {
 
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
-import { MinimalSource } from '../source';
 import { SubjectPopupService } from './subject-popup.service';
 
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
+import { Subscription } from "rxjs";
 
 @Component({
     selector: 'jhi-subject-dialog',
     templateUrl: './subject-dialog.component.html',
 })
-export class SubjectDialogComponent implements OnInit {
-
+export class SubjectDialogComponent implements OnInit, OnDestroy {
     readonly authorities: string[];
     readonly options: string[];
 
@@ -33,13 +32,14 @@ export class SubjectDialogComponent implements OnInit {
     attributeComponentEventPrefix: 'subjectAttributes';
 
     dateOfBirth: NgbDateStruct;
+    private eventSubscription: Subscription;
 
     constructor(public activeModal: NgbActiveModal,
                 private alertService: AlertService,
                 private subjectService: SubjectService,
                 private eventManager: EventManager,
                 private calendar: NgbCalendar,
-                public formatter: NgbDateParserFormatter) {
+                private formatter: NgbDateParserFormatter) {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.options = ['Human-readable-identifier'];
@@ -49,9 +49,13 @@ export class SubjectDialogComponent implements OnInit {
         if(this.subject.dateOfBirth) {
             this.dateOfBirth = this.formatter.parse(this.subject.dateOfBirth.toString());
         }
-        this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
+        this.eventSubscription = this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
             this.subject.attributes = response.content;
         });
+    }
+
+    ngOnDestroy() {
+        this.eventSubscription.unsubscribe();
     }
 
     clear() {
@@ -87,10 +91,6 @@ export class SubjectDialogComponent implements OnInit {
 
     private onError(error) {
         this.alertService.error(error.message, null, null);
-    }
-
-    trackDeviceById(index: number, item: MinimalSource) {
-        return item.id;
     }
 }
 

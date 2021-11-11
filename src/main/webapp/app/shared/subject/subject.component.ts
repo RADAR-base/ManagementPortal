@@ -19,7 +19,7 @@ import {
     distinctUntilChanged, filter, first,
     map, pluck,
     shareReplay,
-    switchMap, withLatestFrom
+    switchMap, tap, withLatestFrom
 } from 'rxjs/operators';
 
 import {Group, GroupService, ITEMS_PER_PAGE, Project} from '..';
@@ -38,7 +38,7 @@ import {
     NgbDateParserFormatter,
     NgbDateStruct
 } from "@ng-bootstrap/ng-bootstrap";
-import { NgbDateReactiveFilter, ReactiveFilter } from "../util/reactive-filter";
+import { NgbDateRange, NgbDateReactiveFilter, ReactiveFilter } from "../util/reactive-filter";
 
 interface FilterCriteria {
     externalId: string
@@ -47,6 +47,7 @@ interface FilterCriteria {
     enrollmentDateFrom?: NgbDateStruct
     enrollmentDateTo?: NgbDateStruct
     groupId: string
+    groupName: string
     personName: string
     humanReadableId: string
 }
@@ -62,7 +63,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         'externalId',
     ];
     project$ = new BehaviorSubject<Project>(null);
-    private filterResult$: Observable<FilterCriteria>;
+    filterResult$: Observable<FilterCriteria>;
     @Input()
     get project() { return this.project$.value; }
     set project(v: Project) { this.project$.next(v); }
@@ -72,32 +73,14 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     itemsPerPage = ITEMS_PER_PAGE;
     links: any;
     sortBy$: BehaviorSubject<string>;
-    queryCount: any;
     ascending$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
     totalItems: number;
     page$: BehaviorSubject<number> = new BehaviorSubject<number>(1);
     previousPage: number = 1;
+    enrollmentDate$: Observable<NgbDateRange>
+    enrollmentDateRangeError = false;
 
-    filters: {[key: string]: ReactiveFilter<any>} = {
-        subjectId: new ReactiveFilter<string>(),
-        externalId: new ReactiveFilter<string>(),
-        humanReadableId: new ReactiveFilter<string>(),
-        dateOfBirth: new NgbDateReactiveFilter(this.calendar, this.formatter),
-        personName: new ReactiveFilter<string>(),
-        enrollmentDateFrom: new NgbDateReactiveFilter(this.calendar, this.formatter),
-        enrollmentDateTo: new NgbDateReactiveFilter(this.calendar, this.formatter),
-        groupId: new ReactiveFilter<string>({
-            formatResult: v$ => v$.pipe(map(groupId => {
-              const group = this.groups$.value.find(g => g.id.toString() == groupId);
-              return group ? group.name : '';
-            }))
-        }),
-    }
-
-    isFilterApplied$: Observable<boolean>;
-
-    enrollmentDateFromError = false;
-    enrollmentDateToError = false;
+    filters: Record<string, ReactiveFilter<any>>
 
     isAdvancedFilterCollapsed = true;
 
@@ -116,6 +99,31 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             private calendar: NgbCalendar,
             public formatter: NgbDateParserFormatter
     ) {
+        this.filters = {
+            subjectId: new ReactiveFilter<string>(),
+            externalId: new ReactiveFilter<string>(),
+            humanReadableId: new ReactiveFilter<string>(),
+            dateOfBirth: new NgbDateReactiveFilter(this.calendar, this.formatter),
+            personName: new ReactiveFilter<string>(),
+            enrollmentDateFrom: new NgbDateReactiveFilter(this.calendar, this.formatter),
+            enrollmentDateTo: new NgbDateReactiveFilter(this.calendar, this.formatter),
+            groupId: new ReactiveFilter<string>(),
+        }
+        this.enrollmentDate$ = combineLatest([
+          this.filters.enrollmentDateFrom.value$,
+          this.filters.enrollmentDateTo.value$,
+        ]).pipe(
+          map(([from, to]) => ({from, to})),
+          filter(({from, to}) => {
+              if (NgbDateReactiveFilter.isValidRange(from, to)) {
+                  this.enrollmentDateRangeError = false;
+                  return true;
+              } else {
+                  this.enrollmentDateRangeError = true;
+                  return false;
+              }
+          }),
+        );
         this.sortBy$ = new BehaviorSubject<string>('login')
         this.filterResult$ = combineLatest([
             this.filters.subjectId.value$,
@@ -123,47 +131,48 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             this.filters.humanReadableId.value$,
             this.filters.dateOfBirth.value$,
             this.filters.personName.value$,
-            this.filters.enrollmentDateFrom.value$,
-            this.filters.enrollmentDateTo.value$,
+            this.enrollmentDate$,
             this.filters.groupId.value$,
         ]).pipe(
-          map(([subjectId, externalId, humanReadableId, dateOfBirth, personName, enrollmentDateFrom, enrollmentDateTo, groupId]) => ({
+          map(([subjectId, externalId, humanReadableId, dateOfBirth, personName, enrollmentDate, groupId]) => ({
               subjectId,
               externalId,
               humanReadableId,
               dateOfBirth,
               personName,
-              enrollmentDateFrom,
-              enrollmentDateTo,
+              enrollmentDateFrom: enrollmentDate.from,
+              enrollmentDateTo: enrollmentDate.to,
               groupId,
+              groupName: this.groups$.value.find(g => g.id.toString() == groupId)?.name,
           })),
+          map(criteria => {
+              for (let key in criteria) {
+                  if (criteria[key]) {
+                      return criteria;
+                  }
+              }
+              return null;
+          }),
           shareReplay(1),
         )
-        this.isFilterApplied$ = this.filterResult$
-          .pipe(
-              map(param => {
-                  for (let key in param) {
-                      if (param[key]) {
-                          return true;
-                      }
-                  }
-                  return false;
-              })
-          )
 
         this.subscriptions.add(this.activatedRoute.data.pipe(
-          map(data => data['pagingParams']),
-          filter(params => params),
+          pluck('pagingParams'),
         ).subscribe(params => {
-            this.page$ = params.page;
+            this.page$.next(params.page);
             this.ascending$.next(params.ascending);
-            this.sortBy$.next(params.predicate);
+            if (params.predicate in this.sortingOptions) {
+                this.sortBy$.next(params.predicate);
+            } else {
+                this.sortBy$.next(this.sortingOptions[0]);
+            }
         }));
 
         this.checked$ = combineLatest([this.subjects$, this.setOfCheckedId$])
             .pipe(
               map(([subjects, checkedSet]) =>
-                subjects.length !== 0 && subjects.every(v => checkedSet.has(v.id)))
+                subjects.length !== 0 && subjects.every(v => checkedSet.has(v.id))),
+              distinctUntilChanged(),
             );
     }
 
@@ -176,14 +185,13 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
               this.ascending$.pipe(distinctUntilChanged()),
               this.page$.pipe(distinctUntilChanged()),
           ]).pipe(
-            withLatestFrom(this.subjects$.pipe(map(s => s.length))),
-            switchMap(([[projectName, filter, sortBy, ascending, page], numSubjects]) => {
+            withLatestFrom(this.subjects$),
+            switchMap(([[projectName, filter, sortBy, ascending, page], subjects]) => {
                 const mergeResults: boolean = page > this.previousPage;
-                const numItems = Math.max(page * this.itemsPerPage - numSubjects, this.itemsPerPage);
                 this.previousPage = page;
                 let fetch$: Observable<HttpResponse<Subject[]>>;
                 const filterParams = this.queryFilterParams(filter);
-                const pagingParams = this.queryPaginationParams(sortBy, ascending, mergeResults, numItems)
+                const pagingParams = this.queryPaginationParams(page, sortBy, ascending, mergeResults, subjects)
 
                 if (this.isProjectSpecific) {
                     fetch$ = this.subjectService.findAllByProject(
@@ -195,6 +203,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
                     fetch$ = this.subjectService.query(filterParams, pagingParams,);
                 }
                 this.router.navigate([], {
+                    replaceUrl: true,
                     relativeTo: this.activatedRoute,
                     queryParams: {
                         page: page,
@@ -231,6 +240,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         this.sortBy$.complete();
         this.subjects$.complete();
         this.project$.complete();
+        this.page$.complete();
+        this.setOfCheckedId$.complete();
         this.subscriptions.unsubscribe();
     }
 
@@ -285,6 +296,9 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     queryFilterParams(criteria: FilterCriteria): SubjectFilterParams {
+        if (!criteria) {
+            return {};
+        }
         const params = {
             login: criteria.subjectId && criteria.subjectId.trim() || undefined,
             externalId: criteria.externalId && criteria.externalId.trim() || undefined,
@@ -296,7 +310,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         };
 
         if (this.isRange(criteria.enrollmentDateFrom, criteria.enrollmentDateTo)){
-            let enrollmentDateFrom = this.formatter.format(criteria.enrollmentDateFrom); //this.formatDate(this.filters.enrollmentDateFrom);
+            let enrollmentDateFrom = this.formatter.format(criteria.enrollmentDateFrom);
             let enrollmentDateTo = this.formatter.format(criteria.enrollmentDateTo);
             const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             params.enrollmentDate = {
@@ -304,7 +318,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
                 to: enrollmentDateTo ? enrollmentDateTo + 'T23:59' + '[' + timeZone + ']' : undefined,
             };
         }
-        if (criteria.dateOfBirth){
+        if (criteria.dateOfBirth) {
             params.dateOfBirth = {
                 is: this.formatter.format(criteria.dateOfBirth),
             };
@@ -314,7 +328,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     isRange(from: NgbDateStruct, to: NgbDateStruct): boolean {
-        if(from && to) {
+        if (from && to) {
             const dateFrom = NgbDate.from(from);
             const dateTo = NgbDate.from(to);
             return dateTo.equals(dateFrom) || dateTo.after(dateFrom);
@@ -323,11 +337,9 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
-    queryPaginationParams(sortBy: string, ascending: boolean, loadMore: boolean, size: number): SubjectPaginationParams {
-        const subjects = this.subjects$.value || [];
-
+    queryPaginationParams(page: number, sortBy: string, ascending: boolean, loadMore: boolean, subjects: Subject[]): SubjectPaginationParams {
         let last: SubjectLastParams | null;
-        if (loadMore) {
+        if (loadMore && subjects.length > 0) {
             const lastSubject = subjects[subjects.length - 1]
             last = {
                 id: lastSubject.id,
@@ -339,17 +351,14 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         }
         return {
             last,
-            size,
+            size: Math.max(page * this.itemsPerPage - subjects.length, this.itemsPerPage),
             sort: [sortBy + ',' + (ascending ? 'asc' : 'desc')],
         };
     }
 
     private onSuccess(data, headers, mergeResults: boolean) {
-        if(headers.get('link')){
-            this.links = parseLinks(headers.get('link'));
-        }
+        this.links = parseLinks(headers.get('link'));
         this.totalItems = +headers.get('X-Total-Count');
-        this.queryCount = this.totalItems;
         // remove redundant subjects from the list
         if (mergeResults) {
             let tempSubjects = [...this.subjects$.value, ...data];
@@ -382,29 +391,38 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         this.page$.next(1);
     }
 
-    selectAll(): void {
-        this.subjects$.pipe(
-          withLatestFrom(this.checked$),
+    toggleSelectAll(): void {
+        combineLatest([
+            this.subjects$,
+            this.setOfCheckedId$,
+        ]).pipe(
           first(),
-        ).subscribe(([subjects, checked]) => {
-            const nextValue = new Set(this.setOfCheckedId$.value);
-            if (!checked) {
-                subjects.forEach(({ id }) => nextValue.add(id));
-            } else {
-                subjects.forEach(({ id }) => nextValue.delete(id));
-            }
-            this.setOfCheckedId$.next(nextValue);
-        });
+          filter(([subjects]) => subjects.length > 0),
+          map(([subjects, checkedIds]) => {
+              const nextValue = new Set(checkedIds);
+              if (subjects.every(s => checkedIds.has(s.id))) {
+                  subjects.forEach(({id}) => nextValue.delete(id));
+              } else {
+                  subjects.forEach(({id}) => nextValue.add(id));
+              }
+              return nextValue;
+          })
+        ).subscribe(nextValue => this.setOfCheckedId$.next(nextValue));
     }
 
     onItemChecked(id: number, checked: boolean): void {
-        const nextValue = new Set(this.setOfCheckedId$.value);
-        if (checked) {
-            nextValue.add(id);
-        } else {
-            nextValue.delete(id);
-        }
-        this.setOfCheckedId$.next(nextValue);
+        this.setOfCheckedId$.pipe(
+          first(),
+          map(v => {
+              const nextValue = new Set(v);
+              if (checked) {
+                  nextValue.add(id);
+              } else {
+                  nextValue.delete(id);
+              }
+              return nextValue;
+          }),
+        ).subscribe(nextValue => this.setOfCheckedId$.next(nextValue));
     }
 
     addSelectedToGroup() {

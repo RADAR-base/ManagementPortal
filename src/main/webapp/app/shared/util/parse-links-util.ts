@@ -1,13 +1,13 @@
 // Based on JHipster ParseLinks
 
-export function parseLinks(header: string): { [name: string]: any; } {
-    if (header.length === 0) {
-        throw new Error('input must not be of zero length');
+export function parseLinks(header: string): Record<string, any> {
+    if (!header) {
+        return {};
     }
 
     // Split parts by comma
     const parts: string[] = header.split(/,\s*</);
-    const links: { [name: string]: any; } = {};
+    const links: Record<string, any> = {};
 
     // Parse each part into a named link
     parts.forEach((p) => {

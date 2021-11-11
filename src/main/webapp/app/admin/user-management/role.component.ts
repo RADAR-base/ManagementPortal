@@ -16,28 +16,24 @@ export class RoleComponent implements OnInit {
     @Input() roles: Role[];
     eventSubscriber: Subscription;
     authorities: string[];
-    projects: Project[];
 
     selectedAuthority: any;
     selectedProject: Project;
 
     constructor(
                 private authorityService: AuthorityService,
-                private projectService: ProjectService,
+                public projectService: ProjectService,
                 private alertService: AlertService,
                 private eventManager: EventManager
     ) {
     }
 
     ngOnInit() {
-        if (this.roles === null) {
+        if (!this.roles) {
             this.roles = [];
         }
         this.authorityService.findAll().subscribe(res => {
             this.authorities = res;
-        });
-        this.projectService.query().subscribe((res: HttpResponse<any>) => {
-            this.projects = res.body;
         });
     }
 
@@ -46,10 +42,11 @@ export class RoleComponent implements OnInit {
     }
 
     addRole() {
-        const newRole = new Role();
-        newRole.authorityName = this.selectedAuthority;
-        newRole.projectId = this.selectedProject.id;
-        newRole.projectName = this.selectedProject.projectName;
+        const newRole = {
+            authorityName: this.selectedAuthority,
+            projectId: this.selectedProject.id,
+            projectName: this.selectedProject.projectName,
+        }
         if (this.hasRole(newRole)) {
             this.alertService.error('userManagement.role.error.alreadyExist', null, null);
         } else {

@@ -30,6 +30,9 @@ export const projectRoute: Routes = [
             authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
             pageTitle: 'managementPortalApp.project.home.title',
         },
+        resolve: {
+            'pagingParams': ResolvePagingParams,
+        },
         canActivate: [UserRouteAccessService],
     },
 ];

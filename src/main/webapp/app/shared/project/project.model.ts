@@ -7,29 +7,23 @@ export const enum ProjectStatus {
     'ENDED'
 }
 
-export class Project {
-    constructor(
-            public id?: number,
-            public projectName?: string,
-            public description?: string,
-            public organization?: string,
-            public location?: string,
-            public startDate?: any,
-            public projectStatus?: ProjectStatus,
-            public endDate?: any,
-            public attributes ?: any,
-            public sourceTypes?: SourceType[],
-            public groups?: Group[],
-            public humanReadableProjectName ?: string,
-            public persistentTokenTimeout?: number
-    ) {
-    }
+export interface Project {
+    id?: number;
+    projectName?: string;
+    description?: string;
+    organization?: string;
+    location?: string;
+    startDate?: any;
+    projectStatus?: ProjectStatus;
+    endDate?: any;
+    attributes ?: any;
+    sourceTypes?: SourceType[];
+    groups?: Group[];
+    humanReadableProjectName ?: string;
+    persistentTokenTimeout?: number;
 }
 
-export class MinimalProject {
-    constructor(
-            public id?: number,
-            public projectName?: string,
-    ) {
-    }
+export interface MinimalProject {
+    id?: number;
+    projectName?: string;
 }

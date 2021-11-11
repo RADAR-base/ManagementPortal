@@ -5,7 +5,7 @@ import { QrCodeModule } from 'ng-qrcode';
 import { ManagementPortalSharedModule } from '../../shared';
 import {
     FilterBadgeComponent,
-    LoadMoreComponent,
+    LoadMoreComponent, NgbDatePipe,
     SubjectComponent,
     SubjectDeleteDialogComponent,
     SubjectDeletePopupComponent,
@@ -38,6 +38,7 @@ const ENTITY_STATES = [
     declarations: [
         FilterBadgeComponent,
         LoadMoreComponent,
+        NgbDatePipe,
         SubjectComponent,
         SubjectDetailComponent,
         SubjectRevisionComponent,

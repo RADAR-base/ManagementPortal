@@ -25,14 +25,12 @@ export class ProjectPopupService {
 
         if (projectName) {
             this.projectService.find(projectName).subscribe((project) => {
-                project.startDate = this.datePipe
-                .transform(project.startDate, 'yyyy-MM-ddThh:mm');
-                project.endDate = this.datePipe
-                .transform(project.endDate, 'yyyy-MM-ddThh:mm');
+                project.startDate = this.datePipe.transform(project.startDate, 'yyyy-MM-ddThh:mm');
+                project.endDate = this.datePipe.transform(project.endDate, 'yyyy-MM-ddThh:mm');
                 this.projectModalRef(component, project);
             });
         } else {
-            return this.projectModalRef(component, new Project());
+            return this.projectModalRef(component, {});
         }
     }
 
