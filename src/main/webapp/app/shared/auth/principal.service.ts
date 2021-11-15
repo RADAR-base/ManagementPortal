@@ -23,16 +23,14 @@ export class Principal {
         this._account$.next(identity ? identity : null);
     }
 
-    userHasAnyAuthority(userIdentity: any, authorities: string[]): boolean {
+    userHasAnyAuthority(userIdentity: any, authorities: string[] | null): boolean {
+        if (!authorities || authorities.length === 0) {
+            return true;
+        }
         if (!userIdentity || !userIdentity.authorities) {
             return false;
         }
-        for (let i = 0; i < authorities.length; i++) {
-            if (userIdentity.authorities.indexOf(authorities[i]) !== -1) {
-                return true;
-            }
-        }
-        return false;
+        return userIdentity.authorities.some(a => authorities.indexOf(a) !== -1);
     }
 
     reset(): Observable<Account | null> {
@@ -49,7 +47,7 @@ export class Principal {
           first(),
           mergeMap((user?: Account) => {
               return user ? of(user) : this.reset();
-          })
+          }),
         );
     }
 }

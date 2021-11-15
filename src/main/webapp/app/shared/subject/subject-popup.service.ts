@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { ProjectService } from '../project/project.service';
-import { Subject } from './subject.model';
+import { Subject, SubjectStatus } from './subject.model';
 import { SubjectService } from './subject.service';
 
 @Injectable({ providedIn: 'root' })
@@ -31,8 +31,11 @@ export class SubjectPopupService {
             });
         } else if (projectName) {
             this.projectService.find(projectName).subscribe((project) => {
-                const subject = new Subject();
-                subject.project = project;
+                const subject = {
+                    project,
+                    sources: [],
+                    status: SubjectStatus.ACTIVATED,
+                };
                 return this.subjectModalRef(component, subject, isDelete);
             });
         }

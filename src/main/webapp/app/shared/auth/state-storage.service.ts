@@ -1,5 +1,12 @@
 import { Injectable } from '@angular/core';
 import { SessionStorageService } from 'ngx-webstorage';
+import { Data, Params, RouterState } from "@angular/router";
+
+export interface RouteState {
+    path: string;
+    data?: Data;
+    params: Params;
+}
 
 @Injectable({ providedIn: 'root' })
 export class StateStorageService {
@@ -8,7 +15,7 @@ export class StateStorageService {
     ) {
     }
 
-    getPreviousState() {
+    getPreviousState(): RouteState | null {
         return this.$sessionStorage.retrieve('previousState');
     }
 
@@ -16,13 +23,8 @@ export class StateStorageService {
         this.$sessionStorage.clear('previousState');
     }
 
-    storePreviousState(previousStateName, previousStateParams) {
-        const previousState = {'name': previousStateName, 'params': previousStateParams};
-        this.$sessionStorage.store('previousState', previousState);
-    }
-
-    getDestinationState() {
-        return this.$sessionStorage.retrieve('destinationState');
+    storePreviousState(state: RouteState) {
+        this.$sessionStorage.store('previousState', state);
     }
 
     storeUrl(url: string) {
@@ -33,17 +35,15 @@ export class StateStorageService {
         return this.$sessionStorage.retrieve('previousUrl');
     }
 
-    storeDestinationState(destinationState, destinationStateParams, fromState) {
-        const destinationInfo = {
-            'destination': {
-                'name': destinationState.name,
-                'data': destinationState.data,
-            },
-            'params': destinationStateParams,
-            'from': {
-                'name': fromState.name,
-            },
-        };
-        this.$sessionStorage.store('destinationState', destinationInfo);
+    resetDestinationState() {
+        this.$sessionStorage.clear('destinationState');
+    }
+
+    storeDestinationState(state: RouteState) {
+        this.$sessionStorage.store('destinationState', state);
+    }
+
+    getDestinationState(): RouteState | null {
+        return this.$sessionStorage.retrieve('destinationState');
     }
 }

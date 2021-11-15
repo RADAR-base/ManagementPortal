@@ -20,6 +20,7 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
           ></span>
           <a *ngIf="totalItems === null || totalItems === undefined || shownItems < totalItems"
              class="load-more"
+             [ngClass]="totalItems ? 'load-more-limited' : 'load-more-unlimited'"
              (click)="load.next()"
              [translate]="totalItems ? 'managementPortalApp.subject.loadMore' : 'managementPortalApp.subject.loadMorePartial'"
              [translateParams]="{ shown: shownItems, total: totalItems }"

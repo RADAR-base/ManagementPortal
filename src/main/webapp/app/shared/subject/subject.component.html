@@ -130,6 +130,7 @@
                             <button class="btn btn-outline-secondary calendar" (click)="dateOfBirthDatePicker.toggle()" type="button"></button>
                         </div>
                     </div>
+                    <span *ngIf="filters.dateOfBirth.error$ | async as errorCode" class="error" [translate]="'managementPortalApp.subject.filter.error.' + errorCode"></span>
                 </div>
             </div>
 
@@ -225,21 +226,22 @@
                     [translate]="'managementPortalApp.subject.filter.clearButton'"></a>
         </div>
         <jhi-alert></jhi-alert>
-        <div *ngIf="subjects$" class="subjects">
+        <div *ngIf="subjects$ | async as subjects" class="subjects">
             <div class="subject-list-actions">
                 <button type="button"
                     class="btn btn-light"
-                    [translate]="(checked$ | async) ? 'managementPortalApp.subject.clearSelectedItems' : 'managementPortalApp.subject.selectAll'"
+                    [translate]="(allChecked$ | async) ? 'managementPortalApp.subject.clearSelectedItems' : 'managementPortalApp.subject.selectAll'"
                     (click)="toggleSelectAll()"
                 ></button>
                 <button type="button"
+                    *ngIf='isProjectSpecific'
                     class="btn btn-light"
-                    disabled
+                    [disabled]="anyChecked$ | async"
                     [translate]="'managementPortalApp.subject.addSelectedToGroup'"
                     (click)="addSelectedToGroup()"
                 ></button>
             </div>
-            <div *ngFor="let subject of subjects$ | async; trackBy: trackLogin" class="subject-row">
+            <div *ngFor="let subject of subjects; trackBy: trackLogin" class="subject-row">
                 <div class="subject-row__select-row">
                     <input type="checkbox" [ngModel]="(setOfCheckedId$ | async).has(subject.id)"
                            (ngModelChange)="onItemChecked(subject.id, $event)">
@@ -376,7 +378,7 @@
                     </button>
                 </div>
             </div>
+            <app-load-more (load)="loadMore()" [shownItems]="subjects.length" [totalItems]="totalItems"></app-load-more>
         </div>
-        <app-load-more (load)="loadMore()" [shownItems]="(subjects$ | async)?.length" [totalItems]="totalItems"></app-load-more>
     </section>
 </div>

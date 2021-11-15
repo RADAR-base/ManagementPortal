@@ -20,6 +20,9 @@ import {
     subjectRoute,
 } from './';
 import {
+    AddSubjectsToGroupDialogComponent
+} from "./add-subjects-to-group-dialog.component";
+import {
     SubjectSourceAssignerDialogComponent,
     SubjectSourceAssignerPopupComponent,
 } from './source-assigner/source-assigner.component';
@@ -36,6 +39,7 @@ const ENTITY_STATES = [
         QrCodeModule,
     ],
     declarations: [
+        AddSubjectsToGroupDialogComponent,
         FilterBadgeComponent,
         LoadMoreComponent,
         NgbDatePipe,

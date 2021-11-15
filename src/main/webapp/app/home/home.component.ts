@@ -18,38 +18,18 @@ import { Subscription } from "rxjs";
     ],
 
 })
-export class HomeComponent implements OnInit, OnDestroy {
-    account: Account;
+export class HomeComponent {
     modalRef: NgbModalRef;
-    subscriptions: Subscription;
 
     constructor(
-            private principal: Principal,
+            public principal: Principal,
             private loginModalService: LoginModalService,
             public projectService: ProjectService,
     ) {
-        this.subscriptions = new Subscription();
-    }
-
-    ngOnInit() {
-        this.loadRelevantProjects();
-    }
-
-    ngOnDestroy() {
-        this.subscriptions.unsubscribe();
-    }
-
-    private loadRelevantProjects() {
-        this.subscriptions.add(this.principal.account$
-        .subscribe(account => this.account = account));
     }
 
     trackId(index: number, item: Project) {
         return item.projectName;
-    }
-
-    isAuthenticated() {
-        return !!this.account;
     }
 
     login() {

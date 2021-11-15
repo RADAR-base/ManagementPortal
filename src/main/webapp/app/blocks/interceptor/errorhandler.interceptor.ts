@@ -1,8 +1,7 @@
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Injectable, Injector } from '@angular/core';
+import { Observable, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import {
-    HttpErrorResponse,
     HttpEvent,
     HttpHandler,
     HttpInterceptor,
@@ -10,24 +9,29 @@ import {
 } from '@angular/common/http';
 
 import { EventManager } from '../../shared/util/event-manager.service';
+import { AlertService } from "../../shared/util/alert.service";
+import { AuthService } from "../../shared";
 
 @Injectable()
 export class ErrorHandlerInterceptor implements HttpInterceptor {
 
-    constructor(private eventManager: EventManager) {}
+    constructor(private eventManager: EventManager, private injector: Injector, private alertService: AlertService) {}
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         return next.handle(request).pipe(
-            tap({
-                error: (err: HttpErrorResponse) => {
-                    if (err.status === 401 && (err.message === '' || (err.url && err.url.includes('/api/account')))) {
-                        return;
-                    }
-                    this.eventManager.broadcast({
-                        name: 'managementPortalApp.httpError',
-                        content: err
-                    });
-                }
-        }));
+          tap(
+            () => {},
+            (err: any) => {
+              if (err.status === 401) {
+                  this.injector.get(AuthService).resetAuthentication();
+                  // this.alertService.clear();
+                  return;
+              }
+              this.eventManager.broadcast({
+                  name: 'managementPortalApp.httpError',
+                  content: err
+              });
+          }),
+        );
     }
 }

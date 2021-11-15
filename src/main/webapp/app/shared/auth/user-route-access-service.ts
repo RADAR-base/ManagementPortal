@@ -20,7 +20,7 @@ export class UserRouteAccessService implements CanActivate, CanActivateChild {
     }
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
-        this.setStateStorage(route, state);
+        this.setStateStorage(route);
         return this.auth.authorize();
     }
 
@@ -28,18 +28,16 @@ export class UserRouteAccessService implements CanActivate, CanActivateChild {
         return this.canActivate(route, state);
     }
 
-    setStateStorage(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-        let params = {};
-        let destinationData = {};
-        let destinationName = '';
-        const destinationEvent = route;
-        if (destinationEvent !== undefined) {
-            params = destinationEvent.params;
-            destinationData = destinationEvent.data;
-            destinationName = state.url;
+    setStateStorage(route: ActivatedRouteSnapshot) {
+        window.console.log(route);
+        if (route !== undefined) {
+            this.stateStorageService.storeDestinationState({
+                path: route.url.map(s => s.path).filter(s => !!s).join('/'),
+                data: route.data,
+                params: route.queryParams,
+            });
+        } else {
+            this.stateStorageService.resetDestinationState();
         }
-        const from = {name: this.router.url.slice(1)};
-        const destination = {name: destinationName, data: destinationData};
-        this.stateStorageService.storeDestinationState(destination, params, from);
     }
 }

@@ -7,7 +7,7 @@ import { EventManager } from '../util/event-manager.service';
 import { ManagementPortalTestModule } from '../util/test/test.module';
 import { MockActivatedRoute } from '../util/test/mock-route.service';
 import { SubjectService } from './subject.service';
-import { Subject } from './subject.model';
+import { SubjectStatus } from './subject.model';
 import { SubjectDetailComponent } from './subject-detail.component';
 
 describe('Component Tests', () => {
@@ -43,14 +43,14 @@ describe('Component Tests', () => {
             it('Should call load all on init', () => {
             // GIVEN
 
-            spyOn(service, 'find').and.returnValue(of(new Subject(10, 'test')));
+            spyOn(service, 'find').and.returnValue(of({id: 10, login: 'test', sources: [], status: SubjectStatus.ACTIVATED}));
 
             // WHEN
             comp.ngOnInit();
 
             // THEN
             expect(service.find).toHaveBeenCalledWith('test');
-            expect(comp.subject).toEqual(jasmine.objectContaining({id: 10, login: 'test'}));
+            expect(comp.subject).toEqual(jasmine.objectContaining({id: 10, login: 'test', sources: [], status: SubjectStatus.ACTIVATED}));
             });
         });
     });

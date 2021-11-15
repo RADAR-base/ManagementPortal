@@ -137,3 +137,12 @@ margin-left: 16px;
 width: 100%;
 margin-bottom: 4px;
 }
+
+.form-group .error{
+    color: red;
+    background-color: inherit;
+}
+
+.applied-filters .badge {
+    cursor: pointer;
+}

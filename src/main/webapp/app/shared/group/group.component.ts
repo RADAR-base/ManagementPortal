@@ -45,7 +45,6 @@ export class GroupComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnInit() {
-        this.loadGroups();
         this.registerChangeInGroups();
     }
 

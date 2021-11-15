@@ -7,7 +7,6 @@ describe('Project view: Generate QR code', () => {
     });
 
     it('should open pair app dialog', () => {
-        cy.wait(1000);
         cy.contains('button', 'Pair App').first().click();
         cy.get('[name=pairForm]').find('h4').first()
             .should('have.text', 'Pair an application');

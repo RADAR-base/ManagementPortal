@@ -8,7 +8,7 @@
  */
 
 import { BehaviorSubject, merge, Observable, Subject } from "rxjs";
-import { debounceTime, distinctUntilChanged, filter, map, shareReplay } from "rxjs/operators";
+import { debounceTime, distinctUntilChanged, filter, shareReplay, startWith } from "rxjs/operators";
 import {
   NgbCalendar,
   NgbDate,
@@ -37,7 +37,7 @@ export class ReactiveFilter<T> {
     this._value$ = new BehaviorSubject<T>(null);
     this.rawValue$ = this._value$.asObservable();
     this.trigger$ = new Subject<T>();
-    let debouncedValue = this._value$.pipe(debounceTime(300));
+    let debouncedValue = this._value$.pipe(debounceTime(options.debounceTime || 300));
     if (options.validate) {
       debouncedValue = this._value$.pipe(
         filter(v => {
@@ -52,7 +52,9 @@ export class ReactiveFilter<T> {
         })
       )
     }
-    let mergedSignal = merge(debouncedValue, this.trigger$.pipe(debounceTime(10)));
+    let mergedSignal = merge(debouncedValue, this.trigger$).pipe(
+      startWith(options.initialValue || null as T | null),
+    );
     if (options.mapResult) {
       mergedSignal = options.mapResult(mergedSignal);
     } else {
@@ -79,14 +81,16 @@ export class ReactiveFilter<T> {
 }
 
 export interface ReactiveFilterOptions<T> {
+  debounceTime?: number | null,
+  initialValue?: T | null;
   validate?: (value: T | null) => string | null;
-  mapResult?: (value$: Observable<T | null>) => Observable<T | null>,
+  mapResult?: (value$: Observable<T | null>) => Observable<T | null>;
 }
 
 export class NgbDateReactiveFilter extends ReactiveFilter<NgbDateStruct> {
   constructor(
     calendar: NgbCalendar,
-    formatter: NgbDateParserFormatter,
+    private formatter: NgbDateParserFormatter,
     options: ReactiveFilterOptions<NgbDateStruct> = {},
   ) {
     super({
@@ -104,9 +108,19 @@ export class NgbDateReactiveFilter extends ReactiveFilter<NgbDateStruct> {
       },
       mapResult: options.mapResult ? options.mapResult : $v => $v.pipe(
         distinctUntilChanged((d1, d2) => d1 === d2
-          || (d1 !== null && NgbDate.from(d1).equals(d2)))
+          || (d1 && NgbDate.from(d1).equals(d2)))
       ),
+      debounceTime: 1,
+      initialValue: options.initialValue,
     });
+  }
+
+  next(value?: NgbDateStruct | string) {
+    if (typeof value === 'string') {
+      super.next(this.formatter.parse(value));
+    } else {
+      super.next(value);
+    }
   }
 
   public static isValidRange(from?: NgbDateStruct, to?: NgbDateStruct): boolean {
