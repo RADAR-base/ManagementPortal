@@ -25,6 +25,10 @@ public interface SubjectRepository extends JpaRepository<Subject, Long>,
         RevisionRepository<Subject, Long, Integer>,
         JpaSpecificationExecutor<Subject> {
 
+    @Query("SELECT count(*) from Subject subject "
+            + "WHERE subject.group.id = :group_id")
+    long countByGroupId(@Param("group_id") Long groupId);
+
     @Query(value = "select distinct subject from Subject subject left join fetch subject.sources "
             + "left join fetch subject.user user "
             + "join user.roles roles where roles.project.projectName = :projectName and roles"
@@ -58,6 +62,12 @@ public interface SubjectRepository extends JpaRepository<Subject, Long>,
             + "SET subject.group.id = null "
             + "WHERE subject.id in :ids")
     void unsetGroupIdByIds(@Param("ids") List<Long> ids);
+
+    @Modifying
+    @Query("UPDATE Subject subject "
+            + "SET subject.group.id = null "
+            + "WHERE subject.group.id = :group_id")
+    void unlinkAllFromGroup(@Param("group_id") Long groupId);
 
     @Query("select subject.sources from Subject subject WHERE subject.id = :id")
     List<Source> findSourcesBySubjectId(@Param("id") Long id);
