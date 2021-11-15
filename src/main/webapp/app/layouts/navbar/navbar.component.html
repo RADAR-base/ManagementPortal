@@ -62,7 +62,7 @@
                 </a>
                 <ul class="dropdown-menu" ngbDropdownMenu>
                     <li uiSrefActive="active" *ngFor="let project of projectService.projects$ | async; trackBy: trackProjectName">
-                        <a class="dropdown-item" [routerLink]="['project' , project.projectName]" (click)="collapseNavbar()">
+                        <a class="dropdown-item" [routerLink]="['project', project.projectName]" (click)="collapseNavbar()">
                             <i class="fa fa-fw fa-desktop" ></i>
                             <span>{{project.projectName}} </span>
                         </a>

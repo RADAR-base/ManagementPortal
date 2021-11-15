@@ -7,14 +7,9 @@ import {
     SimpleChange,
     SimpleChanges,
 } from '@angular/core';
-import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-    BehaviorSubject,
-    Observable,
-    Subscription,
-    combineLatest
-} from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
 import {
     debounceTime,
     distinctUntilChanged,
@@ -23,27 +18,18 @@ import {
     map,
     pluck,
     shareReplay,
-    switchMap, tap,
+    switchMap,
+    tap,
     withLatestFrom,
 } from 'rxjs/operators';
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbCalendar, NgbDateParserFormatter, NgbModal } from "@ng-bootstrap/ng-bootstrap";
 
-import {Group, GroupService, ITEMS_PER_PAGE, Project} from '..';
-import {
-    AddSubjectsToGroupDialogComponent
-} from "./add-subjects-to-group-dialog.component";
+import { Group, GroupService, ITEMS_PER_PAGE, Project } from '..';
+import { AddSubjectsToGroupDialogComponent } from "./add-subjects-to-group-dialog.component";
 import { Subject, SubjectFilterCriteria } from './subject.model';
-import {
-    SubjectService,
-    SubjectFilterParams,
-    SubjectPaginationParams,
-} from './subject.service';
+import { SubjectFilterParams, SubjectPaginationParams, SubjectService, } from './subject.service';
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
-import {
-    NgbCalendar,
-    NgbDateParserFormatter,
-} from "@ng-bootstrap/ng-bootstrap";
 import {
     NgbDateRange,
     NgbDateReactiveFilter,
@@ -121,22 +107,21 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         this.enrollmentDate$ = this.observeEnrollmentDate();
         this.filterResult$ = this.observeCombinedFilters();
 
-        this.subscriptions.add(this.registerChangeInQueryParams());
-
         this.allChecked$ = this.observeChecked(([subjects, checkedSet]) =>
           subjects.length !== 0 && subjects.every(v => checkedSet.has(v.id))
         );
         this.anyChecked$ = this.observeChecked(([subjects, checkedSet]) =>
           subjects.some(v => checkedSet.has(v.id))
         );
+
+        this.subscriptions.add(this.registerChangeInPagingParams());
+        this.subscriptions.add(this.registerChangeInParams());
     }
 
     ngOnInit() {
         this.subscriptions.add(this.registerChangeInFilters());
         this.subscriptions.add(this.registerChangeInSubjects());
-        if (this.isProjectSpecific) {
-            this.subscriptions.add(this.loadAllGroups());
-        }
+        this.subscriptions.add(this.loadAllGroups());
     }
 
     ngOnDestroy() {
@@ -168,19 +153,28 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         return item.key;
     }
 
-    private registerChangeInQueryParams(): Subscription {
+    private registerChangeInParams(): Subscription {
+        return this.activatedRoute.params.pipe(
+          first()
+        ).subscribe(params => {
+            window.console.log(params);
+            for (let k in params) {
+                if (params.hasOwnProperty(k) && this.filters.hasOwnProperty(k)) {
+                    this.filters[k].next(params[k]);
+                }
+            }
+        });
+    }
+
+    private registerChangeInPagingParams(): Subscription {
         return this.activatedRoute.data.pipe(
           pluck('pagingParams'),
+          first(),
         ).subscribe(params => {
             this.page$.next(params.page);
             this.ascending$.next(params.ascending);
-            if (params.predicate in this.sortingOptions) {
+            if (this.sortingOptions.includes(params.predicate)) {
                 this.sortBy$.next(params.predicate);
-            }
-            for (let k in params) {
-                if (params.hasOwnProperty(k) && this.filters[k]) {
-                    this.filters[k].next(params[k]);
-                }
             }
         })
     }
@@ -195,9 +189,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         ]).pipe(
           debounceTime(10),
           tap(([projectName, criteria, sortBy, ascending, page]) =>
-            this.router.navigate([], {
-                relativeTo: this.activatedRoute,
-                queryParams: this.toQueryParams(criteria, page, sortBy, ascending),
+            this.router.navigate(this.toPathParams(projectName, criteria), {
+                queryParams: this.toQueryParams(page, sortBy, ascending),
             })),
           withLatestFrom(this.subjects$),
           switchMap(([[projectName, filter, sortBy, ascending, page], subjects]) => {
@@ -207,7 +200,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
               const pagingParams = this.queryPaginationParams(page, sortBy, ascending, mergeResults, subjects)
 
               let fetch$: Observable<HttpResponse<Subject[]>>;
-              if (this.isProjectSpecific) {
+              if (projectName) {
                   fetch$ = this.subjectService.findAllByProject(
                     projectName,
                     filterParams,
@@ -432,35 +425,46 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         );
     }
 
-    private toQueryParams(
-      filters: SubjectFilterCriteria | null,
-      page: number,
-      sortBy: string,
-      ascending: boolean,
-    ): Record<string, string> {
-        let params = {
-            page: page.toString(),
-            sort: sortBy + ',' + (ascending ? 'asc' : 'desc'),
+    private toPathParams(projectName: string, criteria: SubjectFilterCriteria): Record<string, string>[] {
+        let route = [];
+        if (projectName) {
+            route.push('/project');
+            route.push(projectName);
+        } else {
+            route.push('subject')
         }
-        if (filters) {
-            const stringFilters: Record<string, any> = Object.assign<Record<string, any>, SubjectFilterCriteria>({}, filters);
+        if (criteria) {
+            const stringFilters: Record<string, any> = Object.assign<Record<string, any>, SubjectFilterCriteria>({}, criteria);
             delete stringFilters['groupName'];
-            if (filters.enrollmentDateFrom) {
-                stringFilters.enrollmentDateFrom = this.formatter.format(filters.enrollmentDateFrom);
+            if (criteria.enrollmentDateFrom) {
+                stringFilters.enrollmentDateFrom = this.formatter.format(criteria.enrollmentDateFrom);
             }
-            if (filters.enrollmentDateTo) {
-                stringFilters.enrollmentDateTo = this.formatter.format(filters.enrollmentDateTo);
+            if (criteria.enrollmentDateTo) {
+                stringFilters.enrollmentDateTo = this.formatter.format(criteria.enrollmentDateTo);
             }
-            if (filters.dateOfBirth) {
-                stringFilters.dateOfBirth = this.formatter.format(filters.dateOfBirth);
+            if (criteria.dateOfBirth) {
+                stringFilters.dateOfBirth = this.formatter.format(criteria.dateOfBirth);
             }
+            let params = {};
             for (let k in stringFilters) {
                 if (stringFilters[k]) {
                     params[k] = encodeURIComponent(stringFilters[k]);
                 }
             }
+            route.push(params);
         }
-        return params;
+        return route;
+    }
+
+    private toQueryParams(
+      page: number,
+      sortBy: string,
+      ascending: boolean,
+    ): Record<string, string> {
+        return {
+            page: page.toString(),
+            sort: sortBy + ',' + (ascending ? 'asc' : 'desc'),
+        };
     }
 
     addSelectedToGroup() {

@@ -150,7 +150,7 @@
             <div ngbDropdownMenu>
                 <span *ngFor="let k of sortingOptions">
                     <button
-                            [id]="'sort-by-'+k"
+                        [id]="'sort-by-'+k"
                         ngbDropdownItem
                         (click)="updateSortingSortBy(k)"
                         [translate]="'managementPortalApp.subject.sorting.' + k">
