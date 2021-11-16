@@ -7,7 +7,7 @@
         <p class="lead" [translate]="'home.subtitle'"></p>
 
         <div *ngIf="account; else unauthorized">
-            <div class="alert alert-success" *ngSwitchCase="true">
+            <div class="alert alert-success">
                 <span [translate]="'home.logged.message'" [translateParams]="{username: account.login}"></span>
             </div>
 
@@ -19,13 +19,6 @@
                         <h6 class="card-subtitle text-center mb-2 text-muted">{{project.organization}} : {{project.location}} </h6>
                         <p class="card-text"> {{project.description}}
 
-                        <div class="card-body text-center">
-                            <h5 class="card-title" style="text-transform: uppercase"> {{project.projectName}}</h5>
-                            <h6 class="card-subtitle text-center mb-2 text-muted">{{project.organization}} : {{project.location}} </h6>
-                            <p class="card-text"> {{project.description}}
-
-                        </div>
-
                         <footer class="card-footer  text-center">
                             <button type="button"
                                     [routerLink]="['../project', project.projectName ]"
@@ -34,7 +27,6 @@
                                 <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
                             </button>
                         </footer>
-
                     </div>
                 </div>
             </div>

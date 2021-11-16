@@ -2,7 +2,7 @@ import { Role } from '../../admin/user-management/role.model';
 import { Project } from '../project/project.model';
 import { MinimalSource } from '../source/source.model';
 
-export interface Subject {
+export class Subject {
     id?: any;
     login?: string;
     externalLink?: string;
@@ -21,7 +21,6 @@ export interface Subject {
     attributes?: Record<string, string>;
     status: SubjectStatus;
     roles?: Role[];
-}
 
     constructor(
             id?: number,

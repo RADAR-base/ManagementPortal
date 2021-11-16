@@ -41,7 +41,7 @@ export class ProjectService {
       private alertService: AlertService,
     ) {
         combineLatest([
-            principal.account$,
+            principal.getAuthenticationState(),
             this._trigger$.pipe(startWith(undefined as void)),
         ]).pipe(
           switchMap(([state]) => {
