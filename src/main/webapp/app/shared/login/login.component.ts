@@ -54,7 +54,7 @@ export class JhiLoginModalComponent implements AfterViewInit {
             this.activeModal.dismiss('login success');
             if (this.router.url === '/register' || (/activate/.test(this.router.url)) ||
                     this.router.url === '/finishReset' || this.router.url === '/requestReset') {
-                this.router.navigate(['']);
+                return this.router.navigate(['']);
             }
 
             this.eventManager.broadcast({
@@ -62,15 +62,21 @@ export class JhiLoginModalComponent implements AfterViewInit {
                 content: 'Sending Authentication Success',
             });
 
-            // // previousState was set in the authExpiredInterceptor before being redirected to login modal.
-            // // since login is succesful, go to stored previousState and clear previousState
+            // previousState was set in the authExpiredInterceptor before being redirected to login modal.
+            // since login is succesful, go to stored previousState and clear previousState
+            const previousState = this.stateStorageService.getPreviousState();
+            if (previousState) {
+                this.stateStorageService.resetPreviousState();
+                this.router.navigate([previousState.path], {queryParams: previousState.params});
+                return;
+            }
 
             const redirect = this.stateStorageService.getUrl();
             if (redirect) {
                 this.stateStorageService.storeUrl(null);
-                this.router.navigate([redirect]);
+                return this.router.navigate([redirect]);
             } else {
-                this.router.navigate(['/']);
+                return this.router.navigate(['/']);
             }
         }).catch(() => {
             this.authenticationError = true;

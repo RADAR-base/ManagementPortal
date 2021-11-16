@@ -1,10 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
-import { Account, LoginModalService, Principal, Project, UserService } from '../shared';
-import { EventManager } from '../shared/util/event-manager.service';
-import { Observable, of, Subscription } from "rxjs";
-import { switchMap, tap } from "rxjs/operators";
+import {
+    Account,
+    LoginModalService,
+    Principal,
+    Project,
+    ProjectService
+} from '../shared';
+import { Subscription } from "rxjs";
 
 @Component({
     selector: 'jhi-home',
@@ -15,13 +19,12 @@ import { switchMap, tap } from "rxjs/operators";
 
 })
 export class HomeComponent implements OnInit, OnDestroy {
-    account: Account;
     modalRef: NgbModalRef;
     projects: Project[];
     subscriptions: Subscription;
 
     constructor(
-            private principal: Principal,
+            public principal: Principal,
             private loginModalService: LoginModalService,
             private eventManager: EventManager,
             private userService: UserService,
@@ -54,10 +57,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     trackId(index: number, item: Project) {
         return item.projectName;
-    }
-
-    isAuthenticated() {
-        return !!this.account;
     }
 
     login() {

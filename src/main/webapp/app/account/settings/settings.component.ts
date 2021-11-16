@@ -1,17 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
-import { AccountService, JhiLanguageHelper, Principal } from '../../shared';
+import { Account, AccountService, JhiLanguageHelper, Principal } from '../../shared';
 
 @Component({
     selector: 'jhi-settings',
     templateUrl: './settings.component.html',
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, OnDestroy {
+    private subscription: Subscription;
     error: string;
     success: string;
-    settingsAccount: any;
+    settingsAccount: Account;
     languages: any[];
+    previousLangKey: String;
 
     constructor(
             private account: AccountService,
@@ -22,28 +25,36 @@ export class SettingsComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.principal.identity().then((account) => {
+        this.subscription = this.principal.account$.subscribe((account) => {
             this.settingsAccount = this.copyAccount(account);
+            this.previousLangKey = this.settingsAccount.langKey;
         });
         this.languageHelper.getAll().then((languages) => {
             this.languages = languages;
         });
     }
 
+    ngOnDestroy() {
+        this.subscription.unsubscribe();
+    }
+
     save() {
+        const currentLangKey = this.settingsAccount.langKey;
         this.account.save(this.settingsAccount).subscribe(async () => {
             this.error = null;
             this.success = 'OK';
-            let savedAccount = await this.principal.identity(true);
-            this.settingsAccount = this.copyAccount(savedAccount);
-            this.translateService.use(this.settingsAccount.langKey);
+            await this.principal.reset();
+            if (currentLangKey && currentLangKey !== this.previousLangKey) {
+                this.translateService.use(currentLangKey)
+                this.previousLangKey = currentLangKey;
+            }
         }, () => {
             this.success = null;
             this.error = 'ERROR';
         });
     }
 
-    copyAccount(account) {
+    copyAccount(account): Account {
         return {
             activated: account.activated,
             email: account.email,
