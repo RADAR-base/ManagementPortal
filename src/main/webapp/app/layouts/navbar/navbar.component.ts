@@ -5,7 +5,15 @@ import { TranslateService } from '@ngx-translate/core';
 import { of, Subscription } from 'rxjs';
 
 import { DEBUG_INFO_ENABLED, VERSION } from '../../app.constants';
-import { JhiLanguageHelper, LoginModalService, LoginService, Principal, Project, UserService } from '../../shared';
+import {
+  JhiLanguageHelper,
+  LoginModalService,
+  LoginService,
+  Principal,
+  Project,
+  ProjectService,
+  UserService
+} from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 
 import { ProfileService } from '../profiles/profile.service';
@@ -31,15 +39,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription;
 
     constructor(
-            private loginService: LoginService,
-            public languageHelper: JhiLanguageHelper,
-            private principal: Principal,
-            private loginModalService: LoginModalService,
-            private profileService: ProfileService,
-            private router: Router,
-            private eventManager: EventManager,
-            private translateService: TranslateService,
-            private userService: UserService,
+      private loginService: LoginService,
+      public languageHelper: JhiLanguageHelper,
+      private principal: Principal,
+      private loginModalService: LoginModalService,
+      private profileService: ProfileService,
+      private router: Router,
+      private eventManager: EventManager,
+      private translateService: TranslateService,
+      public projectService: ProjectService,
     ) {
         this.version = DEBUG_INFO_ENABLED ? 'v' + VERSION : '';
         this.isNavbarCollapsed = true;
@@ -48,7 +56,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.principal.identity().then(account => this.currentAccount = account);
-        this.loadRelevantProjects();
         this.profileService.getProfileInfo().then((profileInfo) => {
             this.inProduction = profileInfo.inProduction;
             this.apiDocsEnabled = profileInfo.apiDocsEnabled;
@@ -57,21 +64,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
-    }
-
-    loadRelevantProjects() {
-        this.subscriptions.add(this.principal.getAuthenticationState()
-            .pipe(
-              tap(account => this.currentAccount = account),
-              switchMap(account => {
-                  if (account) {
-                      return this.userService.findProject(account.login);
-                  } else {
-                      return of([]);
-                  }
-              })
-            )
-            .subscribe(projects => this.projects = projects));
     }
 
     trackProjectName(index: number, item: Project) {

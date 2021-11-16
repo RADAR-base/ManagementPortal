@@ -1,27 +1,27 @@
 import { Role } from '../../admin/user-management/role.model';
 import { Project } from '../project/project.model';
-import { Dictionary } from '../dictionary-mapper/dictionary-mapper.model';
 import { MinimalSource } from '../source/source.model';
 
-export class Subject {
-    public id?: any;
-    public login?: string;
-    public externalLink?: string;
-    public externalId?: string;
-    public createdBy?: string;
-    public createdDate?: Date;
-    public dateOfBirth?: Date;
-    public enrollmentDate?: Date;
-    public lastModifiedBy?: string;
-    public lastModifiedDate?: Date;
-    public group?: string;
-    public password?: string;
-    public personName?: string;
-    public project?: Project;
-    public sources?: MinimalSource[];
-    public attributes: Dictionary;
-    public status: SubjectStatus;
-    public roles?: Role[];
+export interface Subject {
+    id?: any;
+    login?: string;
+    externalLink?: string;
+    externalId?: string;
+    createdBy?: string;
+    createdDate?: Date;
+    dateOfBirth?: Date;
+    enrollmentDate?: Date;
+    lastModifiedBy?: string;
+    lastModifiedDate?: Date;
+    group?: string;
+    password?: string;
+    personName?: string;
+    project?: Project;
+    sources: MinimalSource[];
+    attributes?: Record<string, string>;
+    status: SubjectStatus;
+    roles?: Role[];
+}
 
     constructor(
             id?: number,

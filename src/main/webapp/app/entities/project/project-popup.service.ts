@@ -32,7 +32,7 @@ export class ProjectPopupService {
                 this.projectModalRef(component, project);
             });
         } else {
-            return this.projectModalRef(component, new Project());
+            return this.projectModalRef(component, {});
         }
     }
 

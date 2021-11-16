@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
-import { Subject, SubjectService } from '../../shared/subject';
+import { Subject, SubjectService, SubjectStatus } from '../../shared/subject';
 
 @Injectable({ providedIn: 'root' })
 export class GeneralSubjectPopupService {
@@ -26,7 +26,10 @@ export class GeneralSubjectPopupService {
                 this.subjectModalRef(component, subject, isDelete);
             });
         } else {
-            return this.subjectModalRef(component, new Subject(), isDelete);
+            return this.subjectModalRef(component, {
+                sources: [],
+                status: SubjectStatus.ACTIVATED,
+            }, isDelete);
         }
     }
 

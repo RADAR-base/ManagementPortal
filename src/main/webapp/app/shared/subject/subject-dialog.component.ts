@@ -12,7 +12,6 @@ import {
 
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
-import { MinimalSource } from '../source';
 import { SubjectPopupService } from './subject-popup.service';
 
 import { Subject } from './subject.model';
@@ -87,10 +86,6 @@ export class SubjectDialogComponent implements OnInit {
 
     private onError(error) {
         this.alertService.error(error.message, null, null);
-    }
-
-    trackDeviceById(index: number, item: MinimalSource) {
-        return item.id;
     }
 }
 

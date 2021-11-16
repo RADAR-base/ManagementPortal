@@ -6,22 +6,18 @@
         <h1 class="display-4" [translate]="'home.title'"></h1>
         <p class="lead" [translate]="'home.subtitle'"></p>
 
-        <div [ngSwitch]="isAuthenticated()">
+        <div *ngIf="account; else unauthorized">
             <div class="alert alert-success" *ngSwitchCase="true">
-                <span *ngIf="account"
-                    [translate]="'home.logged.message'"
-                    [translateParams]="{username: account.login}">
-                </span>
+                <span [translate]="'home.logged.message'" [translateParams]="{username: account.login}"></span>
             </div>
 
-            <div class="alert alert-warning" *ngSwitchCase="false">
-                <span [translate]="'global.messages.info.authenticated.prefix'"></span>
-                <a class="alert-link" (click)="login()" [translate]="'global.messages.info.authenticated.link'"></a>
-            </div>
+            <div class="card-columns ">
+                <div class="card mb-3" *ngFor="let project of projectService.projects$ | async;" [routerLink]="['../project', project.projectName ]">
 
-            <div *ngSwitchCase="true">
-                <div class="card-columns ">
-                    <div class="card mb-3" *ngFor="let project of projects;" [routerLink]="['../project', project.projectName ]">
+                    <div class="card-body text-center">
+                        <h5 class="card-title" style="text-transform: uppercase"> {{project.projectName}}</h5>
+                        <h6 class="card-subtitle text-center mb-2 text-muted">{{project.organization}} : {{project.location}} </h6>
+                        <p class="card-text"> {{project.description}}
 
                         <div class="card-body text-center">
                             <h5 class="card-title" style="text-transform: uppercase"> {{project.projectName}}</h5>
@@ -43,5 +39,12 @@
                 </div>
             </div>
         </div>
+
+        <ng-template #unauthorized>
+            <div class="alert alert-warning">
+                <span [translate]="'global.messages.info.authenticated.prefix'"></span>
+                <a class="alert-link" (click)="login()" [translate]="'global.messages.info.authenticated.link'"></a>
+            </div>
+        </ng-template>
     </div>
 </div>

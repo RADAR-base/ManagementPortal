@@ -49,6 +49,7 @@ export class GroupComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnDestroy() {
+        this.project$.complete();
         this.eventManager.destroy(this.eventSubscriber);
     }
 
