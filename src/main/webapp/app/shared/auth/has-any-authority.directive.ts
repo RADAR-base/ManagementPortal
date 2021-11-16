@@ -33,7 +33,7 @@ export class HasAnyAuthorityDirective implements OnDestroy {
         this.subscriptions.add(
             this.principal.account$
                 .pipe(
-                  map(user => this.principal.userHasAnyAuthority(user, authorities))
+                  map(user => this.principal.accountHasAnyAuthority(user, authorities))
                 )
                 .subscribe((hasAuthority) => {
                     this.viewContainerRef.clear();
