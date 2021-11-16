@@ -155,14 +155,13 @@ describe('Subject e2e test', () => {
 
     it('should show number of loaded subjects and total number of subjects', () => {
         cy.contains('jhi-project-detail ul.nav-tabs .nav-item', 'Subjects').click();
-        cy.get('jhi-subjects a.subject-pagination__load-more').should('have.text', 'Load more (20/25 shown)');
+        cy.get('app-load-more a.load-more-limited').should('have.text', 'Load more (20/25 shown)');
         cy.get('jhi-subjects .subject-row').should('have.length', 20);
     });
 
     it('should be able to load subjects on loadMore click', () => {
-        cy.get('jhi-subjects a.subject-pagination__load-more').click();
-        cy.get('jhi-subjects span.subject-pagination__all-loaded').should('have.text', 'All 25 subjects loaded');
+        cy.get('app-load-more a.load-more-limited').click();
+        cy.get('app-load-more span.all-loaded').should('have.text', 'All 25 subjects loaded');
         cy.get('jhi-subjects .subject-row').should('have.length', 25);
     });
-
 });

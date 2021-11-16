@@ -20,13 +20,13 @@
                 "title": "Filter",
                 "filters": "Filters",
                 "applyButton": "Apply filter",
-                "clearButton": "Clear filter",
+                "clearButton": "Clear filters",
                 "advancedFilter": "Advanced Filter",
                 "from": "From",
                 "to": "To",
                 "error": {
                     "invalidDate": "The date is not valid.",
-                    "invalidRange": "The date is not valid or it is after From Date."
+                    "invalidRange": "The date range is invalid: From date is after To date."
                 }
             },
             "login": "Login",
@@ -105,6 +105,7 @@
             "addSelectedToGroup": "Add to group",
             "group": "Group",
             "loadMore": "Load more ({{shown}}/{{total}} shown)",
+            "loadMorePartial": "Load more ({{shown}} shown)",
             "allLoaded": "All {{total}} subjects loaded",
             "generateToken": "Generate QR code",
             "generatePersistentToken": "Generate persistent QR code"

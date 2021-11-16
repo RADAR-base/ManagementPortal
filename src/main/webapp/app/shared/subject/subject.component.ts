@@ -7,27 +7,35 @@ import {
     SimpleChange,
     SimpleChanges,
 } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import {debounceTime, distinctUntilChanged, filter, map} from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
+import {
+    debounceTime,
+    distinctUntilChanged,
+    filter,
+    first,
+    map,
+    pluck,
+    shareReplay,
+    switchMap,
+    tap,
+    withLatestFrom,
+} from 'rxjs/operators';
+import { NgbCalendar, NgbDateParserFormatter, NgbModal } from "@ng-bootstrap/ng-bootstrap";
 
-import {Group, GroupService, ITEMS_PER_PAGE, Project} from '..';
-import {
-    AddSubjectsToGroupDialogComponent
-} from "./add-subjects-to-group-dialog.component";
-import { Subject } from './subject.model';
-import {
-    SubjectService,
-    SubjectFilterParams,
-    SubjectPaginationParams, SubjectLastParams,
-} from './subject.service';
-import { PagingParams } from '../commons';
+import { Group, GroupService, ITEMS_PER_PAGE, Project } from '..';
+import { AddSubjectsToGroupDialogComponent } from "./add-subjects-to-group-dialog.component";
+import { Subject, SubjectFilterCriteria } from './subject.model';
+import { SubjectFilterParams, SubjectPaginationParams, SubjectService, } from './subject.service';
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
-import { parseLinks } from '../util/parse-links-util';
-import {NgbCalendar, NgbDate, NgbDateParserFormatter, NgbDateStruct} from "@ng-bootstrap/ng-bootstrap";
+import {
+    NgbDateRange,
+    NgbDateReactiveFilter,
+    ReactiveFilter,
+    ReactiveFilterOptions
+} from "../util/reactive-filter";
 
 @Component({
     selector: 'jhi-subjects',
@@ -35,60 +43,39 @@ import {NgbCalendar, NgbDate, NgbDateParserFormatter, NgbDateStruct} from "@ng-b
     styleUrls: ['./subject.component.scss'],
 })
 export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
-    sortingOptions = [
-        'login',
-        'externalId',
-    ];
-    pagingParams$: Observable<PagingParams>;
+    private subscriptions: Subscription = new Subscription();
+
+    @Input() readonly isProjectSpecific: boolean;
+
     project$ = new BehaviorSubject<Project>(null);
     @Input()
     get project() { return this.project$.value; }
     set project(v: Project) { this.project$.next(v); }
-    subjects: Subject[];
-    groups: Group[];
-    eventSubscriber: Subscription;
-    itemsPerPage: number;
-    links: any;
-    page: any;
-    predicate: any;
-    queryCount: any;
-    ascending: any;
+    subjects$: BehaviorSubject<Subject[]> = new BehaviorSubject([]);
+    groups$: BehaviorSubject<Group[]> = new BehaviorSubject([]);
+
+    page$ = new BehaviorSubject<number>(1);
     totalItems: number;
-    routeData: any;
-    previousPage: any;
+    previousPage: number = 1;
+    itemsPerPage = ITEMS_PER_PAGE;
 
-    filters = {
-        subjectId: '',
-        externalId: '',
-        humanReadableId: '',
-        dateOfBirth: undefined,
-        personName: '',
-        enrollmentDateFrom: undefined,
-        enrollmentDateTo: undefined,
-        groupId: '',
-    }
+    sortBy$ = new BehaviorSubject<string>('login');
+    ascending$ = new BehaviorSubject<boolean>(true);
+    sortingOptions = [
+        'login',
+        'externalId',
+    ];
 
-    appliedFilters = {
-        dateOfBirth: undefined,
-        enrollmentDateFrom: undefined,
-        enrollmentDateTo: undefined,
-        group: '',
-    }
-
-    filterTriggerUpdate$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-
-    isFilterApplied = false;
-
-    enrollmentDateFromError = false;
-    enrollmentDateToError = false;
-    dateOfBirthError = false;
+    filters: Record<string, ReactiveFilter<any>>
+    enrollmentDate$: Observable<NgbDateRange>
+    enrollmentDateRangeError = false;
+    filterResult$: Observable<SubjectFilterCriteria>;
 
     isAdvancedFilterCollapsed = true;
 
-    allChecked = false;
-    setOfCheckedId = new Set<number>();
-
-    @Input() isProjectSpecific: boolean;
+    setOfCheckedId$ = new BehaviorSubject<Set<number>>(new Set());
+    allChecked$: Observable<boolean>;
+    anyChecked$: Observable<boolean>;
 
     constructor(
             private subjectService: SubjectService,
@@ -98,72 +85,64 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             private modalService: NgbModal,
             private activatedRoute: ActivatedRoute,
             private router: Router,
-            private calendar: NgbCalendar,
+            calendar: NgbCalendar,
             public formatter: NgbDateParserFormatter
     ) {
-        this.subjects = [];
-        this.itemsPerPage = ITEMS_PER_PAGE;
-        this.pagingParams$ = this.activatedRoute.data.pipe(map(data => {
-            const fallback = { page: 1, predicate: 'login', ascending: true };
-            return data['pagingParams'] || fallback;
-        }));
-        this.routeData = this.pagingParams$.subscribe(params => {
-            this.page = params.page;
-            this.previousPage = params.page;
-            this.ascending = params.ascending;
-            this.predicate = params.predicate;
-        });
-
-        this.filterTriggerUpdate$.pipe(
-            debounceTime(300),
-            filter(f => f !== ''),
-            distinctUntilChanged()
-        ).subscribe(() => this.applyFilter());
-    }
-
-    loadSubjects() {
-        if (this.isProjectSpecific) {
-            this.loadAllFromProject();
-        } else {
-            this.loadAll();
+        const stringFilterOptions: ReactiveFilterOptions<string> = {
+            mapResult: filter$ => filter$.pipe(
+              map(v => v ? v.trim() : ''),
+              distinctUntilChanged(),
+            ),
         }
-    }
+        this.filters = {
+            subjectId: new ReactiveFilter<string>(stringFilterOptions),
+            externalId: new ReactiveFilter<string>(stringFilterOptions),
+            humanReadableId: new ReactiveFilter<string>(stringFilterOptions),
+            dateOfBirth: new NgbDateReactiveFilter(calendar, this.formatter),
+            personName: new ReactiveFilter<string>(stringFilterOptions),
+            enrollmentDateFrom: new NgbDateReactiveFilter(calendar, this.formatter),
+            enrollmentDateTo: new NgbDateReactiveFilter(calendar, this.formatter),
+            groupId: new ReactiveFilter<number>({ debounceTime: 1 }),
+        }
+        this.enrollmentDate$ = this.observeEnrollmentDate();
+        this.filterResult$ = this.observeCombinedFilters();
 
-    private loadAllFromProject() {
-        this.subjectService.findAllByProject(
-            this.project.projectName,
-            this.queryFilterParams,
-            this.queryPaginationParams,
-        ).subscribe(
-            (res: HttpResponse<Subject[]>) => {
-                this.onSuccess(res.body, res.headers);
-            },
-            (res: HttpErrorResponse) => this.onError(res),
+        this.allChecked$ = this.observeChecked(([subjects, checkedSet]) =>
+          subjects.length !== 0 && subjects.every(v => checkedSet.has(v.id))
         );
-    }
+        this.anyChecked$ = this.observeChecked(([subjects, checkedSet]) =>
+          subjects.some(v => checkedSet.has(v.id))
+        );
 
-    loadAll() {
-        this.subjectService.query(
-            this.queryFilterParams,
-            this.queryPaginationParams,
-        ).subscribe(
-            (res: HttpResponse<Subject[]>) => this.onSuccess(res.body, res.headers),
-            (res: HttpErrorResponse) => this.onError(res),
-        );
+        this.subscriptions.add(this.registerChangeInPagingParams());
+        this.subscriptions.add(this.registerChangeInParams());
     }
 
     ngOnInit() {
-        if(!this.isProjectSpecific){
-            this.loadAll();
-        }
-        this.registerChangeInSubjects();
+        this.subscriptions.add(this.registerChangeInFilters());
+        this.subscriptions.add(this.registerChangeInSubjects());
+        this.subscriptions.add(this.loadAllGroups());
     }
 
     ngOnDestroy() {
-        this.filterTriggerUpdate$.next('');
-        this.filterTriggerUpdate$.complete();
-        this.eventManager.destroy(this.eventSubscriber);
-        this.routeData.unsubscribe();
+        this.subscriptions.unsubscribe();
+        this.project$.complete();
+        this.subjects$.complete();
+        this.groups$.complete();
+        this.page$.complete();
+        this.sortBy$.complete();
+        this.ascending$.complete();
+        for (let filtersKey in this.filters) {
+            this.filters[filtersKey].complete();
+        }
+        this.setOfCheckedId$.complete();
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        const project: SimpleChange = changes.project ? changes.project : null;
+        if (project) {
+            this.project = project.currentValue;
+        }
     }
 
     trackLogin(index: number, item: Subject) {
@@ -174,310 +153,331 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         return item.key;
     }
 
-    registerChangeInSubjects() {
-        this.eventSubscriber = this.eventManager.subscribe('subjectListModification', (result) => {
-            const modifiedSubject = result.content;
-            const subjectIndex = this.subjects.findIndex((s => s.id == modifiedSubject.id));
-            if (subjectIndex < 0) {
-                this.totalItems++;
-                this.updateSubjects([modifiedSubject, ...this.subjects]);
-            } else {
-                this.subjects[subjectIndex] = modifiedSubject;
+    private registerChangeInParams(): Subscription {
+        return this.activatedRoute.params.pipe(
+          first()
+        ).subscribe(params => {
+            window.console.log(params);
+            for (let k in params) {
+                if (params.hasOwnProperty(k) && this.filters.hasOwnProperty(k)) {
+                    this.filters[k].next(params[k]);
+                }
             }
         });
     }
 
-    private onError(error) {
-        this.alertService.error(error.message, null, null);
+    private registerChangeInPagingParams(): Subscription {
+        return this.activatedRoute.data.pipe(
+          pluck('pagingParams'),
+          first(),
+        ).subscribe(params => {
+            this.page$.next(params.page);
+            this.ascending$.next(params.ascending);
+            if (this.sortingOptions.includes(params.predicate)) {
+                this.sortBy$.next(params.predicate);
+            }
+        })
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-        this.clearSubjects();
-        const project: SimpleChange = changes.project ? changes.project : null;
-        if (project) {
-            this.project = project.currentValue;
-            this.loadAllFromProject();
-            this.loadAllGroups();
-        }
+    private registerChangeInFilters(): Subscription {
+        return combineLatest([
+            this.project$.pipe(map(p => p ? p.projectName : ''), distinctUntilChanged()),
+            this.filterResult$,
+            this.sortBy$.pipe(distinctUntilChanged()),
+            this.ascending$.pipe(distinctUntilChanged()),
+            this.page$.pipe(distinctUntilChanged()),
+        ]).pipe(
+          debounceTime(10),
+          tap(([projectName, criteria, sortBy, ascending, page]) =>
+            this.router.navigate(this.toPathParams(projectName, criteria), {
+                queryParams: this.toQueryParams(page, sortBy, ascending),
+            })),
+          withLatestFrom(this.subjects$),
+          switchMap(([[projectName, filter, sortBy, ascending, page], subjects]) => {
+              const mergeResults: boolean = page > this.previousPage;
+              this.previousPage = page;
+              const filterParams = this.queryFilterParams(filter);
+              const pagingParams = this.queryPaginationParams(page, sortBy, ascending, mergeResults, subjects)
+
+              let fetch$: Observable<HttpResponse<Subject[]>>;
+              if (projectName) {
+                  fetch$ = this.subjectService.findAllByProject(
+                    projectName,
+                    filterParams,
+                    pagingParams,
+                  );
+              } else {
+                  fetch$ = this.subjectService.query(filterParams, pagingParams);
+              }
+              return fetch$.pipe(
+                map(res => ({
+                    body: res.body,
+                    headers: res.headers,
+                    mergeResults: mergeResults,
+                }))
+              );
+          })
+        )
+        .subscribe(res => this.onSuccess(res.body, res.headers, res.mergeResults));
+    }
+
+    private registerChangeInSubjects(): Subscription {
+        return this.eventManager.subscribe('subjectListModification', (result) => {
+          const modifiedSubject = result.content;
+          let currentSubjects = this.subjects$.value;
+          const subjectIndex = currentSubjects.findIndex((s => s.id == modifiedSubject.id));
+          if (subjectIndex < 0) {
+              this.totalItems++;
+              currentSubjects = [modifiedSubject, ...currentSubjects];
+          } else {
+              currentSubjects = currentSubjects.slice();
+              currentSubjects[subjectIndex] = modifiedSubject;
+          }
+          this.subjects$.next(currentSubjects);
+        });
     }
 
     private loadAllGroups() {
-        this.groupService.list(this.project.projectName).subscribe(
-                (res: Group[]) => this.groups = res,
-                (res: HttpErrorResponse) => this.onError(res),
-        );
+        return this.project$.pipe(
+          filter(p => !!p),
+          pluck('projectName'),
+          distinctUntilChanged(),
+          switchMap(projectName => this.groupService.list(projectName))
+        ).subscribe((res: Group[]) => this.groups$.next(res));
     }
 
-    get queryFilterParams(): SubjectFilterParams {
-        const params = {
-            login: this.filters.subjectId.trim() || undefined,
-            externalId: this.filters.externalId.trim() || undefined,
-            personName: this.filters.personName.trim() || undefined,
-            humanReadableIdentifier: this.filters.humanReadableId.trim() || undefined,
-            groupId: this.filters.groupId,
-            dateOfBirth: undefined,
-            enrollmentDate: undefined,
+    queryFilterParams(criteria: SubjectFilterCriteria): SubjectFilterParams {
+        if (!criteria) {
+            return {};
+        }
+        const params: SubjectFilterParams = {
+            login: criteria.subjectId || undefined,
+            externalId: criteria.externalId || undefined,
+            personName: criteria.personName || undefined,
+            humanReadableIdentifier: criteria.humanReadableId || undefined,
+            groupId: criteria.groupId || undefined,
         };
 
-        const filteredGroup = this.groups?.filter(g => g.id.toString() == this.filters.groupId)[0];
-        this.appliedFilters.group = filteredGroup? filteredGroup.name : '';
-
-        if(this.isRange(this.filters.enrollmentDateFrom, this.filters.enrollmentDateTo)){
-            let enrollmentDateFrom = this.formatter.format(this.filters.enrollmentDateFrom); //this.formatDate(this.filters.enrollmentDateFrom);
-            let enrollmentDateTo = this.formatter.format(this.filters.enrollmentDateTo);
-            this.appliedFilters.enrollmentDateFrom = enrollmentDateFrom;
-            this.appliedFilters.enrollmentDateTo = enrollmentDateTo;
+        if (criteria.enrollmentDateFrom || criteria.enrollmentDateTo) {
             const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            params.enrollmentDate = {
-                from: enrollmentDateFrom ? enrollmentDateFrom + 'T00:00' + '[' + timeZone + ']' : undefined,
-                to: enrollmentDateTo ? enrollmentDateTo + 'T23:59' + '[' + timeZone + ']' : undefined,
-            };
+            params.enrollmentDate = {};
+            if (criteria.enrollmentDateFrom) {
+                params.enrollmentDate.from = this.formatter.format(criteria.enrollmentDateFrom)
+                  + 'T00:00' + '[' + timeZone + ']';
+            }
+            if (criteria.enrollmentDateTo) {
+                params.enrollmentDate.to = this.formatter.format(criteria.enrollmentDateTo)
+                  + 'T23:59' + '[' + timeZone + ']';
+            }
         }
-        if (this.filters.dateOfBirth && this.calendar.isValid(NgbDate.from(this.filters.dateOfBirth))){
-            const dateOfBirth = this.formatter.format(this.filters.dateOfBirth);
-            this.appliedFilters.dateOfBirth = dateOfBirth;
+        if (criteria.dateOfBirth) {
             params.dateOfBirth = {
-                is: dateOfBirth,
+                is: this.formatter.format(criteria.dateOfBirth),
             };
         }
 
         return params;
     }
 
-    isRange(from: NgbDateStruct, to: NgbDateStruct): boolean {
-        if(from && !this.calendar.isValid(NgbDate.from(from))){
-            this.enrollmentDateFromError = true;
-            return false;
-        }
-        if(to && !this.calendar.isValid(NgbDate.from(to))){
-            this.enrollmentDateToError = true;
-            return false;
-        }
-        if(from && to) {
-            const dateFrom: NgbDate = new NgbDate(from.year, from.month, from.day);
-            const dateTo: NgbDate = new NgbDate(to.year, to.month, to.day);
-            if(dateTo.equals(dateFrom) || dateTo.after(dateFrom)){
-                this.enrollmentDateFromError = false;
-                this.enrollmentDateToError = false;
-                return true;
-            }
-            this.enrollmentDateFromError = false;
-            this.enrollmentDateToError = true;
-            return false;
-        } else {
-            this.enrollmentDateFromError = false;
-            this.enrollmentDateToError = false;
-            return !!(from || to);
-        }
-    }
-
-    get queryPaginationParams(): SubjectPaginationParams {
-        const subjects = this.subjects || [];
-
-        let last: SubjectLastParams | null;
-        if (subjects.length > 0) {
+    private queryPaginationParams(page: number, sortBy: string, ascending: boolean, loadMore: boolean, subjects: Subject[]): SubjectPaginationParams {
+        const params: SubjectPaginationParams = {
+            size: Math.max(page * this.itemsPerPage - subjects.length, this.itemsPerPage),
+            sort: [sortBy + ',' + (ascending ? 'asc' : 'desc')],
+        };
+        if (loadMore && subjects.length > 0) {
             const lastSubject = subjects[subjects.length - 1]
-            last = {
+            params.last = {
                 id: lastSubject.id,
                 login: lastSubject.login,
                 externalId: lastSubject.externalId || '',
             }
-        } else {
-            last = null;
         }
-        return {
-            last,
-            size: this.itemsPerPage,
-            sort: [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')],
-        };
+        return params;
     }
 
-    private onSuccess(data: Subject[], headers) {
-        if(headers.get('link')){
-            this.links = parseLinks(headers.get('link'));
-        }
+    private onSuccess(data: Subject[], headers: HttpHeaders, mergeResults: boolean) {
         this.totalItems = +headers.get('X-Total-Count');
-        this.queryCount = this.totalItems;
         // remove redundant subjects from the list
-        const fetchedSubjects = new Map<number, Subject>(data.map(a => [a.id, a]));
-        this.updateSubjects([
-            ...this.subjects.map(s => {
-                const newSubject = fetchedSubjects.get(s.id);
-                if (newSubject !== undefined) {
-                    fetchedSubjects.delete(s.id);
-                    return newSubject;
-                } else {
-                    return s;
-                }
-            }),
-            ...data.filter(s => fetchedSubjects.has(s.id)),
-        ]);
-    }
-
-    filterChanged(field: string, text: string) {
-        this.filterTriggerUpdate$.next(field + ',' + text);
-    }
-
-    dateOfBirthFilterChanged(field: string, date: NgbDateStruct){
-        this.dateOfBirthError = false;
-        if (date) {
-            if (this.calendar.isValid(NgbDate.from(date))) {
-                this.filterTriggerUpdate$.next(field + ',' + this.formatter.format(date));
-            } else {
-                this.dateOfBirthError = true;
-            }
+        let nextValue: Subject[]
+        if (mergeResults) {
+            const fetchedSubjects = new Map<number, Subject>(data.map(a => [a.id, a]));
+            nextValue = [
+              ...this.subjects$.value.map(s => {
+                  const newSubject = fetchedSubjects.get(s.id);
+                  if (newSubject) {
+                      fetchedSubjects.delete(s.id);
+                      return newSubject;
+                  } else {
+                      return s;
+                  }
+              }),
+              ...data.filter(s => fetchedSubjects.has(s.id)),
+            ];
         } else {
-            this.filterTriggerUpdate$.next(field);
+            nextValue = data;
         }
-    }
-
-    enrollmentDateFromFilterChanged(field: string, date: NgbDateStruct){
-        if (this.isRange(date, this.filters.enrollmentDateTo)) {
-            this.filterTriggerUpdate$.next(field + ',' + this.formatter.format(date));
-        }
-    }
-
-    enrollmentDateToFilterChanged(field: string, date: NgbDateStruct){
-        if (this.isRange(this.filters.enrollmentDateFrom, date)) {
-            this.filterTriggerUpdate$.next(field + ',' + this.formatter.format(date));
-        }
-    }
-
-    applyFilter() {
-        const {subjectId, externalId, personName, humanReadableId, dateOfBirth, enrollmentDateFrom, enrollmentDateTo, groupId} = this.filters;
-        this.isFilterApplied = !!(subjectId || externalId || personName || humanReadableId ||
-                dateOfBirth || enrollmentDateFrom || enrollmentDateTo || groupId);
-        this.clearSubjects();
-        this.loadSubjects();
-    }
-
-    clearFilter(filterName: string){
-        this.filters[filterName] = '';
-        this.applyFilter();
-    }
-
-    clearDateFilter(filterName: string) {
-        this.appliedFilters[filterName] = undefined;
-        this.filters[filterName] = undefined;
-        switch (filterName) {
-            case 'dateOfBirth':
-                this.dateOfBirthError = false;
-                break;
-            case 'enrollmentDateFrom':
-                this.enrollmentDateFromError = false;
-                break;
-            case 'enrollmentDateTo':
-                this.enrollmentDateToError = false;
-                break;
-        }
-        this.applyFilter();
-    }
-
-    clearSelectFilter(filterName: string){
-        this.appliedFilters[filterName] = '';
-        this.filters[filterName] = '';
-        this.applyFilter();
+        this.subjects$.next(nextValue);
     }
 
     clearFilters() {
-        this.filters.externalId = '';
-        this.filters.subjectId = '';
-        this.filters.humanReadableId = '';
-        this.filters.personName = '';
-        this.filters.groupId = '';
-        this.filters.dateOfBirth = undefined;
-        this.filters.enrollmentDateFrom = undefined;
-        this.filters.enrollmentDateTo = undefined;
-        this.appliedFilters.group = '';
-        this.appliedFilters.dateOfBirth = undefined;
-        this.appliedFilters.enrollmentDateFrom = undefined;
-        this.appliedFilters.enrollmentDateTo = undefined;
-
-        this.applyFilter();
+        for (let filtersKey in this.filters) {
+            this.filters[filtersKey].clear();
+        }
     }
 
     loadMore() {
-        this.page = this.page + 1;
-        this.transition();
+        this.page$.next(this.page$.value + 1);
     }
 
-    loadPage(page) {
-        if (page !== this.previousPage) {
-            this.previousPage = page;
-            this.transition();
-        }
+    updateSortingSortBy(predicate?: string) {
+        this.sortBy$.next(predicate);
+        this.page$.next(1);
     }
 
-    private updateSubjects(newSubjects) {
-        this.subjects = newSubjects;
-        this.allChecked = this.subjects.length !== 0
-          && this.subjects.every(({ id }) => this.setOfCheckedId.has(id));
+    updateSortAscending(ascending: boolean) {
+        this.ascending$.next(ascending);
+        this.page$.next(1);
     }
 
-    private clearSubjects() {
-        this.updateSubjects([]);
+    toggleSelectAll(): void {
+        combineLatest([
+            this.subjects$,
+            this.setOfCheckedId$,
+        ]).pipe(
+          first(),
+          filter(([subjects]) => subjects.length > 0),
+          map(([subjects, checkedIds]) => {
+              const nextValue = new Set(checkedIds);
+              if (subjects.every(s => checkedIds.has(s.id))) {
+                  subjects.forEach(({id}) => nextValue.delete(id));
+              } else {
+                  subjects.forEach(({id}) => nextValue.add(id));
+              }
+              return nextValue;
+          })
+        ).subscribe(nextValue => this.setOfCheckedId$.next(nextValue));
     }
 
-    updateSortingSortBy(predicate) {
-        if (this.predicate !== predicate) {
-            this.subjects = [];
-            this.predicate = predicate;
-            this.page = 1;
-            this.transition();
-        }
+    onItemChecked(id: number, checked: boolean): void {
+        this.setOfCheckedId$.pipe(
+          first(),
+          map(v => {
+              const nextValue = new Set(v);
+              if (checked) {
+                  nextValue.add(id);
+              } else {
+                  nextValue.delete(id);
+              }
+              return nextValue;
+          }),
+        ).subscribe(nextValue => this.setOfCheckedId$.next(nextValue));
     }
 
-    updateSortingOrder(direction) {
-        if ((this.ascending && direction !== 'asc') ||
-            (!this.ascending && direction === 'asc')){
-            this.subjects = [];
-            this.ascending = direction === 'asc';
-            this.page = 1;
-            this.transition();
-        }
+    private observeCombinedFilters(): Observable<SubjectFilterCriteria> {
+        return combineLatest([
+            this.filters.subjectId.value$,
+            this.filters.externalId.value$,
+            this.filters.humanReadableId.value$,
+            this.filters.dateOfBirth.value$,
+            this.filters.personName.value$,
+            this.enrollmentDate$,
+            this.filters.groupId.value$,
+        ]).pipe(
+          map(([subjectId, externalId, humanReadableId, dateOfBirth, personName, enrollmentDate, groupId]) => ({
+              subjectId,
+              externalId,
+              humanReadableId,
+              dateOfBirth,
+              personName,
+              enrollmentDateFrom: enrollmentDate.from,
+              enrollmentDateTo: enrollmentDate.to,
+              groupId,
+              groupName: this.groups$.value.find(g => g.id.toString() == groupId)?.name,
+          })),
+          map(criteria =>
+            Object.keys(criteria).some(k => !!criteria[k]) ? criteria : null),
+          shareReplay(1),
+        )
     }
 
-    selectAll(checked: boolean = true): void {
-        if (this.subjects.length === 0) {
-            return;
-        }
-        this.subjects.forEach(({ id }) => this.updateCheckedSet(id, checked));
-        this.allChecked = checked;
+    private observeEnrollmentDate(): Observable<NgbDateRange> {
+        return combineLatest([
+            this.filters.enrollmentDateFrom.value$,
+            this.filters.enrollmentDateTo.value$,
+        ]).pipe(
+          map(([from, to]) => ({from, to})),
+          filter(({from, to}) => {
+              if (NgbDateReactiveFilter.isValidRange(from, to)) {
+                  this.enrollmentDateRangeError = false;
+                  return true;
+              } else {
+                  this.enrollmentDateRangeError = true;
+                  return false;
+              }
+          }),
+        )
     }
 
-    onItemChanged(id: number) {
-        const nextIsChecked = !this.setOfCheckedId.has(id);
-        this.updateCheckedSet(id, nextIsChecked);
-        this.allChecked = nextIsChecked
-          && this.subjects.every(({ id }) => this.setOfCheckedId.has(id));
+    private observeChecked<T>(modify: (state: [Subject[], Set<number>]) => T): Observable<T> {
+        return combineLatest([this.subjects$, this.setOfCheckedId$]).pipe(
+          map(v => modify(v)),
+          distinctUntilChanged(),
+        );
     }
 
-    updateCheckedSet(id: number, checked: boolean): void {
-        if (checked) {
-            this.setOfCheckedId.add(id);
+    private toPathParams(projectName: string, criteria: SubjectFilterCriteria): Record<string, string>[] {
+        let route = [];
+        if (projectName) {
+            route.push('/project');
+            route.push(projectName);
         } else {
-            this.setOfCheckedId.delete(id);
+            route.push('subject')
         }
+        if (criteria) {
+            const stringFilters: Record<string, any> = Object.assign<Record<string, any>, SubjectFilterCriteria>({}, criteria);
+            delete stringFilters['groupName'];
+            if (criteria.enrollmentDateFrom) {
+                stringFilters.enrollmentDateFrom = this.formatter.format(criteria.enrollmentDateFrom);
+            }
+            if (criteria.enrollmentDateTo) {
+                stringFilters.enrollmentDateTo = this.formatter.format(criteria.enrollmentDateTo);
+            }
+            if (criteria.dateOfBirth) {
+                stringFilters.dateOfBirth = this.formatter.format(criteria.dateOfBirth);
+            }
+            let params = {};
+            for (let k in stringFilters) {
+                if (stringFilters[k]) {
+                    params[k] = encodeURIComponent(stringFilters[k]);
+                }
+            }
+            route.push(params);
+        }
+        return route;
+    }
+
+    private toQueryParams(
+      page: number,
+      sortBy: string,
+      ascending: boolean,
+    ): Record<string, string> {
+        return {
+            page: page.toString(),
+            sort: sortBy + ',' + (ascending ? 'asc' : 'desc'),
+        };
     }
 
     addSelectedToGroup() {
-        const selectedSubjects = this.subjects.filter(s => this.setOfCheckedId.has(s.id))
         const modalRef = this.modalService.open(AddSubjectsToGroupDialogComponent);
-        modalRef.componentInstance.groups = this.groups;
-        modalRef.componentInstance.projectName = this.project.projectName;
-        modalRef.componentInstance.subjects = selectedSubjects;
-    }
-
-    transition() {
-        if (this.isProjectSpecific) {
-            this.loadSubjects();
-        } else {
-            this.router.navigate(['/subject'], {
-                queryParams: {
-                    page: this.page,
-                    sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
-                },
-            }).then(() => this.loadSubjects());
-        }
+        this.subscriptions.add(combineLatest([
+          this.subjects$,
+          this.setOfCheckedId$,
+          this.groups$,
+          this.project$,
+        ]).subscribe(([subjects, checkedIds, groups, project]) => {
+          modalRef.componentInstance.groups = groups;
+          modalRef.componentInstance.projectName = project.projectName;
+          modalRef.componentInstance.subjects = subjects.filter(s => checkedIds.has(s.id));
+        }));
     }
 }
