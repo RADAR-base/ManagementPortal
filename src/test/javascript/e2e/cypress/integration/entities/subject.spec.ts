@@ -123,9 +123,11 @@ describe('Subject e2e test', () => {
     it('should be able to sort subjects by subject id in asc/desc order', () => {
         cy.get('jhi-subjects #field-order-by').click();
         cy.get('jhi-subjects #order-by-desc').click();
+        cy.wait(100);
         cy.get('jhi-subjects .subject-row').first().should('contain.text', 'sub-9');
         cy.get('jhi-subjects #field-order-by').click();
         cy.get('jhi-subjects #order-by-asc').click();
+        cy.wait(100);
         cy.get('jhi-subjects .subject-row').eq(1).should('contain.text', 'sub-1');
     });
 
@@ -133,9 +135,11 @@ describe('Subject e2e test', () => {
     it('should be able to sort subjects by external id in asc/desc order', () => {
         cy.get('jhi-subjects #field-sort-by').click();
         cy.get('jhi-subjects #sort-by-externalId').click();
+        cy.wait(100);
         cy.get('jhi-subjects .subject-row').first().should('contain.text', 'sub-1');
         cy.get('jhi-subjects #field-order-by').click();
         cy.get('jhi-subjects #order-by-desc').click();
+        cy.wait(100);
         cy.get('jhi-subjects .subject-row').first().should('contain.text', 'test-subject-1');
     });
 
