@@ -11,12 +11,9 @@ export class Principal {
     readonly account$: Observable<Account | null> = this._account$.asObservable();
 
     constructor(
-        private account: AccountService
+        private account: AccountService,
     ) {
-        // initial fetch
-        this.account.get().pipe(
-          filter(a => !!a)
-        ).subscribe(account => this._account$.next(account));
+        this.reset().subscribe();
     }
 
     authenticate(identity?: Account) {

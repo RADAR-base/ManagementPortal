@@ -1,7 +1,8 @@
 import { Injectable, Injector } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import {
+    HttpErrorResponse,
     HttpEvent,
     HttpHandler,
     HttpInterceptor,
@@ -22,7 +23,9 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
             () => {},
             (err: HttpErrorResponse) => {
               if (err.status === 401) {
-                  this.injector.get(AuthService).resetAuthentication();
+                  this.injector.get(AuthService).resetAuthentication(
+                      !request.url || request.url !== 'api/account'
+                  );
                   return;
               }
               this.eventManager.broadcast({

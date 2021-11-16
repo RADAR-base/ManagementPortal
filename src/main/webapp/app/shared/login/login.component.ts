@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, UrlSegment } from '@angular/router';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { StateStorageService } from '..';
@@ -67,8 +67,10 @@ export class JhiLoginModalComponent implements AfterViewInit {
             const previousState = this.stateStorageService.getPreviousState();
             if (previousState) {
                 this.stateStorageService.resetPreviousState();
-                this.router.navigate([previousState.path], {queryParams: previousState.params});
-                return;
+                return this.router.navigate(
+                    previousState.path.map(p => p.path ? p.path : p.parameters),
+                    {queryParams: previousState.queryParams},
+                );
             }
 
             const redirect = this.stateStorageService.getUrl();
@@ -88,8 +90,8 @@ export class JhiLoginModalComponent implements AfterViewInit {
         this.router.navigate(['/register']);
     }
 
-    requestResetPassword() {
+    async requestResetPassword() {
         this.activeModal.dismiss('to state requestReset');
-        this.router.navigate(['/reset', 'request']);
+        await this.router.navigate(['/reset', 'request']);
     }
 }

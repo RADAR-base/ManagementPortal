@@ -2,13 +2,14 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import {
-    Account,
     LoginModalService,
     Principal,
     Project,
-    ProjectService
+    UserService
 } from '../shared';
-import { Subscription } from "rxjs";
+import { of, Subscription } from "rxjs";
+import { EventManager } from "../shared/util/event-manager.service";
+import { switchMap } from "rxjs/operators";
 
 @Component({
     selector: 'jhi-home',
@@ -41,9 +42,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     private loadRelevantProjects() {
-        this.subscriptions.add(this.principal.getAuthenticationState()
+        this.subscriptions.add(this.principal.account$
             .pipe(
-              tap(account => this.account = account),
               switchMap(account => {
                 if (account) {
                     return this.userService.findProject(account.login);

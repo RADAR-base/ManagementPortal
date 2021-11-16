@@ -22,7 +22,7 @@ export class AuthService {
         return this.principal.identity().pipe(
             map(user => {
                 const destState = this.stateStorageService.getDestinationState();
-                const authorities = destState.data.authorities;
+                const authorities = destState.authorities;
                 const hasAnyAuthority = this.principal.userHasAnyAuthority(user, authorities);
                 if (!hasAnyAuthority) {
                     if (user) {
@@ -37,9 +37,11 @@ export class AuthService {
         );
     }
 
-    resetAuthentication() {
+    resetAuthentication(redirect: boolean) {
       this.principal.authenticate(null);
-      this.handleUnauthorized();
+      if (redirect) {
+          this.handleUnauthorized();
+      }
     }
 
     private handleUnauthorized() {

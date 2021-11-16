@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import { of, Subscription } from 'rxjs';
 
 import { DEBUG_INFO_ENABLED, VERSION } from '../../app.constants';
 import {
@@ -11,11 +11,12 @@ import {
     LoginService,
     Principal,
     Project,
-    ProjectService,
+    ProjectService, UserService,
 } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 
 import { ProfileService } from '../profiles/profile.service';
+import { switchMap, tap } from "rxjs/operators";
 
 @Component({
     selector: 'jhi-navbar',
@@ -69,9 +70,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
 
     loadRelevantProjects() {
-        this.subscriptions.add(this.principal.getAuthenticationState()
+        this.subscriptions.add(this.principal.account$
             .pipe(
-              tap(account => this.currentAccount = account),
               switchMap(account => {
                   if (account) {
                       return this.userService.findProject(account.login);
