@@ -7,36 +7,38 @@ import { EventManager } from '../../shared/util/event-manager.service';
 import { Role } from './role.model';
 
 import { UserModalService } from './user-modal.service';
+import { Subscription } from "rxjs";
 
 @Component({
     selector: 'jhi-user-mgmt-dialog',
     templateUrl: './user-management-dialog.component.html',
 })
-export class UserMgmtDialogComponent implements OnInit {
+export class UserMgmtDialogComponent implements OnInit, OnDestroy {
     user: User;
     isAdmin: boolean;
-    languages: any[];
     roles: Role[];
     isSaving: Boolean;
+    private subscriptions: Subscription;
 
     constructor(
-            public activeModal: NgbActiveModal,
-            private languageHelper: JhiLanguageHelper,
-            private userService: UserService,
-            private eventManager: EventManager,
+      public activeModal: NgbActiveModal,
+      public languageHelper: JhiLanguageHelper,
+      private userService: UserService,
+      private eventManager: EventManager,
     ) {
     }
 
     ngOnInit() {
         this.isSaving = false;
-        this.languageHelper.getAll().then((languages) => {
-            this.languages = languages;
-        });
         this.registerChangeInRoles();
     }
 
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
+    }
+
     registerChangeInRoles() {
-        this.eventManager.subscribe('roleListModification', (response) => {
+        this.subscriptions = this.eventManager.subscribe('roleListModification', (response) => {
             this.user.roles = response.content;
         });
     }
@@ -47,21 +49,17 @@ export class UserMgmtDialogComponent implements OnInit {
 
     save() {
         this.isSaving = true;
-        if (this.user.id !== null) {
-            this.userService.update(this.user)
-            .subscribe((response) => this.onSaveSuccess(response), () => this.onSaveError());
+        if (this.user.id) {
+            this.userService.update(this.user).subscribe(
+              (response) => this.onSaveSuccess(response),
+              () => this.onSaveError()
+            );
         } else {
-            this.userService.create(this.user)
-            .subscribe((response) => this.onSaveSuccess(response), () => this.onSaveError());
+            this.userService.create(this.user).subscribe(
+              (response) => this.onSaveSuccess(response),
+              () => this.onSaveError()
+            );
         }
-    }
-
-    getSelected(selectedVals: Array<any>, option: any) {
-        if (!selectedVals) {
-            return option;
-        }
-        const idx = selectedVals.indexOf(option);
-        return idx === -1 ? option : selectedVals[idx];
     }
 
     private onSaveSuccess(result) {
@@ -80,7 +78,6 @@ export class UserMgmtDialogComponent implements OnInit {
     template: '',
 })
 export class UserDialogComponent implements OnInit, OnDestroy {
-
     modalRef: NgbModalRef;
     routeSub: any;
 

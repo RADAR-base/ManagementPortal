@@ -11,12 +11,11 @@ export class SettingsComponent implements OnInit {
     error: string;
     success: string;
     settingsAccount: any;
-    languages: any[];
 
     constructor(
             private account: AccountService,
             private principal: Principal,
-            private languageHelper: JhiLanguageHelper,
+            public languageHelper: JhiLanguageHelper,
             private translateService: TranslateService,
     ) {
     }
@@ -24,9 +23,6 @@ export class SettingsComponent implements OnInit {
     ngOnInit() {
         this.principal.identity().then((account) => {
             this.settingsAccount = this.copyAccount(account);
-        });
-        this.languageHelper.getAll().then((languages) => {
-            this.languages = languages;
         });
     }
 

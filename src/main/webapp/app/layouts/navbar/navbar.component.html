@@ -142,7 +142,7 @@
                 </ul>
             </li>
 
-            <li ngbDropdown class="nav-item dropdown pointer" *ngIf="languages">
+            <li ngbDropdown class="nav-item dropdown pointer" *ngIf="languageHelper.languages$ | async as languages">
                 <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="languagesnavBarDropdown" *ngIf="languages.length > 1">
                     <span>
                         <i class="fa fa-flag" aria-hidden="true"></i>

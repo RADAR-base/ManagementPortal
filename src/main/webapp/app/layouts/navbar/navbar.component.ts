@@ -22,7 +22,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     inProduction: boolean;
     isNavbarCollapsed: boolean;
-    languages: any[];
     apiDocsEnabled: boolean;
     modalRef: NgbModalRef;
     version: string;
@@ -33,7 +32,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     constructor(
             private loginService: LoginService,
-            private languageHelper: JhiLanguageHelper,
+            public languageHelper: JhiLanguageHelper,
             private principal: Principal,
             private loginModalService: LoginModalService,
             private profileService: ProfileService,
@@ -50,10 +49,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.principal.identity().then(account => this.currentAccount = account);
         this.loadRelevantProjects();
-        this.languageHelper.getAll().then((languages) => {
-            this.languages = languages;
-        });
-
         this.profileService.getProfileInfo().then((profileInfo) => {
             this.inProduction = profileInfo.inProduction;
             this.apiDocsEnabled = profileInfo.apiDocsEnabled;
