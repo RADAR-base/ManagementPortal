@@ -1,7 +1,8 @@
 {
     "error": {
-        "title": "Foutpagina!",
-        "403": "U bent niet bevoegd om de pagina te openen.",
+        "title": "Fout",
+        "403title": "Ongeautoriseerd",
+        "403": "U bent niet meer ingelogd of u bent niet bevoegd om de pagina te openen.",
         "loginLink": {
             "prefix": "Gelieve opnieuw ",
             "text": "in te loggen.",

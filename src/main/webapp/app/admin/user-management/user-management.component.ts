@@ -6,18 +6,17 @@ import { ITEMS_PER_PAGE, Principal, User, UserService } from '../../shared';
 import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
 import { parseLinks } from '../../shared/util/parse-links-util';
+import { Subscription } from "rxjs";
 
 @Component({
     selector: 'jhi-user-mgmt',
     templateUrl: './user-management.component.html',
 })
 export class UserMgmtComponent implements OnInit, OnDestroy {
-
-    currentAccount: any;
     users: User[];
     error: any;
     success: any;
-    routeData: any;
+    subscriptions: Subscription = new Subscription();
     links: any;
     totalItems: any;
     queryCount: any;
@@ -32,62 +31,65 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
     byEmail: string;
 
     constructor(
-            private userService: UserService,
-            private alertService: AlertService,
-            private principal: Principal,
-            private eventManager: EventManager,
-            private activatedRoute: ActivatedRoute,
-            private router: Router,
+      private userService: UserService,
+      private alertService: AlertService,
+      public principal: Principal,
+      private eventManager: EventManager,
+      private activatedRoute: ActivatedRoute,
+      private router: Router,
     ) {
         this.itemsPerPage = ITEMS_PER_PAGE;
-        this.routeData = this.activatedRoute.data.subscribe((data) => {
+        this.subscriptions.add(this.activatedRoute.data.subscribe((data) => {
             this.page = data['pagingParams'].page;
             this.previousPage = data['pagingParams'].page;
             this.reverse = data['pagingParams'].ascending;
             this.predicate = data['pagingParams'].predicate;
-        });
+        }));
     }
 
     ngOnInit() {
-        this.principal.identity().then((account) => {
-            this.currentAccount = account;
-            this.loadAll();
-            this.registerChangeInUsers();
-        });
+        this.loadAll();
+        this.registerChangeInUsers();
     }
 
     ngOnDestroy() {
-        this.routeData.unsubscribe();
+        this.subscriptions.unsubscribe();
     }
 
     registerChangeInUsers() {
-        this.eventManager.subscribe('userListModification', () => this.loadAll());
+        this.subscriptions.add(
+            this.eventManager.subscribe('userListModification', () => this.loadAll())
+        );
     }
 
     onChange(event: any) {
-        this.userService.query({
-            page: this.page - 1,
-            size: this.itemsPerPage,
-            authority: this.byAuthority,
-            email: this.byEmail,
-            login: this.byLogin,
-            projectName: this.byProject,
-            sort: this.sort(),
-        }).subscribe(
-                (res: HttpResponse<User[]>) => this.onSuccess(res.body, res.headers),
-                (res: HttpErrorResponse) => this.onError(res),
+        this.subscriptions.add(
+            this.userService.query({
+                page: this.page - 1,
+                size: this.itemsPerPage,
+                authority: this.byAuthority,
+                email: this.byEmail,
+                login: this.byLogin,
+                projectName: this.byProject,
+                sort: this.sort(),
+            }).subscribe(
+                    (res: HttpResponse<User[]>) => this.onSuccess(res.body, res.headers),
+                    (res: HttpErrorResponse) => this.onError(res),
+            )
         );
 
     }
 
     loadAll() {
-        this.userService.query({
-            page: this.page - 1,
-            size: this.itemsPerPage,
-            sort: this.sort(),
-        }).subscribe(
-                (res: HttpResponse<User[]>) => this.onSuccess(res.body, res.headers),
-                (res: HttpErrorResponse) => this.onError(res),
+        this.subscriptions.add(
+            this.userService.query({
+                page: this.page - 1,
+                size: this.itemsPerPage,
+                sort: this.sort(),
+            }).subscribe(
+                    (res: HttpResponse<User[]>) => this.onSuccess(res.body, res.headers),
+                    (res: HttpErrorResponse) => this.onError(res),
+            )
         );
     }
 

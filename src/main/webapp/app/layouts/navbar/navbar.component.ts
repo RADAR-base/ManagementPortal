@@ -5,7 +5,14 @@ import { TranslateService } from '@ngx-translate/core';
 import { of, Subscription } from 'rxjs';
 
 import { DEBUG_INFO_ENABLED, VERSION } from '../../app.constants';
-import { JhiLanguageHelper, LoginModalService, LoginService, Principal, Project, UserService } from '../../shared';
+import {
+    JhiLanguageHelper,
+    LoginModalService,
+    LoginService,
+    Principal,
+    Project,
+    ProjectService, UserService,
+} from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 
 import { ProfileService } from '../profiles/profile.service';
@@ -28,13 +35,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
     version: string;
 
     projects: Project[];
-    currentAccount: any;
     private subscriptions: Subscription;
 
     constructor(
             private loginService: LoginService,
             private languageHelper: JhiLanguageHelper,
-            private principal: Principal,
+            public principal: Principal,
             private loginModalService: LoginModalService,
             private profileService: ProfileService,
             private router: Router,
@@ -48,7 +54,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.principal.identity().then(account => this.currentAccount = account);
         this.loadRelevantProjects();
         this.languageHelper.getAll().then((languages) => {
             this.languages = languages;
@@ -65,9 +70,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
 
     loadRelevantProjects() {
-        this.subscriptions.add(this.principal.getAuthenticationState()
+        this.subscriptions.add(this.principal.account$
             .pipe(
-              tap(account => this.currentAccount = account),
               switchMap(account => {
                   if (account) {
                       return this.userService.findProject(account.login);
@@ -89,10 +93,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     collapseNavbar() {
         this.isNavbarCollapsed = true;
-    }
-
-    isAuthenticated() {
-        return this.principal.isAuthenticated();
     }
 
     login() {

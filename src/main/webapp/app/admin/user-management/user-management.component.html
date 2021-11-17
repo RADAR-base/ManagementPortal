@@ -100,7 +100,7 @@
                                 [routerLink]="['/', { outlets: { popup: 'user-management/'+ user.login + '/delete'} }]"
                                 [replaceUrl]="true"
                                 class="btn btn-danger btn-sm"
-                                [disabled]="currentAccount.login==user.login ||
+                                [disabled]="(principal.account$ | async).login == user.login ||
                                 user.roles[0].authorityName=='ROLE_PARTICIPANT' ||
                                 user.roles[0].authorityName=='ROLE_INACTIVE_PARTICIPANT'">
                             <span class="fa fa-remove"></span>
