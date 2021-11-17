@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, Subscription, Subject as RxSubject } from 'rxjs';
 import {
     debounceTime,
     distinctUntilChanged,
@@ -18,6 +18,7 @@ import {
     map,
     pluck,
     shareReplay,
+    startWith,
     switchMap,
     tap,
     withLatestFrom,
@@ -53,6 +54,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     set project(v: Project) { this.project$.next(v); }
     subjects$: BehaviorSubject<Subject[]> = new BehaviorSubject([]);
     groups$: BehaviorSubject<Group[]> = new BehaviorSubject([]);
+    trigger$: RxSubject<void> = new RxSubject<void>()
 
     page$ = new BehaviorSubject<number>(1);
     totalItems: number;
@@ -132,6 +134,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         this.page$.complete();
         this.sortBy$.complete();
         this.ascending$.complete();
+        this.trigger$.complete();
         for (let filtersKey in this.filters) {
             this.filters[filtersKey].complete();
         }
@@ -185,6 +188,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             this.sortBy$.pipe(distinctUntilChanged()),
             this.ascending$.pipe(distinctUntilChanged()),
             this.page$.pipe(distinctUntilChanged()),
+            this.trigger$.pipe(startWith(undefined as void)),
         ]).pipe(
           debounceTime(10),
           tap(([projectName, criteria, sortBy, ascending, page]) =>
@@ -223,8 +227,12 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     private registerChangeInSubjects(): Subscription {
         return this.eventManager.subscribe('subjectListModification', (result) => {
           const modifiedSubject = result.content;
+          if (typeof modifiedSubject === 'string') {
+            this.trigger$.next();
+            return;
+          }
           let currentSubjects = this.subjects$.value;
-          const subjectIndex = currentSubjects.findIndex((s => s.id == modifiedSubject.id));
+          const subjectIndex = currentSubjects.findIndex((s => s.id === modifiedSubject.id));
           if (subjectIndex < 0) {
               this.totalItems++;
               currentSubjects = [modifiedSubject, ...currentSubjects];
