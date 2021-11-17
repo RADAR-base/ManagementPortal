@@ -63,12 +63,6 @@ public interface SubjectRepository extends JpaRepository<Subject, Long>,
             + "WHERE subject.id in :ids")
     void unsetGroupIdByIds(@Param("ids") List<Long> ids);
 
-    @Modifying
-    @Query("UPDATE Subject subject "
-            + "SET subject.group.id = null "
-            + "WHERE subject.group.id = :group_id")
-    void unlinkAllFromGroup(@Param("group_id") Long groupId);
-
     @Query("select subject.sources from Subject subject WHERE subject.id = :id")
     List<Source> findSourcesBySubjectId(@Param("id") Long id);
 

@@ -85,9 +85,7 @@ public class GroupService {
                         "Group " + groupName + " not found in project " + projectName,
                         GROUP, ERR_GROUP_NOT_FOUND));
 
-        if (unlinkSubjects) {
-            subjectRepository.unlinkAllFromGroup(group.getId());
-        } else {
+        if (!unlinkSubjects) {
             var subjectCount = subjectRepository.countByGroupId(group.getId());
             if (subjectCount > 0) {
                 var msg = "Group " + groupName + " has subjects. "
