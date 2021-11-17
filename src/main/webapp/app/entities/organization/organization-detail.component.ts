@@ -20,6 +20,7 @@ export class OrganizationDetailComponent implements OnInit, OnDestroy {
     // sources: Source[];
 
     showProjects: boolean;
+    showPermissions: boolean;
     // showSources: boolean;
     // showSubjects: boolean;
     // showOrganizationGroups: boolean;
@@ -66,6 +67,17 @@ export class OrganizationDetailComponent implements OnInit, OnDestroy {
     viewProjects() {
         // this.showSources = false;
         this.showProjects = true;
+        this.showPermissions = false;
+        // this.showOrganizationGroups = false;
+        // this.showSourceTypes = false;
+        // this.showOrganizationAdmins = false;
+        // this.showOrganizationAnalysts = false;
+    }
+
+    viewPermissions() {
+        // this.showSources = false;
+        this.showProjects = false;
+        this.showPermissions = true;
         // this.showOrganizationGroups = false;
         // this.showSourceTypes = false;
         // this.showOrganizationAdmins = false;

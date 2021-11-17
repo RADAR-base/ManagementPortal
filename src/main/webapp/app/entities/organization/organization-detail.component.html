@@ -65,6 +65,11 @@
                 Projects
             </span>
         </li>
+        <li class="nav-item" (click)="viewPermissions()">
+            <span class="nav-link" [ngClass]="{active: showPermissions}">
+                Permissions
+            </span>
+        </li>
 <!--        <li class="nav-item" (click)="viewSubjects()">-->
 <!--            <span class="nav-link" [ngClass]="{active: showSubjects}">-->
 <!--                Subjects-->
@@ -89,7 +94,8 @@
 
     <div id="organization-content-wrapper">
         <jhi-alert-error></jhi-alert-error>
-            <jhi-projects *ngIf="showProjects" [organization]='organization' [isOrganizationSpecific]="true"></jhi-projects>
+        <jhi-projects *ngIf="showProjects" [organization]='organization' [isOrganizationSpecific]="true"></jhi-projects>
+        <jhi-permissions *ngIf="showPermissions" [organization]='organization'></jhi-permissions>
 
 <!--        <jhi-subjects *ngIf="showSubjects" [organization]='organization' [isOrganizationSpecific]="true"></jhi-subjects>-->
 <!--        <jhi-groups *ngIf="showOrganizationGroups" [organization]='organization'></jhi-groups>-->
