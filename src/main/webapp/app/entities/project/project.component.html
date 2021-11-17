@@ -29,7 +29,7 @@
             <tbody>
             <tr *ngFor="let project of projects ;trackBy: trackId">
                 <td>{{project.id}}</td>
-                <td><a [routerLink]="['../project', project.projectName ]">{{project.projectName}}</a></td>
+                <td><a [routerLink]="['../../project', project.projectName ]">{{project.projectName}}</a></td>
                 <td>{{project.description}}</td>
                 <td>{{project.location}}</td>
                 <td>{{project.startDate | date:'medium'}}</td>

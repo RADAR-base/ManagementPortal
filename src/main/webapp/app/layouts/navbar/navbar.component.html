@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-dark">
-    <a class="navbar-brand" class="navbar-brand" routerLink="/" (click)="collapseNavbar()">
+    <a class="navbar-brand navbar-brand" routerLink="/" (click)="collapseNavbar()">
         <span class="logo-img"></span>
         <span [translate]="'global.title'" class="navbar-title"></span>
         <span class="navbar-version">{{version}}</span>
@@ -52,19 +52,37 @@
                     <!-- jhipster-needle-add-entity-to-menu - JHipster will add entities to the menu here -->
                 </ul>
             </li>
-            <!--Project menu-->
+<!--            &lt;!&ndash;Project menu&ndash;&gt;-->
+<!--            <li *ngSwitchCase="true" ngbDropdown class="nav-item dropdown pointer">-->
+<!--                <a class="nav-link dropdown-toggle" routerLinkActive="active" ngbDropdownToggle href="javascript:void(0);" id="projects-menu">-->
+<!--                    <span>-->
+<!--                        <i class="fa fa-th-list" aria-hidden="true"></i>-->
+<!--                        <span [translate]="'global.menu.entities.project'"></span>-->
+<!--                    </span>-->
+<!--                </a>-->
+<!--                <ul class="dropdown-menu" ngbDropdownMenu>-->
+<!--                    <li uiSrefActive="active" *ngFor="let project of projects ;trackBy: trackProjectName">-->
+<!--                        <a class="dropdown-item" [routerLink]="['project' , project.projectName]" (click)="collapseNavbar()">-->
+<!--                            <i class="fa fa-fw fa-desktop" ></i>-->
+<!--                            <span>{{project.projectName}} </span>-->
+<!--                        </a>-->
+<!--                    </li>-->
+<!--                </ul>-->
+<!--            </li>-->
+
+            <!--Organization menu-->
             <li *ngSwitchCase="true" ngbDropdown class="nav-item dropdown pointer">
-                <a class="nav-link dropdown-toggle" routerLinkActive="active" ngbDropdownToggle href="javascript:void(0);" id="projects-menu">
+                <a class="nav-link dropdown-toggle" routerLinkActive="active" ngbDropdownToggle href="javascript:void(0);" id="organizations-menu">
                     <span>
                         <i class="fa fa-th-list" aria-hidden="true"></i>
-                        <span [translate]="'global.menu.entities.project'"></span>
+                        <span [translate]="'global.menu.entities.organization'"></span>
                     </span>
                 </a>
                 <ul class="dropdown-menu" ngbDropdownMenu>
-                    <li uiSrefActive="active" *ngFor="let project of projects ;trackBy: trackProjectName">
-                        <a class="dropdown-item" [routerLink]="['project' , project.projectName]" (click)="collapseNavbar()">
+                    <li uiSrefActive="active" *ngFor="let organization of organizations ;trackBy: trackOrganizationName">
+                        <a class="dropdown-item" [routerLink]="['organization' , organization.organizationName]" (click)="collapseNavbar()">
                             <i class="fa fa-fw fa-desktop" ></i>
-                            <span>{{project.projectName}} </span>
+                            <span>{{organization.organizationName}} </span>
                         </a>
                     </li>
                 </ul>
@@ -84,10 +102,16 @@
                             <span [translate]="'global.menu.admin.userManagement'"></span>
                         </a>
                     </li>
+<!--                    <li >-->
+<!--                        <a class="dropdown-item" routerLink="project" routerLinkActive="active" (click)="collapseNavbar()">-->
+<!--                            <i class="fa fa-fw fa-desktop" aria-hidden="true"></i>-->
+<!--                            <span [translate]="'global.menu.entities.project'"></span>-->
+<!--                        </a>-->
+<!--                    </li>-->
                     <li >
-                        <a class="dropdown-item" routerLink="project" routerLinkActive="active" (click)="collapseNavbar()">
+                        <a class="dropdown-item" routerLink="organization" routerLinkActive="active" (click)="collapseNavbar()">
                             <i class="fa fa-fw fa-desktop" aria-hidden="true"></i>
-                            <span [translate]="'global.menu.entities.project'"></span>
+                            <span [translate]="'global.menu.entities.organization'"></span>
                         </a>
                     </li>
                     <li *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']" >

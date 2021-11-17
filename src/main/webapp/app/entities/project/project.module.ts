@@ -15,6 +15,7 @@ import {
     projectRoute,
 } from './';
 import {ManagementPortalSharedGroupModule} from "../../shared/group/group.module";
+import {SubjectComponent} from "../../shared/subject";
 
 const ENTITY_STATES = [
     ...projectRoute,
@@ -43,6 +44,9 @@ const ENTITY_STATES = [
         ProjectPopupComponent,
         ProjectDeleteDialogComponent,
         ProjectDeletePopupComponent,
+    ],
+    exports: [
+        ProjectComponent,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

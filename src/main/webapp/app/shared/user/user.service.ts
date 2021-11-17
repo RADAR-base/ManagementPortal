@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {Observable, of} from 'rxjs';
 
 import { User } from './user.model';
 import { createRequestOption } from '../model/request.utils';
 import { Project } from '../project';
+import {Organization, ORGANIZATIONS} from "../organization/organization.model";
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -27,6 +28,11 @@ export class UserService {
 
     findProject(login: string): Observable<Project[]> {
         return this.http.get<Project[]>(`${this.resourceUrl}/${encodeURIComponent(login)}/projects`);
+    }
+
+    findOrganization(login: string): Observable<Organization[]> {
+        return of(ORGANIZATIONS);
+        // return this.http.get<Organization[]>(`${this.resourceUrl}/${encodeURIComponent(login)}/organizations`);
     }
 
     query(req?: any): Observable<HttpResponse<User[]>> {

@@ -5,6 +5,7 @@ import { Account, LoginModalService, Principal, Project, UserService } from '../
 import { EventManager } from '../shared/util/event-manager.service';
 import { Observable, of, Subscription } from "rxjs";
 import { switchMap, tap } from "rxjs/operators";
+import {Organization} from "../shared/organization/organization.model";
 
 @Component({
     selector: 'jhi-home',
@@ -17,7 +18,8 @@ import { switchMap, tap } from "rxjs/operators";
 export class HomeComponent implements OnInit, OnDestroy {
     account: Account;
     modalRef: NgbModalRef;
-    projects: Project[];
+    // projects: Project[];
+    organizations: Organization[]
     subscriptions: Subscription;
 
     constructor(
@@ -30,30 +32,50 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.loadRelevantProjects();
+        // this.loadRelevantProjects();
+        this.loadRelevantOrganizations();
     }
 
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
     }
 
-    private loadRelevantProjects() {
+    // private loadRelevantProjects() {
+    //     this.subscriptions.add(this.principal.getAuthenticationState()
+    //         .pipe(
+    //           tap(account => this.account = account),
+    //           switchMap(account => {
+    //             if (account) {
+    //                 return this.userService.findProject(account.login);
+    //             } else {
+    //               return of([]);
+    //             }
+    //           })
+    //         )
+    //         .subscribe(projects => this.projects = projects));
+    // }
+
+    private loadRelevantOrganizations() {
         this.subscriptions.add(this.principal.getAuthenticationState()
-            .pipe(
-              tap(account => this.account = account),
-              switchMap(account => {
-                if (account) {
-                    return this.userService.findProject(account.login);
-                } else {
-                  return of([]);
-                }
-              })
-            )
-            .subscribe(projects => this.projects = projects));
+                .pipe(
+                        tap(account => this.account = account),
+                        switchMap(account => {
+                            if (account) {
+                                return this.userService.findOrganization(account.login);
+                            } else {
+                                return of([]);
+                            }
+                        })
+                )
+                .subscribe(organizations => this.organizations = organizations));
     }
 
-    trackId(index: number, item: Project) {
-        return item.projectName;
+    // trackId(index: number, item: Project) {
+    //     return item.projectName;
+    // }
+
+    trackId(index: number, item: Organization) {
+        return item.organizationName;
     }
 
     isAuthenticated() {

@@ -1,0 +1,44 @@
+{
+    "managementPortalApp": {
+        "organization" : {
+            "home": {
+                "title": "Organizations",
+                "createLabel": "Create a new Organization",
+                "createOrEditLabel": "Create or edit a Organization"
+            },
+            "created": "A new Organization is created with identifier {{ param }}",
+            "updated": "A Organization is updated with identifier {{ param }}",
+            "deleted": "A Organization is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Organization {{ id }}?"
+            },
+            "detail": {
+                "title": "Organization"
+            },
+            "organizationName": "Organization Id",
+            "organizationName.fieldDescription": "Unique identifier of organization",
+            "description": "Description",
+            "organization": "Organization",
+            "location": "Location",
+            "startDate": "Start Date",
+            "organizationStatus": "Organization Status",
+            "endDate": "End Date",
+            "organizationAdmin": "Organization Admin",
+            "sourceType": "Source Type",
+            "groups": "Groups",
+            "newGroup": {
+                "label": "New group",
+                "button": "Add group"
+            },
+            "attributeDataKey" : "Tag",
+            "attributeDataValue" : "Value",
+            "prettyOrganizationName" : "Human readable organization Name",
+            "prettyOrganizationName.fieldDescription" : "Human readable organization name that doesn't have to follow url pattern.",
+            "organizationIdAsPrettyName": "Do you want to use the organization-id as the human readable name?"
+        },
+        "error" : {
+            "organizationIdNotFound" : "There was no organization found with id {{ param0 }}",
+            "organizationNameNotFound" : "There was no organization found with the name {{ param0 }}"
+        }
+    }
+}

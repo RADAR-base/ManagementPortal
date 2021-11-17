@@ -1,28 +1,23 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import {BehaviorSubject, Observable, Subscription} from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import {ITEMS_PER_PAGE, Organization, Project, ProjectService} from '../../shared';
+import { ITEMS_PER_PAGE, Organization, OrganizationService } from '../../shared';
 import { PagingParams } from '../../shared/commons';
 import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
 import { parseLinks } from '../../shared/util/parse-links-util';
 
 @Component({
-    selector: 'jhi-projects',
-    templateUrl: './project.component.html',
+    selector: 'jhi-organization',
+    templateUrl: './organization.component.html',
 })
-export class ProjectComponent implements OnInit, OnDestroy {
+export class OrganizationComponent implements OnInit, OnDestroy {
     pagingParams$: Observable<PagingParams>;
 
-    organization$ = new BehaviorSubject<Organization>(null);
-    @Input()
-    get organization() { return this.organization$.value; }
-    set organization(v: Organization) { this.organization$.next(v); }
-
-    projects: Project[];
+    organizations: Organization[];
     eventSubscriber: Subscription;
     itemsPerPage: number;
     links: any;
@@ -34,16 +29,14 @@ export class ProjectComponent implements OnInit, OnDestroy {
     routeData: any;
     previousPage: any;
 
-    @Input() isOrganizationSpecific: boolean;
-
     constructor(
-            private projectService: ProjectService,
+            private organizationService: OrganizationService,
             private alertService: AlertService,
             private eventManager: EventManager,
             private activatedRoute: ActivatedRoute,
             private router: Router,
     ) {
-        this.projects = [];
+        this.organizations = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
         this.pagingParams$ = this.activatedRoute.data.pipe(map(data => {
             const fallback = { page: 1, predicate: 'id', ascending: true };
@@ -58,21 +51,33 @@ export class ProjectComponent implements OnInit, OnDestroy {
     }
 
     loadAll() {
-        this.projectService.query(
-                {
-                    page: this.page - 1,
-                    size: this.itemsPerPage,
-                    sort: this.sort(),
-                },
+        // this.organizationService.query(
+        //         {
+        //             page: this.page - 1,
+        //             size: this.itemsPerPage,
+        //             sort: this.sort(),
+        //         },
+        // ).subscribe(
+        //         (res: HttpResponse<Organization[]>) => this.onSuccess(res.body, res.headers),
+        //         (res: HttpErrorResponse) => this.onError(res.message),
+        // );
+
+        this.organizationService.findAll(
+                // {
+                //     page: this.page - 1,
+                //     size: this.itemsPerPage,
+                //     sort: this.sort(),
+                // },
         ).subscribe(
-                (res: HttpResponse<Project[]>) => this.onSuccess(res.body, res.headers),
+                (organizations) => this.organizations = organizations,
+                // (res: HttpResponse<Organization[]>) => this.onSuccess(res.body, res.headers),
                 (res: HttpErrorResponse) => this.onError(res.message),
         );
     }
 
     ngOnInit() {
         this.loadAll();
-        this.registerChangeInProjects();
+        this.registerChangeInOrganizations();
 
         this.pagingParams$.subscribe(() => {
             this.loadAll();
@@ -83,12 +88,12 @@ export class ProjectComponent implements OnInit, OnDestroy {
         this.eventManager.destroy(this.eventSubscriber);
     }
 
-    trackId(index: number, item: Project) {
-        return item.projectName;
+    trackId(index: number, item: Organization) {
+        return item.organizationName;
     }
 
-    registerChangeInProjects() {
-        this.eventSubscriber = this.eventManager.subscribe('projectListModification', (response) => this.loadAll());
+    registerChangeInOrganizations() {
+        this.eventSubscriber = this.eventManager.subscribe('organizationListModification', (response) => this.loadAll());
     }
 
     private onError(error) {
@@ -107,7 +112,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
         this.links = parseLinks(headers.get('link'));
         this.totalItems = headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
-        this.projects = data;
+        this.organizations = data;
     }
 
     loadPage(page) {
@@ -118,7 +123,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     }
 
     transition() {
-        this.router.navigate(['/project'], {
+        this.router.navigate(['/organization'], {
             queryParams:
                     {
                         page: this.page,

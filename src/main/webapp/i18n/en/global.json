@@ -10,6 +10,7 @@
                 "source": "Source",
                 "sourceType": "Source Type",
                 "project": "Projects",
+                "organization": "Organizations",
                 "oauth-clients": "OAuth Clients",
                 "sourceData": "Source Data",
                 "subject": "Subject",

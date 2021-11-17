@@ -1,0 +1,99 @@
+<div *ngIf="organization">
+    <h2>
+        <span>
+            <span [translate]="'managementPortalApp.organization.detail.title'"></span>
+<!--            {{organization.humanReadableOrganizationName ? organization.humanReadableOrganizationName : organization.organizationName}}-->
+            {{organization.organizationName}}
+        </span>
+        <button type="button"
+                [routerLink]="['/', { outlets: { popup: 'organization/'+ organization.organizationName + '/edit'} }]"
+                replaceUrl="true"
+                class="btn btn-primary float-right">
+            <span class="fa fa-pencil"></span>&nbsp;<span [translate]="'entity.action.edit'"></span>
+        </button>
+    </h2>
+    <div class="organization-detail__organization-info">
+        <div class="organization-detail__organization-info-fields">
+            <div>
+                <span [translate]="'managementPortalApp.organization.organizationName'"></span>
+                <p>{{organization.organizationName}}</p>
+            </div>
+<!--            <div>-->
+<!--                <span translate="managementPortalApp.organization.organization"></span>-->
+<!--                <p>{{organization.organization}}</p>-->
+<!--            </div>-->
+            <div>
+                <span [translate]="'managementPortalApp.organization.location'"></span>
+                <p>{{organization.location}}</p>
+            </div>
+<!--            <div>-->
+<!--                <span translate="managementPortalApp.organization.organizationStatus"></span>-->
+<!--                <p>{{organization.organizationStatus}}</p>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--                <span translate="managementPortalApp.organization.startDate"></span>-->
+<!--                <p *ngIf="organization.startDate">{{organization.startDate | date:'medium'}}</p>-->
+<!--                <p *ngIf="!organization.startDate">N/A</p>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--                <span translate="managementPortalApp.organization.endDate"></span>-->
+<!--                <p *ngIf="organization.endDate">{{organization.endDate | date:'medium'}}</p>-->
+<!--                <p *ngIf="!organization.endDate">N/A</p>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--                <span>-->
+<!--                    <span translate="managementPortalApp.organization.attributeDataKey"></span>-->
+<!--                    =>-->
+<!--                    <span translate="managementPortalApp.organization.attributeDataValue"></span>-->
+<!--                </span>-->
+<!--                <div *ngFor="let entry of organization.attributes | keyvalue">-->
+<!--                    <span class="form-control-static">{{entry.key}}</span>-->
+<!--                    =>-->
+<!--                    <span class="form-control-static">{{entry.value}}</span>-->
+<!--                </div>-->
+<!--            </div>-->
+        </div>
+        <p class="organization-detail__description">
+            {{organization.description}}
+        </p>
+    </div>
+
+
+    <ul class="nav nav-tabs">
+        <li class="nav-item" (click)="viewProjects()">
+            <span class="nav-link" [ngClass]="{active: showProjects}">
+                Projects
+            </span>
+        </li>
+<!--        <li class="nav-item" (click)="viewSubjects()">-->
+<!--            <span class="nav-link" [ngClass]="{active: showSubjects}">-->
+<!--                Subjects-->
+<!--            </span>-->
+<!--        </li>-->
+<!--        <li class="nav-item" (click)="viewOrganizationGroups()">-->
+<!--            <span class="nav-link" [ngClass]="{active: showOrganizationGroups}">-->
+<!--                Groups-->
+<!--            </span>-->
+<!--        </li>-->
+<!--        <li class="nav-item" (click)="viewOrganizationAdmins()">-->
+<!--            <span class="nav-link" [ngClass]="{active: showOrganizationAdmins}">-->
+<!--                Admins-->
+<!--            </span>-->
+<!--        </li>-->
+<!--        <li class="nav-item" (click)="viewOrganizationAnalysts()">-->
+<!--            <span class="nav-link" [ngClass]="{active: showOrganizationAnalysts}">-->
+<!--                Analysts-->
+<!--            </span>-->
+<!--        </li>-->
+    </ul>
+
+    <div id="organization-content-wrapper">
+        <jhi-alert-error></jhi-alert-error>
+            <jhi-projects *ngIf="showProjects" [organization]='organization' [isOrganizationSpecific]="true"></jhi-projects>
+
+<!--        <jhi-subjects *ngIf="showSubjects" [organization]='organization' [isOrganizationSpecific]="true"></jhi-subjects>-->
+<!--        <jhi-groups *ngIf="showOrganizationGroups" [organization]='organization'></jhi-groups>-->
+<!--        <jhi-common-user-mgmt *ngIf="showOrganizationAdmins" [organization]='organization' [authority]="'ROLE_PROJECT_ADMIN'"></jhi-common-user-mgmt>-->
+<!--        <jhi-common-user-mgmt *ngIf="showOrganizationAnalysts" [organization]='organization' [authority]="'ROLE_PROJECT_ANALYST'"></jhi-common-user-mgmt>-->
+    </div>
+</div>

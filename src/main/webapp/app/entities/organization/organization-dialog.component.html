@@ -1,0 +1,211 @@
+<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+
+    <div class="modal-header">
+        <h4 class="modal-title" id="myOrganizationLabel"
+            [translate]="'managementPortalApp.organization.home.createOrEditLabel'">
+        </h4>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                (click)="clear()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" [hidden]="!organization.id">
+            <label for="id" [translate]="'global.field.id'"></label>
+            <input type="text" class="form-control" id="id" name="id"
+                   [(ngModel)]="organization.id" readonly />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.organization.organizationName'"
+                for="field_organizationName">
+            </label>
+            <input type="text" class="form-control" name="organizationName" id="field_organizationName"
+                [(ngModel)]="organization.organizationName" required pattern="[_'.@A-Za-z0-9- ]*" />
+            <small id="organizationIdHelp" class="form-text text-muted"
+                [translate]="'managementPortalApp.organization.organizationName.fieldDescription'">
+            </small>
+            <div [hidden]="!(editForm.controls.organizationName?.dirty && editForm.controls.organizationName?.invalid)">
+                <small class="form-text text-danger"
+                   [hidden]="!editForm.controls.organizationName?.errors?.required"
+                   [translate]="'entity.validation.required'">
+                </small>
+                <small class="form-text text-danger"
+                    [hidden]="!editForm.controls.organizationName?.errors?.pattern"
+                    [translate]="'entity.validation.pattern'"
+                    [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
+                </small>
+            </div>
+        </div>
+
+<!--        <div class="form-group">-->
+<!--            <label class="form-control-label"-->
+<!--                [translate]="'managementPortalApp.organization.prettyOrganizationName'"-->
+<!--                for="field_humanReadableOrganizationName">-->
+<!--            </label>-->
+<!--            <input type="text" class="form-control" name="prettyOrganizationName" id="field_humanReadableOrganizationName"-->
+<!--                   [(ngModel)]="organization.humanReadableOrganizationName" value="{{organizationIdAsPrettyValue? organization.organizationName : ''}}"/>-->
+<!--            <small id="prettyOrganizationNameHelp" class="form-text text-muted"-->
+<!--                [translate]="'managementPortalApp.organization.prettyOrganizationName.fieldDescription'">-->
+<!--            </small>-->
+<!--            <small>-->
+<!--                <input type="checkbox" class="form-control-check" name="grantTypes" [checked]="organizationIdAsPrettyValue" (change)="organizationIdAsPrettyValue = !organizationIdAsPrettyValue" />-->
+<!--                {{ 'managementPortalApp.organization.organizationIdAsPrettyName' | translate }}-->
+<!--            </small>-->
+<!--        </div>-->
+
+        <div class="form-group">
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.organization.description'"
+                for="field_description">
+            </label>
+            <input type="text" class="form-control" name="description" id="field_description"
+                [(ngModel)]="organization.description"
+            required />
+            <div [hidden]="!(editForm.controls.description?.dirty && editForm.controls.description?.invalid)">
+                <small class="form-text text-danger"
+                   [hidden]="!editForm.controls.description?.errors?.required"
+                   [translate]="'entity.validation.required'">
+                </small>
+            </div>
+        </div>
+<!--        <div class="form-group">-->
+<!--            <label class="form-control-label"-->
+<!--                [translate]="'managementPortalApp.organization.organization'"-->
+<!--                for="field_organization">-->
+<!--            </label>-->
+<!--            <input type="text" class="form-control" name="organization" id="field_organization"-->
+<!--                [(ngModel)]="organization.organization"-->
+<!--             />-->
+<!--        </div>-->
+        <div class="form-group">
+            <label class="form-control-label"
+                [translate]="'managementPortalApp.organization.location'"
+                for="field_location">
+            </label>
+            <input type="text" class="form-control" name="location" id="field_location"
+                [(ngModel)]="organization.location"
+            required />
+            <div [hidden]="!(editForm.controls.location?.dirty && editForm.controls.location?.invalid)">
+                <small class="form-text text-danger"
+                   [hidden]="!editForm.controls.location?.errors?.required"
+                   [translate]="'entity.validation.required'">
+                </small>
+            </div>
+        </div>
+<!--        <div class="form-group">-->
+<!--            <label class="form-control-label"-->
+<!--                [translate]="'managementPortalApp.organization.startDate'"-->
+<!--                for="field_startDate">-->
+<!--            </label>-->
+<!--            <div class="input-group">-->
+<!--                <input [(ngModel)]="startDate"-->
+<!--                       id="field_startDate"-->
+<!--                       class="form-control"-->
+<!--                       name="startDate"-->
+<!--                       placeholder="yyyy-mm-dd"-->
+<!--                       ngbDatepicker-->
+<!--                       #startDatePicker="ngbDatepicker">-->
+<!--                <div class="input-group-append">-->
+<!--                    <button class="btn btn-outline-secondary calendar" (click)="startDatePicker.toggle()" type="button"></button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="form-group">-->
+<!--            <label class="form-control-label"-->
+<!--                [translate]="'managementPortalApp.organization.organizationStatus'"-->
+<!--                for="field_organizationStatus">-->
+<!--            </label>-->
+<!--            <select class="form-control" name="organizationStatus" [(ngModel)]="organization.organizationStatus" id="field_organizationStatus" >-->
+<!--                <option value="PLANNING" [translate]="'managementPortalApp.OrganizationStatus.PLANNING'"></option>-->
+<!--                <option value="ONGOING" [translate]="'managementPortalApp.OrganizationStatus.ONGOING'"></option>-->
+<!--                <option value="ENDED" [translate]="'managementPortalApp.OrganizationStatus.ENDED'"></option>-->
+<!--            </select>-->
+<!--        </div>-->
+<!--        <div class="form-group">-->
+<!--            <label class="form-control-label"-->
+<!--                [translate]="'managementPortalApp.organization.endDate'"-->
+<!--                for="field_endDate">-->
+<!--            </label>-->
+<!--            <div class="input-group">-->
+<!--                <input [(ngModel)]="endDate"-->
+<!--                       id="field_endDate"-->
+<!--                       class="form-control"-->
+<!--                       name="endDate"-->
+<!--                       placeholder="yyyy-mm-dd"-->
+<!--                       ngbDatepicker-->
+<!--                       #endDatePicker="ngbDatepicker">-->
+<!--                <div class="input-group-append">-->
+<!--                    <button class="btn btn-outline-secondary calendar" (click)="endDatePicker.toggle()" type="button"></button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--        <div class="form-group">-->
+<!--            <label [translate]="'managementPortalApp.organization.sourceType'" for="field_sourceType"></label>-->
+<!--            <input-->
+<!--                id="field_sourceType"-->
+<!--                type="text"-->
+<!--                class="form-control"-->
+<!--                name="sourceType"-->
+<!--                [(ngModel)]="sourceTypeInputText"-->
+<!--                [ngbTypeahead]="getMatchingSourceTypes"-->
+<!--                [resultFormatter]="formatSourceTypeOption"-->
+<!--                (focus)="sourceTypeInputFocus$.next($any($event).target.value)"-->
+<!--                (selectItem)="addSourceType($event)"-->
+<!--            />-->
+<!--            <div class="selected-source-types">-->
+<!--                <div-->
+<!--                    class="badge badge-pill badge-primary"-->
+<!--                    *ngFor="let t of organization.sourceTypes"-->
+<!--                    (click)="removeSourceType(t.id)"-->
+<!--                >-->
+<!--                    <span>{{formatSourceTypeOption(t)}}</span>-->
+<!--                    <span aria-hidden="true">&times;</span>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="form-group">-->
+<!--            <h2 [translate]="'managementPortalApp.organization.groups'"></h2>-->
+<!--            <div class="organization-dialog__existing-groups">-->
+<!--                <div-->
+<!--                    class="badge badge-pill badge-primary"-->
+<!--                    *ngFor="let g of organization.groups"-->
+<!--                    (click)="removeGroup(g.name)"-->
+<!--                >-->
+<!--                    <span>{{g.name}}</span>-->
+<!--                    <span aria-hidden="true">&times;</span>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="organization-dialog__new-group">-->
+<!--                <div>-->
+<!--                    <label [translate]="'managementPortalApp.organization.newGroup.label'"-->
+<!--                        for="field_newGroup">-->
+<!--                    </label>-->
+<!--                    <input-->
+<!--                        id="field_newGroup"-->
+<!--                        type="text"-->
+<!--                        class="form-control"-->
+<!--                        name="newGroup"-->
+<!--                        [(ngModel)]="newGroupInputText"-->
+<!--                    />-->
+<!--                </div>-->
+
+<!--                <button type="button"-->
+<!--                    class="btn btn-primary"-->
+<!--                    (click)="addGroup()"-->
+<!--                    [translate]="'managementPortalApp.organization.newGroup.button'">-->
+<!--                </button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <jhi-dictionary-mapper [attributes]='organization.attributes' [options]="options"-->
+<!--                               [eventPrefix]='attributeComponentEventPrefix'></jhi-dictionary-mapper>-->
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+            <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
+        </button>
+        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+            <span class="fa fa-save"></span>&nbsp;<span [translate]="'entity.action.save'"></span>
+        </button>
+    </div>
+</form>

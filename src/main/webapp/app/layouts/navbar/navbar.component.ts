@@ -5,7 +5,15 @@ import { TranslateService } from '@ngx-translate/core';
 import { of, Subscription } from 'rxjs';
 
 import { DEBUG_INFO_ENABLED, VERSION } from '../../app.constants';
-import { JhiLanguageHelper, LoginModalService, LoginService, Principal, Project, UserService } from '../../shared';
+import {
+    JhiLanguageHelper,
+    LoginModalService,
+    LoginService,
+    Organization,
+    Principal,
+    Project,
+    UserService
+} from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 
 import { ProfileService } from '../profiles/profile.service';
@@ -27,7 +35,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     modalRef: NgbModalRef;
     version: string;
 
-    projects: Project[];
+    // projects: Project[];
+    organizations: Organization[];
     currentAccount: any;
     private subscriptions: Subscription;
 
@@ -49,7 +58,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.principal.identity().then(account => this.currentAccount = account);
-        this.loadRelevantProjects();
+        // this.loadRelevantProjects();
+        this.loadRelevantOrganizations();
         this.languageHelper.getAll().then((languages) => {
             this.languages = languages;
         });
@@ -64,23 +74,42 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.subscriptions.unsubscribe();
     }
 
-    loadRelevantProjects() {
+    // loadRelevantProjects() {
+    //     this.subscriptions.add(this.principal.getAuthenticationState()
+    //         .pipe(
+    //           tap(account => this.currentAccount = account),
+    //           switchMap(account => {
+    //               if (account) {
+    //                   return this.userService.findProject(account.login);
+    //               } else {
+    //                   return of([]);
+    //               }
+    //           })
+    //         )
+    //         .subscribe(projects => this.projects = projects));
+    // }
+
+    loadRelevantOrganizations() {
         this.subscriptions.add(this.principal.getAuthenticationState()
-            .pipe(
-              tap(account => this.currentAccount = account),
-              switchMap(account => {
-                  if (account) {
-                      return this.userService.findProject(account.login);
-                  } else {
-                      return of([]);
-                  }
-              })
-            )
-            .subscribe(projects => this.projects = projects));
+                .pipe(
+                        tap(account => this.currentAccount = account),
+                        switchMap(account => {
+                            if (account) {
+                                return this.userService.findOrganization(account.login);
+                            } else {
+                                return of([]);
+                            }
+                        })
+                )
+                .subscribe(organizations => this.organizations = organizations));
     }
 
-    trackProjectName(index: number, item: Project) {
-        return item.projectName;
+    // trackProjectName(index: number, item: Project) {
+    //     return item.projectName;
+    // }
+
+    trackOrganizationName(index: number, item: Organization) {
+        return item.organizationName;
     }
 
     changeLanguage(languageKey: string) {
