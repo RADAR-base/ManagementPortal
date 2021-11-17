@@ -225,22 +225,22 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     private registerChangeInSubjects(): Subscription {
-        return this.eventManager.subscribe('subjectListModification', (result) => {
-          const modifiedSubject = result.content;
-          if (typeof modifiedSubject === 'string') {
-            this.trigger$.next();
-            return;
-          }
-          let currentSubjects = this.subjects$.value;
-          const subjectIndex = currentSubjects.findIndex((s => s.id === modifiedSubject.id));
-          if (subjectIndex < 0) {
-              this.totalItems++;
-              currentSubjects = [modifiedSubject, ...currentSubjects];
-          } else {
-              currentSubjects = currentSubjects.slice();
-              currentSubjects[subjectIndex] = modifiedSubject;
-          }
-          this.subjects$.next(currentSubjects);
+        return this.eventManager.subscribe('subjectListModification', ({content}) => {
+            const modifiedSubject = content.subject;
+            let currentSubjects = this.subjects$.value.slice();
+            const subjectIndex = currentSubjects.findIndex((s => s.login === modifiedSubject.login));
+            if (content.op === 'DELETE') {
+                if (subjectIndex >= 0) {
+                    currentSubjects = currentSubjects.splice(subjectIndex, 1);
+                }
+                this.totalItems--;
+            } else if (subjectIndex >= 0) {
+                currentSubjects[subjectIndex] = modifiedSubject;
+            } else {
+                this.totalItems++;
+                currentSubjects = [modifiedSubject, ...currentSubjects];
+            }
+            this.subjects$.next(currentSubjects);
         });
     }
 

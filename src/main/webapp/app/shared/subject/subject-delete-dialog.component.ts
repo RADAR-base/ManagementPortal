@@ -14,7 +14,6 @@ import { SubjectService } from './subject.service';
     templateUrl: './subject-delete-dialog.component.html',
 })
 export class SubjectDeleteDialogComponent {
-
     subject: Subject;
     isDelete: boolean;
 
@@ -37,7 +36,7 @@ export class SubjectDeleteDialogComponent {
             });
         } else {
             this.subjectService.discontinue(this.subject).subscribe(() => {
-                this.eventManager.broadcast({name: 'subjectListModification', content: 'OK'});
+                this.eventManager.broadcast({name: 'subjectListModification', content: {op: 'DELETE', subject: this.subject}});
                 this.activeModal.dismiss(true);
                 window.history.back();
             });

@@ -70,16 +70,16 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
         if (this.subject.id !== null) {
             this.subjectService.update(this.subject)
             .subscribe((res: Subject) =>
-                    this.onSaveSuccess(res), (res: any) => this.onSaveError(res));
+                    this.onSaveSuccess('UPDATE', res), (res: any) => this.onSaveError(res));
         } else {
             this.subjectService.create(this.subject)
             .subscribe((res: Subject) =>
-                    this.onSaveSuccess(res), (res: any) => this.onSaveError(res));
+                    this.onSaveSuccess('CREATE', res), (res: any) => this.onSaveError(res));
         }
     }
 
-    private onSaveSuccess(result: Subject) {
-        this.eventManager.broadcast({name: 'subjectListModification', content: result});
+    private onSaveSuccess(op: string, result: Subject) {
+        this.eventManager.broadcast({name: 'subjectListModification', content: {op, subject: result}});
         this.isSaving = false;
         this.activeModal.dismiss(result);
     }
