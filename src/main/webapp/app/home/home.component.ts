@@ -1,14 +1,12 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import {
-    Account,
     LoginModalService,
+    ProjectService,
     Principal,
     Project,
-    ProjectService,
 } from '../shared';
-import { Subscription } from "rxjs";
 
 @Component({
     selector: 'jhi-home',
@@ -18,35 +16,18 @@ import { Subscription } from "rxjs";
     ],
 
 })
-export class HomeComponent implements OnInit, OnDestroy {
-    account: Account;
+export class HomeComponent {
     modalRef: NgbModalRef;
-    private subscriptions: Subscription;
 
     constructor(
-            private principal: Principal,
+            public principal: Principal,
             private loginModalService: LoginModalService,
             public projectService: ProjectService,
     ) {
-        this.subscriptions = new Subscription();
-    }
-
-    ngOnInit() {
-        this.subscriptions.add(
-            this.principal.getAuthenticationState().subscribe((account) => this.account = account),
-        );
-    }
-
-    ngOnDestroy() {
-        this.subscriptions.unsubscribe();
     }
 
     trackId(index: number, item: Project) {
         return item.projectName;
-    }
-
-    isAuthenticated() {
-        return !!this.account;
     }
 
     login() {

@@ -6,33 +6,36 @@
         <h1 class="display-4" [translate]="'home.title'"></h1>
         <p class="lead" [translate]="'home.subtitle'"></p>
 
-        <div *ngIf="account; else unauthorized">
+        <div *ngIf="principal.account$ | async as account; else unauthenticated">
             <div class="alert alert-success">
-                <span [translate]="'home.logged.message'" [translateParams]="{username: account.login}"></span>
+                <span [translate]="'home.logged.message'"
+                    [translateParams]="{username: account.login}">
+                </span>
             </div>
 
             <div class="card-columns ">
-                <div class="card mb-3" *ngFor="let project of projectService.projects$ | async;" [routerLink]="['../project', project.projectName ]">
 
+                <div class="card mb-3" *ngFor="let project of projectService.projects$ | async as projects" [routerLink]="['../project', project.projectName ]">
                     <div class="card-body text-center">
                         <h5 class="card-title" style="text-transform: uppercase"> {{project.projectName}}</h5>
                         <h6 class="card-subtitle text-center mb-2 text-muted">{{project.organization}} : {{project.location}} </h6>
                         <p class="card-text"> {{project.description}}
-
-                        <footer class="card-footer  text-center">
-                            <button type="button"
-                                    [routerLink]="['../project', project.projectName ]"
-                                    class="btn btn-info btn-sm">
-                                <span class="fa fa-eye"></span>
-                                <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
-                            </button>
-                        </footer>
                     </div>
+
+                    <footer class="card-footer  text-center">
+                        <button type="button"
+                                [routerLink]="['../project', project.projectName ]"
+                                [queryParams]="{page: 1}"
+                                class="btn btn-info btn-sm">
+                            <span class="fa fa-eye"></span>
+                            <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
+                        </button>
+                    </footer>
                 </div>
             </div>
         </div>
 
-        <ng-template #unauthorized>
+        <ng-template #unauthenticated>
             <div class="alert alert-warning">
                 <span [translate]="'global.messages.info.authenticated.prefix'"></span>
                 <a class="alert-link" (click)="login()" [translate]="'global.messages.info.authenticated.link'"></a>

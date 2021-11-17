@@ -41,11 +41,11 @@ export class ProjectService {
       private alertService: AlertService,
     ) {
         combineLatest([
-            principal.getAuthenticationState(),
+            principal.account$,
             this._trigger$.pipe(startWith(undefined as void)),
         ]).pipe(
-          switchMap(([state]) => {
-              if (state) {
+          switchMap(([account]) => {
+              if (account) {
                   return this.fetch().pipe(
                     retryWhen(errors => errors.pipe(
                       delay(1000),

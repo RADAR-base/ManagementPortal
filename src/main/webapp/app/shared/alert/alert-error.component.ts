@@ -1,7 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
 
