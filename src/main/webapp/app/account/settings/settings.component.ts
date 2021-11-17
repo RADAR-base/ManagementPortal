@@ -3,16 +3,17 @@ import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 
 import { Account, AccountService, JhiLanguageHelper, Principal } from '../../shared';
+import { filter } from "rxjs/operators";
 
 @Component({
     selector: 'jhi-settings',
     templateUrl: './settings.component.html',
 })
 export class SettingsComponent implements OnInit, OnDestroy {
-    private subscription: Subscription;
+    private subscription: Subscription = new Subscription();
     error: string;
     success: string;
-    settingsAccount: Account;
+    settingsAccount?: Account;
     languages: any[];
     previousLangKey: String;
 
@@ -25,10 +26,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.subscription = this.principal.account$.subscribe((account) => {
-            this.settingsAccount = this.copyAccount(account);
-            this.previousLangKey = this.settingsAccount.langKey;
-        });
+        this.subscription.add(this.registerChangesToAccount());
         this.languageHelper.getAll().then((languages) => {
             this.languages = languages;
         });
@@ -38,12 +36,21 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.subscription.unsubscribe();
     }
 
+    private registerChangesToAccount(): Subscription {
+        return this.principal.account$.pipe(
+            filter(a => !!a),
+        ).subscribe(({activated, email, firstName, langKey, lastName, login}) => {
+            this.settingsAccount = { activated, email, firstName, langKey, lastName, login };
+            this.previousLangKey = this.settingsAccount.langKey;
+        });
+    }
+
     save() {
-        const currentLangKey = this.settingsAccount.langKey;
         this.account.save(this.settingsAccount).subscribe(async () => {
             this.error = null;
             this.success = 'OK';
-            await this.principal.reset();
+            const currentLangKey = this.settingsAccount.langKey;
+            await this.principal.reset().toPromise();
             if (currentLangKey && currentLangKey !== this.previousLangKey) {
                 this.translateService.use(currentLangKey)
                 this.previousLangKey = currentLangKey;
@@ -52,16 +59,5 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.success = null;
             this.error = 'ERROR';
         });
-    }
-
-    copyAccount(account): Account {
-        return {
-            activated: account.activated,
-            email: account.email,
-            firstName: account.firstName,
-            langKey: account.langKey,
-            lastName: account.lastName,
-            login: account.login,
-        };
     }
 }

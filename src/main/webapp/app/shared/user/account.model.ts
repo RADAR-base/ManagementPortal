@@ -6,7 +6,7 @@ export interface Account {
     firstName?: string,
     lastName?: string,
     email?: string,
-    activated?: true,
+    activated?: boolean,
     langKey?: string;
     createdBy?: string;
     createdDate?: string;
