@@ -21,8 +21,8 @@ export class ReactiveFilter<T> {
   protected readonly _error$: BehaviorSubject<string>;
   protected readonly trigger$: Subject<T>;
 
-  error$: Observable<string>
-  rawValue$: Observable<T | null>
+  error$: Observable<string>;
+  rawValue$: Observable<T | null>;
   value$: Observable<T | null>;
 
   constructor(
@@ -32,27 +32,26 @@ export class ReactiveFilter<T> {
       options = {};
     }
     this._error$ = new BehaviorSubject('');
-    this.error$ = this._error$.asObservable().pipe(distinctUntilChanged())
+    this.error$ = this._error$.asObservable().pipe(distinctUntilChanged());
 
     this._value$ = new BehaviorSubject<T>(null);
     this.rawValue$ = this._value$.asObservable();
     this.trigger$ = new Subject<T>();
-    let debouncedValue = this._value$.pipe(debounceTime(options.debounceTime || 300));
-    if (options.validate) {
-      debouncedValue = this._value$.pipe(
+
+    let validValue = this._value$.pipe(
+        debounceTime(options.debounceTime || 200),
         filter(v => {
-          const error = options.validate(v);
-          if (error) {
-            this._error$.next(error);
-            return false;
-          } else {
-            this._error$.next('');
-            return true;
-          }
-        })
-      )
-    }
-    let mergedSignal = merge(debouncedValue, this.trigger$).pipe(
+            const error = this.validate(v);
+            if (error) {
+                this._error$.next(error);
+                return false;
+            } else {
+                this._error$.next('');
+                return true;
+            }
+        }),
+    );
+    let mergedSignal = merge(validValue, this.trigger$).pipe(
       startWith(options.initialValue || null as T | null),
     );
     if (options.mapResult) {
@@ -78,44 +77,45 @@ export class ReactiveFilter<T> {
     this._error$.complete();
     this.trigger$.complete();
   }
+
+  validate(value: T | null): string {
+      return '';
+  }
 }
 
 export interface ReactiveFilterOptions<T> {
   debounceTime?: number | null,
   initialValue?: T | null;
-  validate?: (value: T | null) => string | null;
   mapResult?: (value$: Observable<T | null>) => Observable<T | null>;
 }
 
 export class NgbDateReactiveFilter extends ReactiveFilter<NgbDateStruct> {
   constructor(
-    calendar: NgbCalendar,
+    private calendar: NgbCalendar,
     private formatter: NgbDateParserFormatter,
     options: ReactiveFilterOptions<NgbDateStruct> = {},
   ) {
-    super({
-      validate(date) {
-          if (date === null) {
-            return '';
-          }
-          if (!calendar.isValid(NgbDate.from(date))) {
-            return 'invalidDate';
-          }
-          if (options.validate) {
-            return options.validate(date)
-          }
-          return '';
-      },
-      mapResult: options.mapResult ? options.mapResult : $v => $v.pipe(
-        distinctUntilChanged((d1, d2) => d1 === d2
-          || (d1 && NgbDate.from(d1).equals(d2)))
-      ),
-      debounceTime: 1,
-      initialValue: options.initialValue,
-    });
+      super({
+          mapResult: options.mapResult ? options.mapResult : $v => $v.pipe(
+              distinctUntilChanged((d1, d2) => d1 === d2
+                  || (d1 && NgbDate.from(d1).equals(d2)))
+          ),
+          debounceTime: 1,
+          initialValue: options.initialValue,
+      });
   }
 
-  next(value?: NgbDateStruct | string) {
+    validate(date: NgbDateStruct | null): string {
+        if (date === null) {
+            return '';
+        }
+        if (!this.calendar.isValid(NgbDate.from(date))) {
+            return 'invalidDate';
+        }
+        return '';
+    }
+
+    next(value?: NgbDateStruct | string) {
     if (typeof value === 'string') {
       super.next(this.formatter.parse(value));
     } else {

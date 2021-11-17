@@ -14,8 +14,7 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
   template: `
       <div class="badge badge-pill badge-primary mx-1" *ngIf="value"
            (click)="clear.emit()">
-          <span>{{ text | translate }}
-              : {{value}}</span>
+          <span>{{ text | translate }}: {{value}}</span>
           <span aria-hidden="true"> &times;</span>
       </div>
   `

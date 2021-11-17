@@ -157,7 +157,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         return this.activatedRoute.params.pipe(
           first()
         ).subscribe(params => {
-            window.console.log(params);
             for (let k in params) {
                 if (params.hasOwnProperty(k) && this.filters.hasOwnProperty(k)) {
                     this.filters[k].next(params[k]);

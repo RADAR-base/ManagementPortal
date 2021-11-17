@@ -12,7 +12,7 @@ export class ResolvePagingParams implements Resolve<any> {
             predicate,
             ascending,
             ...otherParams,
-        }
+        };
     }
 }
 

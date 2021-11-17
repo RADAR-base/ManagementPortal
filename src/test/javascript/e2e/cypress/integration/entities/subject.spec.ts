@@ -77,23 +77,29 @@ describe('Subject e2e test', () => {
 
     it('should be able to filter subjects by subject id', () => {
         cy.get('#field-subject-id').type('b-1');
+        cy.contains('app-filter-badge', 'Subject Id: b-1').should('exist');
         cy.get('jhi-subjects .subject-row').should('have.length', 11);
         cy.get('#field-subject-id').clear();
+        cy.contains('app-filter-badge', 'Subject Id: b-1').should('not.exist');
         cy.get('jhi-subjects .subject-row').should('have.length', 20);
     });
 
     it('should be able to filter subjects by subject external id', () => {
         cy.get('#field-subject-external-id').type('test-subject-1');
+        cy.contains('app-filter-badge', 'External Id: test-subject-1').should('exist');
         cy.get('jhi-subjects .subject-row').should('have.length', 1);
         cy.get('#field-subject-external-id').clear();
+        cy.contains('app-filter-badge', 'External Id: test-subject-1').should('not.exist');
         cy.get('jhi-subjects .subject-row').should('have.length', 20);
     });
 
     it('should be able to filter subjects by human readable id', () => {
         cy.get('#advanced-filter').click();
         cy.get('#field-human-readable-id').type('Test');
+        cy.contains('app-filter-badge', 'Human Readable ID: Test').should('exist');
         cy.get('jhi-subjects .subject-row').should('have.length', 1);
         cy.get('#field-human-readable-id').clear();
+        cy.contains('app-filter-badge', 'Human Readable ID: Test').should('not.exist');
         cy.get('jhi-subjects .subject-row').should('have.length', 20);
         cy.get('#advanced-filter').click();
     });
@@ -101,8 +107,10 @@ describe('Subject e2e test', () => {
     it('should be able to filter subjects by person name', () => {
         cy.get('#advanced-filter').click();
         cy.get('#field-person-name').type('Test');
+        cy.contains('app-filter-badge', 'Name: Test').should('exist');
         cy.get('jhi-subjects .subject-row').should('have.length', 1);
         cy.get('#field-person-name').clear();
+        cy.contains('app-filter-badge', 'Name: Test').should('not.exist');
         cy.get('jhi-subjects .subject-row').should('have.length', 20);
         cy.get('#advanced-filter').click();
     });
@@ -112,8 +120,10 @@ describe('Subject e2e test', () => {
     it('should be able to filter subjects by date of birth', () => {
         cy.get('#advanced-filter').click();
         cy.get('#field_date_of_birth').type('1980-01-01');
+        cy.contains('app-filter-badge', 'Date of Birth: 1980-01-01').should('exist');
         cy.get('jhi-subjects .subject-row').should('have.length', 1);
         cy.get('#field_date_of_birth').clear();
+        cy.contains('app-filter-badge', 'Date of Birth: 1980-01-01').should('not.exist');
         cy.get('jhi-subjects .subject-row').should('have.length', 20);
         cy.get('#advanced-filter').click();
     });

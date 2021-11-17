@@ -92,7 +92,6 @@ export class JhiAlertErrorComponent implements OnDestroy {
 
     addErrorAlert(message, key?, data?) {
         key = key ? key : message;
-        window.console.log(key, data)
         this.alerts.push(
                 this.alertService.addAlert(
                         {
