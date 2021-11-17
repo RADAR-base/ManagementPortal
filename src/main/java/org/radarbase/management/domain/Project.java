@@ -6,7 +6,9 @@ import com.fasterxml.jackson.annotation.Nulls;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.management.domain.enumeration.ProjectStatus;
 import org.radarbase.management.domain.support.AbstractEntityListener;
@@ -27,6 +29,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -38,6 +41,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+
+import static javax.persistence.CascadeType.DETACH;
+import static javax.persistence.CascadeType.REFRESH;
+import static javax.persistence.CascadeType.REMOVE;
 
 /**
  * A Project.
@@ -85,7 +92,7 @@ public class Project extends AbstractEntity implements Serializable {
 
     @JsonIgnore
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @Cascade(CascadeType.ALL)
     private Set<Role> roles = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -100,6 +107,12 @@ public class Project extends AbstractEntity implements Serializable {
     @Column(name = "attribute_value")
     @CollectionTable(name = "project_metadata", joinColumns = @JoinColumn(name = "id"))
     private Map<String, String> attributes = new HashMap<>();
+
+    @NotAudited
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, orphanRemoval = true,
+            cascade = {REMOVE, REFRESH, DETACH})
+    @OrderBy("name ASC")
+    private Set<Group> groups = new HashSet<>();
 
     @Override
     public Long getId() {
@@ -231,6 +244,15 @@ public class Project extends AbstractEntity implements Serializable {
     @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
+    }
+
+    public Set<Group> getGroups() {
+        return groups;
+    }
+
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
+    public void setGroups(Set<Group> groups) {
+        this.groups = groups;
     }
 
     @Override

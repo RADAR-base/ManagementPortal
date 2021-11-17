@@ -66,6 +66,10 @@ public class Source extends AbstractEntity implements Serializable {
     @Column(name = "assigned", nullable = false)
     private Boolean assigned;
 
+    @NotNull
+    @Column(name = "deleted", nullable = false)
+    private Boolean deleted = false;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "subject_id")
     @JsonIgnore
@@ -152,6 +156,19 @@ public class Source extends AbstractEntity implements Serializable {
 
     public void setAssigned(Boolean assigned) {
         this.assigned = assigned;
+    }
+
+    public Boolean isDeleted() {
+        return deleted;
+    }
+
+    public Source deleted(Boolean deleted) {
+        this.deleted = deleted;
+        return this;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
     }
 
     public void setSourceType(SourceType sourceType) {

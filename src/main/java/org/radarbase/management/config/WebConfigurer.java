@@ -10,6 +10,7 @@ import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerF
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -20,10 +21,10 @@ import tech.jhipster.web.filter.CachingHttpHeadersFilter;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.EnumSet;
 
 /**
@@ -42,17 +43,17 @@ public class WebConfigurer implements ServletContextInitializer,
     private JHipsterProperties jHipsterProperties;
 
     @Override
-    public void onStartup(ServletContext servletContext) throws ServletException {
+    public void onStartup(ServletContext servletContext) {
         if (env.getActiveProfiles().length != 0) {
             log.info("Web application configuration, using profiles: {}",
-                    (Object[]) env.getActiveProfiles());
+                    Arrays.asList(env.getActiveProfiles()));
         }
-        if (env.acceptsProfiles(JHipsterConstants.SPRING_PROFILE_PRODUCTION)) {
+        if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_PRODUCTION))) {
             EnumSet<DispatcherType> disps = EnumSet
                     .of(DispatcherType.REQUEST, DispatcherType.FORWARD, DispatcherType.ASYNC);
             initCachingHttpHeadersFilter(servletContext, disps);
         }
-        if (env.acceptsProfiles(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT)) {
+        if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT))) {
             initH2Console(servletContext);
         }
         log.info("Web application fully configured");

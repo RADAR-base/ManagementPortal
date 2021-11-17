@@ -1,7 +1,5 @@
 package org.radarbase.management.service.mapper.decorator;
 
-import static org.radarbase.management.service.dto.ProjectDTO.HUMAN_READABLE_PROJECT_NAME;
-
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.service.OAuthClientService;
@@ -11,6 +9,8 @@ import org.radarbase.management.service.mapper.ProjectMapper;
 import org.radarbase.management.web.rest.errors.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import static org.radarbase.management.service.dto.ProjectDTO.HUMAN_READABLE_PROJECT_NAME;
 
 /**
  * Created by nivethika on 30-8-17.

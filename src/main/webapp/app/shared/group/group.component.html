@@ -1,0 +1,59 @@
+<div class="create-group-wrapper">
+    <button class="btn btn-primary create-group"
+            [routerLink]="['/', { outlets: { popup: ['project-group-new' , project.projectName] } }]">
+        <span class="fa fa-plus"></span>
+        <span [translate]="'managementPortalApp.group.home.createLabel'">
+            </span>
+    </button>
+</div>
+<div class="group-wrapper">
+    <section>
+        <jhi-alert></jhi-alert>
+        <div *ngIf="groups" class="groups">
+            <div *ngFor="let group of groups ;trackBy: trackId" class="group-row">
+                <div class="group-row__content">
+                    <div class="group-row__group-id">
+                        <span class="group-row__field-label"
+                            [translate]="'managementPortalApp.group.id'">
+                        </span>
+                        <div>
+                            <span>{{group.id}}</span>
+                        </div>
+                    </div>
+                    <div class="group-row__name">
+                        <span class="group-row__field-label"
+                            [translate]="'managementPortalApp.group.name'">
+                        </span>
+                        <div>
+                            <span>
+                                {{group.name}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="group-row__project">
+                        <span class="group-row__field-label"
+                            [translate]="'managementPortalApp.group.project'">
+                        </span>
+                        <div>
+                            <a  class="badge badge-success"
+                                [routerLink]="['/project', project.projectName ]">{{project.projectName}}</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="group-row__actions">
+                    <button
+                            class="btn btn-danger btn-sm"
+                            type="submit"
+                            [routerLink]="['/', { outlets: { popup: 'project-group/'+ project.projectName + '/' + group.id + '/delete'} }]"
+                            replaceUrl="true"
+                    >
+                        <span class="fa fa-remove"></span>&nbsp;<span [translate]="'entity.action.delete'"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="groups.length === 0" class="groups">
+            <span [translate]="'managementPortalApp.group.noGroup'"></span>
+        </div>
+    </section>
+</div>

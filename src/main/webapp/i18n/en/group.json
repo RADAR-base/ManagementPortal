@@ -1,0 +1,32 @@
+{
+    "managementPortalApp": {
+        "group" : {
+            "home": {
+                "title": "Groups",
+                "createLabel": "Create a new Group",
+                "createOrEditLabel": "Create or edit a Group"
+            },
+            "created": "A new Group is created with identifier {{ param }}",
+            "updated": "A Group is updated with identifier {{ param }}",
+            "deleted": "A Group is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Group {{ id }}?"
+            },
+            "detail": {
+                "title": "Group"
+            },
+            "id": "ID",
+            "name": "Name",
+            "project": "Project",
+            "actions": "Actions",
+            "groupId" : "Group Id",
+            "group": "Group",
+            "noGroup": "No group available."
+        }
+    },
+    "error": {
+        "groupExists" : "A group with given project-id and name already exists",
+        "validation": "Validation error, check the entered values in the fields.",
+        "nameRequired": "A group name is required"
+    }
+}

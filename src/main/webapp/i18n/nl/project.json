@@ -25,6 +25,11 @@
             "endDate": "Einddatum",
             "projectAdmin": "Project Admin",
             "sourceType": "Source Type",
+            "groups": "Groepen",
+            "newGroup": {
+                "label": "Nieuwe groep",
+                "button": "Groep toevogen"
+            },
             "attributeDataKey" : "Tag",
             "attributeDataValue" : "Waarde",
             "prettyProjectName" : "Leesbare projectnaam",

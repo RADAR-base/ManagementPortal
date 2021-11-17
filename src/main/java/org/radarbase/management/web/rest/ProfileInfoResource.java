@@ -1,6 +1,5 @@
 package org.radarbase.management.web.rest;
 
-import org.radarbase.management.config.DefaultProfileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,9 +18,16 @@ public class ProfileInfoResource {
     @Autowired
     private Environment env;
 
+    /**
+     * Get profile info.
+     * @return profile info.
+     */
     @GetMapping("/profile-info")
     public ProfileInfoVM getActiveProfiles() {
-        String[] activeProfiles = DefaultProfileUtil.getActiveProfiles(env);
+        String[] activeProfiles = env.getActiveProfiles();
+        if (activeProfiles.length == 0) {
+            activeProfiles = env.getDefaultProfiles();
+        }
         return new ProfileInfoVM(activeProfiles);
     }
 

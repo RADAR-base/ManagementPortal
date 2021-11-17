@@ -3,11 +3,13 @@ package org.radarbase.management.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.radarbase.management.domain.support.AbstractEntityListener;
 
 import javax.persistence.CollectionTable;
@@ -20,6 +22,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -27,6 +30,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -78,12 +83,27 @@ public class Subject extends AbstractEntity implements Serializable {
     @Column(name = "attribute_value")
     @CollectionTable(name = "subject_metadata", joinColumns = @JoinColumn(name = "id"))
     @Cascade(CascadeType.ALL)
+    @BatchSize(size = 50)
     private Map<String, String> attributes = new HashMap<>();
 
     @OneToMany(mappedBy = "subject", orphanRemoval = true, fetch = FetchType.LAZY)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnore
     private final Set<MetaToken> metaTokens = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "group_id")
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    private Group group;
+
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
+
+    @Column(name = "enrollment_date")
+    private ZonedDateTime enrollmentDate;
+
+    @Column(name = "person_name")
+    private String personName;
 
     @Override
     public Long getId() {
@@ -172,6 +192,38 @@ public class Subject extends AbstractEntity implements Serializable {
         return metaTokens;
     }
 
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    public Group getGroup() {
+        return this.group;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return this.dateOfBirth;
+    }
+
+    public void setEnrollmentDate(ZonedDateTime enrollmentDate) {
+        this.enrollmentDate = enrollmentDate;
+    }
+
+    public ZonedDateTime getEnrollmentDate() {
+        return this.enrollmentDate;
+    }
+
+    public void setPersonName(String personName) {
+        this.personName = personName;
+    }
+
+    public String getPersonName() {
+        return this.personName;
+    }
+
     /**
      * Gets the active project of subject.
      *
@@ -217,6 +269,7 @@ public class Subject extends AbstractEntity implements Serializable {
                 + ", user=" + user
                 + ", sources=" + sources
                 + ", attributes=" + attributes
+                + ", group=" + group
                 + "}";
     }
 }

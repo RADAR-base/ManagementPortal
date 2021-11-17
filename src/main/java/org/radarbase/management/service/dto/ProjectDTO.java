@@ -14,6 +14,7 @@ import org.radarbase.management.domain.enumeration.ProjectStatus;
 /**
  * A DTO for the Project entity.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProjectDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -45,10 +46,13 @@ public class ProjectDTO implements Serializable {
 
     private ZonedDateTime endDate;
 
-    @JsonInclude(Include.NON_NULL)
+    @JsonInclude(Include.NON_EMPTY)
     private Set<SourceTypeDTO> sourceTypes;
 
     private Map<String, String> attributes;
+
+    @JsonInclude(Include.NON_EMPTY)
+    private Set<GroupDTO> groups;
 
     private Long persistentTokenTimeout;
 
@@ -130,6 +134,14 @@ public class ProjectDTO implements Serializable {
 
     public void setAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
+    }
+
+    public Set<GroupDTO> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Set<GroupDTO> groups) {
+        this.groups = groups;
     }
 
     public String getHumanReadableProjectName() {

@@ -14,6 +14,7 @@ import {
     projectPopupRoute,
     projectRoute,
 } from './';
+import {ManagementPortalSharedGroupModule} from "../../shared/group/group.module";
 
 const ENTITY_STATES = [
     ...projectRoute,
@@ -25,6 +26,7 @@ const ENTITY_STATES = [
         ManagementPortalSharedModule,
         ManagementPortalSharedSourceModule,
         ManagementPortalSharedSubjectModule,
+        ManagementPortalSharedGroupModule,
         RouterModule.forRoot(ENTITY_STATES, {useHash: true}),
     ],
     declarations: [

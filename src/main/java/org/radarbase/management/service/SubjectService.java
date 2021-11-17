@@ -3,9 +3,11 @@ package org.radarbase.management.service;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarbase.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
+import static org.radarbase.management.web.rest.errors.EntityName.GROUP;
 import static org.radarbase.management.web.rest.errors.EntityName.OAUTH_CLIENT;
 import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
 import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_GROUP_NOT_FOUND;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SOURCE_NOT_FOUND;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SUBJECT_NOT_FOUND;
@@ -13,7 +15,6 @@ import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SUBJEC
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.hibernate.envers.query.AuditEntity;
 import org.radarbase.management.config.ManagementPortalProperties;
+import org.radarbase.management.domain.Group;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.Source;
@@ -36,15 +38,18 @@ import org.radarbase.management.domain.SourceType;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.repository.AuthorityRepository;
+import org.radarbase.management.repository.GroupRepository;
 import org.radarbase.management.repository.RoleRepository;
 import org.radarbase.management.repository.SourceRepository;
 import org.radarbase.management.repository.SubjectRepository;
+import org.radarbase.management.repository.filters.SubjectSpecification;
 import org.radarbase.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarbase.management.service.dto.SubjectDTO;
 import org.radarbase.management.service.dto.UserDTO;
 import org.radarbase.management.service.mapper.ProjectMapper;
 import org.radarbase.management.service.mapper.SourceMapper;
 import org.radarbase.management.service.mapper.SubjectMapper;
+import org.radarbase.management.web.rest.criteria.SubjectCriteria;
 import org.radarbase.management.web.rest.errors.BadRequestException;
 import org.radarbase.management.web.rest.errors.ConflictException;
 import org.radarbase.management.web.rest.errors.ErrorConstants;
@@ -54,7 +59,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.Revisions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,6 +94,9 @@ public class SubjectService {
     private RoleRepository roleRepository;
 
     @Autowired
+    private GroupRepository groupRepository;
+
+    @Autowired
     private RevisionService revisionService;
 
     @Autowired
@@ -114,6 +121,9 @@ public class SubjectService {
         Set<Role> roles = user.getRoles();
         roles.add(projectParticipantRole);
 
+        // Set group
+        subject.setGroup(getSubjectGroup(project, subjectDto.getGroup()));
+
         // set password and reset keys
         user.setPassword(passwordService.generateEncodedPassword());
         user.setResetKey(passwordService.generateResetKey());
@@ -126,8 +136,24 @@ public class SubjectService {
         if (subject.getSources() != null && !subject.getSources().isEmpty()) {
             subject.getSources().forEach(s -> s.assigned(true).subject(subject));
         }
+        if (subject.getEnrollmentDate() == null) {
+            subject.setEnrollmentDate(ZonedDateTime.now());
+        }
         sourceRepository.saveAll(subject.getSources());
         return subjectMapper.subjectToSubjectReducedProjectDTO(subjectRepository.save(subject));
+    }
+
+    private Group getSubjectGroup(Project project, String groupName) {
+        if (project == null || groupName == null) {
+            return null;
+        }
+        return groupRepository.findByProjectIdAndName(project.getId(), groupName)
+                .orElseThrow(() -> new BadRequestException(
+                        "Group " + groupName + " does not exist in project "
+                                + project.getProjectName(),
+                        GROUP,
+                        ERR_GROUP_NOT_FOUND)
+                );
     }
 
     /**
@@ -161,17 +187,22 @@ public class SubjectService {
         if (newSubjectDto.getId() == null) {
             return createSubject(newSubjectDto);
         }
-        Subject subjectFromDb = subjectRepository.findById(newSubjectDto.getId()).get();
+        Subject subjectFromDb = ensureSubject(newSubjectDto);
         //reset all the sources assigned to a subject to unassigned
         Set<Source> sourcesToUpdate = subjectFromDb.getSources();
-        sourcesToUpdate.forEach(s -> s.subject(null).assigned(false));
+        sourcesToUpdate.forEach(s -> s.subject(null).assigned(false).deleted(true));
         //set only the devices assigned to a subject as assigned
         subjectMapper.safeUpdateSubjectFromDTO(newSubjectDto, subjectFromDb);
         sourcesToUpdate.addAll(subjectFromDb.getSources());
-        subjectFromDb.getSources().forEach(s -> s.subject(subjectFromDb).assigned(true));
+        subjectFromDb.getSources()
+                .forEach(s -> s.subject(subjectFromDb).assigned(true).deleted(false));
         sourceRepository.saveAll(sourcesToUpdate);
         // update participant role
         subjectFromDb.getUser().setRoles(updateParticipantRoles(subjectFromDb, newSubjectDto));
+        // Set group
+        subjectFromDb.setGroup(getSubjectGroup(
+                subjectFromDb.getActiveProject().orElse(null),
+                newSubjectDto.getGroup()));
         return subjectMapper.subjectToSubjectReducedProjectDTO(
                 subjectRepository.save(subjectFromDb));
     }
@@ -192,18 +223,6 @@ public class SubjectService {
         return managedRoles;
     }
 
-
-    /**
-     * Get a page of subjects.
-     *
-     * @param pageable the page information
-     * @return the requested page of subjects
-     */
-    public Page<SubjectDTO> findAll(Pageable pageable) {
-        return subjectRepository.findAllWithEagerRelationships(pageable)
-                .map(subjectMapper::subjectToSubjectReducedProjectDTO);
-    }
-
     /**
      * Discontinue the given subject.
      *
@@ -214,7 +233,7 @@ public class SubjectService {
      * @return the discontinued subject
      */
     public SubjectDTO discontinueSubject(SubjectDTO subjectDto) {
-        Subject subject = subjectRepository.findById(subjectDto.getId()).get();
+        Subject subject = ensureSubject(subjectDto);
         // reset all the sources assigned to a subject to unassigned
         unassignAllSources(subject);
 
@@ -223,6 +242,13 @@ public class SubjectService {
         subject.setRemoved(true);
         subject.getUser().setActivated(false);
         return subjectMapper.subjectToSubjectReducedProjectDTO(subjectRepository.save(subject));
+    }
+
+    private Subject ensureSubject(SubjectDTO subjectDto) {
+        return subjectRepository.findById(subjectDto.getId())
+                .orElseThrow(() -> new NotFoundException(
+                        "Subject with ID " + subjectDto.getId() + " not found.",
+                        SUBJECT, ERR_SUBJECT_NOT_FOUND));
     }
 
     /**
@@ -235,6 +261,7 @@ public class SubjectService {
         subject.getSources().forEach(source -> {
             source.setAssigned(false);
             source.setSubject(null);
+            source.setDeleted(true);
             sourceRepository.save(source);
         });
         subject.getSources().clear();
@@ -324,26 +351,25 @@ public class SubjectService {
     private Source updateSourceAssignedSubject(Subject subject,
             MinimalSourceDetailsDTO sourceRegistrationDto) {
         // for manually registered devices only add meta-data
-        Optional<Source> sourceToUpdate = subjectRepository.findSubjectSourcesBySourceId(
-                subject.getUser().getLogin(), sourceRegistrationDto.getSourceId());
+        Source source = subjectRepository.findSubjectSourcesBySourceId(
+                subject.getUser().getLogin(), sourceRegistrationDto.getSourceId())
+                .orElseThrow(() -> {
+                    Map<String, String> errorParams = new HashMap<>();
+                    errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
+                    errorParams.put("subject-login", subject.getUser().getLogin());
+                    return new NotFoundException( "No source with source-id to assigned to the "
+                            + "subject with subject-login", SUBJECT, ERR_SOURCE_NOT_FOUND,
+                            errorParams);
+                });
 
-        if (sourceToUpdate.isPresent()) {
-            Source source = sourceToUpdate.get();
-            if (sourceRegistrationDto.getSourceName() != null) {
-                source.setSourceName(sourceRegistrationDto.getSourceName());
-            }
-            source.getAttributes().putAll(sourceRegistrationDto.getAttributes());
-            source.setAssigned(true);
-            source.setSubject(subject);
-
-            return sourceRepository.save(source);
-        } else {
-            Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("sourceId", sourceRegistrationDto.getSourceId().toString());
-            errorParams.put("subject-login", subject.getUser().getLogin());
-            throw new NotFoundException( "No source with source-id to assigned to the subject"
-                + " with subject-login", SUBJECT, ERR_SOURCE_NOT_FOUND, errorParams);
+        if (sourceRegistrationDto.getSourceName() != null) {
+            source.setSourceName(sourceRegistrationDto.getSourceName());
         }
+        source.getAttributes().putAll(sourceRegistrationDto.getAttributes());
+        source.setAssigned(true);
+        source.setSubject(subject);
+
+        return sourceRepository.save(source);
     }
 
     /**
@@ -378,7 +404,6 @@ public class SubjectService {
      * @return list of {@link MinimalSourceDetailsDTO} of sources.
      */
     public List<MinimalSourceDetailsDTO> findSubjectSourcesFromRevisions(Subject subject) {
-
         Revisions<Integer, Subject> revisions = subjectRepository.findRevisions(subject.getId());
         // collect distinct sources in a set
         Set<Source> sources = revisions
@@ -421,12 +446,12 @@ public class SubjectService {
      */
     public SubjectDTO getLatestRevision(String login) throws NotFoundException {
         UserDTO user = (UserDTO) revisionService.getLatestRevisionForEntity(User.class,
-                Arrays.asList(AuditEntity.property("login").eq(login)))
+                List.of(AuditEntity.property("login").eq(login)))
                 .orElseThrow(() -> new NotFoundException("Subject latest revision not found "
                     + "for login" , SUBJECT, ERR_SUBJECT_NOT_FOUND,
                         Collections.singletonMap("subjectLogin", login)));
         return (SubjectDTO) revisionService.getLatestRevisionForEntity(Subject.class,
-                Arrays.asList(AuditEntity.property("user").eq(user)))
+                List.of(AuditEntity.property("user").eq(user)))
                 .orElseThrow(() -> new NotFoundException("Subject latest revision not found "
                     + "for login" , SUBJECT, ERR_SUBJECT_NOT_FOUND,
                     Collections.singletonMap("subjectLogin", login)));
@@ -450,6 +475,20 @@ public class SubjectService {
             new NotFoundException("Subject not found with login", SUBJECT,
                 ERR_SUBJECT_NOT_FOUND)
         );
+    }
+
+    /**
+     * Find all subjects matching given filter.
+     * @param criteria filter and sort for subjects.
+     * @return page of subjects matching filter.
+     */
+    public Page<Subject> findAll(SubjectCriteria criteria) {
+        // Pageable is required to set the page limit,
+        // but the page should always be zero
+        // since the lastLoadedId param defines the offset
+        // within the query specification
+        return subjectRepository.findAll(new SubjectSpecification(criteria),
+                criteria.getPageable());
     }
 
     /**

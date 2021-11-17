@@ -59,7 +59,7 @@ spring:
     messages:
         basename: i18n/messages
     thymeleaf:
-        mode: XHTML
+        mode: HTML
 
 liquibase:
     contexts: test

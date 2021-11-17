@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, UrlSegment } from '@angular/router';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { StateStorageService } from '..';
+import { AuthService, StateStorageService } from '..';
 import { EventManager } from '../util/event-manager.service';
 
 import { LoginService } from './login.service';
@@ -23,9 +23,9 @@ export class JhiLoginModalComponent implements AfterViewInit {
     constructor(
             private eventManager: EventManager,
             private loginService: LoginService,
-            private stateStorageService: StateStorageService,
             private router: Router,
             public activeModal: NgbActiveModal,
+            private authService: AuthService,
     ) {
         this.credentials = {};
     }
@@ -54,7 +54,7 @@ export class JhiLoginModalComponent implements AfterViewInit {
             this.activeModal.dismiss('login success');
             if (this.router.url === '/register' || (/activate/.test(this.router.url)) ||
                     this.router.url === '/finishReset' || this.router.url === '/requestReset') {
-                this.router.navigate(['']);
+                return this.router.navigate(['']);
             }
 
             this.eventManager.broadcast({
@@ -62,18 +62,13 @@ export class JhiLoginModalComponent implements AfterViewInit {
                 content: 'Sending Authentication Success',
             });
 
-            // // previousState was set in the authExpiredInterceptor before being redirected to login modal.
-            // // since login is succesful, go to stored previousState and clear previousState
-
-            const redirect = this.stateStorageService.getUrl();
-            if (redirect) {
-                this.stateStorageService.storeUrl(null);
-                this.router.navigate([redirect]);
-            } else {
-                this.router.navigate(['/']);
-            }
+            return this.authService.redirectBeforeUnauthenticated();
         }).catch(() => {
             this.authenticationError = true;
+        }).then((isRedirected) => {
+            if (!isRedirected) {
+                return this.router.navigate(['/']);
+            }
         });
     }
 
@@ -82,8 +77,8 @@ export class JhiLoginModalComponent implements AfterViewInit {
         this.router.navigate(['/register']);
     }
 
-    requestResetPassword() {
+    async requestResetPassword() {
         this.activeModal.dismiss('to state requestReset');
-        this.router.navigate(['/reset', 'request']);
+        await this.router.navigate(['/reset', 'request']);
     }
 }

@@ -10,9 +10,13 @@ export class Subject {
     public externalId?: string;
     public createdBy?: string;
     public createdDate?: Date;
+    public dateOfBirth?: Date;
+    public enrollmentDate?: Date;
     public lastModifiedBy?: string;
     public lastModifiedDate?: Date;
+    public group?: string;
     public password?: string;
+    public personName?: string;
     public project?: Project;
     public sources?: MinimalSource[];
     public attributes: Dictionary;
@@ -27,9 +31,13 @@ export class Subject {
             status?: SubjectStatus,
             createdBy?: string,
             createdDate?: Date,
+            dateOfBirth?: Date,
+            enrollmentDate?: Date,
             lastModifiedBy?: string,
             lastModifiedDate?: Date,
+            group?: string,
             password?: string,
+            personName?: string,
             project?: Project,
             sources?: MinimalSource[],
             roles?: Role[],
@@ -40,9 +48,13 @@ export class Subject {
         this.externalId = externalId ? externalId : null;
         this.createdBy = createdBy ? createdBy : null;
         this.createdDate = createdDate ? createdDate : null;
+        this.dateOfBirth = dateOfBirth ? dateOfBirth : null;
+        this.enrollmentDate = enrollmentDate ? enrollmentDate : null;
         this.lastModifiedBy = lastModifiedBy ? lastModifiedBy : null;
         this.lastModifiedDate = lastModifiedDate ? lastModifiedDate : null;
+        this.group = group ? group : null;
         this.password = password ? password : null;
+        this.personName = personName ? personName : null;
         this.project = project ? project : null;
         this.sources = sources ? sources : [];
         this.status = status ? status : SubjectStatus.DEACTIVATED;

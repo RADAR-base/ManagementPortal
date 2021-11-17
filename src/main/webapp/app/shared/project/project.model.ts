@@ -1,4 +1,5 @@
 import {SourceType} from '../../entities/source-type';
+import { Group } from '../group';
 
 export const enum ProjectStatus {
     'PLANNING',
@@ -18,6 +19,7 @@ export class Project {
             public endDate?: any,
             public attributes ?: any,
             public sourceTypes?: SourceType[],
+            public groups?: Group[],
             public humanReadableProjectName ?: string,
             public persistentTokenTimeout?: number
     ) {

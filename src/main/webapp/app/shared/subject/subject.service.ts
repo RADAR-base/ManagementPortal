@@ -43,17 +43,58 @@ export class SubjectService {
 
     }
 
-    query(req?: any): Observable<HttpResponse<any>> {
-        const params = createRequestOption(req);
-        return this.http.get(this.resourceUrl, {params, observe: 'response'});
+    query(
+        filterParams: SubjectFilterParams,
+        paginationParams: SubjectPaginationParams,
+    ): Observable<HttpResponse<any>> {
+        return this.http.get(this.resourceUrl, {
+            params: createRequestOption({ ...paginationParams, ...filterParams }),
+            observe: 'response',
+        });
     }
 
     delete(login: string): Observable<any> {
         return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(login)}`);
     }
 
-    findAllByProject(projectName: string, req ?: any): Observable<HttpResponse<Subject[]>> {
-        const params = createRequestOption(req);
-        return this.http.get<Subject[]>(`${this.projectResourceUrl}/${projectName}/subjects`, {params, observe: 'response'});
+    findAllByProject(
+        projectName: string,
+        filterParams: SubjectFilterParams,
+        paginationParams: SubjectPaginationParams,
+    ): Observable<HttpResponse<Subject[]>> {
+        let url = `${this.projectResourceUrl}/${projectName}/subjects`;
+        return this.http.get<Subject[]>(url, {
+            params: createRequestOption({ ...paginationParams, ...filterParams }),
+            observe: 'response',
+        });
     }
+}
+
+export interface SubjectFilterParams {
+    login?: string,
+    externalId?: string,
+    dateOfBirth?: SubjectFilterRange,
+    enrollmentDate?: SubjectFilterRange,
+    groupId?: string | number,
+    humanReadableIdentifier?: string,
+    personName?: string,
+    humanReadableId?: string,
+}
+
+export interface SubjectFilterRange {
+    from?: string,
+    to?: string,
+    is?: string,
+}
+
+export interface SubjectPaginationParams {
+    last?: SubjectLastParams,
+    size?: number,
+    sort?: [string],
+}
+
+export interface SubjectLastParams {
+    id?: number,
+    login?: string,
+    externalId?: string,
 }

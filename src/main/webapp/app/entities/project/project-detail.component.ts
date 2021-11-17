@@ -14,13 +14,14 @@ import { EventManager } from '../../shared/util/event-manager.service';
 export class ProjectDetailComponent implements OnInit, OnDestroy {
 
     project: Project;
-    private subscription: any;
+    private subscription = new Subscription();
     private eventSubscriber: Subscription;
 
     sources: Source[];
 
     showSources: boolean;
     showSubjects: boolean;
+    showProjectGroups: boolean;
     showSourceTypes: boolean;
     showProjectAdmins: boolean;
     showProjectAnalysts: boolean;
@@ -33,17 +34,17 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.subscription = this.route.params.subscribe((params) => {
+        this.subscription.add(this.route.params.subscribe((params) => {
             this.load(params['projectName']);
-        });
+        }));
         this.registerChangeInProjects();
         this.viewSubjects();
     }
 
     load(projectName) {
-        this.projectService.find(projectName).subscribe((project) => {
+        this.subscription.add(this.projectService.find(projectName).subscribe((project) => {
             this.project = project;
-        });
+        }));
     }
 
     previousState() {
@@ -63,6 +64,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     viewSources() {
         this.showSources = true;
         this.showSubjects = false;
+        this.showProjectGroups = false;
         this.showSourceTypes = false;
         this.showProjectAdmins = false;
         this.showProjectAnalysts = false;
@@ -71,6 +73,16 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     viewSubjects() {
         this.showSources = false;
         this.showSubjects = true;
+        this.showProjectGroups = false;
+        this.showSourceTypes = false;
+        this.showProjectAdmins = false;
+        this.showProjectAnalysts = false;
+    }
+
+    viewProjectGroups() {
+        this.showSources = false;
+        this.showSubjects = false;
+        this.showProjectGroups = true;
         this.showSourceTypes = false;
         this.showProjectAdmins = false;
         this.showProjectAnalysts = false;
@@ -79,6 +91,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     viewProjectAdmins() {
         this.showSources = false;
         this.showSubjects = false;
+        this.showProjectGroups = false;
         this.showSourceTypes = false;
         this.showProjectAdmins = true;
         this.showProjectAnalysts = false;
@@ -87,6 +100,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     viewProjectAnalysts() {
         this.showSources = false;
         this.showSubjects = false;
+        this.showProjectGroups = false;
         this.showSourceTypes = false;
         this.showProjectAdmins = false;
         this.showProjectAnalysts = true;

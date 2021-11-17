@@ -84,7 +84,9 @@
             }
         },
         "field": {
-            "id": "ID"
+            "id": "ID",
+            "projectId": "Project ID",
+            "projectName": "Project Name"
         },
         "ribbon": {
             "dev":"Development"
