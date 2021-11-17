@@ -29,12 +29,11 @@ export class UserRouteAccessService implements CanActivate, CanActivateChild {
     }
 
     setStateStorage(route: ActivatedRouteSnapshot) {
-        window.console.log(route);
         if (route !== undefined) {
             this.stateStorageService.storeDestinationState({
-                path: route.url.map(s => s.path).filter(s => !!s).join('/'),
-                data: route.data,
-                params: route.queryParams,
+                path: route.url,
+                queryParams: route.queryParams,
+                authorities: route.data?.authorities,
             });
         } else {
             this.stateStorageService.resetDestinationState();

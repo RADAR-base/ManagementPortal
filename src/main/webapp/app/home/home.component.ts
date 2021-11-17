@@ -1,14 +1,12 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import {
-    Account,
     LoginModalService,
+    ProjectService,
     Principal,
     Project,
-    ProjectService
 } from '../shared';
-import { Subscription } from "rxjs";
 
 @Component({
     selector: 'jhi-home',

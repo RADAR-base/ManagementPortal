@@ -42,7 +42,7 @@ describe('Component Tests', () => {
             it('Should call load all on init', () => {
             // GIVEN
 
-            spyOn(service, 'find').and.returnValue(of(new Project(10)));
+            spyOn(service, 'find').and.returnValue(of({id: 10}));
 
             // WHEN
             comp.ngOnInit();
@@ -53,5 +53,4 @@ describe('Component Tests', () => {
             });
         });
     });
-
 });

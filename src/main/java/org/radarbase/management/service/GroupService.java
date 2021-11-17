@@ -75,15 +75,24 @@ public class GroupService {
      * Delete the group by name.
      * @param projectName project name
      * @param groupName group name
+     * @param unlinkSubjects unset group for each linked subject
      * @throws NotFoundException if the project or group is not found.
      */
     @Transactional
-    public void deleteGroup(String projectName, String groupName) {
+    public void deleteGroup(String projectName, String groupName, boolean unlinkSubjects) {
         Group group = groupRepository.findByProjectNameAndName(projectName, groupName)
                 .orElseThrow(() -> new NotFoundException(
                         "Group " + groupName + " not found in project " + projectName,
                         GROUP, ERR_GROUP_NOT_FOUND));
 
+        if (!unlinkSubjects) {
+            var subjectCount = subjectRepository.countByGroupId(group.getId());
+            if (subjectCount > 0) {
+                var msg = "Group " + groupName + " has subjects. "
+                        + "Add `unlinkSubjects=true` query param to confirm deletion";
+                throw new ConflictException(msg, GROUP, ERR_VALIDATION);
+            }
+        }
         groupRepository.delete(group);
     }
 

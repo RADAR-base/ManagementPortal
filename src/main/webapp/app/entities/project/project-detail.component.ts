@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { Source } from '../../shared/source/source.model';
 import { Project, ProjectService } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
+import { switchMap } from "rxjs/operators";
 
 @Component({
     selector: 'jhi-project-detail',
@@ -12,10 +13,8 @@ import { EventManager } from '../../shared/util/event-manager.service';
     styleUrls: ['project-detail.component.scss'],
 })
 export class ProjectDetailComponent implements OnInit, OnDestroy {
-
-    project: Project;
     private subscription = new Subscription();
-
+    project: Project;
     sources: Source[];
 
     showSources: boolean;
@@ -33,24 +32,24 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.subscription.add(this.route.params.subscribe((params) => {
-            this.load(params['projectName']);
-        }));
+        this.subscription.add(this.registerChangesInProjectName());
         this.viewSubjects();
-    }
-
-    load(projectName) {
-        this.subscription.add(this.projectService.find(projectName).subscribe((project) => {
-            this.project = project;
-        }));
-    }
-
-    previousState() {
-        window.history.back();
     }
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
+    }
+
+    private registerChangesInProjectName(): Subscription {
+        return this.route.params.pipe(
+            switchMap(({projectName}) => this.projectService.find(projectName)),
+        ).subscribe(
+            (project) => this.project = project,
+        );
+    }
+
+    previousState() {
+        window.history.back();
     }
 
     viewSources() {

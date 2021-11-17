@@ -56,9 +56,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Test class for the ProjectResource REST controller.
+ * Test class for the GroupResource REST controller.
  *
- * @see ProjectResource
+ * @see GroupResource
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ManagementPortalTestApp.class)
@@ -151,7 +151,7 @@ class GroupResourceIntTest {
 
     @Test
     void createGroup() throws Exception {
-        // Create the Project
+        // Create the Group
         GroupDTO groupDto = groupMapper.groupToGroupDTO(group);
         restProjectMockMvc.perform(post("/api/projects/{projectName}/groups",
                         project.getProjectName())
@@ -172,7 +172,7 @@ class GroupResourceIntTest {
     void createGroupNonExistingProject() throws Exception {
         projectRepository.delete(project);
 
-        // Create the Project
+        // Create the Group
         GroupDTO groupDto = groupMapper.groupToGroupDTO(group);
         restProjectMockMvc.perform(post("/api/projects/{projectName}/groups",
                         project.getProjectName())
@@ -183,7 +183,7 @@ class GroupResourceIntTest {
 
     @Test
     void createGroupWithExistingName() throws Exception {
-        // Create the Project
+        // Create the Group
         GroupDTO groupDto = groupMapper.groupToGroupDTO(group);
         restProjectMockMvc.perform(post("/api/projects/{projectName}/groups",
                         project.getProjectName())
@@ -209,7 +209,7 @@ class GroupResourceIntTest {
         group2.setName(group.getName());
         group2.setProject(project2);
 
-        // Create the Project
+        // Create the Group
         GroupDTO groupDto = groupMapper.groupToGroupDTO(group);
         restProjectMockMvc.perform(post("/api/projects/{projectName}/groups",
                         project.getProjectName())
@@ -245,7 +245,7 @@ class GroupResourceIntTest {
     void checkGroupNameIsRequired() throws Exception {
         group.setName(null);
 
-        // Create the Project
+        // Create the Group
         GroupDTO groupDto = groupMapper.groupToGroupDTO(group);
         restProjectMockMvc.perform(post("/api/projects/{projectName}/groups",
                         project.getProjectName())
@@ -259,7 +259,7 @@ class GroupResourceIntTest {
         // Initialize the database
         groupRepository.saveAndFlush(group);
 
-        // Get all the projectList
+        // Get all the groups
         restProjectMockMvc.perform(get("/api/projects/{projectName}/groups",
                         project.getProjectName()))
                 .andExpect(status().isOk())
@@ -274,7 +274,7 @@ class GroupResourceIntTest {
         // Initialize the database
         groupRepository.saveAndFlush(group);
 
-        // Get the project
+        // Get the Group
         restProjectMockMvc.perform(get("/api/projects/{projectName}/groups/{groupName}",
                         project.getProjectName(), group.getName()))
                 .andExpect(status().isOk())
@@ -285,7 +285,7 @@ class GroupResourceIntTest {
 
     @Test
     void getNonExistingGroup() throws Exception {
-        // Get the project
+        // Get the group
         restProjectMockMvc.perform(get("/api/projects/{projectName}/groups/{groupName}",
                         project.getProjectName(), group.getName()))
                 .andExpect(status().isNotFound());
@@ -296,7 +296,7 @@ class GroupResourceIntTest {
         // Initialize the database
         groupRepository.saveAndFlush(group);
 
-        // Get the project
+        // Delete the group
         restProjectMockMvc.perform(delete(
                         "/api/projects/{projectName}/groups/{groupName}",
                         project.getProjectName(), group.getName())
@@ -310,11 +310,50 @@ class GroupResourceIntTest {
     }
 
     @Test
+    void deleteGroupWithSubjects() throws Exception {
+        // Initialize the database
+        groupRepository.saveAndFlush(group);
+
+        var projectDto = projectMapper.projectToProjectDTO(project);
+
+        var subjectDto = new SubjectDTO();
+        subjectDto.setExternalLink("exLink1");
+        subjectDto.setExternalId("exId1");
+        subjectDto.setStatus(ACTIVATED);
+        subjectDto.setProject(projectDto);
+        subjectDto.setGroup(group.getName());
+        var savedSubject = subjectService.createSubject(subjectDto);
+
+        // Try to delete the Group (and fail)
+        restProjectMockMvc.perform(delete(
+                        "/api/projects/{projectName}/groups/{groupName}",
+                        project.getProjectName(), group.getName())
+                        .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isConflict());
+
+        // Delete the Group (and unlink the subjects)
+        restProjectMockMvc.perform(delete(
+                        "/api/projects/{projectName}/groups/{groupName}",
+                        project.getProjectName(), group.getName())
+                        .param("unlinkSubjects", "true")
+                        .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNoContent());
+
+        // Validate the Group is not present in the database
+        var savedGroup = groupRepository.findByProjectNameAndName(
+                project.getProjectName(), group.getName());
+        assertThat(savedGroup).isEmpty();
+
+        var storedSubject = subjectRepository.getOne(savedSubject.getId());
+        subjectRepository.delete(storedSubject);
+    }
+
+    @Test
     void deleteGroupNonExisting() throws Exception {
         // Initialize the database
         groupRepository.saveAndFlush(group);
 
-        // Get the project
+        // Delete the group
         restProjectMockMvc.perform(delete(
                         "/api/projects/{projectName}/groups/{groupName}",
                         project.getProjectName(), group.getName() + "2")
@@ -331,7 +370,7 @@ class GroupResourceIntTest {
         // Initialize the database
         groupRepository.saveAndFlush(group);
 
-        // Get the project
+        // Delete the group
         restProjectMockMvc.perform(delete(
                         "/api/projects/{projectName}/groups/{groupName}",
                         project.getProjectName() + "2", group.getName())
@@ -379,7 +418,7 @@ class GroupResourceIntTest {
         List<GroupPatchOperation> body = new ArrayList<>();
         body.add(patchOp);
 
-        // Get the project
+        // Link the subjects to the group
         restProjectMockMvc.perform(patch(
                         "/api/projects/{projectName}/groups/{groupName}/subjects",
                         project.getProjectName(), group.getName())

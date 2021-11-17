@@ -11,28 +11,37 @@ export class Principal {
     readonly account$: Observable<Account | null> = this._account$.asObservable();
 
     constructor(
-        private account: AccountService
+        private account: AccountService,
     ) {
-        // initial fetch
-        this.account.get().pipe(
-          filter(a => !!a)
-        ).subscribe(account => this._account$.next(account));
+        this.reset().subscribe();
     }
 
+    /**
+     * Update authentication state. If new authentication state is null, the user is from the
+     * frontend perspective logged out.
+     */
     authenticate(identity?: Account) {
         this._account$.next(identity ? identity : null);
     }
 
-    userHasAnyAuthority(userIdentity: any, authorities: string[] | null): boolean {
+    /**
+     * Whether user has any of the required authorities.
+     * @param account account to check.
+     * @param authorities authorities to check. If empty, this method always returns true.
+     */
+    accountHasAnyAuthority(account: any, authorities: string[] | null): boolean {
         if (!authorities || authorities.length === 0) {
             return true;
         }
-        if (!userIdentity || !userIdentity.authorities) {
+        if (!account || !account.authorities) {
             return false;
         }
-        return userIdentity.authorities.some(a => authorities.indexOf(a) !== -1);
+        return account.authorities.some(a => authorities.indexOf(a) !== -1);
     }
 
+    /**
+     * Reset authentication state based on the current authentication state in the server.
+     */
     reset(): Observable<Account | null> {
         return this.account.get().pipe(
           catchError(() => of(null)),
@@ -40,6 +49,10 @@ export class Principal {
         );
     }
 
+    /**
+     * Returns the single latest identity. If the user is not logged in, login status will be
+     * checked with the server.
+     */
     identity(): Observable<Account | null> {
         // check and see if we have retrieved the userIdentity data from the server.
         // if we have, reuse it by immediately resolving

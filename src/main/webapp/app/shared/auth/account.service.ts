@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Account } from "../user/account.model";
 
@@ -12,7 +12,10 @@ export class AccountService {
         return this.http.get<Account>('api/account');
     }
 
-    save(account: Account): Observable<Account> {
+    save(account?: Account): Observable<Account> {
+        if (!account) {
+            return throwError('account not provided');
+        }
         return this.http.post<Account>('api/account', account);
     }
 }
