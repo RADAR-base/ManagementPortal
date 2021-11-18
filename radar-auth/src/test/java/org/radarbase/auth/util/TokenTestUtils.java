@@ -33,7 +33,7 @@ public final class TokenTestUtils {
     public static final DecodedJWT MULTIPLE_ROLES_IN_PROJECT_TOKEN;
 
     public static final String[] AUTHORITIES = {"ROLE_SYS_ADMIN", "ROLE_USER"};
-    public static final String[] ALL_SCOPES = allScopes();
+    public static final String[] ALL_SCOPES = Permission.scopes();
     public static final String[] ROLES = {"PROJECT1:ROLE_PROJECT_ADMIN",
             "PROJECT2:ROLE_PARTICIPANT"};
     public static final String[] SOURCES = {};
@@ -242,11 +242,5 @@ public final class TokenTestUtils {
                 .withClaim("grant_type", "client_credentials")
                 .sign(algorithm);
         return JWT.decode(token);
-    }
-
-    private static String[] allScopes() {
-        return Permission.stream()
-                .map(Permission::scopeName)
-                .toArray(String[]::new);
     }
 }

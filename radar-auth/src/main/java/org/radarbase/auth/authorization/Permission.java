@@ -118,8 +118,18 @@ public enum Permission {
         return "Permission{entity=" + entity + ", operation=" + operation + '}';
     }
 
+    /**
+     * Stream all available permissions.
+     */
     public static Stream<Permission> stream() {
         return Arrays.stream(values());
+    }
+
+    /** Returns all available scope names. */
+    public static String[] scopes() {
+        return stream()
+                .map(Permission::scopeName)
+                .toArray(String[]::new);
     }
 
     /**
