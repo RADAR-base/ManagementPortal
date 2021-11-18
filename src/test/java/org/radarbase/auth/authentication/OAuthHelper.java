@@ -185,9 +185,8 @@ public final class OAuthHelper {
     }
 
     private static String[] allScopes() {
-        return Permission.allPermissions().stream()
+        return Permission.stream()
                 .map(Permission::scopeName)
-                .collect(Collectors.toList()).toArray(
-                        new String[Permission.allPermissions().size()]);
+                .toArray(String[]::new);
     }
 }

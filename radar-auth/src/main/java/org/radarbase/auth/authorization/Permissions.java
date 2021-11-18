@@ -1,6 +1,5 @@
 package org.radarbase.auth.authorization;
 
-import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;

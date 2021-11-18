@@ -1,26 +1,22 @@
 package org.radarbase.auth.authorization;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.security.GeneralSecurityException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.radarbase.auth.authorization.Permission.Entity;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.JwtRadarToken;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.auth.util.TokenTestUtils;
+
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Created by dverbeec on 25/09/2017.
