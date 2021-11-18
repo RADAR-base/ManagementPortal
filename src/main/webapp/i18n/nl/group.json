@@ -10,7 +10,7 @@
             "updated": "De groep {{ param }} is gewijzigd",
             "deleted": "De groep {{ param }} is verwijderd",
             "delete": {
-                "question": "Weet je zeker dat je groep {{ id }} wilt verwijderen?"
+                "question": "Deze groep heeft onderwerpen. Weet u zeker dat u groep {{ id }} wilt verwijderen?"
             },
             "detail": {
                 "title": "Groep"
