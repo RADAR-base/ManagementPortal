@@ -8,6 +8,7 @@ import java.security.cert.Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -246,9 +247,8 @@ public final class TokenTestUtils {
     }
 
     private static String[] allScopes() {
-        return Permission.allPermissions().stream()
+        return Permission.stream()
                 .map(Permission::scopeName)
-                .collect(Collectors.toList())
-                .toArray(new String[Permission.allPermissions().size()]);
+                .toArray(String[]::new);
     }
 }

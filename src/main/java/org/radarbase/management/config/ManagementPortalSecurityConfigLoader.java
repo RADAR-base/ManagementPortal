@@ -88,10 +88,8 @@ public class ManagementPortalSecurityConfigLoader {
         details.setAuthorizedGrantTypes(Arrays.asList("password", "refresh_token",
                 "authorization_code"));
         details.setAdditionalInformation(Collections.singletonMap("protected", Boolean.TRUE));
-        List<String> allScopes = Arrays.stream(Permission.Entity.values())
-                .map(Permission.Entity::name)
-                .flatMap(e -> Arrays.stream(Permission.Operation.values())
-                        .map(o -> String.join(".", e, o.name())))
+        List<String> allScopes = Permission.stream()
+                .map(Permission::scopeName)
                 .collect(Collectors.toList());
         details.setScope(allScopes);
         details.setAutoApproveScopes(allScopes);

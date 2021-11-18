@@ -6,6 +6,8 @@ package org.radarbase.auth.authorization;
 public interface AuthoritiesConstants {
     String SYS_ADMIN = "ROLE_SYS_ADMIN";
 
+    String ORGANIZATION_ADMIN = "ROLE_ORGANIZATION_ADMIN";
+
     String PROJECT_ADMIN = "ROLE_PROJECT_ADMIN";
 
     String PROJECT_OWNER = "ROLE_PROJECT_OWNER";
