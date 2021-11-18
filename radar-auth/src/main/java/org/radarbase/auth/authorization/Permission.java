@@ -132,6 +132,15 @@ public enum Permission {
                 .toArray(String[]::new);
     }
 
+    /** Return matching permission. */
+    public static Permission of(Entity entity, Operation operation) {
+        return stream()
+                .filter(p -> p.getEntity() == entity && p.getOperation() == operation)
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No permission found for given entity and operation"));
+    }
+
     /**
      * Turn this permission into an OAuth scope name and return it.
      *
