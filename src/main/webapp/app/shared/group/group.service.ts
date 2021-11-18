@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from "rxjs/operators";
 import { Group } from "./group.model";
+import { createRequestOption } from "../model/request.utils";
 
 @Injectable({ providedIn: 'root' })
 export class GroupService {
@@ -32,8 +33,10 @@ export class GroupService {
         return this.http.post<Group>(this.resourceUrl(projectName), copy);
     }
 
-    delete(projectName: string, groupName: string): Observable<any> {
-        return this.http.delete(this.resourceUrl(projectName, groupName));
+    delete(projectName: string, groupName: string, forceDelete?: boolean): Observable<any> {
+        return this.http.delete(this.resourceUrl(projectName, groupName), {
+            params: createRequestOption({ unlinkSubjects: forceDelete }),
+        });
     }
 
     addSubjectsToGroup(
