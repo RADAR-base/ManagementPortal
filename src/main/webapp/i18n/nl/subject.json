@@ -26,7 +26,7 @@
                 "advancedFilter": "Uitgebreid filter",
                 "error": {
                     "invalidDate": "De datum is niet geldig.",
-                    "invalidRange": "De periode is is niet geldig: Vanaf datum is na de Tot en met datum."
+                    "invalidRange": "De periode is niet geldig: Vanaf datum is na de Tot en met datum."
                 }
             },
             "login": "Login",
