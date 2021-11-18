@@ -57,36 +57,37 @@
         </p>
     </div>
 
+    <div *ngIf="activeTab$ | async as activeTab">
+        <ul class="nav nav-tabs">
+            <li class="nav-item" (click)="updateActiveTab('subjects')">
+                    <span class="nav-link" [ngClass]="{active: activeTab === 'subjects'}">
+                        Subjects
+                    </span>
+            </li>
+            <li class="nav-item" (click)="updateActiveTab('groups')">
+                    <span class="nav-link" [ngClass]="{active: activeTab === 'groups'}">
+                        Groups
+                    </span>
+            </li>
+            <li class="nav-item" (click)="updateActiveTab('admins')">
+                    <span class="nav-link" [ngClass]="{active: activeTab === 'admins'}">
+                        Admins
+                    </span>
+            </li>
+            <li class="nav-item" (click)="updateActiveTab('analysts')">
+                    <span class="nav-link" [ngClass]="{active: activeTab === 'analysts'}">
+                        Analysts
+                    </span>
+            </li>
+        </ul>
 
-    <ul class="nav nav-tabs">
-        <li class="nav-item" (click)="viewSubjects()">
-            <span class="nav-link" [ngClass]="{active: showSubjects}">
-                Subjects
-            </span>
-        </li>
-        <li class="nav-item" (click)="viewProjectGroups()">
-            <span class="nav-link" [ngClass]="{active: showProjectGroups}">
-                Groups
-            </span>
-        </li>
-        <li class="nav-item" (click)="viewProjectAdmins()">
-            <span class="nav-link" [ngClass]="{active: showProjectAdmins}">
-                Admins
-            </span>
-        </li>
-        <li class="nav-item" (click)="viewProjectAnalysts()">
-            <span class="nav-link" [ngClass]="{active: showProjectAnalysts}">
-                Analysts
-            </span>
-        </li>
-    </ul>
+        <div id="project-content-wrapper">
+            <jhi-alert-error></jhi-alert-error>
 
-    <div id="project-content-wrapper">
-        <jhi-alert-error></jhi-alert-error>
-
-        <jhi-subjects *ngIf="showSubjects" [project]='project' [isProjectSpecific]="true"></jhi-subjects>
-        <jhi-groups *ngIf="showProjectGroups" [project]='project'></jhi-groups>
-        <jhi-common-user-mgmt *ngIf="showProjectAdmins" [project]='project' [authority]="'ROLE_PROJECT_ADMIN'"></jhi-common-user-mgmt>
-        <jhi-common-user-mgmt *ngIf="showProjectAnalysts" [project]='project' [authority]="'ROLE_PROJECT_ANALYST'"></jhi-common-user-mgmt>
+            <jhi-subjects *ngIf="activeTab === 'subjects'" [project]='project' [isProjectSpecific]="true"></jhi-subjects>
+            <jhi-groups *ngIf="activeTab === 'groups'" [project]='project'></jhi-groups>
+            <jhi-common-user-mgmt *ngIf="activeTab === 'admins'" [project]='project' [authority]="'ROLE_PROJECT_ADMIN'"></jhi-common-user-mgmt>
+            <jhi-common-user-mgmt *ngIf="activeTab === 'analysts'" [project]='project' [authority]="'ROLE_PROJECT_ANALYST'"></jhi-common-user-mgmt>
+        </div>
     </div>
 </div>

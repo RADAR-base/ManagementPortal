@@ -218,6 +218,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
           tap(([projectName, criteria, sortBy, ascending, page]) =>
             this.router.navigate(this.toPathParams(projectName, criteria), {
                 queryParams: this.toQueryParams(page, sortBy, ascending),
+                queryParamsHandling: "merge",
             })),
           withLatestFrom(this._subjects$),
           switchMap(([[projectName, filter, sortBy, ascending, page], subjects]) => {
@@ -458,7 +459,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             route.push('subject')
         }
         if (criteria) {
-            const stringFilters: Record<string, any> = Object.assign<Record<string, any>, SubjectFilterCriteria>({}, criteria);
+            const stringFilters: Record<string, any> = Object.assign({}, criteria);
             delete stringFilters['groupName'];
             if (criteria.enrollmentDateFrom) {
                 stringFilters.enrollmentDateFrom = this.formatter.format(criteria.enrollmentDateFrom);

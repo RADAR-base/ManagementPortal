@@ -84,6 +84,8 @@ export class CommonUserMgmtComponent implements OnInit, OnDestroy {
                 return this.router.navigate([], {
                     relativeTo: this.activatedRoute,
                     queryParams: { sort },
+                    queryParamsHandling: "merge",
+                    skipLocationChange: true,
                 })
             }),
         );
