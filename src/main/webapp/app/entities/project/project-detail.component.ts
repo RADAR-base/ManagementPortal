@@ -1,21 +1,21 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 
-import { Source } from '../../shared/source/source.model';
 import { Project, ProjectService } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 import { switchMap } from "rxjs/operators";
 
 @Component({
     selector: 'jhi-project-detail',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './project-detail.component.html',
     styleUrls: ['project-detail.component.scss'],
 })
 export class ProjectDetailComponent implements OnInit, OnDestroy {
     private subscription = new Subscription();
-    project: Project;
-    sources: Source[];
+    private _project$ = new BehaviorSubject<Project>(null);
+    project$ = this._project$.asObservable();
 
     showSources: boolean;
     showSubjects: boolean;
@@ -44,7 +44,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         return this.route.params.pipe(
             switchMap(({projectName}) => this.projectService.find(projectName)),
         ).subscribe(
-            (project) => this.project = project,
+            (project) => this._project$.next(project),
         );
     }
 

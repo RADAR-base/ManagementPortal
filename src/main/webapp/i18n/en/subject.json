@@ -48,6 +48,7 @@
             "enrollmentDateTo": "Enrollment Date To",
             "lastModifiedBy": "Last Modified By",
             "lastModifiedDate": "Last Modified Date",
+            "noSubjects": "No subjects found",
             "personName": "Name",
             "pairing": "Pairing",
             "actions": "Actions",

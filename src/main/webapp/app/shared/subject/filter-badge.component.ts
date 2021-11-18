@@ -7,17 +7,18 @@
  * See the file LICENSE in the root of this repository.
  */
 
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
 
 @Component({
-  selector: 'app-filter-badge',
-  template: `
-      <div class="badge badge-pill badge-primary mx-1" *ngIf="value"
-           (click)="clear.emit()">
-          <span>{{ text | translate }}: {{value}}</span>
-          <span aria-hidden="true"> &times;</span>
-      </div>
-  `
+    selector: 'app-filter-badge',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
+        <div class="badge badge-pill badge-primary mx-1" *ngIf="value"
+             (click)="clear.emit()">
+            <span>{{ text | translate }}: {{value}}</span>
+            <span aria-hidden="true"> &times;</span>
+        </div>
+    `
 })
 export class FilterBadgeComponent {
   @Input()

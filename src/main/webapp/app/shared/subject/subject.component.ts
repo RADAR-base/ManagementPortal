@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     Input,
     OnChanges,
@@ -9,7 +10,13 @@ import {
 } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, Observable, Subscription, Subject as RxSubject } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    Observable,
+    Subject as RxSubject,
+    Subscription
+} from 'rxjs';
 import {
     debounceTime,
     distinctUntilChanged,
@@ -38,8 +45,13 @@ import {
     ReactiveFilterOptions
 } from "../util/reactive-filter";
 
+interface CheckedSubject extends Subject {
+    checked: boolean;
+}
+
 @Component({
     selector: 'jhi-subjects',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './subject.component.html',
     styleUrls: ['./subject.component.scss'],
 })
@@ -52,7 +64,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     @Input()
     get project() { return this.project$.value; }
     set project(v: Project) { this.project$.next(v); }
-    subjects$: BehaviorSubject<Subject[]> = new BehaviorSubject([]);
+    _subjects$: BehaviorSubject<Subject[]> = new BehaviorSubject([]);
+    subjects$: Observable<CheckedSubject[]>
     groups$: BehaviorSubject<Group[]> = new BehaviorSubject([]);
     trigger$: RxSubject<void> = new RxSubject<void>()
 
@@ -109,11 +122,22 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         this.enrollmentDate$ = this.observeEnrollmentDate();
         this.filterResult$ = this.observeCombinedFilters();
 
-        this.allChecked$ = this.observeChecked(([subjects, checkedSet]) =>
-          subjects.length !== 0 && subjects.every(v => checkedSet.has(v.id))
+        this.subjects$ = combineLatest([
+            this._subjects$,
+            this.setOfCheckedId$,
+        ]).pipe(
+            map(([subjects, checkedSet]) =>
+                subjects.map(s => ({...s, checked: checkedSet.has(s.id) }))),
+            shareReplay(1),
+        )
+
+        this.allChecked$ = this.subjects$.pipe(
+            map(subjects => subjects.length !== 0 && subjects.every(s => s.checked)),
+            distinctUntilChanged(),
         );
-        this.anyChecked$ = this.observeChecked(([subjects, checkedSet]) =>
-          subjects.some(v => checkedSet.has(v.id))
+        this.anyChecked$ = this.subjects$.pipe(
+            map(subjects => subjects.some(s => s.checked)),
+            distinctUntilChanged(),
         );
 
         this.subscriptions.add(this.registerChangeInPagingParams());
@@ -129,7 +153,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
         this.project$.complete();
-        this.subjects$.complete();
+        this._subjects$.complete();
         this.groups$.complete();
         this.page$.complete();
         this.sortBy$.complete();
@@ -195,7 +219,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             this.router.navigate(this.toPathParams(projectName, criteria), {
                 queryParams: this.toQueryParams(page, sortBy, ascending),
             })),
-          withLatestFrom(this.subjects$),
+          withLatestFrom(this._subjects$),
           switchMap(([[projectName, filter, sortBy, ascending, page], subjects]) => {
               const mergeResults: boolean = page > this.previousPage;
               this.previousPage = page;
@@ -227,7 +251,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     private registerChangeInSubjects(): Subscription {
         return this.eventManager.subscribe('subjectListModification', ({content}) => {
             const modifiedSubject = content.subject;
-            let currentSubjects = this.subjects$.value.slice();
+            let currentSubjects = this._subjects$.value.slice();
             const subjectIndex = currentSubjects.findIndex((s => s.login === modifiedSubject.login));
             if (content.op === 'DELETE') {
                 if (subjectIndex >= 0) {
@@ -240,7 +264,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
                 this.totalItems++;
                 currentSubjects = [modifiedSubject, ...currentSubjects];
             }
-            this.subjects$.next(currentSubjects);
+            this._subjects$.next(currentSubjects);
         });
     }
 
@@ -309,7 +333,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         if (mergeResults) {
             const fetchedSubjects = new Map<number, Subject>(data.map(a => [a.id, a]));
             nextValue = [
-              ...this.subjects$.value.map(s => {
+              ...this._subjects$.value.map(s => {
                   const newSubject = fetchedSubjects.get(s.id);
                   if (newSubject) {
                       fetchedSubjects.delete(s.id);
@@ -323,7 +347,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         } else {
             nextValue = data;
         }
-        this.subjects$.next(nextValue);
+        this._subjects$.next(nextValue);
     }
 
     clearFilters() {
@@ -348,7 +372,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
 
     toggleSelectAll(): void {
         combineLatest([
-            this.subjects$,
+            this._subjects$,
             this.setOfCheckedId$,
         ]).pipe(
           first(),
@@ -425,13 +449,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         )
     }
 
-    private observeChecked<T>(modify: (state: [Subject[], Set<number>]) => T): Observable<T> {
-        return combineLatest([this.subjects$, this.setOfCheckedId$]).pipe(
-          map(v => modify(v)),
-          distinctUntilChanged(),
-        );
-    }
-
     private toPathParams(projectName: string, criteria: SubjectFilterCriteria): Record<string, string>[] {
         let route = [];
         if (projectName) {
@@ -478,13 +495,12 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         const modalRef = this.modalService.open(AddSubjectsToGroupDialogComponent);
         this.subscriptions.add(combineLatest([
           this.subjects$,
-          this.setOfCheckedId$,
           this.groups$,
           this.project$,
-        ]).subscribe(([subjects, checkedIds, groups, project]) => {
+        ]).subscribe(([subjects, groups, project]) => {
           modalRef.componentInstance.groups = groups;
           modalRef.componentInstance.projectName = project.projectName;
-          modalRef.componentInstance.subjects = subjects.filter(s => checkedIds.has(s.id));
+          modalRef.componentInstance.subjects = subjects.filter(s => s.checked);
         }));
     }
 }
