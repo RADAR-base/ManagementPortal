@@ -1,13 +1,14 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { DatePipe } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 
 import { EventManager } from '../../shared/util/event-manager.service';
 import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
-import { MockActivatedRoute } from '../../shared/util/test/mock-route.service';
-import { Project, ProjectService } from '../../shared/project';
+import { MockActivatedRoute, MockRouter } from '../../shared/util/test/mock-route.service';
+import { ProjectService } from '../../shared/project';
 import { ProjectDetailComponent } from './project-detail.component';
+import { filter } from "rxjs/operators";
 
 describe('Component Tests', () => {
 
@@ -26,6 +27,10 @@ describe('Component Tests', () => {
                         provide: ActivatedRoute,
                         useValue: new MockActivatedRoute({projectName: 'testProject'})
                     },
+                    {
+                        provide: Router,
+                        useClass: MockRouter,
+                    },
                     ProjectService,
                     EventManager
                 ]
@@ -39,18 +44,18 @@ describe('Component Tests', () => {
         });
 
         describe('OnInit', () => {
-            it('Should call load all on init', () => {
-            // GIVEN
+            it('Should call load all on init', waitForAsync(async () => {
+                // GIVEN
+                spyOn(service, 'find').and.returnValue(of({id: 10}));
 
-            spyOn(service, 'find').and.returnValue(of({id: 10}));
+                // WHEN
+                comp.ngOnInit();
 
-            // WHEN
-            comp.ngOnInit();
-
-            // THEN
-            expect(service.find).toHaveBeenCalledWith('testProject');
-            expectAsync(comp.project$.toPromise()).toBeResolvedTo(jasmine.objectContaining({id: 10}));
-            });
+                // THEN
+                expect(service.find).toHaveBeenCalledWith('testProject');
+                const result = await comp.project$.pipe(filter(p => !!p)).toPromise();
+                expect(result).toEqual(jasmine.objectContaining({id: 10}))
+            }));
         });
     });
 });

@@ -30,7 +30,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         this.activeTab$ = this._activeTab$.asObservable().pipe(distinctUntilChanged());
         this.subscription.add(this.activatedRoute.queryParams.pipe(
             pluck('tab'),
-        ).subscribe((tab) => this.updateActiveTab(tab)));
+        ).subscribe(tab => this.updateActiveTab(tab)));
     }
 
     ngOnInit() {
@@ -50,6 +50,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
     private registerChangesInProjectName(): Subscription {
         return this.activatedRoute.params.pipe(
+            filter(p => !!p),
             pluck('projectName'),
             distinctUntilChanged(),
             switchMap(projectName => this.projectService.find(projectName)),
