@@ -22,7 +22,6 @@ export class ReactiveFilter<T> {
   protected readonly trigger$: Subject<T>;
 
   error$: Observable<string>;
-  rawValue$: Observable<T | null>;
   value$: Observable<T | null>;
 
   constructor(
@@ -35,7 +34,6 @@ export class ReactiveFilter<T> {
     this.error$ = this._error$.asObservable().pipe(distinctUntilChanged());
 
     this._value$ = new BehaviorSubject<T>(null);
-    this.rawValue$ = this._value$.asObservable();
     this.trigger$ = new Subject<T>();
 
     let validValue = this._value$.pipe(

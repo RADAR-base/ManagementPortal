@@ -10,7 +10,7 @@
                 <input class="form-control"
                        type="text"
                        id="field-subject-id"
-                       [ngModel]="filters.subjectId.rawValue$ | async"
+                       [ngModel]="filters.subjectId.value$ | async"
                        (ngModelChange)='filters.subjectId.next($event)'>
             </label>
         </div>
@@ -21,7 +21,7 @@
                 <input class="form-control"
                        type="text"
                        id="field-subject-external-id"
-                       [ngModel]="filters.externalId.rawValue$ | async"
+                       [ngModel]="filters.externalId.value$ | async"
                        (ngModelChange)='filters.externalId.next($event)'>
             </label>
         </div>
@@ -41,7 +41,7 @@
                         <span [translate]="'managementPortalApp.subject.humanReadableId'"></span>
                         <input class="form-control"
                                id="field-human-readable-id"
-                               [ngModel]="filters.humanReadableId.rawValue$ | async"
+                               [ngModel]="filters.humanReadableId.value$ | async"
                                type="text"
                                (ngModelChange)='filters.humanReadableId.next($event)'>
                     </label>
@@ -53,7 +53,7 @@
                         <select class="form-control"
                                 id="field_group"
                                 name="group"
-                                [ngModel]="filters.groupId.rawValue$ | async"
+                                [ngModel]="filters.groupId.value$ | async"
                                 (ngModelChange)='filters.groupId.next($event)'>
                             <option [ngValue]="null">-</option>
                             <option *ngFor="let g of groups$ | async" [ngValue]="g.id">
@@ -109,7 +109,7 @@
                         <span [translate]="'managementPortalApp.subject.personName'"></span>
                         <input class="form-control"
                                id="field-person-name"
-                               [ngModel]="filters.personName.rawValue$ | async"
+                               [ngModel]="filters.personName.value$ | async"
                                type="text"
                                (ngModelChange)='filters.personName.next($event)'>
                     </label>
@@ -133,9 +133,7 @@
                     <span *ngIf="filters.dateOfBirth.error$ | async as errorCode" class="error" [translate]="'managementPortalApp.subject.filter.error.' + errorCode"></span>
                 </div>
             </div>
-
         </div>
-
     </div>
     <section>
         <div ngbDropdown class="d-inline-block subject-sorting-action" id="field-sort-by" >
@@ -226,24 +224,24 @@
                     [translate]="'managementPortalApp.subject.filter.clearButton'"></a>
         </div>
         <jhi-alert></jhi-alert>
+        <div class="subject-list-actions">
+            <button type="button"
+                    class="btn btn-light"
+                    [translate]="(allChecked$ | async) ? 'managementPortalApp.subject.clearSelectedItems' : 'managementPortalApp.subject.selectAll'"
+                    (click)="toggleSelectAll()"
+            ></button>
+            <button type="button"
+                    *ngIf='isProjectSpecific'
+                    class="btn btn-light"
+                    [disabled]="!(anyChecked$ | async)"
+                    [translate]="'managementPortalApp.subject.addSelectedToGroup'"
+                    (click)="addSelectedToGroup()"
+            ></button>
+        </div>
         <div *ngIf="subjects$ | async as subjects" class="subjects">
-            <div class="subject-list-actions">
-                <button type="button"
-                        class="btn btn-light"
-                        [translate]="(allChecked$ | async) ? 'managementPortalApp.subject.clearSelectedItems' : 'managementPortalApp.subject.selectAll'"
-                        (click)="toggleSelectAll()"
-                ></button>
-                <button type="button"
-                        *ngIf='isProjectSpecific'
-                        class="btn btn-light"
-                        [disabled]="!(anyChecked$ | async)"
-                        [translate]="'managementPortalApp.subject.addSelectedToGroup'"
-                        (click)="addSelectedToGroup()"
-                ></button>
-            </div>
             <div *ngFor="let subject of subjects; trackBy: trackLogin" class="subject-row">
                 <div class="subject-row__select-row">
-                    <input type="checkbox" [ngModel]="(setOfCheckedId$ | async).has(subject.id)"
+                    <input type="checkbox" [ngModel]="subject.checked"
                            (ngModelChange)="onItemChecked(subject.id, $event)">
                 </div>
                 <div class="subject-row__content">
