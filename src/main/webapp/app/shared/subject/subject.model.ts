@@ -1,6 +1,6 @@
 import { Role } from '../../admin/user-management/role.model';
-import { Project } from '../project/project.model';
-import { MinimalSource } from '../source/source.model';
+import { Project } from '../project';
+import { MinimalSource } from '../source';
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 
 export interface Subject {

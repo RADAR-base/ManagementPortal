@@ -5,7 +5,6 @@ import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
-import { MinimalSource } from '../../shared/source';
 import { Subject, SubjectService } from '../../shared/subject';
 
 import { Project, ProjectService } from '../../shared';
