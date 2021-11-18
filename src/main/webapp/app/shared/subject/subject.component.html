@@ -229,16 +229,16 @@
         <div *ngIf="subjects$ | async as subjects" class="subjects">
             <div class="subject-list-actions">
                 <button type="button"
-                    class="btn btn-light"
-                    [translate]="(allChecked$ | async) ? 'managementPortalApp.subject.clearSelectedItems' : 'managementPortalApp.subject.selectAll'"
-                    (click)="toggleSelectAll()"
+                        class="btn btn-light"
+                        [translate]="(allChecked$ | async) ? 'managementPortalApp.subject.clearSelectedItems' : 'managementPortalApp.subject.selectAll'"
+                        (click)="toggleSelectAll()"
                 ></button>
                 <button type="button"
-                    *ngIf='isProjectSpecific'
-                    class="btn btn-light"
-                    [disabled]="anyChecked$ | async"
-                    [translate]="'managementPortalApp.subject.addSelectedToGroup'"
-                    (click)="addSelectedToGroup()"
+                        *ngIf='isProjectSpecific'
+                        class="btn btn-light"
+                        [disabled]="!(anyChecked$ | async)"
+                        [translate]="'managementPortalApp.subject.addSelectedToGroup'"
+                        (click)="addSelectedToGroup()"
                 ></button>
             </div>
             <div *ngFor="let subject of subjects; trackBy: trackLogin" class="subject-row">
