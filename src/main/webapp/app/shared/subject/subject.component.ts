@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     Input,
     OnChanges,
@@ -9,7 +10,13 @@ import {
 } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, Observable, Subscription, Subject as RxSubject } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    Observable,
+    Subject as RxSubject,
+    Subscription
+} from 'rxjs';
 import {
     debounceTime,
     distinctUntilChanged,
@@ -40,6 +47,7 @@ import {
 
 @Component({
     selector: 'jhi-subjects',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './subject.component.html',
     styleUrls: ['./subject.component.scss'],
 })
