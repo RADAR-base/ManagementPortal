@@ -33,7 +33,9 @@ describe('Component Tests', () => {
                     },
                     {
                         provide: JhiLanguageHelper,
-                        useValue: null
+                        useValue: jasmine.createSpyObj('JhiLanguageHelper', {
+                            getAll: Promise.resolve(['en', 'nl']),
+                        }),
                     },
                     {
                         provide: TranslateService,
@@ -48,6 +50,7 @@ describe('Component Tests', () => {
             comp = fixture.componentInstance;
             mockAuth = fixture.debugElement.injector.get(AccountService);
             mockPrincipal = fixture.debugElement.injector.get(Principal);
+            fixture.detectChanges();
         });
 
         it('should send the current identity upon save', function() {
@@ -68,7 +71,8 @@ describe('Component Tests', () => {
             comp.save();
 
             // THEN
-            expect(mockPrincipal.identity).toHaveBeenCalled();
+            expect(mockPrincipal.account$Spy).toHaveBeenCalled();
+            expect(mockPrincipal.reset).toHaveBeenCalled();
             expect(mockAuth.save).toHaveBeenCalledWith(accountValues);
             expect(comp.settingsAccount).toEqual(accountValues);
         });
