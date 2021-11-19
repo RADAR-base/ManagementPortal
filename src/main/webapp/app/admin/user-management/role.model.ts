@@ -4,6 +4,8 @@ export class Role {
             public authorityName?: string,
             public projectId?: number,
             public projectName?: string,
+            public organizationId?: number,
+            public organizationName?: string,
     ) {
     }
 }

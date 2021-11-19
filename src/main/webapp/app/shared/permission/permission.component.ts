@@ -6,8 +6,8 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import {Role} from "../../admin/user-management/role.model";
-import {Subscription} from "rxjs";
-import {Project, ProjectService} from "../project";
+import {Observable, of, OperatorFunction, Subscription} from "rxjs";
+import {Project} from "../project";
 import {AuthorityService} from "../user/authority.service";
 import {AlertService} from "../util/alert.service";
 import {EventManager} from "../util/event-manager.service";
@@ -15,7 +15,76 @@ import {HttpErrorResponse, HttpResponse} from "@angular/common/http";
 import {User} from "../user/user.model";
 import {Organization} from "../organization";
 import {UserService} from "../user/user.service";
-import {parseLinks} from "../util/parse-links-util";
+import {catchError, debounceTime, distinctUntilChanged, map, switchMap, tap} from "rxjs/operators";
+
+const MOCK_USER_DATA = [ {
+    "id" : 1,
+    "login" : "admin",
+    "firstName" : "Administrator",
+    "lastName" : "Administrator",
+    "email" : "admin@localhost",
+    "activated" : true,
+    "langKey" : "en",
+    "createdBy" : "system",
+    "createdDate" : "2021-11-19T10:08:30.968406+01:00",
+    "lastModifiedBy" : "system",
+    "lastModifiedDate" : "2021-11-19T10:08:40.261+01:00",
+    "roles" : [ {
+        "id" : 1,
+        "projectId" : null,
+        "projectName" : null,
+        "authorityName" : "ROLE_SYS_ADMIN"
+    } ],
+    "authorities" : [ "ROLE_SYS_ADMIN" ]
+}, {
+    "id" : 5,
+    "login" : "padmin",
+    "firstName" : null,
+    "lastName" : null,
+    "email" : "padmin@localhost",
+    "activated" : true,
+    "langKey" : "en",
+    "createdBy" : "system",
+    "createdDate" : "2021-11-19T10:08:30.968406+01:00",
+    "lastModifiedBy" : "system",
+    "lastModifiedDate" : "2021-11-19T10:08:30.968406+01:00",
+    "roles" : [ {
+        "id" : 3,
+        "projectId" : 1,
+        "projectName" : "radar",
+        "authorityName" : "ROLE_PROJECT_ADMIN"
+    }, {
+        "id" : 5,
+        "organizationId" : 1,
+        "organizationName" : "The Hyve",
+        "authorityName" : "ROLE_ORGANIZATION_ADMIN"
+    }  ],
+    "authorities" : [ "ROLE_PROJECT_ADMIN", "ROLE_ORGANIZATION_ADMIN" ]
+}, {
+    "id" : 6,
+    "login" : "padmin2",
+    "firstName" : null,
+    "lastName" : null,
+    "email" : "padmin2@localhost",
+    "activated" : true,
+    "langKey" : "en",
+    "createdBy" : "system",
+    "createdDate" : "2021-11-19T10:08:30.968406+01:00",
+    "lastModifiedBy" : "system",
+    "lastModifiedDate" : "2021-11-19T10:08:30.968406+01:00",
+    "roles" : [ {
+        "id" : 4,
+        "projectId" : 2,
+        "projectName" : "Radar-Pilot-01",
+        "authorityName" : "ROLE_PROJECT_ADMIN"
+    }, {
+        "id" : 6,
+        "organizationId" : 2,
+        "organizationName" : "Other organization",
+        "authorityName" : "ROLE_ORGANIZATION_ADMIN"
+    }   ],
+    "authorities" : [ "ROLE_PROJECT_ADMIN", "ROLE_ORGANIZATION_ADMIN" ]
+} ];
 
 @Component({
     selector: 'jhi-permissions',
@@ -26,16 +95,38 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
 
 
     @Input() organization: Organization;
+    @Input() project: Project;
+
+    authorities: string[];
 
     users: User[] = [];
-    allUsers: User[];
+    filteredUsers: User[] = [];
 
     eventSubscriber: Subscription;
-    authorities: string[];
-    // projects: Project[];
 
     selectedAuthority: any;
-    selectedUser: User;
+    userSearchTerm: any;
+
+    isSearching = false;
+    isSearchFailed = false;
+    isNotSelected = false;
+
+    searchUser: OperatorFunction<string, readonly string[]> = (text$: Observable<string>) =>
+            text$.pipe(
+                    debounceTime(300),
+                    distinctUntilChanged(),
+                    tap(() => this.isSearching = true),
+                    switchMap(term =>
+                            this.userService.search(term).pipe(
+                                    map( users => this.removeAlreadyExistingUsersFromTheList(users)),
+                                    tap(() => this.isSearchFailed = false),
+                                    catchError(() => {
+                                        this.isSearchFailed = true;
+                                        return of([]);
+                                    }))
+                    ),
+                    tap(() => this.isSearching = false)
+            )
 
     constructor(
             private authorityService: AuthorityService,
@@ -46,17 +137,19 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
     ) {
     }
 
-    ngOnInit() {
+    removeAlreadyExistingUsersFromTheList(users: User[]){
+        const modifiedUsers = this.users.map(u => u.login);
+        this.filteredUsers = users.filter(val => !modifiedUsers.includes(val.login));
+        return this.filteredUsers.map(user => {
+            const userNameString = (user.firstName || user.lastName)? ' [' + (user.firstName || '') + ' ' + (user.lastName || '') + ']' : '';
+            return user.login + userNameString;
+        });
+    }
 
-        // if (this.users === null) {
-        //     this.users = [];
-        // }
+    ngOnInit() {
         this.authorityService.findAll().subscribe(res => {
             this.authorities = res;
         });
-        // this.projectService.query().subscribe((res: HttpResponse<any>) => {
-        //     this.projects = res.body;
-        // });
     }
 
     trackId(index: number, item: Role) {
@@ -64,20 +157,68 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     addRole() {
-        // update user
+        console.log(this.selectedAuthority, this.userSearchTerm)
+        console.log(this.filteredUsers)
+        const user = this.filteredUsers[0];
+        if(this.userSearchTerm.includes(user.login)){
+            const newRole = new Role();
+            if (this.project) {
+                newRole.authorityName = 'ROLE_PROJECT_ADMIN';
+                newRole.projectId = 1; //this.organization.id;
+                newRole.projectName = 'radar'; // this.organization.organizationName;
+            } else if (this.organization) {
+                newRole.authorityName = this.selectedAuthority;
+                newRole.organizationId = this.organization.id;
+                newRole.organizationName = this.organization.organizationName;
+            }
+            newRole.authorityName = 'ROLE_PROJECT_ADMIN';
+            newRole.projectId = 1; //this.organization.id;
+            newRole.projectName = 'radar'; // this.organization.organizationName;
+            if (this.hasRole(newRole)) {
+            //     this.alertService.error('userManagement.role.error.alreadyExist', null, null);
+            } else {
+                user.roles.push(newRole);
+                this.userService.update(user).subscribe(
+                        (res)=> {
+                            console.log(res);
+                            this.getUsers();
 
-        // const newUser = new User();
-        // newUser
-        // const newRole = new Role();
-        // newRole.authorityName = this.selectedAuthority;
-        // newRole.projectId = this.selectedProject.id;
-        // newRole.projectName = this.selectedProject.projectName;
-        // if (this.hasRole(newRole)) {
-        //     this.alertService.error('userManagement.role.error.alreadyExist', null, null);
-        // } else {
-        //     this.users.push(newRole);
-        // }
+                        },
+                        (error)=> console.log(error)
+                );
+            //     this.users.push(newRole);
+            }
+        } else {
+            console.log('error not selected')
+            this.isNotSelected = true;
+        }
         // this.eventManager.broadcast({name: 'roleListModification', content: this.users});
+    }
+
+    getUsers(){
+        this.selectedAuthority = null;
+        this.userSearchTerm = null;
+        this.isNotSelected = false;
+        this.isSearching = false;
+        this.isSearchFailed = false;
+
+        let req = {};
+        if (this.project) {
+            req = {
+                project: this.project
+            }
+        } else if (this.organization) {
+            req = {
+                organization: this.organization
+            }
+        } else {
+            return;
+        }
+
+        this.userService.query(req).subscribe(
+                (res: HttpResponse<User[]>) => this.onSuccess(res.body, res.headers),
+                (error: HttpErrorResponse) => this.onError(error),
+        );
     }
 
     hasRole(role: Role): boolean {
@@ -86,7 +227,27 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
         //         v.authorityName === role.authorityName);
     }
 
-    removeRole(role: Role) {
+    removeRole(user: User) {
+        // remove from roles
+        const roles = user.roles;
+        console.log(roles);
+        roles.splice(roles.findIndex(role => role.organizationId === this.organization.id), 1);
+        user.roles = roles;
+
+        // remove from authorities
+        // todo warning! if user has more than one authority for organization or project
+        const authorities = user.authorities;
+        console.log(authorities);
+        authorities.splice(authorities.findIndex(authority => authority === this.selectedAuthority), 1);
+        user.authorities = authorities;
+
+        this.userService.update(user).subscribe(
+                (res)=> {
+                    console.log(res);
+                    this.getUsers();
+                },
+                (error)=> console.log(error)
+        );
         // this.users.splice(this.users.findIndex(v => v.projectId === role.projectId && v.authorityName === role.authorityName), 1);
         // this.eventManager.broadcast({name: 'roleListModification', content: this.users});
     }
@@ -96,33 +257,27 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        this.userService.query({
-            // page: this.page - 1,
-            // size: this.itemsPerPage,
-            // authority: this.byAuthority,
-            // email: this.byEmail,
-            // login: this.byLogin,
-            organization: this.organization
-            // projectName: this.byProject,
-            // sort: this.sort(),
-        }).subscribe(
-                (res: HttpResponse<User[]>) => this.onSuccess(res.body, res.headers),
-                (res: HttpErrorResponse) => this.onError(res),
-        );
+        this.getUsers();
     }
 
     ngOnDestroy(): void {
     }
 
     private onSuccess(data, headers) {
-        // this.links = parseLinks(headers.get('link'));
-        // this.totalItems = headers.get('X-Total-Count');
-        // this.queryCount = this.totalItems;
-        this.allUsers = data;
+        const organizationUsers = this.filterByOrganization(MOCK_USER_DATA);
+        console.log(organizationUsers);
+        this.users = this.filterByOrganization(organizationUsers);
     }
 
     private onError(error) {
         this.alertService.error(error.message, null, null);
+    }
+
+    filterByOrganization(data: any[]): any[] {
+        return data.filter( item => {
+            return item.authorities.includes('ROLE_SYS_ADMIN') ||
+                    item.roles.filter(role => role.organizationId === 1).length > 0;
+        })
     }
 
 }

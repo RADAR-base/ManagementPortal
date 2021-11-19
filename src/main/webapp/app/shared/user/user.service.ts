@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import {HttpClient, HttpParams, HttpResponse} from '@angular/common/http';
 import {Observable, of} from 'rxjs';
 
 import { User } from './user.model';
 import { createRequestOption } from '../model/request.utils';
 import { Project } from '../project';
 import {Organization, ORGANIZATIONS} from "../organization/organization.model";
+import {map} from "rxjs/operators";
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -51,5 +52,16 @@ export class UserService {
     findByProjectAndAuthority(req: any): Observable<User[]> {
         const params = createRequestOption(req);
         return this.http.get<User[]>(this.resourceUrl, {params});
+    }
+
+    search(term: string) {
+        if (term === '') {
+            return of([]);
+        }
+        const params = new HttpParams({fromObject: {searching: true}});
+        return this.http.get<User[]>(this.resourceUrl,
+                {params: params.set('search', term)}).pipe(
+                        // map(response => response[1])
+                );
     }
 }
