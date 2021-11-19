@@ -7,24 +7,18 @@ import { Password } from './password.service';
     selector: 'jhi-password',
     templateUrl: './password.component.html',
 })
-export class PasswordComponent implements OnInit {
+export class PasswordComponent {
     doNotMatch: string;
     weakPassword: string;
     error: string;
     success: string;
-    account: any;
     password: string;
     confirmPassword: string;
 
     constructor(
-            private passwordService: Password,
-            private principal: Principal,
+      private passwordService: Password,
+      public principal: Principal,
     ) {
-    }
-
-    ngOnInit() {
-        this.principal.identity()
-            .then((account) => this.account = account);
     }
 
     changePassword() {

@@ -158,7 +158,7 @@ class GroupResourceIntTest {
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(groupDto)))
                 .andExpect(status().isCreated());
-        
+
         var savedGroup = groupRepository.findByProjectNameAndName(
                 project.getProjectName(), groupDto.getName()).get();
 
@@ -246,7 +246,7 @@ class GroupResourceIntTest {
         group.setName(null);
 
         // Create the Group
-        var groupDto = groupMapper.groupToGroupDTO(group);
+        GroupDTO groupDto = groupMapper.groupToGroupDTO(group);
         restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
                         project.getProjectName())
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -310,6 +310,45 @@ class GroupResourceIntTest {
     }
 
     @Test
+    void deleteGroupWithSubjects() throws Exception {
+        // Initialize the database
+        groupRepository.saveAndFlush(group);
+
+        var projectDto = projectMapper.projectToProjectDTO(project);
+
+        var subjectDto = new SubjectDTO();
+        subjectDto.setExternalLink("exLink1");
+        subjectDto.setExternalId("exId1");
+        subjectDto.setStatus(ACTIVATED);
+        subjectDto.setProject(projectDto);
+        subjectDto.setGroup(group.getName());
+        var savedSubject = subjectService.createSubject(subjectDto);
+
+        // Try to delete the Group (and fail)
+        restGroupMockMvc.perform(delete(
+                        "/api/projects/{projectName}/groups/{groupName}",
+                        project.getProjectName(), group.getName())
+                        .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isConflict());
+
+        // Delete the Group (and unlink the subjects)
+        restGroupMockMvc.perform(delete(
+                        "/api/projects/{projectName}/groups/{groupName}",
+                        project.getProjectName(), group.getName())
+                        .param("unlinkSubjects", "true")
+                        .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNoContent());
+
+        // Validate the Group is not present in the database
+        var savedGroup = groupRepository.findByProjectNameAndName(
+                project.getProjectName(), group.getName());
+        assertThat(savedGroup).isEmpty();
+
+        var storedSubject = subjectRepository.getOne(savedSubject.getId());
+        subjectRepository.delete(storedSubject);
+    }
+
+    @Test
     void deleteGroupNonExisting() throws Exception {
         // Initialize the database
         groupRepository.saveAndFlush(group);
@@ -360,7 +399,7 @@ class GroupResourceIntTest {
         sub2.setExternalId("exId2");
         sub2.setStatus(ACTIVATED);
         sub2.setProject(projectDto);
-        
+
         var savedSub1 = subjectService.createSubject(sub1);
         var savedSub2 = subjectService.createSubject(sub2);
 
@@ -383,7 +422,7 @@ class GroupResourceIntTest {
         restGroupMockMvc.perform(patch(
                         "/api/projects/{projectName}/groups/{groupName}/subjects",
                         project.getProjectName(), group.getName())
-                        
+
                         .contentType(TestUtil.APPLICATION_JSON_PATCH)
                         .content(TestUtil.convertObjectToJsonBytes(body)))
                 .andExpect(status().isNoContent());
@@ -394,7 +433,7 @@ class GroupResourceIntTest {
         assertThat(subjects).hasSize(2);
         assertThat(subjects).allSatisfy(
                 s -> assertThat(s.getGroup().getId()).isEqualTo(group.getId()));
-        
+
         subjectRepository.deleteAll(subjects);
     }
 }

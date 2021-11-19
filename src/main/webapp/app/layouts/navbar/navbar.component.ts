@@ -9,10 +9,9 @@ import {
     JhiLanguageHelper,
     LoginModalService,
     LoginService,
-    Organization,
     Principal,
-    Project,
-    UserService
+    Organization,
+    OrganizationService, UserService,
 } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 
@@ -35,15 +34,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
     modalRef: NgbModalRef;
     version: string;
 
-    // projects: Project[];
     organizations: Organization[];
-    currentAccount: any;
     private subscriptions: Subscription;
 
     constructor(
             private loginService: LoginService,
             private languageHelper: JhiLanguageHelper,
-            private principal: Principal,
+            public principal: Principal,
             private loginModalService: LoginModalService,
             private profileService: ProfileService,
             private router: Router,
@@ -57,8 +54,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.principal.identity().then(account => this.currentAccount = account);
-        // this.loadRelevantProjects();
         this.loadRelevantOrganizations();
         this.languageHelper.getAll().then((languages) => {
             this.languages = languages;
@@ -74,39 +69,19 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.subscriptions.unsubscribe();
     }
 
-    // loadRelevantProjects() {
-    //     this.subscriptions.add(this.principal.getAuthenticationState()
-    //         .pipe(
-    //           tap(account => this.currentAccount = account),
-    //           switchMap(account => {
-    //               if (account) {
-    //                   return this.userService.findProject(account.login);
-    //               } else {
-    //                   return of([]);
-    //               }
-    //           })
-    //         )
-    //         .subscribe(projects => this.projects = projects));
-    // }
-
     loadRelevantOrganizations() {
-        this.subscriptions.add(this.principal.getAuthenticationState()
-                .pipe(
-                        tap(account => this.currentAccount = account),
-                        switchMap(account => {
-                            if (account) {
-                                return this.userService.findOrganization(account.login);
-                            } else {
-                                return of([]);
-                            }
-                        })
-                )
-                .subscribe(organizations => this.organizations = organizations));
+        this.subscriptions.add(this.principal.account$
+            .pipe(
+              switchMap(account => {
+                  if (account) {
+                      return this.userService.findOrganization(account.login);
+                  } else {
+                      return of([]);
+                  }
+              })
+            )
+            .subscribe(organizations => this.organizations = organizations));
     }
-
-    // trackProjectName(index: number, item: Project) {
-    //     return item.projectName;
-    // }
 
     trackOrganizationName(index: number, item: Organization) {
         return item.organizationName;
@@ -118,10 +93,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     collapseNavbar() {
         this.isNavbarCollapsed = true;
-    }
-
-    isAuthenticated() {
-        return this.principal.isAuthenticated();
     }
 
     login() {
