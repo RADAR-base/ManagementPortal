@@ -28,6 +28,7 @@ export class OrganizationDeleteDialogComponent {
     }
 
     confirmDelete(organizationName: string) {
+        console.log(organizationName)
         this.organizationService.delete(organizationName).subscribe(() => {
             this.eventManager.broadcast({
                 name: 'organizationListModification',

@@ -80,9 +80,9 @@
                 </a>
                 <ul class="dropdown-menu" ngbDropdownMenu>
                     <li uiSrefActive="active" *ngFor="let organization of organizations ;trackBy: trackOrganizationName">
-                        <a class="dropdown-item" [routerLink]="['organization' , organization.organizationName]" (click)="collapseNavbar()">
+                        <a class="dropdown-item" [routerLink]="['organization' , organization.name]" (click)="collapseNavbar()">
                             <i class="fa fa-fw fa-desktop" ></i>
-                            <span>{{organization.organizationName}} </span>
+                            <span>{{organization.name}} </span>
                         </a>
                     </li>
                 </ul>

@@ -84,7 +84,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
 
     trackOrganizationName(index: number, item: Organization) {
-        return item.organizationName;
+        return item.name;
     }
 
     changeLanguage(languageKey: string) {

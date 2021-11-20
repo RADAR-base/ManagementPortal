@@ -3,10 +3,10 @@
         <span>
             <span [translate]="'managementPortalApp.organization.detail.title'"></span>
 <!--            {{organization.humanReadableOrganizationName ? organization.humanReadableOrganizationName : organization.organizationName}}-->
-            {{organization.organizationName}}
+            {{organization.name}}
         </span>
         <button type="button"
-                [routerLink]="['/', { outlets: { popup: 'organization/'+ organization.organizationName + '/edit'} }]"
+                [routerLink]="['/', { outlets: { popup: 'organization/'+ organization.name + '/edit'} }]"
                 replaceUrl="true"
                 class="btn btn-primary float-right">
             <span class="fa fa-pencil"></span>&nbsp;<span [translate]="'entity.action.edit'"></span>
@@ -16,7 +16,7 @@
         <div class="organization-detail__organization-info-fields">
             <div>
                 <span [translate]="'managementPortalApp.organization.organizationName'"></span>
-                <p>{{organization.organizationName}}</p>
+                <p>{{organization.name}}</p>
             </div>
 <!--            <div>-->
 <!--                <span translate="managementPortalApp.organization.organization"></span>-->

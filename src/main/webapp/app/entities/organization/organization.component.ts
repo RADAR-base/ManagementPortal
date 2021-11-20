@@ -89,7 +89,7 @@ export class OrganizationComponent implements OnInit, OnDestroy {
     }
 
     trackId(index: number, item: Organization) {
-        return item.organizationName;
+        return item.name;
     }
 
     registerChangeInOrganizations() {

@@ -169,7 +169,7 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
             } else if (this.organization) {
                 newRole.authorityName = this.selectedAuthority;
                 newRole.organizationId = this.organization.id;
-                newRole.organizationName = this.organization.organizationName;
+                newRole.organizationName = this.organization.name;
             }
             newRole.authorityName = 'ROLE_PROJECT_ADMIN';
             newRole.projectId = 1; //this.organization.id;

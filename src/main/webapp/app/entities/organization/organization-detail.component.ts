@@ -61,7 +61,7 @@ export class OrganizationDetailComponent implements OnInit, OnDestroy {
 
     registerChangeInOrganizations() {
         this.eventSubscriber = this.eventManager.subscribe('organizationListModification',
-                () => this.load(this.organization.organizationName));
+                () => this.load(this.organization.name));
     }
 
     viewProjects() {

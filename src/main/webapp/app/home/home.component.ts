@@ -56,7 +56,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     trackId(index: number, item: Organization) {
-        return item.organizationName;
+        return item.name;
     }
 
     login() {
