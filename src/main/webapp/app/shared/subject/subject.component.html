@@ -261,11 +261,8 @@
                             <a *ngIf="subject.externalLink" target="_blank" [href]=subject.externalLink>
                                 {{subject.externalId || subject.externalLink}}
                             </a>
-                            <span *ngIf="!subject.externalLink && subject.externalId">
+                            <span *ngIf="!subject.externalLink && subject.externalId; else noneAvailable">
                                 {{subject.externalId}}
-                            </span>
-                            <span *ngIf="!subject.externalLink && !subject.externalId">
-                                N/A
                             </span>
                         </div>
                     </div>
@@ -285,9 +282,7 @@
                             [translate]="'managementPortalApp.subject.project'">
                         </span>
                         <div>
-                            <span *ngIf="!subject.roles || subject.roles.length === 0">
-                                N/A
-                            </span>
+                            <ng-container *ngIf="!subject.roles || subject.roles.length === 0" [ngTemplateOutlet]="noneAvailable"></ng-container>
                             <span *ngFor="let role of subject.roles; let last = last">
                                 <a  *ngIf="role.authorityName == 'ROLE_PARTICIPANT'"
                                     class="badge badge-success"
@@ -303,9 +298,7 @@
                             [translate]="'managementPortalApp.subject.sources'">
                         </span>
                         <div>
-                            <span *ngIf="!subject.sources || subject.sources.length === 0">
-                                N/A
-                            </span>
+                            <ng-container *ngIf="!subject.sources || subject.sources.length === 0" [ngTemplateOutlet]="noneAvailable"></ng-container>
                             <span *ngFor="let sources of subject.sources; let last = last">
                                 <a class="form-control-static" [routerLink]="['/source', sources.sourceName ]">{{sources.sourceTypeModel}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
                             </span>
@@ -316,9 +309,7 @@
                             [translate]="'managementPortalApp.subject.attributeData'">
                         </span>
                         <div>
-                            <span *ngIf="(subject.attributes | keyvalue)?.length === 0">
-                                N/A
-                            </span>
+                            <ng-container *ngIf="!subject.attributes || (subject.attributes | keyvalue).length === 0" [ngTemplateOutlet]="noneAvailable"></ng-container>
                             <div *ngFor="let entry of subject.attributes | keyvalue; trackBy: trackKey">
                                 <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
                             </div>
@@ -329,9 +320,7 @@
                               [translate]="'managementPortalApp.subject.group'">
                         </span>
                         <div>
-                            <span>
-                                {{subject.group || 'N/A'}}
-                            </span>
+                            <span *ngIf="subject.group; else noneAvailable">{{ subject.group }}</span>
                         </div>
                     </div>
                 </div>
@@ -380,3 +369,7 @@
         </div>
     </section>
 </div>
+
+<ng-template #noneAvailable>
+    <span class="none-available" translate>global.attribute.noneAvailable</span>
+</ng-template>

@@ -31,20 +31,17 @@
             </div>
             <div>
                 <span translate="managementPortalApp.project.startDate"></span>
-                <p *ngIf="project.startDate">{{project.startDate | date:'medium'}}</p>
-                <p *ngIf="!project.startDate">N/A</p>
+                <p *ngIf="project.startDate; else noneAvailable">{{project.startDate | date:'mediumDate'}}</p>
             </div>
             <div>
                 <span translate="managementPortalApp.project.endDate"></span>
-                <p *ngIf="project.endDate">{{project.endDate | date:'medium'}}</p>
-                <p *ngIf="!project.endDate">N/A</p>
+                <p *ngIf="project.endDate; else noneAvailable">{{project.endDate | date:'mediumDate'}}</p>
             </div>
             <div>
                 <span>
-                    <span translate="managementPortalApp.project.attributeDataKey"></span>
-                    =>
-                    <span translate="managementPortalApp.project.attributeDataValue"></span>
+                    <span translate="managementPortalApp.project.attributeData"></span>
                 </span>
+                <ng-container *ngIf="!project.attributes || (project.attributes | keyvalue).length === 0" [ngTemplateOutlet]="noneAvailable"></ng-container>
                 <div *ngFor="let entry of project.attributes | keyvalue">
                     <span class="form-control-static">{{entry.key}}</span>
                     =>
@@ -91,3 +88,7 @@
         </div>
     </div>
 </div>
+
+<ng-template #noneAvailable>
+    <p class="none-available" translate>global.attribute.noneAvailable</p>
+</ng-template>
