@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
@@ -6,12 +6,12 @@ import { Subscription } from 'rxjs';
 
 import { DEBUG_INFO_ENABLED, VERSION } from '../../app.constants';
 import {
-  JhiLanguageHelper,
-  LoginModalService,
-  LoginService,
-  Principal,
-  Project,
-  ProjectService,
+    JhiLanguageHelper,
+    LoginModalService,
+    LoginService,
+    Principal,
+    Project,
+    ProjectService,
 } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 
@@ -19,13 +19,13 @@ import { ProfileService } from '../profiles/profile.service';
 
 @Component({
     selector: 'jhi-navbar',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './navbar.component.html',
     styleUrls: [
         'navbar.scss',
     ],
 })
 export class NavbarComponent implements OnInit, OnDestroy {
-
     inProduction: boolean;
     isNavbarCollapsed: boolean;
     apiDocsEnabled: boolean;

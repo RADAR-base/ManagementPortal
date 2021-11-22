@@ -14,12 +14,13 @@
             </div>
 
             <div class="card-columns ">
+                <div class="card mb-3" *ngFor="let project of projectService.projects$ | async;" [routerLink]="['../project', project.projectName ]">
 
-                <div class="card mb-3" *ngFor="let project of projectService.projects$ | async as projects" [routerLink]="['../project', project.projectName ]">
                     <div class="card-body text-center">
                         <h5 class="card-title" style="text-transform: uppercase"> {{project.projectName}}</h5>
                         <h6 class="card-subtitle text-center mb-2 text-muted">{{project.organization}} : {{project.location}} </h6>
                         <p class="card-text"> {{project.description}}
+
                     </div>
 
                     <footer class="card-footer  text-center">
@@ -31,6 +32,7 @@
                             <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
                         </button>
                     </footer>
+
                 </div>
             </div>
         </div>

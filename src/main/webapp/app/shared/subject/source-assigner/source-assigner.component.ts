@@ -89,7 +89,7 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
     }
 
     private onSaveSuccess(result: Subject) {
-        this.eventManager.broadcast({name: 'subjectListModification', content: 'OK'});
+        this.eventManager.broadcast({name: 'subjectListModification', content: {op: 'UPDATE', subject: result}});
         this.isSaving = false;
         this.activeModal.dismiss(result);
     }
