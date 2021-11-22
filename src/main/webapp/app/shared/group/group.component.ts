@@ -18,6 +18,7 @@ import {
     startWith,
     switchMap
 } from "rxjs/operators";
+import {Router} from "@angular/router";
 
 @Component({
     selector: 'jhi-groups',
@@ -40,6 +41,7 @@ export class GroupComponent implements OnInit, OnDestroy {
             private groupService: GroupService,
             private alertService: AlertService,
             private eventManager: EventManager,
+            private router: Router,
     ) {
         this.projectName$ = this.project$.pipe(
             filter(p => !!p),
@@ -81,5 +83,18 @@ export class GroupComponent implements OnInit, OnDestroy {
         return this.eventManager.subscribe('groupListModification', (_) => {
             this.trigger$.next();
         });
+    }
+
+    deleteGroup(group: Group) {
+        this.groupService.delete(this.project.projectName, group.name).subscribe(
+            () => {
+                this.eventManager.broadcast({name: 'groupListModification', content: null});
+            },
+            (error) => {
+                if (error.status === 409) {
+                    this.router.navigate(['/', { outlets: { popup: 'project-group/' + this.project.projectName + '/' + group.id + '/delete'} }])
+                }
+            }
+        );
     }
 }

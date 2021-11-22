@@ -51,6 +51,15 @@
                             <span class="fa fa-remove"></span>&nbsp;<span [translate]="'entity.action.delete'"></span>
                         </button>
                     </div>
+                    <div class="group-row__actions">
+                        <button
+                                class="btn btn-danger btn-sm"
+                                type="submit"
+                                (click)="deleteGroup(group)"
+                        >
+                            <span class="fa fa-remove"></span>&nbsp;<span [translate]="'entity.action.delete'"></span>
+                        </button>
+                    </div>
                 </div>
                 <div *ngIf="groups.length === 0" class="groups">
                     <span [translate]="'managementPortalApp.group.noGroup'"></span>
