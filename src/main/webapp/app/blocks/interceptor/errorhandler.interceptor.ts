@@ -29,6 +29,10 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
                   );
                   return;
               }
+              if (err.status === 409 && request.method === 'DELETE') {
+                  // don't report error about this.
+                  return;
+              }
               this.eventManager.broadcast({
                   name: 'managementPortalApp.httpError',
                   content: err

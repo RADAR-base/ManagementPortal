@@ -45,16 +45,6 @@
                         <button
                                 class="btn btn-danger btn-sm"
                                 type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'project-group/'+ projectName + '/' + group.id + '/delete'} }]"
-                                replaceUrl="true"
-                        >
-                            <span class="fa fa-remove"></span>&nbsp;<span [translate]="'entity.action.delete'"></span>
-                        </button>
-                    </div>
-                    <div class="group-row__actions">
-                        <button
-                                class="btn btn-danger btn-sm"
-                                type="submit"
                                 (click)="deleteGroup(group)"
                         >
                             <span class="fa fa-remove"></span>&nbsp;<span [translate]="'entity.action.delete'"></span>

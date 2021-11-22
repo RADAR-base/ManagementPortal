@@ -92,7 +92,7 @@ export class GroupComponent implements OnInit, OnDestroy {
             },
             (error) => {
                 if (error.status === 409) {
-                    this.router.navigate(['/', { outlets: { popup: 'project-group/' + this.project.projectName + '/' + group.id + '/delete'} }])
+                    return this.router.navigate(['/', { outlets: { popup: 'project-group/' + this.project.projectName + '/' + group.id + '/delete'} }])
                 }
             }
         );
