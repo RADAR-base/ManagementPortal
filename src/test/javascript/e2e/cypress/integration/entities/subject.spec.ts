@@ -71,8 +71,8 @@ describe('Subject e2e test', () => {
         cy.get('jhi-subjects .subject-row').first().find('.subject-row__content .subject-row__group .subject-row__field-label')
                 .should('have.text', 'Group')
 
-        cy.get('jhi-subjects .subject-row').first().find('.subject-row__content .subject-row__group')
-                .should('have.text','Group Test Group C ')
+        cy.get('jhi-subjects .subject-row').first().find('.subject-row__content .subject-row__group .subject-row__field-value')
+                .should('have.text','Test Group C')
     })
 
     it('should be able to filter subjects by subject id', () => {
