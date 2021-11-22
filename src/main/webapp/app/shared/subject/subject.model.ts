@@ -24,6 +24,10 @@ export interface Subject {
     roles?: Role[];
 }
 
+export interface CheckedSubject extends Subject {
+    checked: boolean;
+}
+
 export interface SubjectFilterCriteria {
     externalId: string
     dateOfBirth?: NgbDateStruct
@@ -31,7 +35,6 @@ export interface SubjectFilterCriteria {
     enrollmentDateFrom?: NgbDateStruct
     enrollmentDateTo?: NgbDateStruct
     groupId: string
-    groupName: string
     personName: string
     humanReadableId: string
 }

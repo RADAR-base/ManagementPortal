@@ -7,8 +7,14 @@
  * See the file LICENSE in the root of this repository.
  */
 
-import { BehaviorSubject, merge, Observable, Subject } from "rxjs";
-import { debounceTime, distinctUntilChanged, filter, shareReplay, startWith } from "rxjs/operators";
+import { BehaviorSubject, interval, Observable, of, Subject } from "rxjs";
+import {
+    debounce,
+    distinctUntilChanged,
+    filter, map,
+    shareReplay,
+    startWith,
+} from "rxjs/operators";
 import {
   NgbCalendar,
   NgbDate,
@@ -17,9 +23,10 @@ import {
 } from "@ng-bootstrap/ng-bootstrap";
 
 export class ReactiveFilter<T> {
-  protected readonly _value$: BehaviorSubject<T>;
+  protected _value?: T;
+  protected readonly debounceTime: number
   protected readonly _error$: BehaviorSubject<string>;
-  protected readonly trigger$: Subject<T>;
+  protected readonly trigger$: Subject<number>;
 
   error$: Observable<string>;
   value$: Observable<T | null>;
@@ -33,45 +40,50 @@ export class ReactiveFilter<T> {
     this._error$ = new BehaviorSubject('');
     this.error$ = this._error$.asObservable().pipe(distinctUntilChanged());
 
-    this._value$ = new BehaviorSubject<T>(null);
-    this.trigger$ = new Subject<T>();
+    this.debounceTime = typeof options.debounceTime === 'number' ? options.debounceTime : 200;
+    this._value = null;
+    this.trigger$ = new Subject();
 
-    let validValue = this._value$.pipe(
-        debounceTime(options.debounceTime || 200),
-        filter(v => {
-            const error = this.validate(v);
-            if (error) {
-                this._error$.next(error);
-                return false;
-            } else {
-                this._error$.next('');
-                return true;
-            }
-        }),
-    );
-    let mergedSignal = merge(validValue, this.trigger$).pipe(
-      startWith(options.initialValue || null as T | null),
+    let signal = this.trigger$.pipe(
+      startWith(0),
+      debounce(t => t ? interval(t) : of()),
+      map(() => this._value),
+      filter(value => {
+        const error = this.validate(value);
+        if (error) {
+            this._error$.next(error);
+            return false;
+        } else {
+            this._error$.next('');
+            return true;
+        }
+      }),
     );
     if (options.mapResult) {
-      mergedSignal = options.mapResult(mergedSignal);
+        signal = options.mapResult(signal);
     } else {
-      mergedSignal = mergedSignal.pipe(distinctUntilChanged());
+        signal = signal.pipe(distinctUntilChanged());
     }
-    this.value$ = mergedSignal.pipe(shareReplay(1));
+    this.value$ = signal.pipe(shareReplay(1));
   }
 
-  next(value?: T){
-    this._value$.next(value);
-  }
+    next(value?: T, immediately?: boolean){
+        this._value = value;
+        if (immediately) {
+            this.trigger$.next(0);
+        } else {
+            this.trigger$.next(this.debounceTime);
+        }
+    }
 
   clear() {
-    this._value$.next(null);
+    this._value = null;
     this._error$.next('');
-    this.trigger$.next(null);
+    this.trigger$.next(0);
   }
 
   complete() {
-    this._value$.complete();
+    this._value = undefined;
     this._error$.complete();
     this.trigger$.complete();
   }
@@ -98,7 +110,7 @@ export class NgbDateReactiveFilter extends ReactiveFilter<NgbDateStruct> {
               distinctUntilChanged((d1, d2) => d1 === d2
                   || (d1 && NgbDate.from(d1).equals(d2)))
           ),
-          debounceTime: 1,
+          debounceTime: 0,
           initialValue: options.initialValue,
       });
   }

@@ -197,28 +197,10 @@
             <span [translate]="'managementPortalApp.subject.home.createLabel'">
             </span>
         </button>
-        <div class="applied-filters" *ngIf="filterResult$ | async as filterApplied">
+        <div class="applied-filters" *ngIf="formattedFilterResult$ | async as filterApplied">
             <span>{{ 'managementPortalApp.subject.filter.filters' | translate}}: </span>
-            <app-filter-badge [text]="'managementPortalApp.subject.subjectId'"
-                              (clear)="filters.subjectId.clear()" [value]="filterApplied.subjectId"></app-filter-badge>
-            <app-filter-badge [text]="'managementPortalApp.subject.externalId'"
-                              (clear)="filters.externalId.clear()" [value]="filterApplied.externalId"></app-filter-badge>
-            <app-filter-badge [text]="'managementPortalApp.subject.personName'"
-                              (clear)="filters.personName.clear()" [value]="filterApplied.personName"></app-filter-badge>
-            <app-filter-badge [text]="'managementPortalApp.subject.humanReadableId'"
-                              (clear)="filters.humanReadableId.clear()" [value]="filterApplied.humanReadableId"></app-filter-badge>
-            <app-filter-badge [text]="'managementPortalApp.subject.dateOfBirth'"
-                              (clear)="filters.dateOfBirth.clear()" [value]="filterApplied.dateOfBirth | ngbDate"></app-filter-badge>
-            <app-filter-badge [text]="'managementPortalApp.subject.enrollmentDateFrom'"
-                              (clear)="filters.enrollmentDateFrom.clear()"
-                              [value]="filterApplied.enrollmentDateFrom | ngbDate"></app-filter-badge>
-            <app-filter-badge [text]="'managementPortalApp.subject.enrollmentDateTo'"
-                              (clear)="filters.enrollmentDateTo.clear()"
-                              [value]="filterApplied.enrollmentDateTo | ngbDate"></app-filter-badge>
-            <app-filter-badge [text]="'managementPortalApp.subject.group'"
-                              (clear)="filters.groupId.clear()"
-                              [value]="filterApplied.groupName"></app-filter-badge>
-
+            <app-filter-badge *ngFor="let filter of filterApplied | keyvalue; trackBy: trackKey" [text]="'managementPortalApp.subject.' + filter.key"
+                              (clear)="filters[filter.key].clear()" [value]="filter.value"></app-filter-badge>
             <a class="link-primary mx-2" id="clear-filter"
                     (click)="clearFilters()"
                     [translate]="'managementPortalApp.subject.filter.clearButton'"></a>

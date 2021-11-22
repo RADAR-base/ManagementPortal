@@ -34,7 +34,7 @@ import { NgbCalendar, NgbDateParserFormatter, NgbModal } from "@ng-bootstrap/ng-
 
 import { Group, GroupService, ITEMS_PER_PAGE, Project } from '..';
 import { AddSubjectsToGroupDialogComponent } from "./add-subjects-to-group-dialog.component";
-import { Subject, SubjectFilterCriteria } from './subject.model';
+import { CheckedSubject, Subject, SubjectFilterCriteria } from './subject.model';
 import { SubjectFilterParams, SubjectPaginationParams, SubjectService, } from './subject.service';
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
@@ -44,10 +44,6 @@ import {
     ReactiveFilter,
     ReactiveFilterOptions
 } from "../util/reactive-filter";
-
-interface CheckedSubject extends Subject {
-    checked: boolean;
-}
 
 @Component({
     selector: 'jhi-subjects',
@@ -85,6 +81,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     enrollmentDate$: Observable<NgbDateRange>
     enrollmentDateRangeError = false;
     filterResult$: Observable<SubjectFilterCriteria>;
+    formattedFilterResult$: Observable<Record<string, string>>;
 
     isAdvancedFilterCollapsed = true;
 
@@ -120,6 +117,20 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             groupId: new ReactiveFilter<number>({ debounceTime: 1 }),
         }
         this.enrollmentDate$ = this.observeEnrollmentDate();
+        this.filterResult$ = this.observeCombinedFilters();
+        this.formattedFilterResult$ = this.filterResult$.pipe(
+            map((f) => {
+                if (!f) return null;
+                let {dateOfBirth, enrollmentDateFrom, enrollmentDateTo, groupId, ...filters} = f;
+                return {
+                    dateOfBirth: this.formatter.format(dateOfBirth),
+                    enrollmentDateFrom: this.formatter.format(enrollmentDateFrom),
+                    enrollmentDateTo: this.formatter.format(enrollmentDateTo),
+                    groupId: this.groups$.value.find(g => g.id.toString() == groupId)?.name,
+                    ...filters,
+                }
+            }),
+        );
         this.filterResult$ = this.observeCombinedFilters();
 
         this.subjects$ = combineLatest([
@@ -186,7 +197,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         ).subscribe(params => {
             for (let k in params) {
                 if (params.hasOwnProperty(k) && this.filters.hasOwnProperty(k)) {
-                    this.filters[k].next(params[k]);
+                    this.filters[k].next(params[k], true);
                 }
             }
         });
@@ -424,7 +435,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
               enrollmentDateFrom: enrollmentDate.from,
               enrollmentDateTo: enrollmentDate.to,
               groupId,
-              groupName: this.groups$.value.find(g => g.id.toString() == groupId)?.name,
           })),
           map(criteria =>
             Object.keys(criteria).some(k => !!criteria[k]) ? criteria : null),
