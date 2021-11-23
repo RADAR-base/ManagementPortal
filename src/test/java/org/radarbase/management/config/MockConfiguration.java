@@ -29,7 +29,7 @@ public class MockConfiguration {
     public RadarToken radarTokenMock() {
         RadarToken token = mock(RadarToken.class);
         when(token.getSubject()).thenReturn("admin");
-        when(token.hasAuthority(anyString())).thenAnswer(a -> a.getArgument(0).equals(SYS_ADMIN));
+        when(token.hasAuthority(any())).thenAnswer(a -> a.getArgument(0).equals(SYS_ADMIN));
         when(token.hasPermission(any())).thenReturn(true);
         when(token.hasPermissionOnProject(any(), any())).thenReturn(true);
         when(token.hasPermissionOnSubject(any(), any(), any())).thenReturn(true);

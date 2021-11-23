@@ -3,14 +3,19 @@ package org.radarbase.auth.authorization;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.ORGANIZATION_ADMIN;
@@ -26,7 +31,7 @@ import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
  */
 public final class Permissions {
 
-    private static final Map<Permission, Set<String>> PERMISSION_MATRIX;
+    private static final Map<Permission, Set<AuthoritiesConstants>> PERMISSION_MATRIX;
 
     static {
         PERMISSION_MATRIX = createPermissions();
@@ -42,7 +47,7 @@ public final class Permissions {
      * @param permission The permission to look up.
      * @return An unmodifiable view of the set of allowed authorities.
      */
-    public static Set<String> allowedAuthorities(Permission permission) {
+    public static Set<AuthoritiesConstants> allowedAuthorities(Permission permission) {
         return PERMISSION_MATRIX.getOrDefault(permission, Set.of());
     }
 
@@ -53,15 +58,16 @@ public final class Permissions {
      * permission.</p>
      * @return An unmodifiable view of the permission matrix.
      */
-    public static Map<Permission, Set<String>> getPermissionMatrix() {
+    public static Map<Permission, Set<AuthoritiesConstants>> getPermissionMatrix() {
         return PERMISSION_MATRIX;
     }
 
     /**
      * Static permission matrix based on the currently agreed upon security rules.
      */
-    private static Map<Permission, Set<String>> createPermissions() {
-        Map<String, Stream<Permission>> rolePermissions = new HashMap<>();
+    private static Map<Permission, Set<AuthoritiesConstants>> createPermissions() {
+        Map<AuthoritiesConstants, Stream<Permission>> rolePermissions = new EnumMap<>(
+                AuthoritiesConstants.class);
 
         // System admin can do everything.
         rolePermissions.put(SYS_ADMIN, Permission.stream());
@@ -140,7 +146,14 @@ public final class Permissions {
                         .collect(groupingBy(
                                 Map.Entry::getKey,
                                 () -> new EnumMap<>(Permission.class),
-                                mapping(Map.Entry::getValue, toUnmodifiableSet()))));
+                                mapping(Map.Entry::getValue, toUnmodifiableEnumSet()))));
+    }
+
+    private static Collector<AuthoritiesConstants, ?, Set<AuthoritiesConstants>>
+            toUnmodifiableEnumSet() {
+        return collectingAndThen(
+                toCollection(() -> EnumSet.noneOf(AuthoritiesConstants.class)),
+                Collections::unmodifiableSet);
     }
 
     private static Predicate<Permission> excludeOtherEntityOperations(

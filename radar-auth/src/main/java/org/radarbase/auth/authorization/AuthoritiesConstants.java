@@ -1,22 +1,52 @@
 package org.radarbase.auth.authorization;
 
+import java.util.Locale;
+
 /**
  * Constants for Spring Security authorities.
  */
-public interface AuthoritiesConstants {
-    String SYS_ADMIN = "ROLE_SYS_ADMIN";
 
-    String ORGANIZATION_ADMIN = "ROLE_ORGANIZATION_ADMIN";
+public enum AuthoritiesConstants {
+    SYS_ADMIN(Scope.GLOBAL),
+    PROJECT_ADMIN(Scope.PROJECT),
+    PROJECT_OWNER(Scope.PROJECT),
+    PROJECT_AFFILIATE(Scope.PROJECT),
+    PROJECT_ANALYST(Scope.PROJECT),
+    PARTICIPANT(Scope.PROJECT),
+    INACTIVE_PARTICIPANT(Scope.PROJECT),
+    ORGANIZATION_ADMIN(Scope.ORGANIZATION);
 
-    String PROJECT_ADMIN = "ROLE_PROJECT_ADMIN";
+    private final Scope scope;
 
-    String PROJECT_OWNER = "ROLE_PROJECT_OWNER";
+    AuthoritiesConstants(Scope scope) {
+        this.scope = scope;
+    }
 
-    String PROJECT_AFFILIATE = "ROLE_PROJECT_AFFILIATE";
+    public Scope scope() {
+        return scope;
+    }
 
-    String PROJECT_ANALYST = "ROLE_PROJECT_ANALYST";
+    public String role() {
+        return "ROLE_" + name();
+    }
 
-    String PARTICIPANT = "ROLE_PARTICIPANT";
+    public static AuthoritiesConstants valueOfRole(String role) {
+        String upperRole = role.toUpperCase(Locale.ROOT);
+        if (!upperRole.startsWith("ROLE_")) {
+            throw new IllegalArgumentException("Cannot map role without 'ROLE_' prefix");
+        }
+        return valueOf(upperRole.substring(5));
+    }
 
-    String INACTIVE_PARTICIPANT = "ROLE_INACTIVE_PARTICIPANT";
+    public static AuthoritiesConstants valueOfRoleOrNull(String role) {
+        try {
+            return valueOfRole(role);
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
+    }
+
+    public enum Scope {
+        GLOBAL, ORGANIZATION, PROJECT
+    }
 }

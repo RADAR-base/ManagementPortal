@@ -19,14 +19,14 @@ public final class RadarAuthorization {
     }
 
     /**
-     * Similar to {@link RadarToken#hasAuthority(String)} (Permission)}, but this method throws an
-     * exception rather than returning a boolean. Useful in combination with e.g. Spring's
-     * controllers and exception translators.
+     * Similar to {@link RadarToken#hasAuthority(AuthoritiesConstants)}, but this
+     * method throws an exception rather than returning a boolean. Useful in combination with e.g.
+     * Spring's controllers and exception translators.
      * @param token The token of the requester
      * @param authority The authority to check
      * @throws NotAuthorizedException if the supplied token does not have the authority
      */
-    public static void checkAuthority(RadarToken token, String authority)
+    public static void checkAuthority(RadarToken token, AuthoritiesConstants authority)
             throws NotAuthorizedException {
         if (!token.isClientCredentials()) {
             log.debug("Checking authority {} for user {}", authority,
@@ -40,7 +40,7 @@ public final class RadarAuthorization {
 
 
     /**
-     * Similar to {@link RadarToken#hasAuthority(String)} (Permission)}, but this method throws an
+     * Similar to {@link RadarToken#hasAuthority(AuthoritiesConstants)}, but this method throws an
      * exception rather than returning a boolean. Useful in combination with e.g. Spring's
      * controllers and exception translators.
      * @param token The token of the requester
@@ -48,7 +48,7 @@ public final class RadarAuthorization {
      * @param permission Permission that the authority should have.
      * @throws NotAuthorizedException if the supplied token does not have the authority
      */
-    public static void checkAuthorityAndPermission(RadarToken token, String authority,
+    public static void checkAuthorityAndPermission(RadarToken token, AuthoritiesConstants authority,
             Permission permission)
             throws NotAuthorizedException {
         log.debug("Checking authority {} and permission {} for user {}", authority, permission,

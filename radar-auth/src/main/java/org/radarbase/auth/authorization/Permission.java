@@ -109,7 +109,7 @@ public enum Permission {
      * @param authority the authority name
      * @return true if the given authority has this permission associated with it, false otherwise
      */
-    public boolean isAuthorityAllowed(String authority) {
+    public boolean isAuthorityAllowed(AuthoritiesConstants authority) {
         return Permissions.allowedAuthorities(this).contains(authority);
     }
 

@@ -1,28 +1,26 @@
 package org.radarbase.auth.token;
 
-import static java.util.Collections.singletonList;
+import org.radarbase.auth.authorization.AuthoritiesConstants;
+import org.radarbase.auth.authorization.Permission;
+
+import java.util.Objects;
+import java.util.Set;
+
 import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import org.radarbase.auth.authorization.Permission;
 
 /**
  * Partial implementation of {@link RadarToken}, providing a default implementation for the three
  * permission checks.
  */
 public abstract class AbstractRadarToken implements RadarToken {
-
     protected static final String CLIENT_CREDENTIALS = "client_credentials";
 
     @Override
-    public boolean hasAuthority(String authority) {
+    public boolean hasAuthority(AuthoritiesConstants authority) {
         return isClientCredentials()
-                || getAuthorities().stream().anyMatch(authority::equals);
+                || getAuthoritiesConstants().stream().anyMatch(authority::equals);
     }
-
 
     @Override
     public boolean hasPermission(Permission permission) {
@@ -32,9 +30,24 @@ public abstract class AbstractRadarToken implements RadarToken {
     }
 
     @Override
+    public boolean hasPermissionOnOrganization(Permission permission, String organization) {
+        return hasScope(permission.scopeName())
+                && (isClientCredentials() || hasAuthorityForOrganization(permission, organization));
+    }
+
+    @Override
+    public boolean hasPermissionOnOrganizationAndProject(Permission permission, String organization,
+            String projectName) {
+        return hasScope(permission.scopeName())
+                && (isClientCredentials() || hasAuthorityForOrganizationAndProject(
+                permission, organization, projectName));
+    }
+
+    @Override
     public boolean hasPermissionOnProject(Permission permission, String projectName) {
         return hasScope(permission.scopeName())
-                && (isClientCredentials() || hasAuthorityForProject(permission, projectName));
+                && (isClientCredentials() || hasAuthorityForProject(
+                        permission, projectName));
     }
 
     @Override
@@ -69,11 +82,42 @@ public abstract class AbstractRadarToken implements RadarToken {
      * @return {@code true} if any authority contains the permission, {@code false} otherwise
      */
     protected boolean hasAuthorityForPermission(Permission permission) {
-        return hasNonProjectRelatedAuthorityForPermission(permission)
-                || getRoles()
-                        .values().stream()
-                        .flatMap(Collection::stream)
-                        .anyMatch(permission::isAuthorityAllowed);
+        return getRoles().stream()
+                .map(AuthorityReference::getRole)
+                .anyMatch(permission::isAuthorityAllowed);
+    }
+
+    /**
+     * Check authorities in this token linked to the given project, or not linked to any project
+     * (such as {@code SYS_ADMIN}), for the given permission.
+     * @param permission the permission
+     * @param organization the organization name
+     * @return {@code true} if any authority contains the permission, {@code false} otherwise
+     */
+    protected boolean hasAuthorityForOrganization(Permission permission, String organization) {
+        if (hasNonProjectRelatedAuthorityForPermission(permission)) {
+            return true;
+        }
+        if (organization == null) {
+            return false;
+        }
+        Set<AuthoritiesConstants> organizationRoles = getOrganizationRoles().get(organization);
+        return organizationRoles != null
+                && organizationRoles.stream().anyMatch(permission::isAuthorityAllowed);
+    }
+
+    /**
+     * Check authorities in this token linked to the given project, or not linked to any project
+     * (such as {@code SYS_ADMIN}), for the given permission.
+     * @param permission the permission
+     * @param organization the organization name
+     * @param projectName the project name
+     * @return {@code true} if any authority contains the permission, {@code false} otherwise
+     */
+    protected boolean hasAuthorityForOrganizationAndProject(Permission permission,
+            String organization, String projectName) {
+        return hasAuthorityForOrganization(permission, organization)
+                || hasAuthorityForProject(permission, projectName);
     }
 
     /**
@@ -90,8 +134,9 @@ public abstract class AbstractRadarToken implements RadarToken {
         if (projectName == null) {
             return false;
         }
-        List<String> roles = getRoles().get(projectName);
-        return roles != null && roles.stream().anyMatch(permission::isAuthorityAllowed);
+        Set<AuthoritiesConstants> projectRoles = getProjectRoles().get(projectName);
+        return projectRoles != null
+                && projectRoles.stream().anyMatch(permission::isAuthorityAllowed);
     }
 
     /**
@@ -135,7 +180,7 @@ public abstract class AbstractRadarToken implements RadarToken {
      *     otherwise
      */
     protected boolean hasNonProjectRelatedAuthorityForPermission(Permission permission) {
-        return getAuthorities().contains(SYS_ADMIN)
+        return getAuthoritiesConstants().contains(SYS_ADMIN)
                 && permission.isAuthorityAllowed(SYS_ADMIN);
     }
 
@@ -146,7 +191,7 @@ public abstract class AbstractRadarToken implements RadarToken {
      *     {@code false} otherwise
      */
     protected boolean isJustParticipant(String projectName) {
-        return singletonList(PARTICIPANT).equals(getRoles().get(projectName));
+        return Set.of(PARTICIPANT).equals(getProjectRoles().get(projectName));
     }
 
     @Override
@@ -183,4 +228,5 @@ public abstract class AbstractRadarToken implements RadarToken {
             + ", type='" + getType() + '\''
             + '}';
     }
+
 }
