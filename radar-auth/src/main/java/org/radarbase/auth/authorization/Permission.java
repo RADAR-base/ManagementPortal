@@ -52,8 +52,6 @@ public enum Permission {
     MEASUREMENT_READ(Entity.MEASUREMENT, Operation.READ),
     MEASUREMENT_CREATE(Entity.MEASUREMENT, Operation.CREATE);
 
-    private static final Logger log = LoggerFactory.getLogger(Permission.class);
-
     public enum Entity {
         // ManagementPortal entities
         SOURCETYPE,

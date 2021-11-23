@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
 
 /**
  * Partial implementation of {@link RadarToken}, providing a default implementation for the three
@@ -95,7 +94,7 @@ public abstract class AbstractRadarToken implements RadarToken {
      * @return {@code true} if any authority contains the permission, {@code false} otherwise
      */
     protected boolean hasAuthorityForOrganization(Permission permission, String organization) {
-        if (hasNonProjectRelatedAuthorityForPermission(permission)) {
+        if (hasGlobalAuthorityForPermission(permission)) {
             return true;
         }
         if (organization == null) {
@@ -128,7 +127,7 @@ public abstract class AbstractRadarToken implements RadarToken {
      * @return {@code true} if any authority contains the permission, {@code false} otherwise
      */
     protected boolean hasAuthorityForProject(Permission permission, String projectName) {
-        if (hasNonProjectRelatedAuthorityForPermission(permission)) {
+        if (hasGlobalAuthorityForPermission(permission)) {
             return true;
         }
         if (projectName == null) {
@@ -179,9 +178,8 @@ public abstract class AbstractRadarToken implements RadarToken {
      * @return {@code true} if any non-project related authority has the permission, {@code false}
      *     otherwise
      */
-    protected boolean hasNonProjectRelatedAuthorityForPermission(Permission permission) {
-        return getAuthoritiesConstants().contains(SYS_ADMIN)
-                && permission.isAuthorityAllowed(SYS_ADMIN);
+    protected boolean hasGlobalAuthorityForPermission(Permission permission) {
+        return getGlobalRoles().stream().anyMatch(permission::isAuthorityAllowed);
     }
 
     /**

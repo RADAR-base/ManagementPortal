@@ -5,6 +5,7 @@ import org.radarbase.management.domain.Source;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.service.dto.ClientDetailsDTO;
 import org.radarbase.management.service.dto.MinimalSourceDetailsDTO;
+import org.radarbase.management.service.dto.OrganizationDTO;
 import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.service.dto.SourceDTO;
@@ -23,6 +24,16 @@ public final class ResourceUriService {
 
     private ResourceUriService() {
         // utility class
+    }
+
+    /**
+     * Get the API location for the given resource.
+     * @param resource the resource
+     * @return the API location
+     * @throws URISyntaxException See {@link URI#URI(String)}
+     */
+    public static URI getUri(OrganizationDTO resource) throws URISyntaxException {
+        return new URI(HeaderUtil.buildPath("api", "organizations", resource.getName()));
     }
 
     /**

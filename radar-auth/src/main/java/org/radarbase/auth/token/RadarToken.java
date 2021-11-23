@@ -210,7 +210,6 @@ public interface RadarToken {
             String projectName);
 
     /**
-     *
      * Check if this token gives a permission in a specific project.
      * @param permission the permission
      * @param projectName the project name
