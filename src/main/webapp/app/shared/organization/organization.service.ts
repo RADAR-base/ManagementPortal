@@ -16,6 +16,10 @@ export class OrganizationService {
         return this.http.post<Organization>(this.resourceUrl, organization);
     }
 
+    update(organization: Organization): Observable<Organization> {
+        return this.http.put<Organization>(this.resourceUrl, organization);
+    }
+
     find(orgName: string): Observable<Organization> {
         return this.http.get(`${this.resourceUrl}/${encodeURIComponent(orgName)}`);
     }

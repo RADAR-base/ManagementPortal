@@ -19,7 +19,6 @@ import org.radarbase.management.security.JwtAuthenticationFilter;
 import org.radarbase.management.service.GroupService;
 import org.radarbase.management.service.SubjectService;
 import org.radarbase.management.service.dto.GroupDTO;
-import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.service.dto.SubjectDTO;
 import org.radarbase.management.service.mapper.GroupMapper;
 import org.radarbase.management.service.mapper.ProjectMapper;
