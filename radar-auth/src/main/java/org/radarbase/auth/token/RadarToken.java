@@ -1,6 +1,6 @@
 package org.radarbase.auth.token;
 
-import org.radarbase.auth.authorization.AuthoritiesConstants;
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.auth.authorization.Permission;
 
 import java.util.Date;
@@ -9,11 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toSet;
 
 /**
  * Created by dverbeec on 10/01/2018.
@@ -30,11 +31,15 @@ public interface RadarToken {
      * @return non-null map describing the roles defined in this token. The keys in the map are the
      *     project names, and the values are lists of authority names associated to the project.
      */
-    default Set<AuthoritiesConstants> getGlobalRoles() {
-        return getRoles().stream()
-                .map(AuthorityReference::getRole)
-                .filter(r -> r.scope() == AuthoritiesConstants.Scope.GLOBAL)
-                .collect(toSet());
+    default Set<RoleAuthority> getGlobalRoles() {
+        return Stream.concat(
+                getAuthorities().stream()
+                        .map(RoleAuthority::valueOfAuthorityOrNull)
+                        .filter(Objects::nonNull),
+                getRoles().stream()
+                        .map(AuthorityReference::getRole))
+                .filter(r -> r.scope() == RoleAuthority.Scope.GLOBAL)
+                .collect(toEnumSet());
     }
 
     /**
@@ -42,13 +47,11 @@ public interface RadarToken {
      * @return non-null map describing the roles defined in this token. The keys in the map are the
      *     project names, and the values are lists of authority names associated to the project.
      */
-    default Map<String, Set<AuthoritiesConstants>> getProjectRoles() {
+    default Map<String, Set<RoleAuthority>> getProjectRoles() {
         return getRoles().stream()
-                .filter(r -> r.getRole().scope() == AuthoritiesConstants.Scope.PROJECT
+                .filter(r -> r.getRole().scope() == RoleAuthority.Scope.PROJECT
                         && r.getReferent() != null)
-                .collect(groupingBy(AuthorityReference::getReferent,
-                        mapping(AuthorityReference::getRole,
-                                toCollection(() -> EnumSet.noneOf(AuthoritiesConstants.class)))));
+                .collect(groupingByReferent());
     }
 
     /**
@@ -56,13 +59,11 @@ public interface RadarToken {
      * @return non-null map describing the roles defined in this token. The keys in the map are the
      *     project names, and the values are lists of authority names associated to the project.
      */
-    default Map<String, Set<AuthoritiesConstants>> getOrganizationRoles() {
+    default Map<String, Set<RoleAuthority>> getOrganizationRoles() {
         return getRoles().stream()
-                .filter(r -> r.getRole().scope() == AuthoritiesConstants.Scope.ORGANIZATION
+                .filter(r -> r.getRole().scope() == RoleAuthority.Scope.ORGANIZATION
                         && r.getReferent() != null)
-                .collect(groupingBy(AuthorityReference::getReferent,
-                        mapping(AuthorityReference::getRole,
-                                toCollection(() -> EnumSet.noneOf(AuthoritiesConstants.class)))));
+                .collect(groupingByReferent());
     }
 
     /**
@@ -75,11 +76,11 @@ public interface RadarToken {
      * Get a list of non-project related authorities.
      * @return non-null list of authority names
      */
-    default Set<AuthoritiesConstants> getAuthoritiesConstants() {
+    default Set<RoleAuthority> getRoleAuthorities() {
         return getAuthorities().stream()
-                .map(AuthoritiesConstants::valueOfRoleOrNull)
+                .map(RoleAuthority::valueOfAuthorityOrNull)
                 .filter(Objects::nonNull)
-                .collect(toCollection(() -> EnumSet.noneOf(AuthoritiesConstants.class)));
+                .collect(toEnumSet());
     }
 
     /**
@@ -176,7 +177,7 @@ public interface RadarToken {
      * @param authority The permission to check
      * @return {@code true} if this token has the permission, {@code false} otherwise
      */
-    boolean hasAuthority(AuthoritiesConstants authority);
+    boolean hasAuthority(RoleAuthority authority);
 
     /**
      * Check if this token gives the given permission, not taking into account project affiliations.
@@ -244,4 +245,14 @@ public interface RadarToken {
      * @return true if the client credentials flow was certainly used, false otherwise.
      */
     boolean isClientCredentials();
+
+    private static Collector<RoleAuthority, ?, Set<RoleAuthority>> toEnumSet() {
+        return toCollection(() -> EnumSet.noneOf(RoleAuthority.class));
+    }
+
+    private static Collector<AuthorityReference, ?, Map<String, Set<RoleAuthority>>>
+            groupingByReferent() {
+        return groupingBy(AuthorityReference::getReferent,
+                mapping(AuthorityReference::getRole, toEnumSet()));
+    }
 }

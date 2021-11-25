@@ -1,13 +1,12 @@
 package org.radarbase.auth.token;
 
 import static java.util.Objects.requireNonNullElseGet;
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.radarbase.auth.authorization.AuthoritiesConstants;
+import org.radarbase.auth.authorization.RoleAuthority;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -59,8 +58,8 @@ public class JwtRadarToken extends AbstractRadarToken {
         authorities = emptyIfNull(jwt.getClaim(AUTHORITIES_CLAIM).asList(String.class));
         roles = Stream.concat(
                 authorities.stream()
-                        .map(AuthoritiesConstants::valueOfRoleOrNull)
-                        .filter(r -> r != null && r.scope() == AuthoritiesConstants.Scope.GLOBAL)
+                        .map(RoleAuthority::valueOfAuthorityOrNull)
+                        .filter(r -> r != null && r.scope() == RoleAuthority.Scope.GLOBAL)
                         .map(AuthorityReference::new),
                 parseRoles(jwt))
                 .collect(toUnmodifiableSet());

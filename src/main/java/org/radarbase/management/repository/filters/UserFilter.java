@@ -12,8 +12,8 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarbase.auth.authorization.RoleAuthority.INACTIVE_PARTICIPANT;
+import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
 
 public class UserFilter implements Specification<User> {
     private String login;
@@ -28,7 +28,7 @@ public class UserFilter implements Specification<User> {
         Join<User, Role> roleJoin = root.join("roles");
         Join<Role, Authority> authorityJoin = roleJoin.join("authority");
         predicates.add(builder.not(authorityJoin.get("name")
-                .in(PARTICIPANT, INACTIVE_PARTICIPANT)));
+                .in(PARTICIPANT.authority(), INACTIVE_PARTICIPANT.authority())));
 
         predicates.likeLower(root.get("login"), login);
         predicates.likeLower(root.get("email"), email);

@@ -64,7 +64,7 @@ public class OrganizationResource {
             @Valid @RequestBody OrganizationDTO organizationDto
     ) throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Organization : {}", organizationDto);
-        // checkPermission(token, ORGANIZATION_CREATE);
+        checkPermission(token, ORGANIZATION_CREATE);
         if (organizationDto.getId() != null) {
             var msg = "A new organization cannot already have an ID";
             var headers = HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", msg);
@@ -92,7 +92,7 @@ public class OrganizationResource {
     @Timed
     public ResponseEntity<?> getAllOrganizations() throws NotAuthorizedException {
         log.debug("REST request to get Organizations");
-        // checkPermission(token, ORGANIZATION_READ);
+        checkPermission(token, ORGANIZATION_READ);
         var orgs = organizationService.findAll();
         return new ResponseEntity<>(orgs, HttpStatus.OK);
     }
@@ -110,7 +110,7 @@ public class OrganizationResource {
     public ResponseEntity<OrganizationDTO> getOrganization(
             @PathVariable String name) throws NotAuthorizedException {
         log.debug("REST request to get Organization : {}", name);
-        // checkPermissionOnOrganization(token, ORGANIZATION_READ, name);
+        checkPermissionOnOrganization(token, ORGANIZATION_READ, name);
         var org = organizationService.findByName(name);
         var dto = org.orElseThrow(() -> new NotFoundException(
                 "Organization not found with name " + name,

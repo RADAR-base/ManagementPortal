@@ -9,38 +9,49 @@
 
 package org.radarbase.auth.token;
 
-import org.radarbase.auth.authorization.AuthoritiesConstants;
+import org.radarbase.auth.authorization.RoleAuthority;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
-public class AuthorityReference {
+public class AuthorityReference implements Serializable {
     private final String authority;
     private final String referent;
-    private final AuthoritiesConstants role;
+    private final RoleAuthority role;
 
     public AuthorityReference(String authority) {
         this(authority, null);
     }
 
-    public AuthorityReference(AuthoritiesConstants role) {
+    public AuthorityReference(RoleAuthority role) {
         this(role, null);
     }
 
-    public AuthorityReference(AuthoritiesConstants role, String referent) {
+    /**
+     * Authority reference with given role and the object it refers to.
+     * @param role user role.
+     * @param referent reference.
+     */
+    public AuthorityReference(RoleAuthority role, String referent) {
         this.role = requireNonNull(role);
-        this.authority = role.role();
+        this.authority = role.authority();
         this.referent = referent;
     }
 
+    /**
+     * Authority reference with given authority and the object it refers to.
+     * @param authority user authority.
+     * @param referent reference.
+     */
     public AuthorityReference(String authority, String referent) {
         this.authority = requireNonNull(authority);
-        this.role = AuthoritiesConstants.valueOfRoleOrNull(authority);
+        this.role = RoleAuthority.valueOfAuthorityOrNull(authority);
         this.referent = referent;
     }
 
-    public AuthoritiesConstants getRole() {
+    public RoleAuthority getRole() {
         return role;
     }
 

@@ -1,12 +1,14 @@
 package org.radarbase.management.service;
 
-import org.radarbase.auth.authorization.AuthoritiesConstants;
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.management.config.ManagementPortalProperties;
+import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.repository.AuthorityRepository;
+import org.radarbase.management.repository.OrganizationRepository;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.repository.RoleRepository;
 import org.radarbase.management.repository.UserRepository;
@@ -17,6 +19,7 @@ import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.service.dto.UserDTO;
 import org.radarbase.management.service.mapper.ProjectMapper;
 import org.radarbase.management.service.mapper.UserMapper;
+import org.radarbase.management.web.rest.errors.BadRequestException;
 import org.radarbase.management.web.rest.errors.ConflictException;
 import org.radarbase.management.web.rest.errors.ErrorConstants;
 import org.radarbase.management.web.rest.errors.NotFoundException;
@@ -37,13 +40,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarbase.auth.authorization.RoleAuthority.INACTIVE_PARTICIPANT;
+import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
+import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
 import static org.radarbase.management.web.rest.errors.EntityName.USER;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_EMAIL_EXISTS;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_ENTITY_NOT_FOUND;
@@ -64,6 +68,9 @@ public class UserService {
     private ProjectRepository projectRepository;
 
     @Autowired
+    private OrganizationRepository organizationRepository;
+
+    @Autowired
     private PasswordService passwordService;
 
     @Autowired
@@ -76,13 +83,13 @@ public class UserService {
     private UserMapper userMapper;
 
     @Autowired
-    private AuthorityRepository authorityRepository;
-
-    @Autowired
     private RevisionService revisionService;
 
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
+
+    @Autowired
+    private AuthorityRepository authorityRepository;
 
     /**
      * Activate a user with the given activation key.
@@ -197,29 +204,80 @@ public class UserService {
     private Set<Role> getUserRoles(UserDTO userDto) {
         Set<Role> roles = new HashSet<>();
         for (RoleDTO roleDto : userDto.getRoles()) {
-            Optional<Role> role = roleRepository.findOneByProjectIdAndAuthorityName(
-                    roleDto.getProjectId(), roleDto.getAuthorityName());
-            if (!role.isPresent() || role.get().getId() == null) {
-                Role currentRole = new Role();
-                // supplied authorityname can be anything, so check if we actually have one
-                currentRole.setAuthority(
-                        authorityRepository.findByAuthorityName(roleDto.getAuthorityName())
-                        .orElseThrow(() -> new NotFoundException("Authority not found with "
-                            + "authorityName", USER, ErrorConstants.ERR_INVALID_AUTHORITY,
-                            Collections.singletonMap("authorityName",
-                                roleDto.getAuthorityName()))));
-                if (roleDto.getProjectId() != null) {
-                    currentRole.setProject(projectRepository.getOne(roleDto.getProjectId()));
-                }
+            RoleAuthority authority = getRoleAuthority(roleDto);
+            RoleAuthority.Scope scope = authority.scope();
 
-                if (Objects.nonNull(currentRole.getAuthority())) {
-                    roles.add(roleRepository.save(currentRole));
+            Optional<Role> existingRole = switch (scope) {
+                case GLOBAL -> roleRepository.findRolesByAuthorityName(
+                        roleDto.getAuthorityName()).stream().findAny();
+                case ORGANIZATION -> roleRepository.findOneByOrganizationIdAndAuthorityName(
+                        roleDto.getOrganizationId(), roleDto.getAuthorityName());
+                case PROJECT -> roleRepository.findOneByProjectIdAndAuthorityName(
+                        roleDto.getProjectId(), roleDto.getAuthorityName());
+            };
+
+            Role currentRole = existingRole.orElseGet(() -> {
+                Role newRole = new Role();
+                Authority auth = authorityRepository.findByAuthorityName(authority.authority())
+                        .orElseGet(() -> {
+                            var a = new Authority(authority);
+                            authorityRepository.save(a);
+                            return a;
+                        });
+                newRole.setAuthority(auth);
+                if (scope == RoleAuthority.Scope.ORGANIZATION) {
+                    var organization = organizationRepository.findById(
+                                    roleDto.getOrganizationId())
+                            .orElseThrow(() -> new NotFoundException(
+                                    "Cannot find organization for authority",
+                                    USER, ErrorConstants.ERR_INVALID_AUTHORITY,
+                                    Map.of("authorityName", roleDto.getAuthorityName(),
+                                            "organizationId",
+                                            roleDto.getOrganizationId().toString())));
+                    newRole.setOrganization(organization);
+                } else if (scope == RoleAuthority.Scope.PROJECT) {
+                    var project = projectRepository.findById(
+                                    roleDto.getProjectId())
+                            .orElseThrow(() -> new NotFoundException(
+                                    "Cannot find organization for authority",
+                                    USER, ErrorConstants.ERR_INVALID_AUTHORITY,
+                                    Map.of("authorityName", roleDto.getAuthorityName(),
+                                            "projectId",
+                                            roleDto.getProjectId().toString())));
+                    newRole.setProject(project);
                 }
-            } else {
-                roles.add(role.get());
-            }
+                return newRole;
+            });
+            roles.add(currentRole);
         }
         return roles;
+    }
+
+    private static RoleAuthority getRoleAuthority(RoleDTO roleDto) {
+        RoleAuthority authority;
+        try {
+            authority = RoleAuthority.valueOfAuthority(roleDto.getAuthorityName());
+        } catch (IllegalArgumentException ex) {
+            throw new BadRequestException("Authority not found with "
+                    + "authorityName", USER, ErrorConstants.ERR_INVALID_AUTHORITY,
+                    Collections.singletonMap("authorityName",
+                            roleDto.getAuthorityName()));
+        }
+        if (authority.scope() == RoleAuthority.Scope.ORGANIZATION
+                && roleDto.getOrganizationId() == null) {
+            throw new BadRequestException("Authority with "
+                    + "authorityName should have organization ID",
+                    USER, ErrorConstants.ERR_INVALID_AUTHORITY,
+                    Collections.singletonMap("authorityName", roleDto.getAuthorityName()));
+        }
+        if (authority.scope() == RoleAuthority.Scope.PROJECT
+                && roleDto.getProjectId() == null) {
+            throw new BadRequestException("Authority with "
+                    + "authorityName should have project ID",
+                    USER, ErrorConstants.ERR_INVALID_AUTHORITY,
+                    Collections.singletonMap("authorityName", roleDto.getAuthorityName()));
+        }
+        return authority;
     }
 
     /**
@@ -348,12 +406,33 @@ public class UserService {
 
         List<Project> projectsOfUser;
 
-        if (userByLogin.getRoles().stream()
-                .anyMatch(r -> AuthoritiesConstants.SYS_ADMIN.equals(r.getAuthority().getName()))) {
+        Set<Role> roles = userByLogin.getRoles();
+
+        if (roles.stream().anyMatch(r -> {
+            var role = r.getRole();
+            return role.scope() == RoleAuthority.Scope.GLOBAL
+                    && PROJECT_READ.isRoleAllowed(role);
+        })) {
             projectsOfUser = projectRepository.findAll();
         } else {
-            projectsOfUser = userByLogin.getRoles().stream()
-                    .map(Role::getProject)
+            var orgProjects = roles.stream()
+                    .filter(r -> {
+                        var role = r.getRole();
+                        return role.scope() == RoleAuthority.Scope.ORGANIZATION
+                                && PROJECT_READ.isRoleAllowed(role);
+                    })
+                    .map(Role::getOrganization)
+                    .flatMap(org -> projectRepository.findAllByOrganization(org).stream());
+
+            var projects = roles.stream()
+                    .filter(r -> {
+                        var role = r.getRole();
+                        return role.scope() == RoleAuthority.Scope.PROJECT
+                                && PROJECT_READ.isRoleAllowed(role);
+                    })
+                    .map(Role::getProject);
+
+            projectsOfUser = Stream.concat(orgProjects, projects)
                     .distinct()
                     .collect(Collectors.toList());
         }
@@ -382,8 +461,10 @@ public class UserService {
         log.info("Scheduled scan for expired user accounts starting now");
         ZonedDateTime cutoff = ZonedDateTime.now().minus(Period.ofDays(3));
 
-        userRepository.findAllByActivatedAndAuthoritiesNot(false,
-                Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT)).stream()
+        List<String> authorities = Arrays.asList(
+                PARTICIPANT.authority(), INACTIVE_PARTICIPANT.authority());
+
+        userRepository.findAllByActivatedAndAuthoritiesNot(false, authorities).stream()
                 .filter(user -> revisionService.getAuditInfo(user).getCreatedAt().isBefore(cutoff))
                 .forEach(user -> {
                     try {

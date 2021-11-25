@@ -1,8 +1,5 @@
 package org.radarbase.auth.authorization;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -107,8 +104,8 @@ public enum Permission {
      * @param authority the authority name
      * @return true if the given authority has this permission associated with it, false otherwise
      */
-    public boolean isAuthorityAllowed(AuthoritiesConstants authority) {
-        return Permissions.allowedAuthorities(this).contains(authority);
+    public boolean isRoleAllowed(RoleAuthority authority) {
+        return Permissions.allowedRoles(this).contains(authority);
     }
 
     @Override
@@ -126,7 +123,7 @@ public enum Permission {
     /** Returns all available scope names. */
     public static String[] scopes() {
         return stream()
-                .map(Permission::scopeName)
+                .map(Permission::scope)
                 .toArray(String[]::new);
     }
 
@@ -144,7 +141,7 @@ public enum Permission {
      *
      * @return the OAuth scope representation of this permission
      */
-    public String scopeName() {
+    public String scope() {
         return entity + "." + operation;
     }
 }

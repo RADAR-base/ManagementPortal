@@ -1,5 +1,6 @@
 package org.radarbase.management.repository;
 
+import org.radarbase.management.domain.Organization;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.SourceType;
 import org.springframework.data.domain.Page;
@@ -55,4 +56,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long>,
             + "and sourceType.id = :sourceTypeId ")
     Optional<SourceType> findSourceTypeByProjectIdAndSourceTypeId(@Param("id") Long id,
             @Param("sourceTypeId") Long sourceTypeId);
+
+    @Query("select project from Project project "
+            + "where project.organization = :organization")
+    List<Project> findAllByOrganization(@Param("organization") Organization organization);
 }
