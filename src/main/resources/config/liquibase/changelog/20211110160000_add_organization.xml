@@ -37,6 +37,19 @@
             </column>
         </createTable>
 
+        <createIndex tableName="radar_organization" indexName="idx_radar_organization_name" unique="true">
+            <column name="name" type="varchar(255)"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="add test organization data" author="alexey@thehyve.nl">
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/organization.csv"
+                  separator=";"
+                  tableName="radar_organization"/>
+    </changeSet>
+
+    <changeSet id="add organization audit" author="alexey@thehyve.nl">
         <createTable tableName="radar_organization_aud">
             <column name="id" type="BIGINT">
                 <constraints nullable="false"/>
@@ -55,9 +68,36 @@
             <column name="name_mod" type="BOOLEAN"/>
         </createTable>
 
-        <createIndex tableName="radar_organization" indexName="idx_radar_organization_name" unique="true">
-            <column name="name" type="varchar(255)"/>
-        </createIndex>
+        <addPrimaryKey columnNames="id, rev"
+                       constraintName="radar_organization_aud_pkey"
+                       tableName="radar_organization_aud"/>
+        
+        <addForeignKeyConstraint baseColumnNames="rev"
+                                 baseTableName="radar_organization_aud"
+                                 constraintName="radar_organization_aud_rev_id"
+                                 deferrable="false"
+                                 initiallyDeferred="false"
+                                 onDelete="NO ACTION"
+                                 onUpdate="NO ACTION"
+                                 referencedColumnNames="id"
+                                 referencedTableName="_revisions_info"/>
+        
+        <sql>
+            INSERT into radar_organization_aud (
+                id, rev, revtype,
+
+                description, description_mod,
+                location, location_mod,
+                name, name_mod
+            )
+            SELECT
+                id, 1, 0,
+                
+                description, true,
+                location, true,
+                name, true
+            FROM radar_organization
+        </sql>
     </changeSet>
 
     <changeSet id="add organization_id to project" author="alexey@thehyve.nl">
@@ -80,12 +120,5 @@
         <createIndex tableName="project" indexName="idx_project_organization_id" unique="false">
             <column name="organization_id"/>
         </createIndex>
-    </changeSet>
-
-    <changeSet id="add test organization data" author="alexey@thehyve.nl">
-        <loadData encoding="UTF-8"
-                  file="config/liquibase/organization.csv"
-                  separator=";"
-                  tableName="radar_organization"/>
     </changeSet>
 </databaseChangeLog>
