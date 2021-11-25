@@ -27,4 +27,8 @@ export class OrganizationService {
     findAll(): Observable<Organization[]> {
         return this.http.get<Organization[]>(this.resourceUrl);
     }
+
+    delete(organizationName: string): Observable<any> {
+        return;
+    }
 }
