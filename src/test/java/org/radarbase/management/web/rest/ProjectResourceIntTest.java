@@ -24,8 +24,10 @@ import org.junit.jupiter.api.Assertions;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
+import org.radarbase.management.domain.Organization;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.enumeration.ProjectStatus;
+import org.radarbase.management.repository.OrganizationRepository;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
 import org.radarbase.management.service.ProjectService;
@@ -80,6 +82,9 @@ class ProjectResourceIntTest {
             Instant.ofEpochMilli(0L), ZoneOffset.UTC);
     private static final ZonedDateTime UPDATED_END_DATE = ZonedDateTime.now(
             ZoneId.systemDefault()).withNano(0);
+
+    @Autowired
+    private OrganizationRepository organizationRepository;
 
     @Autowired
     private ProjectRepository projectRepository;
@@ -304,6 +309,15 @@ class ProjectResourceIntTest {
     void updateProject() throws Exception {
         // Initialize the database
         projectRepository.saveAndFlush(project);
+
+        var org = new Organization();
+        org.setName("org1");
+        org.setDescription("Test Organization 1");
+        org.setLocation("Somewhere");
+        organizationRepository.saveAndFlush(org);
+
+        assertThat(org.getId()).isNotNull();
+
         int databaseSizeBeforeUpdate = projectRepository.findAll().size();
 
         // Update the project
@@ -312,6 +326,7 @@ class ProjectResourceIntTest {
                 .projectName(UPDATED_PROJECT_NAME)
                 .description(UPDATED_DESCRIPTION)
                 .organization(UPDATED_ORGANIZATION)
+                .organizationId(org.getId())
                 .location(UPDATED_LOCATION)
                 .startDate(UPDATED_START_DATE)
                 .projectStatus(UPDATED_PROJECT_STATUS)
@@ -330,10 +345,13 @@ class ProjectResourceIntTest {
         assertThat(testProject.getProjectName()).isEqualTo(UPDATED_PROJECT_NAME);
         assertThat(testProject.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(testProject.getOrganization()).isEqualTo(UPDATED_ORGANIZATION);
+        assertThat(testProject.getOrganizationId()).isEqualTo(org.getId());
         assertThat(testProject.getLocation()).isEqualTo(UPDATED_LOCATION);
         assertThat(testProject.getStartDate()).isEqualTo(UPDATED_START_DATE);
         assertThat(testProject.getProjectStatus()).isEqualTo(UPDATED_PROJECT_STATUS);
         assertThat(testProject.getEndDate()).isEqualTo(UPDATED_END_DATE);
+
+        organizationRepository.delete(org);
     }
 
     @Test

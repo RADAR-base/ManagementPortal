@@ -88,6 +88,8 @@ public class Permission {
             new Permission(Entity.ORGANIZATION, Operation.CREATE);
     public static final Permission ORGANIZATION_READ =
             new Permission(Entity.ORGANIZATION, Operation.READ);
+    public static final Permission ORGANIZATION_UPDATE =
+            new Permission(Entity.ORGANIZATION, Operation.UPDATE);
     public static final Permission OAUTHCLIENTS_CREATE =
             new Permission(Entity.OAUTHCLIENTS, Operation.CREATE);
     public static final Permission OAUTHCLIENTS_READ =
