@@ -18,10 +18,10 @@ export class OrganizationService {
     }
 
     create(organization: Organization): Observable<Organization> {
-        organization.id = ORGANIZATIONS.length + 1
-        ORGANIZATIONS.push(organization);
-        return of(organization);
-        // return this.http.post<Organization>(this.resourceUrl, organization);
+        // organization.id = ORGANIZATIONS.length + 1
+        // ORGANIZATIONS.push(organization);
+        // return of(organization);
+        return this.http.post<Organization>(this.resourceUrl, organization);
     }
 
     // create(project: Project): Observable<Project> {
@@ -32,14 +32,14 @@ export class OrganizationService {
     // }
 
     find(organizationName: string): Observable<Organization> {
-        console.log(organizationName)
-        const organization = ORGANIZATIONS.filter(org => org.name === organizationName)[0];
-        if(organization){
-            return of(organization);
-        } else {
-            return of(null)
-        }
-        // return this.http.get(`${this.resourceUrl}/${encodeURIComponent(organizationName)}`);
+        // console.log(organizationName)
+        // const organization = ORGANIZATIONS.filter(org => org.name === organizationName)[0];
+        // if(organization){
+        //     return of(organization);
+        // } else {
+        //     return of(null)
+        // }
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(organizationName)}`);
     }
 
     // find(projectName: string): Observable<Project> {
@@ -52,8 +52,8 @@ export class OrganizationService {
     // }
 
     findAll(): Observable<Organization[]> {
-        return of(ORGANIZATIONS);
-        // return this.http.get<Organization[]>(this.resourceUrl);
+        // return of(ORGANIZATIONS);
+        return this.http.get<Organization[]>(this.resourceUrl);
     }
 
     // findAll(fetchMinimal: boolean): Observable<any> {
@@ -64,15 +64,15 @@ export class OrganizationService {
 
 
     update(organization: Organization): Observable<Organization> {
-        const index = ORGANIZATIONS.findIndex(o => o.name === organization.name)
-        console.log(index);
-        ORGANIZATIONS[index] = organization;
-        return of(organization)
+        // const index = ORGANIZATIONS.findIndex(o => o.name === organization.name)
+        // console.log(index);
+        // ORGANIZATIONS[index] = organization;
+        // return of(organization)
         // org = organization
         // const copy: Project = Object.assign({}, organization);
         // copy.startDate = toDate(organization.startDate);
         // copy.endDate = toDate(organization.endDate);
-        // return this.http.put<Organization>(this.resourceUrl, organization);
+        return this.http.put<Organization>(this.resourceUrl, organization);
     }
 
 
@@ -91,11 +91,11 @@ export class OrganizationService {
     // }
 
     delete(organizationName: string): Observable<any> {
-        const index = ORGANIZATIONS.findIndex(o => o.name === organizationName)
-        console.log(index);
-        ORGANIZATIONS.splice(index, 1);
-        return of(organizationName);
-        // return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(organizationName)}`);
+        // const index = ORGANIZATIONS.findIndex(o => o.name === organizationName)
+        // console.log(index);
+        // ORGANIZATIONS.splice(index, 1);
+        // return of(organizationName);
+        return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(organizationName)}`);
     }
 
     // private convertResponseDates(jsonResponse: any): any {
