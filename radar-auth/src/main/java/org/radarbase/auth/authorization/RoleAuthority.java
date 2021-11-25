@@ -43,6 +43,7 @@ public enum RoleAuthority implements Serializable {
      * @param authority authority name
      * @return RoleAuthority
      * @throws IllegalArgumentException if no role authority exists with the given name.
+     * @throws NullPointerException if given authority is null.
      */
     public static RoleAuthority valueOfAuthority(String authority) {
         String upperAuthority = authority.toUpperCase(Locale.ROOT);
@@ -58,6 +59,9 @@ public enum RoleAuthority implements Serializable {
      * @return RoleAuthority or null if no role authority exists with the given name.
      */
     public static RoleAuthority valueOfAuthorityOrNull(String authority) {
+        if (authority == null) {
+            return null;
+        }
         try {
             return valueOfAuthority(authority);
         } catch (IllegalArgumentException ex) {

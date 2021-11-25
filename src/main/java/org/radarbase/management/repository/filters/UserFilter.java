@@ -30,35 +30,43 @@ public class UserFilter implements Specification<User> {
         predicates.likeLower(root.get("login"), login);
         predicates.likeLower(root.get("email"), email);
 
-        RoleAuthority.Scope scope;
+        filterRoles(predicates, root.join("roles"));
 
-        Join<User, Role> roleJoin = root.join("roles");
-        if (predicates.isValidValue(projectName)) {
-            scope = RoleAuthority.Scope.PROJECT;
-            predicates.likeLower(
-                    () -> roleJoin.join("project").get("projectName"), projectName);
-        } else if (predicates.isValidValue(organization)) {
-            scope = RoleAuthority.Scope.ORGANIZATION;
-            predicates.likeLower(
-                    () -> roleJoin.join("organization").get("name"), organization);
-        } else {
-            scope = null;
-        }
+        query.distinct(true);
+        return predicates.toAndPredicate();
+    }
+
+    private void filterRoles(PredicateBuilder predicates, Join<User, Role> roleJoin) {
+        RoleAuthority.Scope scope = determineScope(predicates, roleJoin);
 
         Join<Role, Authority> authorityJoin = roleJoin.join("authority");
         if (predicates.isValidValue(authority)) {
-            predicates.equal(authorityJoin.get("name"), authority);
+            predicates.likeLower(authorityJoin.get("name"), authority);
         } else {
             predicates.add(authorityJoin.get("name")
                     .in(Stream.of(RoleAuthority.values())
                             .filter(scope == null
                                     ? r -> !r.isPersonal()
                                     : r -> r.scope() == scope && !r.isPersonal())
+                            .map(RoleAuthority::authority)
                             .collect(Collectors.toList())));
         }
+    }
 
-        query.distinct(true);
-        return predicates.toAndPredicate();
+    private RoleAuthority.Scope determineScope(
+            PredicateBuilder predicates,
+            Join<User, Role> roleJoin) {
+        if (predicates.isValidValue(projectName)) {
+            predicates.likeLower(
+                    () -> roleJoin.join("project").get("projectName"), projectName);
+            return RoleAuthority.Scope.PROJECT;
+        } else if (predicates.isValidValue(organization)) {
+            predicates.likeLower(
+                    () -> roleJoin.join("organization").get("name"), organization);
+            return RoleAuthority.Scope.ORGANIZATION;
+        } else {
+            return null;
+        }
     }
 
     public String getLogin() {
