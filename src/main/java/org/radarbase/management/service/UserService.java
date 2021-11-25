@@ -4,6 +4,7 @@ import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Authority;
+import org.radarbase.management.domain.Organization;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.User;
@@ -14,9 +15,11 @@ import org.radarbase.management.repository.RoleRepository;
 import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.repository.filters.UserFilter;
 import org.radarbase.management.security.SecurityUtils;
+import org.radarbase.management.service.dto.OrganizationDTO;
 import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.service.dto.UserDTO;
+import org.radarbase.management.service.mapper.OrganizationMapper;
 import org.radarbase.management.service.mapper.ProjectMapper;
 import org.radarbase.management.service.mapper.UserMapper;
 import org.radarbase.management.web.rest.errors.BadRequestException;
@@ -90,6 +93,9 @@ public class UserService {
 
     @Autowired
     private AuthorityRepository authorityRepository;
+
+    @Autowired
+    private OrganizationMapper organizationMapper;
 
     /**
      * Activate a user with the given activation key.
@@ -438,6 +444,42 @@ public class UserService {
         }
 
         return projectMapper.projectsToProjectDTOs(projectsOfUser);
+    }
+
+    /**
+     * Get the projects a given user has any role in.
+     * @param login the login of the user
+     * @return the list of projects
+     */
+    @Transactional(readOnly = true)
+    public List<OrganizationDTO> getOrganizationsAssignedToUser(String login) {
+        User userByLogin = userRepository.findOneWithRolesByLogin(login)
+                .orElseThrow(() -> new NotFoundException("User with login " + login + " not found.",
+                        USER, ERR_ENTITY_NOT_FOUND));
+
+        List<Organization> organizationsOfUser;
+
+        Set<Role> roles = userByLogin.getRoles();
+
+        if (roles.stream().anyMatch(r -> {
+            var role = r.getRole();
+            return role.scope() == RoleAuthority.Scope.GLOBAL
+                    && PROJECT_READ.isRoleAllowed(role);
+        })) {
+            organizationsOfUser = organizationRepository.findAll();
+        } else {
+            organizationsOfUser = roles.stream()
+                    .filter(r -> {
+                        var role = r.getRole();
+                        return role.scope() == RoleAuthority.Scope.ORGANIZATION
+                                && PROJECT_READ.isRoleAllowed(role);
+                    })
+                    .map(Role::getOrganization)
+                    .distinct()
+                    .collect(Collectors.toList());
+        }
+
+        return organizationMapper.organizationsToOrganizationDTOs(organizationsOfUser);
     }
 
     /**

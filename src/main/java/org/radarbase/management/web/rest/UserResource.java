@@ -13,6 +13,7 @@ import org.radarbase.management.repository.filters.UserFilter;
 import org.radarbase.management.service.MailService;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.UserService;
+import org.radarbase.management.service.dto.OrganizationDTO;
 import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.service.dto.UserDTO;
 import org.radarbase.management.web.rest.errors.InvalidRequestException;
@@ -42,6 +43,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import static org.radarbase.auth.authorization.Permission.ORGANIZATION_READ;
 import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN;
 import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
 import static org.radarbase.auth.authorization.Permission.USER_CREATE;
@@ -255,6 +257,20 @@ public class UserResource {
         checkPermission(token, USER_READ);
         checkPermission(token, PROJECT_READ);
         return userService.getProjectsAssignedToUser(login);
+    }
+
+    /**
+     * Returns all organizations if the user is s `SYS_ADMIN`. Otherwise projects that are assigned
+     * to a user using roles.
+     */
+    @GetMapping("/users/{login:" + Constants.ENTITY_ID_REGEX + "}/organizations")
+    @Timed
+    public List<OrganizationDTO> getUserOrganizations(@PathVariable String login)
+            throws NotAuthorizedException {
+        log.debug("REST request to get User's project : {}", login);
+        checkPermission(token, USER_READ);
+        checkPermission(token, ORGANIZATION_READ);
+        return userService.getOrganizationsAssignedToUser(login);
     }
 
     /**
