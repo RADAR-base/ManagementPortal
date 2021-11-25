@@ -49,7 +49,7 @@ export class AddSubjectsToGroupDialogComponent implements OnDestroy {
           for (let s of this.subjects) {
             this.eventManager.broadcast({
               name: 'subjectListModification',
-              content: { ...s, group: groupName },
+              content: { op: 'UPDATE', subject: {...s, group: groupName }},
             });
           }
           this.activeModal.close('saved');

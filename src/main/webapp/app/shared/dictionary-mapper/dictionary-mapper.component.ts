@@ -2,14 +2,13 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import { EventManager } from '../util/event-manager.service';
-import { Dictionary } from './dictionary-mapper.model';
 
 @Component({
     selector: 'jhi-dictionary-mapper',
     templateUrl: './dictionary-mapper.component.html',
 })
 export class DictionaryMapperComponent implements OnInit {
-    @Input() attributes: Dictionary;
+    @Input() attributes: Record<string, string>;
     eventSubscriber: Subscription;
 
     @Input() options: string[];

@@ -22,25 +22,19 @@ export class GeneralSourceDialogComponent implements OnInit {
     source: Source;
     isSaving: boolean;
     sourceTypes: SourceType[];
-    projects: MinimalProject[];
 
     constructor(
-            public activeModal: NgbActiveModal,
-            private alertService: AlertService,
-            private sourceService: SourceService,
-            private projectService: ProjectService,
-            private eventManager: EventManager,
+      public activeModal: NgbActiveModal,
+      private alertService: AlertService,
+      private sourceService: SourceService,
+      public projectService: ProjectService,
+      private eventManager: EventManager,
     ) {
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.isSaving = false;
     }
 
     ngOnInit() {
-        this.projectService.findAll(true).subscribe(
-                (res: MinimalProject[]) => {
-                    this.projects = res;
-                }, (res: HttpErrorResponse) => this.onError(res));
-
         this.onProjectChange(this.source.project);
     }
 

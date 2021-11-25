@@ -1,0 +1,29 @@
+/*!
+ * Copyright (c) 2021. The Hyve
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * See the file LICENSE in the root of this repository.
+ */
+
+
+.subject-pagination {
+  display: flex;
+  margin-top: 8px;
+}
+.subject-pagination > * {
+  text-align: center;
+  flex-grow: 1;
+  padding: 16px;
+}
+.all-loaded {
+  color: #dadada;
+  cursor: not-allowed;
+}
+.load-more:hover {
+  background: rgba(169, 209, 255, 0.3);
+}
+.load-more:active {
+  background: rgba(0, 120, 255, 0.15);
+}
