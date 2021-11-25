@@ -12,6 +12,7 @@ import { convertDateTimeFromServer, toDate } from '../util/date-util';
 export class ProjectService {
 
     private resourceUrl = 'api/projects';
+    private organizationResourceUrl = 'api/organizations';
 
     constructor(private http: HttpClient) {
     }
@@ -47,6 +48,11 @@ export class ProjectService {
     findAll(fetchMinimal: boolean): Observable<any> {
         return this.http.get(`${this.resourceUrl}?minimized=${fetchMinimal}`)
             .pipe(map((res: any) => this.convertResponseDates(res)));
+    }
+
+    findAllByOrganization(orgName: string): Observable<Project[]> {
+        let url = `${this.organizationResourceUrl}/${orgName}/projects`;
+        return this.http.get<Project[]>(url);
     }
 
     findSourceTypesByName(projectName: string): Observable<SourceType[]> {

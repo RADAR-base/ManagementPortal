@@ -6,10 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.authentication.OAuthHelper;
-import org.radarbase.auth.token.RadarToken;
+// import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Organization;
 import org.radarbase.management.repository.OrganizationRepository;
+import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.service.OrganizationService;
 import org.radarbase.management.service.mapper.OrganizationMapper;
 import org.radarbase.management.web.rest.errors.ExceptionTranslator;
@@ -31,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -55,6 +57,9 @@ class OrganizationResourceIntTest {
     private OrganizationService organizationService;
 
     @Autowired
+    private ProjectRepository projectRepository;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -63,8 +68,8 @@ class OrganizationResourceIntTest {
     @Autowired
     private ExceptionTranslator exceptionTranslator;
 
-    @Autowired
-    private RadarToken token;
+    // @Autowired
+    // private RadarToken token;
 
     private MockMvc restOrganizationMockMvc;
 
@@ -76,7 +81,7 @@ class OrganizationResourceIntTest {
         var orgResource = new OrganizationResource();
         ReflectionTestUtils
             .setField(orgResource, "organizationService", organizationService);
-        ReflectionTestUtils.setField(orgResource, "token", token);
+        // ReflectionTestUtils.setField(orgResource, "token", token);
 
         var filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
@@ -171,10 +176,53 @@ class OrganizationResourceIntTest {
     }
 
     @Test
+    void editOrganization() throws Exception {
+        // Initialize the database
+        organizationRepository.saveAndFlush(organization);
+
+        var updatedOrgDto = organizationMapper
+                .organizationToOrganizationDTO(organization);
+        updatedOrgDto.setLocation("Other location");
+
+        // Update the organization
+        restOrganizationMockMvc.perform(put("/api/organizations")
+                        .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                        .content(TestUtil.convertObjectToJsonBytes(updatedOrgDto)))
+                .andExpect(status().isOk());
+
+        // Get the organization
+        restOrganizationMockMvc.perform(get("/api/organizations/{name}",
+                        organization.getName()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.location").value("Other location"));
+    }
+
+    @Test
     void getNonExistingOrganization() throws Exception {
         // Get the organization
         restOrganizationMockMvc.perform(get("/api/organizations/{name}",
                         organization.getName()))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getProjectsByOrganizationName() throws Exception {
+        // Initialize the database
+        organizationRepository.saveAndFlush(organization);
+
+        var project = ProjectResourceIntTest.createEntity()
+                .organizationId(organization.getId())
+                .projectName("organization_project");
+        projectRepository.saveAndFlush(project);
+
+        // Get projects of the organization
+        restOrganizationMockMvc.perform(get("/api/organizations/{name}/projects",
+                        organization.getName()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.[*].projectName").value("organization_project"));
+        
+        projectRepository.delete(project);
     }
 }

@@ -1,10 +1,12 @@
 package org.radarbase.management.service;
 
 
+import static org.radarbase.management.web.rest.errors.EntityName.ORGANIZATION;
 import static org.radarbase.management.web.rest.errors.EntityName.PROJECT;
 
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.SourceType;
+import org.radarbase.management.repository.OrganizationRepository;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.service.dto.SourceTypeDTO;
@@ -33,6 +35,9 @@ public class ProjectService {
     private static final Logger log = LoggerFactory.getLogger(ProjectService.class);
 
     @Autowired
+    private OrganizationRepository organizationRepository;
+
+    @Autowired
     private ProjectRepository projectRepository;
 
     @Autowired
@@ -50,6 +55,16 @@ public class ProjectService {
      */
     public ProjectDTO save(ProjectDTO projectDto) {
         log.debug("Request to save Project : {}", projectDto);
+        var orgId = projectDto.getOrganizationId();
+        if (orgId != null) {
+            var org = organizationRepository.findById(orgId);
+            if (org.isEmpty()) {
+                throw new NotFoundException("Organization not found with id",
+                        ORGANIZATION,
+                        ErrorConstants.ERR_ORGANIZATION_ID_NOT_FOUND,
+                        Collections.singletonMap("id", orgId.toString()));
+            }
+        }
         Project project = projectMapper.projectDTOToProject(projectDto);
         project = projectRepository.save(project);
         return projectMapper.projectToProjectDTO(project);

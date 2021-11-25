@@ -91,12 +91,14 @@ public abstract class AbstractRadarToken implements RadarToken {
      * @return {@code true} if any authority contains the permission, {@code false} otherwise
      */
     protected boolean hasAuthorityForOrganization(Permission permission, String organizationName) {
+        /*
         if (hasNonOrganizationRelatedAuthorityForPermission(permission)) {
             return true;
         }
         if (organizationName == null) {
             return false;
         }
+        */
         // TODO implement role/authority check for organizations
         return false;
     }

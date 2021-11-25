@@ -1,8 +1,11 @@
 package org.radarbase.management.service;
 
 import org.radarbase.management.repository.OrganizationRepository;
+import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.service.dto.OrganizationDTO;
+import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.service.mapper.OrganizationMapper;
+import org.radarbase.management.service.mapper.ProjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +29,13 @@ public class OrganizationService {
     private OrganizationRepository organizationRepository;
 
     @Autowired
+    private ProjectRepository projectRepository;
+
+    @Autowired
     private OrganizationMapper organizationMapper;
+
+    @Autowired
+    private ProjectMapper projectMapper;
 
     /**
      * Save an organization.
@@ -64,5 +73,17 @@ public class OrganizationService {
         log.debug("Request to get Organization by name: {}", name);
         return organizationRepository.findOneByName(name)
                 .map(organizationMapper::organizationToOrganizationDTO);
+    }
+
+    /**
+     * Get all projects belonging to the organization.
+     *
+     * @return the list of projects
+     */
+    @Transactional(readOnly = true)
+    public List<ProjectDTO> findAllProjectsByOrganizationName(String organizationName) {
+        return projectRepository.findAllByOrganizationName(organizationName).stream()
+            .map(projectMapper::projectToProjectDTO)
+            .collect(Collectors.toList());
     }
 }

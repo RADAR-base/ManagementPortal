@@ -76,6 +76,13 @@ public class Project extends AbstractEntity implements Serializable {
     @Column(name = "jhi_organization")
     private String organization;
 
+    // Ideally, this should be an organization Entity,
+    // but to avoid confusion with the existing organization field
+    // I'll keep it as an ID for now.
+    // TODO: sunset the old organization field
+    @Column(name = "organization_id")
+    private Long organizationId;
+
     @NotNull
     @Column(name = "location", nullable = false)
     private String location;
@@ -169,6 +176,19 @@ public class Project extends AbstractEntity implements Serializable {
 
     public void setOrganization(String organization) {
         this.organization = organization;
+    }
+
+    public Long getOrganizationId() {
+        return organizationId;
+    }
+
+    public Project organizationId(Long organizationId) {
+        this.organizationId = organizationId;
+        return this;
+    }
+
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
     }
 
     public String getLocation() {
