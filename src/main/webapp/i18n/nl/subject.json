@@ -26,7 +26,7 @@
                 "advancedFilter": "Uitgebreid filter",
                 "error": {
                     "invalidDate": "De datum is niet geldig.",
-                    "invalidRange": "De datum is niet geldig of ligt na de Van-datum."
+                    "invalidRange": "De periode is niet geldig: Vanaf datum is na de Tot en met datum."
                 }
             },
             "login": "Login",
@@ -48,6 +48,7 @@
             "enrollmentDateTo": "Inschrijvingsdatum Tot",
             "lastModifiedBy": "Laatst aangepast door",
             "lastModifiedDate": "Laatst aangepaste datum",
+            "noSubjects": "Geen subjecten gevonden",
             "personName": "Naam",
             "pairing": "Koppelen",
             "actions": "Acties",
@@ -105,6 +106,7 @@
             "addSelectedToGroup": "Aan groep toevoegen",
             "group": "Groep",
             "loadMore": "Meer laden ({{shown}}/{{total}} getoond)",
+            "loadMorePartial": "Meer laden ({{shown}} getoond)",
             "allLoaded": "Alle {{total}} subjects geladen",
             "generateToken": "Genereer QR-code",
             "generatePersistentToken": "Genereer langdurige QR-code"

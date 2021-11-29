@@ -25,8 +25,12 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
               if (err.status === 401) {
                   this.injector.get(AuthService).resetAuthentication(
                     // no redirect needed when just checking whether authentication is present.
-                    !request.url || request.url !== 'api/account'
+                    request.url !== 'api/account'
                   );
+                  return;
+              }
+              if (err.status === 409 && request.method === 'DELETE') {
+                  // don't report error about this.
                   return;
               }
               this.eventManager.broadcast({
