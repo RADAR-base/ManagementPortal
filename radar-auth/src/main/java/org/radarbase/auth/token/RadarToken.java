@@ -27,7 +27,7 @@ public interface RadarToken {
     Set<AuthorityReference> getRoles();
 
     /**
-     * Get the global roles defined in this token.
+     * Get the global roles (not organization or project-specific) defined in this token.
      * @return non-null map describing the roles defined in this token. The keys in the map are the
      *     project names, and the values are lists of authority names associated to the project.
      */
@@ -43,7 +43,7 @@ public interface RadarToken {
     }
 
     /**
-     * Get the roles defined in this token.
+     * Get the project roles defined in this token.
      * @return non-null map describing the roles defined in this token. The keys in the map are the
      *     project names, and the values are lists of authority names associated to the project.
      */
@@ -55,7 +55,7 @@ public interface RadarToken {
     }
 
     /**
-     * Get the roles defined in this token.
+     * Get the organization roles defined in this token.
      * @return non-null map describing the roles defined in this token. The keys in the map are the
      *     project names, and the values are lists of authority names associated to the project.
      */
@@ -67,10 +67,11 @@ public interface RadarToken {
     }
 
     /**
-     * Get the referents in a given scope that matches a permission.
+     * Get the referents (i.e., organization or project name) in a given scope that matches a
+     * permission.
      * @param scope scope of the referents
-     * @param permission permission that should be available from
-     * @return referents names.
+     * @param permission permission that should be authorized within the scope
+     * @return referents names
      */
     default Stream<String> getReferentsWithPermission(RoleAuthority.Scope scope,
             Permission permission) {
