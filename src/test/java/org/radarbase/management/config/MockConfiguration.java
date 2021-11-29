@@ -45,6 +45,7 @@ public class MockConfiguration {
         when(token.getAuthorities()).thenReturn(List.of(SYS_ADMIN_AUTHORITY));
         when(token.getRoles()).thenReturn(Set.of(new AuthorityReference(SYS_ADMIN)));
         when(token.getScopes()).thenReturn(Arrays.asList(Permission.scopes()));
+        when(token.hasGlobalAuthorityForPermission(any())).thenReturn(true);
         return token;
     }
 }

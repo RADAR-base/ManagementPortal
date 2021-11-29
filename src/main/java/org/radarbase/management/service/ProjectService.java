@@ -70,7 +70,7 @@ public class ProjectService {
     public Page<?> findAll(Boolean fetchMinimal, Pageable pageable) {
         Page<Project> projects;
 
-        if (token.getGlobalRoles().stream().anyMatch(PROJECT_READ::isRoleAllowed)) {
+        if (token.hasGlobalAuthorityForPermission(PROJECT_READ)) {
             projects = projectRepository.findAllWithEagerRelationships(pageable);
         } else {
             List<String> projectNames = token.getReferentsWithPermission(

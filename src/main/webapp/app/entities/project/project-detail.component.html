@@ -1,4 +1,4 @@
-<div *ngIf="project">
+<div *ngIf="project$ | async as project">
     <h2>
         <span>
             <span translate="managementPortalApp.project.detail.title"></span>
@@ -31,20 +31,17 @@
             </div>
             <div>
                 <span translate="managementPortalApp.project.startDate"></span>
-                <p *ngIf="project.startDate">{{project.startDate | date:'medium'}}</p>
-                <p *ngIf="!project.startDate">N/A</p>
+                <p *ngIf="project.startDate; else noneAvailable">{{project.startDate | date:'mediumDate'}}</p>
             </div>
             <div>
                 <span translate="managementPortalApp.project.endDate"></span>
-                <p *ngIf="project.endDate">{{project.endDate | date:'medium'}}</p>
-                <p *ngIf="!project.endDate">N/A</p>
+                <p *ngIf="project.endDate; else noneAvailable">{{project.endDate | date:'mediumDate'}}</p>
             </div>
             <div>
                 <span>
-                    <span translate="managementPortalApp.project.attributeDataKey"></span>
-                    =>
-                    <span translate="managementPortalApp.project.attributeDataValue"></span>
+                    <span translate="managementPortalApp.project.attributeData"></span>
                 </span>
+                <ng-container *ngIf="!project.attributes || (project.attributes | keyvalue).length === 0" [ngTemplateOutlet]="noneAvailable"></ng-container>
                 <div *ngFor="let entry of project.attributes | keyvalue">
                     <span class="form-control-static">{{entry.key}}</span>
                     =>
@@ -57,36 +54,41 @@
         </p>
     </div>
 
+    <div *ngIf="activeTab$ | async as activeTab">
+        <ul class="nav nav-tabs">
+            <li class="nav-item" (click)="updateActiveTab('subjects')">
+                    <span class="nav-link" [ngClass]="{active: activeTab === 'subjects'}">
+                        Subjects
+                    </span>
+            </li>
+            <li class="nav-item" (click)="updateActiveTab('groups')">
+                    <span class="nav-link" [ngClass]="{active: activeTab === 'groups'}">
+                        Groups
+                    </span>
+            </li>
+            <li class="nav-item" (click)="updateActiveTab('admins')">
+                    <span class="nav-link" [ngClass]="{active: activeTab === 'admins'}">
+                        Admins
+                    </span>
+            </li>
+            <li class="nav-item" (click)="updateActiveTab('analysts')">
+                    <span class="nav-link" [ngClass]="{active: activeTab === 'analysts'}">
+                        Analysts
+                    </span>
+            </li>
+        </ul>
 
-    <ul class="nav nav-tabs">
-        <li class="nav-item" (click)="viewSubjects()">
-            <span class="nav-link" [ngClass]="{active: showSubjects}">
-                Subjects
-            </span>
-        </li>
-        <li class="nav-item" (click)="viewProjectGroups()">
-            <span class="nav-link" [ngClass]="{active: showProjectGroups}">
-                Groups
-            </span>
-        </li>
-        <li class="nav-item" (click)="viewProjectAdmins()">
-            <span class="nav-link" [ngClass]="{active: showProjectAdmins}">
-                Admins
-            </span>
-        </li>
-        <li class="nav-item" (click)="viewProjectAnalysts()">
-            <span class="nav-link" [ngClass]="{active: showProjectAnalysts}">
-                Analysts
-            </span>
-        </li>
-    </ul>
+        <div id="project-content-wrapper">
+            <jhi-alert-error></jhi-alert-error>
 
-    <div id="project-content-wrapper">
-        <jhi-alert-error></jhi-alert-error>
-
-        <jhi-subjects *ngIf="showSubjects" [project]='project' [isProjectSpecific]="true"></jhi-subjects>
-        <jhi-groups *ngIf="showProjectGroups" [project]='project'></jhi-groups>
-        <jhi-common-user-mgmt *ngIf="showProjectAdmins" [project]='project' [authority]="'ROLE_PROJECT_ADMIN'"></jhi-common-user-mgmt>
-        <jhi-common-user-mgmt *ngIf="showProjectAnalysts" [project]='project' [authority]="'ROLE_PROJECT_ANALYST'"></jhi-common-user-mgmt>
+            <jhi-subjects *ngIf="activeTab === 'subjects'" [project]='project' [isProjectSpecific]="true"></jhi-subjects>
+            <jhi-groups *ngIf="activeTab === 'groups'" [project]='project'></jhi-groups>
+            <jhi-common-user-mgmt *ngIf="activeTab === 'admins'" [project]='project' [authority]="'ROLE_PROJECT_ADMIN'"></jhi-common-user-mgmt>
+            <jhi-common-user-mgmt *ngIf="activeTab === 'analysts'" [project]='project' [authority]="'ROLE_PROJECT_ANALYST'"></jhi-common-user-mgmt>
+        </div>
     </div>
 </div>
+
+<ng-template #noneAvailable>
+    <p class="none-available" translate>global.attribute.noneAvailable</p>
+</ng-template>

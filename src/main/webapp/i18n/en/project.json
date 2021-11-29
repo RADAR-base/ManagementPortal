@@ -30,6 +30,7 @@
                 "label": "New group",
                 "button": "Add group"
             },
+            "attributeData" : "Attributes",
             "attributeDataKey" : "Tag",
             "attributeDataValue" : "Value",
             "prettyProjectName" : "Human readable project Name",

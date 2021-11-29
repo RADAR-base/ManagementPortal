@@ -98,8 +98,8 @@
             "add" : "Add",
             "error" : {
                 "alreadyExist" : "This attribute key already exist in the list"
-            }
-
+            },
+            "noneAvailable": "—"
         }
     },
     "entity": {

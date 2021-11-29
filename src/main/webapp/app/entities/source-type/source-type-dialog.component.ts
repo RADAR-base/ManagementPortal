@@ -17,30 +17,22 @@ import { SourceTypeService } from './source-type.service';
     selector: 'jhi-source-type-dialog',
     templateUrl: './source-type-dialog.component.html',
 })
-export class SourceTypeDialogComponent implements OnInit {
+export class SourceTypeDialogComponent {
     readonly authorities: string[];
 
     sourceType: SourceType;
     isSaving: boolean;
-
-    projects: Project[];
 
     constructor(
             public activeModal: NgbActiveModal,
             private alertService: AlertService,
             private sourceTypeService: SourceTypeService,
             private sourceDataService: SourceDataService,
-            private projectService: ProjectService,
+            public projectService: ProjectService,
             private eventManager: EventManager,
     ) {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
-    }
-
-    ngOnInit() {
-        this.projectService.query().subscribe(
-                (res: HttpResponse<any>) => this.projects = res.body,
-                (res: HttpErrorResponse) => this.onError(res));
     }
 
     clear() {

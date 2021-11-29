@@ -56,7 +56,7 @@
             </label>
             <select class="form-control" id="field_project" name="project" [(ngModel)]="source.project" (ngModelChange)="onProjectChange($event)" required>
                 <option [ngValue]="null"></option>
-                <option [ngValue]="projectOption.id === source.project?.id ? source.project: projectOption" *ngFor="let projectOption of projects; trackBy: trackProjectById">{{projectOption.projectName}}</option>
+                <option [ngValue]="projectOption.id === source.project?.id ? source.project: projectOption" *ngFor="let projectOption of projectService.projects$ | async; trackBy: trackProjectById">{{projectOption.projectName}}</option>
             </select>
             <div [hidden]="!(editForm.controls.project?.dirty && editForm.controls.project?.invalid)">
                 <small class="form-text text-danger"

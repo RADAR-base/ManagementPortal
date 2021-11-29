@@ -1,15 +1,12 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import {
     LoginModalService,
+    ProjectService,
     Principal,
     Project,
-    UserService
 } from '../shared';
-import { of, Subscription } from "rxjs";
-import { EventManager } from "../shared/util/event-manager.service";
-import { switchMap } from "rxjs/operators";
 
 @Component({
     selector: 'jhi-home',
@@ -19,40 +16,14 @@ import { switchMap } from "rxjs/operators";
     ],
 
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent {
     modalRef: NgbModalRef;
-    projects: Project[];
-    subscriptions: Subscription;
 
     constructor(
             public principal: Principal,
             private loginModalService: LoginModalService,
-            private eventManager: EventManager,
-            private userService: UserService,
+            public projectService: ProjectService,
     ) {
-        this.subscriptions = new Subscription();
-    }
-
-    ngOnInit() {
-        this.loadRelevantProjects();
-    }
-
-    ngOnDestroy() {
-        this.subscriptions.unsubscribe();
-    }
-
-    private loadRelevantProjects() {
-        this.subscriptions.add(this.principal.account$
-            .pipe(
-              switchMap(account => {
-                if (account) {
-                    return this.userService.findProject(account.login);
-                } else {
-                  return of([]);
-                }
-              })
-            )
-            .subscribe(projects => this.projects = projects));
     }
 
     trackId(index: number, item: Project) {

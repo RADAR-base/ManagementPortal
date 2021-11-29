@@ -180,17 +180,6 @@ public abstract class AbstractRadarToken implements RadarToken {
                 getUsername().equals(subjectName) && getSources().contains(sourceId));
     }
 
-    /**
-     * Check if any non-project related authority has the given permission. Currently the only
-     * non-project authority is {@code SYS_ADMIN}, so we only check for that.
-     * @param permission the permission
-     * @return {@code true} if any non-project related authority has the permission, {@code false}
-     *     otherwise
-     */
-    protected boolean hasGlobalAuthorityForPermission(Permission permission) {
-        return getGlobalRoles().stream().anyMatch(permission::isRoleAllowed);
-    }
-
     @Override
     public boolean equals(Object other) {
         if (other == this) {
