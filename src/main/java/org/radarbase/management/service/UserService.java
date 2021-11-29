@@ -48,6 +48,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.radarbase.auth.authorization.Permission.ORGANIZATION_READ;
 import static org.radarbase.auth.authorization.RoleAuthority.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
 import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
@@ -397,89 +398,6 @@ public class UserService {
     @Transactional(readOnly = true)
     public Optional<UserDTO> getUserWithAuthoritiesByLogin(String login) {
         return userRepository.findOneWithRolesByLogin(login).map(userMapper::userToUserDTO);
-    }
-
-    /**
-     * Get the projects a given user has any role in.
-     * @param login the login of the user
-     * @return the list of projects
-     */
-    @Transactional(readOnly = true)
-    public List<ProjectDTO> getProjectsAssignedToUser(String login) {
-        User userByLogin = userRepository.findOneWithRolesByLogin(login)
-                .orElseThrow(() -> new NotFoundException("User with login " + login + " not found.",
-                        USER, ERR_ENTITY_NOT_FOUND));
-
-        List<Project> projectsOfUser;
-
-        Set<Role> roles = userByLogin.getRoles();
-
-        if (roles.stream().anyMatch(r -> {
-            var role = r.getRole();
-            return role.scope() == RoleAuthority.Scope.GLOBAL
-                    && PROJECT_READ.isRoleAllowed(role);
-        })) {
-            projectsOfUser = projectRepository.findAll();
-        } else {
-            var orgProjects = roles.stream()
-                    .filter(r -> {
-                        var role = r.getRole();
-                        return role.scope() == RoleAuthority.Scope.ORGANIZATION
-                                && PROJECT_READ.isRoleAllowed(role);
-                    })
-                    .map(Role::getOrganization)
-                    .flatMap(org -> projectRepository.findAllByOrganization(org).stream());
-
-            var projects = roles.stream()
-                    .filter(r -> {
-                        var role = r.getRole();
-                        return role.scope() == RoleAuthority.Scope.PROJECT
-                                && PROJECT_READ.isRoleAllowed(role);
-                    })
-                    .map(Role::getProject);
-
-            projectsOfUser = Stream.concat(orgProjects, projects)
-                    .distinct()
-                    .collect(Collectors.toList());
-        }
-
-        return projectMapper.projectsToProjectDTOs(projectsOfUser);
-    }
-
-    /**
-     * Get the projects a given user has any role in.
-     * @param login the login of the user
-     * @return the list of projects
-     */
-    @Transactional(readOnly = true)
-    public List<OrganizationDTO> getOrganizationsAssignedToUser(String login) {
-        User userByLogin = userRepository.findOneWithRolesByLogin(login)
-                .orElseThrow(() -> new NotFoundException("User with login " + login + " not found.",
-                        USER, ERR_ENTITY_NOT_FOUND));
-
-        List<Organization> organizationsOfUser;
-
-        Set<Role> roles = userByLogin.getRoles();
-
-        if (roles.stream().anyMatch(r -> {
-            var role = r.getRole();
-            return role.scope() == RoleAuthority.Scope.GLOBAL
-                    && PROJECT_READ.isRoleAllowed(role);
-        })) {
-            organizationsOfUser = organizationRepository.findAll();
-        } else {
-            organizationsOfUser = roles.stream()
-                    .filter(r -> {
-                        var role = r.getRole();
-                        return role.scope() == RoleAuthority.Scope.ORGANIZATION
-                                && PROJECT_READ.isRoleAllowed(role);
-                    })
-                    .map(Role::getOrganization)
-                    .distinct()
-                    .collect(Collectors.toList());
-        }
-
-        return organizationMapper.organizationsToOrganizationDTOs(organizationsOfUser);
     }
 
     /**

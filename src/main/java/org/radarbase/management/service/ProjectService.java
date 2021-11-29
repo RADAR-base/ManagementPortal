@@ -1,8 +1,11 @@
 package org.radarbase.management.service;
 
 
+import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
 import static org.radarbase.management.web.rest.errors.EntityName.PROJECT;
 
+import org.radarbase.auth.authorization.RoleAuthority;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.SourceType;
 import org.radarbase.management.repository.ProjectRepository;
@@ -22,6 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Service Implementation for managing Project.
@@ -40,6 +46,9 @@ public class ProjectService {
 
     @Autowired
     private SourceTypeMapper sourceTypeMapper;
+
+    @Autowired
+    private RadarToken token;
 
 
     /**
@@ -62,7 +71,27 @@ public class ProjectService {
      */
     @Transactional(readOnly = true)
     public Page<?> findAll(Boolean fetchMinimal, Pageable pageable) {
-        Page<Project> projects = projectRepository.findAllWithEagerRelationships(pageable);
+        Page<Project> projects;
+
+        if (token.getGlobalRoles().stream().anyMatch(PROJECT_READ::isRoleAllowed)) {
+            projects = projectRepository.findAllWithEagerRelationships(pageable);
+        } else {
+            List<String> projectNames = token.getProjectRoles().entrySet().stream()
+                    .filter(e -> e.getValue().stream()
+                            .anyMatch(PROJECT_READ::isRoleAllowed))
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+
+            List<String> organizationNames = token.getOrganizationRoles().entrySet().stream()
+                    .filter(e -> e.getValue().stream()
+                            .anyMatch(PROJECT_READ::isRoleAllowed))
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+
+            projects = projectRepository.findAllWithEagerRelationshipsInOrganizationsOrProjects(
+                    pageable, organizationNames, projectNames);
+        }
+
         if (!fetchMinimal) {
             return projects.map(projectMapper::projectToProjectDTOReduced);
         } else {
