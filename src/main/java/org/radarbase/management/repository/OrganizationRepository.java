@@ -21,7 +21,7 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
             + "where org.name = :name")
     Optional<Organization> findOneByName(@Param("name") String name);
 
-    @Query("select distinct org from Organization org "
-            + "where org.project.projectName in (:projectNames)")
+    @Query("select distinct org from Organization org ")
+    // + "where org.project.projectName in (:projectNames)")
     List<Organization> findAllByProjectNames(@Param("projectNames") List<String> projectNames);
 }

@@ -34,6 +34,9 @@ export class ProjectService {
 
     projects$: Observable<Project[]> = this._projects$.asObservable();
 
+    private resourceUrl = 'api/projects';
+    private organizationResourceUrl = 'api/organizations';
+
     constructor(
       private http: HttpClient,
       private principal: Principal,
@@ -115,6 +118,11 @@ export class ProjectService {
     query(req?: any): Observable<HttpResponse<Project[]>> {
         const options = createRequestOption(req);
         return this.http.get<Project[]>(this.projectUrl(), {params: options, observe: 'response'});
+    }
+
+    findAllByOrganization(orgName: string): Observable<Project[]> {
+        let url = `${this.organizationResourceUrl}/${orgName}/projects`;
+        return this.http.get<Project[]>(url);
     }
 
     findSourceTypesByName(projectName: string): Observable<SourceType[]> {

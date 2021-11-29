@@ -37,6 +37,8 @@ public class ProjectDTO implements Serializable {
 
     private String organization;
 
+    private Long organizationId;
+
     @NotNull
     private String location;
 
@@ -86,6 +88,14 @@ public class ProjectDTO implements Serializable {
 
     public void setOrganization(String organization) {
         this.organization = organization;
+    }
+
+    public Long getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
     }
 
     public String getLocation() {

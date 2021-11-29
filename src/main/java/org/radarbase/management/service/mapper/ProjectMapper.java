@@ -46,6 +46,7 @@ public interface ProjectMapper {
     @Mapping(target = "description", ignore = true)
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "organization", ignore = true)
+    @Mapping(target = "organizationId", ignore = true)
     @Mapping(target = "location", ignore = true)
     @Mapping(target = "startDate", ignore = true)
     @Mapping(target = "endDate", ignore = true)
