@@ -4,8 +4,6 @@ import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Authority;
-import org.radarbase.management.domain.Organization;
-import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.repository.AuthorityRepository;
@@ -15,12 +13,8 @@ import org.radarbase.management.repository.RoleRepository;
 import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.repository.filters.UserFilter;
 import org.radarbase.management.security.SecurityUtils;
-import org.radarbase.management.service.dto.OrganizationDTO;
-import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.service.dto.UserDTO;
-import org.radarbase.management.service.mapper.OrganizationMapper;
-import org.radarbase.management.service.mapper.ProjectMapper;
 import org.radarbase.management.service.mapper.UserMapper;
 import org.radarbase.management.web.rest.errors.BadRequestException;
 import org.radarbase.management.web.rest.errors.ConflictException;
@@ -45,13 +39,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static org.radarbase.auth.authorization.Permission.ORGANIZATION_READ;
 import static org.radarbase.auth.authorization.RoleAuthority.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
-import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
 import static org.radarbase.management.web.rest.errors.EntityName.USER;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_EMAIL_EXISTS;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_ENTITY_NOT_FOUND;
@@ -81,9 +71,6 @@ public class UserService {
     private RoleRepository roleRepository;
 
     @Autowired
-    private ProjectMapper projectMapper;
-
-    @Autowired
     private UserMapper userMapper;
 
     @Autowired
@@ -94,9 +81,6 @@ public class UserService {
 
     @Autowired
     private AuthorityRepository authorityRepository;
-
-    @Autowired
-    private OrganizationMapper organizationMapper;
 
     /**
      * Activate a user with the given activation key.

@@ -67,6 +67,21 @@ public interface RadarToken {
     }
 
     /**
+     * Get the referents in a given scope that matches a permission.
+     * @param scope scope of the referents
+     * @param permission permission that should be available from
+     * @return referents names.
+     */
+    default Stream<String> getReferentsWithPermission(RoleAuthority.Scope scope,
+            Permission permission) {
+        return getRoles().stream()
+                .filter(r -> r.getRole().scope() == scope
+                        && permission.isRoleAllowed(r.getRole()))
+                .map(AuthorityReference::getReferent)
+                .filter(Objects::nonNull);
+    }
+
+    /**
      * Get a list of non-project related authorities.
      * @return non-null list of authority names
      */
