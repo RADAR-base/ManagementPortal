@@ -190,8 +190,8 @@ public class UserService {
         Set<Role> roles = new HashSet<>();
         for (RoleDTO roleDto : userDto.getRoles()) {
             Optional<Role> role = roleRepository.findOneByProjectIdAndAuthorityName(
-                    roleDto.getProjectId(), roleDto.getAuthorityName())
-                    .filter(r -> r.getId() != null);
+                    roleDto.getProjectId(), roleDto.getAuthorityName());
+
             if (role.isEmpty()) {
                 Role currentRole = new Role();
                 // supplied authorityname can be anything, so check if we actually have one
