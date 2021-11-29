@@ -253,7 +253,6 @@ class SubjectResourceIntTest {
         // Update the subject
         Subject updatedSubject = subjectRepository.findById(subjectDto.getId()).get();
 
-
         updatedSubject
                 .externalLink(UPDATED_EXTERNAL_LINK)
                 .externalId(UPDATED_ENTERNAL_ID)

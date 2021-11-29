@@ -27,7 +27,7 @@ export class GroupDeleteDialogComponent {
     }
 
     confirmDelete() {
-        this.groupService.delete(this.group.projectName, this.group.name).subscribe(
+        this.groupService.delete(this.group.projectName, this.group.name, true).subscribe(
                 () => {
                     this.eventManager.broadcast({name: 'groupListModification', content: null});
                     this.activeModal.dismiss(true);

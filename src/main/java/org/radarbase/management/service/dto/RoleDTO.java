@@ -1,5 +1,7 @@
 package org.radarbase.management.service.dto;
 
+import java.util.Objects;
+
 /**
  * Created by nivethika on 23-5-17.
  */
@@ -43,5 +45,35 @@ public class RoleDTO {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    @Override
+    public String toString() {
+        return "RoleDTO{" + "id=" + id
+                + ", projectId=" + projectId
+                + ", authorityName='" + authorityName + '\''
+                + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        RoleDTO roleDto = (RoleDTO) o;
+
+        return Objects.equals(id, roleDto.id)
+                && Objects.equals(projectId, roleDto.projectId)
+                && Objects.equals(projectName, roleDto.projectName)
+                && Objects.equals(authorityName, roleDto.authorityName);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }

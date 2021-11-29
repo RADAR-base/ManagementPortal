@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
+import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN;
 import static org.radarbase.auth.authorization.Permission.SOURCE_CREATE;
 import static org.radarbase.auth.authorization.Permission.SOURCE_DELETE;
 import static org.radarbase.auth.authorization.Permission.SOURCE_READ;

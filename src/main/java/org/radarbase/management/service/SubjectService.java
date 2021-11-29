@@ -1,7 +1,7 @@
 package org.radarbase.management.service;
 
-import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarbase.auth.authorization.RoleAuthority.INACTIVE_PARTICIPANT;
+import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
 import static org.radarbase.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
 import static org.radarbase.management.web.rest.errors.EntityName.GROUP;
 import static org.radarbase.management.web.rest.errors.EntityName.OAUTH_CLIENT;
@@ -20,16 +20,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
+
 import org.hibernate.envers.query.AuditEntity;
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.management.config.ManagementPortalProperties;
+import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.Group;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Role;
@@ -82,9 +85,6 @@ public class SubjectService {
     private SubjectRepository subjectRepository;
 
     @Autowired
-    private AuthorityRepository authorityRepository;
-
-    @Autowired
     private SourceRepository sourceRepository;
 
     @Autowired
@@ -104,6 +104,9 @@ public class SubjectService {
 
     @Autowired
     private PasswordService passwordService;
+
+    @Autowired
+    private AuthorityRepository authorityRepository;
 
     /**
      * Create a new subject.
@@ -163,12 +166,18 @@ public class SubjectService {
      * @return relevant Participant role
      * @throws java.util.NoSuchElementException if the authority name is not in the database
      */
-    private Role getProjectParticipantRole(Project project, String authority) {
-        return roleRepository.findOneByProjectIdAndAuthorityName(project.getId(), authority)
+    private Role getProjectParticipantRole(Project project, RoleAuthority authority) {
+        return roleRepository.findOneByProjectIdAndAuthorityName(project.getId(),
+                        authority.authority())
                 .orElseGet(() -> {
                     Role subjectRole = new Role();
-                    subjectRole.setAuthority(authorityRepository.findByAuthorityName(authority)
-                            .orElseThrow(NoSuchElementException::new));
+                    Authority auth = authorityRepository.findByAuthorityName(authority.authority())
+                            .orElseGet(() -> {
+                                var a = new Authority(authority);
+                                authorityRepository.save(a);
+                                return a;
+                            });
+                    subjectRole.setAuthority(auth);
                     subjectRole.setProject(project);
                     roleRepository.save(subjectRole);
                     return subjectRole;
@@ -208,19 +217,29 @@ public class SubjectService {
     }
 
     private Set<Role> updateParticipantRoles(Subject subject, SubjectDTO subjectDto) {
-        Set<Role> managedRoles = subject.getUser().getRoles().stream()
-                // make participant inactive in projects that do not match the new project
-                .map(role -> PARTICIPANT.equals(role.getAuthority().getName())
+        if (subjectDto.getProject() == null || subjectDto.getProject().getProjectName() == null) {
+            return subject.getUser().getRoles();
+        }
+
+        Stream<Role> existingRoles = subject.getUser().getRoles().stream()
+                .map(role -> {
+                    // make participant inactive in projects that do not match the new project
+                    if (role.getAuthority().getName().equals(PARTICIPANT.authority())
                             && !role.getProject().getProjectName().equals(
-                                    subjectDto.getProject().getProjectName())
-                            ? getProjectParticipantRole(role.getProject(), INACTIVE_PARTICIPANT)
-                            : role)
+                                    subjectDto.getProject().getProjectName())) {
+                        return getProjectParticipantRole(role.getProject(), INACTIVE_PARTICIPANT);
+                    } else {
+                        // do not modify other roles.
+                        return role;
+                    }
+                });
+
+        // Ensure that given project is present
+        Stream<Role> newProjectRole = Stream.of(getProjectParticipantRole(
+                projectMapper.projectDTOToProject(subjectDto.getProject()), PARTICIPANT));
+
+        return Stream.concat(existingRoles, newProjectRole)
                 .collect(Collectors.toSet());
-        // add participant role for current project, if the project did not change, then the set
-        // will not change since the role being added here already exists in the set
-        managedRoles.add(getProjectParticipantRole(projectMapper.projectDTOToProject(subjectDto
-                .getProject()), PARTICIPANT));
-        return managedRoles;
     }
 
     /**

@@ -2,8 +2,8 @@ package org.radarbase.auth.token;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
+import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
+import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN;
 import static org.radarbase.auth.authorization.Permission.MEASUREMENT_CREATE;
 import static org.radarbase.auth.token.AbstractRadarToken.CLIENT_CREDENTIALS;
 
@@ -56,7 +56,7 @@ class AbstractRadarTokenTest {
 
         @Override
         public String getUsername() {
-            return "";
+            return subject;
         }
 
         @Override
@@ -121,15 +121,15 @@ class AbstractRadarTokenTest {
     @Test
     void hasPermissionAsAdmin() {
         MockToken token = new MockToken();
-        token.scopes.add(MEASUREMENT_CREATE.scopeName());
-        token.authorities.add(SYS_ADMIN.role());
+        token.scopes.add(MEASUREMENT_CREATE.scope());
+        token.authorities.add(SYS_ADMIN.authority());
         assertTrue(token.hasPermission(MEASUREMENT_CREATE));
     }
 
     @Test
     void hasPermissionAsUser() {
         MockToken token = new MockToken();
-        token.scopes.add(MEASUREMENT_CREATE.scopeName());
+        token.scopes.add(MEASUREMENT_CREATE.scope());
         token.roles.add(new AuthorityReference(PARTICIPANT, "some"));
         assertTrue(token.hasPermission(MEASUREMENT_CREATE));
     }
@@ -137,7 +137,7 @@ class AbstractRadarTokenTest {
     @Test
     void hasPermissionAsClient() {
         MockToken token = new MockToken();
-        token.scopes.add(MEASUREMENT_CREATE.scopeName());
+        token.scopes.add(MEASUREMENT_CREATE.scope());
         token.grantType = CLIENT_CREDENTIALS;
         assertTrue(token.hasPermission(MEASUREMENT_CREATE));
     }
@@ -158,24 +158,24 @@ class AbstractRadarTokenTest {
     @Test
     void hasPermissionOnProjectAsAdmin() {
         MockToken token = new MockToken();
-        token.scopes.add(MEASUREMENT_CREATE.scopeName());
-        token.authorities.add(SYS_ADMIN.role());
+        token.scopes.add(MEASUREMENT_CREATE.scope());
+        token.authorities.add(SYS_ADMIN.authority());
         assertTrue(token.hasPermissionOnProject(MEASUREMENT_CREATE, "project"));
     }
 
     @Test
     void hasPermissionOnProjectAsUser() {
         MockToken token = new MockToken();
-        token.scopes.add(MEASUREMENT_CREATE.scopeName());
+        token.scopes.add(MEASUREMENT_CREATE.scope());
         token.roles.add(new AuthorityReference(PARTICIPANT, "project"));
-        assertTrue(token.hasPermissionOnProject(MEASUREMENT_CREATE, "project"));
+        assertFalse(token.hasPermissionOnProject(MEASUREMENT_CREATE, "project"));
         assertFalse(token.hasPermissionOnProject(MEASUREMENT_CREATE, "otherProject"));
     }
 
     @Test
     void hasPermissionOnProjectAsClient() {
         MockToken token = new MockToken();
-        token.scopes.add(MEASUREMENT_CREATE.scopeName());
+        token.scopes.add(MEASUREMENT_CREATE.scope());
         token.grantType = CLIENT_CREDENTIALS;
         assertTrue(token.hasPermissionOnProject(MEASUREMENT_CREATE, "project"));
     }
@@ -197,15 +197,15 @@ class AbstractRadarTokenTest {
     @Test
     void hasPermissionOnSubjectAsAdmin() {
         MockToken token = new MockToken();
-        token.scopes.add(MEASUREMENT_CREATE.scopeName());
-        token.authorities.add(SYS_ADMIN.role());
+        token.scopes.add(MEASUREMENT_CREATE.scope());
+        token.authorities.add(SYS_ADMIN.authority());
         assertTrue(token.hasPermissionOnSubject(MEASUREMENT_CREATE, "project", "subject"));
     }
 
     @Test
     void hasPermissionOnSubjectAsUser() {
         MockToken token = new MockToken();
-        token.scopes.add(MEASUREMENT_CREATE.scopeName());
+        token.scopes.add(MEASUREMENT_CREATE.scope());
         token.roles.add(new AuthorityReference(PARTICIPANT, "project"));
         token.subject = "subject";
         assertTrue(token.hasPermissionOnSubject(MEASUREMENT_CREATE, "project", "subject"));
@@ -216,7 +216,7 @@ class AbstractRadarTokenTest {
     @Test
     void hasPermissionOnSubjectAsClient() {
         MockToken token = new MockToken();
-        token.scopes.add(MEASUREMENT_CREATE.scopeName());
+        token.scopes.add(MEASUREMENT_CREATE.scope());
         token.grantType = CLIENT_CREDENTIALS;
         assertTrue(token.hasPermissionOnSubject(MEASUREMENT_CREATE, "project", "subject"));
     }

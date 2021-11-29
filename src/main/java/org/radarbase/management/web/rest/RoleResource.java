@@ -1,7 +1,7 @@
 package org.radarbase.management.web.rest;
 
 import io.micrometer.core.annotation.Timed;
-import org.radarbase.auth.authorization.AuthoritiesConstants;
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
@@ -59,7 +59,7 @@ public class RoleResource {
      */
     @PostMapping("/roles")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN})
+    @Secured({RoleAuthority.SYS_ADMIN_AUTHORITY})
     public ResponseEntity<RoleDTO> createRole(@Valid @RequestBody RoleDTO roleDto)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Role : {}", roleDto);
@@ -85,7 +85,7 @@ public class RoleResource {
      */
     @PutMapping("/roles")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN})
+    @Secured({RoleAuthority.SYS_ADMIN_AUTHORITY})
     public ResponseEntity<RoleDTO> updateRole(@Valid @RequestBody RoleDTO roleDto)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to update Role : {}", roleDto);
@@ -106,7 +106,7 @@ public class RoleResource {
      */
     @GetMapping("/roles")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN})
+    @Secured({RoleAuthority.SYS_ADMIN_AUTHORITY})
     public List<RoleDTO> getAllRoles() {
         log.debug("REST request to get all Roles");
         return roleService.findAll();
@@ -119,7 +119,7 @@ public class RoleResource {
      */
     @GetMapping("/roles/admin")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN})
+    @Secured({RoleAuthority.SYS_ADMIN_AUTHORITY})
     public List<RoleDTO> getAllAdminRoles() {
         log.debug("REST request to get all Admin Roles");
         return roleService.findSuperAdminRoles();

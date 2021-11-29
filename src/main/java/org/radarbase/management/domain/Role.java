@@ -17,6 +17,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.management.domain.support.AbstractEntityListener;
 
 import javax.persistence.Entity;
@@ -119,6 +120,10 @@ public class Role extends AbstractEntity implements Serializable {
 
     public Authority getAuthority() {
         return authority;
+    }
+
+    public RoleAuthority getRole() {
+        return RoleAuthority.valueOfAuthorityOrNull(authority.getName());
     }
 
     public Role authority(Authority authority) {

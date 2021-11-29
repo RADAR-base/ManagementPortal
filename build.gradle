@@ -249,7 +249,7 @@ task cleanResources(type: Delete) {
 }
 
 wrapper {
-    gradleVersion '7.2'
+    gradleVersion '7.3'
 }
 
 task stage(dependsOn: 'bootWar') {

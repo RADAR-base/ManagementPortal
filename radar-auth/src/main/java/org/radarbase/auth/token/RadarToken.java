@@ -1,6 +1,6 @@
 package org.radarbase.auth.token;
 
-import org.radarbase.auth.authorization.AuthoritiesConstants;
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.auth.authorization.Permission;
 
 import java.util.Date;
@@ -9,11 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toSet;
 
 /**
  * Created by dverbeec on 10/01/2018.
@@ -30,11 +31,15 @@ public interface RadarToken {
      * @return non-null map describing the roles defined in this token. The keys in the map are the
      *     project names, and the values are lists of authority names associated to the project.
      */
-    default Set<AuthoritiesConstants> getGlobalRoles() {
-        return getRoles().stream()
-                .map(AuthorityReference::getRole)
-                .filter(r -> r.scope() == AuthoritiesConstants.Scope.GLOBAL)
-                .collect(toSet());
+    default Set<RoleAuthority> getGlobalRoles() {
+        return Stream.concat(
+                getAuthorities().stream()
+                        .map(RoleAuthority::valueOfAuthorityOrNull)
+                        .filter(Objects::nonNull),
+                getRoles().stream()
+                        .map(AuthorityReference::getRole))
+                .filter(r -> r.scope() == RoleAuthority.Scope.GLOBAL)
+                .collect(toEnumSet());
     }
 
     /**
@@ -42,13 +47,11 @@ public interface RadarToken {
      * @return non-null map describing the roles defined in this token. The keys in the map are the
      *     project names, and the values are lists of authority names associated to the project.
      */
-    default Map<String, Set<AuthoritiesConstants>> getProjectRoles() {
+    default Map<String, Set<RoleAuthority>> getProjectRoles() {
         return getRoles().stream()
-                .filter(r -> r.getRole().scope() == AuthoritiesConstants.Scope.PROJECT
+                .filter(r -> r.getRole().scope() == RoleAuthority.Scope.PROJECT
                         && r.getReferent() != null)
-                .collect(groupingBy(AuthorityReference::getReferent,
-                        mapping(AuthorityReference::getRole,
-                                toCollection(() -> EnumSet.noneOf(AuthoritiesConstants.class)))));
+                .collect(groupingByReferent());
     }
 
     /**
@@ -56,13 +59,42 @@ public interface RadarToken {
      * @return non-null map describing the roles defined in this token. The keys in the map are the
      *     project names, and the values are lists of authority names associated to the project.
      */
-    default Map<String, Set<AuthoritiesConstants>> getOrganizationRoles() {
+    default Map<String, Set<RoleAuthority>> getOrganizationRoles() {
         return getRoles().stream()
-                .filter(r -> r.getRole().scope() == AuthoritiesConstants.Scope.ORGANIZATION
+                .filter(r -> r.getRole().scope() == RoleAuthority.Scope.ORGANIZATION
                         && r.getReferent() != null)
-                .collect(groupingBy(AuthorityReference::getReferent,
-                        mapping(AuthorityReference::getRole,
-                                toCollection(() -> EnumSet.noneOf(AuthoritiesConstants.class)))));
+                .collect(groupingByReferent());
+    }
+
+    /**
+     * Get the referents in a given scope that matches a permission.
+     * @param scope scope of the referents
+     * @param permission permission that should be available from
+     * @return referents names.
+     */
+    default Stream<String> getReferentsWithPermission(RoleAuthority.Scope scope,
+            Permission permission) {
+        return getRoles().stream()
+                .filter(r -> r.getRole().scope() == scope
+                        && permission.isRoleAllowed(r.getRole()))
+                .map(AuthorityReference::getReferent)
+                .filter(Objects::nonNull);
+    }
+
+    /**
+     * Check if any non-project related authority has the given permission. Currently the only
+     * non-project authority is {@code SYS_ADMIN}, so we only check for that.
+     * @param permission the permission
+     * @return {@code true} if any non-project related authority has the permission, {@code false}
+     *     otherwise
+     */
+    default boolean hasGlobalAuthorityForPermission(Permission permission) {
+        return Stream.concat(
+                        getAuthorities().stream().map(RoleAuthority::valueOfAuthorityOrNull),
+                        getRoles().stream().map(AuthorityReference::getRole))
+                .anyMatch(r -> r != null
+                        && r.scope() == RoleAuthority.Scope.GLOBAL
+                        && permission.isRoleAllowed(r));
     }
 
     /**
@@ -75,11 +107,11 @@ public interface RadarToken {
      * Get a list of non-project related authorities.
      * @return non-null list of authority names
      */
-    default Set<AuthoritiesConstants> getAuthoritiesConstants() {
+    default Set<RoleAuthority> getRoleAuthorities() {
         return getAuthorities().stream()
-                .map(AuthoritiesConstants::valueOfRoleOrNull)
+                .map(RoleAuthority::valueOfAuthorityOrNull)
                 .filter(Objects::nonNull)
-                .collect(toCollection(() -> EnumSet.noneOf(AuthoritiesConstants.class)));
+                .collect(toEnumSet());
     }
 
     /**
@@ -176,7 +208,7 @@ public interface RadarToken {
      * @param authority The permission to check
      * @return {@code true} if this token has the permission, {@code false} otherwise
      */
-    boolean hasAuthority(AuthoritiesConstants authority);
+    boolean hasAuthority(RoleAuthority authority);
 
     /**
      * Check if this token gives the given permission, not taking into account project affiliations.
@@ -210,7 +242,6 @@ public interface RadarToken {
             String projectName);
 
     /**
-     *
      * Check if this token gives a permission in a specific project.
      * @param permission the permission
      * @param projectName the project name
@@ -245,4 +276,14 @@ public interface RadarToken {
      * @return true if the client credentials flow was certainly used, false otherwise.
      */
     boolean isClientCredentials();
+
+    private static Collector<RoleAuthority, ?, Set<RoleAuthority>> toEnumSet() {
+        return toCollection(() -> EnumSet.noneOf(RoleAuthority.class));
+    }
+
+    private static Collector<AuthorityReference, ?, Map<String, Set<RoleAuthority>>>
+            groupingByReferent() {
+        return groupingBy(AuthorityReference::getReferent,
+                mapping(AuthorityReference::getRole, toEnumSet()));
+    }
 }

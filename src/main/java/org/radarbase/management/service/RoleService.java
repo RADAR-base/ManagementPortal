@@ -5,9 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.radarbase.auth.authorization.AuthoritiesConstants;
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.management.domain.Authority;
-import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.repository.RoleRepository;
 import org.radarbase.management.service.dto.RoleDTO;
@@ -44,7 +43,7 @@ public class RoleService {
      */
     public RoleDTO save(RoleDTO roleDto) {
         log.debug("Request to save Role : {}", roleDto);
-        Role role = roleMapper.roleDTOToRole(roleDto);
+        org.radarbase.management.domain.Role role = roleMapper.roleDTOToRole(roleDto);
         role = roleRepository.save(role);
         return roleMapper.roleToRoleDTO(role);
     }
@@ -67,15 +66,15 @@ public class RoleService {
         }
         List<String> currentUserAuthorities = currentUser.getAuthorities().stream()
                 .map(Authority::getName).collect(Collectors.toList());
-        if (currentUserAuthorities.contains(AuthoritiesConstants.SYS_ADMIN)) {
+        if (currentUserAuthorities.contains(RoleAuthority.SYS_ADMIN)) {
             log.debug("Request to get all Roles");
             return roleRepository.findAll().stream()
                     .map(roleMapper::roleToRoleDTO)
                     .collect(Collectors.toList());
-        } else if (currentUserAuthorities.contains(AuthoritiesConstants.PROJECT_ADMIN)) {
+        } else if (currentUserAuthorities.contains(RoleAuthority.PROJECT_ADMIN)) {
             log.debug("Request to get project admin's project Projects");
             return currentUser.getRoles().stream()
-                    .filter(role -> AuthoritiesConstants.PROJECT_ADMIN
+                    .filter(role -> RoleAuthority.PROJECT_ADMIN
                             .equals(role.getAuthority().getName()))
                     .map(r -> r.getProject().getProjectName())
                     .distinct()
@@ -97,7 +96,7 @@ public class RoleService {
         log.debug("Request to get admin Roles");
 
         return roleRepository
-                .findRolesByAuthorityName(AuthoritiesConstants.SYS_ADMIN).stream()
+                .findRolesByAuthorityName(RoleAuthority.SYS_ADMIN.authority()).stream()
                 .map(roleMapper::roleToRoleDTO)
                 .collect(Collectors.toCollection(LinkedList::new));
     }
@@ -111,7 +110,7 @@ public class RoleService {
     @Transactional(readOnly = true)
     public RoleDTO findOne(Long id) {
         log.debug("Request to get Role : {}", id);
-        Role role = roleRepository.findById(id).get();
+        org.radarbase.management.domain.Role role = roleRepository.findById(id).get();
         return roleMapper.roleToRoleDTO(role);
     }
 

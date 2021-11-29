@@ -1,9 +1,7 @@
 package org.radarbase.management.service;
 
-import org.radarbase.auth.authorization.AuthoritiesConstants;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.management.config.ManagementPortalProperties;
-import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.repository.AuthorityRepository;
@@ -12,10 +10,8 @@ import org.radarbase.management.repository.RoleRepository;
 import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.repository.filters.UserFilter;
 import org.radarbase.management.security.SecurityUtils;
-import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.service.dto.UserDTO;
-import org.radarbase.management.service.mapper.ProjectMapper;
 import org.radarbase.management.service.mapper.UserMapper;
 import org.radarbase.management.web.rest.errors.ConflictException;
 import org.radarbase.management.web.rest.errors.ErrorConstants;
@@ -40,10 +36,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarbase.auth.authorization.RoleAuthority.INACTIVE_PARTICIPANT;
+import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
 import static org.radarbase.management.web.rest.errors.EntityName.USER;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_EMAIL_EXISTS;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_ENTITY_NOT_FOUND;
@@ -68,9 +63,6 @@ public class UserService {
 
     @Autowired
     private RoleRepository roleRepository;
-
-    @Autowired
-    private ProjectMapper projectMapper;
 
     @Autowired
     private UserMapper userMapper;
@@ -198,8 +190,9 @@ public class UserService {
         Set<Role> roles = new HashSet<>();
         for (RoleDTO roleDto : userDto.getRoles()) {
             Optional<Role> role = roleRepository.findOneByProjectIdAndAuthorityName(
-                    roleDto.getProjectId(), roleDto.getAuthorityName());
-            if (!role.isPresent() || role.get().getId() == null) {
+                    roleDto.getProjectId(), roleDto.getAuthorityName())
+                    .filter(r -> r.getId() != null);
+            if (role.isEmpty()) {
                 Role currentRole = new Role();
                 // supplied authorityname can be anything, so check if we actually have one
                 currentRole.setAuthority(
@@ -336,32 +329,6 @@ public class UserService {
     }
 
     /**
-     * Get the projects a given user has any role in.
-     * @param login the login of the user
-     * @return the list of projects
-     */
-    @Transactional(readOnly = true)
-    public List<ProjectDTO> getProjectsAssignedToUser(String login) {
-        User userByLogin = userRepository.findOneWithRolesByLogin(login)
-                .orElseThrow(() -> new NotFoundException("User with login " + login + " not found.",
-                        USER, ERR_ENTITY_NOT_FOUND));
-
-        List<Project> projectsOfUser;
-
-        if (userByLogin.getRoles().stream()
-                .anyMatch(r -> AuthoritiesConstants.SYS_ADMIN.equals(r.getAuthority().getName()))) {
-            projectsOfUser = projectRepository.findAll();
-        } else {
-            projectsOfUser = userByLogin.getRoles().stream()
-                    .map(Role::getProject)
-                    .distinct()
-                    .collect(Collectors.toList());
-        }
-
-        return projectMapper.projectsToProjectDTOs(projectsOfUser);
-    }
-
-    /**
      * Get the current user.
      * @return the currently authenticated user, or null if no user is currently authenticated
      */
@@ -382,8 +349,10 @@ public class UserService {
         log.info("Scheduled scan for expired user accounts starting now");
         ZonedDateTime cutoff = ZonedDateTime.now().minus(Period.ofDays(3));
 
-        userRepository.findAllByActivatedAndAuthoritiesNot(false,
-                Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT)).stream()
+        List<String> authorities = Arrays.asList(
+                PARTICIPANT.authority(), INACTIVE_PARTICIPANT.authority());
+
+        userRepository.findAllByActivatedAndAuthoritiesNot(false, authorities).stream()
                 .filter(user -> revisionService.getAuditInfo(user).getCreatedAt().isBefore(cutoff))
                 .forEach(user -> {
                     try {

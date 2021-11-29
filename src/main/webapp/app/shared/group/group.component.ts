@@ -13,6 +13,7 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 import {Group, GroupService, Project} from '..';
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
+import {Router} from "@angular/router";
 
 @Component({
     selector: 'jhi-groups',
@@ -33,6 +34,7 @@ export class GroupComponent implements OnInit, OnDestroy, OnChanges {
             private groupService: GroupService,
             private alertService: AlertService,
             private eventManager: EventManager,
+            private router: Router,
     ) {
         this.groups = [];
     }
@@ -71,4 +73,16 @@ export class GroupComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
+    deleteGroup(group: Group) {
+        this.groupService.delete(this.project.projectName, group.name).subscribe(
+            () => {
+                this.eventManager.broadcast({name: 'groupListModification', content: null});
+            },
+            (error) => {
+                if(error.status === 409){
+                    this.router.navigate(['/', { outlets: { popup: 'project-group/'+ this.project.projectName + '/' + group.id + '/delete'} }])
+                }
+            }
+        );
+    }
 }

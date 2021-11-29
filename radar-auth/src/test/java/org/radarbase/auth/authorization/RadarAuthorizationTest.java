@@ -27,7 +27,7 @@ class RadarAuthorizationTest {
         String project = "PROJECT1";
         // let's get all permissions a project admin has
         Set<Permission> permissions = Permissions.getPermissionMatrix().entrySet().stream()
-                .filter(e -> e.getValue().contains(AuthoritiesConstants.PROJECT_ADMIN))
+                .filter(e -> e.getValue().contains(RoleAuthority.PROJECT_ADMIN))
                 .map(Entry::getKey)
                 .collect(Collectors.toSet());
         RadarToken token = new JwtRadarToken(TokenTestUtils.PROJECT_ADMIN_TOKEN);
@@ -36,7 +36,7 @@ class RadarAuthorizationTest {
         }
 
         Set<Permission> notPermitted = Permissions.getPermissionMatrix().entrySet().stream()
-                .filter(e -> !e.getValue().contains(AuthoritiesConstants.PROJECT_ADMIN))
+                .filter(e -> !e.getValue().contains(RoleAuthority.PROJECT_ADMIN))
                 .map(Entry::getKey)
                 .collect(Collectors.toSet());
 
