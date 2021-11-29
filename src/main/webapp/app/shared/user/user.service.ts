@@ -32,8 +32,8 @@ export class UserService {
     }
 
     findOrganization(login: string): Observable<Organization[]> {
-        return of(ORGANIZATIONS);
-        // return this.http.get<Organization[]>(`${this.resourceUrl}/${encodeURIComponent(login)}/organizations`);
+        // return of(ORGANIZATIONS);
+        return this.http.get<Organization[]>(`${this.resourceUrl}/${encodeURIComponent(login)}/organizations`);
     }
 
     query(req?: any): Observable<HttpResponse<User[]>> {
