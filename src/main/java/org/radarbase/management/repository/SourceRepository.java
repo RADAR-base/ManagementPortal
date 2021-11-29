@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.hibernate.annotations.Where;
 import org.radarbase.management.domain.Source;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +20,7 @@ import org.springframework.data.repository.query.Param;
 public interface SourceRepository extends JpaRepository<Source, Long>,
         RevisionRepository<Source, Long, Integer> {
 
+    @Override
     @Query(value = "select source from Source source "
             + "WHERE source.deleted = false",
             countQuery = "select count(source) from Source source "
