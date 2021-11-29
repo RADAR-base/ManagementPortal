@@ -47,6 +47,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
             private eventManager: EventManager,
             private translateService: TranslateService,
             private userService: UserService,
+            private organizationService: OrganizationService,
     ) {
         this.version = DEBUG_INFO_ENABLED ? 'v' + VERSION : '';
         this.isNavbarCollapsed = true;
@@ -74,7 +75,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
             .pipe(
               switchMap(account => {
                   if (account) {
-                      return this.userService.findOrganization(account.login);
+                      return this.organizationService.findAll();
+                      // return this.userService.findOrganization(account.login);
                   } else {
                       return of([]);
                   }

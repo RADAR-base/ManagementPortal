@@ -5,7 +5,7 @@ import {
     LoginModalService,
     Principal,
     Organization,
-    UserService
+    UserService, OrganizationService
 } from '../shared';
 import { of, Subscription } from "rxjs";
 import { EventManager } from "../shared/util/event-manager.service";
@@ -29,6 +29,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             private loginModalService: LoginModalService,
             private eventManager: EventManager,
             private userService: UserService,
+            private organizationService: OrganizationService,
     ) {
         this.subscriptions = new Subscription();
     }
@@ -46,7 +47,8 @@ export class HomeComponent implements OnInit, OnDestroy {
             .pipe(
               switchMap(account => {
                 if (account) {
-                    return this.userService.findOrganization(account.login);
+                    return this.organizationService.findAll();
+                    // return this.userService.findOrganization(account.login);
                 } else {
                   return of([]);
                 }
