@@ -135,6 +135,10 @@ class UserResourceIntTest {
     @BeforeEach
     public void initTest() {
         user = createEntity(passwordService);
+        userRepository.findOneByLogin(DEFAULT_LOGIN)
+                .ifPresent(userRepository::delete);
+        userRepository.findOneByLogin(UPDATED_LOGIN)
+                .ifPresent(userRepository::delete);
     }
 
     @Test
