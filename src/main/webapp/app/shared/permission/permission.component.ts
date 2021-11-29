@@ -161,7 +161,7 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
         console.log(this.filteredUsers)
         const user = this.filteredUsers[0];
         if(this.userSearchTerm.includes(user.login)){
-            const newRole = new Role();
+            const newRole: Role = {}; //new Role();
             if (this.project) {
                 newRole.authorityName = 'ROLE_PROJECT_ADMIN';
                 newRole.projectId = 1; //this.organization.id;

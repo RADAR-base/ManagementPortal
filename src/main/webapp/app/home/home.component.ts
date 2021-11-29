@@ -5,7 +5,7 @@ import {
     LoginModalService,
     ProjectService,
     Principal,
-    Project,
+    Project, OrganizationService,
 } from '../shared';
 import { of, Subscription } from "rxjs";
 import { EventManager } from "../shared/util/event-manager.service";
@@ -29,6 +29,8 @@ export class HomeComponent {
             public principal: Principal,
             private loginModalService: LoginModalService,
             public projectService: ProjectService,
+            public organizationService: OrganizationService,
+
             // private eventManager: EventManager,
             // private userService: UserService,
     ) {
