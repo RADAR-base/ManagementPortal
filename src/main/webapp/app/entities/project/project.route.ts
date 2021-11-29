@@ -1,4 +1,4 @@
-import { Resolve, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 
 import { UserRouteAccessService } from '../../shared';
 import { PROJECT_ADMIN, SYSTEM_ADMIN } from '../../shared/constants/common.constants';
@@ -29,6 +29,9 @@ export const projectRoute: Routes = [
         data: {
             authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
             pageTitle: 'managementPortalApp.project.home.title',
+        },
+        resolve: {
+            'pagingParams': ResolvePagingParams,
         },
         canActivate: [UserRouteAccessService],
     },

@@ -1,35 +1,33 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
-import { MinimalSource } from '../../shared/source';
 import { Subject, SubjectService } from '../../shared/subject';
 
-import { Project, ProjectService } from '../../shared/project';
+import { Project, ProjectService } from '../../shared';
 import { GeneralSubjectPopupService } from './general.subject-popup.service';
+import { Subscription } from "rxjs";
 
 @Component({
     selector: 'jhi-subject-dialog',
     templateUrl: './general.subject-dialog.component.html',
 })
-export class GeneralSubjectDialogComponent implements OnInit {
+export class GeneralSubjectDialogComponent implements OnInit, OnDestroy {
     readonly authorities: string[];
     readonly options: string[];
 
     subject: Subject;
     isSaving: boolean;
-    projects: Project[];
-
     attributeComponentEventPrefix: 'subjectAttributes';
+    private eventSubscription: Subscription;
 
     constructor(public activeModal: NgbActiveModal,
                 private alertService: AlertService,
                 private subjectService: SubjectService,
-                private projectService: ProjectService,
+                public projectService: ProjectService,
                 private eventManager: EventManager) {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
@@ -37,10 +35,13 @@ export class GeneralSubjectDialogComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.projectService.query()
-                .subscribe((res: HttpResponse<any>) => this.projects = res.body);
-        this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification',
+        this.eventSubscription = this.eventManager.subscribe(
+          this.attributeComponentEventPrefix + 'ListModification',
                 (response) => this.subject.attributes = response.content);
+    }
+
+    ngOnDestroy() {
+        this.eventSubscription.unsubscribe();
     }
 
     clear() {
@@ -52,16 +53,16 @@ export class GeneralSubjectDialogComponent implements OnInit {
         if (this.subject.id !== null) {
             this.subjectService.update(this.subject)
             .subscribe((res: Subject) =>
-                    this.onSaveSuccess(res), (res: any) => this.onSaveError(res));
+                    this.onSaveSuccess('UPDATE', res), (res: any) => this.onSaveError(res));
         } else {
             this.subjectService.create(this.subject)
             .subscribe((res: Subject) =>
-                    this.onSaveSuccess(res), (res: any) => this.onSaveError(res));
+                    this.onSaveSuccess('CREATE', res), (res: any) => this.onSaveError(res));
         }
     }
 
-    private onSaveSuccess(result: Subject) {
-        this.eventManager.broadcast({name: 'subjectListModification', content: 'OK'});
+    private onSaveSuccess(op: string, result: Subject) {
+        this.eventManager.broadcast({name: 'subjectListModification', content: {op, subject: result}});
         this.isSaving = false;
         this.activeModal.dismiss(result);
     }
@@ -73,10 +74,6 @@ export class GeneralSubjectDialogComponent implements OnInit {
 
     private onError(error) {
         this.alertService.error(error.message, null, null);
-    }
-
-    trackDeviceById(index: number, item: MinimalSource) {
-        return item.id;
     }
 
     trackProjectById(index: number, item: Project) {

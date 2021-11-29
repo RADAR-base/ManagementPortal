@@ -99,8 +99,8 @@
             "add" : "Toevoegen",
             "error" : {
                 "alreadyExist" : "Deze eigenschap komt reeds voor in de lijst"
-            }
-
+            },
+            "noneAvailable": "–"
         }
     },
     "entity": {

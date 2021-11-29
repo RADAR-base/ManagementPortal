@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
-import { User, UserService } from '../../shared';
+import { Project, User, UserService } from '../../shared';
 import { SYSTEM_ADMIN } from '../../shared/constants/common.constants';
 import { Role } from './role.model';
 
@@ -24,11 +24,12 @@ export class UserModalService {
         this.isOpen = true;
 
         if (admin) {
-            const user = new User();
-            user.authorities = [SYSTEM_ADMIN];
-            const adminRole = new Role();
-            adminRole.authorityName = SYSTEM_ADMIN;
-            user.roles = [adminRole];
+            const user = {
+                authorities: [SYSTEM_ADMIN],
+                roles: [{
+                    authorityName: SYSTEM_ADMIN
+                }],
+            }
             return this.userModalRef(component, user, true);
         }
 
@@ -41,7 +42,7 @@ export class UserModalService {
                 return this.userModalRef(component, user, false);
             });
         } else {
-            return this.userModalRef(component, new User(), false);
+            return this.userModalRef(component, { authorities: [] }, false);
         }
     }
 

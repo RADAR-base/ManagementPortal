@@ -1,8 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { of, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import { DEBUG_INFO_ENABLED, VERSION } from '../../app.constants';
 import {
@@ -10,8 +10,10 @@ import {
     LoginModalService,
     LoginService,
     Principal,
+    Project,
+    ProjectService,
     Organization,
-    OrganizationService, UserService,
+    OrganizationService
 } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 
@@ -20,34 +22,35 @@ import { switchMap, tap } from "rxjs/operators";
 
 @Component({
     selector: 'jhi-navbar',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './navbar.component.html',
     styleUrls: [
         'navbar.scss',
     ],
 })
 export class NavbarComponent implements OnInit, OnDestroy {
-
     inProduction: boolean;
     isNavbarCollapsed: boolean;
-    languages: any[];
     apiDocsEnabled: boolean;
     modalRef: NgbModalRef;
     version: string;
 
+    projects: Project[];
     organizations: Organization[];
+
     private subscriptions: Subscription;
 
     constructor(
-            private loginService: LoginService,
-            private languageHelper: JhiLanguageHelper,
-            public principal: Principal,
-            private loginModalService: LoginModalService,
-            private profileService: ProfileService,
-            private router: Router,
-            private eventManager: EventManager,
-            private translateService: TranslateService,
-            private userService: UserService,
-            private organizationService: OrganizationService,
+      private loginService: LoginService,
+      public languageHelper: JhiLanguageHelper,
+      public principal: Principal,
+      private loginModalService: LoginModalService,
+      private profileService: ProfileService,
+      private router: Router,
+      private eventManager: EventManager,
+      private translateService: TranslateService,
+      public projectService: ProjectService,
+      public organizationService: OrganizationService,
     ) {
         this.version = DEBUG_INFO_ENABLED ? 'v' + VERSION : '';
         this.isNavbarCollapsed = true;
@@ -55,11 +58,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.loadRelevantOrganizations();
-        this.languageHelper.getAll().then((languages) => {
-            this.languages = languages;
-        });
-
         this.profileService.getProfileInfo().then((profileInfo) => {
             this.inProduction = profileInfo.inProduction;
             this.apiDocsEnabled = profileInfo.apiDocsEnabled;
@@ -70,19 +68,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.subscriptions.unsubscribe();
     }
 
-    loadRelevantOrganizations() {
-        this.subscriptions.add(this.principal.account$
-            .pipe(
-              switchMap(account => {
-                  if (account) {
-                      return this.organizationService.findAll();
-                      // return this.userService.findOrganization(account.login);
-                  } else {
-                      return of([]);
-                  }
-              })
-            )
-            .subscribe(organizations => this.organizations = organizations));
+    trackProjectName(index: number, item: Project) {
+        return item.projectName;
     }
 
     trackOrganizationName(index: number, item: Organization) {

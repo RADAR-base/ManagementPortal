@@ -138,26 +138,6 @@ width: 100%;
 margin-bottom: 4px;
 }
 
-.subject-pagination {
-display: flex;
-margin-top: 8px;
-}
-.subject-pagination > * {
-text-align: center;
-flex-grow: 1;
-padding: 16px;
-}
-.subject-pagination__all-loaded {
-color: #dadada;
-cursor: not-allowed;
-}
-.subject-pagination__load-more:hover {
-background: rgba(169, 209, 255, 0.3);
-}
-.subject-pagination__load-more:active {
-background: rgba(0, 120, 255, 0.15);
-}
-
 .form-group .error{
     color: red;
     background-color: inherit;
@@ -165,4 +145,8 @@ background: rgba(0, 120, 255, 0.15);
 
 .applied-filters .badge {
     cursor: pointer;
+}
+
+.none-available {
+    color: #bebebe;
 }
