@@ -11,6 +11,7 @@ import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.User;
+import org.radarbase.management.repository.RoleRepository;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
@@ -39,6 +40,7 @@ import java.util.HashSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
@@ -76,6 +78,9 @@ class UserResourceIntTest {
 
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -139,6 +144,11 @@ class UserResourceIntTest {
                 .ifPresent(userRepository::delete);
         userRepository.findOneByLogin(UPDATED_LOGIN)
                 .ifPresent(userRepository::delete);
+        var roles = roleRepository
+                .findRolesByAuthorityName(AuthoritiesConstants.PARTICIPANT)
+                .stream().filter(r -> r.getProject() == null)
+                .collect(Collectors.toList());
+        roleRepository.deleteAll(roles);
     }
 
     @Test
