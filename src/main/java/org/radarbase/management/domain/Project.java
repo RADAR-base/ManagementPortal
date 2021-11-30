@@ -27,6 +27,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
@@ -74,14 +75,11 @@ public class Project extends AbstractEntity implements Serializable {
     private String description;
 
     @Column(name = "jhi_organization")
-    private String organization;
+    private String organizationName;
 
-    // Ideally, this should be an organization Entity,
-    // but to avoid confusion with the existing organization field
-    // I'll keep it as an ID for now.
-    // TODO: sunset the old organization field
-    @Column(name = "organization_id")
-    private Long organizationId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Organization organization;
 
     @NotNull
     @Column(name = "location", nullable = false)
@@ -156,12 +154,12 @@ public class Project extends AbstractEntity implements Serializable {
         this.description = description;
     }
 
-    public String getOrganization() {
-        return organization;
+    public String getOrganizationName() {
+        return organizationName;
     }
 
-    public Project organization(String organization) {
-        this.organization = organization;
+    public Project organizationName(String organizationName) {
+        this.organizationName = organizationName;
         return this;
     }
 
@@ -174,21 +172,21 @@ public class Project extends AbstractEntity implements Serializable {
         this.roles = roles;
     }
 
-    public void setOrganization(String organization) {
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
+
+    public Organization getOrganization() {
+        return organization;
+    }
+
+    public Project organization(Organization organization) {
         this.organization = organization;
-    }
-
-    public Long getOrganizationId() {
-        return organizationId;
-    }
-
-    public Project organizationId(Long organizationId) {
-        this.organizationId = organizationId;
         return this;
     }
 
-    public void setOrganizationId(Long organizationId) {
-        this.organizationId = organizationId;
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
     }
 
     public String getLocation() {
@@ -301,7 +299,7 @@ public class Project extends AbstractEntity implements Serializable {
                 + "id=" + id
                 + ", projectName='" + projectName + "'"
                 + ", description='" + description + "'"
-                + ", organization='" + organization + "'"
+                + ", organization='" + organizationName + "'"
                 + ", location='" + location + "'"
                 + ", startDate='" + startDate + "'"
                 + ", projectStatus='" + projectStatus + "'"

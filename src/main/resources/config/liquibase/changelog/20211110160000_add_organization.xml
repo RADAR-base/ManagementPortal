@@ -105,9 +105,13 @@
             <column name="organization_id" type="bigint"/>
         </addColumn>
 
+        <renameColumn tableName="project_aud"
+                      oldColumnName="organization_mod"  
+                      newColumnName="organization_name_mod"/>
+
         <addColumn tableName="project_aud">
             <column name="organization_id" type="BIGINT"/>
-            <column name="organization_id_mod" type="BOOLEAN"/>
+            <column name="organization_mod" type="BOOLEAN"/>
         </addColumn>
 
         <addForeignKeyConstraint baseColumnNames="organization_id"

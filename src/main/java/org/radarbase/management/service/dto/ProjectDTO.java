@@ -37,7 +37,7 @@ public class ProjectDTO implements Serializable {
 
     private String organization;
 
-    private Long organizationId;
+    private String organizationName;
 
     @NotNull
     private String location;
@@ -90,12 +90,12 @@ public class ProjectDTO implements Serializable {
         this.organization = organization;
     }
 
-    public Long getOrganizationId() {
-        return organizationId;
+    public String getOrganizationName() {
+        return organizationName;
     }
 
-    public void setOrganizationId(Long organizationId) {
-        this.organizationId = organizationId;
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
     }
 
     public String getLocation() {
@@ -199,6 +199,7 @@ public class ProjectDTO implements Serializable {
                 + ", projectName='" + projectName + "'"
                 + ", description='" + description + "'"
                 + ", organization='" + organization + "'"
+                + ", organizationName='" + organizationName + "'"
                 + ", location='" + location + "'"
                 + ", startDate='" + startDate + "'"
                 + ", projectStatus='" + projectStatus + "'"

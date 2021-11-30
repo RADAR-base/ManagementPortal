@@ -26,9 +26,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long>,
     Page<Project> findAllWithEagerRelationships(Pageable pageable);
 
     @Query("select project from Project project "
-            + "WHERE project.organizationId IN "
-            + "(SELECT org.id from Organization org "
-            + "    WHERE org.name = :organization_name)")
+            + "WHERE project.organization.name = :organization_name")
     List<Project> findAllByOrganizationName(
             @Param("organization_name") String organizationName);
 
