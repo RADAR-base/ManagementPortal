@@ -212,7 +212,7 @@ class OrganizationResourceIntTest {
         organizationRepository.saveAndFlush(organization);
 
         var project = ProjectResourceIntTest.createEntity()
-                .organizationId(organization.getId())
+                .organization(organization)
                 .projectName("organization_project");
         projectRepository.saveAndFlush(project);
 
