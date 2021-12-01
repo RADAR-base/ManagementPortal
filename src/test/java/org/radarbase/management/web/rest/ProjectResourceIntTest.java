@@ -24,8 +24,10 @@ import org.junit.jupiter.api.Assertions;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
+import org.radarbase.management.domain.Organization;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.enumeration.ProjectStatus;
+import org.radarbase.management.repository.OrganizationRepository;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
 import org.radarbase.management.service.ProjectService;
@@ -82,6 +84,9 @@ class ProjectResourceIntTest {
             ZoneId.systemDefault()).withNano(0);
 
     @Autowired
+    private OrganizationRepository organizationRepository;
+
+    @Autowired
     private ProjectRepository projectRepository;
 
     @Autowired
@@ -135,7 +140,7 @@ class ProjectResourceIntTest {
         return new Project()
                 .projectName(DEFAULT_PROJECT_NAME)
                 .description(DEFAULT_DESCRIPTION)
-                .organization(DEFAULT_ORGANIZATION)
+                .organizationName(DEFAULT_ORGANIZATION)
                 .location(DEFAULT_LOCATION)
                 .startDate(DEFAULT_START_DATE)
                 .projectStatus(DEFAULT_PROJECT_STATUS)
@@ -165,7 +170,7 @@ class ProjectResourceIntTest {
         Project testProject = projectList.get(projectList.size() - 1);
         assertThat(testProject.getProjectName()).isEqualTo(DEFAULT_PROJECT_NAME);
         assertThat(testProject.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
-        assertThat(testProject.getOrganization()).isEqualTo(DEFAULT_ORGANIZATION);
+        assertThat(testProject.getOrganizationName()).isEqualTo(DEFAULT_ORGANIZATION);
         assertThat(testProject.getLocation()).isEqualTo(DEFAULT_LOCATION);
         assertThat(testProject.getStartDate()).isEqualTo(DEFAULT_START_DATE);
         assertThat(testProject.getProjectStatus()).isEqualTo(DEFAULT_PROJECT_STATUS);
@@ -304,6 +309,15 @@ class ProjectResourceIntTest {
     void updateProject() throws Exception {
         // Initialize the database
         projectRepository.saveAndFlush(project);
+
+        var org = new Organization();
+        org.setName("org1");
+        org.setDescription("Test Organization 1");
+        org.setLocation("Somewhere");
+        organizationRepository.saveAndFlush(org);
+
+        assertThat(org.getId()).isNotNull();
+
         int databaseSizeBeforeUpdate = projectRepository.findAll().size();
 
         // Update the project
@@ -311,7 +325,8 @@ class ProjectResourceIntTest {
         updatedProject
                 .projectName(UPDATED_PROJECT_NAME)
                 .description(UPDATED_DESCRIPTION)
-                .organization(UPDATED_ORGANIZATION)
+                .organizationName(UPDATED_ORGANIZATION)
+                .organization(org)
                 .location(UPDATED_LOCATION)
                 .startDate(UPDATED_START_DATE)
                 .projectStatus(UPDATED_PROJECT_STATUS)
@@ -329,11 +344,14 @@ class ProjectResourceIntTest {
         Project testProject = projectList.get(projectList.size() - 1);
         assertThat(testProject.getProjectName()).isEqualTo(UPDATED_PROJECT_NAME);
         assertThat(testProject.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
-        assertThat(testProject.getOrganization()).isEqualTo(UPDATED_ORGANIZATION);
+        assertThat(testProject.getOrganizationName()).isEqualTo(UPDATED_ORGANIZATION);
+        assertThat(testProject.getOrganization()).isEqualTo(org);
         assertThat(testProject.getLocation()).isEqualTo(UPDATED_LOCATION);
         assertThat(testProject.getStartDate()).isEqualTo(UPDATED_START_DATE);
         assertThat(testProject.getProjectStatus()).isEqualTo(UPDATED_PROJECT_STATUS);
         assertThat(testProject.getEndDate()).isEqualTo(UPDATED_END_DATE);
+
+        organizationRepository.delete(org);
     }
 
     @Test

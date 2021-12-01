@@ -18,6 +18,8 @@ import org.radarbase.management.service.mapper.decorator.ProjectMapperDecorator;
 @DecoratedWith(ProjectMapperDecorator.class)
 public interface ProjectMapper {
     @Mapping(target = "humanReadableProjectName", ignore = true)
+    @Mapping(target = "organization", source = "organizationName")
+    @Mapping(target = "organizationName", source = "organization.name")
     @Mapping(target = "persistentTokenTimeout", ignore = true)
     @Mapping(target = "groups", qualifiedByName = "groupToGroupDTO")
     @Mapping(target = "sourceTypes", qualifiedByName = "sourceTypeToSourceTypeDTOReduced")
@@ -25,6 +27,8 @@ public interface ProjectMapper {
 
     @Named(value = "projectReducedDTO")
     @Mapping(target = "humanReadableProjectName", ignore = true)
+    @Mapping(target = "organization", source = "organizationName")
+    @Mapping(target = "organizationName", source = "organization.name")
     @Mapping(target = "sourceTypes", ignore = true)
     @Mapping(target = "persistentTokenTimeout", ignore = true)
     @Mapping(target = "groups", qualifiedByName = "groupToGroupDTO")
@@ -35,6 +39,8 @@ public interface ProjectMapper {
 
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "groups", ignore = true)
+    @Mapping(target = "organization", ignore = true)
+    @Mapping(target = "organizationName", source = "organization")
     Project projectDTOToProject(ProjectDTO projectDto);
 
     List<Project> projectDTOsToProjects(List<ProjectDTO> projectDtos);
@@ -45,6 +51,7 @@ public interface ProjectMapper {
 
     @Mapping(target = "description", ignore = true)
     @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "organizationName", ignore = true)
     @Mapping(target = "organization", ignore = true)
     @Mapping(target = "location", ignore = true)
     @Mapping(target = "startDate", ignore = true)

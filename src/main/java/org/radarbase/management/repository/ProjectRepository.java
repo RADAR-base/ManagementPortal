@@ -35,6 +35,11 @@ public interface ProjectRepository extends JpaRepository<Project, Long>,
             @Param("projectNames") List<String> projectNames);
 
     @Query("select project from Project project "
+            + "WHERE project.organization.name = :organization_name")
+    List<Project> findAllByOrganizationName(
+            @Param("organization_name") String organizationName);
+
+    @Query("select project from Project project "
             + "left join fetch project.sourceTypes s "
             + "left join fetch project.groups "
             + "where project.id = :id")
