@@ -75,6 +75,12 @@
         </sql>
     </changeSet>
 
+    <changeSet id="set the main org as default for new projects" author="alexey@thehyve.nl">
+        <addDefaultValue tableName="project"
+                         columnName="organization_id"
+                         defaultValue="1"/>
+    </changeSet>
+
     <changeSet id="add organization audit" author="alexey@thehyve.nl">
         <createTable tableName="radar_organization_aud">
             <column name="id" type="BIGINT">
