@@ -149,7 +149,7 @@ class UserResourceIntTest {
         userRepository.findOneByLogin(UPDATED_LOGIN)
                 .ifPresent(userRepository::delete);
         var roles = roleRepository
-                .findRolesByAuthorityName(AuthoritiesConstants.PARTICIPANT)
+                .findRolesByAuthorityName(RoleAuthority.PARTICIPANT.authority())
                 .stream().filter(r -> r.getProject() == null)
                 .collect(Collectors.toList());
         roleRepository.deleteAll(roles);
