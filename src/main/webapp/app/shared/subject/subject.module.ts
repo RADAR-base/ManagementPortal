@@ -4,6 +4,8 @@ import { QrCodeModule } from 'ng-qrcode';
 
 import { ManagementPortalSharedModule } from '../../shared';
 import {
+    FilterBadgeComponent,
+    LoadMoreComponent, NgbDatePipe,
     SubjectComponent,
     SubjectDeleteDialogComponent,
     SubjectDeletePopupComponent,
@@ -38,6 +40,9 @@ const ENTITY_STATES = [
     ],
     declarations: [
         AddSubjectsToGroupDialogComponent,
+        FilterBadgeComponent,
+        LoadMoreComponent,
+        NgbDatePipe,
         SubjectComponent,
         SubjectDetailComponent,
         SubjectRevisionComponent,

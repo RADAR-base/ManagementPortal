@@ -14,22 +14,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
     error: string;
     success: string;
     settingsAccount?: Account;
-    languages: any[];
     previousLangKey: String;
 
     constructor(
             private account: AccountService,
             private principal: Principal,
-            private languageHelper: JhiLanguageHelper,
+            public languageHelper: JhiLanguageHelper,
             private translateService: TranslateService,
     ) {
     }
 
     ngOnInit() {
         this.subscription.add(this.registerChangesToAccount());
-        this.languageHelper.getAll().then((languages) => {
-            this.languages = languages;
-        });
     }
 
     ngOnDestroy() {

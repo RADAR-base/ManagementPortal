@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-dark">
-    <a class="navbar-brand" class="navbar-brand" routerLink="/" (click)="collapseNavbar()">
+    <a class="navbar-brand" routerLink="/" (click)="collapseNavbar()">
         <span class="logo-img"></span>
         <span [translate]="'global.title'" class="navbar-title"></span>
         <span class="navbar-version">{{version}}</span>
@@ -61,8 +61,8 @@
                     </span>
                 </a>
                 <ul class="dropdown-menu" ngbDropdownMenu>
-                    <li uiSrefActive="active" *ngFor="let project of projects ;trackBy: trackProjectName">
-                        <a class="dropdown-item" [routerLink]="['project' , project.projectName]" (click)="collapseNavbar()">
+                    <li uiSrefActive="active" *ngFor="let project of projectService.projects$ | async; trackBy: trackProjectName">
+                        <a class="dropdown-item" [routerLink]="['project', project.projectName]" (click)="collapseNavbar()">
                             <i class="fa fa-fw fa-desktop" ></i>
                             <span>{{project.projectName}} </span>
                         </a>
@@ -142,7 +142,7 @@
                 </ul>
             </li>
 
-            <li ngbDropdown class="nav-item dropdown pointer" *ngIf="languages">
+            <li ngbDropdown class="nav-item dropdown pointer" *ngIf="languageHelper.languages$ | async as languages">
                 <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="languagesnavBarDropdown" *ngIf="languages.length > 1">
                     <span>
                         <i class="fa fa-flag" aria-hidden="true"></i>

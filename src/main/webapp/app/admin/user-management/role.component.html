@@ -50,7 +50,7 @@
                 <td>
                     <select name='project' [(ngModel)]="selectedProject" class="form-control" required>
                         <option [ngValue]="null"></option>
-                        <option [ngValue]="projectOption" *ngFor="let projectOption of projects; trackBy: trackProjectById">{{projectOption.projectName}}</option>
+                        <option [ngValue]="projectOption" *ngFor="let projectOption of projectService.projects$ | async; trackBy: trackProjectById">{{projectOption.projectName}}</option>
                     </select>
                 </td>
                 <td>

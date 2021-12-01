@@ -1,65 +1,42 @@
 import { Role } from '../../admin/user-management/role.model';
-import { Project } from '../project/project.model';
-import { Dictionary } from '../dictionary-mapper/dictionary-mapper.model';
-import { MinimalSource } from '../source/source.model';
+import { Project } from '../project';
+import { MinimalSource } from '../source';
+import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 
-export class Subject {
-    public id?: any;
-    public login?: string;
-    public externalLink?: string;
-    public externalId?: string;
-    public createdBy?: string;
-    public createdDate?: Date;
-    public dateOfBirth?: Date;
-    public enrollmentDate?: Date;
-    public lastModifiedBy?: string;
-    public lastModifiedDate?: Date;
-    public group?: string;
-    public password?: string;
-    public personName?: string;
-    public project?: Project;
-    public sources?: MinimalSource[];
-    public attributes: Dictionary;
-    public status: SubjectStatus;
-    public roles?: Role[];
+export interface Subject {
+    id?: any;
+    login?: string;
+    externalLink?: string;
+    externalId?: string;
+    createdBy?: string;
+    createdDate?: Date;
+    dateOfBirth?: Date;
+    enrollmentDate?: Date;
+    lastModifiedBy?: string;
+    lastModifiedDate?: Date;
+    group?: string;
+    password?: string;
+    personName?: string;
+    project?: Project;
+    sources: MinimalSource[];
+    attributes?: Record<string, string>;
+    status: SubjectStatus;
+    roles?: Role[];
+}
 
-    constructor(
-            id?: number,
-            login?: string,
-            externalLink?: string,
-            externalId?: string,
-            status?: SubjectStatus,
-            createdBy?: string,
-            createdDate?: Date,
-            dateOfBirth?: Date,
-            enrollmentDate?: Date,
-            lastModifiedBy?: string,
-            lastModifiedDate?: Date,
-            group?: string,
-            password?: string,
-            personName?: string,
-            project?: Project,
-            sources?: MinimalSource[],
-            roles?: Role[],
-    ) {
-        this.id = id ? id : null;
-        this.login = login ? login : null;
-        this.externalLink = externalLink ? externalLink : null;
-        this.externalId = externalId ? externalId : null;
-        this.createdBy = createdBy ? createdBy : null;
-        this.createdDate = createdDate ? createdDate : null;
-        this.dateOfBirth = dateOfBirth ? dateOfBirth : null;
-        this.enrollmentDate = enrollmentDate ? enrollmentDate : null;
-        this.lastModifiedBy = lastModifiedBy ? lastModifiedBy : null;
-        this.lastModifiedDate = lastModifiedDate ? lastModifiedDate : null;
-        this.group = group ? group : null;
-        this.password = password ? password : null;
-        this.personName = personName ? personName : null;
-        this.project = project ? project : null;
-        this.sources = sources ? sources : [];
-        this.status = status ? status : SubjectStatus.DEACTIVATED;
-        this.roles = roles;
-    }
+export interface CheckedSubject extends Subject {
+    checked: boolean;
+}
+
+export interface SubjectFilterCriteria {
+    externalId: string
+    dateOfBirth?: NgbDateStruct
+    subjectId: string
+    enrollmentDateFrom?: NgbDateStruct
+    enrollmentDateTo?: NgbDateStruct
+    groupId: string
+    personName: string
+    humanReadableId: string
 }
 
 export const enum SubjectStatus {

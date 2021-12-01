@@ -25,7 +25,7 @@ import {
     PageRibbonComponent,
 } from './layouts';
 
-import { LANGUAGES, ManagementPortalSharedModule } from './shared';
+import { LANGUAGES, ManagementPortalSharedModule} from './shared';
 import { ErrorHandlerInterceptor } from './blocks/interceptor/errorhandler.interceptor';
 import { NotificationInterceptor } from './blocks/interceptor/notification.interceptor';
 import { APP_BASE_HREF, PlatformLocation } from "@angular/common";
