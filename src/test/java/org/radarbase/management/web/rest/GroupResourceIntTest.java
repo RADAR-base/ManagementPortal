@@ -131,10 +131,7 @@ class GroupResourceIntTest {
     public void tearDown() {
         groupRepository.delete(group);
         var roles = roleRepository.findAllRolesByProjectName(project.getProjectName());
-        for (var r : roles) {
-            r.setProject(null);
-        }
-        roleRepository.saveAll(roles);
+        roleRepository.deleteAll(roles);
         projectRepository.delete(project);
     }
 
