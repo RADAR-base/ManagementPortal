@@ -11,7 +11,8 @@ export interface Project {
     id?: number;
     projectName?: string;
     description?: string;
-    organization?: string;
+    organization?: string; // Legacy field
+    organizationName?: string;
     location?: string;
     startDate?: any;
     projectStatus?: ProjectStatus;
