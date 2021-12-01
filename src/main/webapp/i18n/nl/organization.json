@@ -32,8 +32,8 @@
             },
             "attributeDataKey" : "Tag",
             "attributeDataValue" : "Waarde",
-            "prettyProjectName" : "Leesbare organizationnaam",
-            "prettyProjectName.fieldDescription" : "Voor mensen leesbare organizationnaam die niet het urlpatroon hoeft te volgen.",
+            "prettyOrganizationName" : "Leesbare organizationnaam",
+            "prettyOrganizationName.fieldDescription" : "Voor mensen leesbare organizationnaam die niet het urlpatroon hoeft te volgen.",
             "organizationIdAsPrettyName": "Wil je de organization-id gebruiken als de voor mensen leesbare naam?"
         },
         "error" : {
