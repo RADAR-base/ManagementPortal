@@ -32,10 +32,9 @@ export class ProjectService {
     private readonly _projects$ = new BehaviorSubject<Project[]>([]);
     private readonly _trigger$ = new Subject<void>();
 
-    projects$: Observable<Project[]> = this._projects$.asObservable();
-
-    private resourceUrl = 'api/projects';
     private organizationResourceUrl = 'api/organizations';
+
+    projects$: Observable<Project[]> = this._projects$.asObservable();
 
     constructor(
       private http: HttpClient,

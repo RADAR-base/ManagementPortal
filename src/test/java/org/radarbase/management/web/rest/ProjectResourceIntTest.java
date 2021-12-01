@@ -140,7 +140,7 @@ class ProjectResourceIntTest {
         return new Project()
                 .projectName(DEFAULT_PROJECT_NAME)
                 .description(DEFAULT_DESCRIPTION)
-                .organization(DEFAULT_ORGANIZATION)
+                .organizationName(DEFAULT_ORGANIZATION)
                 .location(DEFAULT_LOCATION)
                 .startDate(DEFAULT_START_DATE)
                 .projectStatus(DEFAULT_PROJECT_STATUS)
@@ -170,7 +170,7 @@ class ProjectResourceIntTest {
         Project testProject = projectList.get(projectList.size() - 1);
         assertThat(testProject.getProjectName()).isEqualTo(DEFAULT_PROJECT_NAME);
         assertThat(testProject.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
-        assertThat(testProject.getOrganization()).isEqualTo(DEFAULT_ORGANIZATION);
+        assertThat(testProject.getOrganizationName()).isEqualTo(DEFAULT_ORGANIZATION);
         assertThat(testProject.getLocation()).isEqualTo(DEFAULT_LOCATION);
         assertThat(testProject.getStartDate()).isEqualTo(DEFAULT_START_DATE);
         assertThat(testProject.getProjectStatus()).isEqualTo(DEFAULT_PROJECT_STATUS);
@@ -325,8 +325,8 @@ class ProjectResourceIntTest {
         updatedProject
                 .projectName(UPDATED_PROJECT_NAME)
                 .description(UPDATED_DESCRIPTION)
-                .organization(UPDATED_ORGANIZATION)
-                .organizationId(org.getId())
+                .organizationName(UPDATED_ORGANIZATION)
+                .organization(org)
                 .location(UPDATED_LOCATION)
                 .startDate(UPDATED_START_DATE)
                 .projectStatus(UPDATED_PROJECT_STATUS)
@@ -344,8 +344,8 @@ class ProjectResourceIntTest {
         Project testProject = projectList.get(projectList.size() - 1);
         assertThat(testProject.getProjectName()).isEqualTo(UPDATED_PROJECT_NAME);
         assertThat(testProject.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
-        assertThat(testProject.getOrganization()).isEqualTo(UPDATED_ORGANIZATION);
-        assertThat(testProject.getOrganizationId()).isEqualTo(org.getId());
+        assertThat(testProject.getOrganizationName()).isEqualTo(UPDATED_ORGANIZATION);
+        assertThat(testProject.getOrganization()).isEqualTo(org);
         assertThat(testProject.getLocation()).isEqualTo(UPDATED_LOCATION);
         assertThat(testProject.getStartDate()).isEqualTo(UPDATED_START_DATE);
         assertThat(testProject.getProjectStatus()).isEqualTo(UPDATED_PROJECT_STATUS);

@@ -101,6 +101,9 @@ public class UserServiceIntTest {
         ReflectionTestUtils.setField(revisionService, "entityManager", entityManager);
         ReflectionTestUtils.setField(userService, "userMapper", userMapper);
         ReflectionTestUtils.setField(userService, "userRepository", userRepository);
+
+        userRepository.findOneByLogin(userDto.getLogin())
+                .ifPresent(userRepository::delete);
     }
 
     /**

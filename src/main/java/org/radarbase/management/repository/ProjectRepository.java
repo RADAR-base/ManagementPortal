@@ -27,20 +27,18 @@ public interface ProjectRepository extends JpaRepository<Project, Long>,
 
     @Query(value = "select distinct project from Project project "
             + "left join fetch project.sourceTypes "
-            + "WHERE project.projectName in (:projectNames) ",
-            //+ "OR project.organization in (:organizationNames)",
+            + "WHERE project.projectName in (:projectNames) "
+            + "OR project.organization.name in (:organizationNames)",
             countQuery = "select distinct count(project) from Project project "
-                    + "WHERE project.projectName in (:projectNames) ")
-    // + "OR project.organization in (:organizationNames)")
+                    + "WHERE project.projectName in (:projectNames) "
+                    + "OR project.organization.name in (:organizationNames)")
     Page<Project> findAllWithEagerRelationshipsInOrganizationsOrProjects(
             Pageable pageable,
-            //@Param("organizationNames") List<String> organizationNames,
+            @Param("organizationNames") List<String> organizationNames,
             @Param("projectNames") List<String> projectNames);
 
     @Query("select project from Project project "
-            + "WHERE project.organizationId IN "
-            + "(SELECT org.id from Organization org "
-            + "    WHERE org.name = :organization_name)")
+            + "WHERE project.organization.name = :organization_name")
     List<Project> findAllByOrganizationName(
             @Param("organization_name") String organizationName);
 
@@ -74,8 +72,4 @@ public interface ProjectRepository extends JpaRepository<Project, Long>,
             + "and sourceType.id = :sourceTypeId ")
     Optional<SourceType> findSourceTypeByProjectIdAndSourceTypeId(@Param("id") Long id,
             @Param("sourceTypeId") Long sourceTypeId);
-
-    //@Query("select project from Project project "
-    //    + "where project.organization = :organization")
-    //List<Project> findAllByOrganization(@Param("organization") Organization organization);
 }

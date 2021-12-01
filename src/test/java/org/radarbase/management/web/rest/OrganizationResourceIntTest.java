@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.authentication.OAuthHelper;
-// import org.radarbase.auth.token.RadarToken;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Organization;
 import org.radarbase.management.repository.OrganizationRepository;
@@ -68,8 +68,8 @@ class OrganizationResourceIntTest {
     @Autowired
     private ExceptionTranslator exceptionTranslator;
 
-    // @Autowired
-    // private RadarToken token;
+    @Autowired
+    private RadarToken token;
 
     private MockMvc restOrganizationMockMvc;
 
@@ -81,7 +81,7 @@ class OrganizationResourceIntTest {
         var orgResource = new OrganizationResource();
         ReflectionTestUtils
             .setField(orgResource, "organizationService", organizationService);
-        // ReflectionTestUtils.setField(orgResource, "token", token);
+        ReflectionTestUtils.setField(orgResource, "token", token);
 
         var filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
@@ -119,7 +119,7 @@ class OrganizationResourceIntTest {
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(orgDto)))
                 .andExpect(status().isCreated());
-                
+
         // Validate the Organization in the database
         var savedOrg = organizationRepository.findOneByName(orgDto.getName());
         assertThat(savedOrg).isNotEmpty();
@@ -212,7 +212,7 @@ class OrganizationResourceIntTest {
         organizationRepository.saveAndFlush(organization);
 
         var project = ProjectResourceIntTest.createEntity()
-                .organizationId(organization.getId())
+                .organization(organization)
                 .projectName("organization_project");
         projectRepository.saveAndFlush(project);
 
@@ -222,7 +222,7 @@ class OrganizationResourceIntTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].projectName").value("organization_project"));
-        
+
         projectRepository.delete(project);
     }
 }

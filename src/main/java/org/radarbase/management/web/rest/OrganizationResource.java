@@ -3,7 +3,6 @@ package org.radarbase.management.web.rest;
 import io.micrometer.core.annotation.Timed;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
-// import org.radarbase.auth.token.RadarToken;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.service.OrganizationService;
 import org.radarbase.management.service.ResourceUriService;
@@ -35,14 +34,8 @@ import static org.radarbase.auth.authorization.Permission.ORGANIZATION_READ;
 import static org.radarbase.auth.authorization.Permission.ORGANIZATION_UPDATE;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganization;
+import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
 import static org.radarbase.management.web.rest.errors.EntityName.ORGANIZATION;
-/*
-import static org.radarbase.auth.authorization.Permission.ORGANIZATION_CREATE;
-import static org.radarbase.auth.authorization.Permission.ORGANIZATION_READ;
-import static org.radarbase.auth.authorization.Permission.ORGANIZATION_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganization;
-*/
 
 /**
  * REST controller for managing Organization.
@@ -172,7 +165,7 @@ public class OrganizationResource {
     public ResponseEntity<List<ProjectDTO>> getOrganizationProjects(
             @PathVariable String name) throws NotAuthorizedException {
         log.debug("REST request to get Projects of the Organization : {}", name);
-        checkPermissionOnOrganization(token, ORGANIZATION_READ, name);
+        checkPermissionOnOrganization(token, PROJECT_READ, name);
         var projects = organizationService.findAllProjectsByOrganizationName(name);
         return ResponseEntity.ok(projects);
     }
