@@ -76,6 +76,27 @@ public final class RadarAuthorization {
     }
 
     /**
+     * Similar to {@link RadarToken#hasPermissionOnOrganization(Permission, String)},
+     * but this method throws an exception rather than returning a boolean.
+     * Useful in combination with e.g. Spring's controllers and exception translators.
+     * @param token The token of the logged in user
+     * @param permission The permission to check
+     * @param organizationName The organization for which to check the permission
+     * @throws NotAuthorizedException if the supplied token
+     *      does not have the permission in the given organization
+     */
+    public static void checkPermissionOnOrganization(RadarToken token, Permission permission,
+            String organizationName) throws NotAuthorizedException {
+        log.debug("Checking permission {} for user {} in organization {}", permission.toString(),
+                token.getSubject(), organizationName);
+        if (!token.hasPermissionOnOrganization(permission, organizationName)) {
+            throw new NotAuthorizedException(String.format("Client %s does not have "
+                    + "permission %s in organization %s",
+                    token.getSubject(), permission.toString(), organizationName));
+        }
+    }
+
+    /**
      * Similar to {@link RadarToken#hasPermissionOnProject(Permission, String)}, but this method
      * throws an exception rather than returning a boolean. Useful in combination with e.g. Spring's
      * controllers and exception translators.

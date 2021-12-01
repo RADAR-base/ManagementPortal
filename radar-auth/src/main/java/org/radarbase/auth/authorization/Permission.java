@@ -26,6 +26,7 @@ public class Permission {
         USER,
         ROLE,
         PROJECT,
+        ORGANIZATION,
         OAUTHCLIENTS,
         AUDIT,
         AUTHORITY,
@@ -83,6 +84,12 @@ public class Permission {
             new Permission(Entity.PROJECT, Operation.UPDATE);
     public static final Permission PROJECT_DELETE =
             new Permission(Entity.PROJECT, Operation.DELETE);
+    public static final Permission ORGANIZATION_CREATE =
+            new Permission(Entity.ORGANIZATION, Operation.CREATE);
+    public static final Permission ORGANIZATION_READ =
+            new Permission(Entity.ORGANIZATION, Operation.READ);
+    public static final Permission ORGANIZATION_UPDATE =
+            new Permission(Entity.ORGANIZATION, Operation.UPDATE);
     public static final Permission OAUTHCLIENTS_CREATE =
             new Permission(Entity.OAUTHCLIENTS, Operation.CREATE);
     public static final Permission OAUTHCLIENTS_READ =

@@ -9,6 +9,7 @@ public interface EntityName {
     String USER = "userManagement";
     String SOURCE = "source";
     String META_TOKEN = "meta-token";
+    String ORGANIZATION = "organization";
     String PROJECT = "project";
     String REVISION = "revision";
     String GROUP = "group";

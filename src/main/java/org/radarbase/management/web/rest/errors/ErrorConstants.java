@@ -22,6 +22,8 @@ public final class ErrorConstants {
     public static final String ERR_GROUP_EXISTS = "error.groupExists";
     public static final String ERR_INVALID_AUTHORITY = "error.invalidAuthority";
     public static final String ERR_EMAIL_EXISTS = "error.emailexists";
+    public static final String ERR_ORGANIZATION_NAME_NOT_FOUND = "error"
+            + ".organizationNameNotFound";
     public static final String ERR_PROJECT_ID_NOT_FOUND = "error.projectIdNotFound";
     public static final String ERR_PROJECT_NAME_NOT_FOUND = "error.projectNameNotFound";
     public static final String ERR_REVISIONS_NOT_FOUND = "error.revisionsNotFound";

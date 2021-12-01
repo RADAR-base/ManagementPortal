@@ -32,6 +32,12 @@ public abstract class AbstractRadarToken implements RadarToken {
     }
 
     @Override
+    public boolean hasPermissionOnOrganization(Permission permission, String orgName) {
+        return hasScope(permission.scopeName())
+                && (isClientCredentials() || hasAuthorityForOrganization(permission, orgName));
+    }
+
+    @Override
     public boolean hasPermissionOnProject(Permission permission, String projectName) {
         return hasScope(permission.scopeName())
                 && (isClientCredentials() || hasAuthorityForProject(permission, projectName));
@@ -74,6 +80,27 @@ public abstract class AbstractRadarToken implements RadarToken {
                         .values().stream()
                         .flatMap(Collection::stream)
                         .anyMatch(permission::isAuthorityAllowed);
+    }
+
+    /**
+     * Check authorities in this token linked to the given organization,
+     * or not linked to any project (such as {@code SYS_ADMIN}),
+     * for the given permission.
+     * @param permission the permission
+     * @param organizationName the organization name
+     * @return {@code true} if any authority contains the permission, {@code false} otherwise
+     */
+    protected boolean hasAuthorityForOrganization(Permission permission, String organizationName) {
+        /*
+        if (hasNonOrganizationRelatedAuthorityForPermission(permission)) {
+            return true;
+        }
+        if (organizationName == null) {
+            return false;
+        }
+        */
+        // TODO implement role/authority check for organizations
+        return false;
     }
 
     /**
@@ -125,6 +152,19 @@ public abstract class AbstractRadarToken implements RadarToken {
         } else {
             return true;
         }
+    }
+
+    /**
+     * Check if any non-organization related authority has the given permission.
+     * Currently the only non-organization authority is {@code SYS_ADMIN},
+     * so we only check for that.
+     * @param permission the permission
+     * @return {@code true} if any non-organization related authority has the permission,
+     *      {@code false} otherwise
+     */
+    protected boolean hasNonOrganizationRelatedAuthorityForPermission(Permission permission) {
+        return getAuthorities().contains(SYS_ADMIN)
+                && permission.isAuthorityAllowed(SYS_ADMIN);
     }
 
     /**

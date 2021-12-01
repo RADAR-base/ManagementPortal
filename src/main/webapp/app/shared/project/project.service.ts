@@ -32,6 +32,8 @@ export class ProjectService {
     private readonly _projects$ = new BehaviorSubject<Project[]>([]);
     private readonly _trigger$ = new Subject<void>();
 
+    private organizationResourceUrl = 'api/organizations';
+
     projects$: Observable<Project[]> = this._projects$.asObservable();
 
     constructor(
@@ -115,6 +117,11 @@ export class ProjectService {
     query(req?: any): Observable<HttpResponse<Project[]>> {
         const options = createRequestOption(req);
         return this.http.get<Project[]>(this.projectUrl(), {params: options, observe: 'response'});
+    }
+
+    findAllByOrganization(orgName: string): Observable<Project[]> {
+        let url = `${this.organizationResourceUrl}/${orgName}/projects`;
+        return this.http.get<Project[]>(url);
     }
 
     findSourceTypesByName(projectName: string): Observable<SourceType[]> {

@@ -37,6 +37,8 @@ public class ProjectDTO implements Serializable {
 
     private String organization;
 
+    private String organizationName;
+
     @NotNull
     private String location;
 
@@ -86,6 +88,14 @@ public class ProjectDTO implements Serializable {
 
     public void setOrganization(String organization) {
         this.organization = organization;
+    }
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
     }
 
     public String getLocation() {
@@ -189,6 +199,7 @@ public class ProjectDTO implements Serializable {
                 + ", projectName='" + projectName + "'"
                 + ", description='" + description + "'"
                 + ", organization='" + organization + "'"
+                + ", organizationName='" + organizationName + "'"
                 + ", location='" + location + "'"
                 + ", startDate='" + startDate + "'"
                 + ", projectStatus='" + projectStatus + "'"
