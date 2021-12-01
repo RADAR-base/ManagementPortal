@@ -1,6 +1,6 @@
 package org.radarbase.management.config;
 
-import org.radarbase.auth.authorization.AuthoritiesConstants;
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.management.security.ClaimsTokenEnhancer;
 import org.radarbase.management.security.Http401UnauthorizedEntryPoint;
 import org.radarbase.management.security.JwtAuthenticationFilter;
@@ -143,17 +143,19 @@ public class OAuth2ServerConfiguration {
                     .authorizeRequests()
                     .antMatchers("/oauth/**").permitAll()
                     .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    .antMatchers("/api/register").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
+                    .antMatchers("/api/register").hasAnyAuthority(
+                            RoleAuthority.SYS_ADMIN_AUTHORITY)
                     .antMatchers("/api/profile-info").permitAll()
                     .antMatchers("/api/**").authenticated()
                     // Allow management/health endpoint to all to allow kubernetes to be able to
                     // detect the health of the service
                     .antMatchers("/management/health").permitAll()
-                    .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
+                    .antMatchers("/management/**").hasAnyAuthority(
+                            RoleAuthority.SYS_ADMIN_AUTHORITY)
                     .antMatchers("/v2/api-docs/**").permitAll()
                     .antMatchers("/swagger-resources/configuration/ui").permitAll()
                     .antMatchers("/swagger-ui/index.html")
-                    .hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN);
+                    .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY);
         }
 
         @Override

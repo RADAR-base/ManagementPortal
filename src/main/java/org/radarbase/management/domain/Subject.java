@@ -39,7 +39,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
 
 /**
  * A Subject.
@@ -234,7 +234,7 @@ public class Subject extends AbstractEntity implements Serializable {
      */
     public Optional<Project> getActiveProject() {
         return this.getUser().getRoles().stream()
-                .filter(r -> r.getAuthority().getName().equals(PARTICIPANT))
+                .filter(r -> r.getAuthority().getName().equals(PARTICIPANT.authority()))
                 .findFirst()
                 .map(Role::getProject);
     }
