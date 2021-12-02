@@ -97,7 +97,6 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
         if (minimalProjectDetailsDto == null) {
             return null;
         }
-        return projectRepository.getOne(minimalProjectDetailsDto.getId());
+        return projectRepository.getById(minimalProjectDetailsDto.getId());
     }
 }
-

@@ -69,23 +69,24 @@ public class OrganizationService {
     public List<OrganizationDTO> findAll() {
         Stream<Organization> organizationsOfUser;
 
-        if (token.getGlobalRoles().stream().anyMatch(ORGANIZATION_READ::isRoleAllowed)) {
+        if (token.hasGlobalAuthorityForPermission(ORGANIZATION_READ)) {
             organizationsOfUser = organizationRepository.findAll().stream();
         } else {
             List<String> projectNames = token.getReferentsWithPermission(
                     RoleAuthority.Scope.PROJECT, ORGANIZATION_READ)
                     .collect(Collectors.toList());
 
-            List<Organization> organizationsOfProject = organizationRepository
-                    .findAllByProjectNames(projectNames);
+            Stream<Organization> organizationsOfProject = projectNames.isEmpty()
+                    ? Stream.of()
+                    : organizationRepository.findAllByProjectNames(projectNames).stream();
 
             Stream<Organization> organizationsOfRole = token.getReferentsWithPermission(
                     RoleAuthority.Scope.ORGANIZATION, ORGANIZATION_READ)
                     .flatMap(name -> organizationRepository.findOneByName(name).stream())
                     .filter(Objects::nonNull);
 
-            organizationsOfUser = Stream.concat(
-                    organizationsOfRole, organizationsOfProject.stream()).distinct();
+            organizationsOfUser = Stream.concat(organizationsOfRole, organizationsOfProject)
+                    .distinct();
         }
 
         return organizationsOfUser
