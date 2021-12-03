@@ -79,13 +79,13 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
             project.getAttributes().put(HUMAN_READABLE_PROJECT_NAME, projectName);
         }
 
-        var orgName = projectDto.getOrganizationName();
-        if (orgName != null) {
-            var org = organizationRepository.findOneByName(orgName).orElseThrow(
+        var orgDto = projectDto.getOrganization();
+        if (orgDto != null && orgDto.getName() != null) {
+            var org = organizationRepository.findOneByName(orgDto.getName()).orElseThrow(
                     () -> new NotFoundException("Organization not found with name",
                             ORGANIZATION,
                             ErrorConstants.ERR_ORGANIZATION_NAME_NOT_FOUND,
-                            Collections.singletonMap("name", orgName)));
+                            Collections.singletonMap("name", orgDto.getName())));
             project.setOrganization(org);
         }
 
@@ -97,7 +97,6 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
         if (minimalProjectDetailsDto == null) {
             return null;
         }
-        return projectRepository.getOne(minimalProjectDetailsDto.getId());
+        return projectRepository.getById(minimalProjectDetailsDto.getId());
     }
 }
-

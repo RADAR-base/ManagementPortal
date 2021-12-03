@@ -38,7 +38,7 @@ public final class OAuthHelper {
     public static final String TEST_KEYSTORE_PASSWORD = "radarbase";
     public static final String TEST_SIGNKEY_ALIAS = "radarbase-managementportal-ec";
     public static final String TEST_CHECKKEY_ALIAS = "radarbase-managementportal-rsa";
-    public static final String[] SCOPES = allScopes();
+    public static final String[] SCOPES = Permission.scopes();
     public static final String[] AUTHORITIES = {"ROLE_SYS_ADMIN"};
     public static final String[] ROLES = {};
     public static final String[] SOURCES = {};
@@ -182,12 +182,5 @@ public final class OAuthHelper {
                 .withClaim("jti", JTI)
                 .withClaim("grant_type", "password")
                 .sign(algorithm);
-    }
-
-    private static String[] allScopes() {
-        return Permission.allPermissions().stream()
-                .map(Permission::scopeName)
-                .collect(Collectors.toList()).toArray(
-                        new String[Permission.allPermissions().size()]);
     }
 }

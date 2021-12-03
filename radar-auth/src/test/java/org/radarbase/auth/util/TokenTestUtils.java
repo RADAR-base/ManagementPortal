@@ -1,5 +1,11 @@
 package org.radarbase.auth.util;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.interfaces.RSAKeyProvider;
+import org.radarbase.auth.authorization.Permission;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -10,13 +16,6 @@ import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
-import java.util.stream.Collectors;
-
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.auth0.jwt.interfaces.RSAKeyProvider;
-import org.radarbase.auth.authorization.Permission;
 
 /**
  * Sets up a keypair for signing the tokens, initialize all kinds of different tokens for tests.
@@ -34,7 +33,7 @@ public final class TokenTestUtils {
     public static final DecodedJWT MULTIPLE_ROLES_IN_PROJECT_TOKEN;
 
     public static final String[] AUTHORITIES = {"ROLE_SYS_ADMIN", "ROLE_USER"};
-    public static final String[] ALL_SCOPES = allScopes();
+    public static final String[] ALL_SCOPES = Permission.scopes();
     public static final String[] ROLES = {"PROJECT1:ROLE_PROJECT_ADMIN",
             "PROJECT2:ROLE_PARTICIPANT"};
     public static final String[] SOURCES = {};
@@ -243,12 +242,5 @@ public final class TokenTestUtils {
                 .withClaim("grant_type", "client_credentials")
                 .sign(algorithm);
         return JWT.decode(token);
-    }
-
-    private static String[] allScopes() {
-        return Permission.allPermissions().stream()
-                .map(Permission::scopeName)
-                .collect(Collectors.toList())
-                .toArray(new String[Permission.allPermissions().size()]);
     }
 }

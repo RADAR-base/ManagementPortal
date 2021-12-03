@@ -22,11 +22,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.radarbase.auth.authorization.AuthoritiesConstants;
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Authority;
-import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.security.RadarAuthentication;
@@ -112,10 +111,10 @@ class AccountResourceIntTest {
     void testAuthenticatedUser() throws Exception {
         final RadarToken token = mock(RadarToken.class);
 
-        Set<Role> roles = new HashSet<>();
-        Role role = new Role();
+        Set<org.radarbase.management.domain.Role> roles = new HashSet<>();
+        org.radarbase.management.domain.Role role = new org.radarbase.management.domain.Role();
         Authority authority = new Authority();
-        authority.setName(AuthoritiesConstants.SYS_ADMIN);
+        authority.setName(RoleAuthority.SYS_ADMIN.authority());
         role.setAuthority(authority);
         roles.add(role);
 
@@ -142,15 +141,16 @@ class AccountResourceIntTest {
                 .andExpect(jsonPath("$.lastName").value("doe"))
                 .andExpect(jsonPath("$.email").value("john.doe@jhipster.com"))
                 .andExpect(jsonPath("$.langKey").value("en"))
-                .andExpect(jsonPath("$.authorities").value(AuthoritiesConstants.SYS_ADMIN));
+                .andExpect(jsonPath("$.authorities").value(
+                        RoleAuthority.SYS_ADMIN.authority()));
     }
 
     @Test
     void testGetExistingAccount() throws Exception {
-        Set<Role> roles = new HashSet<>();
-        Role role = new Role();
+        Set<org.radarbase.management.domain.Role> roles = new HashSet<>();
+        org.radarbase.management.domain.Role role = new org.radarbase.management.domain.Role();
         Authority authority = new Authority();
-        authority.setName(AuthoritiesConstants.SYS_ADMIN);
+        authority.setName(RoleAuthority.SYS_ADMIN.authority());
         role.setAuthority(authority);
         roles.add(role);
 
@@ -172,7 +172,8 @@ class AccountResourceIntTest {
                 .andExpect(jsonPath("$.lastName").value("doe"))
                 .andExpect(jsonPath("$.email").value("john.doe@jhipster.com"))
                 .andExpect(jsonPath("$.langKey").value("en"))
-                .andExpect(jsonPath("$.authorities").value(AuthoritiesConstants.SYS_ADMIN));
+                .andExpect(jsonPath("$.authorities").value(
+                        RoleAuthority.SYS_ADMIN.authority()));
     }
 
     @Test
@@ -189,7 +190,7 @@ class AccountResourceIntTest {
     void testSaveInvalidLogin() throws Exception {
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
+        role.setAuthorityName(RoleAuthority.PARTICIPANT.authority());
         roles.add(role);
 
         UserDTO invalidUser = new UserDTO();
