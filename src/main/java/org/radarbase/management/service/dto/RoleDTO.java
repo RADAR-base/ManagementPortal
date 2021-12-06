@@ -9,6 +9,10 @@ public class RoleDTO {
 
     private Long id;
 
+    private Long organizationId;
+
+    private String organizationName;
+
     private Long projectId;
 
     private String projectName;
@@ -21,6 +25,22 @@ public class RoleDTO {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
+    }
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
     }
 
     public Long getProjectId() {
@@ -50,6 +70,7 @@ public class RoleDTO {
     @Override
     public String toString() {
         return "RoleDTO{" + "id=" + id
+                + ", organizationId=" + organizationId
                 + ", projectId=" + projectId
                 + ", authorityName='" + authorityName + '\''
                 + '}';
@@ -67,6 +88,8 @@ public class RoleDTO {
         RoleDTO roleDto = (RoleDTO) o;
 
         return Objects.equals(id, roleDto.id)
+                && Objects.equals(organizationId, roleDto.organizationId)
+                && Objects.equals(organizationName, roleDto.organizationName)
                 && Objects.equals(projectId, roleDto.projectId)
                 && Objects.equals(projectName, roleDto.projectName)
                 && Objects.equals(authorityName, roleDto.authorityName);

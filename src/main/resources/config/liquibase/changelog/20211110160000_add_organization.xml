@@ -66,12 +66,13 @@
             <column name="location_mod" type="BOOLEAN"/>
             <column name="name" type="VARCHAR(255)"/>
             <column name="name_mod" type="BOOLEAN"/>
+            <column name="projects_mod" type="BOOLEAN"/>
         </createTable>
 
         <addPrimaryKey columnNames="id, rev"
                        constraintName="radar_organization_aud_pkey"
                        tableName="radar_organization_aud"/>
-        
+
         <addForeignKeyConstraint baseColumnNames="rev"
                                  baseTableName="radar_organization_aud"
                                  constraintName="radar_organization_aud_rev_id"
@@ -81,7 +82,7 @@
                                  onUpdate="NO ACTION"
                                  referencedColumnNames="id"
                                  referencedTableName="_revisions_info"/>
-        
+
         <sql>
             INSERT into radar_organization_aud (
                 id, rev, revtype,
@@ -92,7 +93,7 @@
             )
             SELECT
                 id, 1, 0,
-                
+
                 description, true,
                 location, true,
                 name, true
@@ -106,7 +107,7 @@
         </addColumn>
 
         <renameColumn tableName="project_aud"
-                      oldColumnName="organization_mod"  
+                      oldColumnName="organization_mod"
                       newColumnName="organization_name_mod"/>
 
         <addColumn tableName="project_aud">
@@ -123,6 +124,26 @@
 
         <createIndex tableName="project" indexName="idx_project_organization_id" unique="false">
             <column name="organization_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="add organization roles" author="joris@thehyve.nl">
+        <addColumn tableName="radar_role">
+            <column name="organization_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="radar_role_aud">
+            <column name="organization_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="organization_mod" type="BOOLEAN"/>
+        </addColumn>
+
+        <createIndex tableName="radar_role" indexName="idx_radar_role_organization_authority"
+                     unique="true">
+            <column name="organization_id"/>
+            <column name="authority_name"/>
         </createIndex>
     </changeSet>
 </databaseChangeLog>

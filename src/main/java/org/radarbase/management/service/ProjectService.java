@@ -77,8 +77,12 @@ public class ProjectService {
                     RoleAuthority.Scope.PROJECT, PROJECT_READ)
                     .collect(Collectors.toList());
 
-            projects = projectRepository.findAllWithEagerRelationshipsInProjects(
-                    pageable, projectNames);
+            List<String> organizationNames = token.getReferentsWithPermission(
+                    RoleAuthority.Scope.ORGANIZATION, PROJECT_READ)
+                    .collect(Collectors.toList());
+
+            projects = projectRepository.findAllWithEagerRelationshipsInOrganizationsOrProjects(
+                     pageable, organizationNames, projectNames);
         }
 
         if (!fetchMinimal) {

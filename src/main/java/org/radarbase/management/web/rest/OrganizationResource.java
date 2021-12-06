@@ -29,13 +29,13 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 
-import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
-import static org.radarbase.management.web.rest.errors.EntityName.ORGANIZATION;
 import static org.radarbase.auth.authorization.Permission.ORGANIZATION_CREATE;
 import static org.radarbase.auth.authorization.Permission.ORGANIZATION_READ;
 import static org.radarbase.auth.authorization.Permission.ORGANIZATION_UPDATE;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganization;
+import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
+import static org.radarbase.management.web.rest.errors.EntityName.ORGANIZATION;
 
 /**
  * REST controller for managing Organization.

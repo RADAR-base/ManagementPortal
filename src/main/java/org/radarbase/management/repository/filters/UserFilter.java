@@ -20,6 +20,7 @@ public class UserFilter implements Specification<User> {
     private String login;
     private String email;
     private String projectName;
+    private String organization;
     private String authority;
 
     @Override
@@ -59,6 +60,10 @@ public class UserFilter implements Specification<User> {
             predicates.likeLower(
                     () -> roleJoin.join("project").get("projectName"), projectName);
             return RoleAuthority.Scope.PROJECT;
+        } else if (predicates.isValidValue(organization)) {
+            predicates.likeLower(
+                    () -> roleJoin.join("organization").get("name"), organization);
+            return RoleAuthority.Scope.ORGANIZATION;
         } else {
             return null;
         }
@@ -86,6 +91,14 @@ public class UserFilter implements Specification<User> {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(String organization) {
+        this.organization = organization;
     }
 
     public String getAuthority() {
