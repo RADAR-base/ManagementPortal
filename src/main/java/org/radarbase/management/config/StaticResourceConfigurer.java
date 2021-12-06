@@ -11,7 +11,6 @@ import org.springframework.web.servlet.resource.PathResourceResolver;
 import java.nio.file.Paths;
 
 @Configuration
-@EnableWebMvc
 @Profile("prod")
 public class StaticResourceConfigurer implements WebMvcConfigurer {
     @Override
