@@ -3,7 +3,7 @@ package org.radarbase.management.web.rest;
 import io.micrometer.core.annotation.Timed;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
-// import org.radarbase.auth.token.RadarToken;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.service.OrganizationService;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.dto.OrganizationDTO;
@@ -29,14 +29,13 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 
-import static org.radarbase.management.web.rest.errors.EntityName.ORGANIZATION;
-/*
 import static org.radarbase.auth.authorization.Permission.ORGANIZATION_CREATE;
 import static org.radarbase.auth.authorization.Permission.ORGANIZATION_READ;
 import static org.radarbase.auth.authorization.Permission.ORGANIZATION_UPDATE;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganization;
-*/
+import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
+import static org.radarbase.management.web.rest.errors.EntityName.ORGANIZATION;
 
 /**
  * REST controller for managing Organization.
@@ -52,8 +51,8 @@ public class OrganizationResource {
     @Autowired
     private OrganizationService organizationService;
 
-    // @Autowired
-    // private RadarToken token;
+    @Autowired
+    private RadarToken token;
 
     /**
      * POST  /organizations : Create a new organization.
@@ -70,7 +69,7 @@ public class OrganizationResource {
             @Valid @RequestBody OrganizationDTO organizationDto
     ) throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Organization : {}", organizationDto);
-        // checkPermission(token, ORGANIZATION_CREATE);
+        checkPermission(token, ORGANIZATION_CREATE);
         if (organizationDto.getId() != null) {
             var msg = "A new organization cannot already have an ID";
             var headers = HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", msg);
@@ -98,7 +97,7 @@ public class OrganizationResource {
     @Timed
     public ResponseEntity<?> getAllOrganizations() throws NotAuthorizedException {
         log.debug("REST request to get Organizations");
-        // checkPermission(token, ORGANIZATION_READ);
+        checkPermission(token, ORGANIZATION_READ);
         var orgs = organizationService.findAll();
         return new ResponseEntity<>(orgs, HttpStatus.OK);
     }
@@ -122,8 +121,8 @@ public class OrganizationResource {
         if (organizationDto.getId() == null) {
             return createOrganization(organizationDto);
         }
-        // var name = organizationDto.getName();
-        // checkPermissionOnOrganization(token, ORGANIZATION_UPDATE, name);
+        var name = organizationDto.getName();
+        checkPermissionOnOrganization(token, ORGANIZATION_UPDATE, name);
         var result = organizationService.save(organizationDto);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getName()))
@@ -143,7 +142,7 @@ public class OrganizationResource {
     public ResponseEntity<OrganizationDTO> getOrganization(
             @PathVariable String name) throws NotAuthorizedException {
         log.debug("REST request to get Organization : {}", name);
-        // checkPermissionOnOrganization(token, ORGANIZATION_READ, name);
+        checkPermissionOnOrganization(token, ORGANIZATION_READ, name);
         var org = organizationService.findByName(name);
         var dto = org.orElseThrow(() -> new NotFoundException(
                 "Organization not found with name " + name,
@@ -166,7 +165,7 @@ public class OrganizationResource {
     public ResponseEntity<List<ProjectDTO>> getOrganizationProjects(
             @PathVariable String name) throws NotAuthorizedException {
         log.debug("REST request to get Projects of the Organization : {}", name);
-        // checkPermissionOnOrganization(token, ORGANIZATION_READ, name);
+        checkPermissionOnOrganization(token, PROJECT_READ, name);
         var projects = organizationService.findAllProjectsByOrganizationName(name);
         return ResponseEntity.ok(projects);
     }

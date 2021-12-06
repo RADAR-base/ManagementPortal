@@ -41,5 +41,6 @@
     <include file="classpath:config/liquibase/changelog/20211018210000_add_indexes_for_subject.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20211026_extra_demo_data.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20211110160000_add_organization.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20211202145000_add_organization_demo_data.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>

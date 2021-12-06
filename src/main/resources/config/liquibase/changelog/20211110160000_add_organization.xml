@@ -42,11 +42,28 @@
         </createIndex>
     </changeSet>
 
-    <changeSet id="add test organization data" author="alexey@thehyve.nl">
+    <changeSet id="add initial organization data" author="alexey@thehyve.nl">
         <loadData encoding="UTF-8"
                   file="config/liquibase/organization.csv"
                   separator=";"
                   tableName="radar_organization"/>
+    </changeSet>
+
+    <changeSet id="add organization_id to project" author="alexey@thehyve.nl">
+        <addColumn tableName="project">
+            <column name="organization_id" type="bigint" valueNumeric="1" defaultValue="1"/>
+        </addColumn>
+
+        <addForeignKeyConstraint baseColumnNames="organization_id"
+                                 baseTableName="project"
+                                 constraintName="fk_project_organization_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="radar_organization"
+                                 onDelete="CASCADE"/>
+
+        <createIndex tableName="project" indexName="idx_project_organization_id" unique="false">
+            <column name="organization_id"/>
+        </createIndex>
     </changeSet>
 
     <changeSet id="add organization audit" author="alexey@thehyve.nl">
@@ -66,12 +83,13 @@
             <column name="location_mod" type="BOOLEAN"/>
             <column name="name" type="VARCHAR(255)"/>
             <column name="name_mod" type="BOOLEAN"/>
+            <column name="projects_mod" type="BOOLEAN"/>
         </createTable>
 
         <addPrimaryKey columnNames="id, rev"
                        constraintName="radar_organization_aud_pkey"
                        tableName="radar_organization_aud"/>
-        
+
         <addForeignKeyConstraint baseColumnNames="rev"
                                  baseTableName="radar_organization_aud"
                                  constraintName="radar_organization_aud_rev_id"
@@ -81,7 +99,20 @@
                                  onUpdate="NO ACTION"
                                  referencedColumnNames="id"
                                  referencedTableName="_revisions_info"/>
-        
+    </changeSet>
+
+    <changeSet id="add organization_id to project audit" author="alexey@thehyve.nl">
+        <renameColumn tableName="project_aud"
+                      oldColumnName="organization_mod"
+                      newColumnName="organization_name_mod"/>
+
+        <addColumn tableName="project_aud">
+            <column name="organization_id" type="BIGINT" valueNumeric="1" defaultValue="1"/>
+            <column name="organization_mod" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="initialize organization audit data" author="alexey@thehyve.nl">
         <sql>
             INSERT into radar_organization_aud (
                 id, rev, revtype,
@@ -92,7 +123,7 @@
             )
             SELECT
                 id, 1, 0,
-                
+
                 description, true,
                 location, true,
                 name, true
@@ -100,29 +131,23 @@
         </sql>
     </changeSet>
 
-    <changeSet id="add organization_id to project" author="alexey@thehyve.nl">
-        <addColumn tableName="project">
-            <column name="organization_id" type="bigint"/>
+    <changeSet id="add organization roles" author="joris@thehyve.nl">
+        <addColumn tableName="radar_role">
+            <column name="organization_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
         </addColumn>
-
-        <renameColumn tableName="project_aud"
-                      oldColumnName="organization_mod"  
-                      newColumnName="organization_name_mod"/>
-
-        <addColumn tableName="project_aud">
-            <column name="organization_id" type="BIGINT"/>
+        <addColumn tableName="radar_role_aud">
+            <column name="organization_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
             <column name="organization_mod" type="BOOLEAN"/>
         </addColumn>
 
-        <addForeignKeyConstraint baseColumnNames="organization_id"
-                                 baseTableName="project"
-                                 constraintName="fk_project_organization_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="radar_organization"
-                                 onDelete="CASCADE"/>
-
-        <createIndex tableName="project" indexName="idx_project_organization_id" unique="false">
+        <createIndex tableName="radar_role" indexName="idx_radar_role_organization_authority"
+                     unique="true">
             <column name="organization_id"/>
+            <column name="authority_name"/>
         </createIndex>
     </changeSet>
 </databaseChangeLog>

@@ -12,10 +12,12 @@ import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -49,6 +51,9 @@ public class Organization extends AbstractEntity {
     @Column(name = "location", nullable = false)
     private String location;
 
+    @OneToMany(mappedBy = "organization")
+    private List<Project> projects;
+
     @Override
     public Long getId() {
         return id;
@@ -80,6 +85,14 @@ public class Organization extends AbstractEntity {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public List<Project> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(List<Project> projects) {
+        this.projects = projects;
     }
 
     @Override

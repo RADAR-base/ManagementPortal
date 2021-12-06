@@ -4,9 +4,12 @@ import static org.radarbase.auth.authorization.Permission.AUTHORITY_READ;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 
 import io.micrometer.core.annotation.Timed;
-import java.util.Arrays;
+
 import java.util.List;
-import org.radarbase.auth.authorization.AuthoritiesConstants;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
 import org.slf4j.Logger;
@@ -37,8 +40,12 @@ public class AuthorityResource {
     public List<String> getAllAuthorities() throws NotAuthorizedException {
         log.debug("REST request to get all Authorities");
         checkPermission(token, AUTHORITY_READ);
-        return Arrays.asList(AuthoritiesConstants.PROJECT_ADMIN, AuthoritiesConstants.PROJECT_OWNER,
-                AuthoritiesConstants.PROJECT_AFFILIATE, AuthoritiesConstants.PROJECT_ANALYST);
+        return Stream.of(
+                RoleAuthority.ORGANIZATION_ADMIN,
+                RoleAuthority.PROJECT_ADMIN, RoleAuthority.PROJECT_OWNER,
+                RoleAuthority.PROJECT_AFFILIATE, RoleAuthority.PROJECT_ANALYST)
+                .map(RoleAuthority::authority)
+                .collect(Collectors.toList());
     }
 
 }

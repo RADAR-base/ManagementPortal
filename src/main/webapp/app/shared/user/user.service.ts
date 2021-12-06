@@ -4,9 +4,6 @@ import {Observable, of} from 'rxjs';
 
 import { User } from './user.model';
 import { createRequestOption } from '../model/request.utils';
-import { Project } from '../project';
-import {Organization, ORGANIZATIONS} from "../organization/organization.model";
-import {map} from "rxjs/operators";
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -25,15 +22,6 @@ export class UserService {
 
     find(login: string): Observable<User> {
         return this.http.get<User>(`${this.resourceUrl}/${encodeURIComponent(login)}`);
-    }
-
-    findProject(login: string): Observable<Project[]> {
-        return this.http.get<Project[]>(`${this.resourceUrl}/${encodeURIComponent(login)}/projects`);
-    }
-
-    findOrganization(login: string): Observable<Organization[]> {
-        // return of(ORGANIZATIONS);
-        return this.http.get<Organization[]>(`${this.resourceUrl}/${encodeURIComponent(login)}/organizations`);
     }
 
     query(req?: any): Observable<HttpResponse<User[]>> {
@@ -60,8 +48,6 @@ export class UserService {
         }
         const params = new HttpParams({fromObject: {searching: true}});
         return this.http.get<User[]>(this.resourceUrl,
-                {params: params.set('search', term)}).pipe(
-                        // map(response => response[1])
-                );
+                {params: params.set('search', term)});
     }
 }
