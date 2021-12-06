@@ -1,5 +1,8 @@
 package org.radarbase.management.service;
 
+import org.radarbase.auth.authorization.RoleAuthority;
+import org.radarbase.auth.token.RadarToken;
+import org.radarbase.management.domain.Organization;
 import org.radarbase.management.repository.OrganizationRepository;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.service.dto.OrganizationDTO;
@@ -13,8 +16,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.radarbase.auth.authorization.Permission.ORGANIZATION_READ;
 
 /**
  * Service Implementation for managing Organization.
@@ -33,6 +40,9 @@ public class OrganizationService {
 
     @Autowired
     private OrganizationMapper organizationMapper;
+
+    @Autowired
+    private RadarToken token;
 
     @Autowired
     private ProjectMapper projectMapper;
@@ -57,7 +67,29 @@ public class OrganizationService {
      */
     @Transactional(readOnly = true)
     public List<OrganizationDTO> findAll() {
-        return organizationRepository.findAll().stream()
+        Stream<Organization> organizationsOfUser;
+
+        if (token.hasGlobalAuthorityForPermission(ORGANIZATION_READ)) {
+            organizationsOfUser = organizationRepository.findAll().stream();
+        } else {
+            List<String> projectNames = token.getReferentsWithPermission(
+                    RoleAuthority.Scope.PROJECT, ORGANIZATION_READ)
+                    .collect(Collectors.toList());
+
+            Stream<Organization> organizationsOfProject = projectNames.isEmpty()
+                    ? Stream.of()
+                    : organizationRepository.findAllByProjectNames(projectNames).stream();
+
+            Stream<Organization> organizationsOfRole = token.getReferentsWithPermission(
+                    RoleAuthority.Scope.ORGANIZATION, ORGANIZATION_READ)
+                    .flatMap(name -> organizationRepository.findOneByName(name).stream())
+                    .filter(Objects::nonNull);
+
+            organizationsOfUser = Stream.concat(organizationsOfRole, organizationsOfProject)
+                    .distinct();
+        }
+
+        return organizationsOfUser
             .map(organizationMapper::organizationToOrganizationDTO)
             .collect(Collectors.toList());
     }
@@ -83,7 +115,9 @@ public class OrganizationService {
     @Transactional(readOnly = true)
     public List<ProjectDTO> findAllProjectsByOrganizationName(String organizationName) {
         return projectRepository.findAllByOrganizationName(organizationName).stream()
-            .map(projectMapper::projectToProjectDTO)
-            .collect(Collectors.toList());
+                .filter(project -> token.hasPermissionOnOrganizationAndProject(
+                        ORGANIZATION_READ, organizationName, project.getProjectName()))
+                .map(projectMapper::projectToProjectDTO)
+                .collect(Collectors.toList());
     }
 }

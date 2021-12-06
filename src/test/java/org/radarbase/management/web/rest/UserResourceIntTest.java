@@ -4,13 +4,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
-import org.radarbase.auth.authorization.AuthoritiesConstants;
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Authority;
-import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.User;
+import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.repository.RoleRepository;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.repository.UserRepository;
@@ -44,6 +44,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN_AUTHORITY;
 import static org.radarbase.management.service.UserServiceIntTest.DEFAULT_EMAIL;
 import static org.radarbase.management.service.UserServiceIntTest.DEFAULT_FIRSTNAME;
 import static org.radarbase.management.service.UserServiceIntTest.DEFAULT_LANGKEY;
@@ -56,7 +57,7 @@ import static org.radarbase.management.service.UserServiceIntTest.UPDATED_LANGKE
 import static org.radarbase.management.service.UserServiceIntTest.UPDATED_LASTNAME;
 import static org.radarbase.management.service.UserServiceIntTest.UPDATED_LOGIN;
 import static org.radarbase.management.service.UserServiceIntTest.UPDATED_PASSWORD;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
+import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN;
 import static org.radarbase.management.service.UserServiceIntTest.createEntity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -109,6 +110,9 @@ class UserResourceIntTest {
     @Autowired
     private PasswordService passwordService;
 
+    @Autowired
+    private ProjectRepository projectRepository;
+
     private MockMvc restUserMockMvc;
 
     private User user;
@@ -145,7 +149,7 @@ class UserResourceIntTest {
         userRepository.findOneByLogin(UPDATED_LOGIN)
                 .ifPresent(userRepository::delete);
         var roles = roleRepository
-                .findRolesByAuthorityName(AuthoritiesConstants.PARTICIPANT)
+                .findRolesByAuthorityName(RoleAuthority.PARTICIPANT.authority())
                 .stream().filter(r -> r.getProject() == null)
                 .collect(Collectors.toList());
         roleRepository.deleteAll(roles);
@@ -159,7 +163,7 @@ class UserResourceIntTest {
         // Create the User
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(SYS_ADMIN);
+        role.setAuthorityName(SYS_ADMIN_AUTHORITY);
         roles.add(role);
 
         ManagedUserVM managedUserVm = createDefaultUser(roles);
@@ -187,7 +191,7 @@ class UserResourceIntTest {
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
+        role.setAuthorityName(RoleAuthority.PARTICIPANT.authority());
         roles.add(role);
 
         ManagedUserVM managedUserVm = createDefaultUser(roles);
@@ -213,7 +217,7 @@ class UserResourceIntTest {
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
+        role.setAuthorityName(RoleAuthority.PARTICIPANT.authority());
         roles.add(role);
         ManagedUserVM managedUserVm = createDefaultUser(roles);
         managedUserVm.setEmail("anothermail@localhost");
@@ -238,7 +242,7 @@ class UserResourceIntTest {
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
+        role.setAuthorityName(RoleAuthority.PARTICIPANT.authority());
         roles.add(role);
         ManagedUserVM managedUserVm = createDefaultUser(roles);
         managedUserVm.setLogin("anotherlogin");
@@ -258,7 +262,7 @@ class UserResourceIntTest {
     @Transactional
     void getAllUsers() throws Exception {
         // Initialize the database
-        Role adminRole = new Role();
+        org.radarbase.management.domain.Role adminRole = new org.radarbase.management.domain.Role();
         adminRole.setId(1L);
         adminRole.setAuthority(new Authority(SYS_ADMIN));
         adminRole.setProject(null);
@@ -316,14 +320,12 @@ class UserResourceIntTest {
         // Initialize the database
         userRepository.saveAndFlush(user);
         final int databaseSizeBeforeUpdate = userRepository.findAll().size();
+        var project = ProjectResourceIntTest.createEntity();
+        projectRepository.save(project);
 
         // Update the user
-        User updatedUser = userRepository.findById(user.getId()).get();
-
-        Set<RoleDTO> roles = new HashSet<>();
-        RoleDTO role = new RoleDTO();
-        role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
-        roles.add(role);
+        User updatedUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new AssertionError("Cannot find user " + user.getId()));
 
         ManagedUserVM managedUserVm = new ManagedUserVM();
         managedUserVm.setId(updatedUser.getId());
@@ -334,7 +336,11 @@ class UserResourceIntTest {
         managedUserVm.setEmail(UPDATED_EMAIL);
         managedUserVm.setActivated(updatedUser.getActivated());
         managedUserVm.setLangKey(UPDATED_LANGKEY);
-        managedUserVm.setRoles(roles);
+
+        RoleDTO role = new RoleDTO();
+        role.setProjectId(project.getId());
+        role.setAuthorityName(RoleAuthority.PARTICIPANT.authority());
+        managedUserVm.setRoles(Set.of(role));
 
         restUserMockMvc.perform(put("/api/users")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -356,15 +362,14 @@ class UserResourceIntTest {
     void updateUserLogin() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
+        var project = ProjectResourceIntTest.createEntity();
+        projectRepository.save(project);
+
         final int databaseSizeBeforeUpdate = userRepository.findAll().size();
 
         // Update the user
-        User updatedUser = userRepository.findById(user.getId()).get();
-
-        Set<RoleDTO> roles = new HashSet<>();
-        RoleDTO role = new RoleDTO();
-        role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
-        roles.add(role);
+        User updatedUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new AssertionError("Cannot find user " + user.getId()));
 
         ManagedUserVM managedUserVm = new ManagedUserVM();
         managedUserVm.setId(updatedUser.getId());
@@ -375,7 +380,11 @@ class UserResourceIntTest {
         managedUserVm.setEmail(UPDATED_EMAIL);
         managedUserVm.setActivated(updatedUser.getActivated());
         managedUserVm.setLangKey(UPDATED_LANGKEY);
-        managedUserVm.setRoles(roles);
+
+        RoleDTO role = new RoleDTO();
+        role.setProjectId(project.getId());
+        role.setAuthorityName(RoleAuthority.PARTICIPANT.authority());
+        managedUserVm.setRoles(Set.of(role));
 
         restUserMockMvc.perform(put("/api/users")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -398,6 +407,8 @@ class UserResourceIntTest {
     void updateUserExistingEmail() throws Exception {
         // Initialize the database with 2 users
         userRepository.saveAndFlush(user);
+        var project = ProjectResourceIntTest.createEntity();
+        projectRepository.save(project);
 
         User anotherUser = new User();
         anotherUser.setLogin("jhipster");
@@ -410,11 +421,8 @@ class UserResourceIntTest {
         userRepository.saveAndFlush(anotherUser);
 
         // Update the user
-        User updatedUser = userRepository.findById(user.getId()).get();
-        Set<RoleDTO> roles = new HashSet<>();
-        RoleDTO role = new RoleDTO();
-        role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
-        roles.add(role);
+        User updatedUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new AssertionError("Cannot find user " + user.getId()));
 
         ManagedUserVM managedUserVm = new ManagedUserVM();
         managedUserVm.setId(updatedUser.getId());
@@ -425,7 +433,11 @@ class UserResourceIntTest {
         managedUserVm.setEmail("jhipster@localhost");
         managedUserVm.setActivated(updatedUser.getActivated());
         managedUserVm.setLangKey(updatedUser.getLangKey());
-        managedUserVm.setRoles(roles);
+
+        RoleDTO role = new RoleDTO();
+        role.setProjectId(project.getId());
+        role.setAuthorityName(RoleAuthority.PARTICIPANT.authority());
+        managedUserVm.setRoles(Set.of(role));
 
         restUserMockMvc.perform(put("/api/users")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -438,6 +450,8 @@ class UserResourceIntTest {
     void updateUserExistingLogin() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
+        var project = ProjectResourceIntTest.createEntity();
+        projectRepository.save(project);
 
         User anotherUser = new User();
         anotherUser.setLogin("jhipster");
@@ -450,12 +464,8 @@ class UserResourceIntTest {
         userRepository.saveAndFlush(anotherUser);
 
         // Update the user
-        User updatedUser = userRepository.findById(user.getId()).get();
-
-        Set<RoleDTO> roles = new HashSet<>();
-        RoleDTO role = new RoleDTO();
-        role.setAuthorityName(AuthoritiesConstants.PARTICIPANT);
-        roles.add(role);
+        User updatedUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new AssertionError("Cannot find user " + user.getId()));
 
         ManagedUserVM managedUserVm = new ManagedUserVM();
         managedUserVm.setId(updatedUser.getId());
@@ -466,7 +476,11 @@ class UserResourceIntTest {
         managedUserVm.setEmail(updatedUser.getEmail());
         managedUserVm.setActivated(updatedUser.getActivated());
         managedUserVm.setLangKey(updatedUser.getLangKey());
-        managedUserVm.setRoles(roles);
+
+        RoleDTO role = new RoleDTO();
+        role.setProjectId(project.getId());
+        role.setAuthorityName(RoleAuthority.PARTICIPANT.authority());
+        managedUserVm.setRoles(Set.of(role));
 
         restUserMockMvc.perform(put("/api/users")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -493,7 +507,7 @@ class UserResourceIntTest {
 
     @Test
     @Transactional
-    void equalsVerifier() throws Exception {
+    void equalsVerifier() {
         User userA = new User();
         userA.setLogin("AAA");
         User userB = new User();

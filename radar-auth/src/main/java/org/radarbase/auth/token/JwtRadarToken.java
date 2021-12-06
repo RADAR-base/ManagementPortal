@@ -1,18 +1,20 @@
 package org.radarbase.auth.token;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
+import static java.util.Objects.requireNonNullElseGet;
+import static java.util.stream.Collectors.toUnmodifiableSet;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.radarbase.auth.authorization.RoleAuthority;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * Implementation of {@link RadarToken} based on JWT tokens.
@@ -28,7 +30,7 @@ public class JwtRadarToken extends AbstractRadarToken {
     public static final String CLIENT_ID_CLAIM = "client_id";
     public static final String USER_NAME_CLAIM = "user_name";
 
-    private final Map<String, List<String>> roles;
+    private final Set<AuthorityReference> roles;
     private final List<String> authorities;
     private final List<String> scopes;
     private final List<String> sources;
@@ -53,8 +55,14 @@ public class JwtRadarToken extends AbstractRadarToken {
      */
     public JwtRadarToken(DecodedJWT jwt) {
         this.jwt = jwt;
-        roles = parseRoles(jwt);
         authorities = emptyIfNull(jwt.getClaim(AUTHORITIES_CLAIM).asList(String.class));
+        roles = Stream.concat(
+                authorities.stream()
+                        .map(RoleAuthority::valueOfAuthorityOrNull)
+                        .filter(r -> r != null && r.scope() == RoleAuthority.Scope.GLOBAL)
+                        .map(AuthorityReference::new),
+                parseRoles(jwt))
+                .collect(toUnmodifiableSet());
 
         Claim scopeClaim = jwt.getClaim(SCOPE_CLAIM);
         String scopeClaimString = scopeClaim.asString();
@@ -63,11 +71,7 @@ public class JwtRadarToken extends AbstractRadarToken {
             scopes = Arrays.asList(scopeClaimString.split(" "));
         } else {
             List<String> scopeClaimList = scopeClaim.asList(String.class);
-            if (scopeClaimList != null) {
-                scopes = scopeClaimList;
-            } else {
-                scopes = Collections.emptyList();
-            }
+            scopes = requireNonNullElseGet(scopeClaimList, Collections::emptyList);
         }
 
         sources = emptyIfNull(jwt.getClaim(SOURCES_CLAIM).asList(String.class));
@@ -84,7 +88,7 @@ public class JwtRadarToken extends AbstractRadarToken {
     }
 
     @Override
-    public Map<String, List<String>> getRoles() {
+    public Set<AuthorityReference> getRoles() {
         return roles;
     }
 
@@ -167,13 +171,13 @@ public class JwtRadarToken extends AbstractRadarToken {
         }
     }
 
-    private Map<String, List<String>> parseRoles(DecodedJWT jwt) {
+    private Stream<AuthorityReference> parseRoles(DecodedJWT jwt) {
         return emptyIfNull(jwt.getClaim(ROLES_CLAIM).asList(String.class)).stream()
-                .filter(s -> s.contains(":"))
-                .distinct()
+                .filter(s -> s != null && !s.isBlank())
                 .map(ROLE_SEPARATOR_PATTERN::split)
-                .collect(groupingBy(s -> s[0],
-                        mapping(s -> s[1], toList())));
+                .map(v -> v.length == 1 || v[1].isEmpty()
+                        ? new AuthorityReference(v[0])
+                        : new AuthorityReference(v[1], v[0]));
     }
 
     private static String emptyIfNull(String string) {
@@ -181,6 +185,6 @@ public class JwtRadarToken extends AbstractRadarToken {
     }
 
     private static List<String> emptyIfNull(List<String> list) {
-        return list != null ? list : Collections.emptyList();
+        return requireNonNullElseGet(list, Collections::emptyList);
     }
 }

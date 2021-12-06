@@ -10,16 +10,16 @@
 package org.radarbase.management.security;
 
 import org.radarbase.auth.token.AbstractRadarToken;
+import org.radarbase.auth.token.AuthorityReference;
 import org.radarbase.auth.token.RadarToken;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 public class SessionRadarToken extends AbstractRadarToken implements Serializable {
-    private final Map<String, List<String>> roles;
+    private final Set<AuthorityReference> roles;
     private final String subject;
     private final String token;
     private final List<String> scopes;
@@ -36,11 +36,7 @@ public class SessionRadarToken extends AbstractRadarToken implements Serializabl
 
     /** Instantiate a serializable session token by copying an existing RadarToken. */
     public SessionRadarToken(RadarToken token) {
-        this.roles = token.getRoles().entrySet().stream()
-                        .collect(Collectors.toMap(
-                                Map.Entry::getKey, e -> e.getValue().stream()
-                                        .map(String::toString)
-                                        .collect(Collectors.toList())));
+        this.roles = Set.copyOf(token.getRoles());
         this.subject = token.getSubject();
         this.token = token.getToken();
         this.scopes = List.copyOf(token.getScopes());
@@ -57,7 +53,7 @@ public class SessionRadarToken extends AbstractRadarToken implements Serializabl
     }
 
     @Override
-    public Map<String, List<String>> getRoles() {
+    public Set<AuthorityReference> getRoles() {
         return roles;
     }
 

@@ -1,7 +1,7 @@
 package org.radarbase.management.web.rest;
 
 import static tech.jhipster.web.util.ResponseUtil.wrapOrNotFound;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
+import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_CREATE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_DELETE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
@@ -252,7 +252,7 @@ public class SubjectResource {
         // if not specified do not include inactive patients
         List<String> authoritiesToInclude = subjectCriteria.getAuthority().stream()
                 .filter(Objects::nonNull)
-                .map(Enum::toString)
+                .map(Enum::name)
                 .collect(Collectors.toList());
 
         if (projectName != null && externalId != null) {
@@ -448,8 +448,8 @@ public class SubjectResource {
                         SUBJECT, ERR_SOURCE_TYPE_NOT_PROVIDED)
                 );
 
-        checkPermissionOnSubject(token, SUBJECT_UPDATE, currentProject
-                .getProjectName(), sub.getUser().getLogin());
+        checkPermissionOnSubject(token, SUBJECT_UPDATE, currentProject.getProjectName(),
+                sub.getUser().getLogin());
 
         // check if any of id, sourceID, sourceName were non-null
         boolean existing = Stream.of(sourceDto.getId(), sourceDto.getSourceName(),
@@ -534,8 +534,7 @@ public class SubjectResource {
     @Timed
     public ResponseEntity<MinimalSourceDetailsDTO> updateSubjectSource(@PathVariable String login,
             @PathVariable String sourceName, @RequestBody Map<String, String> attributes)
-            throws NotFoundException, NotAuthorizedException,
-            URISyntaxException {
+            throws NotFoundException, NotAuthorizedException {
         // check the subject id
         Subject subject = subjectRepository.findOneWithEagerBySubjectLogin(login)
                 .orElseThrow(() -> new NotFoundException("Subject ID not found",

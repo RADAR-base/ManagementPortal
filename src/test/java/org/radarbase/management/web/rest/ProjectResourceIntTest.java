@@ -267,7 +267,7 @@ class ProjectResourceIntTest {
                 .andExpect(jsonPath("$.[*].id").value(hasItem(project.getId().intValue())))
                 .andExpect(jsonPath("$.[*].projectName").value(hasItem(DEFAULT_PROJECT_NAME)))
                 .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-                .andExpect(jsonPath("$.[*].organization").value(hasItem(DEFAULT_ORGANIZATION)))
+                .andExpect(jsonPath("$.[*].organizationName").value(hasItem(DEFAULT_ORGANIZATION)))
                 .andExpect(jsonPath("$.[*].location").value(hasItem(DEFAULT_LOCATION)))
                 .andExpect(jsonPath("$.[*].startDate").value(
                         hasItem(sameInstant(DEFAULT_START_DATE))))
@@ -289,7 +289,7 @@ class ProjectResourceIntTest {
                 .andExpect(jsonPath("$.id").value(project.getId().intValue()))
                 .andExpect(jsonPath("$.projectName").value(DEFAULT_PROJECT_NAME))
                 .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
-                .andExpect(jsonPath("$.organization").value(DEFAULT_ORGANIZATION))
+                .andExpect(jsonPath("$.organizationName").value(DEFAULT_ORGANIZATION))
                 .andExpect(jsonPath("$.location").value(DEFAULT_LOCATION))
                 .andExpect(jsonPath("$.startDate").value(sameInstant(DEFAULT_START_DATE)))
                 .andExpect(jsonPath("$.projectStatus").value(DEFAULT_PROJECT_STATUS.toString()))
