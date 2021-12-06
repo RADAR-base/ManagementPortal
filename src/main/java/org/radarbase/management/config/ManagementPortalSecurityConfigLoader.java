@@ -11,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -88,11 +87,7 @@ public class ManagementPortalSecurityConfigLoader {
         details.setAuthorizedGrantTypes(Arrays.asList("password", "refresh_token",
                 "authorization_code"));
         details.setAdditionalInformation(Collections.singletonMap("protected", Boolean.TRUE));
-        List<String> allScopes = Arrays.stream(Permission.Entity.values())
-                .map(Permission.Entity::name)
-                .flatMap(e -> Arrays.stream(Permission.Operation.values())
-                        .map(o -> String.join(".", e, o.name())))
-                .collect(Collectors.toList());
+        List<String> allScopes = Arrays.asList(Permission.scopes());
         details.setScope(allScopes);
         details.setAutoApproveScopes(allScopes);
         loadOAuthClient(details);

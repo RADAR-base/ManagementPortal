@@ -29,9 +29,10 @@ import { AlertService } from "../util/alert.service";
 
 @Injectable({ providedIn: 'root' })
 export class ProjectService {
-    private resourceUrl = 'api/projects';
     private readonly _projects$ = new BehaviorSubject<Project[]>([]);
     private readonly _trigger$ = new Subject<void>();
+
+    private organizationResourceUrl = 'api/organizations';
 
     projects$: Observable<Project[]> = this._projects$.asObservable();
 
@@ -44,8 +45,8 @@ export class ProjectService {
             principal.account$,
             this._trigger$.pipe(startWith(undefined as void)),
         ]).pipe(
-          switchMap(([state]) => {
-              if (state) {
+          switchMap(([account]) => {
+              if (account) {
                   return this.fetch().pipe(
                     retryWhen(errors => errors.pipe(
                       delay(1000),
@@ -68,7 +69,7 @@ export class ProjectService {
     }
 
     create(project: Project): Observable<Project> {
-        return this.http.post(this.resourceUrl, this.convertProjectToServer(project)).pipe(
+        return this.http.post(this.projectUrl(), this.convertProjectToServer(project)).pipe(
           map(p => this.convertProjectFromServer(p)),
           tap(
             p => this.updateProject(p),
@@ -78,7 +79,7 @@ export class ProjectService {
     }
 
     update(project: Project): Observable<Project> {
-        return this.http.put<Project>(this.resourceUrl, this.convertProjectToServer(project)).pipe(
+        return this.http.put<Project>(this.projectUrl(), this.convertProjectToServer(project)).pipe(
           map(p => this.convertProjectFromServer(p)),
           tap(
             p => this.updateProject(p),
@@ -101,7 +102,7 @@ export class ProjectService {
     }
 
     fetchProject(projectName: string): Observable<Project> {
-        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(projectName)}`).pipe(
+        return this.http.get(this.projectUrl(projectName)).pipe(
           map(p => this.convertProjectFromServer(p)),
           tap(p => this.updateProject(p)),
         );
@@ -115,7 +116,12 @@ export class ProjectService {
 
     query(req?: any): Observable<HttpResponse<Project[]>> {
         const options = createRequestOption(req);
-        return this.http.get<Project[]>(this.resourceUrl, {params: options, observe: 'response'});
+        return this.http.get<Project[]>(this.projectUrl(), {params: options, observe: 'response'});
+    }
+
+    findAllByOrganization(orgName: string): Observable<Project[]> {
+        let url = `${this.organizationResourceUrl}/${orgName}/projects`;
+        return this.http.get<Project[]>(url);
     }
 
     findSourceTypesByName(projectName: string): Observable<SourceType[]> {
@@ -125,14 +131,14 @@ export class ProjectService {
               if (sourceTypes) {
                   return of(sourceTypes);
               } else {
-                  return this.http.get<SourceType[]>(`${this.resourceUrl}/${projectName}/source-types`)
+                  return this.http.get<SourceType[]>(this.projectUrl(projectName) + '/source-types');
               }
           })
         );
     }
 
     delete(projectName: string): Observable<any> {
-        return this.http.delete(`${this.resourceUrl}/${encodeURIComponent(projectName)}`).pipe(
+        return this.http.delete(this.projectUrl(projectName)).pipe(
           tap(
             () => {
                 const newProjects = this._projects$.value.slice()
@@ -159,17 +165,27 @@ export class ProjectService {
     }
 
     private convertProjectToServer(project: Project): any {
-        const copy: Project = Object.assign({}, project);
-        copy.startDate = toDate(project.startDate);
-        copy.endDate = toDate(project.endDate);
-        return copy;
+        return {
+            ...project,
+            startDate: toDate(project.startDate),
+            endDate: toDate(project.endDate),
+        };
     }
 
     private convertProjectFromServer(projectFromServer: any): Project {
-        const copy: Project = Object.assign({}, projectFromServer);
-        copy.startDate = convertDateTimeFromServer(projectFromServer.startDate);
-        copy.endDate = convertDateTimeFromServer(projectFromServer.endDate);
-        return copy;
+        return {
+            ...projectFromServer,
+            startDate: convertDateTimeFromServer(projectFromServer.startDate),
+            endDate: convertDateTimeFromServer(projectFromServer.endDate),
+        };
+    }
+
+    private projectUrl(projectName?: string): string {
+        if (projectName) {
+            return 'api/projects/' + encodeURIComponent(projectName);
+        } else {
+            return 'api/projects';
+        }
     }
 
 }

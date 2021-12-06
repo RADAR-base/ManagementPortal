@@ -18,5 +18,4 @@ public interface AuthorityRepository extends JpaRepository<Authority, String>,
 
     @Query("select authority from Authority authority where authority.name = :authorityName")
     Optional<Authority> findByAuthorityName(@Param("authorityName") String authorityName);
-
 }

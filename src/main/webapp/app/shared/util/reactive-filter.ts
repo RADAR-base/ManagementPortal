@@ -7,8 +7,14 @@
  * See the file LICENSE in the root of this repository.
  */
 
-import { BehaviorSubject, merge, Observable, Subject } from "rxjs";
-import { debounceTime, distinctUntilChanged, filter, shareReplay, startWith } from "rxjs/operators";
+import { BehaviorSubject, interval, Observable, of, Subject } from "rxjs";
+import {
+    debounce,
+    distinctUntilChanged,
+    filter, map,
+    shareReplay,
+    startWith,
+} from "rxjs/operators";
 import {
   NgbCalendar,
   NgbDate,
@@ -17,12 +23,12 @@ import {
 } from "@ng-bootstrap/ng-bootstrap";
 
 export class ReactiveFilter<T> {
-  protected readonly _value$: BehaviorSubject<T>;
+  protected _value?: T;
+  protected readonly debounceTime: number
   protected readonly _error$: BehaviorSubject<string>;
-  protected readonly trigger$: Subject<T>;
+  protected readonly trigger$: Subject<number>;
 
-  error$: Observable<string>
-  rawValue$: Observable<T | null>
+  error$: Observable<string>;
   value$: Observable<T | null>;
 
   constructor(
@@ -32,90 +38,94 @@ export class ReactiveFilter<T> {
       options = {};
     }
     this._error$ = new BehaviorSubject('');
-    this.error$ = this._error$.asObservable().pipe(distinctUntilChanged())
+    this.error$ = this._error$.asObservable().pipe(distinctUntilChanged());
 
-    this._value$ = new BehaviorSubject<T>(null);
-    this.rawValue$ = this._value$.asObservable();
-    this.trigger$ = new Subject<T>();
-    let debouncedValue = this._value$.pipe(debounceTime(options.debounceTime || 300));
-    if (options.validate) {
-      debouncedValue = this._value$.pipe(
-        filter(v => {
-          const error = options.validate(v);
-          if (error) {
+    this.debounceTime = typeof options.debounceTime === 'number' ? options.debounceTime : 200;
+    this._value = null;
+    this.trigger$ = new Subject();
+
+    let signal = this.trigger$.pipe(
+      startWith(0),
+      debounce(t => t ? interval(t) : of()),
+      map(() => this._value),
+      filter(value => {
+        const error = this.validate(value);
+        if (error) {
             this._error$.next(error);
             return false;
-          } else {
+        } else {
             this._error$.next('');
             return true;
-          }
-        })
-      )
-    }
-    let mergedSignal = merge(debouncedValue, this.trigger$).pipe(
-      startWith(options.initialValue || null as T | null),
+        }
+      }),
     );
     if (options.mapResult) {
-      mergedSignal = options.mapResult(mergedSignal);
+        signal = options.mapResult(signal);
     } else {
-      mergedSignal = mergedSignal.pipe(distinctUntilChanged());
+        signal = signal.pipe(distinctUntilChanged());
     }
-    this.value$ = mergedSignal.pipe(shareReplay(1));
+    this.value$ = signal.pipe(shareReplay(1));
   }
 
-  next(value?: T){
-    this._value$.next(value);
-  }
+    next(value?: T, immediately?: boolean){
+        this._value = value;
+        if (immediately) {
+            this.trigger$.next(0);
+        } else {
+            this.trigger$.next(this.debounceTime);
+        }
+    }
 
   clear() {
-    this._value$.next(null);
+    this._value = null;
     this._error$.next('');
-    this.trigger$.next(null);
+    this.trigger$.next(0);
   }
 
   complete() {
-    this._value$.complete();
+    this._value = undefined;
     this._error$.complete();
     this.trigger$.complete();
+  }
+
+  validate(value: T | null): string {
+      return '';
   }
 }
 
 export interface ReactiveFilterOptions<T> {
   debounceTime?: number | null,
   initialValue?: T | null;
-  validate?: (value: T | null) => string | null;
   mapResult?: (value$: Observable<T | null>) => Observable<T | null>;
 }
 
 export class NgbDateReactiveFilter extends ReactiveFilter<NgbDateStruct> {
   constructor(
-    calendar: NgbCalendar,
+    private calendar: NgbCalendar,
     private formatter: NgbDateParserFormatter,
     options: ReactiveFilterOptions<NgbDateStruct> = {},
   ) {
-    super({
-      validate(date) {
-          if (date === null) {
-            return '';
-          }
-          if (!calendar.isValid(NgbDate.from(date))) {
-            return 'invalidDate';
-          }
-          if (options.validate) {
-            return options.validate(date)
-          }
-          return '';
-      },
-      mapResult: options.mapResult ? options.mapResult : $v => $v.pipe(
-        distinctUntilChanged((d1, d2) => d1 === d2
-          || (d1 && NgbDate.from(d1).equals(d2)))
-      ),
-      debounceTime: 1,
-      initialValue: options.initialValue,
-    });
+      super({
+          mapResult: options.mapResult ? options.mapResult : $v => $v.pipe(
+              distinctUntilChanged((d1, d2) => d1 === d2
+                  || (d1 && NgbDate.from(d1).equals(d2)))
+          ),
+          debounceTime: 0,
+          initialValue: options.initialValue,
+      });
   }
 
-  next(value?: NgbDateStruct | string) {
+    validate(date: NgbDateStruct | null): string {
+        if (date === null) {
+            return '';
+        }
+        if (!this.calendar.isValid(NgbDate.from(date))) {
+            return 'invalidDate';
+        }
+        return '';
+    }
+
+    next(value?: NgbDateStruct | string) {
     if (typeof value === 'string') {
       super.next(this.formatter.parse(value));
     } else {

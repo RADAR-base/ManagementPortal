@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
@@ -107,10 +108,11 @@ public class GroupResource {
      */
     @DeleteMapping("/{groupName:" + Constants.ENTITY_ID_REGEX + "}")
     public ResponseEntity<?> deleteGroup(
+            @RequestParam(defaultValue = "false") Boolean unlinkSubjects,
             @PathVariable String projectName,
             @PathVariable String groupName) throws NotAuthorizedException {
         checkPermissionOnProject(token, PROJECT_UPDATE, projectName);
-        groupService.deleteGroup(projectName, groupName);
+        groupService.deleteGroup(projectName, groupName, unlinkSubjects);
         return ResponseEntity.noContent().build();
     }
 

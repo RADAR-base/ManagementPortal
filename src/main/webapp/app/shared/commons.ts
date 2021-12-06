@@ -1,16 +1,17 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve } from '@angular/router';
-import { parseAscending, parsePage, parsePredicate } from './util/pagination-util';
+import { parseSort, parsePage } from './util/pagination-util';
 
 @Injectable({ providedIn: 'root' })
 export class ResolvePagingParams implements Resolve<any> {
     resolve(route: ActivatedRouteSnapshot): PagingParams {
-        const page = route.queryParams['page'] ? route.queryParams['page'] : '1';
-        const sort = route.queryParams['sort'] ? route.queryParams['sort'] : 'id,asc';
+        let { page, sort, ...otherParams } = route.queryParams;
+        let { predicate, ascending } = parseSort(sort || 'id,asc')
         return {
-            page: parsePage(page),
-            predicate: parsePredicate(sort),
-            ascending: parseAscending(sort),
+            page: parsePage(page || '1'),
+            predicate,
+            ascending,
+            ...otherParams,
         };
     }
 }
@@ -19,4 +20,5 @@ export interface PagingParams {
     page: number;
     predicate: string;
     ascending: boolean;
+    [key: string]: string | number | boolean;
 }

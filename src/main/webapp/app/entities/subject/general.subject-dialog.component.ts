@@ -5,7 +5,6 @@ import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
-import { MinimalSource } from '../../shared/source';
 import { Subject, SubjectService } from '../../shared/subject';
 
 import { Project, ProjectService } from '../../shared';
@@ -54,16 +53,16 @@ export class GeneralSubjectDialogComponent implements OnInit, OnDestroy {
         if (this.subject.id !== null) {
             this.subjectService.update(this.subject)
             .subscribe((res: Subject) =>
-                    this.onSaveSuccess(res), (res: any) => this.onSaveError(res));
+                    this.onSaveSuccess('UPDATE', res), (res: any) => this.onSaveError(res));
         } else {
             this.subjectService.create(this.subject)
             .subscribe((res: Subject) =>
-                    this.onSaveSuccess(res), (res: any) => this.onSaveError(res));
+                    this.onSaveSuccess('CREATE', res), (res: any) => this.onSaveError(res));
         }
     }
 
-    private onSaveSuccess(result: Subject) {
-        this.eventManager.broadcast({name: 'subjectListModification', content: 'OK'});
+    private onSaveSuccess(op: string, result: Subject) {
+        this.eventManager.broadcast({name: 'subjectListModification', content: {op, subject: result}});
         this.isSaving = false;
         this.activeModal.dismiss(result);
     }

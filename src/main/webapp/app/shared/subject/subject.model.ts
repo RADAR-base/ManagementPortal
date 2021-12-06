@@ -1,6 +1,6 @@
 import { Role } from '../../admin/user-management/role.model';
-import { Project } from '../project/project.model';
-import { MinimalSource } from '../source/source.model';
+import { Project } from '../project';
+import { MinimalSource } from '../source';
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 
 export interface Subject {
@@ -24,6 +24,10 @@ export interface Subject {
     roles?: Role[];
 }
 
+export interface CheckedSubject extends Subject {
+    checked: boolean;
+}
+
 export interface SubjectFilterCriteria {
     externalId: string
     dateOfBirth?: NgbDateStruct
@@ -31,7 +35,6 @@ export interface SubjectFilterCriteria {
     enrollmentDateFrom?: NgbDateStruct
     enrollmentDateTo?: NgbDateStruct
     groupId: string
-    groupName: string
     personName: string
     humanReadableId: string
 }

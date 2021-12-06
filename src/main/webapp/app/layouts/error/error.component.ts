@@ -1,30 +1,35 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { LoginModalService } from '../../shared';
+import { Subscription } from "rxjs";
 
 @Component({
     selector: 'jhi-error',
     templateUrl: './error.component.html',
 })
-export class ErrorComponent implements OnInit {
+export class ErrorComponent implements OnInit, OnDestroy {
     errorMessage: string;
     error403: boolean;
     modalRef: NgbModalRef;
+    private routeSubscription: Subscription;
 
     constructor(
             private loginModalService: LoginModalService,
             private route: ActivatedRoute,
-    ) {
-    }
+    ) {}
 
     ngOnInit() {
-        this.route.url.subscribe((url) => {
+        this.routeSubscription = this.route.url.subscribe((url) => {
             if (url[0].path === 'accessdenied') {
                 this.error403 = true;
             }
         });
+    }
+
+    ngOnDestroy() {
+        this.routeSubscription.unsubscribe();
     }
 
     login() {

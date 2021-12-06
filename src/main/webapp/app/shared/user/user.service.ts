@@ -25,10 +25,6 @@ export class UserService {
         return this.http.get<User>(`${this.resourceUrl}/${encodeURIComponent(login)}`);
     }
 
-    findProject(login: string): Observable<Project[]> {
-        return this.http.get<Project[]>(`${this.resourceUrl}/${encodeURIComponent(login)}/projects`);
-    }
-
     query(req?: any): Observable<HttpResponse<User[]>> {
         const params = createRequestOption(req);
         return this.http.get<User[]>(this.resourceUrl, {params, observe: 'response'});

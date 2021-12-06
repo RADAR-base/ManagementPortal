@@ -10,7 +10,7 @@
                 <input class="form-control"
                        type="text"
                        id="field-subject-id"
-                       [ngModel]="filters.subjectId.rawValue$ | async"
+                       [ngModel]="filters.subjectId.value$ | async"
                        (ngModelChange)='filters.subjectId.next($event)'>
             </label>
         </div>
@@ -21,7 +21,7 @@
                 <input class="form-control"
                        type="text"
                        id="field-subject-external-id"
-                       [ngModel]="filters.externalId.rawValue$ | async"
+                       [ngModel]="filters.externalId.value$ | async"
                        (ngModelChange)='filters.externalId.next($event)'>
             </label>
         </div>
@@ -41,7 +41,7 @@
                         <span [translate]="'managementPortalApp.subject.humanReadableId'"></span>
                         <input class="form-control"
                                id="field-human-readable-id"
-                               [ngModel]="filters.humanReadableId.rawValue$ | async"
+                               [ngModel]="filters.humanReadableId.value$ | async"
                                type="text"
                                (ngModelChange)='filters.humanReadableId.next($event)'>
                     </label>
@@ -53,7 +53,7 @@
                         <select class="form-control"
                                 id="field_group"
                                 name="group"
-                                [ngModel]="filters.groupId.rawValue$ | async"
+                                [ngModel]="filters.groupId.value$ | async"
                                 (ngModelChange)='filters.groupId.next($event)'>
                             <option [ngValue]="null">-</option>
                             <option *ngFor="let g of groups$ | async" [ngValue]="g.id">
@@ -109,7 +109,7 @@
                         <span [translate]="'managementPortalApp.subject.personName'"></span>
                         <input class="form-control"
                                id="field-person-name"
-                               [ngModel]="filters.personName.rawValue$ | async"
+                               [ngModel]="filters.personName.value$ | async"
                                type="text"
                                (ngModelChange)='filters.personName.next($event)'>
                     </label>
@@ -118,7 +118,7 @@
                 <div class="form-group">
                     <span [translate]="'managementPortalApp.subject.dateOfBirth'"></span>
                     <div class="input-group">
-                        <input [ngModel]="filters.dateOfBirth.rawValue$ | async"
+                        <input [ngModel]="filters.dateOfBirth.value$ | async"
                                id="field_date_of_birth"
                                class="form-control"
                                name="dateOfBirth"
@@ -133,9 +133,7 @@
                     <span *ngIf="filters.dateOfBirth.error$ | async as errorCode" class="error" [translate]="'managementPortalApp.subject.filter.error.' + errorCode"></span>
                 </div>
             </div>
-
         </div>
-
     </div>
     <section>
         <div ngbDropdown class="d-inline-block subject-sorting-action" id="field-sort-by" >
@@ -199,51 +197,34 @@
             <span [translate]="'managementPortalApp.subject.home.createLabel'">
             </span>
         </button>
-        <div class="applied-filters" *ngIf="filterResult$ | async as filterApplied">
+        <div class="applied-filters" *ngIf="formattedFilterResult$ | async as filterApplied">
             <span>{{ 'managementPortalApp.subject.filter.filters' | translate}}: </span>
-            <app-filter-badge [text]="'managementPortalApp.subject.subjectId'"
-                              (clear)="filters.subjectId.clear()" [value]="filterApplied.subjectId"></app-filter-badge>
-            <app-filter-badge [text]="'managementPortalApp.subject.externalId'"
-                              (clear)="filters.externalId.clear()" [value]="filterApplied.externalId"></app-filter-badge>
-            <app-filter-badge [text]="'managementPortalApp.subject.personName'"
-                              (clear)="filters.personName.clear()" [value]="filterApplied.personName"></app-filter-badge>
-            <app-filter-badge [text]="'managementPortalApp.subject.humanReadableId'"
-                              (clear)="filters.humanReadableId.clear()" [value]="filterApplied.humanReadableId"></app-filter-badge>
-            <app-filter-badge [text]="'managementPortalApp.subject.dateOfBirth'"
-                              (clear)="filters.dateOfBirth.clear()" [value]="filterApplied.dateOfBirth | ngbDate"></app-filter-badge>
-            <app-filter-badge [text]="'managementPortalApp.subject.enrollmentDateFrom'"
-                              (clear)="filters.enrollmentDateFrom.clear()"
-                              [value]="filterApplied.enrollmentDateFrom | ngbDate"></app-filter-badge>
-            <app-filter-badge [text]="'managementPortalApp.subject.enrollmentDateTo'"
-                              (clear)="filters.enrollmentDateTo.clear()"
-                              [value]="filterApplied.enrollmentDateTo | ngbDate"></app-filter-badge>
-            <app-filter-badge [text]="'managementPortalApp.subject.group'"
-                              (clear)="filters.groupId.clear()"
-                              [value]="filterApplied.groupName"></app-filter-badge>
-
+            <app-filter-badge *ngFor="let filter of filterApplied | keyvalue; trackBy: trackKey" [text]="'managementPortalApp.subject.' + filter.key"
+                              (clear)="filters[filter.key].clear()" [value]="filter.value"></app-filter-badge>
             <a class="link-primary mx-2" id="clear-filter"
                     (click)="clearFilters()"
                     [translate]="'managementPortalApp.subject.filter.clearButton'"></a>
         </div>
+
         <jhi-alert></jhi-alert>
-        <div *ngIf="subjects$ | async as subjects" class="subjects">
-            <div class="subject-list-actions">
-                <button type="button"
+        <div class="subject-list-actions">
+            <button type="button"
                     class="btn btn-light"
                     [translate]="(allChecked$ | async) ? 'managementPortalApp.subject.clearSelectedItems' : 'managementPortalApp.subject.selectAll'"
                     (click)="toggleSelectAll()"
-                ></button>
-                <button type="button"
+            ></button>
+            <button type="button"
                     *ngIf='isProjectSpecific'
                     class="btn btn-light"
-                    [disabled]="anyChecked$ | async"
+                    [disabled]="!(anyChecked$ | async)"
                     [translate]="'managementPortalApp.subject.addSelectedToGroup'"
                     (click)="addSelectedToGroup()"
-                ></button>
-            </div>
+            ></button>
+        </div>
+        <div *ngIf="subjects$ | async as subjects" class="subjects">
             <div *ngFor="let subject of subjects; trackBy: trackLogin" class="subject-row">
                 <div class="subject-row__select-row">
-                    <input type="checkbox" [ngModel]="(setOfCheckedId$ | async).has(subject.id)"
+                    <input type="checkbox" [ngModel]="subject.checked"
                            (ngModelChange)="onItemChecked(subject.id, $event)">
                 </div>
                 <div class="subject-row__content">
@@ -263,11 +244,8 @@
                             <a *ngIf="subject.externalLink" target="_blank" [href]=subject.externalLink>
                                 {{subject.externalId || subject.externalLink}}
                             </a>
-                            <span *ngIf="!subject.externalLink && subject.externalId">
+                            <span *ngIf="!subject.externalLink && subject.externalId; else noneAvailable">
                                 {{subject.externalId}}
-                            </span>
-                            <span *ngIf="!subject.externalLink && !subject.externalId">
-                                N/A
                             </span>
                         </div>
                     </div>
@@ -287,9 +265,7 @@
                             [translate]="'managementPortalApp.subject.project'">
                         </span>
                         <div>
-                            <span *ngIf="!subject.roles || subject.roles.length === 0">
-                                N/A
-                            </span>
+                            <ng-container *ngIf="!subject.roles || subject.roles.length === 0" [ngTemplateOutlet]="noneAvailable"></ng-container>
                             <span *ngFor="let role of subject.roles; let last = last">
                                 <a  *ngIf="role.authorityName == 'ROLE_PARTICIPANT'"
                                     class="badge badge-success"
@@ -305,9 +281,7 @@
                             [translate]="'managementPortalApp.subject.sources'">
                         </span>
                         <div>
-                            <span *ngIf="!subject.sources || subject.sources.length === 0">
-                                N/A
-                            </span>
+                            <ng-container *ngIf="!subject.sources || subject.sources.length === 0" [ngTemplateOutlet]="noneAvailable"></ng-container>
                             <span *ngFor="let sources of subject.sources; let last = last">
                                 <a class="form-control-static" [routerLink]="['/source', sources.sourceName ]">{{sources.sourceTypeModel}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
                             </span>
@@ -318,9 +292,7 @@
                             [translate]="'managementPortalApp.subject.attributeData'">
                         </span>
                         <div>
-                            <span *ngIf="(subject.attributes | keyvalue)?.length === 0">
-                                N/A
-                            </span>
+                            <ng-container *ngIf="!subject.attributes || (subject.attributes | keyvalue).length === 0" [ngTemplateOutlet]="noneAvailable"></ng-container>
                             <div *ngFor="let entry of subject.attributes | keyvalue; trackBy: trackKey">
                                 <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
                             </div>
@@ -330,10 +302,8 @@
                         <span class="subject-row__field-label"
                               [translate]="'managementPortalApp.subject.group'">
                         </span>
-                        <div>
-                            <span>
-                                {{subject.group || 'N/A'}}
-                            </span>
+                        <div class="subject-row__field-value">
+                            <span *ngIf="subject.group; else noneAvailable">{{ subject.group }}</span>
                         </div>
                     </div>
                 </div>
@@ -382,3 +352,7 @@
         </div>
     </section>
 </div>
+
+<ng-template #noneAvailable>
+    <span class="none-available" translate>global.attribute.noneAvailable</span>
+</ng-template>
