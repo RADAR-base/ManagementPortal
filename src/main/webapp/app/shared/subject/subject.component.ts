@@ -24,7 +24,6 @@ import {
     map,
     pluck,
     shareReplay,
-    startWith,
     switchMap,
     tap,
     withLatestFrom,
