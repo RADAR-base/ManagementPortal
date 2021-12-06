@@ -7,6 +7,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.radarbase.auth.config.Constants;
@@ -55,6 +56,7 @@ import static javax.persistence.CascadeType.REMOVE;
 @Table(name = "project")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EntityListeners({AbstractEntityListener.class})
+@DynamicInsert
 public class Project extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
