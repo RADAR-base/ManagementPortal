@@ -82,6 +82,10 @@ spring:
 #        keyAlias: ManagementPortal
 # ===================================================================
 server:
+    compression:
+        enabled: true
+        mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript
+        min-response-size: 2048
     port: 8080
     servlet:
         context-path: /managementportal

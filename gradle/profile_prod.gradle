@@ -22,7 +22,7 @@ task webpack(type: YarnTask, dependsOn: 'yarn_install') {
 }
 
 war {
-    webAppDirName = 'build/www/'
+    webAppDirName = 'build/www'
 }
 
 processResources {
@@ -41,4 +41,4 @@ processResources {
     }
 }
 
-processResources.dependsOn webpack
+//processResources.dependsOn webpack

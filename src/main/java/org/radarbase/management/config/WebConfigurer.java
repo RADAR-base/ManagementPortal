@@ -29,6 +29,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.resource.EncodedResourceResolver;
 
 /**
  * Configuration of web application with Servlet 3.0 APIs.
@@ -185,5 +187,4 @@ public class WebConfigurer implements ServletContextInitializer,
         h2ConsoleServlet.setInitParameter("-properties", "src/main/resources/");
         h2ConsoleServlet.setLoadOnStartup(1);
     }
-
 }
