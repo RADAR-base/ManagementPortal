@@ -14,7 +14,6 @@ import {
     BehaviorSubject,
     combineLatest,
     Observable,
-    Subject as RxSubject,
     Subscription
 } from 'rxjs';
 import {
@@ -25,7 +24,6 @@ import {
     map,
     pluck,
     shareReplay,
-    startWith,
     switchMap,
     tap,
     withLatestFrom,
@@ -63,7 +61,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     _subjects$: BehaviorSubject<Subject[]> = new BehaviorSubject([]);
     subjects$: Observable<CheckedSubject[]>
     groups$: BehaviorSubject<Group[]> = new BehaviorSubject([]);
-    trigger$: RxSubject<void> = new RxSubject<void>()
 
     page$ = new BehaviorSubject<number>(1);
     totalItems: number;
@@ -82,7 +79,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     enrollmentDateRangeError = false;
     filterResult$: Observable<SubjectFilterCriteria>;
     formattedFilterResult$: Observable<Record<string, string>>;
-
     isAdvancedFilterCollapsed = true;
 
     setOfCheckedId$ = new BehaviorSubject<Set<number>>(new Set());
@@ -141,7 +137,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
                 subjects.map(s => ({...s, checked: checkedSet.has(s.id) }))),
             shareReplay(1),
         )
-
         this.allChecked$ = this.subjects$.pipe(
             map(subjects => subjects.length !== 0 && subjects.every(s => s.checked)),
             distinctUntilChanged(),
@@ -169,7 +164,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         this.page$.complete();
         this.sortBy$.complete();
         this.ascending$.complete();
-        this.trigger$.complete();
         for (let filtersKey in this.filters) {
             this.filters[filtersKey].complete();
         }
@@ -223,7 +217,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             this.sortBy$.pipe(distinctUntilChanged()),
             this.ascending$.pipe(distinctUntilChanged()),
             this.page$.pipe(distinctUntilChanged()),
-            this.trigger$.pipe(startWith(undefined as void)),
         ]).pipe(
           debounceTime(10),
           tap(([projectName, criteria, sortBy, ascending, page]) =>
@@ -469,7 +462,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             route.push('subject')
         }
         if (criteria) {
-            const stringFilters: Record<string, any> = Object.assign({}, criteria);
+            const stringFilters: Record<string, any> = Object.assign<Record<string, any>, SubjectFilterCriteria>({}, criteria);
             delete stringFilters['groupName'];
             if (criteria.enrollmentDateFrom) {
                 stringFilters.enrollmentDateFrom = this.formatter.format(criteria.enrollmentDateFrom);

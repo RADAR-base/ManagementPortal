@@ -42,11 +42,28 @@
         </createIndex>
     </changeSet>
 
-    <changeSet id="add test organization data" author="alexey@thehyve.nl">
+    <changeSet id="add initial organization data" author="alexey@thehyve.nl">
         <loadData encoding="UTF-8"
                   file="config/liquibase/organization.csv"
                   separator=";"
                   tableName="radar_organization"/>
+    </changeSet>
+
+    <changeSet id="add organization_id to project" author="alexey@thehyve.nl">
+        <addColumn tableName="project">
+            <column name="organization_id" type="bigint" valueNumeric="1" defaultValue="1"/>
+        </addColumn>
+
+        <addForeignKeyConstraint baseColumnNames="organization_id"
+                                 baseTableName="project"
+                                 constraintName="fk_project_organization_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="radar_organization"
+                                 onDelete="CASCADE"/>
+
+        <createIndex tableName="project" indexName="idx_project_organization_id" unique="false">
+            <column name="organization_id"/>
+        </createIndex>
     </changeSet>
 
     <changeSet id="add organization audit" author="alexey@thehyve.nl">
@@ -82,7 +99,20 @@
                                  onUpdate="NO ACTION"
                                  referencedColumnNames="id"
                                  referencedTableName="_revisions_info"/>
+    </changeSet>
 
+    <changeSet id="add organization_id to project audit" author="alexey@thehyve.nl">
+        <renameColumn tableName="project_aud"
+                      oldColumnName="organization_mod"
+                      newColumnName="organization_name_mod"/>
+
+        <addColumn tableName="project_aud">
+            <column name="organization_id" type="BIGINT" valueNumeric="1" defaultValue="1"/>
+            <column name="organization_mod" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="initialize organization audit data" author="alexey@thehyve.nl">
         <sql>
             INSERT into radar_organization_aud (
                 id, rev, revtype,
@@ -99,32 +129,6 @@
                 name, true
             FROM radar_organization
         </sql>
-    </changeSet>
-
-    <changeSet id="add organization_id to project" author="alexey@thehyve.nl">
-        <addColumn tableName="project">
-            <column name="organization_id" type="bigint"/>
-        </addColumn>
-
-        <renameColumn tableName="project_aud"
-                      oldColumnName="organization_mod"
-                      newColumnName="organization_name_mod"/>
-
-        <addColumn tableName="project_aud">
-            <column name="organization_id" type="BIGINT"/>
-            <column name="organization_mod" type="BOOLEAN"/>
-        </addColumn>
-
-        <addForeignKeyConstraint baseColumnNames="organization_id"
-                                 baseTableName="project"
-                                 constraintName="fk_project_organization_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="radar_organization"
-                                 onDelete="CASCADE"/>
-
-        <createIndex tableName="project" indexName="idx_project_organization_id" unique="false">
-            <column name="organization_id"/>
-        </createIndex>
     </changeSet>
 
     <changeSet id="add organization roles" author="joris@thehyve.nl">
