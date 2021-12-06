@@ -205,12 +205,12 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
         let req = {};
         if (this.project) {
             req = {
-                project: this.project
-            }
+                projectName: this.project.projectName
+            };
         } else if (this.organization) {
             req = {
-                organization: this.organization
-            }
+                organization: this.organization.name
+            };
         } else {
             return;
         }

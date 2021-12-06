@@ -42,7 +42,7 @@ export class UserService {
         return this.http.get<User[]>(this.resourceUrl, {params});
     }
 
-    search(term: string) {
+    search(term: string): Observable<User[]> {
         if (term === '') {
             return of([]);
         }
