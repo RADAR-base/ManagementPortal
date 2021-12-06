@@ -42,7 +42,7 @@ public class Authority implements Serializable {
     }
 
     public Authority(RoleAuthority role) {
-        this.name = role.authority();
+        this(role.authority());
     }
 
     public String getName() {

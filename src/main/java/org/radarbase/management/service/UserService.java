@@ -3,22 +3,14 @@ package org.radarbase.management.service;
 import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.management.config.ManagementPortalProperties;
-import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.User;
-import org.radarbase.management.repository.AuthorityRepository;
-import org.radarbase.management.repository.OrganizationRepository;
-import org.radarbase.management.repository.ProjectRepository;
-import org.radarbase.management.repository.RoleRepository;
 import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.repository.filters.UserFilter;
 import org.radarbase.management.security.SecurityUtils;
-import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.service.dto.UserDTO;
 import org.radarbase.management.service.mapper.UserMapper;
-import org.radarbase.management.web.rest.errors.BadRequestException;
 import org.radarbase.management.web.rest.errors.ConflictException;
-import org.radarbase.management.web.rest.errors.ErrorConstants;
 import org.radarbase.management.web.rest.errors.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,15 +25,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.radarbase.auth.authorization.RoleAuthority.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
+import static org.radarbase.management.service.RoleService.getRoleAuthority;
 import static org.radarbase.management.web.rest.errors.EntityName.USER;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_EMAIL_EXISTS;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_ENTITY_NOT_FOUND;
@@ -59,16 +51,10 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private ProjectRepository projectRepository;
-
-    @Autowired
-    private OrganizationRepository organizationRepository;
-
-    @Autowired
     private PasswordService passwordService;
 
     @Autowired
-    private RoleRepository roleRepository;
+    private RoleService roleService;
 
     @Autowired
     private UserMapper userMapper;
@@ -78,9 +64,6 @@ public class UserService {
 
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
-
-    @Autowired
-    private AuthorityRepository authorityRepository;
 
     /**
      * Activate a user with the given activation key.
@@ -193,82 +176,19 @@ public class UserService {
     }
 
     private Set<Role> getUserRoles(UserDTO userDto) {
-        Set<Role> roles = new HashSet<>();
-        for (RoleDTO roleDto : userDto.getRoles()) {
-            RoleAuthority authority = getRoleAuthority(roleDto);
-            RoleAuthority.Scope scope = authority.scope();
+        return userDto.getRoles().stream()
+                .map(roleDto -> {
+                    RoleAuthority authority = getRoleAuthority(roleDto);
 
-            Optional<Role> existingRole = switch (scope) {
-                case GLOBAL -> roleRepository.findRolesByAuthorityName(
-                        roleDto.getAuthorityName()).stream().findAny();
-                case ORGANIZATION -> roleRepository.findOneByOrganizationIdAndAuthorityName(
-                        roleDto.getOrganizationId(), roleDto.getAuthorityName());
-                case PROJECT -> roleRepository.findOneByProjectIdAndAuthorityName(
-                        roleDto.getProjectId(), roleDto.getAuthorityName());
-            };
-
-            Role currentRole = existingRole.orElseGet(() -> {
-                Role newRole = new Role();
-                Authority auth = authorityRepository.findByAuthorityName(authority.authority())
-                        .orElseGet(() -> {
-                            var a = new Authority(authority);
-                            authorityRepository.save(a);
-                            return a;
-                        });
-                newRole.setAuthority(auth);
-                if (scope == RoleAuthority.Scope.ORGANIZATION) {
-                    var organization = organizationRepository.findById(
-                                    roleDto.getOrganizationId())
-                            .orElseThrow(() -> new NotFoundException(
-                                    "Cannot find organization for authority",
-                                    USER, ErrorConstants.ERR_INVALID_AUTHORITY,
-                                    Map.of("authorityName", roleDto.getAuthorityName(),
-                                            "organizationId",
-                                            roleDto.getOrganizationId().toString())));
-                    newRole.setOrganization(organization);
-                } else if (scope == RoleAuthority.Scope.PROJECT) {
-                    var project = projectRepository.findById(
-                                    roleDto.getProjectId())
-                            .orElseThrow(() -> new NotFoundException(
-                                    "Cannot find organization for authority",
-                                    USER, ErrorConstants.ERR_INVALID_AUTHORITY,
-                                    Map.of("authorityName", roleDto.getAuthorityName(),
-                                            "projectId",
-                                            roleDto.getProjectId().toString())));
-                    newRole.setProject(project);
-                }
-                return newRole;
-            });
-            roles.add(currentRole);
-        }
-        return roles;
-    }
-
-    private static RoleAuthority getRoleAuthority(RoleDTO roleDto) {
-        RoleAuthority authority;
-        try {
-            authority = RoleAuthority.valueOfAuthority(roleDto.getAuthorityName());
-        } catch (IllegalArgumentException ex) {
-            throw new BadRequestException("Authority not found with "
-                    + "authorityName", USER, ErrorConstants.ERR_INVALID_AUTHORITY,
-                    Collections.singletonMap("authorityName",
-                            roleDto.getAuthorityName()));
-        }
-        if (authority.scope() == RoleAuthority.Scope.ORGANIZATION
-                && roleDto.getOrganizationId() == null) {
-            throw new BadRequestException("Authority with "
-                    + "authorityName should have organization ID",
-                    USER, ErrorConstants.ERR_INVALID_AUTHORITY,
-                    Collections.singletonMap("authorityName", roleDto.getAuthorityName()));
-        }
-        if (authority.scope() == RoleAuthority.Scope.PROJECT
-                && roleDto.getProjectId() == null) {
-            throw new BadRequestException("Authority with "
-                    + "authorityName should have project ID",
-                    USER, ErrorConstants.ERR_INVALID_AUTHORITY,
-                    Collections.singletonMap("authorityName", roleDto.getAuthorityName()));
-        }
-        return authority;
+                    return switch (authority.scope()) {
+                        case GLOBAL -> roleService.getGlobalRole(authority);
+                        case ORGANIZATION -> roleService.getOrganizationRole(authority,
+                                roleDto.getOrganizationId());
+                        case PROJECT -> roleService.getProjectRole(authority,
+                                roleDto.getProjectId());
+                    };
+                })
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -310,6 +230,7 @@ public class UserService {
      * @param userDto user to update
      * @return updated user
      */
+    @Transactional
     public Optional<UserDTO> updateUser(UserDTO userDto) {
         return userRepository.findById(userDto.getId())
                 .map(user -> {

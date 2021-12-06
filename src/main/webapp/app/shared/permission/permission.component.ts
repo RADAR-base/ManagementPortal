@@ -161,19 +161,22 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
         console.log(this.filteredUsers)
         const user = this.filteredUsers[0];
         if(this.userSearchTerm.includes(user.login)){
-            const newRole: Role = {}; //new Role();
+            let newRole: Role;
             if (this.project) {
-                newRole.authorityName = 'ROLE_PROJECT_ADMIN';
-                newRole.projectId = 1; //this.organization.id;
-                newRole.projectName = 'radar'; // this.organization.organizationName;
+                newRole = {
+                    authorityName: 'ROLE_PROJECT_ADMIN',
+                    projectId: 1, //this.organization.id,
+                    projectName: 'radar', // this.organization.organizationName,
+                };
             } else if (this.organization) {
-                newRole.authorityName = this.selectedAuthority;
-                newRole.organizationId = this.organization.id;
-                newRole.organizationName = this.organization.name;
+                newRole = {
+                    authorityName: this.selectedAuthority,
+                    organizationId: this.organization.id,
+                    organizationName: this.organization.name,
+                };
+            } else {
+                return;
             }
-            newRole.authorityName = 'ROLE_PROJECT_ADMIN';
-            newRole.projectId = 1; //this.organization.id;
-            newRole.projectName = 'radar'; // this.organization.organizationName;
             if (this.hasRole(newRole)) {
             //     this.alertService.error('userManagement.role.error.alreadyExist', null, null);
             } else {
@@ -182,7 +185,6 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
                         (res)=> {
                             console.log(res);
                             this.getUsers();
-
                         },
                         (error)=> console.log(error)
                 );
@@ -195,7 +197,7 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
         // this.eventManager.broadcast({name: 'roleListModification', content: this.users});
     }
 
-    getUsers(){
+    getUsers() {
         this.selectedAuthority = null;
         this.userSearchTerm = null;
         this.isNotSelected = false;
@@ -264,7 +266,7 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     private onSuccess(data, headers) {
-        const organizationUsers = this.filterByOrganization(MOCK_USER_DATA);
+        const organizationUsers = this.filterByOrganization(data);
         console.log(organizationUsers);
         this.users = this.filterByOrganization(organizationUsers);
     }
