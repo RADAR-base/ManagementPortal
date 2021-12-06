@@ -51,7 +51,7 @@
 
     <changeSet id="add organization_id to project" author="alexey@thehyve.nl">
         <addColumn tableName="project">
-            <column name="organization_id" type="bigint"/>
+            <column name="organization_id" type="bigint" valueNumeric="1" defaultValue="1"/>
         </addColumn>
 
         <addForeignKeyConstraint baseColumnNames="organization_id"
@@ -64,21 +64,6 @@
         <createIndex tableName="project" indexName="idx_project_organization_id" unique="false">
             <column name="organization_id"/>
         </createIndex>
-    </changeSet>
-
-    <changeSet id="assign existing projects to the main org" author="alexey@thehyve.nl">
-        <sql>
-            UPDATE project
-            SET organization_id = (SELECT id
-                                   FROM radar_organization
-                                   WHERE name = 'Main organization')
-        </sql>
-    </changeSet>
-
-    <changeSet id="set the main org as default for new projects" author="alexey@thehyve.nl">
-        <addDefaultValue tableName="project"
-                         columnName="organization_id"
-                         defaultValue="1"/>
     </changeSet>
 
     <changeSet id="add organization audit" author="alexey@thehyve.nl">
@@ -121,7 +106,7 @@
                       newColumnName="organization_name_mod"/>
 
         <addColumn tableName="project_aud">
-            <column name="organization_id" type="BIGINT"/>
+            <column name="organization_id" type="BIGINT" valueNumeric="1" defaultValue="1"/>
             <column name="organization_mod" type="BOOLEAN"/>
         </addColumn>
     </changeSet>
@@ -142,13 +127,6 @@
                 location, true,
                 name, true
             FROM radar_organization
-        </sql>
-
-        <sql>
-            UPDATE project_aud
-            SET organization_id = (SELECT id
-                                   FROM radar_organization
-                                   WHERE name = 'Main organization')
         </sql>
     </changeSet>
 </databaseChangeLog>
