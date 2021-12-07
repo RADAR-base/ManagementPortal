@@ -165,9 +165,9 @@ public class JwtRadarToken extends AbstractRadarToken {
     @Override
     public List<String> getClaimList(String name) {
         try {
-            return jwt.getClaim(name).asList(String.class);
+            return emptyIfNull(jwt.getClaim(name).asList(String.class));
         } catch (JWTDecodeException ex) {
-            return null;
+            return List.of();
         }
     }
 

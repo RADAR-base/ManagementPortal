@@ -124,7 +124,7 @@ public class SessionRadarToken extends AbstractRadarToken implements Serializabl
 
     @Override
     public List<String> getClaimList(String name) {
-        return null;
+        return List.of();
     }
 
     @Override

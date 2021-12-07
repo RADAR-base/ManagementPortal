@@ -29,6 +29,12 @@ public abstract class AbstractRadarToken implements RadarToken {
     }
 
     @Override
+    public boolean hasGlobalPermission(Permission permission) {
+        return hasScope(permission.scope())
+                && (isClientCredentials() || hasGlobalAuthorityForPermission(permission));
+    }
+
+    @Override
     public boolean hasPermissionOnOrganization(Permission permission, String organization) {
         return hasScope(permission.scope())
                 && (isClientCredentials() || hasAuthorityForOrganization(permission, organization));

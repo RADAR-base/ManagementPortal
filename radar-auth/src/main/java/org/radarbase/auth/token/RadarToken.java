@@ -225,6 +225,19 @@ public interface RadarToken {
     boolean hasPermission(Permission permission);
 
     /**
+     * Check if this token gives the given permission from a global scope.
+     *
+     * <p>This token <strong>must</strong> have the permission in its set of scopes. If it's a
+     * client credentials token, this is the only requirement, as a client credentials token is
+     * linked to an OAuth client and not to a user in the system. If it's not a client
+     * credentials token, this also checks to see if the user has a global role with the specified
+     * permission.</p>
+     * @param permission The permission to check
+     * @return {@code true} if this token has the permission, {@code false} otherwise
+     */
+    boolean hasGlobalPermission(Permission permission);
+
+    /**
      * Check if this token gives a permission in a specific organization.
      * @param permission the permission
      * @param organization the organization name
