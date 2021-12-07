@@ -64,12 +64,6 @@ jobs:
         if: always()
         run: ./gradlew check
 
-      - name: Codacy
-        if: steps.gradle-check.outcome != 'cancelled'
-        env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        run: ./gradlew sendCoverageToCodacy
-
       - name: End to end tests
         id: e2e
         run: |
