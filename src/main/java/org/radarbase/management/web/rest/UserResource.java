@@ -274,7 +274,7 @@ public class UserResource {
      * @param login the login of the user to get roles from
      * @return the ResponseEntity with status 200 (OK)
      */
-    @GetMapping("/users/{login:" + Constants.ENTITY_ID_REGEX + "}/roles")
+    @PutMapping("/users/{login:" + Constants.ENTITY_ID_REGEX + "}/roles")
     @Timed
     public ResponseEntity<Void> putUserRoles(@PathVariable String login,
             @RequestBody Set<RoleDTO> roleDtos) throws NotAuthorizedException {

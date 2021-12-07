@@ -4,7 +4,6 @@ import org.radarbase.auth.authorization.Permission;
 import org.radarbase.auth.authorization.RoleAuthority;
 
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 

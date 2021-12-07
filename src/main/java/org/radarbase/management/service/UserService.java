@@ -36,7 +36,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.radarbase.auth.authorization.Permission.ROLE_UPDATE;
-import static org.radarbase.auth.authorization.Permission.USER_UPDATE;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkGlobalPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganization;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganizationAndProject;
@@ -403,6 +402,13 @@ public class UserService {
         return userRepository.findAll(userFilter, pageable).map(userMapper::userToUserDTO);
     }
 
+    /**
+     * Update the roles of the given user.
+     * @param login user login
+     * @param roleDtos new roles to set
+     * @throws NotAuthorizedException if the current user is not allowed to modify the roles
+     *                                of the target user.
+     */
     @Transactional
     public void updateRoles(String login, Set<RoleDTO> roleDtos) throws NotAuthorizedException {
         var user = userRepository.findOneByLogin(login)
