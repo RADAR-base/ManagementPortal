@@ -10,6 +10,7 @@ import org.radarbase.management.domain.User;
 import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.repository.filters.UserFilter;
 import org.radarbase.management.security.SecurityUtils;
+import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.service.dto.UserDTO;
 import org.radarbase.management.service.mapper.UserMapper;
 import org.radarbase.management.web.rest.errors.ConflictException;
@@ -34,6 +35,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.radarbase.auth.authorization.Permission.ROLE_UPDATE;
 import static org.radarbase.auth.authorization.Permission.USER_UPDATE;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkGlobalPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganization;
@@ -180,15 +182,18 @@ public class UserService {
         user.setResetDate(ZonedDateTime.now());
         user.setActivated(false);
 
-        user.setRoles(getUserRoles(userDto, Set.of()));
+        user.setRoles(getUserRoles(userDto.getRoles(), Set.of()));
         user = userRepository.save(user);
         log.debug("Created Information for User: {}", user);
         return user;
     }
 
-    private Set<Role> getUserRoles(UserDTO userDto, Set<Role> oldRoles)
+    private Set<Role> getUserRoles(Set<RoleDTO> roleDtos, Set<Role> oldRoles)
             throws NotAuthorizedException {
-        var roles = userDto.getRoles().stream()
+        if (roleDtos == null) {
+            return null;
+        }
+        var roles = roleDtos.stream()
                 .map(roleDto -> {
                     RoleAuthority authority = getRoleAuthority(roleDto);
                     return switch (authority.scope()) {
@@ -224,16 +229,16 @@ public class UserService {
     private void checkAuthorityForRoleChange(Role role)
             throws NotAuthorizedException {
         switch (role.getRole().scope()) {
-            case GLOBAL -> checkGlobalPermission(token, USER_UPDATE);
-            case ORGANIZATION -> checkPermissionOnOrganization(token, USER_UPDATE,
+            case GLOBAL -> checkGlobalPermission(token, ROLE_UPDATE);
+            case ORGANIZATION -> checkPermissionOnOrganization(token, ROLE_UPDATE,
                     role.getOrganization().getName());
             case PROJECT -> {
                 if (role.getProject().getOrganization() != null) {
-                    checkPermissionOnOrganizationAndProject(token, USER_UPDATE,
+                    checkPermissionOnOrganizationAndProject(token, ROLE_UPDATE,
                             role.getProject().getOrganization().getName(),
                             role.getProject().getProjectName());
                 } else {
-                    checkPermissionOnProject(token, USER_UPDATE,
+                    checkPermissionOnProject(token, ROLE_UPDATE,
                             role.getProject().getProjectName());
                 }
             }
@@ -294,7 +299,7 @@ public class UserService {
             Set<Role> managedRoles = user.getRoles();
             Set<Role> oldRoles = Set.copyOf(managedRoles);
             managedRoles.clear();
-            managedRoles.addAll(getUserRoles(userDto, oldRoles));
+            managedRoles.addAll(getUserRoles(userDto.getRoles(), oldRoles));
             user = userRepository.save(user);
             log.debug("Changed Information for User: {}", user);
             return Optional.of(userMapper.userToUserDTO(user));
@@ -396,5 +401,19 @@ public class UserService {
 
     public Page<UserDTO> findUsers(UserFilter userFilter, Pageable pageable) {
         return userRepository.findAll(userFilter, pageable).map(userMapper::userToUserDTO);
+    }
+
+    @Transactional
+    public void updateRoles(String login, Set<RoleDTO> roleDtos) throws NotAuthorizedException {
+        var user = userRepository.findOneByLogin(login)
+                .orElseThrow(() -> new NotFoundException(
+                        "User with login " + login + " not found", USER,
+                        ERR_ENTITY_NOT_FOUND, Map.of("user", login)));
+
+        Set<Role> managedRoles = user.getRoles();
+        Set<Role> oldRoles = Set.copyOf(managedRoles);
+        managedRoles.clear();
+        managedRoles.addAll(getUserRoles(roleDtos, oldRoles));
+        userRepository.save(user);
     }
 }

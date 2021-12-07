@@ -181,7 +181,7 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
             //     this.alertService.error('userManagement.role.error.alreadyExist', null, null);
             } else {
                 user.roles.push(newRole);
-                this.userService.update(user).subscribe(
+                this.userService.updateRoles(user).subscribe(
                         (res)=> {
                             console.log(res);
                             this.getUsers();
@@ -243,7 +243,7 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
         authorities.splice(authorities.findIndex(authority => authority === this.selectedAuthority), 1);
         user.authorities = authorities;
 
-        this.userService.update(user).subscribe(
+        this.userService.updateRoles(user).subscribe(
                 (res)=> {
                     console.log(res);
                     this.getUsers();
