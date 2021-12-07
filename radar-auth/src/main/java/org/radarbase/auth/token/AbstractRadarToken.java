@@ -106,9 +106,8 @@ public abstract class AbstractRadarToken implements RadarToken {
         if (organization == null) {
             return false;
         }
-        Set<RoleAuthority> organizationRoles = getOrganizationRoles().get(organization);
-        return organizationRoles != null
-                && organizationRoles.stream().anyMatch(permission::isRoleAllowed);
+        return getReferentsWithPermission(RoleAuthority.Scope.ORGANIZATION, permission)
+                .anyMatch(organization::equals);
     }
 
     /**
@@ -146,12 +145,11 @@ public abstract class AbstractRadarToken implements RadarToken {
         if (projectName == null) {
             return false;
         }
-        Set<RoleAuthority> projectRoles = getProjectRoles().get(projectName);
-        return projectRoles != null && projectRoles.stream()
-                .anyMatch(role -> permission.isRoleAllowed(role)
+        return getAuthorityReferencesWithPermission(RoleAuthority.Scope.PROJECT, permission)
+                .anyMatch(r -> projectName.equals(r.getReferent())
                         && (personalRoleCondition == null
-                        || !role.isPersonal()
-                        || personalRoleCondition.test(role)));
+                        || !r.getRole().isPersonal()
+                        || personalRoleCondition.test(r.getRole())));
     }
 
     /**

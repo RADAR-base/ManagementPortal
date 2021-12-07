@@ -26,44 +26,10 @@ public interface RadarToken {
      */
     Set<AuthorityReference> getRoles();
 
-    /**
-     * Get the global roles (not organization or project-specific) defined in this token.
-     * @return non-null map describing the roles defined in this token. The keys in the map are the
-     *     project names, and the values are lists of authority names associated to the project.
-     */
-    default Set<RoleAuthority> getGlobalRoles() {
-        return Stream.concat(
-                getAuthorities().stream()
-                        .map(RoleAuthority::valueOfAuthorityOrNull)
-                        .filter(Objects::nonNull),
-                getRoles().stream()
-                        .map(AuthorityReference::getRole))
-                .filter(r -> r.scope() == RoleAuthority.Scope.GLOBAL)
-                .collect(toEnumSet());
-    }
-
-    /**
-     * Get the project roles defined in this token.
-     * @return non-null map describing the roles defined in this token. The keys in the map are the
-     *     project names, and the values are lists of authority names associated to the project.
-     */
-    default Map<String, Set<RoleAuthority>> getProjectRoles() {
+    default Stream<AuthorityReference> getAuthorityReferencesWithPermission(
+            RoleAuthority.Scope scope, Permission permission) {
         return getRoles().stream()
-                .filter(r -> r.getRole().scope() == RoleAuthority.Scope.PROJECT
-                        && r.getReferent() != null)
-                .collect(groupingByReferent());
-    }
-
-    /**
-     * Get the organization roles defined in this token.
-     * @return non-null map describing the roles defined in this token. The keys in the map are the
-     *     project names, and the values are lists of authority names associated to the project.
-     */
-    default Map<String, Set<RoleAuthority>> getOrganizationRoles() {
-        return getRoles().stream()
-                .filter(r -> r.getRole().scope() == RoleAuthority.Scope.ORGANIZATION
-                        && r.getReferent() != null)
-                .collect(groupingByReferent());
+                .filter(r -> r.getRole().scope() == scope && permission.isRoleAllowed(r.getRole()));
     }
 
     /**
@@ -75,9 +41,7 @@ public interface RadarToken {
      */
     default Stream<String> getReferentsWithPermission(RoleAuthority.Scope scope,
             Permission permission) {
-        return getRoles().stream()
-                .filter(r -> r.getRole().scope() == scope
-                        && permission.isRoleAllowed(r.getRole()))
+        return getAuthorityReferencesWithPermission(scope, permission)
                 .map(AuthorityReference::getReferent)
                 .filter(Objects::nonNull);
     }
