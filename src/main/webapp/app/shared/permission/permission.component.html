@@ -4,19 +4,13 @@
     </h2>
     <jhi-alert></jhi-alert>
     <br/>
-<!--    <pre>-->
-<!--        {{ authorizedUsers | json }}-->
-<!--    </pre>-->
-<!--    {{ authorities | json}}-->
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
                 <tr>
-<!--                    <th><span [translate]="'userManagement.role.authorityName'"></span></th>-->
-                    <th><span>Users</span></th>
-<!--                    <th><span [translate]="'userManagement.role.project'"></span></th>-->
-                    <th><span>Roles</span></th>
-                    <th><span>Options</span></th>
+                    <th><span [translate]="'userManagement.role.users'">Users</span></th>
+                    <th><span [translate]="'userManagement.role.roles'">Roles</span></th>
+                    <th><span [translate]="'userManagement.role.options'">Options</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -31,22 +25,10 @@
                         </button>
                     </td>
                 </tr>
-
-<!--                <tr >-->
-<!--                    <td>{{user.login}}</td>-->
-<!--                    <td>-->
-<!--                        {{user.authorities.includes('ROLE_SYS_ADMIN')? 'ROLE_SYS_ADMIN' : 'ROLE_ORGANIZATION_ADMIN'}}-->
-<!--                    </td>-->
-<!--                    <td *ngIf="user.authorityName!='ROLE_SYS_ADMIN'">-->
-<!--                        <button type="button" (click)="removeRole(user)" class="btn btn-danger btn-sm fa fa-remove"-->
-<!--                        [disabled]="user.authorities.includes('ROLE_SYS_ADMIN')">-->
-<!--                        </button>-->
-<!--                    </td>-->
-<!--                </tr>-->
                 <tr *ngIf="users.length">
                     <td style="width: 50%;">
                         <select name='user' [(ngModel)]="selectedUser" class="form-control" required>
-                            <option [ngValue]="null" [disabled]="true" >Select a user</option>
+                            <option [ngValue]="null" [disabled]="true" [translate]="'userManagement.role.selectUser'"></option>
                             <option *ngFor="let user of users" [ngValue]="user">{{user.login}}</option>
                         </select>
                     </td>
@@ -54,11 +36,6 @@
                         <select name='authority' [(ngModel)]="selectedAuthority" class="form-control" required>
                             <option *ngIf="organization" value="ROLE_ORGANIZATION_ADMIN" >ROLE_ORGANIZATION_ADMIN</option>
                             <option *ngIf="project" value="ROLE_PROJECT_ADMIN" >ROLE_PROJECT_ADMIN</option>
-
-                            <!--                            <ng-container *ngFor="let authority of authorities">-->
-<!--                                <option *ngIf="organization && authority.includes('ORGANIZATION')" [value]="authority">{{authority}}</option>-->
-<!--                                <option *ngIf="project && authority.includes('PROJECT')" [value]="authority">{{authority}}</option>-->
-<!--                            </ng-container>-->
                         </select>
                     </td>
                     <td>

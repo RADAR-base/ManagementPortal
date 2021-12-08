@@ -36,6 +36,10 @@
             "create" : "Toevoegen",
             "authorityName" : "Authority",
             "project" : "Project",
+            "users": "Gebruikers",
+            "roles": "Rollen",
+            "options": "Opties",
+            "selectUser": "Selecteer een gebruiker",
             "error" : {
                 "alreadyExist" : "Deze rol werd al toegevoegd"
             }

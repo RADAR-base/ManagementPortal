@@ -37,6 +37,10 @@
             "authorityName" : "Authority",
             "project" : "Project",
             "organizationOrProject": "Organization/Project",
+            "users": "Users",
+            "roles": "Roles",
+            "options": "Options",
+            "selectUser": "Select a user",
             "error" : {
                 "alreadyExist" : "This role has been already added"
             }

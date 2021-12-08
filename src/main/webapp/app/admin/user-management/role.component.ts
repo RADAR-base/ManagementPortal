@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 
 import {AuthorityService, Organization, OrganizationService, Project, ProjectService} from '../../shared';
@@ -67,18 +66,6 @@ export class RoleComponent implements OnInit {
                 this.roles.push(newRole);
             }
         }
-        // const newRole = {
-        //     authorityName: this.selectedAuthority,
-        //     projectId: this.selectedProject?.id || undefined,
-        //     projectName: this.selectedProject?.projectName || undefined,
-        //     organizationId: this.selectedOrganization?.id || undefined,
-        //     organizationName: this.selectedOrganization?.name || undefined,
-        // }
-        // if (this.hasRole(newRole)) {
-        //     this.alertService.error('userManagement.role.error.alreadyExist', null, null);
-        // } else {
-        //     this.roles.push(newRole);
-        // }
         this.eventManager.broadcast({name: 'roleListModification', content: this.roles});
     }
 
@@ -107,6 +94,4 @@ export class RoleComponent implements OnInit {
     trackOrganizationById(index: number, item: Organization) {
         return item.id;
     }
-
-
 }

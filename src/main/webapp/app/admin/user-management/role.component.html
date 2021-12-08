@@ -48,7 +48,6 @@
                     <td>
                         <select name='authority' [(ngModel)]="selectedAuthority" class="form-control" required>
                             <option [ngValue]="null">Select an authority</option>
-<!--                            <option *ngFor="let authority of authorities;">{{authority}}</option>-->
                             <option [ngValue]="'ROLE_ORGANIZATION_ADMIN'">ROLE_ORGANIZATION_ADMIN</option>
                             <option [ngValue]="'ROLE_PROJECT_ADMIN'">ROLE_PROJECT_ADMIN</option>
                         </select>
@@ -68,9 +67,6 @@
                                 [(ngModel)]="selectedProject"
                                 class="form-control"
                                 required>
-<!--                        selectedAuthority === 'ROLE_PROJECT_AFFILIATE' ||-->
-<!--                        selectedAuthority === 'ROLE_PROJECT_OWNER' ||-->
-<!--                        selectedAuthority === 'ROLE_PROJECT_ANALYST'"-->
                             <option [ngValue]="null">Select a project</option>
                             <option [ngValue]="projectOption" *ngFor="let projectOption of projectService.projects$ | async; trackBy: trackProjectById">{{projectOption.projectName}}</option>
                         </select>

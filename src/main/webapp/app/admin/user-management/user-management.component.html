@@ -62,8 +62,6 @@
                 <td>
                     <div *ngFor="let role of user.roles">
                         <span *ngIf="role.authorityName === 'ROLE_SYS_ADMIN'">{{role.authorityName}}</span>
-<!--                        <a *ngIf="role.authorityName != 'ROLE_SYS_ADMIN'" [routerLink]="['/role', role.projectName, role.authorityName ]" >{{role.authorityName}}</a>-->
-<!--                        <a *ngIf="role.authorityName === 'ROLE_ORGANIZATION_ADMIN'" [routerLink]="['/role', role.organizationName, role.authorityName ]" >{{role.authorityName}}</a>-->
                         <span *ngIf="role.authorityName === 'ROLE_ORGANIZATION_ADMIN'" >{{role.authorityName}}</span>
                         <a *ngIf="role.authorityName === 'ROLE_PROJECT_ADMIN'" [routerLink]="['/role', role.projectName, role.authorityName ]" >{{role.authorityName}}</a>
                     </div>
