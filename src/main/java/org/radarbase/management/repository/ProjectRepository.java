@@ -49,6 +49,11 @@ public interface ProjectRepository extends JpaRepository<Project, Long>,
     Optional<Project> findOneWithEagerRelationships(@Param("id") Long id);
 
     @Query("select project from Project project "
+            + "left join fetch project.organization "
+            + "where project.id = :id")
+    Optional<Project> findByIdWithOrganization(@Param("id") Long id);
+
+    @Query("select project from Project project "
             + "left join fetch project.sourceTypes "
             + "left join fetch project.groups "
             + "where project.projectName = :name")

@@ -31,6 +31,13 @@ export class UserService {
         return this.http.put(this.resourceUrl, user);
     }
 
+    updateRoles(user: User): Observable<any> {
+        return this.http.put(
+          `${this.resourceUrl}/${encodeURIComponent(user.login)}/roles`,
+          user.roles,
+        );
+    }
+
     find(login: string): Observable<User> {
         return this.http.get<User>(`${this.resourceUrl}/${encodeURIComponent(login)}`);
     }

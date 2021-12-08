@@ -4,7 +4,6 @@ import org.radarbase.auth.authorization.Permission;
 import org.radarbase.auth.authorization.RoleAuthority;
 
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -26,6 +25,12 @@ public abstract class AbstractRadarToken implements RadarToken {
         return hasScope(permission.scope())
                 && (isClientCredentials() || hasAuthorityForPermission(permission));
 
+    }
+
+    @Override
+    public boolean hasGlobalPermission(Permission permission) {
+        return hasScope(permission.scope())
+                && (isClientCredentials() || hasGlobalAuthorityForPermission(permission));
     }
 
     @Override
@@ -100,9 +105,8 @@ public abstract class AbstractRadarToken implements RadarToken {
         if (organization == null) {
             return false;
         }
-        Set<RoleAuthority> organizationRoles = getOrganizationRoles().get(organization);
-        return organizationRoles != null
-                && organizationRoles.stream().anyMatch(permission::isRoleAllowed);
+        return getReferentsWithPermission(RoleAuthority.Scope.ORGANIZATION, permission)
+                .anyMatch(organization::equals);
     }
 
     /**
@@ -140,12 +144,11 @@ public abstract class AbstractRadarToken implements RadarToken {
         if (projectName == null) {
             return false;
         }
-        Set<RoleAuthority> projectRoles = getProjectRoles().get(projectName);
-        return projectRoles != null && projectRoles.stream()
-                .anyMatch(role -> permission.isRoleAllowed(role)
+        return getAuthorityReferencesWithPermission(RoleAuthority.Scope.PROJECT, permission)
+                .anyMatch(r -> projectName.equals(r.getReferent())
                         && (personalRoleCondition == null
-                        || !role.isPersonal()
-                        || personalRoleCondition.test(role)));
+                        || !r.getRole().isPersonal()
+                        || personalRoleCondition.test(r.getRole())));
     }
 
     /**

@@ -24,7 +24,7 @@ describe('Component Tests', () => {
                     DatePipe,
                     {
                         provide: ActivatedRoute,
-                        useValue: new MockActivatedRoute({projectName: 'testProject'})
+                        useValue: new MockActivatedRoute({organizationName: 'testOrganization'})
                     },
                     ProjectService,
                     EventManager
@@ -39,19 +39,20 @@ describe('Component Tests', () => {
         });
 
         describe('OnInit', () => {
-            it('Should call load all on init', () => {
+            it('Should call load all on init', waitForAsync(async () => {
             // GIVEN
 
-            spyOn(service, 'find').and.returnValue(of(new Project(10)));
+            spyOn(service, 'find').and.returnValue(of({id: 10}));
 
             // WHEN
             comp.ngOnInit();
 
             // THEN
-            expect(service.find).toHaveBeenCalledWith('testProject');
-            expect(comp.organization).toEqual(jasmine.objectContaining({id: 10}));
-            });
+            let org = await comp.organization$.toPromise();
+            expect(org).toEqual(jasmine.objectContaining({id: 10}));
+
+            expect(service.find).toHaveBeenCalledWith('testOrganization');
+            }));
         });
     });
-
 });

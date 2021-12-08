@@ -56,10 +56,17 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
             userRepository.findOneByLogin(userName)
                     .ifPresent(user -> {
-                        List<String> roles = user.getRoles().stream()
-                                .filter(role -> role.getProject() != null)
-                                .map(role -> role.getProject().getProjectName() + ":"
-                                        + role.getAuthority().getName())
+                        var roles = user.getRoles().stream()
+                                .map(role -> {
+                                    var auth = role.getAuthority().getName();
+                                    return switch (role.getRole().scope()) {
+                                        case GLOBAL -> auth;
+                                        case ORGANIZATION -> role.getOrganization().getName()
+                                                + ":" + auth;
+                                        case PROJECT -> role.getProject().getProjectName()
+                                                + ":" + auth;
+                                    };
+                                })
                                 .collect(Collectors.toList());
                         additionalInfo.put(JwtRadarToken.ROLES_CLAIM, roles);
                     });

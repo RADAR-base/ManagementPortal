@@ -13,6 +13,7 @@ import org.radarbase.management.repository.filters.UserFilter;
 import org.radarbase.management.service.MailService;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.UserService;
+import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.service.dto.UserDTO;
 import org.radarbase.management.web.rest.errors.InvalidRequestException;
 import org.radarbase.management.web.rest.util.HeaderUtil;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tech.jhipster.web.util.ResponseUtil;
 
@@ -40,7 +42,10 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 
+import static org.radarbase.auth.authorization.Permission.ROLE_READ;
+import static org.radarbase.auth.authorization.Permission.ROLE_UPDATE;
 import static org.radarbase.auth.authorization.Permission.USER_CREATE;
 import static org.radarbase.auth.authorization.Permission.USER_DELETE;
 import static org.radarbase.auth.authorization.Permission.USER_READ;
@@ -114,7 +119,7 @@ public class UserResource {
     public ResponseEntity createUser(@RequestBody ManagedUserVM managedUserVm)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save User : {}", managedUserVm);
-        checkAuthorityAndPermission(token, SYS_ADMIN, USER_CREATE);
+        checkPermission(token, USER_CREATE);
         if (managedUserVm.getId() != null) {
             return ResponseEntity.badRequest()
                     .headers(HeaderUtil.createFailureAlert(USER, "idexists",
@@ -133,11 +138,6 @@ public class UserResource {
                     .headers(HeaderUtil
                             .createFailureAlert(USER, "emailexists",
                                     "Email already in use"))
-                    .body(null);
-        } else if (managedUserVm.getRoles() == null || managedUserVm.getRoles().isEmpty()) {
-            return ResponseEntity.badRequest()
-                    .headers(HeaderUtil.createFailureAlert(USER, "rolesRequired",
-                            "One or more roles are required"))
                     .body(null);
         } else {
             User newUser = userService.createUser(managedUserVm);
@@ -178,11 +178,6 @@ public class UserResource {
                     .createFailureAlert(USER, "userexists", "Login already in use"))
                     .body(null);
         }
-        if (managedUserVm.getRoles() == null || managedUserVm.getRoles().isEmpty()) {
-            return ResponseEntity.badRequest()
-                    .headers(HeaderUtil.createEntityUpdateAlert(USER, "rolesRequired"))
-                    .body(null);
-        }
 
         Optional<Subject> subject = subjectRepository
                 .findOneWithEagerBySubjectLogin(managedUserVm.getLogin());
@@ -214,11 +209,12 @@ public class UserResource {
     @Timed
     public ResponseEntity<List<UserDTO>> getUsers(
             @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable,
-            UserFilter userFilter)
+            UserFilter userFilter,
+            @RequestParam(defaultValue = "true") boolean includeProvenance)
             throws NotAuthorizedException {
         checkAuthorityAndPermission(token, SYS_ADMIN, USER_READ);
 
-        Page<UserDTO> page = userService.findUsers(userFilter, pageable);
+        Page<UserDTO> page = userService.findUsers(userFilter, pageable, includeProvenance);
 
         return new ResponseEntity<>(page.getContent(),
             PaginationUtil.generatePaginationHttpHeaders(page, "/api/users"), HttpStatus.OK);
@@ -256,5 +252,37 @@ public class UserResource {
         userService.deleteUser(login);
         return ResponseEntity.ok().headers(HeaderUtil.createAlert("userManagement.deleted", login))
                 .build();
+    }
+
+    /**
+     * Get /users/:login/roles : get the "login" User roles.
+     *
+     * @param login the login of the user to get roles from
+     * @return the ResponseEntity with status 200 (OK)
+     */
+    @GetMapping("/users/{login:" + Constants.ENTITY_ID_REGEX + "}/roles")
+    @Timed
+    public ResponseEntity<Set<RoleDTO>> getUserRoles(@PathVariable String login)
+            throws NotAuthorizedException {
+        log.debug("REST request to read User roles: {}", login);
+        checkPermission(token, ROLE_READ);
+        return ResponseUtil.wrapOrNotFound(userService.getUserWithAuthoritiesByLogin(login)
+                        .map(UserDTO::getRoles));
+    }
+
+    /**
+     * PUT /users/:login/roles : update the "login" User roles.
+     *
+     * @param login the login of the user to get roles from
+     * @return the ResponseEntity with status 200 (OK)
+     */
+    @PutMapping("/users/{login:" + Constants.ENTITY_ID_REGEX + "}/roles")
+    @Timed
+    public ResponseEntity<Void> putUserRoles(@PathVariable String login,
+            @RequestBody Set<RoleDTO> roleDtos) throws NotAuthorizedException {
+        log.debug("REST request to update User roles: {} to {}", login, roleDtos);
+        checkPermission(token, ROLE_UPDATE);
+        userService.updateRoles(login, roleDtos);
+        return ResponseEntity.noContent().build();
     }
 }
