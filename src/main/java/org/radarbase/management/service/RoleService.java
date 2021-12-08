@@ -220,7 +220,7 @@ public class RoleService {
         return roleRepository.findOneByProjectIdAndAuthorityName(
                         projectId, role.authority())
                 .orElseGet(() -> createNewRole(role, r -> {
-                    r.setProject(projectRepository.findById(projectId)
+                    r.setProject(projectRepository.findByIdWithOrganization(projectId)
                             .orElseThrow(() -> new NotFoundException(
                                     "Cannot find project for authority",
                                     USER, ErrorConstants.ERR_INVALID_AUTHORITY,
@@ -245,19 +245,14 @@ public class RoleService {
 
     private Authority getAuthority(RoleAuthority role) {
         return authorityRepository.findByAuthorityName(role.authority())
-                .orElseGet(() -> {
-                    var a = new Authority(role);
-                    authorityRepository.saveAndFlush(a);
-                    return a;
-                });
+                .orElseGet(() -> authorityRepository.saveAndFlush(new Authority(role)));
     }
 
     private Role createNewRole(RoleAuthority role, Consumer<Role> apply) {
         Role newRole = new Role();
         newRole.setAuthority(getAuthority(role));
         apply.accept(newRole);
-        roleRepository.save(newRole);
-        return newRole;
+        return roleRepository.save(newRole);
     }
 
     /**

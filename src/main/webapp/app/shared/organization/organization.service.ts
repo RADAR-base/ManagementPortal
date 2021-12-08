@@ -3,13 +3,10 @@ import {HttpClient, HttpResponse} from '@angular/common/http';
 import {BehaviorSubject, combineLatest, Observable, of, Subject, throwError} from 'rxjs';
 
 import { Organization } from './organization.model';
-import {Project} from "../project";
 import {Principal} from "../auth/principal.service";
 import {AlertService} from "../util/alert.service";
 import {concatMap, delay, map, pluck, retryWhen, startWith, switchMap, take, tap} from "rxjs/operators";
 import {createRequestOption} from "../model/request.utils";
-import {SourceType} from "../../entities/source-type";
-import {convertDateTimeFromServer, toDate} from "../util/date-util";
 
 @Injectable({ providedIn: 'root' })
 export class OrganizationService {

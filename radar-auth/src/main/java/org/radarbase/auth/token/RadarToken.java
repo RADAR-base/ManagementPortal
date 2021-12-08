@@ -26,44 +26,10 @@ public interface RadarToken {
      */
     Set<AuthorityReference> getRoles();
 
-    /**
-     * Get the global roles (not organization or project-specific) defined in this token.
-     * @return non-null map describing the roles defined in this token. The keys in the map are the
-     *     project names, and the values are lists of authority names associated to the project.
-     */
-    default Set<RoleAuthority> getGlobalRoles() {
-        return Stream.concat(
-                getAuthorities().stream()
-                        .map(RoleAuthority::valueOfAuthorityOrNull)
-                        .filter(Objects::nonNull),
-                getRoles().stream()
-                        .map(AuthorityReference::getRole))
-                .filter(r -> r.scope() == RoleAuthority.Scope.GLOBAL)
-                .collect(toEnumSet());
-    }
-
-    /**
-     * Get the project roles defined in this token.
-     * @return non-null map describing the roles defined in this token. The keys in the map are the
-     *     project names, and the values are lists of authority names associated to the project.
-     */
-    default Map<String, Set<RoleAuthority>> getProjectRoles() {
+    default Stream<AuthorityReference> getAuthorityReferencesWithPermission(
+            RoleAuthority.Scope scope, Permission permission) {
         return getRoles().stream()
-                .filter(r -> r.getRole().scope() == RoleAuthority.Scope.PROJECT
-                        && r.getReferent() != null)
-                .collect(groupingByReferent());
-    }
-
-    /**
-     * Get the organization roles defined in this token.
-     * @return non-null map describing the roles defined in this token. The keys in the map are the
-     *     project names, and the values are lists of authority names associated to the project.
-     */
-    default Map<String, Set<RoleAuthority>> getOrganizationRoles() {
-        return getRoles().stream()
-                .filter(r -> r.getRole().scope() == RoleAuthority.Scope.ORGANIZATION
-                        && r.getReferent() != null)
-                .collect(groupingByReferent());
+                .filter(r -> r.getRole().scope() == scope && permission.isRoleAllowed(r.getRole()));
     }
 
     /**
@@ -75,9 +41,7 @@ public interface RadarToken {
      */
     default Stream<String> getReferentsWithPermission(RoleAuthority.Scope scope,
             Permission permission) {
-        return getRoles().stream()
-                .filter(r -> r.getRole().scope() == scope
-                        && permission.isRoleAllowed(r.getRole()))
+        return getAuthorityReferencesWithPermission(scope, permission)
                 .map(AuthorityReference::getReferent)
                 .filter(Objects::nonNull);
     }
@@ -223,6 +187,19 @@ public interface RadarToken {
      * @return {@code true} if this token has the permission, {@code false} otherwise
      */
     boolean hasPermission(Permission permission);
+
+    /**
+     * Check if this token gives the given permission from a global scope.
+     *
+     * <p>This token <strong>must</strong> have the permission in its set of scopes. If it's a
+     * client credentials token, this is the only requirement, as a client credentials token is
+     * linked to an OAuth client and not to a user in the system. If it's not a client
+     * credentials token, this also checks to see if the user has a global role with the specified
+     * permission.</p>
+     * @param permission The permission to check
+     * @return {@code true} if this token has the permission, {@code false} otherwise
+     */
+    boolean hasGlobalPermission(Permission permission);
 
     /**
      * Check if this token gives a permission in a specific organization.

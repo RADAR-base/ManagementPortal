@@ -36,6 +36,7 @@ public class MockConfiguration {
         when(token.getUsername()).thenReturn("admin");
         when(token.hasAuthority(any())).thenAnswer(a -> a.getArgument(0).equals(SYS_ADMIN));
         when(token.hasPermission(any())).thenReturn(true);
+        when(token.hasGlobalPermission(any())).thenReturn(true);
         when(token.hasPermissionOnOrganization(any(), any())).thenReturn(true);
         when(token.hasPermissionOnOrganizationAndProject(any(), any(), any())).thenReturn(true);
         when(token.hasPermissionOnProject(any(), any())).thenReturn(true);
