@@ -241,7 +241,7 @@ public class UserService {
                             role.getProject().getProjectName());
                 }
             }
-            default -> { }
+            default -> throw new IllegalStateException("Unknown authority scope.");
         }
     }
 
