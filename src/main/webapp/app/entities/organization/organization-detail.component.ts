@@ -1,10 +1,16 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, Subject, Subscription } from 'rxjs';
 
 // import { Source } from '../../shared/source/source.model';
 import { Organization, OrganizationService } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
+import {
+    distinctUntilChanged, filter,
+    map, shareReplay,
+    startWith,
+    switchMap
+} from "rxjs/operators";
 
 @Component({
     selector: 'jhi-organization-detail',
@@ -12,9 +18,8 @@ import { EventManager } from '../../shared/util/event-manager.service';
     styleUrls: ['organization-detail.component.scss'],
 })
 export class OrganizationDetailComponent implements OnInit, OnDestroy {
-
-    organization: Organization;
-    private subscription: any;
+    private trigger$ = new Subject<void>();
+    organization$: Observable<Organization>;
     private eventSubscriber: Subscription;
 
     // sources: Source[];
@@ -36,18 +41,19 @@ export class OrganizationDetailComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.subscription = this.route.params.subscribe((params) => {
-            this.load(params['organizationName']);
-        });
-        this.registerChangeInOrganizations();
+        this.organization$ = combineLatest([
+          this.route.params,
+          this.trigger$.pipe(startWith(undefined as void)),
+        ]).pipe(
+          map(([params]) => params['organizationName']),
+          filter(orgName => !!orgName),  // ensure that organization name is set
+          distinctUntilChanged(),  // no need to trigger duplicate requests
+          switchMap((orgName) => this.organizationService.find(orgName)), // get organization
+          shareReplay(1), // multiple subscriptions will not trigger multiple requests
+        );
+        this.eventSubscriber = this.registerChangeInOrganizations();
         // this.viewSubjects();
         this.viewProjects();
-    }
-
-    load(organizationName) {
-        this.organizationService.find(organizationName).subscribe((organization) => {
-            this.organization = organization;
-        });
     }
 
     previousState() {
@@ -55,13 +61,13 @@ export class OrganizationDetailComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.subscription.unsubscribe();
-        this.eventManager.destroy(this.eventSubscriber);
+        this.trigger$.complete();
+        this.eventSubscriber.unsubscribe();
     }
 
-    registerChangeInOrganizations() {
-        this.eventSubscriber = this.eventManager.subscribe('organizationListModification',
-                () => this.load(this.organization.name));
+    registerChangeInOrganizations(): Subscription {
+        return this.eventManager.subscribe('organizationListModification',
+          () => this.trigger$.next());
     }
 
     viewProjects() {
