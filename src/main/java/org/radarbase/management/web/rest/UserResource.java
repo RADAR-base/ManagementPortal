@@ -269,7 +269,7 @@ public class UserResource {
     }
 
     /**
-     * PUT /users/:login/roles : get the "login" User roles.
+     * PUT /users/:login/roles : update the "login" User roles.
      *
      * @param login the login of the user to get roles from
      * @return the ResponseEntity with status 200 (OK)
