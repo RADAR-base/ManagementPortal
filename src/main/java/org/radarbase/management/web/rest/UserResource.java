@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tech.jhipster.web.util.ResponseUtil;
 
@@ -208,11 +209,12 @@ public class UserResource {
     @Timed
     public ResponseEntity<List<UserDTO>> getUsers(
             @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable,
-            UserFilter userFilter)
+            UserFilter userFilter,
+            @RequestParam(defaultValue = "true") boolean includeProvenance)
             throws NotAuthorizedException {
         checkAuthorityAndPermission(token, SYS_ADMIN, USER_READ);
 
-        Page<UserDTO> page = userService.findUsers(userFilter, pageable);
+        Page<UserDTO> page = userService.findUsers(userFilter, pageable, includeProvenance);
 
         return new ResponseEntity<>(page.getContent(),
             PaginationUtil.generatePaginationHttpHeaders(page, "/api/users"), HttpStatus.OK);

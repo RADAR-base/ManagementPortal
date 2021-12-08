@@ -1,7 +1,12 @@
 package org.radarbase.auth.authorization;
 
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collector;
+
+import static java.util.stream.Collectors.toCollection;
 
 /**
  * Constants for Spring Security authorities.
@@ -71,5 +76,9 @@ public enum RoleAuthority implements Serializable {
 
     public enum Scope {
         GLOBAL, ORGANIZATION, PROJECT
+    }
+
+    public static <T extends Enum<T>> Collector<T, ?, Set<T>> toEnumSet(Class<T> clazz) {
+        return toCollection(() -> EnumSet.noneOf(clazz));
     }
 }

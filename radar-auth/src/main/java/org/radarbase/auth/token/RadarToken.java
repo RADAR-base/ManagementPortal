@@ -1,20 +1,15 @@
 package org.radarbase.auth.token;
 
-import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.auth.authorization.Permission;
+import org.radarbase.auth.authorization.RoleAuthority;
 
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toCollection;
+import static org.radarbase.auth.authorization.RoleAuthority.toEnumSet;
 
 /**
  * Created by dverbeec on 10/01/2018.
@@ -76,7 +71,7 @@ public interface RadarToken {
         return getAuthorities().stream()
                 .map(RoleAuthority::valueOfAuthorityOrNull)
                 .filter(Objects::nonNull)
-                .collect(toEnumSet());
+                .collect(toEnumSet(RoleAuthority.class));
     }
 
     /**
@@ -254,14 +249,4 @@ public interface RadarToken {
      * @return true if the client credentials flow was certainly used, false otherwise.
      */
     boolean isClientCredentials();
-
-    private static Collector<RoleAuthority, ?, Set<RoleAuthority>> toEnumSet() {
-        return toCollection(() -> EnumSet.noneOf(RoleAuthority.class));
-    }
-
-    private static Collector<AuthorityReference, ?, Map<String, Set<RoleAuthority>>>
-            groupingByReferent() {
-        return groupingBy(AuthorityReference::getReferent,
-                mapping(AuthorityReference::getRole, toEnumSet()));
-    }
 }

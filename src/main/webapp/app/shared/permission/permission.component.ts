@@ -209,11 +209,13 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
             req = {
                 projectName: this.project.projectName,
                 includeUpperLevels: true,
+                includeProvenance: false,
             };
         } else if (this.organization) {
             req = {
                 organization: this.organization.name,
                 includeUpperLevels: true,
+                includeProvenance: false,
             };
         } else {
             return;

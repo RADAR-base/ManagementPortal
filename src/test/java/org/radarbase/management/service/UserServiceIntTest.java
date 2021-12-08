@@ -243,7 +243,8 @@ public class UserServiceIntTest {
     @Test
     void assertThatAnonymousUserIsNotGet() {
         final PageRequest pageable = PageRequest.of(0, (int) userRepository.count());
-        final Page<UserDTO> allManagedUsers = userService.findUsers(new UserFilter(), pageable);
+        final Page<UserDTO> allManagedUsers = userService.findUsers(new UserFilter(), pageable,
+                false);
         assertThat(allManagedUsers.getContent().stream()
                 .noneMatch(user -> Constants.ANONYMOUS_USER.equals(user.getLogin())))
                 .isTrue();

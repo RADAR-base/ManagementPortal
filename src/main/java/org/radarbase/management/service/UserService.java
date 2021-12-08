@@ -398,8 +398,20 @@ public class UserService {
                 });
     }
 
-    public Page<UserDTO> findUsers(UserFilter userFilter, Pageable pageable) {
-        return userRepository.findAll(userFilter, pageable).map(userMapper::userToUserDTO);
+    /**
+     * Find all user with given filter.
+     *
+     * @param userFilter filtering for users.
+     * @param pageable paging information
+     * @param includeProvenance whether to include created and modification fields.
+     * @return page of users.
+     */
+    public Page<UserDTO> findUsers(UserFilter userFilter, Pageable pageable,
+            boolean includeProvenance) {
+        return userRepository.findAll(userFilter, pageable)
+                .map(includeProvenance
+                        ? userMapper::userToUserDTO
+                        : userMapper::userToUserDTONoProvenance);
     }
 
     /**

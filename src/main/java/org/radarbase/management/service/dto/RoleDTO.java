@@ -1,12 +1,14 @@
 package org.radarbase.management.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.Objects;
 
 /**
  * Created by nivethika on 23-5-17.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class RoleDTO {
-
     private Long id;
 
     private Long organizationId;
