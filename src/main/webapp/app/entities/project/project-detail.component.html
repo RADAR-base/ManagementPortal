@@ -66,6 +66,11 @@
                         Groups
                     </span>
             </li>
+            <li class="nav-item" (click)="updateActiveTab('permissions')">
+                <span class="nav-link" [ngClass]="{active: activeTab === 'permissions'}">
+                    Permissions
+                </span>
+            </li>
             <li class="nav-item" (click)="updateActiveTab('admins')">
                     <span class="nav-link" [ngClass]="{active: activeTab === 'admins'}">
                         Admins
@@ -83,6 +88,8 @@
 
             <jhi-subjects *ngIf="activeTab === 'subjects'" [project]='project' [isProjectSpecific]="true"></jhi-subjects>
             <jhi-groups *ngIf="activeTab === 'groups'" [project]='project'></jhi-groups>
+
+            <jhi-permissions *ngIf="activeTab === 'permissions'" [project]='project'></jhi-permissions>
             <jhi-common-user-mgmt *ngIf="activeTab === 'admins'" [project]='project' [authority]="'ROLE_PROJECT_ADMIN'"></jhi-common-user-mgmt>
             <jhi-common-user-mgmt *ngIf="activeTab === 'analysts'" [project]='project' [authority]="'ROLE_PROJECT_ANALYST'"></jhi-common-user-mgmt>
         </div>

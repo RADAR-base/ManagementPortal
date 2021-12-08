@@ -36,6 +36,7 @@
             "create" : "Add",
             "authorityName" : "Authority",
             "project" : "Project",
+            "organizationOrProject": "Organization/Project",
             "error" : {
                 "alreadyExist" : "This role has been already added"
             }

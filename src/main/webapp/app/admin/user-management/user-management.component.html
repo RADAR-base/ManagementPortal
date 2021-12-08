@@ -36,7 +36,7 @@
                 <th></th>
                 <th jhiSortBy="langKey"> <span [translate]="'userManagement.langKey'"></span> <span class="fa fa-sort"></span></th>
                 <th><span [translate]="'userManagement.role.authorityName'"></span></th>
-                <th><span [translate]="'userManagement.role.project'"></span></th>
+                <th><span [translate]="'userManagement.role.organizationOrProject'"></span></th>
                 <th><span [translate]="'userManagement.createdDate'"></span></th>
                 <th><span [translate]="'userManagement.lastModifiedBy'"></span></th>
                 <th><span [translate]="'userManagement.lastModifiedDate'"></span></th>
@@ -62,12 +62,15 @@
                 <td>
                     <div *ngFor="let role of user.roles">
                         <span *ngIf="role.authorityName === 'ROLE_SYS_ADMIN'">{{role.authorityName}}</span>
-                        <a *ngIf="role.authorityName != 'ROLE_SYS_ADMIN'" [routerLink]="['/role', role.projectName, role.authorityName ]" >{{role.authorityName}}</a>
+<!--                        <a *ngIf="role.authorityName != 'ROLE_SYS_ADMIN'" [routerLink]="['/role', role.projectName, role.authorityName ]" >{{role.authorityName}}</a>-->
+<!--                        <a *ngIf="role.authorityName === 'ROLE_ORGANIZATION_ADMIN'" [routerLink]="['/role', role.organizationName, role.authorityName ]" >{{role.authorityName}}</a>-->
+                        <span *ngIf="role.authorityName === 'ROLE_ORGANIZATION_ADMIN'" >{{role.authorityName}}</span>
+                        <a *ngIf="role.authorityName === 'ROLE_PROJECT_ADMIN'" [routerLink]="['/role', role.projectName, role.authorityName ]" >{{role.authorityName}}</a>
                     </div>
                 </td>
                 <td>
                     <div *ngFor="let role of user.roles">
-                       {{role.projectName}}
+                       {{role.projectName || role.organizationName }}
                     </div>
                 </td>
                 <td>{{user.createdDate | date:'dd/MM/yy HH:mm'}}</td>

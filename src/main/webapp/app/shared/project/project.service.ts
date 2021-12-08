@@ -69,6 +69,15 @@ export class ProjectService {
     }
 
     create(project: Project): Observable<Project> {
+        console.log(project)
+        // project.organizationName = 'aaa'
+        // project.organization = {name: 'aaa'}
+        // {
+        //     description: "the hyve",
+        //     id: 1301,
+        //     location: "utrecht",
+        //     name: "the hyve",
+        // };
         return this.http.post(this.projectUrl(), this.convertProjectToServer(project)).pipe(
           map(p => this.convertProjectFromServer(p)),
           tap(
@@ -165,7 +174,7 @@ export class ProjectService {
         this._projects$.next(nextValue);
     }
 
-    private convertProjectToServer(project: Project): any {
+    protected convertProjectToServer(project: Project): any {
         return {
             ...project,
             startDate: toDate(project.startDate),
@@ -173,7 +182,7 @@ export class ProjectService {
         };
     }
 
-    private convertProjectFromServer(projectFromServer: any): Project {
+    protected convertProjectFromServer(projectFromServer: any): Project {
         return {
             ...projectFromServer,
             startDate: convertDateTimeFromServer(projectFromServer.startDate),
@@ -181,12 +190,12 @@ export class ProjectService {
         };
     }
 
-    private projectUrl(projectName?: string): string {
+    protected projectUrl(projectName?: string): string {
+        let url = 'api/projects';
         if (projectName) {
-            return 'api/projects/' + encodeURIComponent(projectName);
-        } else {
-            return 'api/projects';
+            url += '/' + encodeURIComponent(projectName);
         }
+        return url;
     }
 
 }

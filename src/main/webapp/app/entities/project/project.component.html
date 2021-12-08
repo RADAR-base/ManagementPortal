@@ -1,7 +1,8 @@
+<!--{{organization | json}}-->
 <div>
     <h2>
         <span [translate]="'managementPortalApp.project.home.title'"></span>
-        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']" class="btn btn-primary float-right create-project" [routerLink]="['/', { outlets: { popup: ['project-new'] } }]">
+        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']" class="btn btn-primary float-right create-project" [routerLink]="['/', { outlets: { popup: ['organizations', organization.name, 'project-new'] } }]">
             <span class="fa fa-plus"></span>
             <span [translate]="'managementPortalApp.project.home.createLabel'"></span>
         </button>
@@ -55,14 +56,14 @@
                             <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
                         </button>
                         <button type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'project/'+ project.projectName + '/edit'} }]"
+                                [routerLink]="['/', { outlets: { popup: ['organizations', organization.name, 'project', project.projectName , 'edit']} }]"
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>
                             <span class="hidden-md-down" [translate]="'entity.action.edit'"></span>
                         </button>
                         <button type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'project/'+ project.projectName + '/delete'} }]"
+                                [routerLink]="['/', { outlets: { popup: ['organizations', organization.name, 'project', project.projectName, 'delete']} }]"
                                 replaceUrl="true"
                                 class="btn btn-danger btn-sm">
                             <span class="fa fa-remove"></span>

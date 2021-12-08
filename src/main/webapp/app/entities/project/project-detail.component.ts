@@ -13,7 +13,7 @@ import { distinctUntilChanged, filter, pluck, switchMap } from "rxjs/operators";
     styleUrls: ['project-detail.component.scss'],
 })
 export class ProjectDetailComponent implements OnInit, OnDestroy {
-    private static availableTabs = ['subjects', 'groups', 'admins', 'analysts']
+    private static availableTabs = ['subjects', 'groups', 'permissions', 'admins', 'analysts']
     private subscription = new Subscription();
     private _project$ = new BehaviorSubject<Project>(null);
     project$ = this._project$.asObservable();

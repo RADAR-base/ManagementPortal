@@ -17,7 +17,7 @@ export class ProjectPopupService {
     ) {
     }
 
-    open(component: any, projectName?: string): NgbModalRef {
+    open(component: any, organizationName: string, projectName?: string): NgbModalRef {
         if (this.isOpen) {
             return;
         }
@@ -27,16 +27,17 @@ export class ProjectPopupService {
             this.projectService.find(projectName).subscribe((project) => {
                 project.startDate = this.datePipe.transform(project.startDate, 'yyyy-MM-ddThh:mm');
                 project.endDate = this.datePipe.transform(project.endDate, 'yyyy-MM-ddThh:mm');
-                this.projectModalRef(component, project);
+                this.projectModalRef(component, organizationName, project);
             });
         } else {
-            return this.projectModalRef(component, {});
+            return this.projectModalRef(component, organizationName, {});
         }
     }
 
-    projectModalRef(component: any, project: Project): NgbModalRef {
+    projectModalRef(component: any, organizationName: string, project: Project): NgbModalRef {
         const modalRef = this.modalService.open(component, {size: 'lg', backdrop: 'static'});
         modalRef.componentInstance.project = project;
+        modalRef.componentInstance.organizationName = organizationName;
         modalRef.result.then((result) => {
             this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;

@@ -13,6 +13,17 @@ export class UserService {
     }
 
     create(user: User): Observable<any> {
+        console.log(user)
+        // const newUser = {
+        //     authorities: [],
+        //     email: "test@test.com",
+        //     firstName: "Peyman",
+        //     langKey: "en",
+        //     lastName: "M",
+        //     login: "peyman-test",
+        //     roles: [{authorityName: "ROLE_ORGANIZATION_ADMIN", organizationId: 1}]
+        // };
+        // return this.http.post(this.resourceUrl, newUser);
         return this.http.post(this.resourceUrl, user);
     }
 

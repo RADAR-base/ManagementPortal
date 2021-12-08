@@ -18,9 +18,13 @@ export class ProjectComponent implements OnInit, OnDestroy {
     pagingParams$: Observable<PagingParams>;
 
     organization$ = new BehaviorSubject<Organization>(null);
+
     @Input()
     get organization() { return this.organization$.value; }
-    set organization(v: Organization) { this.organization$.next(v); }
+    set organization(v: Organization) {
+        this.organization$.next(v);
+        this.loadAll();
+    }
 
     projects: Project[];
     eventSubscriber: Subscription;
@@ -58,16 +62,32 @@ export class ProjectComponent implements OnInit, OnDestroy {
     }
 
     loadAll() {
-        this.projectService.query(
-                {
-                    page: this.page - 1,
-                    size: this.itemsPerPage,
-                    sort: this.sort(),
-                },
-        ).subscribe(
-                (res: HttpResponse<Project[]>) => this.onSuccess(res.body, res.headers),
-                (res: HttpErrorResponse) => this.onError(res.message),
-        );
+        // this.projectService.query(
+        //     {
+        //         page: this.page - 1,
+        //         size: this.itemsPerPage,
+        //         sort: this.sort(),
+        //         organizationName: this.organization.name
+        //     },
+        // ).subscribe(
+        //     (res: HttpResponse<Project[]>) => this.onSuccess(res.body, res.headers),
+        //     (res: HttpErrorResponse) => this.onError(res.message),
+        // );
+        this.projectService.findAllByOrganization(this.organization.name).subscribe({
+            next: projects => this.projects = projects,
+            error: error => this.alertService.error(error.message, null, null)
+        })
+        // this.projectService.query(
+        //         {
+        //             page: this.page - 1,
+        //             size: this.itemsPerPage,
+        //             sort: this.sort(),
+        //             organizationId: this.organization.name
+        //         },
+        // ).subscribe(
+        //         (res: HttpResponse<Project[]>) => this.onSuccess(res.body, res.headers),
+        //         (res: HttpErrorResponse) => this.onError(res.message),
+        // );
     }
 
     ngOnInit() {

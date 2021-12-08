@@ -29,6 +29,7 @@ export class ProjectDialogComponent implements OnInit {
     readonly authorities: any[];
     readonly options: string[];
 
+    organizationName: string;
     project: Project;
     isSaving: boolean;
     projectIdAsPrettyValue: boolean;
@@ -83,6 +84,8 @@ export class ProjectDialogComponent implements OnInit {
     }
 
     ngOnInit() {
+        console.log(this.project, this.organizationName);
+
         if(this.project.startDate) {
             this.startDate = this.formatter.parse(this.project.startDate.toString());
         }
@@ -115,7 +118,8 @@ export class ProjectDialogComponent implements OnInit {
             .subscribe((res: Project) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         } else {
-            this.projectService.create(this.project)
+            console.log(this.project, this.organizationName)
+            this.projectService.create({...this.project, organization: {name: this.organizationName}})
             .subscribe((res: Project) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         }
@@ -207,8 +211,9 @@ export class ProjectPopupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.routeSub = this.route.params.subscribe((params) => {
+            console.log(params);
             this.modalRef = this.projectPopupService
-                    .open(ProjectDialogComponent, params['projectName']);
+                .open(ProjectDialogComponent, params['organizationName'], params['projectName']);
         });
     }
 

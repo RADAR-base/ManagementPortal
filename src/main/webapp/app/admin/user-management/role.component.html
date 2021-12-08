@@ -11,7 +11,7 @@
             <thead>
             <tr>
             <th><span [translate]="'userManagement.role.authorityName'"></span></th>
-            <th><span [translate]="'userManagement.role.project'"></span></th>
+            <th><span [translate]="'userManagement.role.organizationOrProject'"></span></th>
             <th></th>
             </tr>
             </thead>
@@ -21,6 +21,9 @@
                 <td>
                     <div *ngIf="role.projectId">
                         {{role.projectName}}
+                    </div>
+                    <div *ngIf="role.organizationId">
+                        {{role.organizationName}}
                     </div>
                 </td>
                 <td *ngIf="role.authorityName!='ROLE_SYS_ADMIN'">
@@ -34,30 +37,51 @@
     <div [hidden]="roles.length>0 && roles[0].authorityName=='ROLE_SYS_ADMIN'">
         <table class="table table-striped">
             <thead>
-            <tr>
-                <th><span [translate]="'userManagement.role.authorityName'"></span></th>
-                <th><span [translate]="'userManagement.role.project'"></span></th>
-                <th></th>
-            </tr>
+                <tr>
+                    <th><span [translate]="'userManagement.role.authorityName'"></span></th>
+                    <th><span [translate]="'userManagement.role.organizationOrProject'"></span></th>
+                    <th></th>
+                </tr>
             </thead>
             <tbody>
-                <td>
-                    <select name='authority' [(ngModel)]="selectedAuthority" class="form-control" required>
-                        <option [ngValue]="null"></option>
-                        <option *ngFor="let authority of authorities;">{{authority}}</option>
-                    </select>
-                </td>
-                <td>
-                    <select name='project' [(ngModel)]="selectedProject" class="form-control" required>
-                        <option [ngValue]="null"></option>
-                        <option [ngValue]="projectOption" *ngFor="let projectOption of projectService.projects$ | async; trackBy: trackProjectById">{{projectOption.projectName}}</option>
-                    </select>
-                </td>
-                <td>
-                    <button name='addRole'type="button" class="btn btn-primary float-right" (click)="addRole()">
-                        <span [translate]="'userManagement.role.create'"></span>
-                    </button>
-                </td>
+                <tr>
+                    <td>
+                        <select name='authority' [(ngModel)]="selectedAuthority" class="form-control" required>
+                            <option [ngValue]="null">Select an authority</option>
+<!--                            <option *ngFor="let authority of authorities;">{{authority}}</option>-->
+                            <option [ngValue]="'ROLE_ORGANIZATION_ADMIN'">ROLE_ORGANIZATION_ADMIN</option>
+                            <option [ngValue]="'ROLE_PROJECT_ADMIN'">ROLE_PROJECT_ADMIN</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select *ngIf="!selectedAuthority || selectedAuthority === 'ROLE_ORGANIZATION_ADMIN'"
+                                name='organization'
+                                [(ngModel)]="selectedOrganization"
+                                class="form-control"
+                                required
+                                [disabled]="!selectedAuthority">
+                            <option [ngValue]="null">Select an organization</option>
+                            <option [ngValue]="organizationOption" *ngFor="let organizationOption of organizationService.organizations$ | async; trackBy: trackOrganizationById">{{organizationOption.name}}</option>
+                        </select>
+                        <select *ngIf="selectedAuthority === 'ROLE_PROJECT_ADMIN'"
+                                name='project'
+                                [(ngModel)]="selectedProject"
+                                class="form-control"
+                                required>
+<!--                        selectedAuthority === 'ROLE_PROJECT_AFFILIATE' ||-->
+<!--                        selectedAuthority === 'ROLE_PROJECT_OWNER' ||-->
+<!--                        selectedAuthority === 'ROLE_PROJECT_ANALYST'"-->
+                            <option [ngValue]="null">Select a project</option>
+                            <option [ngValue]="projectOption" *ngFor="let projectOption of projectService.projects$ | async; trackBy: trackProjectById">{{projectOption.projectName}}</option>
+                        </select>
+
+                    </td>
+                    <td>
+                        <button name='addRole' type="button" class="btn btn-primary float-right" (click)="addRole()">
+                            <span [translate]="'userManagement.role.create'"></span>
+                        </button>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
