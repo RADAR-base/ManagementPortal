@@ -41,27 +41,30 @@ export class ProjectService {
       private principal: Principal,
       private alertService: AlertService,
     ) {
-        combineLatest([
-            principal.account$,
-            this._trigger$.pipe(startWith(undefined as void)),
-        ]).pipe(
-          switchMap(([account]) => {
-              if (account) {
-                  return this.fetch().pipe(
-                    retryWhen(errors => errors.pipe(
-                      delay(1000),
-                      take(10),
-                      concatMap(err => throwError(err)))
-                    ),
-                  );
-              } else {
-                  return of([]);
-              }
-          })
-        ).subscribe(
-          projects => this._projects$.next(projects),
-          err => this.alertService.error(err.message, null, null),
-        );
+        // combineLatest([
+        //     principal.account$,
+        //     this._trigger$.pipe(startWith(undefined as void)),
+        // ]).pipe(
+        //   switchMap(([account]) => {
+        //       if (account) {
+        //           return this.fetch().pipe(
+        //             retryWhen(errors => errors.pipe(
+        //               delay(1000),
+        //               take(10),
+        //               concatMap(err => throwError(err)))
+        //             ),
+        //           );
+        //       } else {
+        //           return of([]);
+        //       }
+        //   })
+        // ).subscribe(
+        //   projects => {
+        //       console.log(projects)
+        //       this._projects$.next(projects)
+        //   },
+        //   err => this.alertService.error(err.message, null, null),
+        // );
     }
 
     reset() {
@@ -69,15 +72,6 @@ export class ProjectService {
     }
 
     create(project: Project): Observable<Project> {
-        console.log(project)
-        // project.organizationName = 'aaa'
-        // project.organization = {name: 'aaa'}
-        // {
-        //     description: "the hyve",
-        //     id: 1301,
-        //     location: "utrecht",
-        //     name: "the hyve",
-        // };
         return this.http.post(this.projectUrl(), this.convertProjectToServer(project)).pipe(
           map(p => this.convertProjectFromServer(p)),
           tap(
@@ -90,10 +84,10 @@ export class ProjectService {
     update(project: Project): Observable<Project> {
         return this.http.put<Project>(this.projectUrl(), this.convertProjectToServer(project)).pipe(
           map(p => this.convertProjectFromServer(p)),
-          tap(
-            p => this.updateProject(p),
-            () => this.reset(),
-          ),
+          // tap(
+          //   p => this.updateProject(p),
+          //   () => this.reset(),
+          // ),
         )
     }
 
@@ -119,7 +113,10 @@ export class ProjectService {
 
     fetch(): Observable<Project[]> {
         return this.query().pipe(
-          map(res => res.body.map(p => this.convertProjectFromServer(p))),
+          map(res => res.body.map(p => {
+              console.log(p)
+              return this.convertProjectFromServer(p)
+          })),
         );
     }
 
@@ -175,6 +172,7 @@ export class ProjectService {
     }
 
     protected convertProjectToServer(project: Project): any {
+        console.log(project)
         return {
             ...project,
             startDate: toDate(project.startDate),
@@ -183,6 +181,7 @@ export class ProjectService {
     }
 
     protected convertProjectFromServer(projectFromServer: any): Project {
+        console.log(projectFromServer)
         return {
             ...projectFromServer,
             startDate: convertDateTimeFromServer(projectFromServer.startDate),

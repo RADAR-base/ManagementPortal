@@ -5,7 +5,7 @@ import {BehaviorSubject, combineLatest, Observable, of, Subject, throwError} fro
 import { Organization } from './organization.model';
 import {Principal} from "../auth/principal.service";
 import {AlertService} from "../util/alert.service";
-import {concatMap, delay, map, pluck, retryWhen, startWith, switchMap, take, tap} from "rxjs/operators";
+import {concatMap, delay, map, retryWhen, startWith, switchMap, take, tap} from "rxjs/operators";
 import {createRequestOption} from "../model/request.utils";
 
 @Injectable({ providedIn: 'root' })
@@ -50,32 +50,22 @@ export class OrganizationService {
     }
 
     create(organization: Organization): Observable<Organization> {
-        return this.http.post(this.organizationUrl(), this.convertOrganizationToServer(organization)).pipe(
-            map(p => this.convertOrganizationFromServer(p)),
+        return this.http.post(this.organizationUrl(), organization).pipe(
             tap(
                 p => this.updateOrganization(p),
                 () => this.reset(),
             ),
         )
     }
-
-    // create(organization: Organization): Observable<Organization> {
-    //     return this.http.post<Organization>(this.resourceUrl, organization);
-    // }
 
     update(organization: Organization): Observable<Organization> {
-        return this.http.put<Organization>(this.organizationUrl(), this.convertOrganizationToServer(organization)).pipe(
-            map(p => this.convertOrganizationFromServer(p)),
-            tap(
-                p => this.updateOrganization(p),
-                () => this.reset(),
-            ),
+        return this.http.put<Organization>(this.organizationUrl(), organization).pipe(
+            // tap(
+            //     p => this.updateOrganization(p),
+            //     () => this.reset(),
+            // ),
         )
     }
-
-    // update(organization: Organization): Observable<Organization> {
-    //     return this.http.put<Organization>(this.resourceUrl, organization);
-    // }
 
     find(orgName: string): Observable<Organization> {
         return this.organizations$.pipe(
@@ -92,14 +82,13 @@ export class OrganizationService {
 
     fetchOrganization(orgName: string): Observable<Organization> {
         return this.http.get(this.organizationUrl(orgName)).pipe(
-            map(p => this.convertOrganizationFromServer(p)),
             tap(p => this.updateOrganization(p)),
         );
     }
 
     fetch(): Observable<Organization[]> {
         return this.query().pipe(
-            map(res => res.body.map(p => this.convertOrganizationFromServer(p))),
+            map(res => res.body),
         );
     }
 
@@ -107,23 +96,6 @@ export class OrganizationService {
         const options = createRequestOption(req);
         return this.http.get<Organization[]>(this.organizationUrl(), {params: options, observe: 'response'});
     }
-
-    // find(orgName: string): Observable<Organization> {
-    //     return this.http.get(`${this.resourceUrl}/${encodeURIComponent(orgName)}`);
-    // }
-
-    // findSourceTypesByName(projectName: string): Observable<SourceType[]> {
-    //     return this.find(projectName).pipe(
-    //         pluck('sourceTypes'),
-    //         switchMap(sourceTypes => {
-    //             if (sourceTypes) {
-    //                 return of(sourceTypes);
-    //             } else {
-    //                 return this.http.get<SourceType[]>(this.projectUrl(projectName) + '/source-types');
-    //             }
-    //         })
-    //     );
-    // }
 
     delete(orgName: string): Observable<any> {
         return this.http.delete(this.organizationUrl(orgName)).pipe(
@@ -152,36 +124,15 @@ export class OrganizationService {
         this._organizations$.next(nextValue);
     }
 
-    private convertOrganizationToServer(organization: Organization): any {
-        return {
-            ...organization,
-            // startDate: toDate(organization.startDate),
-            // endDate: toDate(organization.endDate),
-        };
-    }
-
-    private convertOrganizationFromServer(organizationFromServer: any): Organization {
-        return {
-            ...organizationFromServer,
-            // startDate: convertDateTimeFromServer(organizationFromServer.startDate),
-            // endDate: convertDateTimeFromServer(organizationFromServer.endDate),
-        };
-    }
-
-    private organizationUrl(orgName?: string): string {
-        if (orgName) {
-            return 'api/organizations/' + encodeURIComponent(orgName);
-        } else {
-            return 'api/organizations';
-        }
-    }
-
-
     findAll(): Observable<Organization[]> {
         return this.http.get<Organization[]>(this.resourceUrl);
     }
 
-    // delete(organizationName: string): Observable<any> {
-    //     return;
-    // }
+    protected organizationUrl(orgName?: string): string {
+        if (orgName) {
+            return this.resourceUrl + encodeURIComponent(orgName);
+        } else {
+            return this.resourceUrl;
+        }
+    }
 }

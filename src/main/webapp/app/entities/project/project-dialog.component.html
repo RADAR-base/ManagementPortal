@@ -70,12 +70,21 @@
         </div>
         <div class="form-group">
             <label class="form-control-label"
+                   [translate]="'managementPortalApp.project.organizationLegacy'"
+                   for="field_organization_legacy">
+            </label>
+            <input type="text" class="form-control" name="organizationName" id="field_organization_legacy"
+                   [(ngModel)]="project.organizationName"
+            />
+        </div>
+        <div class="form-group" *ngIf="project.organization">
+            <label class="form-control-label"
                 [translate]="'managementPortalApp.project.organization'"
                 for="field_organization">
             </label>
-            <input type="text" class="form-control" name="organization" id="field_organization"
-                [(ngModel)]="project.organization"
-             />
+            <select class="form-control" name="organization" [(ngModel)]="project.organization.name" id="field_organization">
+                <option *ngFor="let organization of organizations" [ngValue]="organization.name">{{organization.name}}</option>
+            </select>
         </div>
         <div class="form-group">
             <label class="form-control-label"

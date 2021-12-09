@@ -1,4 +1,4 @@
-import { Observable, Subject, merge } from 'rxjs';
+import {Observable, Subject, merge, Subscription} from 'rxjs';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -16,7 +16,7 @@ import { EventManager } from '../../shared/util/event-manager.service';
 import { SourceType, SourceTypeService } from '../source-type';
 import { ProjectPopupService } from './project-popup.service';
 
-import { GroupService, Project, ProjectService } from '../../shared';
+import {GroupService, Organization, OrganizationService, Project, ProjectService} from '../../shared';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
@@ -29,6 +29,7 @@ export class ProjectDialogComponent implements OnInit {
     readonly authorities: any[];
     readonly options: string[];
 
+    organizations: Organization[];
     organizationName: string;
     project: Project;
     isSaving: boolean;
@@ -51,6 +52,8 @@ export class ProjectDialogComponent implements OnInit {
     startDate: NgbDateStruct;
     endDate: NgbDateStruct;
 
+    subscription: Subscription;
+
     getMatchingSourceTypes = (text$: Observable<string>) => {
         const debouncedText$ = text$.pipe(debounceTime(200), distinctUntilChanged());
         const inputFocus$ = this.sourceTypeInputFocus$;
@@ -70,6 +73,7 @@ export class ProjectDialogComponent implements OnInit {
     constructor(
             public activeModal: NgbActiveModal,
             private alertService: AlertService,
+            private organizationService: OrganizationService,
             private projectService: ProjectService,
             private sourceTypeService: SourceTypeService,
             private eventManager: EventManager,
@@ -84,7 +88,13 @@ export class ProjectDialogComponent implements OnInit {
     }
 
     ngOnInit() {
-        console.log(this.project, this.organizationName);
+        this.subscription = this.organizationService.organizations$.subscribe(value => {
+            this.organizations = value
+            //     .map(organization => {
+            //     delete organization.projects;
+            //     return organization;
+            // });
+        })
 
         if(this.project.startDate) {
             this.startDate = this.formatter.parse(this.project.startDate.toString());
@@ -114,14 +124,13 @@ export class ProjectDialogComponent implements OnInit {
             this.project.endDate = this.formatter.format(this.endDate) + 'T23:59';
         }
         if (this.project.id !== undefined) {
-            this.projectService.update(this.project)
+            this.projectService.update({...this.project, organization: {name: this.project.organization.name}})
             .subscribe((res: Project) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         } else {
-            console.log(this.project, this.organizationName)
             this.projectService.create({...this.project, organization: {name: this.organizationName}})
             .subscribe((res: Project) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+                this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         }
     }
 
@@ -191,6 +200,10 @@ export class ProjectDialogComponent implements OnInit {
           .catch(() => {
               // TODO: actually show error
           });
+    }
+
+    onDestroy(): void {
+        this.subscription.unsubscribe();
     }
 }
 
