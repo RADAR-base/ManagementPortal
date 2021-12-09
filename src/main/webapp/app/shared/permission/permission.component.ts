@@ -91,13 +91,9 @@ const MOCK_USER_DATA = [ {
     templateUrl: './permission.component.html',
     styleUrls: ['./permission.component.scss'],
 })
-export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
-
-
+export class PermissionComponent implements OnDestroy, OnChanges {
     @Input() organization: Organization;
     @Input() project: Project;
-
-    authorities: string[];
 
     users: User[] = [];
     filteredUsers: User[] = [];
@@ -130,7 +126,6 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
 
     constructor(
             private authorityService: AuthorityService,
-            // private projectService: ProjectService,
             private alertService: AlertService,
             private eventManager: EventManager,
             private userService: UserService,
@@ -143,12 +138,6 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
         return this.filteredUsers.map(user => {
             const userNameString = (user.firstName || user.lastName)? ' [' + (user.firstName || '') + ' ' + (user.lastName || '') + ']' : '';
             return user.login + userNameString;
-        });
-    }
-
-    ngOnInit() {
-        this.authorityService.findAll().subscribe(res => {
-            this.authorities = res;
         });
     }
 
@@ -282,7 +271,7 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
     filterByOrganization(data: any[]): any[] {
         return data.filter( item => {
             return item.authorities.includes('ROLE_SYS_ADMIN') ||
-                    item.roles.filter(role => role.organizationId === 1).length > 0;
+                    item.roles.filter(role => role.organizationId === this.organization.id).length > 0;
         })
     }
 
