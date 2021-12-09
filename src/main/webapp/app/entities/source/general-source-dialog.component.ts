@@ -7,7 +7,7 @@ import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
 import { Source, SourceService } from '../../shared/source';
-import { MinimalProject, ProjectService } from '../../shared';
+import {MinimalProject, Project, ProjectService} from '../../shared';
 
 import { SourceType } from '../source-type';
 import { GeneralSourcePopupService } from './general-source-popup.service';
@@ -23,6 +23,8 @@ export class GeneralSourceDialogComponent implements OnInit {
     isSaving: boolean;
     sourceTypes: SourceType[];
 
+    projects: Project[];
+
     constructor(
       public activeModal: NgbActiveModal,
       private alertService: AlertService,
@@ -35,6 +37,10 @@ export class GeneralSourceDialogComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.projectService.query().subscribe(
+            (res) => this.projects = res.body,
+            (error) => this.alertService.error(error.message, null, null)
+        );
         this.onProjectChange(this.source.project);
     }
 

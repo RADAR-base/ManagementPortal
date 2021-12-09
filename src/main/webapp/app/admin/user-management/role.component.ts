@@ -20,6 +20,8 @@ export class RoleComponent implements OnInit {
     selectedProject: Project = null;
     selectedOrganization: Organization = null;
 
+    projects: Project[];
+
     constructor(
                 private authorityService: AuthorityService,
                 public projectService: ProjectService,
@@ -30,6 +32,10 @@ export class RoleComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.projectService.query().subscribe(
+            (res) => this.projects = res.body,
+            (error) => this.alertService.error(error.message, null, null)
+        );
         if (!this.roles) {
             this.roles = [];
         }

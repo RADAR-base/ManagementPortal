@@ -68,7 +68,7 @@
                                 class="form-control"
                                 required>
                             <option [ngValue]="null">Select a project</option>
-                            <option [ngValue]="projectOption" *ngFor="let projectOption of projectService.projects$ | async; trackBy: trackProjectById">{{projectOption.projectName}}</option>
+                            <option [ngValue]="projectOption" *ngFor="let projectOption of projects; trackBy: trackProjectById">{{projectOption.projectName}}</option>
                         </select>
 
                     </td>
