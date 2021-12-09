@@ -12,6 +12,9 @@ import { SourceTypePopupService } from './source-type-popup.service';
 
 import { SourceType } from './source-type.model';
 import { SourceTypeService } from './source-type.service';
+import { Subscription } from "rxjs";
+import { switchMap } from "rxjs/operators";
+import { SourceTypeDeleteDialogComponent } from "./source-type-delete-dialog.component";
 
 @Component({
     selector: 'jhi-source-type-dialog',
@@ -73,25 +76,25 @@ export class SourceTypeDialogComponent {
     template: '',
 })
 export class SourceTypePopupComponent implements OnInit, OnDestroy {
-
-    modalRef: NgbModalRef;
-    routeSub: any;
+    private modalRef: NgbModalRef;
+    private routeSub: Subscription;
 
     constructor(
-            private route: ActivatedRoute,
-            private sourceTypePopupService: SourceTypePopupService,
+      private route: ActivatedRoute,
+      private sourceTypePopupService: SourceTypePopupService,
     ) {
     }
 
     ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            this.modalRef = this.sourceTypePopupService
-                    .open(SourceTypeDialogComponent, params['sourceTypeProducer'],
-                            params['sourceTypeModel'], params['catalogVersion']);
-        });
+        this.routeSub = this.route.params.pipe(
+          switchMap(params => this.sourceTypePopupService.open(
+            SourceTypeDialogComponent, params['sourceTypeProducer'], params['sourceTypeModel'], params['catalogVersion']
+          )),
+        ).subscribe(modalRef => this.modalRef = modalRef);
     }
 
     ngOnDestroy() {
         this.routeSub.unsubscribe();
+        this.modalRef?.dismiss();
     }
 }

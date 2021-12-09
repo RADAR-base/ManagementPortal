@@ -1,5 +1,5 @@
-import { Observable, Subject, merge } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
+import { Observable, Subject, merge, combineLatest, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, tap, withLatestFrom } from 'rxjs/operators';
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
@@ -25,23 +25,15 @@ import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
     styleUrls: ['project-dialog.component.scss'],
     encapsulation: ViewEncapsulation.None
 })
-export class ProjectDialogComponent implements OnInit {
-    readonly authorities: any[];
+export class ProjectDialogComponent implements OnInit, OnDestroy {
     readonly options: string[];
 
     project: Project;
     isSaving: boolean;
     projectIdAsPrettyValue: boolean;
 
-    sourceTypes: SourceType[];
-
     sourceTypeInputText: string;
     sourceTypeInputFocus$ = new Subject<string>();
-    get sourceTypeOptions() {
-        const selectedTypes = this.project.sourceTypes || [];
-        const selectedTypeIds = selectedTypes.map(t => t.id);
-        return this.sourceTypes.filter(t => !selectedTypeIds.includes(t.id));
-    }
 
     newGroupInputText: string;
 
@@ -50,21 +42,7 @@ export class ProjectDialogComponent implements OnInit {
     startDate: NgbDateStruct;
     endDate: NgbDateStruct;
 
-    getMatchingSourceTypes = (text$: Observable<string>) => {
-        const debouncedText$ = text$.pipe(debounceTime(200), distinctUntilChanged());
-        const inputFocus$ = this.sourceTypeInputFocus$;
-
-        return merge(debouncedText$, inputFocus$).pipe(map(term => {
-            const availableTypes = this.sourceTypeOptions;
-
-            term = term.trim().toLowerCase();
-            if (!term) {
-                return availableTypes;
-            }
-            const getTypeKey = t => this.formatSourceTypeOption(t).toLowerCase();
-            return availableTypes.filter(t => getTypeKey(t).includes(term));
-        }));
-    }
+    private subscriptions = new Subscription();
 
     constructor(
             public activeModal: NgbActiveModal,
@@ -77,7 +55,6 @@ export class ProjectDialogComponent implements OnInit {
             public formatter: NgbDateParserFormatter
     ) {
         this.isSaving = false;
-        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN'];
         this.options = ['Work-package', 'Phase', 'External-project-url', 'External-project-id', 'Privacy-policy-url'];
         this.projectIdAsPrettyValue = true;
     }
@@ -89,13 +66,11 @@ export class ProjectDialogComponent implements OnInit {
         if(this.project.endDate) {
             this.endDate = this.formatter.parse(this.project.endDate.toString());
         }
-        this.sourceTypeService.query().subscribe(
-                (res: HttpResponse<SourceType[]>) => {
-                    this.sourceTypes = res.body;
-                }, (res: HttpErrorResponse) => this.onError(res));
-        this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
-            this.project.attributes = response.content;
-        });
+        this.subscriptions.add(this.registerChangesToAttributes());
+    }
+
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
     }
 
     clear() {
@@ -111,15 +86,48 @@ export class ProjectDialogComponent implements OnInit {
             this.project.endDate = this.formatter.format(this.endDate) + 'T23:59';
         }
         if (this.project.id !== undefined) {
-            this.projectService.update(this.project)
-            .subscribe((res: Project) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+            this.subscriptions.add(this.projectService.update(this.project).subscribe(
+              (res: Project) => this.onSaveSuccess(res),
+              (res: Response) => this.onSaveError(res),
+            ));
         } else {
-            this.projectService.create(this.project)
-            .subscribe((res: Project) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+            this.subscriptions.add(this.projectService.create(this.project).subscribe(
+              (res: Project) => this.onSaveSuccess(res),
+              (res: Response) => this.onSaveError(res),
+            ));
         }
     }
+
+    private registerChangesToAttributes(): Subscription {
+        return this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
+            this.project.attributes = response.content;
+        });
+    }
+
+    getMatchingSourceTypes(text$: Observable<string>): Observable<SourceType[]> {
+        const debouncedText$ = text$.pipe(debounceTime(200), distinctUntilChanged());
+        const inputFocus$ = this.sourceTypeInputFocus$;
+        const availableTypes$ = this.sourceTypeService.sourceTypes$.pipe(
+          map(sourceTypes => {
+              const selectedTypeIds = new Set(this.project?.sourceTypes?.map(t => t.id) || []);
+              return sourceTypes.filter(t => !selectedTypeIds.has(t.id));
+          })
+        );
+
+        return combineLatest([
+            merge(debouncedText$, inputFocus$),
+            availableTypes$,
+        ]).pipe(
+          map(([term, availableTypes]) => {
+              term = term.trim().toLowerCase();
+              if (!term) {
+                  return availableTypes;
+              }
+              const getTypeKey = t => this.formatSourceTypeOption(t).toLowerCase();
+              return availableTypes.filter(t => getTypeKey(t).includes(term));
+          }),
+        );
+    };
 
     private onSaveSuccess(result: Project) {
         this.eventManager.broadcast({name: 'projectListModification', content: 'OK'});

@@ -148,7 +148,7 @@
                 class="form-control"
                 name="sourceType"
                 [(ngModel)]="sourceTypeInputText"
-                [ngbTypeahead]="getMatchingSourceTypes"
+                [ngbTypeahead]="getMatchingSourceTypes.bind(this)"
                 [resultFormatter]="formatSourceTypeOption"
                 (focus)="sourceTypeInputFocus$.next($any($event).target.value)"
                 (selectItem)="addSourceType($event)"

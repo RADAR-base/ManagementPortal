@@ -11,7 +11,7 @@ import { OrganizationDetailComponent } from './organization-detail.component';
 
 describe('Component Tests', () => {
 
-    describe('Project Management Detail Component', () => {
+    describe('Organization Detail Component', () => {
         let comp: OrganizationDetailComponent;
         let fixture: ComponentFixture<OrganizationDetailComponent>;
         let service: ProjectService;
