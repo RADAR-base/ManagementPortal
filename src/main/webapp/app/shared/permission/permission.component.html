@@ -8,9 +8,9 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th><span [translate]="'userManagement.role.users'">Users</span></th>
-                    <th><span [translate]="'userManagement.role.roles'">Roles</span></th>
-                    <th><span [translate]="'userManagement.role.options'">Options</span></th>
+                    <th><span [translate]="'userManagement.role.users'"></span></th>
+                    <th><span [translate]="'userManagement.role.roles'"></span></th>
+                    <th><span [translate]="'userManagement.role.options'"></span></th>
                 </tr>
             </thead>
             <tbody>
@@ -34,8 +34,8 @@
                     </td>
                     <td>
                         <select name='authority' [(ngModel)]="selectedAuthority" class="form-control" required>
-                            <option *ngIf="organization" value="ROLE_ORGANIZATION_ADMIN" >ROLE_ORGANIZATION_ADMIN</option>
-                            <option *ngIf="project" value="ROLE_PROJECT_ADMIN" >ROLE_PROJECT_ADMIN</option>
+                            <option *ngIf="organization" value="ROLE_ORGANIZATION_ADMIN">ROLE_ORGANIZATION_ADMIN</option>
+                            <option *ngIf="project" value="ROLE_PROJECT_ADMIN">ROLE_PROJECT_ADMIN</option>
                         </select>
                     </td>
                     <td>

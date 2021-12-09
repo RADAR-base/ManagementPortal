@@ -1,8 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, Observable, Subject, Subscription } from 'rxjs';
-
-// import { Source } from '../../shared/source/source.model';
+import { combineLatest, Observable, Subject, Subscription } from 'rxjs';
 import { Organization, OrganizationService } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 import {
@@ -22,16 +20,8 @@ export class OrganizationDetailComponent implements OnInit, OnDestroy {
     organization$: Observable<Organization>;
     private eventSubscriber: Subscription;
 
-    // sources: Source[];
-
     showProjects: boolean;
     showPermissions: boolean;
-    // showSources: boolean;
-    // showSubjects: boolean;
-    // showOrganizationGroups: boolean;
-    // showSourceTypes: boolean;
-    // showOrganizationAdmins: boolean;
-    // showOrganizationAnalysts: boolean;
 
     constructor(
             private eventManager: EventManager,
@@ -52,7 +42,6 @@ export class OrganizationDetailComponent implements OnInit, OnDestroy {
           shareReplay(1), // multiple subscriptions will not trigger multiple requests
         );
         this.eventSubscriber = this.registerChangeInOrganizations();
-        // this.viewSubjects();
         this.viewProjects();
     }
 
@@ -71,67 +60,12 @@ export class OrganizationDetailComponent implements OnInit, OnDestroy {
     }
 
     viewProjects() {
-        // this.showSources = false;
         this.showProjects = true;
         this.showPermissions = false;
-        // this.showOrganizationGroups = false;
-        // this.showSourceTypes = false;
-        // this.showOrganizationAdmins = false;
-        // this.showOrganizationAnalysts = false;
     }
 
     viewPermissions() {
-        // this.showSources = false;
         this.showProjects = false;
         this.showPermissions = true;
-        // this.showOrganizationGroups = false;
-        // this.showSourceTypes = false;
-        // this.showOrganizationAdmins = false;
-        // this.showOrganizationAnalysts = false;
     }
-
-    // viewSources() {
-    //     this.showSources = true;
-    //     this.showSubjects = false;
-    //     this.showOrganizationGroups = false;
-    //     this.showSourceTypes = false;
-    //     this.showOrganizationAdmins = false;
-    //     this.showOrganizationAnalysts = false;
-    // }
-    //
-    // viewSubjects() {
-    //     this.showSources = false;
-    //     this.showSubjects = true;
-    //     this.showOrganizationGroups = false;
-    //     this.showSourceTypes = false;
-    //     this.showOrganizationAdmins = false;
-    //     this.showOrganizationAnalysts = false;
-    // }
-    //
-    // viewOrganizationGroups() {
-    //     this.showSources = false;
-    //     this.showSubjects = false;
-    //     this.showOrganizationGroups = true;
-    //     this.showSourceTypes = false;
-    //     this.showOrganizationAdmins = false;
-    //     this.showOrganizationAnalysts = false;
-    // }
-    //
-    // viewOrganizationAdmins() {
-    //     this.showSources = false;
-    //     this.showSubjects = false;
-    //     this.showOrganizationGroups = false;
-    //     this.showSourceTypes = false;
-    //     this.showOrganizationAdmins = true;
-    //     this.showOrganizationAnalysts = false;
-    // }
-    //
-    // viewOrganizationAnalysts() {
-    //     this.showSources = false;
-    //     this.showSubjects = false;
-    //     this.showOrganizationGroups = false;
-    //     this.showSourceTypes = false;
-    //     this.showOrganizationAdmins = false;
-    //     this.showOrganizationAnalysts = true;
-    // }
 }

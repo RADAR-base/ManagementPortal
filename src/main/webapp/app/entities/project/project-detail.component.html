@@ -1,7 +1,7 @@
 <div *ngIf="project$ | async as project">
     <h2>
         <span>
-            <span translate="managementPortalApp.project.detail.title"></span>
+            <span [translate]="'managementPortalApp.project.detail.title'"></span>
             {{project.humanReadableProjectName ? project.humanReadableProjectName : project.projectName}}
         </span>
         <button type="button"
@@ -14,32 +14,32 @@
     <div class="project-detail__project-info">
         <div class="project-detail__project-info-fields">
             <div>
-                <span translate="managementPortalApp.project.projectName"></span>
+                <span [translate]="'managementPortalApp.project.projectName'"></span>
                 <p>{{project.projectName}}</p>
             </div>
             <div>
-                <span translate="managementPortalApp.project.organization"></span>
+                <span [translate]="'managementPortalApp.project.organization'"></span>
                 <p>{{project.organization}}</p>
             </div>
             <div>
-                <span translate="managementPortalApp.project.location"></span>
+                <span [translate]="'managementPortalApp.project.location'"></span>
                 <p>{{project.location}}</p>
             </div>
             <div>
-                <span translate="managementPortalApp.project.projectStatus"></span>
+                <span [translate]="'managementPortalApp.project.projectStatus'"></span>
                 <p>{{project.projectStatus}}</p>
             </div>
             <div>
-                <span translate="managementPortalApp.project.startDate"></span>
+                <span [translate]="'managementPortalApp.project.startDate'"></span>
                 <p *ngIf="project.startDate; else noneAvailable">{{project.startDate | date:'mediumDate'}}</p>
             </div>
             <div>
-                <span translate="managementPortalApp.project.endDate"></span>
+                <span [translate]="'managementPortalApp.project.endDate'"></span>
                 <p *ngIf="project.endDate; else noneAvailable">{{project.endDate | date:'mediumDate'}}</p>
             </div>
             <div>
                 <span>
-                    <span translate="managementPortalApp.project.attributeData"></span>
+                    <span [translate]="'managementPortalApp.project.attributeData'"></span>
                 </span>
                 <ng-container *ngIf="!project.attributes || (project.attributes | keyvalue).length === 0" [ngTemplateOutlet]="noneAvailable"></ng-container>
                 <div *ngFor="let entry of project.attributes | keyvalue">
@@ -57,28 +57,28 @@
     <div *ngIf="activeTab$ | async as activeTab">
         <ul class="nav nav-tabs">
             <li class="nav-item" (click)="updateActiveTab('subjects')">
-                    <span class="nav-link" [ngClass]="{active: activeTab === 'subjects'}">
-                        Subjects
+                    <span class="nav-link" [ngClass]="{active: activeTab === 'subjects'}"
+                          [translate]="'managementPortalApp.project.subjects'">
                     </span>
             </li>
             <li class="nav-item" (click)="updateActiveTab('groups')">
-                    <span class="nav-link" [ngClass]="{active: activeTab === 'groups'}">
-                        Groups
+                    <span class="nav-link" [ngClass]="{active: activeTab === 'groups'}"
+                          [translate]="'managementPortalApp.project.groups'">
                     </span>
             </li>
             <li class="nav-item" (click)="updateActiveTab('permissions')">
-                <span class="nav-link" [ngClass]="{active: activeTab === 'permissions'}">
-                    Permissions
+                <span class="nav-link" [ngClass]="{active: activeTab === 'permissions'}"
+                      [translate]="'managementPortalApp.project.permissions'">
                 </span>
             </li>
             <li class="nav-item" (click)="updateActiveTab('admins')">
-                    <span class="nav-link" [ngClass]="{active: activeTab === 'admins'}">
-                        Admins
+                    <span class="nav-link" [ngClass]="{active: activeTab === 'admins'}"
+                          [translate]="'managementPortalApp.project.admins'">
                     </span>
             </li>
             <li class="nav-item" (click)="updateActiveTab('analysts')">
-                    <span class="nav-link" [ngClass]="{active: activeTab === 'analysts'}">
-                        Analysts
+                    <span class="nav-link" [ngClass]="{active: activeTab === 'analysts'}"
+                          [translate]="'managementPortalApp.project.analysts'">
                     </span>
             </li>
         </ul>
@@ -97,5 +97,5 @@
 </div>
 
 <ng-template #noneAvailable>
-    <p class="none-available" translate>global.attribute.noneAvailable</p>
+    <p class="none-available" [translate]="'global.attribute.noneAvailable'"></p>
 </ng-template>

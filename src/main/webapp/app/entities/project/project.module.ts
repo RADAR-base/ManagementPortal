@@ -15,7 +15,6 @@ import {
     projectRoute,
 } from './';
 import {ManagementPortalSharedGroupModule} from "../../shared/group/group.module";
-import {SubjectComponent} from "../../shared/subject";
 import {ManagementPortalSharedPermissionModule} from "../../shared/permission/permissions.module";
 
 const ENTITY_STATES = [

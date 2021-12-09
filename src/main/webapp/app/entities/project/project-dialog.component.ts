@@ -90,10 +90,6 @@ export class ProjectDialogComponent implements OnInit {
     ngOnInit() {
         this.subscription = this.organizationService.organizations$.subscribe(value => {
             this.organizations = value
-            //     .map(organization => {
-            //     delete organization.projects;
-            //     return organization;
-            // });
         })
 
         if(this.project.startDate) {

@@ -1,5 +1,4 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -8,7 +7,6 @@ import {ITEMS_PER_PAGE, Organization, Project, ProjectService} from '../../share
 import { PagingParams } from '../../shared/commons';
 import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
-import { parseLinks } from '../../shared/util/parse-links-util';
 
 @Component({
     selector: 'jhi-projects',
@@ -29,7 +27,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
     projects: Project[];
     eventSubscriber: Subscription;
     itemsPerPage: number;
-    links: any;
     page: any;
     predicate: any;
     queryCount: any;
@@ -62,32 +59,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
     }
 
     loadAll() {
-        // this.projectService.query(
-        //     {
-        //         page: this.page - 1,
-        //         size: this.itemsPerPage,
-        //         sort: this.sort(),
-        //         organizationName: this.organization.name
-        //     },
-        // ).subscribe(
-        //     (res: HttpResponse<Project[]>) => this.onSuccess(res.body, res.headers),
-        //     (res: HttpErrorResponse) => this.onError(res.message),
-        // );
         this.projectService.findAllByOrganization(this.organization.name).subscribe({
             next: projects => this.projects = projects,
             error: error => this.alertService.error(error.message, null, null)
         })
-        // this.projectService.query(
-        //         {
-        //             page: this.page - 1,
-        //             size: this.itemsPerPage,
-        //             sort: this.sort(),
-        //             organizationId: this.organization.name
-        //         },
-        // ).subscribe(
-        //         (res: HttpResponse<Project[]>) => this.onSuccess(res.body, res.headers),
-        //         (res: HttpErrorResponse) => this.onError(res.message),
-        // );
     }
 
     ngOnInit() {
@@ -108,11 +83,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     }
 
     registerChangeInProjects() {
-        this.eventSubscriber = this.eventManager.subscribe('projectListModification', (response) => this.loadAll());
-    }
-
-    private onError(error) {
-        this.alertService.error(error.message, null, null);
+        this.eventSubscriber = this.eventManager.subscribe('projectListModification', () => this.loadAll());
     }
 
     sort() {
@@ -121,13 +92,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
             result.push('id');
         }
         return result;
-    }
-
-    private onSuccess(data, headers) {
-        this.links = parseLinks(headers.get('link'));
-        this.totalItems = headers.get('X-Total-Count');
-        this.queryCount = this.totalItems;
-        this.projects = data;
     }
 
     loadPage(page) {

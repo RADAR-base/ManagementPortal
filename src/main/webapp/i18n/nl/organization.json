@@ -19,6 +19,8 @@
             "organizationName.fieldDescription": "Unieke identificatie van organization",
             "description": "Omschrijving",
             "organization": "Organisatie",
+            "projects": "Projecten",
+            "permissions": "Rechten",
             "location": "Plaats",
             "startDate": "Startdatum",
             "organizationStatus": "Organisatie Status",

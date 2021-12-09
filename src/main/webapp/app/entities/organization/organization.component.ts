@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -8,7 +8,6 @@ import { ITEMS_PER_PAGE, Organization, OrganizationService } from '../../shared'
 import { PagingParams } from '../../shared/commons';
 import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
-import { parseLinks } from '../../shared/util/parse-links-util';
 
 @Component({
     selector: 'jhi-organization',
@@ -20,7 +19,6 @@ export class OrganizationComponent implements OnInit, OnDestroy {
     organizations: Organization[];
     eventSubscriber: Subscription;
     itemsPerPage: number;
-    links: any;
     page: any;
     predicate: any;
     queryCount: any;
@@ -51,26 +49,8 @@ export class OrganizationComponent implements OnInit, OnDestroy {
     }
 
     loadAll() {
-        // this.organizationService.query(
-        //         {
-        //             page: this.page - 1,
-        //             size: this.itemsPerPage,
-        //             sort: this.sort(),
-        //         },
-        // ).subscribe(
-        //         (res: HttpResponse<Organization[]>) => this.onSuccess(res.body, res.headers),
-        //         (res: HttpErrorResponse) => this.onError(res.message),
-        // );
-
-        this.organizationService.findAll(
-                // {
-                //     page: this.page - 1,
-                //     size: this.itemsPerPage,
-                //     sort: this.sort(),
-                // },
-        ).subscribe(
+        this.organizationService.findAll().subscribe(
                 (organizations) => this.organizations = organizations,
-                // (res: HttpResponse<Organization[]>) => this.onSuccess(res.body, res.headers),
                 (res: HttpErrorResponse) => this.onError(res.message),
         );
     }
@@ -93,7 +73,7 @@ export class OrganizationComponent implements OnInit, OnDestroy {
     }
 
     registerChangeInOrganizations() {
-        this.eventSubscriber = this.eventManager.subscribe('organizationListModification', (response) => this.loadAll());
+        this.eventSubscriber = this.eventManager.subscribe('organizationListModification', () => this.loadAll());
     }
 
     private onError(error) {
@@ -106,13 +86,6 @@ export class OrganizationComponent implements OnInit, OnDestroy {
             result.push('id');
         }
         return result;
-    }
-
-    private onSuccess(data, headers) {
-        this.links = parseLinks(headers.get('link'));
-        this.totalItems = headers.get('X-Total-Count');
-        this.queryCount = this.totalItems;
-        this.organizations = data;
     }
 
     loadPage(page) {

@@ -25,10 +25,6 @@ export class OrganizationPopupService {
 
         if (organizationName) {
             this.organizationService.find(organizationName).subscribe((organization) => {
-                // organization.startDate = this.datePipe
-                // .transform(organization.startDate, 'yyyy-MM-ddThh:mm');
-                // organization.endDate = this.datePipe
-                // .transform(organization.endDate, 'yyyy-MM-ddThh:mm');
                 this.organizationModalRef(component, organization);
             });
         } else {
@@ -39,10 +35,10 @@ export class OrganizationPopupService {
     organizationModalRef(component: any, organization: Organization): NgbModalRef {
         const modalRef = this.modalService.open(component, {size: 'lg', backdrop: 'static'});
         modalRef.componentInstance.organization = organization;
-        modalRef.result.then((result) => {
+        modalRef.result.then(() => {
             this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;
-        }, (reason) => {
+        }, () => {
             this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;
         });
