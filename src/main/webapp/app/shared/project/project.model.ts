@@ -1,5 +1,6 @@
 import {SourceType} from '../../entities/source-type';
 import { Group } from '../group';
+import { Organization } from "../organization";
 
 export const enum ProjectStatus {
     'PLANNING',
@@ -11,7 +12,7 @@ export interface Project {
     id?: number;
     projectName?: string;
     description?: string;
-    organization?: string; // Legacy field
+    organization?: Organization;
     organizationName?: string;
     location?: string;
     startDate?: any;
