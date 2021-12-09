@@ -1,9 +1,10 @@
-export class Authority {
-    public name?: any;
+export enum Scope {
+    GLOBAL = 'GLOBAL',
+    ORGANIZATION = 'ORGANIZATION',
+    PROJECT = 'PROJECT',
+}
 
-    constructor(
-            name?: any,
-    ) {
-        this.name = name ? name : null;
-    }
+export interface Authority {
+    authority: string;
+    scope?: Scope;
 }

@@ -6,59 +6,44 @@
     <jhi-alert></jhi-alert>
 
     <br/>
-    <div class="table-responsive" *ngIf="roles.length > 0">
-        <table class="table table-striped">
-            <thead>
-            <tr>
-            <th><span [translate]="'userManagement.role.authorityName'"></span></th>
-            <th><span [translate]="'userManagement.role.project'"></span></th>
-            <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let role of roles ;trackBy: trackId">
-                <td>{{role.authorityName}}</td>
-                <td>
-                    <div *ngIf="role.projectId">
-                        {{role.projectName}}
-                    </div>
-                </td>
-                <td *ngIf="role.authorityName!='ROLE_SYS_ADMIN'">
-                    <button type="button" (click)="removeRole(role)" class="btn btn-danger btn-sm fa fa-remove">
-                    </button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <div *ngFor="let role of roles; trackBy: trackId">
+        <div>
+            <span class="field-label" [translate]="'userManagement.role.authorityName'"></span>
+            <span class="field-value">{{role.authorityName}}</span>
+        </div>
+        <div *ngIf="role.projectName">
+            <span class="field-label" [translate]="'userManagement.role.project'"></span>
+            <span class="field-value">{{role.projectName}}</span>
+        </div>
+        <div *ngIf="role.organizationName">
+            <span class="field-label" [translate]="'userManagement.role.organization'"></span>
+            <span class="field-value">{{role.organizationName}}</span>
+        </div>
+        <button type="button" (click)="removeRole(role)" class="btn btn-danger btn-sm fa fa-remove">
+        </button>
     </div>
-    <div [hidden]="roles.length>0 && roles[0].authorityName=='ROLE_SYS_ADMIN'">
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th><span [translate]="'userManagement.role.authorityName'"></span></th>
-                <th><span [translate]="'userManagement.role.project'"></span></th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-                <td>
-                    <select name='authority' [(ngModel)]="selectedAuthority" class="form-control" required>
-                        <option [ngValue]="null"></option>
-                        <option *ngFor="let authority of authorityService.authorities$ | async;">{{authority}}</option>
-                    </select>
-                </td>
-                <td>
-                    <select name='project' [(ngModel)]="selectedProject" class="form-control" required>
-                        <option [ngValue]="null"></option>
-                        <option [ngValue]="projectOption" *ngFor="let projectOption of projectService.projects$ | async; trackBy: trackProjectById">{{projectOption.projectName}}</option>
-                    </select>
-                </td>
-                <td>
-                    <button name='addRole'type="button" class="btn btn-primary float-right" (click)="addRole()">
-                        <span [translate]="'userManagement.role.create'"></span>
-                    </button>
-                </td>
-            </tbody>
-        </table>
+    <div>
+        <div>
+            <span class="field-label" [translate]="'userManagement.role.authorityName'"></span>
+            <select name='authority' [(ngModel)]="selectedAuthority" class="form-control" required>
+                <option [ngValue]="null"></option>
+                <option [ngValue]="authority" *ngFor="let authority of authorityService.authorities$ | async;">{{authority.authority}}</option>
+            </select>
+        </div>
+        <div *ngIf="selectedAuthority?.scope === 'PROJECT'">
+            <span [translate]="'userManagement.role.project'"></span>
+            <select name='project' [(ngModel)]="selectedProject" class="form-control" required>
+                <option [ngValue]="null"></option>
+                <option [ngValue]="projectOption" *ngFor="let projectOption of projectService.projects$ | async; trackBy: trackEntityById">{{projectOption.projectName}}</option>
+            </select>
+        </div>
+        <div *ngIf="selectedAuthority?.scope === 'ORGANIZATION'">
+            <span [translate]="'userManagement.role.organization'"></span>
+            <select name='project' [(ngModel)]="selectedOrganization" class="form-control" required>
+                <option [ngValue]="null"></option>
+                <option [ngValue]="organizationOption" *ngFor="let organizationOption of organizationService.organizations$ | async; trackBy: trackEntityById">{{organizationOption.name}}</option>
+            </select>
+        </div>
+        <button name="addRole" type="button" class="btn btn-primary float-right" (click)="addRole()"><span [translate]="'userManagement.role.create'"></span></button>
     </div>
 </div>

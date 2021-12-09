@@ -12,12 +12,13 @@ import {
   switchMap,
   take
 } from "rxjs/operators";
+import { Authority } from "./authority.model";
 
 @Injectable({ providedIn: 'root' })
 export class AuthorityService {
   private resourceUrl = 'api/authorities';
 
-  authorities$: Observable<string[]>
+  authorities$: Observable<Authority[]>
 
   constructor(
     private http: HttpClient,
@@ -42,7 +43,7 @@ export class AuthorityService {
     );
   }
 
-  findAll(): Observable<string[]> {
-    return this.http.get<string[]>(this.resourceUrl);
+  findAll(): Observable<Authority[]> {
+    return this.http.get<Authority[]>(this.resourceUrl);
   }
 }
