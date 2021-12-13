@@ -59,7 +59,6 @@ import static org.radarbase.auth.authorization.Permission.SOURCE_READ;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganization;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganizationAndProject;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_PROJECT_NOT_EMPTY;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
