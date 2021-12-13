@@ -2,8 +2,6 @@
 
 [![Latest release](https://img.shields.io/github/v/release/RADAR-base/ManagementPortal)](https://github.com/RADAR-base/ManagementPortal/releases/latest)
 [![Build Status](https://github.com/RADAR-base/ManagementPortal/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/RADAR-base/ManagementPortal/actions/workflows/main.yml?query=branch%3Amaster)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d6945ebd1eba4a3fbb55882cda33655e)](https://www.codacy.com/app/RADAR-base/ManagementPortal?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RADAR-base/ManagementPortal&amp;utm_campaign=Badge_Grade)
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/d6945ebd1eba4a3fbb55882cda33655e)](https://www.codacy.com/app/RADAR-base/ManagementPortal?utm_source=github.com&utm_medium=referral&utm_content=RADAR-base/ManagementPortal&utm_campaign=Badge_Coverage)
 
 Management Portal is an application which is used to manage clinical studies for [RADAR-base](http://www.radar-base.org/) platform.
 
