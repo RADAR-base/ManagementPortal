@@ -19,6 +19,7 @@ import org.radarbase.management.service.dto.SourceTypeDTO;
 import org.radarbase.management.service.dto.SubjectDTO;
 import org.radarbase.management.service.mapper.SubjectMapper;
 import org.radarbase.management.web.rest.criteria.SubjectCriteria;
+import org.radarbase.management.web.rest.errors.BadRequestException;
 import org.radarbase.management.web.rest.errors.ErrorVM;
 import org.radarbase.management.web.rest.util.HeaderUtil;
 import org.radarbase.management.web.rest.util.PaginationUtil;
@@ -48,6 +49,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
+import static org.radarbase.auth.authorization.Permission.ORGANIZATION_UPDATE;
 import static org.radarbase.auth.authorization.Permission.PROJECT_CREATE;
 import static org.radarbase.auth.authorization.Permission.PROJECT_DELETE;
 import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
@@ -56,8 +58,11 @@ import static org.radarbase.auth.authorization.Permission.ROLE_READ;
 import static org.radarbase.auth.authorization.Permission.SOURCE_READ;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganization;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganizationAndProject;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_PROJECT_NOT_EMPTY;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
 
 /**
  * REST controller for managing Project.
@@ -105,6 +110,12 @@ public class ProjectResource {
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Project : {}", projectDto);
         checkPermission(token, PROJECT_CREATE);
+        var org = projectDto.getOrganization();
+        // N.B. since there is no indication in the DB that "main" is the default organization,
+        //      it might be a good idea to extract this name (or an ID) as a configuration option.
+        var orgName = org != null ? org.getName() : "main";
+        checkPermissionOnOrganization(token, ORGANIZATION_UPDATE, orgName);
+
         if (projectDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
                     ENTITY_NAME, "idexists", "A new project cannot already have an ID")).body(null);
@@ -140,6 +151,24 @@ public class ProjectResource {
         }
         checkPermissionOnProject(token, PROJECT_UPDATE,
                 projectDto.getProjectName());
+        
+        // When a client wants to link the project to the default organization,
+        // this must be done explicitly.
+        var org = projectDto.getOrganization();
+        if (org == null) {
+            throw new BadRequestException("Organization must be provided",
+                    ENTITY_NAME, ERR_VALIDATION);
+        }
+        // When clients want to transfer a project,
+        // they must have permissions to modify both new & old organizations
+        var existingProject = projectService.findOne(projectDto.getId());
+        var oldOrgName = existingProject.getOrganization().getName();
+        var newOrgName = org.getName();
+        if (!oldOrgName.equals(newOrgName)) {
+            checkPermissionOnOrganization(token, ORGANIZATION_UPDATE, oldOrgName);
+            checkPermissionOnOrganization(token, ORGANIZATION_UPDATE, newOrgName);
+        }
+
         ProjectDTO result = projectService.save(projectDto);
         return ResponseEntity.ok()
                 .headers(HeaderUtil
