@@ -41,30 +41,30 @@ export class ProjectService {
       private principal: Principal,
       private alertService: AlertService,
     ) {
-        // combineLatest([
-        //     principal.account$,
-        //     this._trigger$.pipe(startWith(undefined as void)),
-        // ]).pipe(
-        //   switchMap(([account]) => {
-        //       if (account) {
-        //           return this.fetch().pipe(
-        //             retryWhen(errors => errors.pipe(
-        //               delay(1000),
-        //               take(10),
-        //               concatMap(err => throwError(err)))
-        //             ),
-        //           );
-        //       } else {
-        //           return of([]);
-        //       }
-        //   })
-        // ).subscribe(
-        //   projects => {
-        //       console.log(projects)
-        //       this._projects$.next(projects)
-        //   },
-        //   err => this.alertService.error(err.message, null, null),
-        // );
+        combineLatest([
+            principal.account$,
+            this._trigger$.pipe(startWith(undefined as void)),
+        ]).pipe(
+          switchMap(([account]) => {
+              if (account) {
+                  return this.fetch().pipe(
+                    retryWhen(errors => errors.pipe(
+                      delay(1000),
+                      take(10),
+                      concatMap(err => throwError(err)))
+                    ),
+                  );
+              } else {
+                  return of([]);
+              }
+          })
+        ).subscribe(
+          projects => {
+              console.log(projects)
+              this._projects$.next(projects)
+          },
+          err => this.alertService.error(err.message, null, null),
+        );
     }
 
     reset() {
@@ -84,10 +84,10 @@ export class ProjectService {
     update(project: Project): Observable<Project> {
         return this.http.put<Project>(this.projectUrl(), this.convertProjectToServer(project)).pipe(
           map(p => this.convertProjectFromServer(p)),
-          // tap(
-          //   p => this.updateProject(p),
-          //   () => this.reset(),
-          // ),
+          tap(
+            p => this.updateProject(p),
+            () => this.reset(),
+          ),
         )
     }
 

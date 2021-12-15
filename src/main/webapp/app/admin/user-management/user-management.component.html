@@ -1,4 +1,4 @@
-<div>
+<div *ngIf="principal.account$ | async as account">
     <h2>
         <span [translate]="'userManagement.home.title'"></span>
         <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']" class="btn btn-primary float-right" style="margin-left: 5px" [routerLink]="['/', { outlets: { popup: ['user-management-new-admin'] } }]">
@@ -90,7 +90,7 @@
                             <span class="fa fa-mail-forward"></span>
                             <span class="hidden-md-down" [translate]="'userManagement.sendActivation.title'"></span>
                         </button>
-                        <button [disabled]="user.roles[0].authorityName=='ROLE_SYS_ADMIN'" type="submit"
+                        <button type="submit"
                                 [routerLink]="['/', { outlets: { popup: 'user-management/'+ user.login + '/edit'} }]"
                                 [replaceUrl]="true"
                                 class="btn btn-primary btn-sm">
@@ -101,9 +101,10 @@
                                 [routerLink]="['/', { outlets: { popup: 'user-management/'+ user.login + '/delete'} }]"
                                 [replaceUrl]="true"
                                 class="btn btn-danger btn-sm"
-                                [disabled]="(principal.account$ | async).login == user.login ||
+                                [disabled]="account.login == user.login ||
+                                (user.roles && (
                                 user.roles[0].authorityName=='ROLE_PARTICIPANT' ||
-                                user.roles[0].authorityName=='ROLE_INACTIVE_PARTICIPANT'">
+                                user.roles[0].authorityName=='ROLE_INACTIVE_PARTICIPANT'))">
                             <span class="fa fa-remove"></span>
                             <span class="hidden-md-down" [translate]="'entity.action.delete'"></span>
                         </button>

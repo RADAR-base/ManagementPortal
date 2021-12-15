@@ -16,7 +16,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let role of roles ;trackBy: trackId">
+            <tr *ngFor="let role of roles; trackBy: trackId">
                 <td>{{role.authorityName}}</td>
                 <td>
                     <div *ngIf="role.projectId">
@@ -26,7 +26,7 @@
                         {{role.organizationName}}
                     </div>
                 </td>
-                <td *ngIf="role.authorityName!='ROLE_SYS_ADMIN'">
+                <td *ngIf="role.authorityName != 'ROLE_SYS_ADMIN'">
                     <button type="button" (click)="removeRole(role)" class="btn btn-danger btn-sm fa fa-remove">
                     </button>
                 </td>
@@ -34,7 +34,7 @@
             </tbody>
         </table>
     </div>
-    <div [hidden]="roles.length>0 && roles[0].authorityName=='ROLE_SYS_ADMIN'">
+    <div [hidden]="roles.length > 0 && roles[0].authorityName == 'ROLE_SYS_ADMIN'">
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -48,32 +48,30 @@
                     <td>
                         <select name='authority' [(ngModel)]="selectedAuthority" class="form-control" required>
                             <option [ngValue]="null">Select an authority</option>
-                            <option [ngValue]="'ROLE_ORGANIZATION_ADMIN'">ROLE_ORGANIZATION_ADMIN</option>
-                            <option [ngValue]="'ROLE_PROJECT_ADMIN'">ROLE_PROJECT_ADMIN</option>
+                            <option [ngValue]="authority" *ngFor="let authority of authorities$ | async">{{ authority.name }}</option>
                         </select>
                     </td>
                     <td>
-                        <select *ngIf="!selectedAuthority || selectedAuthority === 'ROLE_ORGANIZATION_ADMIN'"
+                        <select *ngIf="selectedAuthority && selectedAuthority.scope === 'ORGANIZATION'"
                                 name='organization'
                                 [(ngModel)]="selectedOrganization"
                                 class="form-control"
-                                required
-                                [disabled]="!selectedAuthority">
+                                required>
                             <option [ngValue]="null">Select an organization</option>
-                            <option [ngValue]="organizationOption" *ngFor="let organizationOption of organizationService.organizations$ | async; trackBy: trackOrganizationById">{{organizationOption.name}}</option>
+                            <option [ngValue]="organizationOption" *ngFor="let organizationOption of organizationService.organizations$ | async; trackBy: trackEntityById">{{organizationOption.name}}</option>
                         </select>
-                        <select *ngIf="selectedAuthority === 'ROLE_PROJECT_ADMIN'"
+                        <select *ngIf="selectedAuthority && selectedAuthority.scope === 'PROJECT'"
                                 name='project'
                                 [(ngModel)]="selectedProject"
                                 class="form-control"
                                 required>
                             <option [ngValue]="null">Select a project</option>
-                            <option [ngValue]="projectOption" *ngFor="let projectOption of projects; trackBy: trackProjectById">{{projectOption.projectName}}</option>
+                            <option [ngValue]="projectOption" *ngFor="let projectOption of projectService.projects$ | async; trackBy: trackEntityById">{{projectOption.projectName}}</option>
                         </select>
-
                     </td>
                     <td>
-                        <button name='addRole' type="button" class="btn btn-primary float-right" (click)="addRole()">
+                        <button name='addRole' type="button" class="btn btn-primary float-right" (click)="addRole()"
+                                [disabled]="!selectedAuthority || (selectedAuthority.scope === 'ORGANIZATION' && !selectedOrganization) || (selectedAuthority.scope === 'PROJECT' && selectedProject)">
                             <span [translate]="'userManagement.role.create'"></span>
                         </button>
                     </td>
