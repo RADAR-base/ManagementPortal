@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.boot.actuate.audit.AuditEventRepository;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -44,13 +45,14 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken,
             OAuth2Authentication authentication) {
-        logger.debug("Enhancing token {} with authentication {}" , accessToken, authentication);
+        logger.debug("Enhancing token of authentication {}" , authentication);
 
         Map<String, Object> additionalInfo = new HashMap<>();
 
         String userName = authentication.getName();
 
-        if (authentication.getPrincipal() instanceof Principal) {
+        if (authentication.getPrincipal() instanceof Principal
+                || authentication.getPrincipal() instanceof UserDetails) {
             // add the 'sub' claim in accordance with JWT spec
             additionalInfo.put("sub", userName);
 

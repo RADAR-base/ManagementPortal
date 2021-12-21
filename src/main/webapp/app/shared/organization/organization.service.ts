@@ -130,7 +130,7 @@ export class OrganizationService {
 
     protected organizationUrl(orgName?: string): string {
         if (orgName) {
-            return this.resourceUrl + encodeURIComponent(orgName);
+            return this.resourceUrl + '/' + encodeURIComponent(orgName);
         } else {
             return this.resourceUrl;
         }

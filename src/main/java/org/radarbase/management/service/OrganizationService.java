@@ -67,10 +67,10 @@ public class OrganizationService {
      */
     @Transactional(readOnly = true)
     public List<OrganizationDTO> findAll() {
-        Stream<Organization> organizationsOfUser;
+        List<Organization> organizationsOfUser;
 
         if (token.hasGlobalAuthorityForPermission(ORGANIZATION_READ)) {
-            organizationsOfUser = organizationRepository.findAll().stream();
+            organizationsOfUser = organizationRepository.findAll();
         } else {
             List<String> projectNames = token.getReferentsWithPermission(
                     RoleAuthority.Scope.PROJECT, ORGANIZATION_READ)
@@ -86,12 +86,11 @@ public class OrganizationService {
                     .filter(Objects::nonNull);
 
             organizationsOfUser = Stream.concat(organizationsOfRole, organizationsOfProject)
-                    .distinct();
+                    .distinct()
+                    .collect(Collectors.toList());
         }
 
-        return organizationsOfUser
-            .map(organizationMapper::organizationToOrganizationDTO)
-            .collect(Collectors.toList());
+        return organizationMapper.organizationsToOrganizationDTOs(organizationsOfUser);
     }
 
     /**
