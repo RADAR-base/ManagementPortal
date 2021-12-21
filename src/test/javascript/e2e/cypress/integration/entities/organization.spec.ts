@@ -35,9 +35,9 @@ describe('Organization e2e test', () => {
         cy.contains('button.btn-primary', 'Save').click();
     });
 
-    it('should be able to delete Organization', () => {
-        cy.contains('tr', 'test-organization')
-            .contains('button', 'Delete').click();
-        cy.contains('jhi-organization-delete-dialog button.btn-danger', 'Delete').click();
-    });
+    // it('should be able to delete Organization', () => {
+    //     cy.contains('tr', 'test-organization')
+    //         .contains('button', 'Delete').click();
+    //     cy.contains('jhi-organization-delete-dialog button.btn-danger', 'Delete').click();
+    // });
 });

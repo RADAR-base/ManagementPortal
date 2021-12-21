@@ -14,7 +14,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let user of authorizedUsers ;trackBy: trackId">
+                <tr class="user-with-permission" *ngFor="let user of authorizedUsers ;trackBy: trackId">
                     <td>{{user.login}}</td>
                     <td>
                         {{user.authorityName}}
@@ -27,13 +27,13 @@
                 </tr>
                 <tr *ngIf="users.length">
                     <td style="width: 50%;">
-                        <select name='user' [(ngModel)]="selectedUser" class="form-control" required>
+                        <select name='user' [(ngModel)]="selectedUser" class="form-control" id="user" required>
                             <option [ngValue]="null" [disabled]="true" [translate]="'userManagement.role.selectUser'"></option>
                             <option *ngFor="let user of users" [ngValue]="user">{{user.login}}</option>
                         </select>
                     </td>
                     <td>
-                        <select name='authority' [(ngModel)]="selectedAuthority" class="form-control" required>
+                        <select name='authority' [(ngModel)]="selectedAuthority" class="form-control" id="role" required>
                             <option *ngIf="organization" value="ROLE_ORGANIZATION_ADMIN">ROLE_ORGANIZATION_ADMIN</option>
                             <option *ngIf="project" value="ROLE_PROJECT_ADMIN">ROLE_PROJECT_ADMIN</option>
                         </select>
