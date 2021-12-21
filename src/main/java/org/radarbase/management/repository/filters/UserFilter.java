@@ -14,6 +14,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -40,7 +41,7 @@ public class UserFilter implements Specification<User> {
         predicates.likeLower(root.get("login"), login);
         predicates.likeLower(root.get("email"), email);
 
-        filterRoles(predicates, root.join("roles"), query);
+        filterRoles(predicates, root.join("roles", JoinType.LEFT), query);
 
         query.distinct(true);
         var result = predicates.toAndPredicate();
@@ -52,11 +53,13 @@ public class UserFilter implements Specification<User> {
             CriteriaQuery<?> query) {
         Stream<RoleAuthority> authoritiesFiltered = Stream.of(RoleAuthority.values())
                 .filter(java.util.function.Predicate.not(RoleAuthority::isPersonal));
+        boolean allowNoRole = true;
 
         if (predicates.isValidValue(authority)) {
             String authorityUpper = authority.toUpperCase(Locale.ROOT);
             authoritiesFiltered = authoritiesFiltered
-                    .filter(r -> r.authority().contains(authorityUpper));
+                    .filter(r -> r != null && r.authority().contains(authorityUpper));
+            allowNoRole = false;
         }
         List<RoleAuthority> authoritiesAllowed = authoritiesFiltered.collect(Collectors.toList());
         if (authoritiesAllowed.isEmpty()) {
@@ -66,18 +69,20 @@ public class UserFilter implements Specification<User> {
             return;
         }
 
-        determineScope(predicates, roleJoin, query, authoritiesAllowed);
+        determineScope(predicates, roleJoin, query, authoritiesAllowed, allowNoRole);
     }
 
     private void determineScope(
             PredicateBuilder predicates,
             Join<User, Role> roleJoin,
             CriteriaQuery<?> query,
-            List<RoleAuthority> authoritiesAllowed) {
+            List<RoleAuthority> authoritiesAllowed,
+            boolean allowNoRole) {
         PredicateBuilder authorityPredicates = predicates.newBuilder();
 
         // Is organization admin
         if (predicates.isValidValue(projectName)) {
+            allowNoRole = false;
             // Is project admin
             entitySubquery(RoleAuthority.Scope.PROJECT, roleJoin,
                     query, authorityPredicates, authoritiesAllowed,
@@ -91,6 +96,7 @@ public class UserFilter implements Specification<User> {
                                 org.join("projects").get("projectName"), projectName));
             }
         } else if (predicates.isValidValue(organization)) {
+            allowNoRole = false;
             entitySubquery(RoleAuthority.Scope.ORGANIZATION, roleJoin,
                     query, authorityPredicates, authoritiesAllowed,
                     (b, org) -> b.likeLower(org.get("name"), organization));
@@ -103,6 +109,9 @@ public class UserFilter implements Specification<User> {
             // is sys admin
             addAllowedAuthorities(authorityPredicates, roleJoin, authoritiesAllowed,
                     RoleAuthority.Scope.GLOBAL);
+        }
+        if (allowNoRole) {
+            authorityPredicates.isNull(roleJoin.get("id"));
         }
 
         predicates.add(authorityPredicates.toOrPredicate());

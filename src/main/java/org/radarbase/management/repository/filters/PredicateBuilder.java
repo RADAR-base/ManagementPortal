@@ -42,6 +42,10 @@ public class PredicateBuilder {
         predicates.add(predicate);
     }
 
+    public void isNull(Expression<?> expression) {
+        predicates.add(builder.isNull(expression));
+    }
+
     /**
      * Build the predicates as an AND predicate.
      */
