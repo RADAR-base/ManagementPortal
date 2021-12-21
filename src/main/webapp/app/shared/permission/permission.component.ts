@@ -1,21 +1,16 @@
-import {
-    ChangeDetectorRef,
-    Component, Input,
-    OnChanges,
-    OnDestroy,
-    OnInit,
-    SimpleChanges,
-} from '@angular/core';
-import {Role} from "../../admin/user-management/role.model";
-import {Subscription} from "rxjs";
-import {Project} from "../project";
-import {AuthorityService} from "../user/authority.service";
-import {AlertService} from "../util/alert.service";
-import {EventManager} from "../util/event-manager.service";
-import {HttpErrorResponse, HttpResponse} from "@angular/common/http";
-import {User} from "../user/user.model";
-import {Organization} from "../organization";
-import {UserService} from "../user/user.service";
+import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, } from '@angular/core';
+import { Role } from '../../admin/user-management/role.model';
+import { Observable, Subscription } from 'rxjs';
+import { Project } from '../project';
+import { AuthorityService } from '../user/authority.service';
+import { AlertService } from '../util/alert.service';
+import { EventManager } from '../util/event-manager.service';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { User } from '../user/user.model';
+import { Organization } from '../organization';
+import { UserService } from '../user/user.service';
+import { Authority, Scope } from '../user/authority.model';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-permissions',
@@ -27,16 +22,15 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
     @Input() organization: Organization;
     @Input() project: Project;
 
-    authorities: string[];
-
     allUsers: User[] = [];
     users: User[] = [];
     authorizedUsers: User[] = [];
+    authorities$: Observable<Authority[]>
 
     eventSubscriber: Subscription;
 
-    selectedAuthority: any;
-    selectedUser: any;
+    selectedAuthority: Authority;
+    selectedUser: User;
 
     constructor(
             private authorityService: AuthorityService,
@@ -47,15 +41,17 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
     ) {}
 
     ngOnInit() {
-        if (this.organization) {
-            this.selectedAuthority = 'ROLE_ORGANIZATION_ADMIN'
-        }
-        if (this.project) {
-            this.selectedAuthority = 'ROLE_PROJECT_ADMIN'
-        }
-        this.authorityService.findAll().subscribe(res => {
-            this.authorities = res;
-        });
+        this.authorities$ = this.authorityService.authorities$.pipe(
+          map(authorities => {
+              if (this.organization) {
+                  return authorities.filter(a => a.scope === Scope.ORGANIZATION);
+              } else if (this.project) {
+                  return authorities.filter(a => a.scope === Scope.PROJECT);
+              } else {
+                  return authorities.filter(a => a.scope === Scope.GLOBAL);
+              }
+          })
+        );
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -93,20 +89,20 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
         let newRole: Role;
         if (this.organization) {
             newRole = {
-                authorityName: this.selectedAuthority,
+                authorityName: this.selectedAuthority.name,
                 organizationId: this.organization.id,
                 organizationName: this.organization.name,
             };
         }
         if (this.project) {
             newRole = {
-                authorityName: this.selectedAuthority,
+                authorityName: this.selectedAuthority.name,
                 projectId: this.project.id,
                 projectName: this.project.projectName,
             };
         }
         this.selectedUser.roles.push(newRole);
-        this.selectedUser.authorities.push(this.selectedAuthority)
+        this.selectedUser.authorities.push(this.selectedAuthority.name)
         this.userService.update(this.selectedUser).subscribe(
             (res) => {
                 console.log(res);
@@ -117,27 +113,20 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
         );
     }
 
-    removeRole(login: string) {
+    removeRole(login: string, authorityName: string) {
         const user = this.allUsers.find(user => user.login === login);
-        console.log(user)
         const roles = user.roles;
         if (this.organization) {
-            roles.splice(roles.findIndex(role => role.organizationId === this.organization.id), 1);
+            roles.splice(roles.findIndex(role => role.authorityName === authorityName && role.organizationId === this.organization.id), 1);
         }
         if (this.project) {
-            roles.splice(roles.findIndex(role => role.projectId === this.project.id), 1);
+            roles.splice(roles.findIndex(role => role.authorityName === authorityName && role.projectId === this.project.id), 1);
         }
         user.roles = roles;
-
-        // todo warning! if user has more than one authority for organization or project
-        const authorities = user.authorities;
-        authorities.splice(authorities.findIndex(authority => authority === this.selectedAuthority), 1);
-        user.authorities = authorities;
+        user.authorities = [...new Set(roles.map(a => a.authorityName))];
 
         this.userService.update(user).subscribe(
-            (res)=> {
-                this.getUsers();
-            },
+            () => this.getUsers(),
             (error)=> console.log(error)
         );
         // this.eventManager.broadcast({name: 'roleListModification', content: this.users});
@@ -156,7 +145,7 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
                     }
                 }
                 if (this.organization) {
-                    if ( role.organizationId === this.organization.id || role.authorityName === 'ROLE_SYS_ADMIN') {
+                    if (role.organizationId === this.organization.id || role.authorityName === 'ROLE_SYS_ADMIN') {
                         userAdded = true;
                         authorizedUsersOutput.push({login: user.login, authorityName: role.authorityName})
                     }
