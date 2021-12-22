@@ -4,6 +4,8 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { SourceType } from './source-type.model';
 import { SourceTypeService } from './source-type.service';
+import { Observable, of, Subscription } from "rxjs";
+import { catchError, filter, map, take } from "rxjs/operators";
 
 @Injectable({ providedIn: 'root' })
 export class SourceTypePopupService {
@@ -16,18 +18,21 @@ export class SourceTypePopupService {
     ) {
     }
 
-    open(component: any, producer?: string, model?: string, version?: string): NgbModalRef {
+    open(component: any, producer?: string, model?: string, version?: string): Observable<NgbModalRef> {
         if (this.isOpen) {
             return;
         }
         this.isOpen = true;
 
         if (producer && model && version) {
-            this.sourceTypeService.find(producer, model, version).subscribe((sourceType) => {
-                this.sourceTypeModalRef(component, sourceType);
-            });
+            return this.sourceTypeService.find(producer, model, version).pipe(
+              filter(s => !!s),
+              take(1),
+              map(sourceType => this.sourceTypeModalRef(component, sourceType)),
+              catchError(() => of(this.sourceTypeModalRef(component, {}))),
+            )
         } else {
-            return this.sourceTypeModalRef(component, new SourceType());
+            return of(this.sourceTypeModalRef(component, {}));
         }
     }
 

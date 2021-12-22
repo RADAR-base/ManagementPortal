@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Principal } from "../auth/principal.service";
 import {
   concatMap,
   delay,
   distinctUntilChanged,
   map,
-  publishReplay,
-  retryWhen, shareReplay,
+  retryWhen,
+  shareReplay,
   switchMap,
   take
 } from "rxjs/operators";

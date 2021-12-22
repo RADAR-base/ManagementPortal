@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import {
     Authority,
@@ -20,7 +20,7 @@ import { distinctUntilChanged, map, skip, take } from "rxjs/operators";
     selector: 'jhi-user-role',
     templateUrl: './role.component.html',
 })
-export class RoleComponent implements OnInit {
+export class RoleComponent implements OnInit, OnDestroy {
     roles$ = new BehaviorSubject<Role[]>([]);
 
     @Input()
@@ -42,7 +42,7 @@ export class RoleComponent implements OnInit {
     subscriptions = new Subscription();
 
     constructor(
-                authorityService: AuthorityService,
+                public authorityService: AuthorityService,
                 public projectService: ProjectService,
                 public organizationService: OrganizationService,
                 private alertService: AlertService,
@@ -93,14 +93,20 @@ export class RoleComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.roles$
-            .pipe(
-              distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-              skip(1),
-            )
-            .subscribe(roles => {
-                this.eventManager.broadcast({name: 'roleListModification', content: roles});
-            })
+      this.subscriptions.add(this.registerRoleChanged());
+    }
+
+    ngOnDestroy() {
+      this.subscriptions.unsubscribe();
+    }
+
+    private registerRoleChanged(): Subscription {
+        return this.roles$.pipe(
+          distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+          skip(1),
+        ).subscribe(roles => {
+          this.eventManager.broadcast({name: 'roleListModification', content: roles});
+        })
     }
 
     trackId(index: number, item: Role) {

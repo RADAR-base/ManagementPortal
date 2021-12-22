@@ -70,7 +70,7 @@ export class OrganizationService {
     find(orgName: string): Observable<Organization> {
         return this.organizations$.pipe(
             switchMap(organizations => {
-                const existingOrganization = organizations.find(p => p.name === orgName);
+                const existingOrganization = organizations.find(o => o.name === orgName);
                 if (existingOrganization) {
                     return of(existingOrganization);
                 } else {

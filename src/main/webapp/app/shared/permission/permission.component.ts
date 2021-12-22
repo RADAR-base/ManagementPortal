@@ -17,12 +17,10 @@ import { map } from 'rxjs/operators';
     templateUrl: './permission.component.html',
     styleUrls: ['./permission.component.scss'],
 })
-export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
-
+export class PermissionComponent implements OnInit, OnChanges {
     @Input() organization: Organization;
     @Input() project: Project;
 
-    allUsers: User[] = [];
     users: User[] = [];
     authorizedUsers: User[] = [];
     authorities$: Observable<Authority[]>
@@ -57,9 +55,6 @@ export class PermissionComponent implements OnInit, OnDestroy, OnChanges {
     ngOnChanges(changes: SimpleChanges): void {
         this.getUsers();
     }
-
-    ngOnDestroy(): void {}
-
 
     trackId(index: number, item: Role) {
         return item.id;

@@ -33,10 +33,16 @@ export class Principal {
         if (!authorities || authorities.length === 0) {
             return true;
         }
-        if (!account || !account.authorities) {
+        if (!account || !account.roles) {
             return false;
         }
-        return account.authorities.some(a => authorities.indexOf(a) !== -1);
+        const authoritySet: Set<string> = new Set(authorities);
+
+        return account.roles.some(r =>
+          authoritySet.has(r.authorityName)
+          || (r.projectName && authoritySet.has(r.authorityName + ':' + r.projectName))
+          || (r.organizationName && authoritySet.has(r.authorityName + ':' + r.organizationName))
+        )
     }
 
     /**

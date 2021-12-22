@@ -17,29 +17,20 @@ import { SourceDataService } from './source-data.service';
     templateUrl: './source-data-dialog.component.html',
 })
 export class SourceDataDialogComponent implements OnInit {
-
     sourceData: SourceData;
-    authorities: any[];
     isSaving: boolean;
-
-    sourceTypes: SourceType[];
 
     constructor(
             public activeModal: NgbActiveModal,
             private alertService: AlertService,
             private sourceDataService: SourceDataService,
-            private sourceTypeService: SourceTypeService,
+            public sourceTypeService: SourceTypeService,
             private eventManager: EventManager,
     ) {
     }
 
     ngOnInit() {
         this.isSaving = false;
-        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN'];
-        this.sourceTypeService.query().subscribe(
-                (res: HttpResponse<SourceType[]>) => {
-                    this.sourceTypes = res.body;
-                }, (res: HttpErrorResponse) => this.onError(res));
     }
 
     clear() {
