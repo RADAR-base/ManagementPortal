@@ -41,18 +41,18 @@ describe('Component Tests', () => {
         });
 
         describe('OnInit', () => {
-            it('Should call load all on init', () => {
+            it('Should call load all on init', waitForAsync(async () => {
             // GIVEN
 
-            spyOn(service, 'find').and.returnValue(of(new SourceType(10)));
+            spyOn(service, 'find').and.returnValue(of({id: 10}));
 
             // WHEN
             comp.ngOnInit();
 
             // THEN
+            expect(await comp.sourceType$.toPromise()).toEqual(jasmine.objectContaining({id: 10}));
             expect(service.find).toHaveBeenCalledWith('testProducer', 'testModel', 'testVersion');
-            expect(comp.sourceType).toEqual(jasmine.objectContaining({id: 10}));
-            });
+            }));
         });
     });
 

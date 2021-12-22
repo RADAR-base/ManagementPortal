@@ -1,8 +1,7 @@
-<!--{{organization | json}}-->
-<div>
+<div *ngIf="organization$ | async as organization">
     <h2>
         <span [translate]="'managementPortalApp.project.home.title'"></span>
-        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']" class="btn btn-primary float-right create-project" [routerLink]="['/', { outlets: { popup: ['organizations', organization.name, 'project-new'] } }]">
+        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN', 'ROLE_ORGANIZATION_ADMIN:' + organization.name]" class="btn btn-primary float-right create-project" [routerLink]="['/', { outlets: { popup: ['organizations', organization.name, 'project-new'] } }]">
             <span class="fa fa-plus"></span>
             <span [translate]="'managementPortalApp.project.home.createLabel'"></span>
         </button>
@@ -11,7 +10,7 @@
     </div>
     <br/>
     <jhi-alert></jhi-alert>
-    <div class="table-responsive" *ngIf="projects">
+    <div class="table-responsive" *ngIf="projects$ | async as projects">
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -28,7 +27,7 @@
                 </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let project of projects ;trackBy: trackId">
+            <tr *ngFor="let project of projects; trackBy: trackId">
                 <td>{{project.id}}</td>
                 <td><a [routerLink]="['../../project', project.projectName ]">{{project.projectName}}</a></td>
                 <td>{{project.description}}</td>
@@ -68,13 +67,5 @@
             </tr>
             </tbody>
         </table>
-    </div>
-    <div *ngIf="projects && totalItems !== undefined">
-        <div class="row justify-content-center">
-            <jhi-item-count [page]="page" [total]="queryCount" [itemsPerPage]="itemsPerPage"></jhi-item-count>
-        </div>
-        <div class="row justify-content-center">
-            <ngb-pagination [collectionSize]="totalItems" [(pageSize)]="itemsPerPage" boundaryLinks = true [(page)]="page" (pageChange)="loadPage(page)"></ngb-pagination>
-        </div>
     </div>
 </div>

@@ -17,6 +17,8 @@ import { JhiAlertComponent } from './alert/alert.component';
 import { JhiAlertErrorComponent } from './alert/alert-error.component';
 import { JhiSortDirective } from './util/sort.directive';
 import { JhiSortByDirective } from './util/sort-by.directive';
+import { JhiOrderByDirective } from './util/sort-order-by.directive';
+import { JhiSortOrderDirective } from "./util/sort-order.directive";
 
 @NgModule({
     imports: [
@@ -31,6 +33,8 @@ import { JhiSortByDirective } from './util/sort-by.directive';
         JhiLoginModalComponent,
         JhiSortDirective,
         JhiSortByDirective,
+        JhiOrderByDirective,
+        JhiSortOrderDirective,
         HasAnyAuthorityDirective,
         DictionaryMapperComponent,
         CommonUserMgmtComponent,
@@ -47,6 +51,8 @@ import { JhiSortByDirective } from './util/sort-by.directive';
         JhiLoginModalComponent,
         JhiSortDirective,
         JhiSortByDirective,
+        JhiOrderByDirective,
+        JhiSortOrderDirective,
         HasAnyAuthorityDirective,
         DictionaryMapperComponent,
         CommonUserMgmtComponent,

@@ -60,17 +60,17 @@ export class OrganizationService {
 
     update(organization: Organization): Observable<Organization> {
         return this.http.put<Organization>(this.organizationUrl(), organization).pipe(
-            // tap(
-            //     p => this.updateOrganization(p),
-            //     () => this.reset(),
-            // ),
+            tap(
+                p => this.updateOrganization(p),
+                () => this.reset(),
+            ),
         )
     }
 
     find(orgName: string): Observable<Organization> {
         return this.organizations$.pipe(
             switchMap(organizations => {
-                const existingOrganization = organizations.find(p => p.name === orgName);
+                const existingOrganization = organizations.find(o => o.name === orgName);
                 if (existingOrganization) {
                     return of(existingOrganization);
                 } else {
@@ -130,7 +130,7 @@ export class OrganizationService {
 
     protected organizationUrl(orgName?: string): string {
         if (orgName) {
-            return this.resourceUrl + encodeURIComponent(orgName);
+            return this.resourceUrl + '/' + encodeURIComponent(orgName);
         } else {
             return this.resourceUrl;
         }

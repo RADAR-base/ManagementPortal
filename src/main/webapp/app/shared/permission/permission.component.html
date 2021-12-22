@@ -14,13 +14,13 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class="user-with-permission" *ngFor="let user of authorizedUsers ;trackBy: trackId">
+                <tr class="user-with-permission" *ngFor="let user of authorizedUsers; trackBy: trackId">
                     <td>{{user.login}}</td>
                     <td>
                         {{user.authorityName}}
                     </td>
                     <td>
-                        <button type="button" (click)="removeRole(user.login)" class="btn btn-danger btn-sm fa fa-remove"
+                        <button type="button" (click)="removeRole(user.login, user.authorityName)" class="btn btn-danger btn-sm fa fa-remove"
                             [disabled]="user.authorityName === 'ROLE_SYS_ADMIN'">
                         </button>
                     </td>
