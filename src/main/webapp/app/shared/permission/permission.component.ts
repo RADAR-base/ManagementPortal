@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, } from '@angular/core';
 import { Role } from '../../admin/user-management/role.model';
-import { Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { Project } from '../project';
 import { AuthorityService } from '../user/authority.service';
 import { AlertService } from '../util/alert.service';
@@ -22,6 +22,7 @@ export class PermissionComponent implements OnInit, OnChanges {
     @Input() project: Project;
 
     users: User[] = [];
+    allUsers = [];
     authorizedUsers: User[] = [];
     authorities$: Observable<Authority[]>
 

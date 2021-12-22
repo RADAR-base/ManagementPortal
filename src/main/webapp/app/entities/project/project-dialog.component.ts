@@ -198,10 +198,6 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
               // TODO: actually show error
           });
     }
-
-    onDestroy(): void {
-        this.subscription.unsubscribe();
-    }
 }
 
 @Component({
