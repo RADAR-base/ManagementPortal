@@ -14,7 +14,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let user of authorizedUsers ;trackBy: trackId">
+                <tr *ngFor="let user of authorizedUsers; trackBy: trackId">
                     <td>{{user.login}}</td>
                     <td>
                         {{user.authorityName}}
@@ -34,8 +34,7 @@
                     </td>
                     <td>
                         <select name='authority' [(ngModel)]="selectedAuthority" class="form-control" required>
-                            <option *ngIf="organization" value="ROLE_ORGANIZATION_ADMIN">ROLE_ORGANIZATION_ADMIN</option>
-                            <option *ngIf="project" value="ROLE_PROJECT_ADMIN">ROLE_PROJECT_ADMIN</option>
+                            <option *ngFor="let authority of authorities$ | async" [ngValue]="authority">{{ authority.name }}</option>
                         </select>
                     </td>
                     <td>

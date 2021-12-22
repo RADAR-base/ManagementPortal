@@ -60,10 +60,10 @@ export class OrganizationService {
 
     update(organization: Organization): Observable<Organization> {
         return this.http.put<Organization>(this.organizationUrl(), organization).pipe(
-            // tap(
-            //     p => this.updateOrganization(p),
-            //     () => this.reset(),
-            // ),
+            tap(
+                p => this.updateOrganization(p),
+                () => this.reset(),
+            ),
         )
     }
 
