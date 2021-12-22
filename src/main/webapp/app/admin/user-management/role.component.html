@@ -44,7 +44,7 @@
                 <td>
                     <select name='authority' [(ngModel)]="selectedAuthority" class="form-control" required>
                         <option [ngValue]="null"></option>
-                        <option *ngFor="let authority of authorities;">{{authority}}</option>
+                        <option *ngFor="let authority of authorityService.authorities$ | async;">{{authority}}</option>
                     </select>
                 </td>
                 <td>

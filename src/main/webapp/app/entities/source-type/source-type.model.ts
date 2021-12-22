@@ -1,33 +1,28 @@
+import { SourceData } from "../source-data";
 
 const enum SourceTypeScope {
-    'ACTIVE',
-    'PASSIVE'
+  'ACTIVE',
+  'PASSIVE'
 }
 
-export class SourceType {
-    constructor(
-        public id?: number,
-        public producer?: string,
-        public model?: string,
-        public catalogVersion?: string,
-        public sourceTypeScope?: SourceTypeScope,
-        public sourceDataId?: number,
-        public projectId?: number,
-        public canRegisterDynamically?: boolean,
-        public name?: string,
-        public description?: string,
-        public assessmentType?: string,
-        public appProvider?: string
-    ) {
-    }
+export interface SourceType {
+  id?: number,
+  producer?: string,
+  model?: string,
+  catalogVersion?: string,
+  sourceTypeScope?: SourceTypeScope,
+  sourceData?: SourceData[],
+  projectId?: number,
+  canRegisterDynamically?: boolean,
+  name?: string,
+  description?: string,
+  assessmentType?: string,
+  appProvider?: string
 }
 
-export class MinimalSourceType {
-    constructor(
-        public id?: number,
-        public producer?: string,
-        public model?: string,
-        public catalogVersion?: string,
-    ) {
-    }
+export interface MinimalSourceType {
+  id?: number,
+  producer?: string,
+  model?: string,
+  catalogVersion?: string,
 }

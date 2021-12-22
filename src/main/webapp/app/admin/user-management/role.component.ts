@@ -15,13 +15,12 @@ import { Role } from './role.model';
 export class RoleComponent implements OnInit {
     @Input() roles: Role[];
     eventSubscriber: Subscription;
-    authorities: string[];
 
     selectedAuthority: any;
     selectedProject: Project;
 
     constructor(
-                private authorityService: AuthorityService,
+                public authorityService: AuthorityService,
                 public projectService: ProjectService,
                 private alertService: AlertService,
                 private eventManager: EventManager
@@ -32,9 +31,6 @@ export class RoleComponent implements OnInit {
         if (!this.roles) {
             this.roles = [];
         }
-        this.authorityService.findAll().subscribe(res => {
-            this.authorities = res;
-        });
     }
 
     trackId(index: number, item: Role) {
@@ -68,6 +64,4 @@ export class RoleComponent implements OnInit {
     trackProjectById(index: number, item: Project) {
         return item.id;
     }
-
-
 }

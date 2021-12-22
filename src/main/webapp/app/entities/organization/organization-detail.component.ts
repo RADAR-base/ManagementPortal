@@ -1,8 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, Observable, Subject, Subscription } from 'rxjs';
+import { combineLatest, Observable, Subject, Subscription } from 'rxjs';
 
-// import { Source } from '../../shared/source/source.model';
 import { Organization, OrganizationService } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 import {
