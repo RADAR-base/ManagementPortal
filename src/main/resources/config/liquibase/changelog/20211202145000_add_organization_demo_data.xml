@@ -25,7 +25,7 @@
         <sql>insert into radar_role_aud(id, rev, revtype, authority_name, authority_mod, project_id, project_mod, organization_id, organization_mod, users_mod) select id, 1, 0, authority_name, true, project_id, true, organization_id, true, true from radar_role WHERE id = 6</sql>
     </changeSet>
 
-    <changeSet id="Add organization admin user" author="dev,test">
+    <changeSet id="Add organization admin user" author="joris@thehyve.nl" context="dev, test">
         <loadData
             file="config/liquibase/organization_user.csv"
             separator=";"
