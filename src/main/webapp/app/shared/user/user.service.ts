@@ -13,29 +13,11 @@ export class UserService {
     }
 
     create(user: User): Observable<any> {
-        console.log(user)
-        // const newUser = {
-        //     authorities: [],
-        //     email: "test@test.com",
-        //     firstName: "Peyman",
-        //     langKey: "en",
-        //     lastName: "M",
-        //     login: "peyman-test",
-        //     roles: [{authorityName: "ROLE_ORGANIZATION_ADMIN", organizationId: 1}]
-        // };
-        // return this.http.post(this.resourceUrl, newUser);
         return this.http.post(this.resourceUrl, user);
     }
 
     update(user: User): Observable<any> {
         return this.http.put(this.resourceUrl, user);
-    }
-
-    updateRoles(user: User): Observable<any> {
-        return this.http.put(
-          `${this.resourceUrl}/${encodeURIComponent(user.login)}/roles`,
-          user.roles,
-        );
     }
 
     find(login: string): Observable<User> {
@@ -58,14 +40,5 @@ export class UserService {
     findByProjectAndAuthority(req: any): Observable<User[]> {
         const params = createRequestOption(req);
         return this.http.get<User[]>(this.resourceUrl, {params});
-    }
-
-    search(term: string): Observable<User[]> {
-        if (term === '') {
-            return of([]);
-        }
-        const params = new HttpParams({fromObject: {searching: true}});
-        return this.http.get<User[]>(this.resourceUrl,
-                {params: params.set('search', term)});
     }
 }

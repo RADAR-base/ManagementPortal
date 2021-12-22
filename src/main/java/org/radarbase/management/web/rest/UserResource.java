@@ -116,7 +116,7 @@ public class UserResource {
      */
     @PostMapping("/users")
     @Timed
-    public ResponseEntity createUser(@RequestBody ManagedUserVM managedUserVm)
+    public ResponseEntity<User> createUser(@RequestBody ManagedUserVM managedUserVm)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save User : {}", managedUserVm);
         checkPermission(token, USER_CREATE);
@@ -126,7 +126,7 @@ public class UserResource {
                             "A new user cannot already have an ID"))
                     .body(null);
             // Lowercase the user login before comparing with database
-        } else if (userRepository.findOneByLogin(managedUserVm.getLogin().toLowerCase(Locale.US))
+        } else if (userRepository.findOneByLogin(managedUserVm.getLogin().toLowerCase(Locale.ROOT))
                 .isPresent()) {
             return ResponseEntity.badRequest()
                     .headers(HeaderUtil

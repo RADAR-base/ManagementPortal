@@ -10,7 +10,7 @@ import { User } from '../user/user.model';
 import { Organization } from '../organization';
 import { UserService } from '../user/user.service';
 import { Authority, Scope } from '../user/authority.model';
-import { map } from 'rxjs/operators';
+import { distinctUntilChanged, map, tap } from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-permissions',
@@ -49,6 +49,14 @@ export class PermissionComponent implements OnInit, OnChanges {
               } else {
                   return authorities.filter(a => a.scope === Scope.GLOBAL);
               }
+          }),
+          distinctUntilChanged((a1, a2) => a1.map(a => a.name).join(',') === a2.map(a => a.name).join(',')),
+          tap(a => {
+              if (a.length > 0) {
+                  this.selectedAuthority = a[0]
+              } else {
+                  this.selectedAuthority = undefined;
+              }
           })
         );
     }
@@ -63,7 +71,7 @@ export class PermissionComponent implements OnInit, OnChanges {
 
     getUsers() {
         this.selectedUser = null;
-        this.userService.query().subscribe(
+        this.userService.query({includeProvenance: false}).subscribe(
             (res: HttpResponse<User[]>) => this.onSuccess(res.body),
             (error: HttpErrorResponse) => this.onError(error),
         );
@@ -82,6 +90,10 @@ export class PermissionComponent implements OnInit, OnChanges {
     }
 
     addRole() {
+        console.log(this.selectedAuthority);
+        if (!this.selectedAuthority) {
+            return;
+        }
         let newRole: Role;
         if (this.organization) {
             newRole = {
@@ -151,7 +163,6 @@ export class PermissionComponent implements OnInit, OnChanges {
                 usersOutput.push(user)
             }
         });
-        console.log(usersOutput, authorizedUsersOutput);
 
         return {users: usersOutput, authorizedUsers: authorizedUsersOutput};
     }
