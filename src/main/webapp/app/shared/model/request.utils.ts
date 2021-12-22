@@ -8,8 +8,8 @@ const addRequestOptions = (options: HttpParams, key: string, value?: any): HttpP
             options = addRequestOptions(options, key, v);
         });
     } else if (typeof value === 'object') {
-        Object.keys(value).forEach((k) => {
-            options = addRequestOptions(options, key + '.' + k, value[k]);
+        Object.entries(value).forEach(([k, v]) => {
+            options = addRequestOptions(options, key + '.' + k, v);
         })
     } else {
         options = options.append(key, value);
@@ -20,8 +20,8 @@ const addRequestOptions = (options: HttpParams, key: string, value?: any): HttpP
 export const createRequestOption = (req?: any): HttpParams => {
     let options: HttpParams = new HttpParams();
     if (req) {
-        Object.keys(req).forEach((key) => {
-            options = addRequestOptions(options, key, req[key]);
+        Object.entries(req).forEach(([key, value]) => {
+            options = addRequestOptions(options, key, value);
         });
     }
     return options;

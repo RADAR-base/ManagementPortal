@@ -136,51 +136,53 @@
         </div>
     </div>
     <section>
-        <div ngbDropdown class="d-inline-block subject-sorting-action" id="field-sort-by" >
-            <button class="btn btn-outline-primary"
-                ngbDropdownToggle
-            >
-                {{ 'managementPortalApp.subject.sorting.sortByLabel' | translate }}:
-                <span>
-                    {{ 'managementPortalApp.subject.sorting.' + (sortBy$ | async)  | translate }}
-                </span>
-            </button>
-            <div ngbDropdownMenu>
-                <span *ngFor="let k of sortingOptions">
+        <ng-container *ngIf="sortOrder$ | async as sortOrder">
+            <div ngbDropdown class="d-inline-block subject-sorting-action" id="field-sort-by">
+                <button class="btn btn-outline-primary"
+                    ngbDropdownToggle
+                >
+                    {{ 'managementPortalApp.subject.sorting.sortByLabel' | translate }}:
+                    <span>
+                        {{ 'managementPortalApp.subject.sorting.' + sortOrder.predicate  | translate }}
+                    </span>
+                </button>
+                <div ngbDropdownMenu>
+                    <span *ngFor="let k of sortingOptions">
+                        <button
+                            [id]="'sort-by-'+k"
+                            ngbDropdownItem
+                            (click)="updateSortingSortBy(k)"
+                            [translate]="'managementPortalApp.subject.sorting.' + k">
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div ngbDropdown class="d-inline-block subject-sorting-action"  id="field-order-by">
+                <button class="btn btn-outline-primary" ngbDropdownToggle>
+                    {{ 'managementPortalApp.subject.sorting.sortOrderLabel' | translate }}:
+                    <ng-container *ngIf="sortOrder.ascending; else descending">
+                        {{ 'managementPortalApp.subject.sorting.asc' | translate }}
+                    </ng-container>
+                    <ng-template #descending>
+                        {{ 'managementPortalApp.subject.sorting.desc' | translate }}
+                    </ng-template>
+                </button>
+                <div ngbDropdownMenu>
                     <button
-                        [id]="'sort-by-'+k"
                         ngbDropdownItem
-                        (click)="updateSortingSortBy(k)"
-                        [translate]="'managementPortalApp.subject.sorting.' + k">
+                        id="order-by-asc"
+                        (click)="updateSortAscending(true)"
+                        [translate]="'managementPortalApp.subject.sorting.asc'">
                     </button>
-                </span>
+                    <button
+                        ngbDropdownItem
+                        id="order-by-desc"
+                        (click)="updateSortAscending(false)"
+                        [translate]="'managementPortalApp.subject.sorting.desc'">
+                    </button>
+                </div>
             </div>
-        </div>
-        <div ngbDropdown class="d-inline-block subject-sorting-action"  id="field-order-by">
-            <button class="btn btn-outline-primary" ngbDropdownToggle>
-                {{ 'managementPortalApp.subject.sorting.sortOrderLabel' | translate }}:
-                <span *ngIf="ascending$ | async; else descending">
-                    {{ 'managementPortalApp.subject.sorting.asc' | translate }}
-                </span>
-                <ng-template #descending>
-                    {{ 'managementPortalApp.subject.sorting.desc' | translate }}
-                </ng-template>
-            </button>
-            <div ngbDropdownMenu>
-                <button
-                    ngbDropdownItem
-                    id="order-by-asc"
-                    (click)="updateSortAscending(true)"
-                    [translate]="'managementPortalApp.subject.sorting.asc'">
-                </button>
-                <button
-                    ngbDropdownItem
-                    id="order-by-desc"
-                    (click)="updateSortAscending(false)"
-                    [translate]="'managementPortalApp.subject.sorting.desc'">
-                </button>
-            </div>
-        </div>
+        </ng-container>
         <button
                 class="btn btn-primary float-right create-subject"
                 *ngIf='isProjectSpecific'
@@ -253,11 +255,11 @@
                         <span class="subject-row__field-label"
                             [translate]="'managementPortalApp.subject.status.title'">
                         </span>
-                        <div>
-                            <span class="badge badge-danger" *ngIf="subject.status == 'DEACTIVATED'">DEACTIVATED</span>
-                            <span class="badge badge-success" *ngIf="subject.status == 'ACTIVATED'">ACTIVATED</span>
-                            <span class="badge badge-warning" *ngIf="subject.status == 'DISCONTINUED'">DISCONTINUED</span>
-                            <span class="badge badge-danger" *ngIf="subject.status == 'INVALID'">INVALID</span>
+                        <div [ngSwitch]="subject.status">
+                            <span class="badge badge-danger" *ngSwitchCase="'DEACTIVATED'">DEACTIVATED</span>
+                            <span class="badge badge-success" *ngSwitchCase="'ACTIVATED'">ACTIVATED</span>
+                            <span class="badge badge-warning" *ngSwitchCase="'DISCONTINUED'">DISCONTINUED</span>
+                            <span class="badge badge-danger" *ngSwitchCase="'INVALID'">INVALID</span>
                         </div>
                     </div>
                     <div *ngIf="!isProjectSpecific" class="subject-row__project">
@@ -308,14 +310,14 @@
                     </div>
                 </div>
                 <div class="subject-row__actions">
-                    <button *ngIf='!isProjectSpecific' [disabled]="subject.status != 'ACTIVATED'"
+                    <button *ngIf='!isProjectSpecific' [disabled]="subject.status !== 'ACTIVATED'"
                             type="submit"
                             [routerLink]="['/subject', subject.login ]"
                             class="btn btn-info btn-sm">
                         <span class="fa fa-eye"></span>
                         <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
                     </button>
-                    <button *ngIf='!isProjectSpecific' [disabled]="subject.status != 'ACTIVATED'"
+                    <button *ngIf='!isProjectSpecific' [disabled]="subject.status !== 'ACTIVATED'"
                             type="submit"
                             [routerLink]="['/', { outlets: { popup: 'general-subject/'+ subject.login + '/edit'} }]"
                             replaceUrl="true"
@@ -323,14 +325,14 @@
                         <span class="fa fa-pencil"></span>
                         <span class="hidden-md-down" [translate]="'entity.action.edit'"></span>
                     </button>
-                    <button *ngIf='isProjectSpecific' [disabled]="subject.status != 'ACTIVATED'"
+                    <button *ngIf='isProjectSpecific' [disabled]="subject.status !== 'ACTIVATED'"
                             type="submit"
                             [routerLink]="['/', { outlets: { popup: 'project-subject/'+ project.projectName + '/' + subject.login + '/edit'} }]"
                             replaceUrl="true"
                             class="btn btn-primary btn-sm">
                         <span class="fa fa-pencil"></span>&nbsp;<span [translate]="'entity.action.edit'"></span>
                     </button>
-                    <button [disabled]="subject.status != 'ACTIVATED'"
+                    <button [disabled]="subject.status !== 'ACTIVATED'"
                             type="submit"
                             [routerLink]="['/', { outlets: { popup: 'subject/' + subject.login + '/pairApp' } }]"
                             replaceUrl="true"
@@ -338,7 +340,7 @@
                         <span class="fa fa-qrcode"></span>
                         <span [translate]="'managementPortalApp.subject.pairApp'"></span>
                     </button>
-                    <button [disabled]="subject.status != 'ACTIVATED'"
+                    <button [disabled]="subject.status !== 'ACTIVATED'"
                             type="submit"
                             [routerLink]="['/', { outlets: { popup: 'subject/' + subject.login + '/sources' } }]"
                             replaceUrl="true"
@@ -354,5 +356,5 @@
 </div>
 
 <ng-template #noneAvailable>
-    <span class="none-available" translate>global.attribute.noneAvailable</span>
+    <span class="none-available" [translate]="'global.attribute.noneAvailable'"></span>
 </ng-template>

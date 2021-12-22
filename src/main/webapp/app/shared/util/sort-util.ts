@@ -45,6 +45,10 @@ export class SortOrderImpl implements SortOrder {
     return sortByPredicate(values, t => t[order.predicate], order.ascending);
   }
 
+  toQueryParam(): string {
+    return this.predicate + ',' + (this.ascending ? 'asc' : 'desc');
+  }
+
   static from(order?: SortOrder, defaultPredicate?: string): SortOrderImpl {
     if (!order) {
       return new SortOrderImpl(defaultPredicate || 'id', true);

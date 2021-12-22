@@ -102,7 +102,7 @@ export interface ReactiveFilterOptions<T> {
 export class NgbDateReactiveFilter extends ReactiveFilter<NgbDateStruct> {
   constructor(
     private calendar: NgbCalendar,
-    private formatter: NgbDateParserFormatter,
+    private dateFormatter: NgbDateParserFormatter,
     options: ReactiveFilterOptions<NgbDateStruct> = {},
   ) {
       super({
@@ -127,7 +127,7 @@ export class NgbDateReactiveFilter extends ReactiveFilter<NgbDateStruct> {
 
     next(value?: NgbDateStruct | string) {
     if (typeof value === 'string') {
-      super.next(this.formatter.parse(value));
+      super.next(this.dateFormatter.parse(value));
     } else {
       super.next(value);
     }

@@ -42,6 +42,7 @@ import {
     ReactiveFilter,
     ReactiveFilterOptions
 } from "../util/reactive-filter";
+import { distinctSortOrder, SortOrder, SortOrderImpl } from '../util/sort-util';
 
 @Component({
     selector: 'jhi-subjects',
@@ -66,6 +67,12 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     totalItems: number;
     previousPage: number = 1;
     itemsPerPage = ITEMS_PER_PAGE;
+
+    _sortOrder$ = new BehaviorSubject<SortOrder>({
+        predicate: 'login',
+        ascending: true,
+    });
+    sortOrder$: Observable<SortOrderImpl>;
 
     sortBy$ = new BehaviorSubject<string>('login');
     ascending$ = new BehaviorSubject<boolean>(true);
@@ -94,8 +101,12 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             private activatedRoute: ActivatedRoute,
             private router: Router,
             calendar: NgbCalendar,
-            public formatter: NgbDateParserFormatter
+            public dateFormatter: NgbDateParserFormatter
     ) {
+        this.sortOrder$ = this._sortOrder$.pipe(
+          map(o => SortOrderImpl.from(o)),
+          distinctSortOrder(),
+        );
         const stringFilterOptions: ReactiveFilterOptions<string> = {
             mapResult: filter$ => filter$.pipe(
               map(v => v ? v.trim() : ''),
@@ -106,10 +117,10 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             subjectId: new ReactiveFilter<string>(stringFilterOptions),
             externalId: new ReactiveFilter<string>(stringFilterOptions),
             humanReadableId: new ReactiveFilter<string>(stringFilterOptions),
-            dateOfBirth: new NgbDateReactiveFilter(calendar, this.formatter),
+            dateOfBirth: new NgbDateReactiveFilter(calendar, this.dateFormatter),
             personName: new ReactiveFilter<string>(stringFilterOptions),
-            enrollmentDateFrom: new NgbDateReactiveFilter(calendar, this.formatter),
-            enrollmentDateTo: new NgbDateReactiveFilter(calendar, this.formatter),
+            enrollmentDateFrom: new NgbDateReactiveFilter(calendar, this.dateFormatter),
+            enrollmentDateTo: new NgbDateReactiveFilter(calendar, this.dateFormatter),
             groupId: new ReactiveFilter<number>({ debounceTime: 1 }),
         }
         this.enrollmentDate$ = this.observeEnrollmentDate();
@@ -119,9 +130,9 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
                 if (!f) return null;
                 let {dateOfBirth, enrollmentDateFrom, enrollmentDateTo, groupId, ...filters} = f;
                 return {
-                    dateOfBirth: this.formatter.format(dateOfBirth),
-                    enrollmentDateFrom: this.formatter.format(enrollmentDateFrom),
-                    enrollmentDateTo: this.formatter.format(enrollmentDateTo),
+                    dateOfBirth: this.dateFormatter.format(dateOfBirth),
+                    enrollmentDateFrom: this.dateFormatter.format(enrollmentDateFrom),
+                    enrollmentDateTo: this.dateFormatter.format(enrollmentDateTo),
                     groupId: this.groups$.value.find(g => g.id.toString() == groupId)?.name,
                     ...filters,
                 }
@@ -162,8 +173,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         this._subjects$.complete();
         this.groups$.complete();
         this.page$.complete();
-        this.sortBy$.complete();
-        this.ascending$.complete();
+        this._sortOrder$.complete();
         for (let filtersKey in this.filters) {
             this.filters[filtersKey].complete();
         }
@@ -187,14 +197,12 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
 
     private registerChangeInParams(): Subscription {
         return this.activatedRoute.params.pipe(
-          first()
-        ).subscribe(params => {
-            for (let k in params) {
-                if (params.hasOwnProperty(k) && this.filters.hasOwnProperty(k)) {
-                    this.filters[k].next(params[k], true);
-                }
+            first(),
+        ).subscribe(params => Object.entries(params).forEach(([k, v]) => {
+            if (this.filters.hasOwnProperty(k)) {
+                this.filters[k].next(v, true);
             }
-        });
+        }));
     }
 
     private registerChangeInPagingParams(): Subscription {
@@ -203,10 +211,10 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
           first(),
         ).subscribe(params => {
             this.page$.next(params.page);
-            this.ascending$.next(params.ascending);
-            if (this.sortingOptions.includes(params.predicate)) {
-                this.sortBy$.next(params.predicate);
-            }
+            this._sortOrder$.next({
+                predicate: params.predicate,
+                ascending: params.ascending,
+            });
         })
     }
 
@@ -214,30 +222,28 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         return combineLatest([
             this.project$.pipe(map(p => p ? p.projectName : ''), distinctUntilChanged()),
             this.filterResult$,
-            this.sortBy$.pipe(distinctUntilChanged()),
-            this.ascending$.pipe(distinctUntilChanged()),
+            this.sortOrder$,
             this.page$.pipe(distinctUntilChanged()),
         ]).pipe(
           debounceTime(10),
-          tap(([projectName, criteria, sortBy, ascending, page]) =>
+          tap(([projectName, criteria, sortOrder, page]) =>
             this.router.navigate(this.toPathParams(projectName, criteria), {
-                queryParams: this.toQueryParams(page, sortBy, ascending),
+                queryParams: {
+                    page: page.toString(),
+                    sort: sortOrder.toQueryParam(),
+                },
                 queryParamsHandling: "merge",
             })),
           withLatestFrom(this._subjects$),
-          switchMap(([[projectName, filter, sortBy, ascending, page], subjects]) => {
+          switchMap(([[projectName, filter, sortOrder, page], subjects]) => {
               const mergeResults: boolean = page > this.previousPage;
               this.previousPage = page;
               const filterParams = this.queryFilterParams(filter);
-              const pagingParams = this.queryPaginationParams(page, sortBy, ascending, mergeResults, subjects)
+              const pagingParams = this.queryPaginationParams(page, sortOrder, mergeResults, subjects)
 
               let fetch$: Observable<HttpResponse<Subject[]>>;
               if (projectName) {
-                  fetch$ = this.subjectService.findAllByProject(
-                    projectName,
-                    filterParams,
-                    pagingParams,
-                  );
+                  fetch$ = this.subjectService.findAllByProject(projectName, filterParams, pagingParams);
               } else {
                   fetch$ = this.subjectService.query(filterParams, pagingParams);
               }
@@ -246,7 +252,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
                     body: res.body,
                     headers: res.headers,
                     mergeResults: mergeResults,
-                }))
+                })),
               );
           })
         )
@@ -298,27 +304,27 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             params.enrollmentDate = {};
             if (criteria.enrollmentDateFrom) {
-                params.enrollmentDate.from = this.formatter.format(criteria.enrollmentDateFrom)
+                params.enrollmentDate.from = this.dateFormatter.format(criteria.enrollmentDateFrom)
                   + 'T00:00' + '[' + timeZone + ']';
             }
             if (criteria.enrollmentDateTo) {
-                params.enrollmentDate.to = this.formatter.format(criteria.enrollmentDateTo)
+                params.enrollmentDate.to = this.dateFormatter.format(criteria.enrollmentDateTo)
                   + 'T23:59' + '[' + timeZone + ']';
             }
         }
         if (criteria.dateOfBirth) {
             params.dateOfBirth = {
-                is: this.formatter.format(criteria.dateOfBirth),
+                is: this.dateFormatter.format(criteria.dateOfBirth),
             };
         }
 
         return params;
     }
 
-    private queryPaginationParams(page: number, sortBy: string, ascending: boolean, loadMore: boolean, subjects: Subject[]): SubjectPaginationParams {
+    private queryPaginationParams(page: number, sortOrder: SortOrderImpl, loadMore: boolean, subjects: Subject[]): SubjectPaginationParams {
         const params: SubjectPaginationParams = {
             size: Math.max(page * this.itemsPerPage - subjects.length, this.itemsPerPage),
-            sort: [sortBy + ',' + (ascending ? 'asc' : 'desc')],
+            sort: [sortOrder.toQueryParam()],
         };
         if (loadMore && subjects.length > 0) {
             const lastSubject = subjects[subjects.length - 1]
@@ -465,13 +471,13 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             const stringFilters: Record<string, any> = Object.assign<Record<string, any>, SubjectFilterCriteria>({}, criteria);
             delete stringFilters['groupName'];
             if (criteria.enrollmentDateFrom) {
-                stringFilters.enrollmentDateFrom = this.formatter.format(criteria.enrollmentDateFrom);
+                stringFilters.enrollmentDateFrom = this.dateFormatter.format(criteria.enrollmentDateFrom);
             }
             if (criteria.enrollmentDateTo) {
-                stringFilters.enrollmentDateTo = this.formatter.format(criteria.enrollmentDateTo);
+                stringFilters.enrollmentDateTo = this.dateFormatter.format(criteria.enrollmentDateTo);
             }
             if (criteria.dateOfBirth) {
-                stringFilters.dateOfBirth = this.formatter.format(criteria.dateOfBirth);
+                stringFilters.dateOfBirth = this.dateFormatter.format(criteria.dateOfBirth);
             }
             let params = {};
             for (let k in stringFilters) {
@@ -482,17 +488,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             route.push(params);
         }
         return route;
-    }
-
-    private toQueryParams(
-      page: number,
-      sortBy: string,
-      ascending: boolean,
-    ): Record<string, string> {
-        return {
-            page: page.toString(),
-            sort: sortBy + ',' + (ascending ? 'asc' : 'desc'),
-        };
     }
 
     addSelectedToGroup() {

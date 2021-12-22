@@ -56,14 +56,7 @@ export class DictionaryMapperComponent implements OnInit {
     }
 
     isEmpty(obj: any) {
-        if (obj) {
-            for (const key in obj) {
-                if (obj.hasOwnProperty(key)) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return !obj || Object.keys(obj).length === 0;
     }
 
     trackKey(index: number, item: any) {
