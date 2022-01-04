@@ -49,10 +49,14 @@ export class ProjectService {
               if (account) {
                   return this.fetch().pipe(
                     retryWhen(errors => errors.pipe(
+                      concatMap((error, count) => {
+                          if (count <= 10 && (!error.status || error.status >= 500)) {
+                              return of(error);
+                          }
+                          return throwError(error);
+                      }),
                       delay(1000),
-                      take(10),
-                      concatMap(err => throwError(err)))
-                    ),
+                    )),
                   );
               } else {
                   return of([]);
@@ -114,7 +118,6 @@ export class ProjectService {
     fetch(): Observable<Project[]> {
         return this.query().pipe(
           map(res => res.body.map(p => {
-              console.log(p)
               return this.convertProjectFromServer(p)
           })),
         );

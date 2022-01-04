@@ -29,11 +29,15 @@ export class OrganizationService {
             switchMap(([account]) => {
                 if (account) {
                     return this.fetch().pipe(
-                        retryWhen(errors => errors.pipe(
-                            delay(1000),
-                            take(10),
-                            concatMap(err => throwError(err)))
-                        ),
+                      retryWhen(errors => errors.pipe(
+                        concatMap((error, count) => {
+                            if (count <= 10 && (!error.status || error.status >= 500)) {
+                                return of(error);
+                            }
+                            return throwError(error);
+                        }),
+                        delay(1000),
+                      )),
                     );
                 } else {
                     return of([]);
