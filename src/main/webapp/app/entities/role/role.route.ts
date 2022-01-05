@@ -10,7 +10,7 @@ export const roleRoute: Routes = [
         path: 'role/:projectName/:authorityName',
         component: RoleDetailComponent,
         data: {
-            authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
+            authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
             pageTitle: 'managementPortalApp.role.home.title',
         },
         canActivate: [UserRouteAccessService],
