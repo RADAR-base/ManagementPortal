@@ -60,7 +60,6 @@ export class ProjectService {
           })
         ).subscribe(
           projects => {
-              console.log(projects)
               this._projects$.next(projects)
           },
           err => this.alertService.error(err.message, null, null),
@@ -93,14 +92,15 @@ export class ProjectService {
 
     find(projectName: string): Observable<Project> {
         return this.projects$.pipe(
-          switchMap(projects => {
+            switchMap(projects => {
               const existingProject = projects.find(p => p.projectName === projectName);
               if (existingProject) {
                   return of(existingProject);
               } else {
                   return this.fetchProject(projectName);
               }
-          })
+            }),
+            take(1)
         );
     }
 
@@ -114,7 +114,6 @@ export class ProjectService {
     fetch(): Observable<Project[]> {
         return this.query().pipe(
           map(res => res.body.map(p => {
-              console.log(p)
               return this.convertProjectFromServer(p)
           })),
         );
@@ -162,7 +161,7 @@ export class ProjectService {
 
     private updateProject(project: Project) {
         const nextValue = this._projects$.value.slice();
-        const idx = nextValue.findIndex(p => p.projectName === project.projectName);
+        const idx = nextValue.findIndex(p => p.id === project.id);
         if (idx >= 0) {
             nextValue[idx] = project;
         } else {
@@ -181,7 +180,6 @@ export class ProjectService {
     }
 
     protected convertProjectFromServer(projectFromServer: any): Project {
-        console.log(projectFromServer)
         return {
             ...projectFromServer,
             startDate: convertDateTimeFromServer(projectFromServer.startDate),

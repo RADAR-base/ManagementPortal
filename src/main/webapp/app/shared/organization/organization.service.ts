@@ -76,7 +76,8 @@ export class OrganizationService {
                 } else {
                     return this.fetchOrganization(orgName);
                 }
-            })
+            }),
+            take(1)
         );
     }
 
@@ -115,7 +116,7 @@ export class OrganizationService {
 
     private updateOrganization(organization: Organization) {
         const nextValue = this._organizations$.value.slice();
-        const idx = nextValue.findIndex(p => p.name === organization.name);
+        const idx = nextValue.findIndex(p => p.id === organization.id);
         if (idx >= 0) {
             nextValue[idx] = organization;
         } else {
