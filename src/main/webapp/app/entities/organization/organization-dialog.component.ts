@@ -23,6 +23,7 @@ export class OrganizationDialogComponent implements OnInit {
     readonly authorities: any[];
     readonly options: string[];
 
+    organizationCopy: Organization;
     organization: Organization;
     isSaving: boolean;
     organizationIdAsPrettyValue: boolean;
@@ -40,7 +41,9 @@ export class OrganizationDialogComponent implements OnInit {
         this.organizationIdAsPrettyValue = true;
     }
 
-    ngOnInit() {}
+    ngOnInit() {
+        this.organizationCopy = Object.assign({}, this.organization);
+    }
 
     clear() {
         this.activeModal.dismiss('cancel');
@@ -48,12 +51,12 @@ export class OrganizationDialogComponent implements OnInit {
 
     save() {
         this.isSaving = true;
-        if (this.organization.id !== undefined) {
-            this.organizationService.update(this.organization)
+        if (this.organizationCopy.id !== undefined) {
+            this.organizationService.update(this.organizationCopy)
             .subscribe((res: Organization) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         } else {
-            this.organizationService.create(this.organization)
+            this.organizationService.create(this.organizationCopy)
             .subscribe((res: Organization) =>
                     this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
         }
@@ -62,6 +65,7 @@ export class OrganizationDialogComponent implements OnInit {
     private onSaveSuccess(result: Organization) {
         this.eventManager.broadcast({name: 'organizationListModification', content: 'OK'});
         this.isSaving = false;
+        this.organization = this.organizationCopy;
         this.activeModal.dismiss(result);
     }
 

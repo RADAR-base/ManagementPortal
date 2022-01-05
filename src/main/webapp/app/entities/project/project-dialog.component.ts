@@ -29,6 +29,7 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
 
     organizationName: string;
     project: Project;
+    projectCopy: Project;
     isSaving: boolean;
     projectIdAsPrettyValue: boolean;
 
@@ -61,11 +62,12 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        if(this.project.startDate) {
-            this.startDate = this.formatter.parse(this.project.startDate.toString());
+        this.projectCopy = Object.assign({}, this.project)
+        if(this.projectCopy.startDate) {
+            this.startDate = this.formatter.parse(this.projectCopy.startDate.toString());
         }
-        if(this.project.endDate) {
-            this.endDate = this.formatter.parse(this.project.endDate.toString());
+        if(this.projectCopy.endDate) {
+            this.endDate = this.formatter.parse(this.projectCopy.endDate.toString());
         }
         this.subscriptions.add(this.registerChangesToAttributes());
     }
@@ -81,13 +83,13 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
     save() {
         this.isSaving = true;
         if (this.startDate && this.calendar.isValid(NgbDate.from(this.startDate))) {
-            this.project.startDate = this.formatter.format(this.startDate) + 'T00:00';
+            this.projectCopy.startDate = this.formatter.format(this.startDate) + 'T00:00';
         }
         if (this.endDate && this.calendar.isValid(NgbDate.from(this.endDate))) {
-            this.project.endDate = this.formatter.format(this.endDate) + 'T23:59';
+            this.projectCopy.endDate = this.formatter.format(this.endDate) + 'T23:59';
         }
-        const updatedProject = {...this.project, organization: {name: this.organizationName}};
-        if (this.project.id !== undefined) {
+        const updatedProject = {...this.projectCopy, organization: {name: this.organizationName}};
+        if (this.projectCopy.id !== undefined) {
             this.subscriptions.add(this.projectService.update(updatedProject).subscribe(
               (res: Project) => this.onSaveSuccess(res),
               (res: Response) => this.onSaveError(res),
@@ -102,7 +104,7 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
 
     private registerChangesToAttributes(): Subscription {
         return this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
-            this.project.attributes = response.content;
+            this.projectCopy.attributes = response.content;
         });
     }
 
@@ -111,7 +113,7 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
         const inputFocus$ = this.sourceTypeInputFocus$;
         const availableTypes$ = this.sourceTypeService.sourceTypes$.pipe(
           map(sourceTypes => {
-              const selectedTypeIds = new Set(this.project?.sourceTypes?.map(t => t.id) || []);
+              const selectedTypeIds = new Set(this.projectCopy?.sourceTypes?.map(t => t.id) || []);
               return sourceTypes.filter(t => !selectedTypeIds.has(t.id));
           })
         );
@@ -153,14 +155,14 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
 
     addSourceType(event: NgbTypeaheadSelectItemEvent) {
         const sourceType = event.item as SourceType;
-        const currentSourceTypes = this.project.sourceTypes || [];
-        this.project.sourceTypes = [ ...currentSourceTypes, sourceType ];
+        const currentSourceTypes = this.projectCopy.sourceTypes || [];
+        this.projectCopy.sourceTypes = [ ...currentSourceTypes, sourceType ];
         this.sourceTypeInputText = '';
         event.preventDefault();
     }
 
     removeSourceType(id: number) {
-        this.project.sourceTypes = this.project.sourceTypes.filter(t => t.id !== id);
+        this.projectCopy.sourceTypes = this.projectCopy.sourceTypes.filter(t => t.id !== id);
     }
 
     formatSourceTypeOption(t: SourceType) {
@@ -168,7 +170,7 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
     }
 
     addGroup() {
-        let currentGroups = this.project.groups || [];
+        let currentGroups = this.projectCopy.groups || [];
         let newGroup = { name: this.newGroupInputText };
         if (newGroup.name.length == 0 || newGroup.name.length > 50) {
             // TODO: actually show error
@@ -178,9 +180,9 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
             // TODO: actually show error
             return;
         }
-        this.groupService.create(this.project.projectName, newGroup).toPromise()
+        this.groupService.create(this.projectCopy.projectName, newGroup).toPromise()
           .then(g => {
-              this.project.groups = [ ...currentGroups, g];
+              this.projectCopy.groups = [ ...currentGroups, g];
               this.newGroupInputText = '';
           })
           .catch(reason => {
@@ -190,9 +192,9 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
 
     removeGroup(groupName: string) {
         // TODO: warn that this may affect existing subjects
-        this.groupService.delete(this.project.projectName, groupName).toPromise()
+        this.groupService.delete(this.projectCopy.projectName, groupName).toPromise()
           .then(() => {
-              this.project.groups = this.project.groups.filter(g => g.name !== groupName);
+              this.projectCopy.groups = this.projectCopy.groups.filter(g => g.name !== groupName);
           })
           .catch(() => {
               // TODO: actually show error
