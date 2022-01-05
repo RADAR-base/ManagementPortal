@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 
-import { Project, ProjectService } from '../../shared';
+import {Principal, Project, ProjectService} from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 import { distinctUntilChanged, filter, pluck, switchMap } from "rxjs/operators";
 
@@ -26,6 +26,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             private projectService: ProjectService,
             private activatedRoute: ActivatedRoute,
             private router: Router,
+            public principal: Principal,
     ) {
         this.activeTab$ = this._activeTab$.asObservable().pipe(distinctUntilChanged());
         this.subscription.add(this.activatedRoute.queryParams.pipe(
