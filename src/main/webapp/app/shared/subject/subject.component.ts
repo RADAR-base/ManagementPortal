@@ -74,8 +74,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     });
     sortOrder$: Observable<SortOrderImpl>;
 
-    sortBy$ = new BehaviorSubject<string>('login');
-    ascending$ = new BehaviorSubject<boolean>(true);
     sortingOptions = [
         'login',
         'externalId',
@@ -372,12 +370,18 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     updateSortingSortBy(predicate?: string) {
-        this.sortBy$.next(predicate);
+        this._sortOrder$.next({
+            predicate: predicate || this._sortOrder$.value.predicate,
+            ascending: this._sortOrder$.value.ascending,
+        });
         this.page$.next(1);
     }
 
     updateSortAscending(ascending: boolean) {
-        this.ascending$.next(ascending);
+        this._sortOrder$.next({
+            predicate: this._sortOrder$.value.predicate,
+            ascending: ascending,
+        });
         this.page$.next(1);
     }
 
