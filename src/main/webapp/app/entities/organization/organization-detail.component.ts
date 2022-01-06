@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { combineLatest, Observable, Subject, Subscription } from 'rxjs';
-import { Organization, OrganizationService } from '../../shared';
+import {Organization, OrganizationService, Principal} from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 import {
     distinctUntilChanged, filter,
@@ -27,6 +27,7 @@ export class OrganizationDetailComponent implements OnInit, OnDestroy {
             private eventManager: EventManager,
             private organizationService: OrganizationService,
             private route: ActivatedRoute,
+            public principal: Principal,
     ) {
     }
 

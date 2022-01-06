@@ -27,14 +27,15 @@
         </p>
     </div>
 
-
     <ul class="nav nav-tabs">
         <li class="nav-item" (click)="viewProjects()">
             <span class="nav-link" [ngClass]="{active: showProjects}"
                   [translate]="'managementPortalApp.organization.projects'">
             </span>
         </li>
-        <li class="nav-item" (click)="viewPermissions()">
+        <li *ngIf="(principal.account$ | async).authorities.includes('ROLE_SYS_ADMIN') ||
+                    (principal.account$ | async).authorities.includes('ROLE_ORGANIZATION_ADMIN')"
+            class="nav-item" (click)="viewPermissions()">
             <span class="nav-link" [ngClass]="{active: showPermissions}"
                   [translate]="'managementPortalApp.organization.permissions'">
             </span>
@@ -44,6 +45,9 @@
     <div id="organization-content-wrapper">
         <jhi-alert-error></jhi-alert-error>
         <jhi-projects *ngIf="showProjects" [organization]='organization'></jhi-projects>
-        <jhi-permissions *ngIf="showPermissions" [organization]='organization'></jhi-permissions>
+        <jhi-permissions *ngIf="showPermissions &&
+                ((principal.account$ | async).authorities.includes('ROLE_SYS_ADMIN') ||
+                (principal.account$ | async).authorities.includes('ROLE_ORGANIZATION_ADMIN'))"
+                         [organization]='organization'></jhi-permissions>
     </div>
 </div>

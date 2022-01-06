@@ -8,7 +8,7 @@ import { EventManager } from '../../shared/util/event-manager.service';
 import { SourceTypeService } from '../source-type';
 import { OrganizationPopupService } from './organization-popup.service';
 
-import { Organization, OrganizationService } from '../../shared';
+import { copyOrganization, Organization, OrganizationService } from '../../shared';
 import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
 import { Observable, Subscription } from 'rxjs';
 
@@ -67,6 +67,7 @@ export class OrganizationDialogComponent implements OnDestroy {
     private onSaveSuccess(result: Organization) {
         this.eventManager.broadcast({name: 'organizationListModification', content: 'OK'});
         this.isSaving = false;
+        this.organization = copyOrganization(result);
         this.activeModal.dismiss(result);
     }
 

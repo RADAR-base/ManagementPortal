@@ -30,24 +30,11 @@
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"
-                                [routerLink]="['../organization', organization.name ]"
-                                class="btn btn-info btn-sm">
-                            <span class="fa fa-eye"></span>
-                            <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
-                        </button>
-                        <button type="submit"
                                 [routerLink]="['/', { outlets: { popup: 'organization/'+ organization.name + '/edit'} }]"
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>
                             <span class="hidden-md-down" [translate]="'entity.action.edit'"></span>
-                        </button>
-                        <button type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'organization/'+ organization.name + '/delete'} }]"
-                                replaceUrl="true"
-                                class="btn btn-danger btn-sm">
-                            <span class="fa fa-remove"></span>
-                            <span class="hidden-md-down" [translate]="'entity.action.delete'"></span>
                         </button>
                     </div>
                 </td>

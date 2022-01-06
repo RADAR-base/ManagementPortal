@@ -5,7 +5,7 @@
             {{project.humanReadableProjectName ? project.humanReadableProjectName : project.projectName}}
         </span>
         <button type="button"
-                [routerLink]="['/', { outlets: { popup: 'organization/' + project.organization.name + '/project/'+ project.projectName + '/edit'} }]"
+                [routerLink]="['/', { outlets: { popup: ['organization', project.organization.name, 'project', project.projectName , 'edit']} }]"
                 replaceUrl="true"
                 class="btn btn-primary float-right">
             <span class="fa fa-pencil"></span>&nbsp;<span [translate]="'entity.action.edit'"></span>
@@ -18,7 +18,7 @@
                 <p>{{project.projectName}}</p>
             </div>
             <div>
-                <span translate="managementPortalApp.project.organization"></span>
+                <span [translate]="'managementPortalApp.project.organization'"></span>
                 <p>{{project.organization.name}}</p>
             </div>
             <div>
@@ -54,46 +54,51 @@
         </p>
     </div>
 
-    <div *ngIf="activeTab$ | async as activeTab">
-        <ul class="nav nav-tabs">
-            <li class="nav-item" (click)="updateActiveTab('subjects')">
-                    <span class="nav-link" [ngClass]="{active: activeTab === 'subjects'}"
-                          [translate]="'managementPortalApp.project.subjects'">
+    <ng-container *ngIf="!(principal.account$ | async).authorities.includes('ROLE_ORGANIZATION_ADMIN')">
+        <div *ngIf="activeTab$ | async as activeTab">
+            <ul class="nav nav-tabs">
+                <li class="nav-item" (click)="updateActiveTab('subjects')">
+                        <span class="nav-link" [ngClass]="{active: activeTab === 'subjects'}"
+                              [translate]="'managementPortalApp.project.subjects'">
+                        </span>
+                </li>
+                <li class="nav-item" (click)="updateActiveTab('groups')">
+                        <span class="nav-link" [ngClass]="{active: activeTab === 'groups'}"
+                              [translate]="'managementPortalApp.project.groups'">
+                        </span>
+                </li>
+                <li *ngIf="(principal.account$ | async).authorities.includes('ROLE_SYS_ADMIN')"
+                    class="nav-item" (click)="updateActiveTab('permissions')">
+                    <span class="nav-link" [ngClass]="{active: activeTab === 'permissions'}"
+                          [translate]="'managementPortalApp.project.permissions'">
                     </span>
-            </li>
-            <li class="nav-item" (click)="updateActiveTab('groups')">
-                    <span class="nav-link" [ngClass]="{active: activeTab === 'groups'}"
-                          [translate]="'managementPortalApp.project.groups'">
-                    </span>
-            </li>
-            <li class="nav-item" (click)="updateActiveTab('permissions')">
-                <span class="nav-link" [ngClass]="{active: activeTab === 'permissions'}"
-                      [translate]="'managementPortalApp.project.permissions'">
-                </span>
-            </li>
-            <li class="nav-item" (click)="updateActiveTab('admins')">
-                    <span class="nav-link" [ngClass]="{active: activeTab === 'admins'}"
-                          [translate]="'managementPortalApp.project.admins'">
-                    </span>
-            </li>
-            <li class="nav-item" (click)="updateActiveTab('analysts')">
-                    <span class="nav-link" [ngClass]="{active: activeTab === 'analysts'}"
-                          [translate]="'managementPortalApp.project.analysts'">
-                    </span>
-            </li>
-        </ul>
+                </li>
+                <li *ngIf="(principal.account$ | async).authorities.includes('ROLE_SYS_ADMIN')"
+                    class="nav-item" (click)="updateActiveTab('admins')">
+                        <span class="nav-link" [ngClass]="{active: activeTab === 'admins'}"
+                              [translate]="'managementPortalApp.project.admins'">
+                        </span>
+                </li>
+                <li *ngIf="(principal.account$ | async).authorities.includes('ROLE_SYS_ADMIN')"
+                    class="nav-item" (click)="updateActiveTab('analysts')">
+                        <span class="nav-link" [ngClass]="{active: activeTab === 'analysts'}"
+                              [translate]="'managementPortalApp.project.analysts'">
+                        </span>
+                </li>
+            </ul>
 
-        <div id="project-content-wrapper">
-            <jhi-alert-error></jhi-alert-error>
+            <div id="project-content-wrapper">
+                <jhi-alert-error></jhi-alert-error>
 
-            <jhi-subjects *ngIf="activeTab === 'subjects'" [project]='project' [isProjectSpecific]="true"></jhi-subjects>
-            <jhi-groups *ngIf="activeTab === 'groups'" [project]='project'></jhi-groups>
+                <jhi-subjects *ngIf="activeTab === 'subjects'" [project]='project' [isProjectSpecific]="true"></jhi-subjects>
+                <jhi-groups *ngIf="activeTab === 'groups'" [project]='project'></jhi-groups>
 
-            <jhi-permissions *ngIf="activeTab === 'permissions'" [project]='project'></jhi-permissions>
-            <jhi-common-user-mgmt *ngIf="activeTab === 'admins'" [project]='project' [authority]="'ROLE_PROJECT_ADMIN'"></jhi-common-user-mgmt>
-            <jhi-common-user-mgmt *ngIf="activeTab === 'analysts'" [project]='project' [authority]="'ROLE_PROJECT_ANALYST'"></jhi-common-user-mgmt>
+                <jhi-permissions *ngIf="activeTab === 'permissions'" [project]='project'></jhi-permissions>
+                <jhi-common-user-mgmt *ngIf="activeTab === 'admins'" [project]='project' [authority]="'ROLE_PROJECT_ADMIN'"></jhi-common-user-mgmt>
+                <jhi-common-user-mgmt *ngIf="activeTab === 'analysts'" [project]='project' [authority]="'ROLE_PROJECT_ANALYST'"></jhi-common-user-mgmt>
+            </div>
         </div>
-    </div>
+    </ng-container>
 </div>
 
 <ng-template #noneAvailable>

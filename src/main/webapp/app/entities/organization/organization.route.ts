@@ -55,14 +55,14 @@ export const organizationPopupRoute: Routes = [
         canActivate: [UserRouteAccessService],
         outlet: 'popup',
     },
-    {
-        path: 'organization/:organizationName/delete',
-        component: OrganizationDeletePopupComponent,
-        data: {
-            authorities: [SYSTEM_ADMIN],
-            pageTitle: 'managementPortalApp.organization.home.title',
-        },
-        canActivate: [UserRouteAccessService],
-        outlet: 'popup',
-    },
+    // {
+    //     path: 'organization/:organizationName/delete',
+    //     component: OrganizationDeletePopupComponent,
+    //     data: {
+    //         authorities: [SYSTEM_ADMIN],
+    //         pageTitle: 'managementPortalApp.organization.home.title',
+    //     },
+    //     canActivate: [UserRouteAccessService],
+    //     outlet: 'popup',
+    // },
 ];

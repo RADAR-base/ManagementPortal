@@ -15,8 +15,6 @@ export class ProjectService {
     private readonly _projects$ = new BehaviorSubject<Project[]>([]);
     private readonly _trigger$ = new Subject<void>();
 
-    private organizationResourceUrl = 'api/organizations';
-
     projects$: Observable<Project[]> = this._projects$.asObservable();
 
     constructor(
@@ -89,7 +87,7 @@ export class ProjectService {
               } else {
                   return this.fetchProject(projectName);
               }
-          })
+            }),
         );
     }
 
@@ -112,12 +110,6 @@ export class ProjectService {
         const options = createRequestOption(req);
         return this.http.get<Project[]>(this.projectUrl(), {params: options, observe: 'response'});
     }
-
-    findAllByOrganization(orgName: string): Observable<Project[]> {
-        let url = `${this.organizationResourceUrl}/${orgName}/projects`;
-        return this.http.get<Project[]>(url);
-    }
-
 
     findSourceTypesByName(projectName: string): Observable<SourceType[]> {
         return this.find(projectName).pipe(
@@ -150,7 +142,7 @@ export class ProjectService {
 
     private updateProject(project: Project) {
         const nextValue = this._projects$.value.slice();
-        const idx = nextValue.findIndex(p => p.projectName === project.projectName);
+        const idx = nextValue.findIndex(p => p.id === project.id);
         if (idx >= 0) {
             nextValue[idx] = project;
         } else {
