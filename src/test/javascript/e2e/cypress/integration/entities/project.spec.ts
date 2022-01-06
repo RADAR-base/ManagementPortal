@@ -1,5 +1,4 @@
 import { login } from '../util/login';
-import * as navBarPage from '../util/nav-bar';
 
 describe('Project e2e test', () => {
     beforeEach(() => {
@@ -35,10 +34,10 @@ describe('Project e2e test', () => {
             .contains('button', 'Edit').click();
         cy.contains('button.btn-primary', 'Save').click();
     });
-
-    it('should be able to delete Project', () => {
-        cy.contains('tr', 'test-project')
-            .contains('button', 'Delete').click();
-        cy.contains('jhi-project-delete-dialog button.btn-danger', 'Delete').click();
-    });
+    //
+    // it('should be able to delete Project', () => {
+    //     cy.contains('tr', 'test-project')
+    //         .contains('button', 'Delete').click();
+    //     cy.contains('jhi-project-delete-dialog button.btn-danger', 'Delete').click();
+    // });
 });

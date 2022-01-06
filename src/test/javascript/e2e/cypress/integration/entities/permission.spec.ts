@@ -10,7 +10,7 @@ describe('Organization Permissions e2e test', () => {
     });
 
     it('should load Permissions', () => {
-        cy.get('jhi-permissions tbody tr').should('have.length', 2);
+        cy.get('jhi-permissions tbody tr').should('have.length', 3);
     });
 
     it('should add user with role organization admin', () => {
