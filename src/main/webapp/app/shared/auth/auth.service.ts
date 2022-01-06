@@ -6,15 +6,18 @@ import { Principal } from './principal.service';
 import { StateStorageService } from './state-storage.service';
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
+import { UserModalService } from '../../admin';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
     constructor(
-            private principal: Principal,
-            private stateStorageService: StateStorageService,
-            private loginModalService: LoginModalService,
-            private router: Router,
+        private principal: Principal,
+        private stateStorageService: StateStorageService,
+        private loginModalService: LoginModalService,
+        private router: Router,
+        private modalService: NgbModal,
     ) {
     }
 
@@ -67,6 +70,8 @@ export class AuthService {
       this.stateStorageService.storePreviousState(destState);
 
       // now, send them to the sign in state so they can log in
-      this.router.navigate(['accessdenied']);
+      this.router.navigate(['accessdenied']).then(
+          () => this.modalService.dismissAll(),
+      );
     }
 }

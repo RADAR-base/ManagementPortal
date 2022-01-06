@@ -4,3 +4,7 @@ export class Group {
     public projectId?: number;
     public projectName?: string;
 }
+
+export function copyGroup(group: Group): Group {
+    return {...group};
+}

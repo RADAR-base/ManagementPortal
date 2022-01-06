@@ -1,22 +1,17 @@
-import { Observable, Subject, merge, combineLatest, Subscription } from 'rxjs';
+import { combineLatest, merge, Observable, Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 
-import {
-    NgbActiveModal,
-    NgbCalendar, NgbDate, NgbDateParserFormatter,
-    NgbDateStruct,
-    NgbModalRef,
-    NgbTypeaheadSelectItemEvent
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbCalendar, NgbDate, NgbDateParserFormatter, NgbDateStruct, NgbModalRef, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 
 import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
 import { SourceType, SourceTypeService } from '../source-type';
 import { ProjectPopupService } from './project-popup.service';
 
-import {GroupService, OrganizationService, Project, ProjectService} from '../../shared';
+import { GroupService, OrganizationService, Project, ProjectService } from '../../shared';
+import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
 
 @Component({
     selector: 'jhi-project-dialog',
@@ -138,17 +133,7 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
     }
 
     private onSaveError(error) {
-        try {
-            error.json();
-        } catch (exception) {
-            error.message = error.text();
-        }
         this.isSaving = false;
-        this.onError(error);
-    }
-
-    private onError(error) {
-        this.alertService.error(error.message, null, null);
     }
 
     addSourceType(event: NgbTypeaheadSelectItemEvent) {
@@ -204,26 +189,15 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
     selector: 'jhi-project-popup',
     template: '',
 })
-export class ProjectPopupComponent implements OnInit, OnDestroy {
-
-    modalRef: NgbModalRef;
-    routeSub: any;
-
+export class ProjectPopupComponent extends ObservablePopupComponent {
     constructor(
-            private route: ActivatedRoute,
+            route: ActivatedRoute,
             private projectPopupService: ProjectPopupService,
     ) {
+        super(route);
     }
 
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            console.log(params);
-            this.modalRef = this.projectPopupService
-                .open(ProjectDialogComponent, params['organizationName'], params['projectName']);
-        });
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.projectPopupService.open(ProjectDialogComponent, params['organizationName'], params['projectName']);
     }
 }

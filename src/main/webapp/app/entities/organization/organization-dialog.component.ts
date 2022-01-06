@@ -1,10 +1,7 @@
-import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
 
-import {
-    NgbActiveModal,
-    NgbModalRef,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModalRef, } from '@ng-bootstrap/ng-bootstrap';
 
 import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
@@ -12,6 +9,8 @@ import { SourceTypeService } from '../source-type';
 import { OrganizationPopupService } from './organization-popup.service';
 
 import { Organization, OrganizationService } from '../../shared';
+import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
     selector: 'jhi-organization-dialog',
@@ -19,13 +18,15 @@ import { Organization, OrganizationService } from '../../shared';
     styleUrls: ['organization-dialog.component.scss'],
     encapsulation: ViewEncapsulation.None
 })
-export class OrganizationDialogComponent implements OnInit {
+export class OrganizationDialogComponent implements OnDestroy {
     readonly authorities: any[];
     readonly options: string[];
 
     organization: Organization;
     isSaving: boolean;
     organizationIdAsPrettyValue: boolean;
+
+    private subscriptions: Subscription = new Subscription();
 
     constructor(
             public activeModal: NgbActiveModal,
@@ -40,22 +41,26 @@ export class OrganizationDialogComponent implements OnInit {
         this.organizationIdAsPrettyValue = true;
     }
 
-    ngOnInit() {}
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
+    }
 
     clear() {
-        this.activeModal.dismiss('cancel');
+        this.activeModal.dismiss();
     }
 
     save() {
         this.isSaving = true;
         if (this.organization.id !== undefined) {
-            this.organizationService.update(this.organization)
-            .subscribe((res: Organization) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+            this.subscriptions.add(this.organizationService.update(this.organization).subscribe(
+                (res: Organization) => this.onSaveSuccess(res),
+                () => this.onSaveError(),
+            ));
         } else {
-            this.organizationService.create(this.organization)
-            .subscribe((res: Organization) =>
-                    this.onSaveSuccess(res), (res: Response) => this.onSaveError(res));
+            this.subscriptions.add(this.organizationService.create(this.organization).subscribe(
+                (res: Organization) => this.onSaveSuccess(res),
+                () => this.onSaveError(),
+            ));
         }
     }
 
@@ -65,18 +70,8 @@ export class OrganizationDialogComponent implements OnInit {
         this.activeModal.dismiss(result);
     }
 
-    private onSaveError(error) {
-        try {
-            error.json();
-        } catch (exception) {
-            error.message = error.text();
-        }
+    private onSaveError() {
         this.isSaving = false;
-        this.onError(error);
-    }
-
-    private onError(error) {
-        this.alertService.error(error.message, null, null);
     }
 }
 
@@ -84,25 +79,15 @@ export class OrganizationDialogComponent implements OnInit {
     selector: 'jhi-organization-popup',
     template: '',
 })
-export class OrganizationPopupComponent implements OnInit, OnDestroy {
-
-    modalRef: NgbModalRef;
-    routeSub: any;
-
+export class OrganizationPopupComponent extends ObservablePopupComponent {
     constructor(
-            private route: ActivatedRoute,
-            private organizationPopupService: OrganizationPopupService,
+        route: ActivatedRoute,
+        private organizationPopupService: OrganizationPopupService,
     ) {
+        super(route);
     }
 
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            this.modalRef = this.organizationPopupService
-                    .open(OrganizationDialogComponent, params['organizationName']);
-        });
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.organizationPopupService.open(OrganizationDialogComponent, params['organizationName']);
     }
 }

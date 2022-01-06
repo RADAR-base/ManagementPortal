@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { AlertService } from '../util/alert.service';
@@ -10,6 +10,8 @@ import { SourcePopupService } from './source-popup.service';
 
 import { Source } from './source.model';
 import { SourceService } from './source.service';
+import { ObservablePopupComponent } from '../util/observable-popup.component';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'jhi-source-dialog',
@@ -88,25 +90,15 @@ export class SourceDialogComponent implements OnInit {
     selector: 'jhi-source-popup',
     template: '',
 })
-export class SourcePopupComponent implements OnInit, OnDestroy {
-
-    modalRef: NgbModalRef;
-    routeSub: any;
-
+export class SourcePopupComponent extends ObservablePopupComponent {
     constructor(
-            private route: ActivatedRoute,
+            route: ActivatedRoute,
             private sourcePopupService: SourcePopupService,
     ) {
+        super(route);
     }
 
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            this.modalRef = this.sourcePopupService
-                    .open(SourceDialogComponent, params['sourceName'], params['projectName']);
-        });
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.sourcePopupService.open(SourceDialogComponent, params['sourceName'], params['projectName']);
     }
 }

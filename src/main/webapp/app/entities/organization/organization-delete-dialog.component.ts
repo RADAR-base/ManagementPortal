@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component } from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
@@ -7,6 +7,8 @@ import { OrganizationPopupService } from './organization-popup.service';
 
 import { Organization, OrganizationService } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
+import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'jhi-organization-delete-dialog',
@@ -28,7 +30,6 @@ export class OrganizationDeleteDialogComponent {
     }
 
     confirmDelete(organizationName: string) {
-        console.log(organizationName)
         this.organizationService.delete(organizationName).subscribe(() => {
             this.eventManager.broadcast({
                 name: 'organizationListModification',
@@ -43,25 +44,15 @@ export class OrganizationDeleteDialogComponent {
     selector: 'jhi-organization-delete-popup',
     template: '',
 })
-export class OrganizationDeletePopupComponent implements OnInit, OnDestroy {
-
-    modalRef: NgbModalRef;
-    routeSub: any;
-
+export class OrganizationDeletePopupComponent extends ObservablePopupComponent {
     constructor(
-            private route: ActivatedRoute,
+            route: ActivatedRoute,
             private organizationPopupService: OrganizationPopupService,
     ) {
+        super(route);
     }
 
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            this.modalRef = this.organizationPopupService
-                    .open(OrganizationDeleteDialogComponent, params['organizationName']);
-        });
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.organizationPopupService.open(OrganizationDeleteDialogComponent, params['organizationName']);
     }
 }

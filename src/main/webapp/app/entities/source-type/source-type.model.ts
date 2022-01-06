@@ -1,4 +1,4 @@
-import { SourceData } from "../source-data";
+import { copySourceData, SourceData } from '../source-data';
 
 const enum SourceTypeScope {
   'ACTIVE',
@@ -18,6 +18,13 @@ export interface SourceType {
   description?: string,
   assessmentType?: string,
   appProvider?: string
+}
+
+export function copySourceType(sourceType: SourceType) {
+    return {
+        ...sourceType,
+        sourceData: sourceType.sourceData ? sourceType.sourceData.map(copySourceData) : sourceType.sourceData,
+    }
 }
 
 export interface MinimalSourceType {

@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpResponse} from '@angular/common/http';
-import {BehaviorSubject, combineLatest, Observable, of, Subject, throwError} from 'rxjs';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { BehaviorSubject, combineLatest, Observable, of, Subject, throwError } from 'rxjs';
 
 import { Organization } from './organization.model';
-import {Principal} from "../auth/principal.service";
-import {AlertService} from "../util/alert.service";
-import {concatMap, delay, map, retryWhen, startWith, switchMap, take, tap} from "rxjs/operators";
-import {createRequestOption} from "../model/request.utils";
+import { Principal } from '../auth/principal.service';
+import { AlertService } from '../util/alert.service';
+import { concatMap, delay, distinctUntilChanged, map, retryWhen, startWith, switchMap, tap } from 'rxjs/operators';
+import { createRequestOption } from '../model/request.utils';
 
 @Injectable({ providedIn: 'root' })
 export class OrganizationService {
@@ -42,7 +42,8 @@ export class OrganizationService {
                 } else {
                     return of([]);
                 }
-            })
+            }),
+            distinctUntilChanged((a, b) => a === b || (a && a.length === 0 && b && b.length === 0)),
         ).subscribe(
             organizations => this._organizations$.next(organizations),
             err => this.alertService.error(err.message, null, null),
@@ -59,7 +60,7 @@ export class OrganizationService {
                 p => this.updateOrganization(p),
                 () => this.reset(),
             ),
-        )
+        );
     }
 
     update(organization: Organization): Observable<Organization> {
@@ -68,19 +69,23 @@ export class OrganizationService {
                 p => this.updateOrganization(p),
                 () => this.reset(),
             ),
-        )
+        );
     }
 
     find(orgName: string): Observable<Organization> {
         return this.organizations$.pipe(
             switchMap(organizations => {
+                // cannot find organization
+                if (organizations.length === 0) {
+                    return of(null);
+                }
                 const existingOrganization = organizations.find(o => o.name === orgName);
                 if (existingOrganization) {
                     return of(existingOrganization);
                 } else {
                     return this.fetchOrganization(orgName);
                 }
-            })
+            }),
         );
     }
 

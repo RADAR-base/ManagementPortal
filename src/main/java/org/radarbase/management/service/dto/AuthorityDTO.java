@@ -7,6 +7,7 @@ public class AuthorityDTO {
     private String scope;
 
     public AuthorityDTO() {
+        // POJO constructor
     }
 
     public AuthorityDTO(RoleAuthority role) {

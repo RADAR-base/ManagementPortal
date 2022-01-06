@@ -10,26 +10,31 @@ import { User } from '../user/user.model';
 import { Organization } from '../organization';
 import { UserService } from '../user/user.service';
 import { Authority, Scope } from '../user/authority.model';
-import { distinctUntilChanged, map, tap } from 'rxjs/operators';
+import { distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
+
+interface UserRole {
+    login: string;
+    authorityName: string;
+}
 
 @Component({
     selector: 'jhi-permissions',
     templateUrl: './permission.component.html',
     styleUrls: ['./permission.component.scss'],
 })
-export class PermissionComponent implements OnInit, OnChanges {
+export class PermissionComponent implements OnInit, OnChanges, OnDestroy {
     @Input() organization: Organization;
     @Input() project: Project;
 
     users: User[] = [];
-    allUsers = [];
-    authorizedUsers: User[] = [];
+    allUsers: User[] = [];
+    authorizedUsers: UserRole[] = [];
     authorities$: Observable<Authority[]>
-
-    eventSubscriber: Subscription;
 
     selectedAuthority: Authority;
     selectedUser: User;
+
+    private subscriptions: Subscription = new Subscription();
 
     constructor(
             private authorityService: AuthorityService,
@@ -65,19 +70,29 @@ export class PermissionComponent implements OnInit, OnChanges {
         this.getUsers();
     }
 
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
+    }
+
     trackId(index: number, item: Role) {
         return item.id;
     }
 
     getUsers() {
         this.selectedUser = null;
-        this.userService.query({includeProvenance: false}).subscribe(
-            (res: HttpResponse<User[]>) => this.onSuccess(res.body),
-            (error: HttpErrorResponse) => this.onError(error),
+        this.subscriptions.add(this.fetchUsers().subscribe());
+    }
+
+    private fetchUsers(): Observable<any> {
+        return this.userService.query({includeProvenance: false}).pipe(
+            tap(
+                (res: HttpResponse<User[]>) => this.onSuccess(res.body),
+                (error: HttpErrorResponse) => this.onError(error),
+            ),
         );
     }
 
-    private onSuccess(data) {
+    private onSuccess(data: User[]) {
         this.allUsers = data;
         const {authorizedUsers, users} = this.filterByProjectOrOrganization(data);
         this.authorizedUsers = authorizedUsers;
@@ -90,7 +105,6 @@ export class PermissionComponent implements OnInit, OnChanges {
     }
 
     addRole() {
-        console.log(this.selectedAuthority);
         if (!this.selectedAuthority) {
             return;
         }
@@ -111,14 +125,12 @@ export class PermissionComponent implements OnInit, OnChanges {
         }
         this.selectedUser.roles.push(newRole);
         this.selectedUser.authorities.push(this.selectedAuthority.name)
-        this.userService.update(this.selectedUser).subscribe(
-            (res) => {
-                console.log(res);
-                this.getUsers();
-                // this.eventManager.broadcast({name: 'roleListModification', content: this.users});
-            },
-            (error) => console.log(error)
-        );
+        this.subscriptions.add(this.userService.update(this.selectedUser).pipe(
+            switchMap(() => {
+                this.selectedUser = null;
+                return this.fetchUsers();
+            }),
+        ).subscribe());
     }
 
     removeRole(login: string, authorityName: string) {
@@ -133,37 +145,42 @@ export class PermissionComponent implements OnInit, OnChanges {
         user.roles = roles;
         user.authorities = [...new Set(roles.map(a => a.authorityName))];
 
-        this.userService.update(user).subscribe(
-            () => this.getUsers(),
-            (error)=> console.log(error)
-        );
-        // this.eventManager.broadcast({name: 'roleListModification', content: this.users});
+        this.subscriptions.add(this.userService.update(user).pipe(
+            switchMap(() => {
+                if (this.selectedUser && this.selectedUser.login === login) {
+                    this.selectedUser = null;
+                }
+                return this.fetchUsers();
+            }),
+        ).subscribe());
     }
 
-    filterByProjectOrOrganization(users: any[]): any {
-        const usersOutput = [];
-        const authorizedUsersOutput = [];
+    filterByProjectOrOrganization(users: User[]): { users: User[], authorizedUsers: UserRole[] } {
+        const result = {
+            users: [],
+            authorizedUsers: [],
+        }
         users.map(user => {
             let userAdded = false;
             user.roles.map(role => {
                 if (this.project) {
                     if ( role.projectId === this.project.id || role.authorityName === 'ROLE_SYS_ADMIN') {
                         userAdded = true;
-                        authorizedUsersOutput.push({login: user.login, authorityName: role.authorityName})
+                        result.authorizedUsers.push({login: user.login, authorityName: role.authorityName})
                     }
                 }
                 if (this.organization) {
                     if (role.organizationId === this.organization.id || role.authorityName === 'ROLE_SYS_ADMIN') {
                         userAdded = true;
-                        authorizedUsersOutput.push({login: user.login, authorityName: role.authorityName})
+                        result.authorizedUsers.push({login: user.login, authorityName: role.authorityName})
                     }
                 }
             })
             if (!userAdded) {
-                usersOutput.push(user)
+                result.users.push(user)
             }
         });
 
-        return {users: usersOutput, authorizedUsers: authorizedUsersOutput};
+        return result;
     }
 }

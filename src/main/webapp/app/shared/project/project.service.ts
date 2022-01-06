@@ -1,31 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import {
-    BehaviorSubject,
-    combineLatest,
-    Observable,
-    of,
-    Subject,
-    throwError
-} from 'rxjs';
-import {
-    concatMap,
-    delay,
-    map,
-    pluck,
-    retryWhen,
-    startWith,
-    switchMap,
-    take,
-    tap,
-} from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable, of, Subject, throwError } from 'rxjs';
+import { concatMap, delay, distinctUntilChanged, map, pluck, retryWhen, startWith, switchMap, tap, } from 'rxjs/operators';
 
 import { Project } from './project.model';
 import { SourceType } from '../../entities/source-type';
 import { createRequestOption } from '../model/request.utils';
 import { convertDateTimeFromServer, toDate } from '../util/date-util';
-import { Principal } from "../auth/principal.service";
-import { AlertService } from "../util/alert.service";
+import { Principal } from '../auth/principal.service';
+import { AlertService } from '../util/alert.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectService {
@@ -61,12 +44,10 @@ export class ProjectService {
               } else {
                   return of([]);
               }
-          })
+          }),
+          distinctUntilChanged((a, b) => a === b || (a && b && a.length === 0 && b.length === 0)),
         ).subscribe(
-          projects => {
-              console.log(projects)
-              this._projects$.next(projects)
-          },
+          projects => this._projects$.next(projects),
           err => this.alertService.error(err.message, null, null),
         );
     }
@@ -98,6 +79,10 @@ export class ProjectService {
     find(projectName: string): Observable<Project> {
         return this.projects$.pipe(
           switchMap(projects => {
+              // cannot find project
+              if (projects.length === 0) {
+                  return of(null);
+              }
               const existingProject = projects.find(p => p.projectName === projectName);
               if (existingProject) {
                   return of(existingProject);
@@ -175,7 +160,6 @@ export class ProjectService {
     }
 
     protected convertProjectToServer(project: Project): any {
-        console.log(project)
         return {
             ...project,
             startDate: toDate(project.startDate),
@@ -184,7 +168,6 @@ export class ProjectService {
     }
 
     protected convertProjectFromServer(projectFromServer: any): Project {
-        console.log(projectFromServer)
         return {
             ...projectFromServer,
             startDate: convertDateTimeFromServer(projectFromServer.startDate),

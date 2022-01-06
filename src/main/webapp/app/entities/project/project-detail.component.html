@@ -5,7 +5,7 @@
             {{project.humanReadableProjectName ? project.humanReadableProjectName : project.projectName}}
         </span>
         <button type="button"
-                [routerLink]="['/', { outlets: { popup: 'project/'+ project.projectName + '/edit'} }]"
+                [routerLink]="['/', { outlets: { popup: 'organization/' + project.organization.name + '/project/'+ project.projectName + '/edit'} }]"
                 replaceUrl="true"
                 class="btn btn-primary float-right">
             <span class="fa fa-pencil"></span>&nbsp;<span [translate]="'entity.action.edit'"></span>
