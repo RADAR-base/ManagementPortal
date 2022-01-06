@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/
 import { Log } from './log.model';
 import { LogsService } from './logs.service';
 import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map, share, shareReplay, switchMap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, share, switchMap } from 'rxjs/operators';
 import { regularSortOrder, SortOrder, SortOrderImpl } from '../../shared/util/sort-util';
 import { ITEMS_PER_PAGE } from '../../shared';
 
@@ -32,7 +32,14 @@ export class LogsComponent implements OnInit, OnDestroy {
 
         const cleanedFilter$ = this.filter$.pipe(
             debounceTime(200),
-            map(f => f.toLowerCase().trim()),
+            map(f => {
+                const clean = f.toLowerCase().trim();
+                if (clean) {
+                    return clean.split(/ +/);
+                } else {
+                    return [] as string[];
+                }
+            }),
             distinctUntilChanged()
         );
         this.loggerFiltered$ = combineLatest([
@@ -40,7 +47,10 @@ export class LogsComponent implements OnInit, OnDestroy {
             cleanedFilter$,
         ]).pipe(
             map(([loggers, filter]) => {
-                return !filter ? loggers : loggers.filter(l => l.name.toLowerCase().includes(filter));
+                return filter.length === 0 ? loggers : loggers.filter(l => {
+                    const name = l.name.toLowerCase();
+                    return filter.every(f => name.includes(f));
+                });
             }),
             share(),
         )
