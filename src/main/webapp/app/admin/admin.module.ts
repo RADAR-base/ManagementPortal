@@ -30,11 +30,13 @@ import { MetricsGarbageCollectorComponent } from "./metrics/blocks/metrics-garba
 import { MetricsModalThreadsComponent } from "./metrics/blocks/metrics-modal-threads/metrics-modal-threads.component";
 import { MetricsRequestComponent } from "./metrics/blocks/metrics-request/metrics-request.component";
 import { MetricsSystemComponent } from "./metrics/blocks/metrics-system/metrics-system.component";
+import { ManagementPortalSharedSubjectModule } from '../shared/subject/subject.module';
 
 @NgModule({
     imports: [
         ManagementPortalSharedModule,
         RouterModule.forRoot(adminState, {useHash: true}),
+        ManagementPortalSharedSubjectModule,
     ],
     declarations: [
         AuditsComponent,

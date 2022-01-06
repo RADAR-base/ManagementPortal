@@ -48,7 +48,7 @@
             "enrollmentDateTo": "Inschrijvingsdatum Tot",
             "lastModifiedBy": "Laatst aangepast door",
             "lastModifiedDate": "Laatst aangepaste datum",
-            "noSubjects": "Geen subjecten gevonden",
+            "noSubjects": "Geen resultaten gevonden",
             "personName": "Naam",
             "pairing": "Koppelen",
             "actions": "Acties",
@@ -107,7 +107,7 @@
             "group": "Groep",
             "loadMore": "Meer laden ({{shown}}/{{total}} getoond)",
             "loadMorePartial": "Meer laden ({{shown}} getoond)",
-            "allLoaded": "Alle {{total}} subjects geladen",
+            "allLoaded": "Alle {{total}} resultaten geladen",
             "generateToken": "Genereer QR-code",
             "generatePersistentToken": "Genereer langdurige QR-code"
         }

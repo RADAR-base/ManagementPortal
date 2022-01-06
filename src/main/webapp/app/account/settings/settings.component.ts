@@ -3,7 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 
 import { Account, AccountService, JhiLanguageHelper, Principal } from '../../shared';
-import { filter } from "rxjs/operators";
+import { filter, switchMap, tap } from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-settings',
@@ -42,18 +42,26 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     save() {
-        this.account.save(this.settingsAccount).subscribe(async () => {
-            this.error = null;
-            this.success = 'OK';
-            const currentLangKey = this.settingsAccount.langKey;
-            await this.principal.reset().toPromise();
-            if (currentLangKey && currentLangKey !== this.previousLangKey) {
-                this.translateService.use(currentLangKey)
-                this.previousLangKey = currentLangKey;
+        const currentLangKey = this.settingsAccount.langKey;
+        this.subscription.add(this.account.save(this.settingsAccount).pipe(
+            tap(
+                () => {
+                    this.error = null;
+                    this.success = 'OK';
+                },
+                () => {
+                    this.success = null;
+                    this.error = 'ERROR';
+                }
+            ),
+            switchMap(() => this.principal.reset()),
+        ).subscribe(
+            () => {
+                if (currentLangKey && currentLangKey !== this.previousLangKey) {
+                    this.translateService.use(currentLangKey)
+                    this.previousLangKey = currentLangKey;
+                }
             }
-        }, () => {
-            this.success = null;
-            this.error = 'ERROR';
-        });
+        ));
     }
 }

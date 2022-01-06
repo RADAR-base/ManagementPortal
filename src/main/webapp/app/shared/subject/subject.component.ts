@@ -42,7 +42,7 @@ import {
     ReactiveFilter,
     ReactiveFilterOptions
 } from "../util/reactive-filter";
-import { distinctSortOrder, SortOrder, SortOrderImpl } from '../util/sort-util';
+import { regularSortOrder, SortOrder, SortOrderImpl } from '../util/sort-util';
 
 @Component({
     selector: 'jhi-subjects',
@@ -68,7 +68,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     previousPage: number = 1;
     itemsPerPage = ITEMS_PER_PAGE;
 
-    _sortOrder$ = new BehaviorSubject<SortOrder>({
+    private _sortOrder$ = new BehaviorSubject<SortOrder>({
         predicate: 'login',
         ascending: true,
     });
@@ -101,10 +101,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             calendar: NgbCalendar,
             public dateFormatter: NgbDateParserFormatter
     ) {
-        this.sortOrder$ = this._sortOrder$.pipe(
-          map(o => SortOrderImpl.from(o)),
-          distinctSortOrder(),
-        );
+        this.sortOrder$ = this._sortOrder$.pipe(regularSortOrder());
+
         const stringFilterOptions: ReactiveFilterOptions<string> = {
             mapResult: filter$ => filter$.pipe(
               map(v => v ? v.trim() : ''),
