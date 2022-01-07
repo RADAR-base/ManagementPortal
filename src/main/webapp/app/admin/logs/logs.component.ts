@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/
 import { Log } from './log.model';
 import { LogsService } from './logs.service';
 import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map, share, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, share, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 import { regularSortOrder, SortOrder, SortOrderImpl } from '../../shared/util/sort-util';
 import { ITEMS_PER_PAGE } from '../../shared';
 
@@ -37,8 +37,7 @@ export class LogsComponent implements OnInit, OnDestroy {
             }),
         );
 
-        const loggerSorted$ = this.sortLoggers(this.loggersFiltered$);
-        this.loggerView$ = this.pageLoggers(loggerSorted$);
+        this.loggerView$ = this.viewLoggers(this.loggersFiltered$);
     }
 
     private filterLoggers(loggers$: Observable<Log[]>): Observable<Log[]> {
@@ -74,21 +73,15 @@ export class LogsComponent implements OnInit, OnDestroy {
         );
     }
 
-    private sortLoggers(loggers$: Observable<Log[]>): Observable<Log[]> {
+    private viewLoggers(loggers$: Observable<Log[]>): Observable<Log[]> {
         return combineLatest([
             loggers$,
             this.sortOrder$,
         ]).pipe(
             map(([loggers, sortOrder]) => sortOrder.sort(loggers)),
-        );
-    }
-
-    private pageLoggers(loggers$: Observable<Log[]>): Observable<Log[]> {
-        return combineLatest([
-            loggers$,
-            this.page$,
-        ]).pipe(
-            map(([loggers, page]) => loggers.slice(0, (page + 1) * this.itemsPerPage)),
+            switchMap(loggers => this.page$.pipe(
+                map(page => loggers.slice(0, (page + 1) * this.itemsPerPage)),
+            )),
         );
     }
 
