@@ -24,6 +24,6 @@
             </tr>
         </table>
 
-        <app-load-more (load)="loadMore()" [shownItems]="loggerView.length" [totalItems]="loggerSize$ | async"></app-load-more>
+        <app-load-more (load)="loadMore()" [shownItems]="loggerView.length" [totalItems]="(loggersFiltered$ | async)?.length"></app-load-more>
     </ng-container>
 </div>

@@ -15,7 +15,7 @@ import { ITEMS_PER_PAGE } from '../../shared';
 export class LogsComponent implements OnInit, OnDestroy {
     private _loggers$: BehaviorSubject<Log[]> = new BehaviorSubject([]);
     loggerView$: Observable<Log[]>
-    loggerSize$: Observable<number>
+    loggersFiltered$: Observable<Log[]>
     filter$ = new BehaviorSubject<string>('');
     sortOrder$: Observable<SortOrderImpl>;
     page$: BehaviorSubject<number> = new BehaviorSubject(0);
@@ -30,21 +30,21 @@ export class LogsComponent implements OnInit, OnDestroy {
         this.sortOrder$ = this._sortOrder$.pipe(regularSortOrder('name'));
         this.itemsPerPage = ITEMS_PER_PAGE;
 
-        const cleanedFilter$ = this.filter$.pipe(
-            debounceTime(200),
-            map(f => {
-                const clean = f.toLowerCase().trim();
-                if (clean) {
-                    return clean.split(/ +/);
-                } else {
-                    return [] as string[];
-                }
+        this.loggersFiltered$ = this.filterLoggers(this._loggers$).pipe(
+            shareReplay({
+                bufferSize: 1,
+                refCount: true,
             }),
-            distinctUntilChanged((a, b) => a.join(' ') === b.join(' ')),
         );
-        const loggerFiltered$ = combineLatest([
-            this._loggers$,
-            cleanedFilter$,
+
+        const loggerSorted$ = this.sortLoggers(this.loggersFiltered$);
+        this.loggerView$ = this.pageLoggers(loggerSorted$);
+    }
+
+    private filterLoggers(loggers$: Observable<Log[]>): Observable<Log[]> {
+        return combineLatest([
+            loggers$,
+            this.cleanedFilter$,
         ]).pipe(
             map(([loggers, filters]) => {
                 if (filters.length === 0) {
@@ -56,25 +56,36 @@ export class LogsComponent implements OnInit, OnDestroy {
                     });
                 }
             }),
-            shareReplay({
-                bufferSize: 1,
-                refCount: true,
+        );
+    }
+
+    private get cleanedFilter$(): Observable<string[]> {
+        return this.filter$.pipe(
+            debounceTime(200),
+            map(f => {
+                const clean = f.toLowerCase().trim();
+                if (clean) {
+                    return clean.split(/ +/);
+                } else {
+                    return [] as string[];
+                }
             }),
+            distinctUntilChanged((a, b) => a.join(' ') === b.join(' ')),
         );
+    }
 
-        this.loggerSize$ = loggerFiltered$.pipe(
-            map(loggers => loggers ? loggers.length : undefined),
-        );
-
-        const loggerSorted$ = combineLatest([
-            loggerFiltered$,
+    private sortLoggers(loggers$: Observable<Log[]>): Observable<Log[]> {
+        return combineLatest([
+            loggers$,
             this.sortOrder$,
         ]).pipe(
             map(([loggers, sortOrder]) => sortOrder.sort(loggers)),
         );
+    }
 
-        this.loggerView$ = combineLatest([
-            loggerSorted$,
+    private pageLoggers(loggers$: Observable<Log[]>): Observable<Log[]> {
+        return combineLatest([
+            loggers$,
             this.page$,
         ]).pipe(
             map(([loggers, page]) => loggers.slice(0, (page + 1) * this.itemsPerPage)),
@@ -100,13 +111,13 @@ export class LogsComponent implements OnInit, OnDestroy {
     }
 
     sort(sortOrder: SortOrder) {
-        this._sortOrder$.next(sortOrder);
         this.page$.next(0);
+        this._sortOrder$.next(sortOrder);
     }
 
     changeFilter(filter: string) {
-        this.filter$.next(filter);
         this.page$.next(0);
+        this.filter$.next(filter);
     }
 
     changeLevel(name: string, level: string) {
