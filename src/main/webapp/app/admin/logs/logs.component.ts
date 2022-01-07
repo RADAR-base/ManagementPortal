@@ -56,7 +56,6 @@ export class LogsComponent implements OnInit, OnDestroy {
                     });
                 }
             }),
-            tap(l => console.log(l)),
             shareReplay({
                 bufferSize: 1,
                 refCount: true,
