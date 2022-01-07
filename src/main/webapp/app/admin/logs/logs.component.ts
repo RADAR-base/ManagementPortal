@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/
 import { Log } from './log.model';
 import { LogsService } from './logs.service';
 import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map, share, switchMap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, share, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { regularSortOrder, SortOrder, SortOrderImpl } from '../../shared/util/sort-util';
 import { ITEMS_PER_PAGE } from '../../shared';
 
@@ -15,7 +15,7 @@ import { ITEMS_PER_PAGE } from '../../shared';
 export class LogsComponent implements OnInit, OnDestroy {
     private _loggers$: BehaviorSubject<Log[]> = new BehaviorSubject([]);
     loggerView$: Observable<Log[]>
-    loggerFiltered$: Observable<Log[]>
+    loggerSize$: Observable<number>
     filter$ = new BehaviorSubject<string>('');
     sortOrder$: Observable<SortOrderImpl>;
     page$: BehaviorSubject<number> = new BehaviorSubject(0);
@@ -40,23 +40,35 @@ export class LogsComponent implements OnInit, OnDestroy {
                     return [] as string[];
                 }
             }),
-            distinctUntilChanged()
+            distinctUntilChanged((a, b) => a.join(' ') === b.join(' ')),
         );
-        this.loggerFiltered$ = combineLatest([
+        const loggerFiltered$ = combineLatest([
             this._loggers$,
             cleanedFilter$,
         ]).pipe(
-            map(([loggers, filter]) => {
-                return filter.length === 0 ? loggers : loggers.filter(l => {
-                    const name = l.name.toLowerCase();
-                    return filter.every(f => name.includes(f));
-                });
+            map(([loggers, filters]) => {
+                if (filters.length === 0) {
+                    return loggers;
+                } else {
+                    return loggers.filter(l => {
+                        const name: string = l.name.toLowerCase();
+                        return filters.every(f => name.includes(f));
+                    });
+                }
             }),
-            share(),
-        )
+            tap(l => console.log(l)),
+            shareReplay({
+                bufferSize: 1,
+                refCount: true,
+            }),
+        );
+
+        this.loggerSize$ = loggerFiltered$.pipe(
+            map(loggers => loggers ? loggers.length : undefined),
+        );
 
         this.loggerView$ = combineLatest([
-            this.loggerFiltered$,
+            loggerFiltered$,
             this.sortOrder$,
             this.page$.pipe(distinctUntilChanged()),
         ]).pipe(

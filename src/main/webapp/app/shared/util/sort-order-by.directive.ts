@@ -8,7 +8,7 @@ import { JhiSortOrderDirective } from "./sort-order.directive";
     selector: '[jhiOrderBy]'
 })
 export class JhiOrderByDirective {
-    @Input() jhiSortBy: string;
+    @Input() jhiOrderBy: string;
 
     sortAscIcon = 'fa-sort-asc';
     sortDescIcon = 'fa-sort-desc';
@@ -25,7 +25,7 @@ export class JhiOrderByDirective {
 
     @HostListener('click') onClick() {
         if (this.jhiSort.order.predicate && this.jhiSort.order.predicate !== '_score') {
-            this.jhiSort.sort(this.jhiSortBy);
+            this.jhiSort.sort(this.jhiOrderBy);
             this.applyClass();
         }
     }

@@ -4,11 +4,11 @@
     <span [translate]="'logs.filter'"></span> <input type="text" [ngModel]="filter$ | async" (ngModelChange)="changeFilter($event)" class="form-control">
 
     <ng-container *ngIf="loggerView$ | async as loggerView">
-        <table class="table table-condensed table-striped table-bordered">
+        <table class="table table-striped table-bordered">
             <thead>
             <tr title="click to order" jhiSortOrder [order]="sortOrder$ | async" (orderChange)="sort($event)">
-                <th jhiOrderBy="name"><span [translate]="'logs.table.name'"></span></th>
-                <th jhiOrderBy="level"><span [translate]="'logs.table.level'"></span></th>
+                <th jhiOrderBy="name"><span [translate]="'logs.table.name'"></span><span class="fa fa-sort"></span></th>
+                <th jhiOrderBy="level"><span [translate]="'logs.table.level'"></span><span class="fa fa-sort"></span></th>
             </tr>
             </thead>
 
@@ -24,6 +24,6 @@
             </tr>
         </table>
 
-        <app-load-more (load)="loadMore()" [shownItems]="loggerView.length" [totalItems]="(loggerFiltered$ | async)?.length"></app-load-more>
+        <app-load-more (load)="loadMore()" [shownItems]="loggerView.length" [totalItems]="loggerSize$ | async"></app-load-more>
     </ng-container>
 </div>
