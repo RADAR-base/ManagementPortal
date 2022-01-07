@@ -66,16 +66,19 @@ export class LogsComponent implements OnInit, OnDestroy {
             map(loggers => loggers ? loggers.length : undefined),
         );
 
-        this.loggerView$ = combineLatest([
+        const loggerSorted$ = combineLatest([
             loggerFiltered$,
             this.sortOrder$,
-            this.page$.pipe(distinctUntilChanged()),
         ]).pipe(
-            map(([loggers, sortOrder, page]) => {
-                const ordered = sortOrder.sort(loggers);
-                return ordered.slice(0, (page + 1) * this.itemsPerPage);
-            }),
-        )
+            map(([loggers, sortOrder]) => sortOrder.sort(loggers)),
+        );
+
+        this.loggerView$ = combineLatest([
+            loggerSorted$,
+            this.page$,
+        ]).pipe(
+            map(([loggers, page]) => loggers.slice(0, (page + 1) * this.itemsPerPage)),
+        );
     }
 
     loadMore() {
