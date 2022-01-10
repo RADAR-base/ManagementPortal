@@ -282,23 +282,28 @@ public class UserService {
      * Update all information for a specific user, and return the modified user.
      *
      * @param userDto user to update
+     * @param updateProperties should update the user properties
      * @return updated user
      */
     @Transactional
-    public Optional<UserDTO> updateUser(UserDTO userDto) throws NotAuthorizedException {
+    public Optional<UserDTO> updateUser(
+            UserDTO userDto, boolean updateProperties) throws NotAuthorizedException {
         Optional<User> userOpt = userRepository.findById(userDto.getId());
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            user.setLogin(userDto.getLogin());
-            user.setFirstName(userDto.getFirstName());
-            user.setLastName(userDto.getLastName());
-            user.setEmail(userDto.getEmail());
-            user.setActivated(userDto.isActivated());
-            user.setLangKey(userDto.getLangKey());
+            if (updateProperties) {
+                user.setLogin(userDto.getLogin());
+                user.setFirstName(userDto.getFirstName());
+                user.setLastName(userDto.getLastName());
+                user.setEmail(userDto.getEmail());
+                user.setActivated(userDto.isActivated());
+                user.setLangKey(userDto.getLangKey());
+            }
             Set<Role> managedRoles = user.getRoles();
             Set<Role> oldRoles = Set.copyOf(managedRoles);
             managedRoles.clear();
             managedRoles.addAll(getUserRoles(userDto.getRoles(), oldRoles));
+
             user = userRepository.save(user);
             log.debug("Changed Information for User: {}", user);
             return Optional.of(userMapper.userToUserDTO(user));

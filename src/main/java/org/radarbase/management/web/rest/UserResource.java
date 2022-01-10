@@ -1,6 +1,7 @@
 package org.radarbase.management.web.rest;
 
 import io.micrometer.core.annotation.Timed;
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
@@ -162,7 +163,7 @@ public class UserResource {
     public ResponseEntity<UserDTO> updateUser(@RequestBody ManagedUserVM managedUserVm)
             throws NotAuthorizedException {
         log.debug("REST request to update User : {}", managedUserVm);
-        checkAuthorityAndPermission(token, SYS_ADMIN, USER_UPDATE);
+        checkPermission(token, USER_UPDATE);
         Optional<User> existingUser = userRepository.findOneByEmail(managedUserVm.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getId()
                 .equals(managedUserVm.getId()))) {
@@ -188,7 +189,9 @@ public class UserResource {
 
         }
 
-        Optional<UserDTO> updatedUser = userService.updateUser(managedUserVm);
+        Optional<UserDTO> updatedUser = userService.updateUser(
+                managedUserVm,
+                token.hasAuthority(SYS_ADMIN));
 
         return ResponseUtil.wrapOrNotFound(updatedUser,
                 HeaderUtil.createAlert("userManagement.updated", managedUserVm.getLogin()));
