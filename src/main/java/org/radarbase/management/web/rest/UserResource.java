@@ -1,7 +1,6 @@
 package org.radarbase.management.web.rest;
 
 import io.micrometer.core.annotation.Timed;
-import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
@@ -51,7 +50,6 @@ import static org.radarbase.auth.authorization.Permission.USER_CREATE;
 import static org.radarbase.auth.authorization.Permission.USER_DELETE;
 import static org.radarbase.auth.authorization.Permission.USER_READ;
 import static org.radarbase.auth.authorization.Permission.USER_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkAuthorityAndPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN;
 import static org.radarbase.management.web.rest.errors.EntityName.USER;
