@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { UserRouteAccessService } from '../../shared';
-import {ORGANIZATION_ADMIN, SYSTEM_ADMIN} from '../../shared/constants/common.constants';
+import {ORGANIZATION_ADMIN, PROJECT_ADMIN, SYSTEM_ADMIN} from '../../shared/constants/common.constants';
 import { OrganizationComponent } from './organization.component';
 import { OrganizationDeletePopupComponent } from './organization-delete-dialog.component';
 import { OrganizationDetailComponent } from './organization-detail.component';
@@ -27,7 +27,7 @@ export const organizationRoute: Routes = [
         path: 'organization/:organizationName',
         component: OrganizationDetailComponent,
         data: {
-            authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN],
+            authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
             pageTitle: 'managementPortalApp.organization.home.title',
         },
         canActivate: [UserRouteAccessService],

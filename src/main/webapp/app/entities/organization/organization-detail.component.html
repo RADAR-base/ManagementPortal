@@ -4,7 +4,9 @@
             <span [translate]="'managementPortalApp.organization.detail.title'"></span>
             {{organization.name}}
         </span>
-        <button type="button"
+        <button *ngIf="(principal.account$ | async).authorities.includes('ROLE_SYS_ADMIN') ||
+                    (principal.account$ | async).authorities.includes('ROLE_ORGANIZATION_ADMIN')"
+                type="button"
                 [routerLink]="['/', { outlets: { popup: 'organization/'+ organization.name + '/edit'} }]"
                 replaceUrl="true"
                 class="btn btn-primary float-right">

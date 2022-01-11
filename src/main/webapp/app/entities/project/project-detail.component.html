@@ -67,20 +67,17 @@
                               [translate]="'managementPortalApp.project.groups'">
                         </span>
                 </li>
-                <li *ngIf="(principal.account$ | async).authorities.includes('ROLE_SYS_ADMIN')"
-                    class="nav-item" (click)="updateActiveTab('permissions')">
+                <li class="nav-item" (click)="updateActiveTab('permissions')">
                     <span class="nav-link" [ngClass]="{active: activeTab === 'permissions'}"
                           [translate]="'managementPortalApp.project.permissions'">
                     </span>
                 </li>
-                <li *ngIf="(principal.account$ | async).authorities.includes('ROLE_SYS_ADMIN')"
-                    class="nav-item" (click)="updateActiveTab('admins')">
+                <li class="nav-item" (click)="updateActiveTab('admins')">
                         <span class="nav-link" [ngClass]="{active: activeTab === 'admins'}"
                               [translate]="'managementPortalApp.project.admins'">
                         </span>
                 </li>
-                <li *ngIf="(principal.account$ | async).authorities.includes('ROLE_SYS_ADMIN')"
-                    class="nav-item" (click)="updateActiveTab('analysts')">
+                <li class="nav-item" (click)="updateActiveTab('analysts')">
                         <span class="nav-link" [ngClass]="{active: activeTab === 'analysts'}"
                               [translate]="'managementPortalApp.project.analysts'">
                         </span>
