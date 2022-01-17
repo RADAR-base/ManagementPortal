@@ -4,11 +4,13 @@ import { combineLatest, Observable, Subject, Subscription } from 'rxjs';
 import { Organization, OrganizationService, Principal } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 import {
-    distinctUntilChanged, filter,
-    map, shareReplay,
+    distinctUntilChanged,
+    filter,
+    map,
+    shareReplay,
     startWith,
     switchMap
-} from "rxjs/operators";
+} from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-organization-detail',
@@ -18,7 +20,7 @@ import {
 export class OrganizationDetailComponent implements OnInit, OnDestroy {
     private trigger$ = new Subject<void>();
     organization$: Observable<Organization>;
-    userIsAdmin$: Observable<boolean>
+    userRoles$: Observable<{ organizationAdmin: boolean }>
     private eventSubscriber: Subscription;
 
     showProjects: boolean;
@@ -30,30 +32,37 @@ export class OrganizationDetailComponent implements OnInit, OnDestroy {
             private route: ActivatedRoute,
             public principal: Principal,
     ) {
+        this.organization$ = this.observeOrganization();
+        this.userRoles$ = this.observeUserRoles(this.organization$);
     }
 
     ngOnInit() {
-        this.organization$ = combineLatest([
-          this.route.params,
-          this.trigger$.pipe(startWith(undefined as void)),
-        ]).pipe(
-          map(([params]) => params['organizationName']),
-          filter(orgName => !!orgName),  // ensure that organization name is set
-          distinctUntilChanged(),  // no need to trigger duplicate requests
-          switchMap((orgName) => this.organizationService.find(orgName)), // get organization
-        );
         this.eventSubscriber = this.registerChangeInOrganizations();
-        this.userIsAdmin$ = combineLatest([
+        this.viewProjects();
+    }
+
+    private observeOrganization(): Observable<Organization> {
+        return combineLatest([
+            this.route.params,
+            this.trigger$.pipe(startWith(undefined as void)),
+        ]).pipe(
+            map(([params]) => params['organizationName']),
+            filter(orgName => !!orgName),  // ensure that organization name is set
+            distinctUntilChanged(),  // no need to trigger duplicate requests
+            switchMap((orgName) => this.organizationService.find(orgName)), // get organization
+            shareReplay(1),
+        );
+    }
+
+    private observeUserRoles(organization$: Observable<Organization>): Observable<{ organizationAdmin: boolean }> {
+        return combineLatest([
             this.organization$,
             this.principal.account$,
         ]).pipe(
-            map(([organization , account]) => this.principal.accountHasAnyAuthority(account, [
-                'ROLE_SYS_ADMIN',
-                'ROLE_ORGANIZATION_ADMIN:' + organization.name,
-            ])),
+            map(([organization , account]) => ({
+                organizationAdmin: this.principal.accountHasAnyAuthority(account, ['ROLE_SYS_ADMIN', 'ROLE_ORGANIZATION_ADMIN:' + organization.name]),
+            })),
         );
-
-        this.viewProjects();
     }
 
     previousState() {

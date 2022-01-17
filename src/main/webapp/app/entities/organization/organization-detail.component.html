@@ -1,11 +1,11 @@
 <div *ngIf="organization$ | async as organization">
-    <ng-container *ngIf="{userIsAdmin: userIsAdmin$ | async} as context">
+    <ng-container *ngIf="userRoles$ | async as userRoles">
         <h2>
             <span>
                 <span [translate]="'managementPortalApp.organization.detail.title'"></span>
                 {{organization.name}}
             </span>
-            <button *ngIf="context.userIsAdmin"
+            <button *ngIf="userRoles.organizationAdmin"
                     type="button"
                     [routerLink]="['/', { outlets: { popup: 'organization/'+ organization.name + '/edit'} }]"
                     replaceUrl="true"
@@ -35,7 +35,7 @@
                       [translate]="'managementPortalApp.organization.projects'">
                 </span>
             </li>
-            <li *ngIf="context.userIsAdmin"
+            <li *ngIf="userRoles.organizationAdmin"
                 class="nav-item" (click)="viewPermissions()">
                 <span class="nav-link" [ngClass]="{active: showPermissions}"
                       [translate]="'managementPortalApp.organization.permissions'">
@@ -46,7 +46,7 @@
         <div id="organization-content-wrapper">
             <jhi-alert-error></jhi-alert-error>
             <jhi-projects *ngIf="showProjects" [organization]='organization'></jhi-projects>
-            <jhi-permissions *ngIf="showPermissions && context.userIsAdmin"
+            <jhi-permissions *ngIf="showPermissions && userRoles.organizationAdmin"
                              [organization]='organization'></jhi-permissions>
         </div>
     </ng-container>
