@@ -32,11 +32,11 @@ export class OrganizationDetailComponent implements OnInit, OnDestroy {
             private route: ActivatedRoute,
             public principal: Principal,
     ) {
-        this.organization$ = this.observeOrganization();
-        this.userRoles$ = this.observeUserRoles(this.organization$);
     }
 
     ngOnInit() {
+        this.organization$ = this.observeOrganization();
+        this.userRoles$ = this.observeUserRoles(this.organization$);
         this.eventSubscriber = this.registerChangeInOrganizations();
         this.viewProjects();
     }
@@ -56,11 +56,11 @@ export class OrganizationDetailComponent implements OnInit, OnDestroy {
 
     private observeUserRoles(organization$: Observable<Organization>): Observable<{ organizationAdmin: boolean }> {
         return combineLatest([
-            this.organization$,
+            organization$,
             this.principal.account$,
         ]).pipe(
             map(([organization , account]) => ({
-                organizationAdmin: this.principal.accountHasAnyAuthority(account, ['ROLE_SYS_ADMIN', 'ROLE_ORGANIZATION_ADMIN:' + organization.name]),
+                organizationAdmin: organization && this.principal.accountHasAnyAuthority(account, ['ROLE_SYS_ADMIN', 'ROLE_ORGANIZATION_ADMIN:' + organization.name]),
             })),
         );
     }
