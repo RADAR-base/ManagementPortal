@@ -4,7 +4,15 @@ import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
 
 import { Account, Principal, Project, ProjectService } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
-import { distinctUntilChanged, filter, map, pluck, shareReplay, skip, startWith, switchMap } from 'rxjs/operators';
+import {
+    distinctUntilChanged,
+    filter,
+    map,
+    pluck,
+    shareReplay,
+    startWith,
+    switchMap
+} from 'rxjs/operators';
 
 interface TabOptions {
     active: string | null;
@@ -38,18 +46,10 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.subscription.add(this.activatedRoute.queryParams.pipe(
             pluck('tab'),
+            filter(tab => !!tab),
         ).subscribe(tab => this.updateActiveTab(tab)));
 
-        this.subscription.add(this.tab$.pipe(
-            pluck('active'),
-            filter(activeTab => activeTab !== null),
-            skip(1),
-            distinctUntilChanged(),
-        ).subscribe(activeTab => this.router.navigate([], {
-            relativeTo: this.activatedRoute,
-            queryParams: { tab: activeTab },
-            queryParamsHandling: "merge",
-        })));
+        this.subscription.add(this.registerTabChange());
     }
 
     ngOnDestroy() {
@@ -57,6 +57,19 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         this._activeTab$.complete();
     }
 
+    private registerTabChange(): Subscription {
+        return this.tab$.pipe(
+            pluck('active'),
+            filter(activeTab => activeTab !== null),
+            distinctUntilChanged(),
+            map((activeTab, index) => ({activeTab, index})),
+        ).subscribe(({activeTab, index}) => this.router.navigate([], {
+            relativeTo: this.activatedRoute,
+            queryParams: { tab: activeTab },
+            queryParamsHandling: "merge",
+            replaceUrl: index === 0,
+        }));
+    }
 
     private observeProject(): Observable<Project> {
         return this.activatedRoute.params.pipe(

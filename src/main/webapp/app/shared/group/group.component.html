@@ -1,7 +1,8 @@
 <div *ngIf="projectName$ | async as projectName">
     <div class="create-group-wrapper">
         <button class="btn btn-primary create-group"
-                [routerLink]="['/', { outlets: { popup: ['project-group-new' , projectName] } }]">
+                [routerLink]="['/', { outlets: { popup: ['project-group-new' , projectName] } }]"
+                queryParamsHandling="merge">
             <span class="fa fa-plus"></span>
             <span [translate]="'managementPortalApp.group.home.createLabel'">
                 </span>

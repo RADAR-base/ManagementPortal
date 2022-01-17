@@ -1,14 +1,14 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { combineLatest, Observable, Subject, Subscription } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 import { Organization, OrganizationService, Principal } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 import {
     distinctUntilChanged,
     filter,
     map,
+    pluck,
     shareReplay,
-    startWith,
     switchMap
 } from 'rxjs/operators';
 
@@ -17,11 +17,9 @@ import {
     templateUrl: './organization-detail.component.html',
     styleUrls: ['organization-detail.component.scss'],
 })
-export class OrganizationDetailComponent implements OnInit, OnDestroy {
-    private trigger$ = new Subject<void>();
+export class OrganizationDetailComponent implements OnInit {
     organization$: Observable<Organization>;
     userRoles$: Observable<{ organizationAdmin: boolean }>
-    private eventSubscriber: Subscription;
 
     showProjects: boolean;
     showPermissions: boolean;
@@ -37,16 +35,12 @@ export class OrganizationDetailComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.organization$ = this.observeOrganization();
         this.userRoles$ = this.observeUserRoles(this.organization$);
-        this.eventSubscriber = this.registerChangeInOrganizations();
         this.viewProjects();
     }
 
     private observeOrganization(): Observable<Organization> {
-        return combineLatest([
-            this.route.params,
-            this.trigger$.pipe(startWith(undefined as void)),
-        ]).pipe(
-            map(([params]) => params['organizationName']),
+        return this.route.params.pipe(
+            pluck('organizationName'),
             filter(orgName => !!orgName),  // ensure that organization name is set
             distinctUntilChanged(),  // no need to trigger duplicate requests
             switchMap((orgName) => this.organizationService.find(orgName)), // get organization
@@ -67,15 +61,6 @@ export class OrganizationDetailComponent implements OnInit, OnDestroy {
 
     previousState() {
         window.history.back();
-    }
-
-    ngOnDestroy() {
-        this.trigger$.complete();
-        this.eventSubscriber.unsubscribe();
-    }
-
-    registerChangeInOrganizations(): Subscription {
-        return this.eventManager.subscribe('organizationListModification', () => this.trigger$.next());
     }
 
     viewProjects() {

@@ -28,7 +28,7 @@ export class GroupPopupService {
         if (id) {
             return this.groupService.find(id, projectName).pipe(
               map((group: Group) => {
-                if(group){
+                if (group) {
                     group.projectName = projectName;
                 }
                 return this.groupModalRef(component, group, isDelete);
@@ -37,9 +37,10 @@ export class GroupPopupService {
         } else if (projectName) {
             return this.projectService.find(projectName).pipe(
               map((project) => {
-                const group = new Group();
-                group.projectId = project.id;
-                group.projectName = project.projectName;
+                const group: Group = {
+                    projectId: project.id,
+                    projectName: project.projectName,
+                };
                 return this.groupModalRef(component, group, isDelete);
               }),
             );
@@ -53,10 +54,10 @@ export class GroupPopupService {
         modalRef.componentInstance.group = group;
         modalRef.componentInstance.isDelete = isDelete;
         modalRef.result.then(() => {
-            this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
+            this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true, queryParamsHandling: 'merge'});
             this.isOpen = false;
         }, () => {
-            this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
+            this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true, queryParamsHandling: 'merge'});
             this.isOpen = false;
         });
         return modalRef;
