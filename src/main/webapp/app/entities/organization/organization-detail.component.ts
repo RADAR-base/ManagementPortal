@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { combineLatest, Observable, Subject, Subscription } from 'rxjs';
-import {Organization, OrganizationService, Principal} from '../../shared';
+import { Organization, OrganizationService, Principal } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 import {
     distinctUntilChanged, filter,
@@ -18,6 +18,7 @@ import {
 export class OrganizationDetailComponent implements OnInit, OnDestroy {
     private trigger$ = new Subject<void>();
     organization$: Observable<Organization>;
+    userIsAdmin$: Observable<boolean>
     private eventSubscriber: Subscription;
 
     showProjects: boolean;
@@ -40,9 +41,18 @@ export class OrganizationDetailComponent implements OnInit, OnDestroy {
           filter(orgName => !!orgName),  // ensure that organization name is set
           distinctUntilChanged(),  // no need to trigger duplicate requests
           switchMap((orgName) => this.organizationService.find(orgName)), // get organization
-          shareReplay(1), // multiple subscriptions will not trigger multiple requests
         );
         this.eventSubscriber = this.registerChangeInOrganizations();
+        this.userIsAdmin$ = combineLatest([
+            this.organization$,
+            this.principal.account$,
+        ]).pipe(
+            map(([organization , account]) => this.principal.accountHasAnyAuthority(account, [
+                'ROLE_SYS_ADMIN',
+                'ROLE_ORGANIZATION_ADMIN:' + organization.name,
+            ])),
+        );
+
         this.viewProjects();
     }
 
