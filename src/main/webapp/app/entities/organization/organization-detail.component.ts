@@ -4,7 +4,7 @@ import { combineLatest, Observable, Subject, Subscription } from 'rxjs';
 import {Organization, OrganizationService, Principal} from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 import {
-    distinctUntilChanged, filter,
+    filter,
     map, shareReplay,
     startWith,
     switchMap
@@ -38,7 +38,6 @@ export class OrganizationDetailComponent implements OnInit, OnDestroy {
         ]).pipe(
           map(([params]) => params['organizationName']),
           filter(orgName => !!orgName),  // ensure that organization name is set
-          distinctUntilChanged(),  // no need to trigger duplicate requests
           switchMap((orgName) => this.organizationService.find(orgName)), // get organization
           shareReplay(1), // multiple subscriptions will not trigger multiple requests
         );

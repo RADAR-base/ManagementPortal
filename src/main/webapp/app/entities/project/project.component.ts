@@ -26,8 +26,8 @@ export class ProjectComponent {
             this.organization$,
         ]).pipe(
           map(([projects, organization]) => {
-              const orgName = organization?.name;
-              return orgName ? projects.filter(p => p.organization.name == orgName) : projects;
+              const orgId = organization?.id;
+              return orgId ? projects.filter(p => p.organization.id == orgId) : projects;
           })
         );
     }

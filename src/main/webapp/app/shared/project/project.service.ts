@@ -1,7 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { BehaviorSubject, combineLatest, Observable, of, Subject, throwError } from 'rxjs';
-import { concatMap, delay, distinctUntilChanged, map, pluck, retryWhen, startWith, switchMap, tap, } from 'rxjs/operators';
+import {
+    concatMap,
+    delay,
+    distinctUntilChanged,
+    first,
+    map,
+    pluck,
+    retryWhen,
+    startWith,
+    switchMap,
+    tap,
+} from 'rxjs/operators';
 
 import { Project } from './project.model';
 import { SourceType } from '../../entities/source-type';
@@ -79,7 +90,7 @@ export class ProjectService {
           switchMap(projects => {
               // cannot find project
               if (projects.length === 0) {
-                  return of(null);
+                  return this.fetchProject(projectName)
               }
               const existingProject = projects.find(p => p.projectName === projectName);
               if (existingProject) {
@@ -88,6 +99,7 @@ export class ProjectService {
                   return this.fetchProject(projectName);
               }
             }),
+            first()
         );
     }
 

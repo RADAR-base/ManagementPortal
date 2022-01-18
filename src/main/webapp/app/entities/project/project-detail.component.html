@@ -6,6 +6,7 @@
         </span>
         <button type="button"
                 [routerLink]="['/', { outlets: { popup: ['organization', project.organization.name, 'project', project.projectName , 'edit']} }]"
+                [state]="{ parentComponent:'project-detail'}"
                 replaceUrl="true"
                 class="btn btn-primary float-right">
             <span class="fa fa-pencil"></span>&nbsp;<span [translate]="'entity.action.edit'"></span>

@@ -5,7 +5,7 @@ import { BehaviorSubject, combineLatest, Observable, of, Subject, throwError } f
 import { Organization } from './organization.model';
 import { Principal } from '../auth/principal.service';
 import { AlertService } from '../util/alert.service';
-import { concatMap, delay, distinctUntilChanged, map, retryWhen, startWith, switchMap, tap } from 'rxjs/operators';
+import {concatMap, delay, distinctUntilChanged, first, map, retryWhen, startWith, switchMap, tap} from 'rxjs/operators';
 import { createRequestOption } from '../model/request.utils';
 
 @Injectable({ providedIn: 'root' })
@@ -77,7 +77,7 @@ export class OrganizationService {
             switchMap(organizations => {
                 // cannot find organization
                 if (organizations.length === 0) {
-                    return of(null);
+                    return this.fetchOrganization(orgName);
                 }
                 const existingOrganization = organizations.find(o => o.name === orgName);
                 if (existingOrganization) {
@@ -86,6 +86,7 @@ export class OrganizationService {
                     return this.fetchOrganization(orgName);
                 }
             }),
+            first()
         );
     }
 
