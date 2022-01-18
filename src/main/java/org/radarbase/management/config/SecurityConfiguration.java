@@ -22,7 +22,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -39,21 +38,30 @@ import static org.springframework.context.annotation.ScopedProxyMode.TARGET_CLAS
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+
+    private final UserDetailsService userDetailsService;
+
+    private final ApplicationEventPublisher applicationEventPublisher;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    private UserDetailsService userDetailsService;
-
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
+    public SecurityConfiguration(AuthenticationManagerBuilder authenticationManagerBuilder,
+            UserDetailsService userDetailsService,
+            ApplicationEventPublisher applicationEventPublisher,
+            PasswordEncoder passwordEncoder) {
+        this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.userDetailsService = userDetailsService;
+        this.applicationEventPublisher = applicationEventPublisher;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @PostConstruct
     public void init() {
         try {
             authenticationManagerBuilder
                     .userDetailsService(userDetailsService)
-                    .passwordEncoder(passwordEncoder())
+                    .passwordEncoder(passwordEncoder)
                     .and()
                     .authenticationProvider(new RadarAuthenticationProvider())
                     .authenticationEventPublisher(
@@ -73,13 +81,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new Http401UnauthorizedEntryPoint();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web) {
         web.ignoring()
                 .antMatchers(HttpMethod.OPTIONS, "/**")
                 .antMatchers("/app/**/*.{js,html}")
