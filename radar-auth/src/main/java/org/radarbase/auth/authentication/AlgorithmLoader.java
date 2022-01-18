@@ -13,12 +13,10 @@ import org.radarbase.auth.security.jwk.JavaWebKeySet;
 import org.radarbase.auth.token.validation.ECTokenValidationAlgorithm;
 import org.radarbase.auth.token.validation.RSATokenValidationAlgorithm;
 import org.radarbase.auth.token.validation.TokenValidationAlgorithm;
-import org.radarbase.auth.token.validation.deprecated.DeprecatedEcTokenValidationAlgorithm;
 
 public class AlgorithmLoader {
 
     private final List<TokenValidationAlgorithm> supportedAlgorithmsForWebKeySets;
-    private final List<TokenValidationAlgorithm> supportedAlgorithmsForPublicKeysInConfig;
 
     /**
      * Creates an instance of {@link AlgorithmLoader} with lists of
@@ -26,26 +24,10 @@ public class AlgorithmLoader {
      * @param supportedAlgorithmsForWebKeySets default support. Algorithms to be supported for
      *                             public keys shared from public key endpoints as
      *                             {@link JavaWebKeySet}.
-     * @param supportedAlgorithmsForPublicKeysInConfig deprecated support. Algorithms to be
-     *                                      supported for public keys configured in config file.
      */
-    public AlgorithmLoader(List<TokenValidationAlgorithm> supportedAlgorithmsForWebKeySets,
-            List<TokenValidationAlgorithm> supportedAlgorithmsForPublicKeysInConfig) {
+    public AlgorithmLoader(
+            List<TokenValidationAlgorithm> supportedAlgorithmsForWebKeySets) {
         this.supportedAlgorithmsForWebKeySets = supportedAlgorithmsForWebKeySets;
-        this.supportedAlgorithmsForPublicKeysInConfig = supportedAlgorithmsForPublicKeysInConfig;
-    }
-
-    /**
-     * Creates algorithm loader with default algorithms.
-     */
-    @SuppressWarnings("deprecation") // still use deprecated ec tokens
-    public AlgorithmLoader() {
-        this(Arrays.asList(
-                new ECTokenValidationAlgorithm(),
-                new RSATokenValidationAlgorithm()),
-                Arrays.asList(
-                        new DeprecatedEcTokenValidationAlgorithm(),
-                        new RSATokenValidationAlgorithm()));
     }
 
     private Algorithm algorithmFromPublicKey(String publicKey) {
@@ -63,17 +45,6 @@ public class AlgorithmLoader {
                 .orElseThrow(() ->
                         new TokenValidationException("Unsupported public key: " + publicKey))
                 .getAlgorithm(publicKey);
-    }
-
-    /**
-     * Loads algorithms using deprecated method.
-     * @param publicKey publicKeys to load algorithms.
-     * @return instance of {@link Algorithm}.
-     */
-    public Algorithm loadDeprecatedAlgorithmFromPublicKey(String publicKey) {
-        // We deny to trust the public key if the reported algorithm is unknown to us
-        // https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
-        return loadAlgorithmFromPublicKey(supportedAlgorithmsForPublicKeysInConfig, publicKey);
     }
 
     /**
@@ -100,5 +71,12 @@ public class AlgorithmLoader {
         return JWT.require(algorithm)
                 .withAudience(audience)
                 .build();
+    }
+
+    /** Load the default algorithms, ECDSA and RSA. */
+    public static List<TokenValidationAlgorithm> defaultAlgorithms() {
+        return Arrays.asList(
+                new ECTokenValidationAlgorithm(),
+                new RSATokenValidationAlgorithm());
     }
 }

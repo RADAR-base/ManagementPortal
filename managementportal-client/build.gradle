@@ -9,8 +9,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
  * See the file LICENSE in the root of this repository.
  */
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version "1.5.30"
-    id 'org.jetbrains.dokka' version "1.5.0"
+    id 'org.jetbrains.kotlin.jvm' version "1.6.10"
+    id 'org.jetbrains.dokka' version "1.6.10"
     id 'maven-publish'
 }
 
@@ -19,44 +19,32 @@ targetCompatibility = JavaVersion.VERSION_11
 
 description = "Kotlin ManagementPortal client"
 
-repositories {
-    mavenCentral()
-}
-
-ext {
-    jacksonModuleVersion = "2.12.5"
-    okhttpVersion = "4.9.1"
-    junitVersion = "5.7.2"
-}
-
 dependencies {
-    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.30")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.30")
+    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.10")
     api(project(":oauth-client-util"))
 
-    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion
+    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttp_version
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonModuleVersion")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonModuleVersion")
-    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonModuleVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version")
+    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jackson_version")
 
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junitVersion
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junit_version
     testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.12.4'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: mockito_version
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
 
-    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.32'
-    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junitVersion
-    testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonModuleVersion")
-
-    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.5.0")
+    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-simple', version: slf4j_version
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit_version
+    testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
 }
 
 tasks.withType(KotlinCompile) {
     kotlinOptions {
         jvmTarget = "11"
-        apiVersion = "1.5"
-        languageVersion = "1.5"
+        apiVersion = "1.6"
+        languageVersion = "1.6"
     }
 }
 
@@ -72,7 +60,6 @@ test {
     useJUnitPlatform()
 }
 
-ext.isShadowed = false
 ext.projectLanguage = "kotlin"
 ext.publishToMavenCentral = true
 
