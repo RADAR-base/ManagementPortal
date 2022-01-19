@@ -99,7 +99,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/account/reset_password/init")
                 .antMatchers("/api/account/reset_password/finish")
                 .antMatchers("/test/**")
-                .antMatchers("/h2-console/**")
                 .antMatchers("/management/health")
                 .antMatchers(HttpMethod.GET, "/api/meta-token/**");
     }

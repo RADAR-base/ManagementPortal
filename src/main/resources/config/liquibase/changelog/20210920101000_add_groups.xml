@@ -17,7 +17,7 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <property name="autoIncrement" value="true" dbms="mysql,h2,postgresql,oracle,mssql"/>
-    <property name="revtype" value="tinyint" dbms="h2"/>
+    <property name="revtype" value="tinyint" dbms="hsqldb"/>
     <property name="revtype" value="smallint" dbms="postgresql"/>
 
     <!--

@@ -1,9 +1,15 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
-    <property name="now" value="now()" dbms="h2"/>
+    <property name="now" value="now()" dbms="hsqldb"/>
     <property name="now" value="current_timestamp" dbms="postgresql"/>
-    <property name="revtype" value="tinyint" dbms="h2"/>
+    <property name="revtype" value="tinyint" dbms="hsqldb"/>
     <property name="revtype" value="smallint" dbms="postgresql"/>
+
+    <changeSet id="set hsqldb regular names to false" author="joris@thehyve.nl" dbms="hsqldb">
+        <sql>
+            SET DATABASE SQL REGULAR NAMES FALSE;
+        </sql>
+    </changeSet>
 
     <!-- First we add the necessary tables, then we initialize a base revision which sets all
          currently existing entities in the database as being created by the system at the point

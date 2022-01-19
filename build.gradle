@@ -188,7 +188,7 @@ dependencies {
     implementation "org.hibernate:hibernate-validator:7.0.1.Final"
 
     implementation "org.postgresql:postgresql:${postgresql_version}"
-    implementation "com.h2database:h2"
+    implementation "org.hsqldb:hsqldb:${hsqldb_version}"
 
     implementation "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.security:spring-security-data"
