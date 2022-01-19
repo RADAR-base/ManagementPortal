@@ -105,20 +105,21 @@ export class PermissionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     addRole() {
+        console.log(this.selectedAuthority);
         if (!this.selectedAuthority) {
             return;
         }
         let newRole: Role;
         if (this.organization) {
             newRole = {
-                authorityName: this.selectedAuthority.name,
+                authorityName: this.selectedAuthority.toString(),
                 organizationId: this.organization.id,
                 organizationName: this.organization.name,
             };
         }
         if (this.project) {
             newRole = {
-                authorityName: this.selectedAuthority.name,
+                authorityName: this.selectedAuthority.toString(),
                 projectId: this.project.id,
                 projectName: this.project.projectName,
             };

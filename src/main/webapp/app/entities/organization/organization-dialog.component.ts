@@ -65,7 +65,6 @@ export class OrganizationDialogComponent implements OnDestroy {
     }
 
     private onSaveSuccess(result: Organization) {
-        this.eventManager.broadcast({name: 'organizationListModification', content: 'OK'});
         this.isSaving = false;
         this.organization = copyOrganization(result);
         this.activeModal.dismiss(result);

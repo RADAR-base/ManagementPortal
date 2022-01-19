@@ -48,10 +48,11 @@ describe('Component Tests', () => {
             comp.ngOnInit();
 
             // THEN
-            let org = await comp.organization$.toPromise();
+            const org = await comp.organization$.toPromise();
             expect(org).toEqual(jasmine.objectContaining({id: 10}));
 
             expect(service.find).toHaveBeenCalledWith('testOrganization');
+
             }));
         });
     });

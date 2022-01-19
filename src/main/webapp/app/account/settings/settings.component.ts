@@ -42,8 +42,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     save() {
+        this.subscription.add(this.registerSaveAction());
+    }
+
+    private registerSaveAction(): Subscription {
         const currentLangKey = this.settingsAccount.langKey;
-        this.subscription.add(this.account.save(this.settingsAccount).pipe(
+        return this.account.save(this.settingsAccount).pipe(
             tap(
                 () => {
                     this.error = null;
@@ -62,6 +66,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
                     this.previousLangKey = currentLangKey;
                 }
             }
-        ));
+        );
     }
 }

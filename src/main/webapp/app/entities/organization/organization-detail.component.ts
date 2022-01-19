@@ -1,24 +1,25 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { combineLatest, Observable, Subject, Subscription } from 'rxjs';
-import {Organization, OrganizationService, Principal} from '../../shared';
+import { combineLatest, Observable } from 'rxjs';
+import { Organization, OrganizationService, Principal } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 import {
-    distinctUntilChanged, filter,
-    map, shareReplay,
-    startWith,
+    distinctUntilChanged,
+    filter,
+    map,
+    pluck,
+    shareReplay,
     switchMap
-} from "rxjs/operators";
+} from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-organization-detail',
     templateUrl: './organization-detail.component.html',
     styleUrls: ['organization-detail.component.scss'],
 })
-export class OrganizationDetailComponent implements OnInit, OnDestroy {
-    private trigger$ = new Subject<void>();
+export class OrganizationDetailComponent implements OnInit {
     organization$: Observable<Organization>;
-    private eventSubscriber: Subscription;
+    userRoles$: Observable<{ organizationAdmin: boolean }>
 
     showProjects: boolean;
     showPermissions: boolean;
@@ -32,31 +33,34 @@ export class OrganizationDetailComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.organization$ = combineLatest([
-          this.route.params,
-          this.trigger$.pipe(startWith(undefined as void)),
-        ]).pipe(
-          map(([params]) => params['organizationName']),
-          filter(orgName => !!orgName),  // ensure that organization name is set
-          distinctUntilChanged(),  // no need to trigger duplicate requests
-          switchMap((orgName) => this.organizationService.find(orgName)), // get organization
-          shareReplay(1), // multiple subscriptions will not trigger multiple requests
-        );
-        this.eventSubscriber = this.registerChangeInOrganizations();
+        this.organization$ = this.observeOrganization();
+        this.userRoles$ = this.observeUserRoles(this.organization$);
         this.viewProjects();
+    }
+
+    private observeOrganization(): Observable<Organization> {
+        return this.route.params.pipe(
+            pluck('organizationName'),
+            filter(orgName => !!orgName),  // ensure that organization name is set
+            distinctUntilChanged(),  // no need to trigger duplicate requests
+            switchMap((orgName) => this.organizationService.find(orgName)), // get organization
+            shareReplay(1),
+        );
+    }
+
+    private observeUserRoles(organization$: Observable<Organization>): Observable<{ organizationAdmin: boolean }> {
+        return combineLatest([
+            organization$,
+            this.principal.account$,
+        ]).pipe(
+            map(([organization , account]) => ({
+                organizationAdmin: organization && this.principal.accountHasAnyAuthority(account, ['ROLE_SYS_ADMIN', 'ROLE_ORGANIZATION_ADMIN:' + organization.name]),
+            })),
+        );
     }
 
     previousState() {
         window.history.back();
-    }
-
-    ngOnDestroy() {
-        this.trigger$.complete();
-        this.eventSubscriber.unsubscribe();
-    }
-
-    registerChangeInOrganizations(): Subscription {
-        return this.eventManager.subscribe('organizationListModification', () => this.trigger$.next());
     }
 
     viewProjects() {

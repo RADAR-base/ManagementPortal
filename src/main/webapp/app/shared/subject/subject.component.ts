@@ -229,6 +229,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
                     sort: sortOrder.toQueryParam(),
                 },
                 queryParamsHandling: "merge",
+                replaceUrl: true,
             })),
           withLatestFrom(this._subjects$),
           switchMap(([[projectName, filter, sortOrder, page], subjects]) => {
