@@ -45,6 +45,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final PasswordEncoder passwordEncoder;
 
+    /** Security configuration constructor. */
     @Autowired
     public SecurityConfiguration(AuthenticationManagerBuilder authenticationManagerBuilder,
             UserDetailsService userDetailsService,
