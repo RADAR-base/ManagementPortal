@@ -11,35 +11,17 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: Run Snyk to check for Kotlin vulnerabilities
+      - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/gradle-jdk11@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           command: test
           json: true
-          args: --all-sub-projects --policy-path=.snyk
+          args: --all-projects --configuration-matching="^(runtime|compile)Classpath$" --policy-path=.snyk
         if: ${{ !cancelled() }}
 
-      - name: Report new Kotlin vulnerabilities
-        uses: thehyve/report-vulnerability@master
-        with:
-          report-file: snyk.json
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: ${{ failure() }}
-
-      - name: Run Snyk to check for Node vulnerabilities
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: test
-          args: . --policy-path=.snyk
-          json: true
-        if: ${{ !cancelled() }}
-
-      - name: Report new Node vulnerabilities
+      - name: Report new vulnerabilities
         uses: thehyve/report-vulnerability@master
         with:
           report-file: snyk.json
