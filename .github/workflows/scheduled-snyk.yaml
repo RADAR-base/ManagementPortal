@@ -31,8 +31,7 @@ jobs:
         run: >-
           snyk test
           --all-projects
-          --configuration-matching=runtimeClasspath
-          --configuration-matching=compileClasspath
+          --configuration-matching="^(compile|runtime)Classpath$"
           --policy-path=.snyk
           --json-file-output=snyk.json
 
