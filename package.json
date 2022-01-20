@@ -55,6 +55,9 @@
   "engines": {
     "node": ">=14.14.0"
   },
+  "resolutions": {
+    "ansi-regex": "5.0.1"
+  },
   "scripts": {
     "lint": "ng lint",
     "lint:fix": "ng lint --fix=true",
