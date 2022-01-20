@@ -15,4 +15,4 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high --all-projects --configuration-matching="^(runtime|compile)Classpath$" --policy-path=.snyk
+          args: --severity-threshold=high --all-projects --configuration-matching=runtimeClasspath --configuration-matching=compileClasspath --policy-path=.snyk
