@@ -10,7 +10,6 @@ node_modules
 oauth-client-util/build
 oauth-client-util/out
 oauth-client-util/src/test
-radar-auth/deprecated-auth0/build
 src/test/java
 src/gatling
 .yarn/unplugged
