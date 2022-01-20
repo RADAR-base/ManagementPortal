@@ -70,7 +70,6 @@ export class OrganizationDialogComponent implements OnDestroy {
         if (history.state?.parentComponent === 'organization-detail') {
             this.router.navigate(['/organization', result.name]);
         }
-        this.projectService.reset();
         this.isSaving = false;
         this.organization = copyOrganization(result);
         this.activeModal.dismiss(result);
