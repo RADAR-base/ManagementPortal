@@ -48,8 +48,6 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 
-import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
-import static org.radarbase.auth.authorization.Permission.ORGANIZATION_UPDATE;
 import static org.radarbase.auth.authorization.Permission.PROJECT_CREATE;
 import static org.radarbase.auth.authorization.Permission.PROJECT_DELETE;
 import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
@@ -57,11 +55,9 @@ import static org.radarbase.auth.authorization.Permission.PROJECT_UPDATE;
 import static org.radarbase.auth.authorization.Permission.ROLE_READ;
 import static org.radarbase.auth.authorization.Permission.SOURCE_READ;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkGlobalPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganization;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganizationAndProject;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
 import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_PROJECT_NOT_EMPTY;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
@@ -119,12 +115,15 @@ public class ProjectResource {
         checkPermissionOnOrganization(token, PROJECT_CREATE, org.getName());
 
         if (projectDto.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
-                    ENTITY_NAME, "idexists", "A new project cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest()
+                    .headers(HeaderUtil.createFailureAlert(
+                            ENTITY_NAME, "idexists", "A new project cannot already have an ID"))
+                    .body(null);
         }
         if (projectRepository.findOneWithEagerRelationshipsByName(projectDto.getProjectName())
                 .isPresent()) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
+            return ResponseEntity.badRequest()
+                    .headers(HeaderUtil.createFailureAlert(
                             ENTITY_NAME, "nameexists", "A project with this name already exists"))
                     .body(null);
         }
@@ -296,7 +295,8 @@ public class ProjectResource {
         log.debug("REST request to get all Sources");
         ProjectDTO projectDto = projectService.findOneByName(projectName);
         RadarToken jwt = token;
-        checkPermissionOnOrganizationAndProject(jwt, SOURCE_READ, projectDto.getOrganization().getName(), projectDto.getProjectName());
+        checkPermissionOnOrganizationAndProject(jwt, SOURCE_READ,
+                projectDto.getOrganization().getName(), projectDto.getProjectName());
         if (!jwt.isClientCredentials() && jwt.hasAuthority(PARTICIPANT)) {
             throw new NotAuthorizedException("Cannot list all project sources as a participant.");
         }
@@ -343,7 +343,8 @@ public class ProjectResource {
         String projectName = subjectCriteria.getProjectName();
         // this checks if the project exists
         ProjectDTO projectDto = projectService.findOneByName(projectName);
-        checkPermissionOnOrganizationAndProject(token, SUBJECT_READ, projectDto.getOrganization().getName(), projectName);
+        checkPermissionOnOrganizationAndProject(token, SUBJECT_READ,
+                projectDto.getOrganization().getName(), projectName);
         if (!token.isClientCredentials() && token.hasAuthority(PARTICIPANT)) {
             throw new NotAuthorizedException("Cannot list all project subjects as a participant.");
         }
