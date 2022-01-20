@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {HttpClient, HttpParams, HttpResponse} from '@angular/common/http';
+import {Observable, of} from 'rxjs';
 
 import { User } from './user.model';
 import { createRequestOption } from '../model/request.utils';
-import { Project } from '../project';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {

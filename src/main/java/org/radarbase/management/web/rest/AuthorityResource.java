@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
+import org.radarbase.management.service.dto.AuthorityDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,15 +38,17 @@ public class AuthorityResource {
      */
     @GetMapping("/authorities")
     @Timed
-    public List<String> getAllAuthorities() throws NotAuthorizedException {
+    public List<AuthorityDTO> getAllAuthorities() throws NotAuthorizedException {
         log.debug("REST request to get all Authorities");
         checkPermission(token, AUTHORITY_READ);
         return Stream.of(
+                RoleAuthority.SYS_ADMIN,
                 RoleAuthority.ORGANIZATION_ADMIN,
-                RoleAuthority.PROJECT_ADMIN, RoleAuthority.PROJECT_OWNER,
-                RoleAuthority.PROJECT_AFFILIATE, RoleAuthority.PROJECT_ANALYST)
-                .map(RoleAuthority::authority)
+                RoleAuthority.PROJECT_ADMIN,
+                RoleAuthority.PROJECT_OWNER,
+                RoleAuthority.PROJECT_AFFILIATE,
+                RoleAuthority.PROJECT_ANALYST)
+                .map(AuthorityDTO::new)
                 .collect(Collectors.toList());
     }
-
 }

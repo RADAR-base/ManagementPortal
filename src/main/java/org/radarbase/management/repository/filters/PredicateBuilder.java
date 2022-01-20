@@ -20,6 +20,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
@@ -35,7 +36,14 @@ public class PredicateBuilder {
 
     /** Add predicate to query. */
     public void add(Predicate predicate) {
+        if (predicate == null) {
+            return;
+        }
         predicates.add(predicate);
+    }
+
+    public void isNull(Expression<?> expression) {
+        predicates.add(builder.isNull(expression));
     }
 
     /**
@@ -46,6 +54,19 @@ public class PredicateBuilder {
             return this.predicates.get(0);
         } else if (!this.predicates.isEmpty()) {
             return builder.and(this.predicates.toArray(new Predicate[0]));
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Build the predicates as an AND predicate.
+     */
+    public Predicate toOrPredicate() {
+        if (this.predicates.size() == 1) {
+            return this.predicates.get(0);
+        } else if (!this.predicates.isEmpty()) {
+            return builder.or(this.predicates.toArray(new Predicate[0]));
         } else {
             return null;
         }
@@ -117,6 +138,14 @@ public class PredicateBuilder {
         }
     }
 
+    public void in(Expression<?> expr, Expression<?> other) {
+        add(expr.in(other));
+    }
+
+    public void in(Expression<?> expr, Collection<?> other) {
+        add(expr.in(other));
+    }
+
     /**
      * Add comparable criteria matching given range.
      * @param path entity property path.
@@ -152,5 +181,17 @@ public class PredicateBuilder {
             return !str.isBlank() && !str.equals("null");
         }
         return true;
+    }
+
+    public PredicateBuilder newBuilder() {
+        return new PredicateBuilder(builder);
+    }
+
+    public CriteriaBuilder getCriteriaBuilder() {
+        return builder;
+    }
+
+    public boolean isEmpty() {
+        return this.predicates.isEmpty();
     }
 }

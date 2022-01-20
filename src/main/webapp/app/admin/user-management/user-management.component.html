@@ -1,4 +1,4 @@
-<div>
+<div *ngIf="principal.account$ | async as account">
     <h2>
         <span [translate]="'userManagement.home.title'"></span>
         <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']" class="btn btn-primary float-right" style="margin-left: 5px" [routerLink]="['/', { outlets: { popup: ['user-management-new-admin'] } }]">
@@ -36,7 +36,7 @@
                 <th></th>
                 <th jhiSortBy="langKey"> <span [translate]="'userManagement.langKey'"></span> <span class="fa fa-sort"></span></th>
                 <th><span [translate]="'userManagement.role.authorityName'"></span></th>
-                <th><span [translate]="'userManagement.role.project'"></span></th>
+                <th><span [translate]="'userManagement.role.organizationOrProject'"></span></th>
                 <th><span [translate]="'userManagement.createdDate'"></span></th>
                 <th><span [translate]="'userManagement.lastModifiedBy'"></span></th>
                 <th><span [translate]="'userManagement.lastModifiedDate'"></span></th>
@@ -62,12 +62,13 @@
                 <td>
                     <div *ngFor="let role of user.roles">
                         <span *ngIf="role.authorityName === 'ROLE_SYS_ADMIN'">{{role.authorityName}}</span>
-                        <a *ngIf="role.authorityName != 'ROLE_SYS_ADMIN'" [routerLink]="['/role', role.projectName, role.authorityName ]" >{{role.authorityName}}</a>
+                        <span *ngIf="role.authorityName === 'ROLE_ORGANIZATION_ADMIN'" >{{role.authorityName}}</span>
+                        <a *ngIf="role.authorityName === 'ROLE_PROJECT_ADMIN'" [routerLink]="['/role', role.projectName, role.authorityName ]" >{{role.authorityName}}</a>
                     </div>
                 </td>
                 <td>
                     <div *ngFor="let role of user.roles">
-                       {{role.projectName}}
+                       {{role.projectName || role.organizationName }}
                     </div>
                 </td>
                 <td>{{user.createdDate | date:'dd/MM/yy HH:mm'}}</td>
@@ -89,7 +90,7 @@
                             <span class="fa fa-mail-forward"></span>
                             <span class="hidden-md-down" [translate]="'userManagement.sendActivation.title'"></span>
                         </button>
-                        <button [disabled]="user.roles[0].authorityName=='ROLE_SYS_ADMIN'" type="submit"
+                        <button type="submit"
                                 [routerLink]="['/', { outlets: { popup: 'user-management/'+ user.login + '/edit'} }]"
                                 [replaceUrl]="true"
                                 class="btn btn-primary btn-sm">
@@ -100,9 +101,10 @@
                                 [routerLink]="['/', { outlets: { popup: 'user-management/'+ user.login + '/delete'} }]"
                                 [replaceUrl]="true"
                                 class="btn btn-danger btn-sm"
-                                [disabled]="(principal.account$ | async).login == user.login ||
+                                [disabled]="account.login == user.login ||
+                                (user.roles.length > 0 && (
                                 user.roles[0].authorityName=='ROLE_PARTICIPANT' ||
-                                user.roles[0].authorityName=='ROLE_INACTIVE_PARTICIPANT'">
+                                user.roles[0].authorityName=='ROLE_INACTIVE_PARTICIPANT'))">
                             <span class="fa fa-remove"></span>
                             <span class="hidden-md-down" [translate]="'entity.action.delete'"></span>
                         </button>

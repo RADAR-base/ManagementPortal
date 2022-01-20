@@ -1,0 +1,27 @@
+
+.organization-detail__organization-info {
+    padding: 8px 16px;
+
+    > div {
+        display: flex;
+    }
+}
+.organization-detail__organization-info-fields {
+    > div {
+        margin-right: 16px;
+
+        > span {
+            font-weight: bold; font-size: 12px; color: #bebebe;
+        }
+    }
+}
+.organization-detail__description {
+    padding: 8px 8px;
+    border-left: 2px solid #dadada;
+    color: #888;
+    white-space: pre-line;
+}
+
+#organization-content-wrapper {
+    padding: 16px 0;
+}

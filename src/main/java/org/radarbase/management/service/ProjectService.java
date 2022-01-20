@@ -86,7 +86,7 @@ public class ProjectService {
         }
 
         if (!fetchMinimal) {
-            return projects.map(projectMapper::projectToProjectDTOReduced);
+            return projects.map(projectMapper::projectToProjectDTO);
         } else {
             return projects.map(projectMapper::projectToMinimalProjectDetailsDTO);
         }

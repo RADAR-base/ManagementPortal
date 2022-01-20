@@ -1,6 +1,7 @@
 package org.radarbase.management.config;
 
 import org.radarbase.auth.authorization.RoleAuthority;
+import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.security.ClaimsTokenEnhancer;
 import org.radarbase.management.security.Http401UnauthorizedEntryPoint;
 import org.radarbase.management.security.JwtAuthenticationFilter;
@@ -116,9 +117,12 @@ public class OAuth2ServerConfiguration {
         @Autowired
         private AuthenticationManager authenticationManager;
 
+        @Autowired
+        private UserRepository userRepository;
+
         public JwtAuthenticationFilter jwtAuthenticationFilter() {
             return new JwtAuthenticationFilter(
-                    keyStoreHandler.getTokenValidator(), authenticationManager)
+                    keyStoreHandler.getTokenValidator(), authenticationManager, userRepository)
                     .skipUrlPattern(HttpMethod.GET, "/management/health")
                     .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*");
         }

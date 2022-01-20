@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { JhiLanguageHelper, User, UserService } from '../../shared';
@@ -7,7 +7,9 @@ import { EventManager } from '../../shared/util/event-manager.service';
 import { Role } from './role.model';
 
 import { UserModalService } from './user-modal.service';
-import { Subscription } from "rxjs";
+import { Observable, Subscription } from 'rxjs';
+import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-user-mgmt-dialog',
@@ -18,7 +20,7 @@ export class UserMgmtDialogComponent implements OnInit, OnDestroy {
     isAdmin: boolean;
     roles: Role[];
     isSaving: Boolean;
-    private subscriptions: Subscription;
+    private subscriptions: Subscription = new Subscription();
 
     constructor(
       public activeModal: NgbActiveModal,
@@ -30,15 +32,15 @@ export class UserMgmtDialogComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.isSaving = false;
-        this.registerChangeInRoles();
+        this.subscriptions.add(this.registerChangeInRoles());
     }
 
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
     }
 
-    registerChangeInRoles() {
-        this.subscriptions = this.eventManager.subscribe('roleListModification', (response) => {
+    registerChangeInRoles(): Subscription {
+        return this.eventManager.subscribe('roleListModification', (response) => {
             this.user.roles = response.content;
         });
     }
@@ -77,29 +79,24 @@ export class UserMgmtDialogComponent implements OnInit, OnDestroy {
     selector: 'jhi-user-dialog',
     template: '',
 })
-export class UserDialogComponent implements OnInit, OnDestroy {
-    modalRef: NgbModalRef;
-    routeSub: any;
+export class UserDialogComponent extends ObservablePopupComponent {
 
     constructor(
             private route: ActivatedRoute,
             private userModalService: UserModalService,
     ) {
+        super(route);
     }
 
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            this.route.url.subscribe(url => {
-                if ('user-management-new-admin' === (url[0].path)) {
-                    this.modalRef = this.userModalService.open(UserMgmtDialogComponent, null, true);
-                }
-                return;
-            });
-            this.modalRef = this.userModalService.open(UserMgmtDialogComponent, params['login'], false);
-        });
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.route.url.pipe(
+          switchMap(url => {
+            if ('user-management-new-admin' === (url[0].path)) {
+                return this.userModalService.open(UserMgmtDialogComponent, null, true);
+            } else {
+                return this.userModalService.open(UserMgmtDialogComponent, params['login'], false);
+            }
+          })
+        );
     }
 }

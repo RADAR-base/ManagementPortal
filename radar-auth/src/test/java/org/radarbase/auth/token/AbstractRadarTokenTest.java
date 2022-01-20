@@ -71,7 +71,7 @@ class AbstractRadarTokenTest {
 
         @Override
         public List<String> getAudience() {
-            return null;
+            return List.of();
         }
 
         @Override
@@ -101,7 +101,7 @@ class AbstractRadarTokenTest {
 
         @Override
         public List<String> getClaimList(String name) {
-            return null;
+            return List.of();
         }
     }
 

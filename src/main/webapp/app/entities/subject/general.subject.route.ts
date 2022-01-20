@@ -2,10 +2,10 @@ import { Routes } from '@angular/router';
 
 import { UserRouteAccessService } from '../../shared';
 import { SYSTEM_ADMIN } from '../../shared/constants/common.constants';
-import { GeneralSubjectPopupComponent } from './general.subject-dialog.component';
 
 import { GeneralSubjectComponent } from './general.subject.component';
 import { ResolvePagingParams } from '../../shared/commons';
+import { SubjectPopupComponent } from '../../shared/subject';
 
 export const subjectRoute: Routes = [
     {
@@ -26,7 +26,7 @@ export const subjectRoute: Routes = [
 export const subjectPopupRoute: Routes = [
     {
         path: 'general-subject-new',
-        component: GeneralSubjectPopupComponent,
+        component: SubjectPopupComponent,
         data: {
             authorities: [SYSTEM_ADMIN],
             pageTitle: 'managementPortalApp.subject.home.title',
@@ -36,7 +36,7 @@ export const subjectPopupRoute: Routes = [
     },
     {
         path: 'general-subject/:login/edit',
-        component: GeneralSubjectPopupComponent,
+        component: SubjectPopupComponent,
         data: {
             authorities: [SYSTEM_ADMIN],
             pageTitle: 'managementPortalApp.subject.home.title',

@@ -1,0 +1,54 @@
+<div *ngIf="organization$ | async as organization">
+    <ng-container *ngIf="userRoles$ | async as userRoles">
+        <h2>
+            <span>
+                <span [translate]="'managementPortalApp.organization.detail.title'"></span>
+                {{organization.name}}
+            </span>
+            <button *ngIf="userRoles.organizationAdmin"
+                    type="button"
+                    [routerLink]="['/', { outlets: { popup: 'organization/'+ organization.name + '/edit'} }]"
+                    [state]="{ parentComponent:'organization-detail'}"
+                    replaceUrl="true"
+                    class="btn btn-primary float-right">
+                <span class="fa fa-pencil"></span>&nbsp;<span [translate]="'entity.action.edit'"></span>
+            </button>
+        </h2>
+        <div class="organization-detail__organization-info">
+            <div class="organization-detail__organization-info-fields">
+                <div>
+                    <span [translate]="'managementPortalApp.organization.organizationName'"></span>
+                    <p>{{organization.name}}</p>
+                </div>
+                <div>
+                    <span [translate]="'managementPortalApp.organization.location'"></span>
+                    <p>{{organization.location}}</p>
+                </div>
+            </div>
+            <p class="organization-detail__description">
+                {{organization.description}}
+            </p>
+        </div>
+
+        <ul class="nav nav-tabs">
+            <li class="nav-item" (click)="viewProjects()">
+                <span class="nav-link" [ngClass]="{active: showProjects}"
+                      [translate]="'managementPortalApp.organization.projects'">
+                </span>
+            </li>
+            <li *ngIf="userRoles.organizationAdmin"
+                class="nav-item" (click)="viewPermissions()">
+                <span class="nav-link" [ngClass]="{active: showPermissions}"
+                      [translate]="'managementPortalApp.organization.permissions'">
+                </span>
+            </li>
+        </ul>
+
+        <div id="organization-content-wrapper">
+            <jhi-alert-error></jhi-alert-error>
+            <jhi-projects *ngIf="showProjects" [organization]='organization'></jhi-projects>
+            <jhi-permissions *ngIf="showPermissions && userRoles.organizationAdmin"
+                             [organization]='organization'></jhi-permissions>
+        </div>
+    </ng-container>
+</div>

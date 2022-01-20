@@ -1,8 +1,9 @@
-import { Component, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Source } from '../../shared/source/source.model';
-import { SourceService } from '../../shared/source/source.service';
+import { Source, SourceService } from '../../shared/source';
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable()
 export class GeneralSourcePopupService {
@@ -15,18 +16,18 @@ export class GeneralSourcePopupService {
     ) {
     }
 
-    open(component: any, sourceName?: string): NgbModalRef {
+    open(component: any, sourceName?: string): Observable<NgbModalRef> {
         if (this.isOpen) {
             return;
         }
         this.isOpen = true;
 
         if (sourceName) {
-            this.sourceService.find(sourceName).subscribe((source) => {
-                this.sourceModalRef(component, source);
-            });
+            return this.sourceService.find(sourceName).pipe(
+                map((source) => this.sourceModalRef(component, source)),
+            );
         } else {
-            return this.sourceModalRef(component, new Source());
+            return of(this.sourceModalRef(component, new Source()));
         }
     }
 

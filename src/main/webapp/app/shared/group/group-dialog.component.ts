@@ -1,13 +1,15 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component } from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
 import { GroupPopupService } from './group-popup.service';
-import {Group} from "./group.model";
-import {GroupService} from "./group.service";
+import { Group } from './group.model';
+import { GroupService } from './group.service';
+import { ObservablePopupComponent } from '../util/observable-popup.component';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'jhi-group-dialog',
@@ -58,25 +60,15 @@ export class GroupDialogComponent {
     selector: 'jhi-group-popup',
     template: '',
 })
-export class GroupPopupComponent implements OnInit, OnDestroy {
-
-    modalRef: NgbModalRef;
-    routeSub: any;
-
+export class GroupPopupComponent extends ObservablePopupComponent {
     constructor(
-        private route: ActivatedRoute,
+        route: ActivatedRoute,
         private groupPopupService: GroupPopupService
-    ) {}
-
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            console.log(params)
-            this.modalRef = this.groupPopupService
-                    .open(GroupDialogComponent, params['id'], false, params['projectName']);
-        });
+    ) {
+        super(route);
     }
 
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.groupPopupService.open(GroupDialogComponent, params['id'], false, params['projectName']);
     }
 }

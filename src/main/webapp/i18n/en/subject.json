@@ -48,7 +48,7 @@
             "enrollmentDateTo": "Enrollment Date To",
             "lastModifiedBy": "Last Modified By",
             "lastModifiedDate": "Last Modified Date",
-            "noSubjects": "No subjects found",
+            "noSubjects": "No results found",
             "personName": "Name",
             "pairing": "Pairing",
             "actions": "Actions",
@@ -107,7 +107,7 @@
             "group": "Group",
             "loadMore": "Load more ({{shown}}/{{total}} shown)",
             "loadMorePartial": "Load more ({{shown}} shown)",
-            "allLoaded": "All {{total}} subjects loaded",
+            "allLoaded": "All {{total}} results loaded",
             "generateToken": "Generate QR code",
             "generatePersistentToken": "Generate persistent QR code"
         }

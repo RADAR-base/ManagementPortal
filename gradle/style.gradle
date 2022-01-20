@@ -2,7 +2,7 @@ apply plugin: 'checkstyle'
 apply plugin: 'pmd'
 
 checkstyle {
-    toolVersion = '8.45.1'
+    toolVersion = '9.2'
     ignoreFailures = false
     maxWarnings = 0
 
@@ -10,7 +10,7 @@ checkstyle {
 }
 
 pmd {
-    toolVersion = '6.36.0'
+    toolVersion = '6.41.0'
     ignoreFailures = false
 
     consoleOutput = true

@@ -10,9 +10,26 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+          cache: npm
+
+      - uses: actions/setup-java@v2
+        with:
+          distribution: zulu
+          java-version: 17
+          cache: gradle
+
+      - name: Install Snyk
+        run: npm install snyk@latest -g
+
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/gradle-jdk11@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high --all-projects --configuration-matching=runtimeClasspath --configuration-matching=compileClasspath --policy-path=.snyk
+        run: >
+          snyk test
+          --severity-threshold=high
+          --all-projects
+          --configuration-matching="^(compile|runtime)Classpath$"
+          --policy-path=.snyk
