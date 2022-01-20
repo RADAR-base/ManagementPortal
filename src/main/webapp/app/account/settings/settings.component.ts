@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 import { Account, AccountService, JhiLanguageHelper, Principal } from '../../shared';
 import { filter, switchMap, tap } from 'rxjs/operators';
@@ -42,10 +42,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     save() {
-        this.subscription.add(this.registerSaveAction());
+        this.subscription.add(this.saveAccount().subscribe());
     }
 
-    private registerSaveAction(): Subscription {
+    saveAccount(): Observable<Account> {
         const currentLangKey = this.settingsAccount.langKey;
         return this.account.save(this.settingsAccount).pipe(
             tap(
@@ -59,13 +59,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
                 }
             ),
             switchMap(() => this.principal.reset()),
-        ).subscribe(
-            () => {
+            tap(() => {
                 if (currentLangKey && currentLangKey !== this.previousLangKey) {
                     this.translateService.use(currentLangKey)
                     this.previousLangKey = currentLangKey;
                 }
-            }
+            }),
         );
     }
 }

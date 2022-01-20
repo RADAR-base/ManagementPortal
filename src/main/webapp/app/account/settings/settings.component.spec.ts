@@ -52,7 +52,7 @@ describe('Component Tests', () => {
             fixture.detectChanges();
         });
 
-        it('should send the current identity upon save', function() {
+        it('should send the current identity upon save', waitForAsync(async function() {
             // GIVEN
             const accountValues = {
                 firstName: 'John',
@@ -68,16 +68,16 @@ describe('Component Tests', () => {
 
             // WHEN
             comp.settingsAccount = accountValues;
-            comp.save();
+            await comp.saveAccount().toPromise();
 
             // THEN
             expect(mockPrincipal.account$Spy).toHaveBeenCalled();
             expect(mockPrincipal.reset).toHaveBeenCalled();
             expect(mockAuth.save).toHaveBeenCalledWith(accountValues);
             expect(comp.settingsAccount).toEqual(accountValues);
-        });
+        }));
 
-        it('should notify of success upon successful save', function() {
+        it('should notify of success upon successful save', waitForAsync(async function() {
             // GIVEN
             const accountValues = {
                 firstName: 'John',
@@ -87,14 +87,14 @@ describe('Component Tests', () => {
             mockAuth.save.and.returnValue(of(accountValues));
 
             // WHEN
-            comp.save();
+            await comp.saveAccount().toPromise();
 
             // THEN
             expect(comp.error).toBeNull();
             expect(comp.success).toBe('OK');
-        });
+        }));
 
-        it('should notify of error upon failed save', function() {
+        it('should notify of error upon failed save', waitForAsync(async function() {
             // GIVEN
             const accountValues = {
                 firstName: 'John',
@@ -109,11 +109,13 @@ describe('Component Tests', () => {
 
             // WHEN
             comp.settingsAccount = accountValues;
-            comp.save();
-
-            // THEN
-            expect(comp.error).toEqual('ERROR');
-            expect(comp.success).toBeNull();
-        });
+            try {
+                await comp.saveAccount().toPromise();
+            } catch (e) {
+                // THEN
+                expect(comp.error).toEqual('ERROR');
+                expect(comp.success).toBeNull();
+            }
+        }));
     });
 });
