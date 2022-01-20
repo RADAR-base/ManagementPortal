@@ -24,12 +24,9 @@ jobs:
       - name: Install Snyk
         run: npm install snyk@latest -g
 
-      - name: Log in to snyk
+      - name: Run Snyk to check for vulnerabilities
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk auth
-
-      - name: Run Snyk to check for vulnerabilities
         run: >
           snyk test
           --severity-threshold=high
