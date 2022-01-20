@@ -6,11 +6,7 @@ apply from: "$rootDir/gradle/artifacts.gradle"
 publishing {
     publications {
         mavenJar(MavenPublication) { publication ->
-            if (project.hasProperty("isShadowed") && isShadowed) {
-                project.shadow.component(publication)
-            } else {
-                from components.java
-            }
+            from components.java
             artifact sourcesJar
             artifact javadocJar
 
@@ -71,5 +67,5 @@ signing {
 }
 
 tasks.withType(Sign).configureEach {
-    onlyIf { gradle.taskGraph.hasTask("${project.path}:publish") }
+    onlyIf { gradle.taskGraph.hasTask(project.tasks["publish"]) }
 }

@@ -1,9 +1,7 @@
 name: Snyk test
 
 on:
-  pull_request:
-    branches:
-      - master
+ - pull_request
 
 jobs:
   security:
@@ -12,17 +10,9 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: Run Snyk to check for Kotlin vulnerabilities
+      - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/gradle-jdk11@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high --all-sub-projects --policy-path=.snyk
-
-      - name: Run Snyk to check for Node vulnerabilities
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: . --severity-threshold=high --policy-path=.snyk
-        if: ${{ !cancelled() }}
+          args: --severity-threshold=high --all-projects --configuration-matching=runtimeClasspath --configuration-matching=compileClasspath --policy-path=.snyk

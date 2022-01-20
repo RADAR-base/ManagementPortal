@@ -1,19 +1,16 @@
 package org.radarbase.auth.config;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
-import org.radarbase.auth.token.validation.ECTokenValidationAlgorithm;
-import org.radarbase.auth.token.validation.RSATokenValidationAlgorithm;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
@@ -45,9 +42,5 @@ class TokenVerifierPublicKeyConfigTest {
                 new URI("http://localhost:8089/oauth/token_key")));
         assertEquals(2, uris.size());
         assertEquals("unit_test", config.getResourceName());
-        assertEquals(2, config.getPublicKeys().size());
-        List<String> algs = config.getPublicKeys();
-        assertThat(algs, hasItems(startsWith(new ECTokenValidationAlgorithm().getKeyHeader()),
-                startsWith(new RSATokenValidationAlgorithm().getKeyHeader())));
     }
 }

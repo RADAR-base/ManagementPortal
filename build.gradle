@@ -16,18 +16,15 @@ plugins {
     id 'org.springframework.boot' version "${spring_boot_version}"
     id "com.github.node-gradle.node" version "3.1.1"
     id "io.spring.dependency-management" version "1.0.11.RELEASE"
-    id 'de.undercouch.download' version '4.1.1' apply false
-    id "io.github.gradle-nexus.publish-plugin" version "1.0.0"
+    id 'de.undercouch.download' version '4.1.2' apply false
+    id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
+    id("com.github.ben-manes.versions") version "0.41.0"
 }
 
 apply plugin: 'org.springframework.boot'
 apply plugin: 'war'
 apply plugin: 'com.github.node-gradle.node'
 apply plugin: 'io.spring.dependency-management'
-
-repositories {
-    mavenCentral()
-}
 
 allprojects {
     group 'org.radarbase'
@@ -46,6 +43,10 @@ allprojects {
     ext.githubUrl = 'https://github.com/RADAR-base/ManagementPortal'
     ext.issueUrl = "https://github.com/$githubRepoName/issues"
     ext.website = 'http://radar-base.org'
+
+    repositories {
+        mavenCentral()
+    }
 
     idea {
         module {
@@ -187,7 +188,7 @@ dependencies {
     implementation "org.hibernate:hibernate-validator:7.0.1.Final"
 
     implementation "org.postgresql:postgresql:${postgresql_version}"
-    implementation "com.h2database:h2"
+    implementation "org.hsqldb:hsqldb:${hsqldb_version}"
 
     implementation "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.security:spring-security-data"
@@ -203,8 +204,7 @@ dependencies {
     implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.1.RELEASE")
     implementation "org.springdoc:springdoc-openapi-ui:${springdoc_version}"
     implementation("javax.inject:javax.inject:1")
-    implementation project(path: ':radar-auth', configuration: 'shadow')
-    implementation project(path: ':radar-auth:deprecated-auth0', configuration: 'shadow')
+    implementation project(':radar-auth')
     implementation "org.springframework.data:spring-data-envers"
 
     runtimeOnly("jakarta.xml.bind:jakarta.xml.bind-api:${javax_xml_bind_version}")
@@ -223,7 +223,7 @@ dependencies {
     testImplementation "org.springframework.boot:spring-boot-test"
     testImplementation "org.assertj:assertj-core:${assertj_version}"
     testImplementation "org.junit.jupiter:junit-jupiter-api"
-    testImplementation "org.mockito:mockito-core"
+    testImplementation "org.mockito:mockito-core:$mockito_version"
     testImplementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     testImplementation "org.hamcrest:hamcrest-library"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
@@ -233,10 +233,10 @@ dependencies {
 
 dependencyManagement {
     imports {
-        mavenBom "org.springframework:spring-framework-bom:5.3.12"
-        mavenBom "org.springframework.boot:spring-boot-dependencies:2.5.6"
-        mavenBom 'org.springframework.data:spring-data-bom:2021.0.6'
-        mavenBom "org.springframework.session:spring-session-bom:2021.0.2"
+        mavenBom "org.springframework:spring-framework-bom:$spring_framework_version"
+        mavenBom "org.springframework.boot:spring-boot-dependencies:$spring_boot_version"
+        mavenBom "org.springframework.data:spring-data-bom:$spring_data_version"
+        mavenBom "org.springframework.session:spring-session-bom:$spring_session_version"
     }
 }
 
@@ -249,7 +249,7 @@ task cleanResources(type: Delete) {
 }
 
 wrapper {
-    gradleVersion '7.3'
+    gradleVersion '7.3.3'
 }
 
 task stage(dependsOn: 'bootWar') {
@@ -326,3 +326,14 @@ if (project.hasProperty('dev')) {
     gradle.addListener new TimingsListener()
 }
 
+def isNonStable = { String version ->
+    def stableKeyword = ["RELEASE", "FINAL", "GA"].any { version.toUpperCase().contains(it) }
+    def regex = /^[0-9,.v-]+(-r)?$/
+    return !stableKeyword && !(version ==~ regex)
+}
+
+tasks.named("dependencyUpdates").configure {
+    rejectVersionIf {
+        isNonStable(it.candidate.version)
+    }
+}

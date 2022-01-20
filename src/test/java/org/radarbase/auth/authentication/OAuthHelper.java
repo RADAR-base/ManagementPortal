@@ -22,6 +22,7 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
@@ -149,13 +150,15 @@ public final class OAuthHelper {
      */
     public static TokenValidator createTokenValidator() {
         // Use tokenValidator with known JWTVerifier which signs.
-        //noinspection deprecation
-        return new TokenValidator(verifiers, getDummyValidatorConfig());
+        return new TokenValidator.Builder()
+                .verifiers(verifiers)
+                .config(getDummyValidatorConfig())
+                .fetchTimeout(Duration.ofHours(1))
+                .build();
     }
 
     private static TokenValidatorConfig getDummyValidatorConfig() {
         return new TokenValidatorConfig() {
-
             @Override
             public List<URI> getPublicKeyEndpoints() {
                 return Collections.emptyList();
@@ -164,11 +167,6 @@ public final class OAuthHelper {
             @Override
             public String getResourceName() {
                 return "ISS";
-            }
-
-            @Override
-            public List<String> getPublicKeys() {
-                return Collections.emptyList();
             }
         };
     }

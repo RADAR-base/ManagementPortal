@@ -3,7 +3,7 @@ package org.radarbase.management.service.mapper.decorator;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.repository.OrganizationRepository;
 import org.radarbase.management.repository.ProjectRepository;
-import org.radarbase.management.service.OAuthClientService;
+import org.radarbase.management.service.MetaTokenService;
 import org.radarbase.management.service.dto.MinimalProjectDetailsDTO;
 import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.service.mapper.ProjectMapper;
@@ -34,7 +34,7 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
     private ProjectRepository projectRepository;
 
     @Autowired
-    private OAuthClientService oAuthClientService;
+    private MetaTokenService metaTokenService;
 
     @Override
     public ProjectDTO projectToProjectDTO(Project project) {
@@ -47,7 +47,7 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
 
         try {
             dto.setPersistentTokenTimeout(
-                    oAuthClientService.getMetaTokenTimeout(true, project).toMillis());
+                    metaTokenService.getMetaTokenTimeout(true, project).toMillis());
         } catch (BadRequestException ex) {
             dto.setPersistentTokenTimeout(null);
         }

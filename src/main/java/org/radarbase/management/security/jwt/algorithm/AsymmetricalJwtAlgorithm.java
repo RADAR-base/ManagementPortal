@@ -1,9 +1,9 @@
 package org.radarbase.management.security.jwt.algorithm;
 
 import java.security.KeyPair;
+import java.util.Base64;
 
 import org.radarbase.auth.security.jwk.JavaWebKey;
-import org.springframework.security.crypto.codec.Base64;
 
 public abstract class AsymmetricalJwtAlgorithm implements JwtAlgorithm {
 
@@ -25,7 +25,7 @@ public abstract class AsymmetricalJwtAlgorithm implements JwtAlgorithm {
     @Override
     public String getVerifierKeyEncodedString() {
         return getEncodedStringHeader() + '\n'
-                + new String(Base64.encode(keyPair.getPublic().getEncoded()))
+                + new String(Base64.getEncoder().encode(keyPair.getPublic().getEncoded()))
                 + '\n' + getEncodedStringFooter();
     }
 

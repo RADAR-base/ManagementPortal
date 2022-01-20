@@ -22,6 +22,7 @@ import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.domain.User;
+import org.radarbase.management.service.MetaTokenService;
 import org.radarbase.management.service.OAuthClientService;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.SubjectService;
@@ -61,6 +62,9 @@ public class OAuthClientsResource {
 
     @Autowired
     private OAuthClientService oAuthClientService;
+
+    @Autowired
+    private MetaTokenService metaTokenService;
 
     @Autowired
     private ClientDetailsMapper clientDetailsMapper;
@@ -205,7 +209,7 @@ public class OAuthClientsResource {
         // Users who can update a subject can also generate a refresh token for that subject
         checkPermissionOnSubject(token, SUBJECT_UPDATE, project, login);
 
-        ClientPairInfoDTO cpi = oAuthClientService.createMetaToken(subject, clientId, persistent);
+        ClientPairInfoDTO cpi = metaTokenService.createMetaToken(subject, clientId, persistent);
         // generate audit event
         eventRepository.add(new AuditEvent(currentUser.getLogin(), "PAIR_CLIENT_REQUEST",
                 "client_id=" + clientId, "subject_login=" + login));
