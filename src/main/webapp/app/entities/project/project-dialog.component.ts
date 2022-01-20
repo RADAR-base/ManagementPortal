@@ -1,7 +1,7 @@
 import { combineLatest, merge, Observable, Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import {ActivatedRoute, Params, Router} from '@angular/router';
 
 import { NgbActiveModal, NgbCalendar, NgbDate, NgbDateParserFormatter, NgbDateStruct, NgbModalRef, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 
@@ -49,7 +49,8 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
             private eventManager: EventManager,
             private groupService: GroupService,
             private calendar: NgbCalendar,
-            public formatter: NgbDateParserFormatter
+            public formatter: NgbDateParserFormatter,
+            private router: Router,
     ) {
         this.isSaving = false;
         this.options = ['Work-package', 'Phase', 'External-project-url', 'External-project-id', 'Privacy-policy-url'];
@@ -129,6 +130,9 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
     };
 
     private onSaveSuccess(result: Project) {
+        if(history.state?.parentComponent === 'project-detail') {
+            this.router.navigate(['/project', result.projectName]);
+        }
         this.eventManager.broadcast({name: 'projectListModification', content: 'OK'});
         this.isSaving = false;
         this.activeModal.dismiss(result);

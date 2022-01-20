@@ -5,7 +5,7 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { copyProject, Project, ProjectService } from '../../shared';
 import { Observable, of, throwError } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectPopupService {
@@ -27,11 +27,12 @@ export class ProjectPopupService {
 
         if (projectName) {
             return this.projectService.find(projectName).pipe(
-              map((project) => {
-                project.startDate = this.datePipe.transform(project.startDate, 'yyyy-MM-ddThh:mm');
-                project.endDate = this.datePipe.transform(project.endDate, 'yyyy-MM-ddThh:mm');
-                return this.projectModalRef(component, organizationName, project);
-              }),
+                map((project) => {
+                    project.startDate = this.datePipe.transform(project.startDate, 'yyyy-MM-ddThh:mm');
+                    project.endDate = this.datePipe.transform(project.endDate, 'yyyy-MM-ddThh:mm');
+                    return this.projectModalRef(component, organizationName, project);
+                }),
+                first(),
             );
         } else if (organizationName) {
             return of(this.projectModalRef(component, organizationName, {}));

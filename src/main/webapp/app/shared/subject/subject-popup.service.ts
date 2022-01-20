@@ -6,7 +6,7 @@ import { ProjectService } from '../project/project.service';
 import { Subject, SubjectStatus } from './subject.model';
 import { SubjectService } from './subject.service';
 import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class SubjectPopupService {
@@ -29,15 +29,17 @@ export class SubjectPopupService {
 
         if (login) {
             return this.subjectService.find(login).pipe(
-              map((subject: Subject) => this.subjectModalRef(component, subject, isDelete)),
+                map((subject: Subject) => this.subjectModalRef(component, subject, isDelete)),
+                first(),
             );
         } else if (projectName) {
             return this.projectService.find(projectName).pipe(
-              map((project) => this.subjectModalRef(component, {
+                map((project) => this.subjectModalRef(component, {
                     project,
                     sources: [],
                     status: SubjectStatus.ACTIVATED,
                 }, isDelete)),
+                first(),
             );
         } else {
             return of(this.subjectModalRef(component, {

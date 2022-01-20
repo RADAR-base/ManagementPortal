@@ -1,25 +1,10 @@
-import {
-    Component,
-    Input,
-    OnDestroy,
-    OnInit,
-} from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, } from '@angular/core';
 
 import { Project, User, UserService } from '..';
 import { EventManager } from '../util/event-manager.service';
-import { BehaviorSubject, combineLatest, Subject, Subscription } from "rxjs";
-import {
-    debounceTime,
-    distinctUntilChanged,
-    filter,
-    first,
-    map,
-    pluck,
-    startWith,
-    switchMap,
-    tap
-} from "rxjs/operators";
-import { ActivatedRoute, Router } from "@angular/router";
+import { BehaviorSubject, combineLatest, Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, first, map, pluck, startWith, switchMap, tap } from 'rxjs/operators';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
     selector: 'jhi-common-user-mgmt',

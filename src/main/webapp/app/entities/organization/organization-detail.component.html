@@ -8,6 +8,7 @@
             <button *ngIf="userRoles.organizationAdmin"
                     type="button"
                     [routerLink]="['/', { outlets: { popup: 'organization/'+ organization.name + '/edit'} }]"
+                    [state]="{ parentComponent:'organization-detail'}"
                     replaceUrl="true"
                     class="btn btn-primary float-right">
                 <span class="fa fa-pencil"></span>&nbsp;<span [translate]="'entity.action.edit'"></span>

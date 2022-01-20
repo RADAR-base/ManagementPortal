@@ -5,7 +5,7 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ProjectService } from '../project/project.service';
 import { Source } from './source.model';
 import { SourceService } from './source.service';
-import { map } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -29,6 +29,7 @@ export class SourcePopupService {
         if (sourceName) {
             return this.sourceService.find(sourceName).pipe(
                 map((source) => this.sourceModalRef(component, source)),
+                first(),
             );
         } else if (projectName) {
             return this.projectService.find(projectName).pipe(
@@ -37,6 +38,7 @@ export class SourcePopupService {
                     source.project = project;
                     return this.sourceModalRef(component, source);
                 }),
+                first(),
             );
         } else {
             return throwError("Cannot create source modal without source or project")

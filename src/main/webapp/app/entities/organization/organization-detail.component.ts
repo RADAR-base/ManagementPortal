@@ -3,14 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { combineLatest, Observable } from 'rxjs';
 import { Organization, OrganizationService, Principal } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
-import {
-    distinctUntilChanged,
-    filter,
-    map,
-    pluck,
-    shareReplay,
-    switchMap
-} from 'rxjs/operators';
+import { distinctUntilChanged, filter, map, pluck, shareReplay, switchMap } from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-organization-detail',

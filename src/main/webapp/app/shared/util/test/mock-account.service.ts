@@ -1,6 +1,3 @@
-import { Observable, of } from 'rxjs';
-import { Account } from '../../user/account.model';
-
 export class MockAccountService {
 
     get: any;

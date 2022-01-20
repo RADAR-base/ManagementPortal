@@ -2,11 +2,10 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
-import { JhiLanguageHelper } from '../../shared';
+import { AccountService, JhiLanguageHelper, Principal } from '../../shared';
 import { MockAccountService } from '../../shared/util/test/mock-account.service';
 import { MockPrincipal } from '../../shared/util/test/mock-principal.service';
 import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
-import { Principal, AccountService } from '../../shared';
 import { SettingsComponent } from './settings.component';
 
 describe('Component Tests', () => {

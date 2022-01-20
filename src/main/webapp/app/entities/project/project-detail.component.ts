@@ -4,15 +4,7 @@ import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
 
 import { Account, Principal, Project, ProjectService } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
-import {
-    distinctUntilChanged,
-    filter,
-    map,
-    pluck,
-    shareReplay,
-    startWith,
-    switchMap
-} from 'rxjs/operators';
+import { distinctUntilChanged, filter, map, pluck, shareReplay, startWith, switchMap } from 'rxjs/operators';
 
 interface TabOptions {
     active: string | null;
@@ -67,6 +59,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             relativeTo: this.activatedRoute,
             queryParams: { tab: activeTab },
             queryParamsHandling: "merge",
+            // Don't store the first iteration, where the active tab is not in the URL yet.
             replaceUrl: index === 0,
         }));
     }
