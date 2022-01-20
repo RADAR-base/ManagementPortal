@@ -118,6 +118,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         .collect(Collectors.toSet());
                 token = token.withRoles(roles);
             } else {
+                session.removeAttribute(TOKEN_ATTRIBUTE);
                 httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 httpResponse.setHeader(HttpHeaders.WWW_AUTHENTICATE, OAuth2AccessToken.BEARER_TYPE);
                 httpResponse.getOutputStream().println(
