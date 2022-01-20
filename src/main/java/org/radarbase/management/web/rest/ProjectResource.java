@@ -57,9 +57,12 @@ import static org.radarbase.auth.authorization.Permission.PROJECT_UPDATE;
 import static org.radarbase.auth.authorization.Permission.ROLE_READ;
 import static org.radarbase.auth.authorization.Permission.SOURCE_READ;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkGlobalPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganization;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganizationAndProject;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
+import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_PROJECT_NOT_EMPTY;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
 
@@ -109,7 +112,7 @@ public class ProjectResource {
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Project : {}", projectDto);
         var org = projectDto.getOrganization();
-        if (org == null) {
+        if (org == null || org.getName() == null) {
             throw new BadRequestException("Organization must be provided",
                     ENTITY_NAME, ERR_VALIDATION);
         }
@@ -147,24 +150,25 @@ public class ProjectResource {
         log.debug("REST request to update Project : {}", projectDto);
         if (projectDto.getId() == null) {
             return createProject(projectDto);
-        }       
+        }
         // When a client wants to link the project to the default organization,
         // this must be done explicitly.
         var org = projectDto.getOrganization();
-        if (org == null) {
+        if (org == null || org.getName() == null) {
             throw new BadRequestException("Organization must be provided",
                     ENTITY_NAME, ERR_VALIDATION);
         }
         // When clients want to transfer a project,
         // they must have permissions to modify both new & old organizations
         var newOrgName = org.getName();
-        checkPermissionOnOrganizationAndProject(token, PROJECT_UPDATE, newOrgName,
-                projectDto.getProjectName());
         var existingProject = projectService.findOne(projectDto.getId());
+        checkPermissionOnOrganizationAndProject(token, PROJECT_UPDATE, newOrgName,
+                existingProject.getProjectName());
+
         var oldOrgName = existingProject.getOrganization().getName();
-        if (!oldOrgName.equals(newOrgName)) {
-            checkPermissionOnOrganizationAndProject(token, ORGANIZATION_UPDATE, oldOrgName);
-            checkPermissionOnOrganizationAndProject(token, ORGANIZATION_UPDATE, newOrgName);
+        if (!newOrgName.equals(oldOrgName)) {
+            checkPermissionOnOrganization(token, PROJECT_UPDATE, oldOrgName);
+            checkPermissionOnOrganization(token, PROJECT_UPDATE, newOrgName);
         }
 
         ProjectDTO result = projectService.save(projectDto);

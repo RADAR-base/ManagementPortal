@@ -1,13 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { Principal } from '../../shared';
 import { Password } from './password.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'jhi-password',
     templateUrl: './password.component.html',
 })
-export class PasswordComponent {
+export class PasswordComponent implements OnDestroy {
     doNotMatch: string;
     weakPassword: string;
     error: string;
@@ -15,10 +16,16 @@ export class PasswordComponent {
     password: string;
     confirmPassword: string;
 
+    private subscriptions = new Subscription();
+
     constructor(
       private passwordService: Password,
       public principal: Principal,
     ) {
+    }
+
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
     }
 
     changePassword() {
@@ -34,12 +41,10 @@ export class PasswordComponent {
         }
 
         if (this.weakPassword == null && this.doNotMatch == null) {
-            this.passwordService.save(this.password)
-                .subscribe(() => {
-                    this.success = 'OK';
-                }, () => {
-                    this.error = 'ERROR';
-                });
+            this.subscriptions.add(this.passwordService.save(this.password).subscribe(
+                () => this.success = 'OK',
+                () => this.error = 'ERROR',
+            ));
         }
     }
 }

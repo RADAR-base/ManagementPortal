@@ -6,6 +6,7 @@ import { AuthService, StateStorageService } from '..';
 import { EventManager } from '../util/event-manager.service';
 
 import { LoginService } from './login.service';
+import { first } from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-login-modal',
@@ -49,7 +50,7 @@ export class JhiLoginModalComponent implements AfterViewInit {
             username: this.username,
             password: this.password,
             rememberMe: this.rememberMe,
-        }).then(() => {
+        }).pipe(first()).toPromise().then(() => {
             this.authenticationError = false;
             this.activeModal.dismiss('login success');
             if (this.router.url === '/register' || (/activate/.test(this.router.url)) ||

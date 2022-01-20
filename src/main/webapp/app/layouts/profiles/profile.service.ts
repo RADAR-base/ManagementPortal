@@ -1,30 +1,38 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs/operators';
+import { first, map, switchMap, tap } from 'rxjs/operators';
 
 import { ProfileInfo } from './profile-info.model';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+
+interface MinimalProfileInfo {
+    activeProfiles: string[],
+}
 
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
-
     private profileInfoUrl = 'api/profile-info';
-    private profileInfo: Promise<ProfileInfo>;
+    private _activeProfiles$: BehaviorSubject<MinimalProfileInfo | null> = new BehaviorSubject(null);
+    profileInfo$: Observable<ProfileInfo>
 
     constructor(private http: HttpClient) {
-    }
-
-    getProfileInfo(): Promise<ProfileInfo> {
-        if (!this.profileInfo) {
-            this.profileInfo = this.http.get<ProfileInfo>(this.profileInfoUrl)
-                .pipe(map(data => {
-                    const pi = new ProfileInfo();
-                    pi.activeProfiles = data.activeProfiles;
-                    pi.ribbonEnv = data.activeProfiles.includes('dev') ? 'dev' : ''
-                    pi.inProduction = data.activeProfiles.includes('prod');
-                    pi.apiDocsEnabled = data.activeProfiles.includes('api-docs');
-                    return pi;
-                })).toPromise();
-        }
-        return this.profileInfo;
+        this.profileInfo$ = this._activeProfiles$.pipe(
+            first(),
+            switchMap(p => {
+                if (!p) {
+                    return this.http.get<MinimalProfileInfo>(this.profileInfoUrl).pipe(
+                        tap(p => this._activeProfiles$.next(p)),
+                    )
+                } else {
+                    return of(p);
+                }
+            }),
+            map(p => ({
+                activeProfiles: p.activeProfiles,
+                ribbonEnv: p.activeProfiles.includes('dev') ? 'dev' : '',
+                inProduction: p.activeProfiles.includes('prod'),
+                apiDocsEnabled: p.activeProfiles.includes('api-docs'),
+            })),
+        );
     }
 }

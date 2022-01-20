@@ -76,6 +76,24 @@ public final class RadarAuthorization {
     }
 
     /**
+     * Similar to {@link RadarToken#hasGlobalPermission(Permission)}, but this method throws an
+     * exception rather than returning a boolean. Useful in combination with e.g. Spring's
+     * controllers and exception translators.
+     * @param token The token of the authenticated client
+     * @param permission The permission to check
+     * @throws NotAuthorizedException if the supplied token does not have the permission
+     */
+    public static void checkGlobalPermission(RadarToken token, Permission permission)
+            throws NotAuthorizedException {
+        log.debug("Checking global permission {} for user {}", permission.toString(),
+                token.getUsername());
+        if (!token.hasGlobalPermission(permission)) {
+            throw new NotAuthorizedException(String.format("Client %s does not have "
+                    + "permission %s", token.getUsername(), permission));
+        }
+    }
+
+    /**
      * Similar to {@link RadarToken#hasPermissionOnOrganization(Permission, String)},
      * but this method throws an exception rather than returning a boolean.
      * Useful in combination with e.g. Spring's controllers and exception translators.

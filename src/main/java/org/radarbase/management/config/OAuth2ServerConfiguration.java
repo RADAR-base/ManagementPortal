@@ -1,6 +1,7 @@
 package org.radarbase.management.config;
 
 import org.radarbase.auth.authorization.RoleAuthority;
+import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.security.ClaimsTokenEnhancer;
 import org.radarbase.management.security.Http401UnauthorizedEntryPoint;
 import org.radarbase.management.security.JwtAuthenticationFilter;
@@ -26,6 +27,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -59,6 +61,9 @@ public class OAuth2ServerConfiguration {
     @Autowired
     private DataSource dataSource;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Configuration
     @Order(-20)
     protected static class LoginConfig extends WebSecurityConfigurerAdapter {
@@ -87,7 +92,7 @@ public class OAuth2ServerConfiguration {
     @Bean
     public JdbcClientDetailsService jdbcClientDetailsService() {
         JdbcClientDetailsService clientDetailsService = new JdbcClientDetailsService(dataSource);
-        clientDetailsService.setPasswordEncoder(new BCryptPasswordEncoder());
+        clientDetailsService.setPasswordEncoder(passwordEncoder);
         return clientDetailsService;
     }
 
@@ -112,9 +117,12 @@ public class OAuth2ServerConfiguration {
         @Autowired
         private AuthenticationManager authenticationManager;
 
+        @Autowired
+        private UserRepository userRepository;
+
         public JwtAuthenticationFilter jwtAuthenticationFilter() {
             return new JwtAuthenticationFilter(
-                    keyStoreHandler.getTokenValidator(), authenticationManager)
+                    keyStoreHandler.getTokenValidator(), authenticationManager, userRepository)
                     .skipUrlPattern(HttpMethod.GET, "/management/health")
                     .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*");
         }

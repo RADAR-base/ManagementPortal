@@ -1,4 +1,4 @@
-import {MinimalSourceType} from '../source-type/source-type.model';
+import { MinimalSourceType } from '../source-type/source-type.model';
 
 const enum ProcessingState {
     'RAW',
@@ -22,4 +22,11 @@ export class SourceData {
         public sourceType?: MinimalSourceType,
     ) {
     }
+}
+
+export function copySourceData(sourceData: SourceData): SourceData {
+    return {
+        ...sourceData,
+        sourceType: sourceData.sourceType ? {...sourceData.sourceType} : sourceData.sourceType,
+    };
 }

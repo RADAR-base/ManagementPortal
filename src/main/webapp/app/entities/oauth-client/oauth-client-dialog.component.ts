@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
@@ -10,6 +10,8 @@ import { OAuthClientPopupService } from './oauth-client-popup.service';
 import { OAuthClient } from './oauth-client.model';
 import { OAuthClientService } from './oauth-client.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'jhi-oauth-client-dialog',
@@ -122,16 +124,6 @@ export class OAuthClientDialogComponent implements OnInit {
         this.activeModal.dismiss(result);
     }
 
-    private onSaveError(error) {
-        try {
-            error.json();
-        } catch (exception) {
-            error.message = error.text();
-        }
-        this.isSaving = false;
-        this.onError(error);
-    }
-
     private onError(error) {
         this.alertService.error(error.message, null, null);
     }
@@ -152,25 +144,15 @@ export class OAuthClientDialogComponent implements OnInit {
     selector: 'jhi-oauth-client-popup',
     template: '',
 })
-export class OAuthClientPopupComponent implements OnInit, OnDestroy {
-
-    modalRef: NgbModalRef;
-    routeSub: any;
-
+export class OAuthClientPopupComponent extends ObservablePopupComponent {
     constructor(
-            private route: ActivatedRoute,
+            route: ActivatedRoute,
             private oauthClientPopupService: OAuthClientPopupService,
     ) {
+        super(route);
     }
 
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            this.modalRef = this.oauthClientPopupService
-                    .open(OAuthClientDialogComponent, params['clientId']);
-        });
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.oauthClientPopupService.open(OAuthClientDialogComponent, params['clientId']);
     }
 }

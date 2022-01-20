@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component } from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
@@ -8,6 +8,8 @@ import { SourceTypePopupService } from './source-type-popup.service';
 
 import { SourceType } from './source-type.model';
 import { SourceTypeService } from './source-type.service';
+import { Observable } from 'rxjs';
+import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
 
 @Component({
     selector: 'jhi-source-type-delete-dialog',
@@ -43,25 +45,15 @@ export class SourceTypeDeleteDialogComponent {
     selector: 'jhi-source-type-delete-popup',
     template: '',
 })
-export class SourceTypeDeletePopupComponent implements OnInit, OnDestroy {
-
-    modalRef: NgbModalRef;
-    routeSub: any;
-
+export class SourceTypeDeletePopupComponent extends ObservablePopupComponent {
     constructor(
-            private route: ActivatedRoute,
+            route: ActivatedRoute,
             private sourceTypePopupService: SourceTypePopupService,
     ) {
+        super(route);
     }
 
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            this.modalRef = this.sourceTypePopupService
-                    .open(SourceTypeDeleteDialogComponent, params['sourceTypeProducer'], params['sourceTypeModel'], params['catalogVersion']);
-        });
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.sourceTypePopupService.open(SourceTypeDeleteDialogComponent, params['sourceTypeProducer'], params['sourceTypeModel'], params['catalogVersion']);
     }
 }

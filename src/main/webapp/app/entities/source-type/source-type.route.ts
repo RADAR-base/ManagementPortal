@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { UserRouteAccessService } from '../../shared';
-import { PROJECT_ADMIN, SYSTEM_ADMIN } from '../../shared/constants/common.constants';
+import {ORGANIZATION_ADMIN, PROJECT_ADMIN, SYSTEM_ADMIN} from '../../shared/constants/common.constants';
 import { SourceTypeDeletePopupComponent } from './source-type-delete-dialog.component';
 import { SourceTypeDetailComponent } from './source-type-detail.component';
 import { SourceTypePopupComponent } from './source-type-dialog.component';
@@ -26,7 +26,7 @@ export const sourceTypeRoute: Routes = [
         path: 'source-type/:sourceTypeProducer/:sourceTypeModel/:catalogVersion',
         component: SourceTypeDetailComponent,
         data: {
-            authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
+            authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
             pageTitle: 'managementPortalApp.sourceType.home.title',
         },
         canActivate: [UserRouteAccessService],
@@ -38,7 +38,7 @@ export const sourceTypePopupRoute: Routes = [
         path: 'source-type-new',
         component: SourceTypePopupComponent,
         data: {
-            authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
+            authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
             pageTitle: 'managementPortalApp.sourceType.home.title',
         },
         canActivate: [UserRouteAccessService],
@@ -48,7 +48,7 @@ export const sourceTypePopupRoute: Routes = [
         path: 'source-type/:sourceTypeProducer/:sourceTypeModel/:catalogVersion/edit',
         component: SourceTypePopupComponent,
         data: {
-            authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
+            authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
             pageTitle: 'managementPortalApp.sourceType.home.title',
         },
         canActivate: [UserRouteAccessService],

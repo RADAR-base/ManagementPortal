@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component } from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
@@ -8,13 +8,14 @@ import { SourceDataPopupService } from './source-data-popup.service';
 
 import { SourceData } from './source-data.model';
 import { SourceDataService } from './source-data.service';
+import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'jhi-source-data-delete-dialog',
     templateUrl: './source-data-delete-dialog.component.html',
 })
 export class SourceDataDeleteDialogComponent {
-
     sourceData: SourceData;
 
     constructor(
@@ -43,25 +44,15 @@ export class SourceDataDeleteDialogComponent {
     selector: 'jhi-source-data-delete-popup',
     template: '',
 })
-export class SourceDataDeletePopupComponent implements OnInit, OnDestroy {
-
-    modalRef: NgbModalRef;
-    routeSub: any;
-
+export class SourceDataDeletePopupComponent extends ObservablePopupComponent {
     constructor(
-            private route: ActivatedRoute,
+            route: ActivatedRoute,
             private sourceDataPopupService: SourceDataPopupService,
     ) {
+        super(route);
     }
 
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            this.modalRef = this.sourceDataPopupService
-                    .open(SourceDataDeleteDialogComponent, params['sourceDataName']);
-        });
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.sourceDataPopupService.open(SourceDataDeleteDialogComponent, params['sourceDataName']);
     }
 }

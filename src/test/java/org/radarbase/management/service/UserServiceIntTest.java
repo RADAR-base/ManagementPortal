@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.radarbase.auth.config.Constants;
+import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.Role;
@@ -138,7 +139,7 @@ public class UserServiceIntTest {
     }
 
     @Test
-    void assertThatOnlyActivatedUserCanRequestPasswordReset() {
+    void assertThatOnlyActivatedUserCanRequestPasswordReset() throws NotAuthorizedException {
         User user = userService.createUser(userDto);
         Optional<User> maybeUser = userService.requestPasswordReset(userDto.getEmail());
         assertThat(maybeUser).isNotPresent();
@@ -146,7 +147,7 @@ public class UserServiceIntTest {
     }
 
     @Test
-    void assertThatResetKeyMustNotBeOlderThan24Hours() {
+    void assertThatResetKeyMustNotBeOlderThan24Hours() throws NotAuthorizedException {
         User user = userService.createUser(userDto);
 
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(25);
@@ -166,7 +167,7 @@ public class UserServiceIntTest {
     }
 
     @Test
-    void assertThatResetKeyMustBeValid() {
+    void assertThatResetKeyMustBeValid() throws NotAuthorizedException {
         User user = userService.createUser(userDto);
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(25);
         user.setActivated(true);
@@ -180,7 +181,7 @@ public class UserServiceIntTest {
     }
 
     @Test
-    void assertThatUserCanResetPassword() {
+    void assertThatUserCanResetPassword() throws NotAuthorizedException {
         User user = userService.createUser(userDto);
         final String oldPassword = user.getPassword();
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(2);
@@ -242,7 +243,8 @@ public class UserServiceIntTest {
     @Test
     void assertThatAnonymousUserIsNotGet() {
         final PageRequest pageable = PageRequest.of(0, (int) userRepository.count());
-        final Page<UserDTO> allManagedUsers = userService.findUsers(new UserFilter(), pageable);
+        final Page<UserDTO> allManagedUsers = userService.findUsers(new UserFilter(), pageable,
+                false);
         assertThat(allManagedUsers.getContent().stream()
                 .noneMatch(user -> Constants.ANONYMOUS_USER.equals(user.getLogin())))
                 .isTrue();

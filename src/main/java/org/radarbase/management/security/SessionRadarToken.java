@@ -36,7 +36,12 @@ public class SessionRadarToken extends AbstractRadarToken implements Serializabl
 
     /** Instantiate a serializable session token by copying an existing RadarToken. */
     public SessionRadarToken(RadarToken token) {
-        this.roles = Set.copyOf(token.getRoles());
+        this(token, token.getRoles());
+    }
+
+    /** Instantiate a serializable session token by copying an existing RadarToken. */
+    private SessionRadarToken(RadarToken token, Set<AuthorityReference> roles) {
+        this.roles = Set.copyOf(roles);
         this.subject = token.getSubject();
         this.token = token.getToken();
         this.scopes = List.copyOf(token.getScopes());
@@ -124,11 +129,27 @@ public class SessionRadarToken extends AbstractRadarToken implements Serializabl
 
     @Override
     public List<String> getClaimList(String name) {
-        return null;
+        return List.of();
     }
 
     @Override
     public String getUsername() {
         return username;
+    }
+
+    public SessionRadarToken withRoles(Set<AuthorityReference> roles) {
+        return new SessionRadarToken(this, roles);
+    }
+
+    /**
+     * Create a new token.
+     * @return null if provided null, a session radar token otherwise.
+     */
+    public static SessionRadarToken from(RadarToken token) {
+        if (token == null) {
+            return null;
+        } else {
+            return new SessionRadarToken(token);
+        }
     }
 }

@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
-import { Project, User, UserService } from '../../shared';
+import { User, UserService } from '../../shared';
 import { SYSTEM_ADMIN } from '../../shared/constants/common.constants';
-import { Role } from './role.model';
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class UserModalService {
@@ -17,7 +18,7 @@ export class UserModalService {
     ) {
     }
 
-    open(component: any, login?: string, admin?: boolean): NgbModalRef {
+    open(component: any, login?: string, admin?: boolean): Observable<NgbModalRef> {
         if (this.isOpen) {
             return;
         }
@@ -30,19 +31,15 @@ export class UserModalService {
                     authorityName: SYSTEM_ADMIN
                 }],
             }
-            return this.userModalRef(component, user, true);
+            return of(this.userModalRef(component, user, true));
         }
 
         if (login) {
-            this.userService.find(login)
-            .subscribe((user) => {
-                if (user.authorities.indexOf(SYSTEM_ADMIN) > -1) {
-                    return this.userModalRef(component, user, true);
-                }
-                return this.userModalRef(component, user, false);
-            });
+            return this.userService.find(login).pipe(
+              map((user) => this.userModalRef(component, user, user.authorities.indexOf(SYSTEM_ADMIN) > -1)),
+            );
         } else {
-            return this.userModalRef(component, { authorities: [] }, false);
+            return of(this.userModalRef(component, { authorities: [] }, false));
         }
     }
 

@@ -14,18 +14,15 @@
             </div>
 
             <div class="card-columns ">
-                <div class="card mb-3" *ngFor="let project of projectService.projects$ | async;" [routerLink]="['../project', project.projectName ]">
-
+                <div class="card mb-3" *ngFor="let organization of organizationService.organizations$ | async;" [routerLink]="['../organization', organization.name ]">
                     <div class="card-body text-center">
-                        <h5 class="card-title" style="text-transform: uppercase"> {{project.projectName}}</h5>
-                        <h6 class="card-subtitle text-center mb-2 text-muted">{{project.organization}} : {{project.location}} </h6>
-                        <p class="card-text"> {{project.description}}
-
+                        <h5 class="card-title" style="text-transform: uppercase"> {{organization.name}}</h5>
+                        <h6 class="card-subtitle text-center mb-2 text-muted">{{organization.location}} </h6>
+                        <p class="card-text"> {{organization.description}}
                     </div>
-
                     <footer class="card-footer  text-center">
                         <button type="button"
-                                [routerLink]="['../project', project.projectName ]"
+                                [routerLink]="['../organization', organization.name ]"
                                 [queryParams]="{page: 1}"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>
@@ -33,10 +30,9 @@
                         </button>
                     </footer>
 
-                </div>
             </div>
         </div>
-
+        </div>
         <ng-template #unauthenticated>
             <div class="alert alert-warning">
                 <span [translate]="'global.messages.info.authenticated.prefix'"></span>

@@ -172,15 +172,10 @@ public class SubjectService {
                 .orElseGet(() -> {
                     Role subjectRole = new Role();
                     Authority auth = authorityRepository.findByAuthorityName(authority.authority())
-                            .orElseGet(() -> {
-                                var a = new Authority(authority);
-                                authorityRepository.save(a);
-                                return a;
-                            });
+                            .orElseGet(() -> authorityRepository.save(new Authority(authority)));
                     subjectRole.setAuthority(auth);
                     subjectRole.setProject(project);
-                    roleRepository.save(subjectRole);
-                    return subjectRole;
+                    return roleRepository.save(subjectRole);
                 });
     }
 

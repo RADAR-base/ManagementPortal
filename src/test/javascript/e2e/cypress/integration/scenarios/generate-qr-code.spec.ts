@@ -3,7 +3,8 @@ import { login } from '../util/login';
 describe('Project view: Generate QR code', () => {
     beforeEach(() => {
         login();
-        cy.contains('jhi-home .card-title', 'radar').click();
+        cy.contains('jhi-home .card-title', 'main').click();
+        cy.contains('jhi-projects table tbody td a', 'radar').click();
     });
 
     it('should open pair app dialog', () => {

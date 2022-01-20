@@ -15,6 +15,7 @@ import {
     projectRoute,
 } from './';
 import {ManagementPortalSharedGroupModule} from "../../shared/group/group.module";
+import {ManagementPortalSharedPermissionModule} from "../../shared/permission/permissions.module";
 
 const ENTITY_STATES = [
     ...projectRoute,
@@ -28,6 +29,7 @@ const ENTITY_STATES = [
         ManagementPortalSharedSubjectModule,
         ManagementPortalSharedGroupModule,
         RouterModule.forRoot(ENTITY_STATES, {useHash: true}),
+        ManagementPortalSharedPermissionModule,
     ],
     declarations: [
         ProjectComponent,
@@ -43,6 +45,9 @@ const ENTITY_STATES = [
         ProjectPopupComponent,
         ProjectDeleteDialogComponent,
         ProjectDeletePopupComponent,
+    ],
+    exports: [
+        ProjectComponent,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

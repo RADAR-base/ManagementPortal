@@ -5,6 +5,8 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ProjectService } from '../project/project.service';
 import { Subject, SubjectStatus } from './subject.model';
 import { SubjectService } from './subject.service';
+import { Observable, of } from 'rxjs';
+import { first, map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class SubjectPopupService {
@@ -19,25 +21,31 @@ export class SubjectPopupService {
     ) {
     }
 
-    open(component: any, login?: string, isDelete?: boolean, projectName?: string): NgbModalRef {
+    open(component: any, login?: string, isDelete?: boolean, projectName?: string): Observable<NgbModalRef> {
         if (this.isOpen) {
             return;
         }
         this.isOpen = true;
 
         if (login) {
-            this.subjectService.find(login).subscribe((subject: Subject) => {
-                this.subjectModalRef(component, subject, isDelete);
-            });
+            return this.subjectService.find(login).pipe(
+                map((subject: Subject) => this.subjectModalRef(component, subject, isDelete)),
+                first(),
+            );
         } else if (projectName) {
-            this.projectService.find(projectName).subscribe((project) => {
-                const subject = {
+            return this.projectService.find(projectName).pipe(
+                map((project) => this.subjectModalRef(component, {
                     project,
                     sources: [],
                     status: SubjectStatus.ACTIVATED,
-                };
-                return this.subjectModalRef(component, subject, isDelete);
-            });
+                }, isDelete)),
+                first(),
+            );
+        } else {
+            return of(this.subjectModalRef(component, {
+                sources: [],
+                status: SubjectStatus.ACTIVATED,
+            }, isDelete));
         }
     }
 

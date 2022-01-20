@@ -1,8 +1,26 @@
 package org.radarbase.management.security.jwt;
 
-import static org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL;
-
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import org.radarbase.auth.authentication.TokenValidator;
+import org.radarbase.auth.config.TokenValidatorConfig;
+import org.radarbase.auth.security.jwk.JavaWebKeySet;
+import org.radarbase.management.config.ManagementPortalProperties;
+import org.radarbase.management.security.jwt.algorithm.EcdsaJwtAlgorithm;
+import org.radarbase.management.security.jwt.algorithm.JwtAlgorithm;
+import org.radarbase.management.security.jwt.algorithm.RsaJwtAlgorithm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.servlet.ServletContext;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,30 +43,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import javax.servlet.ServletContext;
-import org.radarbase.auth.authentication.AlgorithmLoader;
-import org.radarbase.auth.authentication.TokenValidator;
-import org.radarbase.auth.config.TokenValidatorConfig;
-import org.radarbase.auth.config.TokenVerifierPublicKeyConfig;
-import org.radarbase.auth.security.jwk.JavaWebKeySet;
-import org.radarbase.management.config.ManagementPortalProperties;
-import org.radarbase.management.security.jwt.algorithm.EcdsaJwtAlgorithm;
-import org.radarbase.management.security.jwt.algorithm.JwtAlgorithm;
-import org.radarbase.management.security.jwt.algorithm.RsaJwtAlgorithm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
+import static java.util.Objects.requireNonNull;
+import static org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL;
 
 /**
  * Similar to Spring's
@@ -77,12 +75,8 @@ public class ManagementPortalOauthKeyStoreHandler {
 
     private final String managementPortalBaseUrl;
 
-    private final TokenValidatorConfig deprecatedValidatedConfig;
-
     private final List<JWTVerifier> verifiers;
     private final List<JWTVerifier> refreshTokenVerifiers;
-
-    private final AlgorithmLoader algorithmLoader = new AlgorithmLoader();
 
     /**
      * Keystore factory. This tries to load the first valid keystore listed in resources.
@@ -105,46 +99,23 @@ public class ManagementPortalOauthKeyStoreHandler {
         this.store = loadedStore.getValue();
         this.verifierPublicKeyAliasList = loadVerifiersPublicKeyAliasList();
 
-        if (managementPortalProperties.getOauth().getEnablePublicKeyVerifiers()) {
-            this.deprecatedValidatedConfig = TokenVerifierPublicKeyConfig.readFromFileOrClasspath();
-        } else {
-            this.deprecatedValidatedConfig = null;
-        }
-
         this.managementPortalBaseUrl = "http://localhost:"
                 + environment.getProperty("server.port")
                 + servletContext.getContextPath();
         logger.info("Using Management Portal base-url {}", this.managementPortalBaseUrl);
 
-        List<Algorithm> algorithms = Stream.concat(
-                loadAlgorithmsFromAlias(),
-                loadDeprecatedAlgorithms())
+        List<Algorithm> algorithms = loadAlgorithmsFromAlias()
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
 
         verifiers = algorithms.stream()
                 .map(algo -> JWT.require(algo).withAudience(RES_MANAGEMENT_PORTAL).build())
-                .collect(Collectors.toList());
+                .toList();
         // No need to check audience with a refresh token: it can be used
         // to refresh tokens intended for other resources.
         refreshTokenVerifiers = algorithms.stream()
                 .map(algo -> JWT.require(algo).build())
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Load deprecated verifiers if configured to load. This may yield no results.
-     * @return deprecated verifiers in a stream.
-     */
-    @SuppressWarnings("deprecation")
-    private Stream<Algorithm> loadDeprecatedAlgorithms() {
-        if (deprecatedValidatedConfig == null) {
-            return Stream.empty();
-        }
-
-        return deprecatedValidatedConfig.getPublicKeys()
-                .stream()
-                .map(algorithmLoader::loadDeprecatedAlgorithmFromPublicKey);
+                .toList();
     }
 
     private static void checkOAuthConfig(ManagementPortalProperties managementPortalProperties) {
@@ -178,7 +149,7 @@ public class ManagementPortalOauthKeyStoreHandler {
                 continue;
             }
             try {
-                String fileName = resource.getFilename().toLowerCase(Locale.US);
+                String fileName = requireNonNull(resource.getFilename()).toLowerCase(Locale.ROOT);
                 String type = fileName.endsWith(".pfx") || fileName.endsWith(".p12")
                         ? "PKCS12" : "jks";
                 KeyStore localStore = KeyStore.getInstance(type);
@@ -213,7 +184,7 @@ public class ManagementPortalOauthKeyStoreHandler {
                 .map(ManagementPortalOauthKeyStoreHandler::getJwtAlgorithm)
                 .filter(Objects::nonNull)
                 .map(JwtAlgorithm::getJwk)
-                .collect(Collectors.toList()));
+                .toList());
     }
 
     /**
@@ -345,7 +316,6 @@ public class ManagementPortalOauthKeyStoreHandler {
 
     private TokenValidatorConfig getKeystoreConfigsForVerifiers() {
         return new TokenValidatorConfig() {
-
             @Override
             public List<URI> getPublicKeyEndpoints() {
                 try {
@@ -360,16 +330,6 @@ public class ManagementPortalOauthKeyStoreHandler {
             @Override
             public String getResourceName() {
                 return RES_MANAGEMENT_PORTAL;
-            }
-
-            // management-portal should support old verifiers to verify refresh-tokens, if
-            // configured. otherwise, use the token_key endpoint only.
-            @Override
-            @SuppressWarnings("deprecation")
-            public List<String> getPublicKeys() {
-                return deprecatedValidatedConfig != null
-                        ? deprecatedValidatedConfig.getPublicKeys()
-                        : Collections.emptyList();
             }
         };
     }

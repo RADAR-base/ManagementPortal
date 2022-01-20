@@ -119,7 +119,7 @@ public class SourceTypeLoader implements CommandLineRunner {
             } else {
                 try {
                     // create new source-type
-                    sourceTypeRepository.save(sourceType);
+                    sourceType = sourceTypeRepository.save(sourceType);
 
                     // create source-data for the new source-type
                     for (CatalogSourceData catalogSourceData : catalogSourceType.getData()) {
