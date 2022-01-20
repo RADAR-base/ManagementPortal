@@ -57,7 +57,10 @@ export class OrganizationService {
     create(organization: Organization): Observable<Organization> {
         return this.http.post(this.organizationUrl(), organization).pipe(
             tap(
-                () => this.reset(),
+                o => this.updateOrganization({
+                    projects: [],
+                    ...o,
+                }),
                 () => this.reset(),
             ),
         );
@@ -123,7 +126,7 @@ export class OrganizationService {
         );
     }
 
-    private updateOrganization(organization: Organization): boolean {
+    private updateOrganization(organization: Organization) {
         const nextValue = this._organizations$.value.slice();
         const idx = nextValue.findIndex(p => p.id === organization.id);
         let needsAuthRenewal = false;
@@ -141,8 +144,7 @@ export class OrganizationService {
         this._organizations$.next(nextValue);
         if (needsAuthRenewal) {
             this.principal.reset();
-        }
-        return needsAuthRenewal;
+        };
     }
 
     findAll(): Observable<Organization[]> {
