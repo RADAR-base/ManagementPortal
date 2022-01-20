@@ -96,9 +96,7 @@ export class ProjectService {
 
     fetch(): Observable<Project[]> {
         return this.query().pipe(
-          map(res => res.body.map(p => {
-              return this.convertProjectFromServer(p)
-          })),
+          map(res => res.body.map(p => this.convertProjectFromServer(p))),
         );
     }
 
