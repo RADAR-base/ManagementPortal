@@ -1,25 +1,19 @@
+import { MinimalProject } from '../project';
 
-export class Organization {
-    constructor(
-        public id?: number,
-        public name?: string,
-        public description?: string,
-        public location?: string,
-    ) {
-    }
+export interface MinimalOrganization {
+    id?: number;
+    name?: string;
 }
 
-export const ORGANIZATIONS: Organization[] = [
-    {
-        id: 1,
-        name: 'The Hyve',
-        description: 'The Hyve description',
-        location: 'Utrecht, The Netherlands'
-    },
-    {
-        id: 2,
-        name: 'Another Organization',
-        description: 'Another organization\'s description',
-        location: 'A City'
+export interface Organization extends MinimalOrganization {
+    description?: string;
+    location?: string;
+    projects?: MinimalProject[];
+}
+
+export function copyOrganization(organization: Organization): Organization {
+    return {
+        ...organization,
+        projects: organization.projects ? organization.projects.map(p => ({...p})) : organization.projects,
     }
-]
+}

@@ -1,23 +1,24 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Principal } from "../auth/principal.service";
 import {
   concatMap,
   delay,
   distinctUntilChanged,
   map,
-  publishReplay,
-  retryWhen, shareReplay,
+  retryWhen,
+  shareReplay,
   switchMap,
   take
 } from "rxjs/operators";
+import { Authority } from "./authority.model";
 
 @Injectable({ providedIn: 'root' })
 export class AuthorityService {
   private resourceUrl = 'api/authorities';
 
-  authorities$: Observable<string[]>
+  authorities$: Observable<Authority[]>
 
   constructor(
     private http: HttpClient,
@@ -36,13 +37,13 @@ export class AuthorityService {
       retryWhen(errors => errors.pipe(
         delay(1000),
         take(10),
-        concatMap(err => of([])))
+        concatMap(() => of([])))
       ),
       shareReplay(1),
     );
   }
 
-  findAll(): Observable<string[]> {
-    return this.http.get<string[]>(this.resourceUrl);
+  findAll(): Observable<Authority[]> {
+    return this.http.get<Authority[]>(this.resourceUrl);
   }
 }

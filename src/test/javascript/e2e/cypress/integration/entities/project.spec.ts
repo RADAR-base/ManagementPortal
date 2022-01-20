@@ -1,15 +1,14 @@
 import { login } from '../util/login';
-import * as navBarPage from '../util/nav-bar';
 
 describe('Project e2e test', () => {
     beforeEach(() => {
         login();
-        navBarPage.clickOnAdminMenu();
-        navBarPage.clickOnEntity('project');
+        cy.contains('jhi-home .card-title', 'main').click();
     });
 
     it('should load Projects', () => {
-        cy.get('h2 span').first().should('have.text', 'Projects');
+        cy.get('jhi-projects h2 span').first().should('have.text', 'Projects');
+        cy.get('jhi-projects table tbody tr').should('have.length', 2);
     });
 
     it('should load create Project dialog', () => {
@@ -35,10 +34,10 @@ describe('Project e2e test', () => {
             .contains('button', 'Edit').click();
         cy.contains('button.btn-primary', 'Save').click();
     });
-
-    it('should be able to delete Project', () => {
-        cy.contains('tr', 'test-project')
-            .contains('button', 'Delete').click();
-        cy.contains('jhi-project-delete-dialog button.btn-danger', 'Delete').click();
-    });
+    //
+    // it('should be able to delete Project', () => {
+    //     cy.contains('tr', 'test-project')
+    //         .contains('button', 'Delete').click();
+    //     cy.contains('jhi-project-delete-dialog button.btn-danger', 'Delete').click();
+    // });
 });

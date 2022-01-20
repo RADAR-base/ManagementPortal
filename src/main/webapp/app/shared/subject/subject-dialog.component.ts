@@ -1,14 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 
-import {
-    NgbActiveModal,
-    NgbCalendar,
-    NgbDate,
-    NgbDateParserFormatter,
-    NgbDateStruct,
-    NgbModalRef
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbCalendar, NgbDate, NgbDateParserFormatter, NgbDateStruct, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
@@ -16,7 +9,8 @@ import { SubjectPopupService } from './subject-popup.service';
 
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
-import { Subscription } from "rxjs";
+import { Observable, Subscription } from 'rxjs';
+import { ObservablePopupComponent } from '../util/observable-popup.component';
 
 @Component({
     selector: 'jhi-subject-dialog',
@@ -32,7 +26,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     attributeComponentEventPrefix: 'subjectAttributes';
 
     dateOfBirth: NgbDateStruct;
-    private eventSubscription: Subscription;
+    private subscriptions: Subscription = new Subscription();
 
     constructor(public activeModal: NgbActiveModal,
                 private alertService: AlertService,
@@ -49,13 +43,17 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
         if(this.subject.dateOfBirth) {
             this.dateOfBirth = this.formatter.parse(this.subject.dateOfBirth.toString());
         }
-        this.eventSubscription = this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
-            this.subject.attributes = response.content;
-        });
+        this.subscriptions.add(this.registerEventChanges());
     }
 
     ngOnDestroy() {
-        this.eventSubscription.unsubscribe();
+        this.subscriptions.unsubscribe();
+    }
+
+    private registerEventChanges(): Subscription {
+        return this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
+            this.subject.attributes = response.content;
+        });
     }
 
     clear() {
@@ -98,23 +96,15 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     selector: 'jhi-subject-popup',
     template: '',
 })
-export class SubjectPopupComponent implements OnInit, OnDestroy {
-
-    modalRef: NgbModalRef;
-    routeSub: any;
-
-    constructor(private route: ActivatedRoute,
-                private subjectPopupService: SubjectPopupService) {
+export class SubjectPopupComponent extends ObservablePopupComponent {
+    constructor(
+        route: ActivatedRoute,
+        private subjectPopupService: SubjectPopupService,
+    ) {
+        super(route);
     }
 
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            this.modalRef = this.subjectPopupService
-                    .open(SubjectDialogComponent, params['login'], false, params['projectName']);
-        });
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.subjectPopupService.open(SubjectDialogComponent, params['login'], false, params['projectName']);
     }
 }

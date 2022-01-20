@@ -13,7 +13,7 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
   selector: 'app-load-more',
   template: `
       <div class="subject-pagination">
-          <span class="none-loaded" *ngIf="shownItems === 0" translate>managementPortalApp.subject.noSubjects</span>
+          <span class="none-loaded" *ngIf="shownItems === 0" [translate]="'managementPortalApp.subject.noSubjects'"></span>
           <span *ngIf="totalItems && shownItems >= totalItems"
                 class="all-loaded"
                 [translate]="'managementPortalApp.subject.allLoaded'"

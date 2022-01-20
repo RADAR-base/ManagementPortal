@@ -19,6 +19,8 @@
             "organizationName.fieldDescription": "Unique identifier of organization",
             "description": "Description",
             "organization": "Organization",
+            "projects": "Projects",
+            "permissions": "Permissions",
             "location": "Location",
             "startDate": "Start Date",
             "organizationStatus": "Organization Status",

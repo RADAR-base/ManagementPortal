@@ -1,18 +1,22 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 
 import { AccountService } from './account.service';
-import { catchError, filter, first, map, mergeMap, switchMap, tap } from "rxjs/operators";
-import { Account } from "../user/account.model";
+import { catchError, distinctUntilChanged, first, mergeMap, tap } from 'rxjs/operators';
+import { Account } from '../user/account.model';
 
 @Injectable({ providedIn: 'root' })
 export class Principal {
     private _account$ = new BehaviorSubject<Account | null>(null);
-    readonly account$: Observable<Account | null> = this._account$.asObservable();
+    readonly account$: Observable<Account | null>;
 
     constructor(
         private account: AccountService,
     ) {
+        this.account$ = this._account$.asObservable().pipe(
+            // do not emit multiple duplicate values
+            distinctUntilChanged((a, b) => a === b),
+        );
         this.reset().subscribe();
     }
 
@@ -33,10 +37,16 @@ export class Principal {
         if (!authorities || authorities.length === 0) {
             return true;
         }
-        if (!account || !account.authorities) {
+        if (!account || !account.roles) {
             return false;
         }
-        return account.authorities.some(a => authorities.indexOf(a) !== -1);
+        const authoritySet: Set<string> = new Set(authorities);
+
+        return account.roles.some(r =>
+          authoritySet.has(r.authorityName)
+          || (r.projectName && authoritySet.has(r.authorityName + ':' + r.projectName))
+          || (r.organizationName && authoritySet.has(r.authorityName + ':' + r.organizationName))
+        )
     }
 
     /**

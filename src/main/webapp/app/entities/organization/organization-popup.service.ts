@@ -3,7 +3,9 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
-import { Organization, OrganizationService } from '../../shared';
+import { copyOrganization, Organization, OrganizationService } from '../../shared';
+import { Observable, of } from 'rxjs';
+import { first, map, take } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class OrganizationPopupService {
@@ -17,32 +19,29 @@ export class OrganizationPopupService {
     ) {
     }
 
-    open(component: any, organizationName?: string): NgbModalRef {
+    open(component: any, organizationName?: string): Observable<NgbModalRef> {
         if (this.isOpen) {
             return;
         }
         this.isOpen = true;
 
         if (organizationName) {
-            this.organizationService.find(organizationName).subscribe((organization) => {
-                // organization.startDate = this.datePipe
-                // .transform(organization.startDate, 'yyyy-MM-ddThh:mm');
-                // organization.endDate = this.datePipe
-                // .transform(organization.endDate, 'yyyy-MM-ddThh:mm');
-                this.organizationModalRef(component, organization);
-            });
+            return this.organizationService.find(organizationName).pipe(
+                first(),
+                map((organization) => this.organizationModalRef(component, organization)),
+            )
         } else {
-            return this.organizationModalRef(component, new Organization());
+            return of(this.organizationModalRef(component, {}));
         }
     }
 
     organizationModalRef(component: any, organization: Organization): NgbModalRef {
         const modalRef = this.modalService.open(component, {size: 'lg', backdrop: 'static'});
-        modalRef.componentInstance.organization = organization;
-        modalRef.result.then((result) => {
+        modalRef.componentInstance.organization = copyOrganization(organization);
+        modalRef.result.then(() => {
             this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;
-        }, (reason) => {
+        }, () => {
             this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;
         });

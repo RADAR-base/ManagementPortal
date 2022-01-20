@@ -1,22 +1,20 @@
 // Borrowed from ng-jhipster
 
 import { Directive, ElementRef, EventEmitter, Input, Output } from '@angular/core';
+import { SortOrder } from "./sort-util";
 
 @Directive({
-    selector: '[jhiSort]'
+    selector: '[jhiSortOrder]'
 })
-export class JhiSortDirective {
-    @Input() predicate: string;
-    @Input() ascending: boolean;
-    @Input() callback: Function;
+export class JhiSortOrderDirective {
+    @Input() order: SortOrder;
 
     sortIcon = 'fa-sort';
     sortAscIcon = 'fa-sort-asc';
     sortDescIcon = 'fa-sort-desc';
     sortIconSelector = 'span.fa';
 
-    @Output() predicateChange: EventEmitter<any> = new EventEmitter();
-    @Output() ascendingChange: EventEmitter<any> = new EventEmitter();
+    @Output() orderChange: EventEmitter<SortOrder> = new EventEmitter();
 
     element: any;
 
@@ -26,17 +24,10 @@ export class JhiSortDirective {
 
     sort(field: any) {
         this.resetClasses();
-        if (field !== this.predicate) {
-            this.ascending = true;
-        } else {
-            this.ascending = !this.ascending;
-        }
-        this.predicate = field;
-        this.predicateChange.emit(field);
-        this.ascendingChange.emit(this.ascending);
-        if (this.callback) {
-            this.callback();
-        }
+        this.orderChange.next({
+            predicate: field,
+            ascending: field !== this.order.predicate || !this.order.ascending,
+        });
     }
 
     private resetClasses() {

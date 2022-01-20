@@ -5,6 +5,8 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { OAuthClient } from './oauth-client.model';
 import { OAuthClientService } from './oauth-client.service';
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class OAuthClientPopupService {
@@ -18,18 +20,18 @@ export class OAuthClientPopupService {
     ) {
     }
 
-    open(component: any, clientId?: string): NgbModalRef {
+    open(component: any, clientId?: string): Observable<NgbModalRef> {
         if (this.isOpen) {
             return;
         }
         this.isOpen = true;
 
         if (clientId) {
-            this.oauthClientService.find(clientId).subscribe((client) => {
-                this.oauthClientModalRef(component, client);
-            });
+            return this.oauthClientService.find(clientId).pipe(
+                map((client) => this.oauthClientModalRef(component, client)),
+            );
         } else {
-            return this.oauthClientModalRef(component, new OAuthClient());
+            return of(this.oauthClientModalRef(component, new OAuthClient()));
         }
     }
 

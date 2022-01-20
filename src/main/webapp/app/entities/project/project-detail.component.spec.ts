@@ -8,7 +8,7 @@ import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
 import { MockActivatedRoute, MockRouter } from '../../shared/util/test/mock-route.service';
 import { ProjectService } from '../../shared/project';
 import { ProjectDetailComponent } from './project-detail.component';
-import { filter } from "rxjs/operators";
+import { filter, first } from 'rxjs/operators';
 
 describe('Component Tests', () => {
 
@@ -53,7 +53,7 @@ describe('Component Tests', () => {
 
                 // THEN
                 expect(service.find).toHaveBeenCalledWith('testProject');
-                const result = await comp.project$.pipe(filter(p => !!p)).toPromise();
+                const result = await comp.project$.pipe(filter(p => !!p), first()).toPromise();
                 expect(result).toEqual(jasmine.objectContaining({id: 10}))
             }));
         });

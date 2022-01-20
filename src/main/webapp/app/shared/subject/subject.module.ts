@@ -70,6 +70,7 @@ const ENTITY_STATES = [
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [
         SubjectComponent,
+        LoadMoreComponent,
     ],
 })
 export class ManagementPortalSharedSubjectModule {

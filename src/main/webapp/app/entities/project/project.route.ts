@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
 
 import { UserRouteAccessService } from '../../shared';
-import { PROJECT_ADMIN, SYSTEM_ADMIN } from '../../shared/constants/common.constants';
+import {ORGANIZATION_ADMIN, PROJECT_ADMIN, SYSTEM_ADMIN} from '../../shared/constants/common.constants';
 import { ProjectComponent } from './project.component';
-import { ProjectDeletePopupComponent } from './project-delete-dialog.component';
+// import { ProjectDeletePopupComponent } from './project-delete-dialog.component';
 import { ProjectDetailComponent } from './project-detail.component';
 import { ProjectPopupComponent } from './project-dialog.component';
 
@@ -27,7 +27,7 @@ export const projectRoute: Routes = [
         path: 'project/:projectName',
         component: ProjectDetailComponent,
         data: {
-            authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
+            authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
             pageTitle: 'managementPortalApp.project.home.title',
         },
         resolve: {
@@ -39,33 +39,33 @@ export const projectRoute: Routes = [
 
 export const projectPopupRoute: Routes = [
     {
-        path: 'project-new',
+        path: 'organization/:organizationName/project-new',
         component: ProjectPopupComponent,
         data: {
-            authorities: [SYSTEM_ADMIN],
+            authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN],
             pageTitle: 'managementPortalApp.project.home.title',
         },
         canActivate: [UserRouteAccessService],
         outlet: 'popup',
     },
     {
-        path: 'project/:projectName/edit',
+        path: 'organization/:organizationName/project/:projectName/edit',
         component: ProjectPopupComponent,
         data: {
-            authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
+            authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
             pageTitle: 'managementPortalApp.project.home.title',
         },
         canActivate: [UserRouteAccessService],
         outlet: 'popup',
     },
-    {
-        path: 'project/:projectName/delete',
-        component: ProjectDeletePopupComponent,
-        data: {
-            authorities: [SYSTEM_ADMIN],
-            pageTitle: 'managementPortalApp.project.home.title',
-        },
-        canActivate: [UserRouteAccessService],
-        outlet: 'popup',
-    },
+    // {
+    //     path: 'organizations/:organizationName/project/:projectName/delete',
+    //     component: ProjectDeletePopupComponent,
+    //     data: {
+    //         authorities: [SYSTEM_ADMIN],
+    //         pageTitle: 'managementPortalApp.project.home.title',
+    //     },
+    //     canActivate: [UserRouteAccessService],
+    //     outlet: 'popup',
+    // },
 ];

@@ -2,7 +2,9 @@ package org.radarbase.management.security;
 
 import org.radarbase.auth.authentication.TokenValidator;
 import org.radarbase.auth.exception.TokenValidationException;
+import org.radarbase.auth.token.AuthorityReference;
 import org.radarbase.auth.token.RadarToken;
+import org.radarbase.management.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Created by dverbeec on 29/09/2017.
@@ -36,6 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final AuthenticationManager authenticationManager;
     public static final String TOKEN_ATTRIBUTE = "jwt";
     private final List<AntPathRequestMatcher> ignoreUrls;
+    private final UserRepository userRepository;
 
     /**
      * Authentication filter using given validator.
@@ -43,9 +47,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @param authenticationManager authentication manager to pass valid authentication to.
      */
     public JwtAuthenticationFilter(TokenValidator validator,
-            AuthenticationManager authenticationManager) {
+            AuthenticationManager authenticationManager,
+            UserRepository userRepository) {
         this.validator = validator;
         this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
         this.ignoreUrls = new ArrayList<>();
     }
 
@@ -73,14 +79,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         HttpSession session = httpRequest.getSession(false);
-        RadarToken token = null;
+        SessionRadarToken token = null;
         if (session != null) {
-            token = (RadarToken) session.getAttribute(TOKEN_ATTRIBUTE);
+            token = SessionRadarToken.from((RadarToken) session.getAttribute(TOKEN_ATTRIBUTE));
         }
         if (token == null) {
             try {
-                token = validator.validateAccessToken(getToken(httpRequest,
-                        httpResponse));
+                token = SessionRadarToken.from(validator.validateAccessToken(getToken(httpRequest,
+                        httpResponse)));
             } catch (TokenValidationException ex) {
                 logger.error(ex.getMessage());
                 httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -88,14 +94,43 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 httpResponse.getOutputStream().println(
                         "{\"error\": \"" + "Unauthorized" + ",\n"
                                 + "\"status\": \"" + HttpServletResponse.SC_UNAUTHORIZED + ",\n"
-                                + "\"message\": \"" + ex.getMessage() + ",\n"
+                                + "\"message\": \"" + ex.getMessage() + "\",\n"
+                                + "\"path\": \"" + httpRequest.getRequestURI() + "\n"
+                                + "\"}");
+                return;
+            }
+        } else if (!token.isClientCredentials()) {
+            var user = userRepository.findOneByLogin(token.getUsername());
+            if (user.isPresent()) {
+                var roles = user.get().getRoles().stream()
+                        .map(role -> {
+                            var auth = role.getRole();
+                            return switch (role.getRole().scope()) {
+                                case GLOBAL -> new AuthorityReference(auth);
+                                case ORGANIZATION -> new AuthorityReference(auth,
+                                        role.getOrganization().getName());
+                                case PROJECT -> new AuthorityReference(auth,
+                                        role.getProject().getProjectName());
+                            };
+                        })
+                        .collect(Collectors.toSet());
+                token = token.withRoles(roles);
+            } else {
+                session.removeAttribute(TOKEN_ATTRIBUTE);
+                httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                httpResponse.setHeader(HttpHeaders.WWW_AUTHENTICATE, OAuth2AccessToken.BEARER_TYPE);
+                httpResponse.getOutputStream().println(
+                        "{\"error\": \"" + "Unauthorized" + ",\n"
+                                + "\"status\": \"" + HttpServletResponse.SC_UNAUTHORIZED + ",\n"
+                                + "\"message\": \"User not found\",\n"
                                 + "\"path\": \"" + httpRequest.getRequestURI() + "\n"
                                 + "\"}");
                 return;
             }
         }
+
         httpRequest.setAttribute(TOKEN_ATTRIBUTE, token);
-        RadarAuthentication authentication = new RadarAuthentication(new SessionRadarToken(token));
+        RadarAuthentication authentication = new RadarAuthentication(token);
         authenticationManager.authenticate(authentication);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         chain.doFilter(httpRequest, httpResponse);

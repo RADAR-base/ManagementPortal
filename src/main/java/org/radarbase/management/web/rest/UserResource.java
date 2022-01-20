@@ -50,7 +50,6 @@ import static org.radarbase.auth.authorization.Permission.USER_CREATE;
 import static org.radarbase.auth.authorization.Permission.USER_DELETE;
 import static org.radarbase.auth.authorization.Permission.USER_READ;
 import static org.radarbase.auth.authorization.Permission.USER_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkAuthorityAndPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN;
 import static org.radarbase.management.web.rest.errors.EntityName.USER;
@@ -116,7 +115,7 @@ public class UserResource {
      */
     @PostMapping("/users")
     @Timed
-    public ResponseEntity createUser(@RequestBody ManagedUserVM managedUserVm)
+    public ResponseEntity<User> createUser(@RequestBody ManagedUserVM managedUserVm)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save User : {}", managedUserVm);
         checkPermission(token, USER_CREATE);
@@ -126,7 +125,7 @@ public class UserResource {
                             "A new user cannot already have an ID"))
                     .body(null);
             // Lowercase the user login before comparing with database
-        } else if (userRepository.findOneByLogin(managedUserVm.getLogin().toLowerCase(Locale.US))
+        } else if (userRepository.findOneByLogin(managedUserVm.getLogin().toLowerCase(Locale.ROOT))
                 .isPresent()) {
             return ResponseEntity.badRequest()
                     .headers(HeaderUtil
@@ -162,7 +161,7 @@ public class UserResource {
     public ResponseEntity<UserDTO> updateUser(@RequestBody ManagedUserVM managedUserVm)
             throws NotAuthorizedException {
         log.debug("REST request to update User : {}", managedUserVm);
-        checkAuthorityAndPermission(token, SYS_ADMIN, USER_UPDATE);
+        checkPermission(token, USER_UPDATE);
         Optional<User> existingUser = userRepository.findOneByEmail(managedUserVm.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getId()
                 .equals(managedUserVm.getId()))) {
@@ -188,7 +187,9 @@ public class UserResource {
 
         }
 
-        Optional<UserDTO> updatedUser = userService.updateUser(managedUserVm);
+        Optional<UserDTO> updatedUser = userService.updateUser(
+                managedUserVm,
+                token.hasAuthority(SYS_ADMIN));
 
         return ResponseUtil.wrapOrNotFound(updatedUser,
                 HeaderUtil.createAlert("userManagement.updated", managedUserVm.getLogin()));
@@ -212,7 +213,7 @@ public class UserResource {
             UserFilter userFilter,
             @RequestParam(defaultValue = "true") boolean includeProvenance)
             throws NotAuthorizedException {
-        checkAuthorityAndPermission(token, SYS_ADMIN, USER_READ);
+        checkPermission(token, USER_READ);
 
         Page<UserDTO> page = userService.findUsers(userFilter, pageable, includeProvenance);
 

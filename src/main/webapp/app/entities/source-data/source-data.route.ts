@@ -7,7 +7,7 @@ import { SourceDataDetailComponent } from './source-data-detail.component';
 import { SourceDataPopupComponent } from './source-data-dialog.component';
 import { SourceDataDeletePopupComponent } from './source-data-delete-dialog.component';
 
-import {PROJECT_ADMIN, SYSTEM_ADMIN} from '../../shared/constants/common.constants';
+import {ORGANIZATION_ADMIN, PROJECT_ADMIN, SYSTEM_ADMIN} from '../../shared/constants/common.constants';
 import {ResolvePagingParams} from '../../shared/commons';
 
 export const sourceDataRoute: Routes = [
@@ -19,7 +19,7 @@ export const sourceDataRoute: Routes = [
       'pagingParams': ResolvePagingParams
     },
     data: {
-        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
+        authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.sourceData.home.title'
     },
     canActivate: [UserRouteAccessService]
@@ -27,7 +27,7 @@ export const sourceDataRoute: Routes = [
     path: 'source-data/:sourceDataName',
     component: SourceDataDetailComponent,
     data: {
-        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
+        authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.sourceData.home.title'
     },
     canActivate: [UserRouteAccessService]
@@ -39,7 +39,7 @@ export const sourceDataPopupRoute: Routes = [
     path: 'source-data-new',
     component: SourceDataPopupComponent,
     data: {
-        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
+        authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.sourceData.home.title'
     },
     canActivate: [UserRouteAccessService],
@@ -49,7 +49,7 @@ export const sourceDataPopupRoute: Routes = [
     path: 'source-data/:sourceDataName/edit',
     component: SourceDataPopupComponent,
     data: {
-        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
+        authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.sourceData.home.title'
     },
     canActivate: [UserRouteAccessService],
@@ -59,7 +59,7 @@ export const sourceDataPopupRoute: Routes = [
     path: 'source-data/:sourceDataName/delete',
     component: SourceDataDeletePopupComponent,
     data: {
-        authorities: [SYSTEM_ADMIN, PROJECT_ADMIN],
+        authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
         pageTitle: 'managementPortalApp.sourceData.home.title'
     },
     canActivate: [UserRouteAccessService],

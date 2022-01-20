@@ -1,8 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
 
 import { DEBUG_INFO_ENABLED, VERSION } from '../../app.constants';
 import {
@@ -18,7 +17,6 @@ import {
 import { EventManager } from '../../shared/util/event-manager.service';
 
 import { ProfileService } from '../profiles/profile.service';
-import { switchMap, tap } from "rxjs/operators";
 
 @Component({
     selector: 'jhi-navbar',
@@ -28,44 +26,28 @@ import { switchMap, tap } from "rxjs/operators";
         'navbar.scss',
     ],
 })
-export class NavbarComponent implements OnInit, OnDestroy {
-    inProduction: boolean;
+export class NavbarComponent {
     isNavbarCollapsed: boolean;
-    apiDocsEnabled: boolean;
     modalRef: NgbModalRef;
     version: string;
 
     projects: Project[];
     organizations: Organization[];
 
-    private subscriptions: Subscription;
-
     constructor(
-      private loginService: LoginService,
-      public languageHelper: JhiLanguageHelper,
-      public principal: Principal,
-      private loginModalService: LoginModalService,
-      private profileService: ProfileService,
-      private router: Router,
-      private eventManager: EventManager,
-      private translateService: TranslateService,
-      public projectService: ProjectService,
-      public organizationService: OrganizationService,
+        private loginService: LoginService,
+        public languageHelper: JhiLanguageHelper,
+        public principal: Principal,
+        private loginModalService: LoginModalService,
+        public profileService: ProfileService,
+        private router: Router,
+        private eventManager: EventManager,
+        private translateService: TranslateService,
+        public projectService: ProjectService,
+        public organizationService: OrganizationService,
     ) {
         this.version = DEBUG_INFO_ENABLED ? 'v' + VERSION : '';
         this.isNavbarCollapsed = true;
-        this.subscriptions = new Subscription();
-    }
-
-    ngOnInit() {
-        this.profileService.getProfileInfo().then((profileInfo) => {
-            this.inProduction = profileInfo.inProduction;
-            this.apiDocsEnabled = profileInfo.apiDocsEnabled;
-        });
-    }
-
-    ngOnDestroy() {
-        this.subscriptions.unsubscribe();
     }
 
     trackProjectName(index: number, item: Project) {

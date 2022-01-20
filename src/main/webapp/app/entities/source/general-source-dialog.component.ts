@@ -1,27 +1,33 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
 import { Source, SourceService } from '../../shared/source';
-import { MinimalProject, ProjectService } from '../../shared';
+import { MinimalProject, Project, ProjectService } from '../../shared';
 
 import { SourceType } from '../source-type';
 import { GeneralSourcePopupService } from './general-source-popup.service';
+import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
     selector: 'jhi-source-dialog',
     templateUrl: './general-source-dialog.component.html',
 })
-export class GeneralSourceDialogComponent implements OnInit {
+export class GeneralSourceDialogComponent implements OnInit, OnDestroy {
     readonly authorities: string[];
 
     source: Source;
     isSaving: boolean;
     sourceTypes: SourceType[];
+
+    projects: Project[];
+
+    private subscriptions: Subscription = new Subscription();
 
     constructor(
       public activeModal: NgbActiveModal,
@@ -38,10 +44,17 @@ export class GeneralSourceDialogComponent implements OnInit {
         this.onProjectChange(this.source.project);
     }
 
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
+    }
+
     public onProjectChange(project: any) {
         if (project) {
-            this.projectService.findSourceTypesByName(project.projectName)
-                    .subscribe((res: SourceType[]) => this.sourceTypes = res);
+            this.subscriptions.add(
+                this.projectService.findSourceTypesByName(project.projectName).subscribe(
+                    (res: SourceType[]) => this.sourceTypes = res
+                )
+            );
         } else {
             this.sourceTypes = null;
         }
@@ -54,13 +67,15 @@ export class GeneralSourceDialogComponent implements OnInit {
     save() {
         this.isSaving = true;
         if (this.source.id !== undefined) {
-            this.sourceService.update(this.source)
-            .subscribe((res: Source) =>
-                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError(res));
+            this.subscriptions.add(this.sourceService.update(this.source).subscribe(
+                (res: Source) => this.onSaveSuccess(res),
+                (res: HttpErrorResponse) => this.onSaveError(res),
+            ));
         } else {
-            this.sourceService.create(this.source)
-            .subscribe((res: Source) =>
-                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError(res));
+            this.subscriptions.add(this.sourceService.create(this.source).subscribe(
+                (res: Source) => this.onSaveSuccess(res),
+                (res: HttpErrorResponse) => this.onSaveError(res),
+            ));
         }
     }
 
@@ -92,25 +107,15 @@ export class GeneralSourceDialogComponent implements OnInit {
     selector: 'jhi-source-popup',
     template: '',
 })
-export class GeneralSourcePopupComponent implements OnInit, OnDestroy {
-
-    modalRef: NgbModalRef;
-    routeSub: any;
-
+export class GeneralSourcePopupComponent extends ObservablePopupComponent {
     constructor(
-            private route: ActivatedRoute,
-            private sourcePopupService: GeneralSourcePopupService,
+        route: ActivatedRoute,
+        private sourcePopupService: GeneralSourcePopupService,
     ) {
+        super(route);
     }
 
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            this.modalRef = this.sourcePopupService
-                    .open(GeneralSourceDialogComponent, params['sourceName']);
-        });
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.sourcePopupService.open(GeneralSourceDialogComponent, params['sourceName']);
     }
 }

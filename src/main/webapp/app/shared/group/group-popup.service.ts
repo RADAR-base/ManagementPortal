@@ -3,8 +3,10 @@ import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { ProjectService } from '../project';
-import {GroupService} from "./group.service";
-import {Group} from "./group.model";
+import { GroupService } from './group.service';
+import { Group } from './group.model';
+import { Observable, throwError } from 'rxjs';
+import { first, map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class GroupPopupService {
@@ -17,26 +19,35 @@ export class GroupPopupService {
         private projectService: ProjectService,
     ) {}
 
-    open(component: any, id?: number, isDelete?: boolean, projectName?: string): NgbModalRef {
+    open(component: any, id?: number, isDelete?: boolean, projectName?: string): Observable<NgbModalRef> {
         if (this.isOpen) {
             return;
         }
         this.isOpen = true;
 
         if (id) {
-            this.groupService.find(id, projectName).subscribe((group: Group) => {
-                if(group){
-                    group.projectName = projectName;
-                }
-                this.groupModalRef(component, group, isDelete);
-            });
+            return this.groupService.find(id, projectName).pipe(
+                map((group: Group) => {
+                    if (group) {
+                        group.projectName = projectName;
+                    }
+                    return this.groupModalRef(component, group, isDelete);
+                }),
+                first(),
+            );
         } else if (projectName) {
-            this.projectService.find(projectName).subscribe((project) => {
-                const group = new Group();
-                group.projectId = project.id;
-                group.projectName = project.projectName;
-                return this.groupModalRef(component, group, isDelete);
-            });
+            return this.projectService.find(projectName).pipe(
+                map((project) => {
+                  const group: Group = {
+                      projectId: project.id,
+                      projectName: project.projectName,
+                  };
+                  return this.groupModalRef(component, group, isDelete);
+                }),
+                first(),
+            );
+        } else {
+            return throwError("No group given");
         }
     }
 
@@ -45,10 +56,10 @@ export class GroupPopupService {
         modalRef.componentInstance.group = group;
         modalRef.componentInstance.isDelete = isDelete;
         modalRef.result.then(() => {
-            this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
+            this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true, queryParamsHandling: 'merge'});
             this.isOpen = false;
         }, () => {
-            this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
+            this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true, queryParamsHandling: 'merge'});
             this.isOpen = false;
         });
         return modalRef;
