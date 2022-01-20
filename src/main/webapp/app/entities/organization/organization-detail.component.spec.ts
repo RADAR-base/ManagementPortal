@@ -8,6 +8,7 @@ import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
 import { MockActivatedRoute } from '../../shared/util/test/mock-route.service';
 import { ProjectService } from '../../shared/project';
 import { OrganizationDetailComponent } from './organization-detail.component';
+import { first } from 'rxjs/operators';
 
 describe('Component Tests', () => {
 
@@ -48,7 +49,7 @@ describe('Component Tests', () => {
             comp.ngOnInit();
 
             // THEN
-            const org = await comp.organization$.toPromise();
+            const org = await comp.organization$.pipe(first()).toPromise();
             expect(org).toEqual(jasmine.objectContaining({id: 10}));
 
             expect(service.find).toHaveBeenCalledWith('testOrganization');

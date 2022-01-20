@@ -162,32 +162,26 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
         let currentGroups = this.projectCopy.groups || [];
         let newGroup = { name: this.newGroupInputText };
         if (newGroup.name.length == 0 || newGroup.name.length > 50) {
-            // TODO: actually show error
             return;
         }
         if (currentGroups.some(g => g.name === newGroup.name)) {
             // TODO: actually show error
             return;
         }
-        this.groupService.create(this.projectCopy.projectName, newGroup).toPromise()
-          .then(g => {
-              this.projectCopy.groups = [ ...currentGroups, g];
-              this.newGroupInputText = '';
-          })
-          .catch(reason => {
-              // TODO: actually show error
-          })
+        this.subscriptions.add(
+            this.groupService.create(this.projectCopy.projectName, newGroup).subscribe(g => {
+                this.projectCopy.groups = [ ...currentGroups, g];
+                this.newGroupInputText = '';
+            })
+        );
     }
 
     removeGroup(groupName: string) {
-        // TODO: warn that this may affect existing subjects
-        this.groupService.delete(this.projectCopy.projectName, groupName).toPromise()
-          .then(() => {
-              this.projectCopy.groups = this.projectCopy.groups.filter(g => g.name !== groupName);
-          })
-          .catch(() => {
-              // TODO: actually show error
-          });
+        this.subscriptions.add(
+            this.groupService.delete(this.projectCopy.projectName, groupName).subscribe(() => {
+                this.projectCopy.groups = this.projectCopy.groups.filter(g => g.name !== groupName);
+            })
+        );
     }
 }
 
