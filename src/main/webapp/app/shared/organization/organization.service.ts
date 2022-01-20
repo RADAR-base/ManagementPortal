@@ -79,6 +79,7 @@ export class OrganizationService {
         return this.organizations$.pipe(
             map(organizations => organizations.find(o => o.name === orgName)),
             filter(o => !!o),
+            distinctUntilChanged((a, b) => a === b || JSON.stringify(a) === JSON.stringify(b)),
         );
     }
 

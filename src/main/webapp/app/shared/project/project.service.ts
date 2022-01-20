@@ -80,6 +80,7 @@ export class ProjectService {
         return this.projects$.pipe(
             map(projects => projects.find(p => p.projectName === projectName)),
             filter(p => !!p),
+            distinctUntilChanged((a, b) => a === b || JSON.stringify(a) === JSON.stringify(b)),
         );
     }
 
