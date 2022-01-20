@@ -1,47 +1,17 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    Input,
-    OnChanges,
-    OnDestroy,
-    OnInit,
-    SimpleChange,
-    SimpleChanges,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChange, SimpleChanges, } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-    BehaviorSubject,
-    combineLatest,
-    Observable,
-    Subscription
-} from 'rxjs';
-import {
-    debounceTime,
-    distinctUntilChanged,
-    filter,
-    first,
-    map,
-    pluck,
-    shareReplay,
-    switchMap,
-    tap,
-    withLatestFrom,
-} from 'rxjs/operators';
-import { NgbCalendar, NgbDateParserFormatter, NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, first, map, pluck, shareReplay, switchMap, tap, withLatestFrom, } from 'rxjs/operators';
+import { NgbCalendar, NgbDateParserFormatter, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { Group, GroupService, ITEMS_PER_PAGE, Project } from '..';
-import { AddSubjectsToGroupDialogComponent } from "./add-subjects-to-group-dialog.component";
+import { AddSubjectsToGroupDialogComponent } from './add-subjects-to-group-dialog.component';
 import { CheckedSubject, Subject, SubjectFilterCriteria } from './subject.model';
 import { SubjectFilterParams, SubjectPaginationParams, SubjectService, } from './subject.service';
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
-import {
-    NgbDateRange,
-    NgbDateReactiveFilter,
-    ReactiveFilter,
-    ReactiveFilterOptions
-} from "../util/reactive-filter";
+import { NgbDateRange, NgbDateReactiveFilter, ReactiveFilter, ReactiveFilterOptions } from '../util/reactive-filter';
 import { regularSortOrder, SortOrder, SortOrderImpl } from '../util/sort-util';
 
 @Component({
@@ -229,6 +199,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
                     sort: sortOrder.toQueryParam(),
                 },
                 queryParamsHandling: "merge",
+                replaceUrl: true,
             })),
           withLatestFrom(this._subjects$),
           switchMap(([[projectName, filter, sortOrder, page], subjects]) => {

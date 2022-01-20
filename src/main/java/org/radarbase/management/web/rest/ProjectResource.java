@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
+import org.radarbase.management.domain.Project;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.service.ProjectService;
 import org.radarbase.management.service.ResourceUriService;
@@ -47,6 +48,9 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 
+import static org.radarbase.auth.authorization.RadarAuthorization.checkGlobalPermission;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganization;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganizationAndProject;
 import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
 import static org.radarbase.auth.authorization.Permission.PROJECT_CREATE;
 import static org.radarbase.auth.authorization.Permission.PROJECT_DELETE;
@@ -104,7 +108,13 @@ public class ProjectResource {
     public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDto)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Project : {}", projectDto);
-        checkPermission(token, PROJECT_CREATE);
+        if (projectDto.getOrganization() != null
+                && projectDto.getOrganization().getName() != null) {
+            checkPermissionOnOrganization(token, PROJECT_CREATE,
+                    projectDto.getOrganization().getName());
+        } else {
+            checkGlobalPermission(token, PROJECT_CREATE);
+        }
         if (projectDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
                     ENTITY_NAME, "idexists", "A new project cannot already have an ID")).body(null);
@@ -138,13 +148,30 @@ public class ProjectResource {
         if (projectDto.getId() == null) {
             return createProject(projectDto);
         }
-        checkPermissionOnProject(token, PROJECT_UPDATE,
-                projectDto.getProjectName());
+        checkMoveProjectPermissions(projectDto);
         ProjectDTO result = projectService.save(projectDto);
         return ResponseEntity.ok()
                 .headers(HeaderUtil
                         .createEntityUpdateAlert(ENTITY_NAME, projectDto.getProjectName()))
                 .body(result);
+    }
+
+    private void checkMoveProjectPermissions(ProjectDTO projectDto) throws NotAuthorizedException {
+        ProjectDTO existingProject = projectService.findOne(projectDto.getId());
+        String existingOrganization = existingProject.getOrganization() != null
+                ? existingProject.getOrganization().getName()
+                : null;
+        String newOrganization = projectDto.getOrganization() != null
+                ? projectDto.getOrganization().getName()
+                : null;
+
+        checkPermissionOnOrganizationAndProject(token, PROJECT_UPDATE, existingOrganization,
+                existingProject.getProjectName());
+
+        if (!Objects.equals(existingOrganization, newOrganization)) {
+            checkPermissionOnOrganization(token, PROJECT_UPDATE, existingOrganization);
+            checkPermissionOnOrganization(token, PROJECT_UPDATE, newOrganization);
+        }
     }
 
     /**

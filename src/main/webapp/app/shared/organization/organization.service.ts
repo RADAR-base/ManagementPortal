@@ -5,7 +5,7 @@ import { BehaviorSubject, combineLatest, Observable, of, Subject, throwError } f
 import { Organization } from './organization.model';
 import { Principal } from '../auth/principal.service';
 import { AlertService } from '../util/alert.service';
-import {concatMap, delay, distinctUntilChanged, first, map, retryWhen, startWith, switchMap, tap} from 'rxjs/operators';
+import { concatMap, delay, distinctUntilChanged, first, map, retryWhen, startWith, switchMap, tap } from 'rxjs/operators';
 import { createRequestOption } from '../model/request.utils';
 
 @Injectable({ providedIn: 'root' })
@@ -20,7 +20,7 @@ export class OrganizationService {
     constructor(
         private http: HttpClient,
         private principal: Principal,
-        private alertService: AlertService
+        private alertService: AlertService,
     ) {
         combineLatest([
             principal.account$,
@@ -43,7 +43,7 @@ export class OrganizationService {
                     return of([]);
                 }
             }),
-            distinctUntilChanged((a, b) => a === b || (a && a.length === 0 && b && b.length === 0)),
+            distinctUntilChanged((a, b) => a === b || (a && b && JSON.stringify(a) === JSON.stringify(b))),
         ).subscribe(
             organizations => this._organizations$.next(organizations),
             err => this.alertService.error(err.message, null, null),
@@ -57,7 +57,7 @@ export class OrganizationService {
     create(organization: Organization): Observable<Organization> {
         return this.http.post(this.organizationUrl(), organization).pipe(
             tap(
-                p => this.updateOrganization(p),
+                () => this.reset(),
                 () => this.reset(),
             ),
         );
@@ -66,7 +66,7 @@ export class OrganizationService {
     update(organization: Organization): Observable<Organization> {
         return this.http.put<Organization>(this.organizationUrl(), organization).pipe(
             tap(
-                p => this.updateOrganization(p),
+                o => this.updateOrganization(o),
                 () => this.reset(),
             ),
         );
@@ -123,15 +123,26 @@ export class OrganizationService {
         );
     }
 
-    private updateOrganization(organization: Organization) {
+    private updateOrganization(organization: Organization): boolean {
         const nextValue = this._organizations$.value.slice();
         const idx = nextValue.findIndex(p => p.id === organization.id);
+        let needsAuthRenewal = false;
         if (idx >= 0) {
-            nextValue[idx] = organization;
+            if (nextValue[idx].name !== organization.name) {
+                needsAuthRenewal = true;
+            }
+            nextValue[idx] = {
+                ...nextValue[idx],
+                ...organization,
+            };
         } else {
             nextValue.push(organization);
         }
         this._organizations$.next(nextValue);
+        if (needsAuthRenewal) {
+            this.principal.reset();
+        }
+        return needsAuthRenewal;
     }
 
     findAll(): Observable<Organization[]> {

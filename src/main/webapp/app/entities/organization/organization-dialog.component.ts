@@ -1,5 +1,5 @@
 import { Component, OnDestroy, ViewEncapsulation } from '@angular/core';
-import {ActivatedRoute, Params, Router} from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef, } from '@ng-bootstrap/ng-bootstrap';
 
@@ -8,7 +8,7 @@ import { EventManager } from '../../shared/util/event-manager.service';
 import { SourceTypeService } from '../source-type';
 import { OrganizationPopupService } from './organization-popup.service';
 
-import { copyOrganization, Organization, OrganizationService } from '../../shared';
+import { copyOrganization, Organization, OrganizationService, ProjectService } from '../../shared';
 import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
 import { Observable, Subscription } from 'rxjs';
 
@@ -35,6 +35,7 @@ export class OrganizationDialogComponent implements OnDestroy {
             private sourceTypeService: SourceTypeService,
             private eventManager: EventManager,
             private router: Router,
+            private projectService: ProjectService,
     ) {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN'];
@@ -66,10 +67,10 @@ export class OrganizationDialogComponent implements OnDestroy {
     }
 
     private onSaveSuccess(result: Organization) {
-        if(history.state?.parentComponent === 'organization-detail') {
+        if (history.state?.parentComponent === 'organization-detail') {
             this.router.navigate(['/organization', result.name]);
         }
-        this.eventManager.broadcast({name: 'organizationListModification', content: 'OK'});
+        this.projectService.reset();
         this.isSaving = false;
         this.organization = copyOrganization(result);
         this.activeModal.dismiss(result);

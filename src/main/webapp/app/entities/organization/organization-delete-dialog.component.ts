@@ -6,7 +6,6 @@ import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { OrganizationPopupService } from './organization-popup.service';
 
 import { Organization, OrganizationService } from '../../shared';
-import { EventManager } from '../../shared/util/event-manager.service';
 import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
 import { Observable } from 'rxjs';
 
@@ -21,7 +20,6 @@ export class OrganizationDeleteDialogComponent {
     constructor(
             private organizationService: OrganizationService,
             public activeModal: NgbActiveModal,
-            private eventManager: EventManager,
     ) {
     }
 
@@ -31,10 +29,6 @@ export class OrganizationDeleteDialogComponent {
 
     confirmDelete(organizationName: string) {
         this.organizationService.delete(organizationName).subscribe(() => {
-            this.eventManager.broadcast({
-                name: 'organizationListModification',
-                content: 'Deleted an organization',
-            });
             this.activeModal.dismiss(true);
         });
     }

@@ -1,7 +1,7 @@
-import {Component, Input} from '@angular/core';
-import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
-import { map } from 'rxjs/operators';
-import {Organization, Project, ProjectService} from '../../shared';
+import { Component, Input } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+import { Organization, Project, ProjectService } from '../../shared';
 
 @Component({
     selector: 'jhi-projects',
@@ -21,14 +21,8 @@ export class ProjectComponent {
     constructor(
         private projectService: ProjectService,
     ) {
-        this.projects$ = combineLatest([
-            this.projectService.projects$,
-            this.organization$,
-        ]).pipe(
-          map(([projects, organization]) => {
-              const orgId = organization?.id;
-              return orgId ? projects.filter(p => p.organization.id == orgId) : projects;
-          })
+        this.projects$ = this.organization$.pipe(
+            switchMap(organization => this.projectService.findByOrganization(organization?.id))
         );
     }
 

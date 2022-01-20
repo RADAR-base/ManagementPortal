@@ -1,12 +1,11 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
-import { JhiLanguageHelper } from '../../shared';
+import { AccountService, JhiLanguageHelper, Principal } from '../../shared';
 import { MockAccountService } from '../../shared/util/test/mock-account.service';
 import { MockPrincipal } from '../../shared/util/test/mock-principal.service';
 import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
-import { Principal, AccountService } from '../../shared';
 import { SettingsComponent } from './settings.component';
 
 describe('Component Tests', () => {
@@ -64,6 +63,7 @@ describe('Component Tests', () => {
                 langKey: 'en',
                 login: 'john'
             };
+            mockAuth.save.and.returnValue(of(accountValues));
             mockPrincipal.setResponse(accountValues);
 
             // WHEN
@@ -84,6 +84,7 @@ describe('Component Tests', () => {
                 lastName: 'Doe'
             };
             mockPrincipal.setResponse(accountValues);
+            mockAuth.save.and.returnValue(of(accountValues));
 
             // WHEN
             comp.save();
@@ -95,9 +96,19 @@ describe('Component Tests', () => {
 
         it('should notify of error upon failed save', function() {
             // GIVEN
+            const accountValues = {
+                firstName: 'John',
+                lastName: 'Doe',
+
+                activated: true,
+                email: 'john.doe@mail.com',
+                langKey: 'en',
+                login: 'john'
+            };
             mockAuth.save.and.returnValue(throwError('ERROR'));
 
             // WHEN
+            comp.settingsAccount = accountValues;
             comp.save();
 
             // THEN

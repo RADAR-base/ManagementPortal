@@ -6,7 +6,7 @@ import { of } from 'rxjs';
 import { EventManager } from '../../shared/util/event-manager.service';
 import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
 import { MockActivatedRoute } from '../../shared/util/test/mock-route.service';
-import { Project, ProjectService } from '../../shared/project';
+import { ProjectService } from '../../shared/project';
 import { OrganizationDetailComponent } from './organization-detail.component';
 
 describe('Component Tests', () => {
@@ -48,10 +48,11 @@ describe('Component Tests', () => {
             comp.ngOnInit();
 
             // THEN
-            let org = await comp.organization$.toPromise();
+            const org = await comp.organization$.toPromise();
             expect(org).toEqual(jasmine.objectContaining({id: 10}));
 
             expect(service.find).toHaveBeenCalledWith('testOrganization');
+
             }));
         });
     });
