@@ -20,7 +20,7 @@ COPY gradlew build.gradle gradle.properties settings.gradle /code/
 COPY radar-auth/build.gradle radar-auth/
 COPY oauth-client-util/build.gradle oauth-client-util/
 
-RUN ./gradlew downloadDependencies :radar-auth:shadowJar --no-watch-fs
+RUN ./gradlew downloadDependencies --no-watch-fs
 
 # now we copy our application source code and build it
 
