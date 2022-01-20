@@ -24,4 +24,10 @@ describe('Group e2e test', () => {
         cy.contains('jhi-group-dialog button.btn-primary', 'Save').click();
         cy.get('jhi-groups .group-row').should('have.length', 3);
     });
+
+    it('should be able to delete a group', () => {
+        cy.contains('jhi-project-detail ul.nav-tabs .nav-item', 'Groups').click();
+        cy.contains('jhi-groups .group-row', 'Test Group C').contains('button', 'Delete').click();
+        cy.get('jhi-groups .group-row').should('have.length', 2);
+    });
 });

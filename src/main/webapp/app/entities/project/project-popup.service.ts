@@ -3,7 +3,9 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
-import { Project, ProjectService } from '../../shared';
+import { copyProject, Project, ProjectService } from '../../shared';
+import { Observable, of, throwError } from 'rxjs';
+import { first, map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectPopupService {
@@ -17,26 +19,31 @@ export class ProjectPopupService {
     ) {
     }
 
-    open(component: any, organizationName: string, projectName?: string): NgbModalRef {
+    open(component: any, organizationName?: string, projectName?: string): Observable<NgbModalRef> {
         if (this.isOpen) {
             return;
         }
         this.isOpen = true;
 
         if (projectName) {
-            this.projectService.find(projectName).subscribe((project) => {
-                project.startDate = this.datePipe.transform(project.startDate, 'yyyy-MM-ddThh:mm');
-                project.endDate = this.datePipe.transform(project.endDate, 'yyyy-MM-ddThh:mm');
-                this.projectModalRef(component, organizationName, project);
-            });
+            return this.projectService.find(projectName).pipe(
+                map((project) => {
+                    project.startDate = this.datePipe.transform(project.startDate, 'yyyy-MM-ddThh:mm');
+                    project.endDate = this.datePipe.transform(project.endDate, 'yyyy-MM-ddThh:mm');
+                    return this.projectModalRef(component, organizationName, project);
+                }),
+                first(),
+            );
+        } else if (organizationName) {
+            return of(this.projectModalRef(component, organizationName, {}));
         } else {
-            return this.projectModalRef(component, organizationName, {});
+            return throwError("Cannot open project dialog without project or organization");
         }
     }
 
     projectModalRef(component: any, organizationName: string, project: Project): NgbModalRef {
         const modalRef = this.modalService.open(component, {size: 'lg', backdrop: 'static'});
-        modalRef.componentInstance.project = project;
+        modalRef.componentInstance.project = copyProject(project);
         modalRef.componentInstance.organizationName = organizationName;
         modalRef.result.then((result) => {
             this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});

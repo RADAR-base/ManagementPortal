@@ -39,7 +39,7 @@ export const projectRoute: Routes = [
 
 export const projectPopupRoute: Routes = [
     {
-        path: 'organizations/:organizationName/project-new',
+        path: 'organization/:organizationName/project-new',
         component: ProjectPopupComponent,
         data: {
             authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN],
@@ -49,7 +49,7 @@ export const projectPopupRoute: Routes = [
         outlet: 'popup',
     },
     {
-        path: 'organizations/:organizationName/project/:projectName/edit',
+        path: 'organization/:organizationName/project/:projectName/edit',
         component: ProjectPopupComponent,
         data: {
             authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],

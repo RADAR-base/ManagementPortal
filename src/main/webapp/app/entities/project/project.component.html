@@ -1,7 +1,7 @@
 <div *ngIf="organization$ | async as organization">
     <h2>
         <span [translate]="'managementPortalApp.project.home.title'"></span>
-        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN', 'ROLE_ORGANIZATION_ADMIN:' + organization.name]" class="btn btn-primary float-right create-project" [routerLink]="['/', { outlets: { popup: ['organizations', organization.name, 'project-new'] } }]">
+        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN', 'ROLE_ORGANIZATION_ADMIN:' + organization.name]" class="btn btn-primary float-right create-project" [routerLink]="['/', { outlets: { popup: ['organization', organization.name, 'project-new'] } }]">
             <span class="fa fa-plus"></span>
             <span [translate]="'managementPortalApp.project.home.createLabel'"></span>
         </button>
@@ -49,14 +49,14 @@
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit"
-                                [routerLink]="['/', { outlets: { popup: ['organizations', organization.name, 'project', project.projectName , 'edit']} }]"
+                                [routerLink]="['/', { outlets: { popup: ['organization', organization.name, 'project', project.projectName , 'edit']} }]"
                                 replaceUrl="true"
                                 class="btn btn-primary btn-sm">
                             <span class="fa fa-pencil"></span>
                             <span class="hidden-md-down" [translate]="'entity.action.edit'"></span>
                         </button>
 <!--                        <button type="submit"-->
-<!--                                [routerLink]="['/', { outlets: { popup: ['organizations', organization.name, 'project', project.projectName, 'delete']} }]"-->
+<!--                                [routerLink]="['/', { outlets: { popup: ['organization', organization.name, 'project', project.projectName, 'delete']} }]"-->
 <!--                                replaceUrl="true"-->
 <!--                                class="btn btn-danger btn-sm">-->
 <!--                            <span class="fa fa-remove"></span>-->

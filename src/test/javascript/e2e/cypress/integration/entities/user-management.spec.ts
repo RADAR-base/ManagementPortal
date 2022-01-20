@@ -54,7 +54,7 @@ describe('Create, edit, and delete user', () => {
         cy.get('[name=lastName]').type('Robert');
         cy.get('button.btn-primary').contains('Save').click();
 
-        cy.get('jhi-user-mgmt tbody tr').should('have.length', 5);
+        cy.get('jhi-user-mgmt tbody tr').should('have.length', 6);
     });
 
     it('should be able to delete a user with roles', () => {
@@ -65,7 +65,7 @@ describe('Create, edit, and delete user', () => {
             .contains('Delete')
             .click();
 
-        cy.get('jhi-user-mgmt tbody tr').should('have.length', 4);
+        cy.get('jhi-user-mgmt tbody tr').should('have.length', 5);
     });
 
     it('should be able to delete a sys admin user', () => {
@@ -75,6 +75,6 @@ describe('Create, edit, and delete user', () => {
         cy.get('jhi-user-mgmt-delete-dialog button.btn-danger').contains('Delete')
             .click();
 
-        cy.get('jhi-user-mgmt tbody tr').should('have.length', 3);
+        cy.get('jhi-user-mgmt tbody tr').should('have.length', 4);
     });
 });

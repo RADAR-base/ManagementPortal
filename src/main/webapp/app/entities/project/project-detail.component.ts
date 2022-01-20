@@ -1,10 +1,15 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
 
-import {Principal, Project, ProjectService} from '../../shared';
+import { Account, Principal, Project, ProjectService } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
-import { distinctUntilChanged, filter, pluck, switchMap } from "rxjs/operators";
+import { distinctUntilChanged, filter, map, pluck, shareReplay, startWith, switchMap } from 'rxjs/operators';
+
+interface TabOptions {
+    active: string | null;
+    available: string[];
+}
 
 @Component({
     selector: 'jhi-project-detail',
@@ -13,13 +18,11 @@ import { distinctUntilChanged, filter, pluck, switchMap } from "rxjs/operators";
     styleUrls: ['project-detail.component.scss'],
 })
 export class ProjectDetailComponent implements OnInit, OnDestroy {
-    private static availableTabs = ['subjects', 'groups', 'permissions', 'admins', 'analysts']
     private subscription = new Subscription();
-    private _project$ = new BehaviorSubject<Project>(null);
-    project$ = this._project$.asObservable();
+    project$: Observable<Project>
+    tab$: Observable<TabOptions>;
 
     private _activeTab$ = new BehaviorSubject('subjects');
-    activeTab$: Observable<string>;
 
     constructor(
             private eventManager: EventManager,
@@ -28,34 +31,85 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             private router: Router,
             public principal: Principal,
     ) {
-        this.activeTab$ = this._activeTab$.asObservable().pipe(distinctUntilChanged());
-        this.subscription.add(this.activatedRoute.queryParams.pipe(
-            pluck('tab'),
-        ).subscribe(tab => this.updateActiveTab(tab)));
+        this.project$ = this.observeProject();
+        this.tab$ = this.observeTab(this.project$);
     }
 
     ngOnInit() {
-        this.subscription.add(this.registerChangesInProjectName());
-        this.subscription.add(this._activeTab$.subscribe(tab => this.router.navigate([], {
-            relativeTo: this.activatedRoute,
-            queryParams: { tab },
-            queryParamsHandling: "merge",
-        })))
+        this.subscription.add(this.activatedRoute.queryParams.pipe(
+            pluck('tab'),
+            filter(tab => !!tab),
+        ).subscribe(tab => this.updateActiveTab(tab)));
+
+        this.subscription.add(this.registerTabChange());
     }
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
-        this._project$.complete();
         this._activeTab$.complete();
     }
 
-    private registerChangesInProjectName(): Subscription {
+    private registerTabChange(): Subscription {
+        return this.tab$.pipe(
+            pluck('active'),
+            filter(activeTab => activeTab !== null),
+            distinctUntilChanged(),
+            map((activeTab, index) => ({activeTab, index})),
+        ).subscribe(({activeTab, index}) => this.router.navigate([], {
+            relativeTo: this.activatedRoute,
+            queryParams: { tab: activeTab },
+            queryParamsHandling: "merge",
+            // Don't store the first iteration, where the active tab is not in the URL yet.
+            replaceUrl: index === 0,
+        }));
+    }
+
+    private observeProject(): Observable<Project> {
         return this.activatedRoute.params.pipe(
             filter(p => !!p),
             pluck('projectName'),
             distinctUntilChanged(),
             switchMap(projectName => this.projectService.find(projectName)),
-        ).subscribe(project => this._project$.next(project));
+            shareReplay(1),
+        );
+    }
+
+    private observeTab(project$: Observable<Project>): Observable<TabOptions> {
+        return combineLatest([
+            project$,
+            this.principal.account$,
+            this._activeTab$,
+        ]).pipe(
+            map(([project, account, active]) => {
+                const available = this.availableTabs(project, account);
+                return {
+                    available,
+                    active: ProjectDetailComponent.firstAvailableTab(active, available),
+                }
+            }),
+            startWith({active: null, available: []}),
+            distinctUntilChanged((a, b) => a.active === b.active && a.available.join(' ') === b.available.join(' ')),
+        );
+    }
+
+    private availableTabs(project: Project, account: Account): string[] {
+        if (project && this.principal.accountHasAnyAuthority(account, ['ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN:' + project.projectName])) {
+            return ['subjects', 'groups', 'permissions', 'admins', 'analysts'];
+        } else if (project && project.organization && this.principal.accountHasAnyAuthority(account, ['ROLE_ORGANIZATION_ADMIN:' + project.organization.name])) {
+            return ['permissions', 'admins', 'analysts'];
+        } else {
+            return [];
+        }
+    }
+
+    private static firstAvailableTab(tab: string, available: string[]): string {
+        if (available.length === 0) {
+            return null;
+        } else if (available.includes(tab)) {
+            return tab;
+        } else {
+            return available[0];
+        }
     }
 
     previousState() {
@@ -63,13 +117,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     }
 
     updateActiveTab(tab?: string) {
-        if (!tab) {
-            return;
-        }
-        if (!ProjectDetailComponent.availableTabs.includes(tab)) {
-            window.console.log(`Cannot load unknown tab ${tab}`);
-            return;
-        }
         this._activeTab$.next(tab);
     }
 }

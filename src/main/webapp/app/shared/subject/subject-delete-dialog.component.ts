@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component } from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
@@ -8,6 +8,9 @@ import { SubjectPopupService } from './subject-popup.service';
 
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
+import { ObservablePopupComponent } from '../util/observable-popup.component';
+import { Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-subject-delete-dialog',
@@ -48,32 +51,23 @@ export class SubjectDeleteDialogComponent {
     selector: 'jhi-subject-delete-popup',
     template: '',
 })
-export class SubjectDeletePopupComponent implements OnInit, OnDestroy {
-
-    modalRef: NgbModalRef;
-    routeSub: any;
-
+export class SubjectDeletePopupComponent extends ObservablePopupComponent {
     constructor(
-            private route: ActivatedRoute,
-            private subjectPopupService: SubjectPopupService,
+        private route: ActivatedRoute,
+        private subjectPopupService: SubjectPopupService,
     ) {
+        super(route);
     }
 
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            this.route.url.subscribe(url => {
-                if ('discontinue' === url[2].path) {
-                    this.modalRef = this.subjectPopupService
-                            .open(SubjectDeleteDialogComponent, params['login'], false);
-                } else if ('delete' === url[2].path) {
-                    this.modalRef = this.subjectPopupService
-                            .open(SubjectDeleteDialogComponent, params['login'], true);
-                }
-            });
-        });
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.route.url.pipe(
+          switchMap(url => {
+            if ('discontinue' === url[2].path) {
+                return this.subjectPopupService.open(SubjectDeleteDialogComponent, params['login'], false);
+            } else {
+                return this.subjectPopupService.open(SubjectDeleteDialogComponent, params['login'], true);
+            }
+          }),
+        );
     }
 }

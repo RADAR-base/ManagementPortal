@@ -14,10 +14,10 @@
         <table class="table table-striped">
             <thead>
                 <tr jhiSortOrder [order]="sortOrder$ | async" (orderChange)="sort($event)">
-                    <th jhiOrderBy="id"><span [translate]="'global.field.id'"></span></th>
-                    <th jhiOrderBy="name"><span [translate]="'managementPortalApp.organization.organizationName'"></span></th>
-                    <th jhiOrderBy="description"><span [translate]="'managementPortalApp.organization.description'"></span></th>
-                    <th jhiOrderBy="location"><span [translate]="'managementPortalApp.organization.location'"></span></th>
+                    <th jhiOrderBy="id"><span [translate]="'global.field.id'"></span><span class="fa fa-sort"></span></th>
+                    <th jhiOrderBy="name"><span [translate]="'managementPortalApp.organization.organizationName'"></span><span class="fa fa-sort"></span></th>
+                    <th jhiOrderBy="description"><span [translate]="'managementPortalApp.organization.description'"></span><span class="fa fa-sort"></span></th>
+                    <th jhiOrderBy="location"><span [translate]="'managementPortalApp.organization.location'"></span><span class="fa fa-sort"></span></th>
                     <th></th>
                 </tr>
             </thead>

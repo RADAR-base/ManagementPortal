@@ -38,3 +38,13 @@ export class OAuthClient {
         this.registeredRedirectUri = registeredRedirectUri ? registeredRedirectUri : [];
     }
 }
+
+export interface PairInfo {
+    tokenName: string;
+    tokenUrl: string;
+    baseUrl: string;
+    timeout: number;
+    timesOutAt: string;
+    timeOutDate?: string;
+    timeoutString?: string;
+}

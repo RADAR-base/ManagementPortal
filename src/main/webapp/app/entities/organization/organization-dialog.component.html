@@ -9,10 +9,10 @@
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
-        <div class="form-group" [hidden]="!organizationCopy.id">
+        <div class="form-group" [hidden]="!organization.id">
             <label for="id" [translate]="'global.field.id'"></label>
             <input type="text" class="form-control" id="id" name="id"
-                   [(ngModel)]="organizationCopy.id" readonly />
+                   [(ngModel)]="organization.id" readonly />
         </div>
         <div class="form-group">
             <label class="form-control-label"
@@ -20,7 +20,7 @@
                 for="field_organizationName">
             </label>
             <input type="text" class="form-control" name="organizationName" id="field_organizationName"
-                [(ngModel)]="organizationCopy.name" required pattern="[_'.@A-Za-z0-9- ]*" />
+                [(ngModel)]="organization.name" required pattern="[_'.@A-Za-z0-9- ]*" />
             <small id="organizationIdHelp" class="form-text text-muted"
                 [translate]="'managementPortalApp.organization.organizationName.fieldDescription'">
             </small>
@@ -43,7 +43,7 @@
                 for="field_description">
             </label>
             <input type="text" class="form-control" name="description" id="field_description"
-                [(ngModel)]="organizationCopy.description"
+                [(ngModel)]="organization.description"
             required />
             <div [hidden]="!(editForm.controls.description?.dirty && editForm.controls.description?.invalid)">
                 <small class="form-text text-danger"
@@ -59,7 +59,7 @@
                 for="field_location">
             </label>
             <input type="text" class="form-control" name="location" id="field_location"
-                [(ngModel)]="organizationCopy.location"
+                [(ngModel)]="organization.location"
             required />
             <div [hidden]="!(editForm.controls.location?.dirty && editForm.controls.location?.invalid)">
                 <small class="form-text text-danger"

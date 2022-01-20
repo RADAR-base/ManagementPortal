@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { Subject } from '../../shared/subject';
-import { OAuthClient } from './oauth-client.model';
+import { OAuthClient, PairInfo } from './oauth-client.model';
 import { createRequestOption } from '../../shared/model/request.utils';
 
 @Injectable({ providedIn: 'root' })
@@ -15,13 +15,13 @@ export class OAuthClientPairInfoService {
     constructor(private http: HttpClient) {
     }
 
-    get(client: OAuthClient, subject: Subject, persistent: boolean): Observable<HttpResponse<any>> {
+    get(client: OAuthClient, subject: Subject, persistent: boolean): Observable<PairInfo> {
         const params = createRequestOption({
             clientId: client.clientId,
             login: subject.login,
             persistent: persistent.toString(),
         });
-        return this.http.get(this.pairUrl, {params, observe: 'response'});
+        return this.http.get<PairInfo>(this.pairUrl, {params});
     }
 
     delete(tokenName: string): Observable<any> {

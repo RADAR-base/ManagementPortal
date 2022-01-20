@@ -1,20 +1,19 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { Component } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute, Params } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
-import { Project, ProjectService } from '../../shared/project';
+import { ProjectService } from '../../shared/project';
 import { SourceDataService } from '../source-data';
 import { SourceTypePopupService } from './source-type-popup.service';
 
 import { SourceType } from './source-type.model';
 import { SourceTypeService } from './source-type.service';
-import { Subscription } from "rxjs";
-import { switchMap } from "rxjs/operators";
-import { SourceTypeDeleteDialogComponent } from "./source-type-delete-dialog.component";
+import { Observable } from 'rxjs';
+import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
 
 @Component({
     selector: 'jhi-source-type-dialog',
@@ -75,26 +74,15 @@ export class SourceTypeDialogComponent {
     selector: 'jhi-source-type-popup',
     template: '',
 })
-export class SourceTypePopupComponent implements OnInit, OnDestroy {
-    private modalRef: NgbModalRef;
-    private routeSub: Subscription;
-
+export class SourceTypePopupComponent extends ObservablePopupComponent {
     constructor(
-      private route: ActivatedRoute,
+      route: ActivatedRoute,
       private sourceTypePopupService: SourceTypePopupService,
     ) {
+        super(route);
     }
 
-    ngOnInit() {
-        this.routeSub = this.route.params.pipe(
-          switchMap(params => this.sourceTypePopupService.open(
-            SourceTypeDialogComponent, params['sourceTypeProducer'], params['sourceTypeModel'], params['catalogVersion']
-          )),
-        ).subscribe(modalRef => this.modalRef = modalRef);
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
-        this.modalRef?.dismiss();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.sourceTypePopupService.open(SourceTypeDialogComponent, params['sourceTypeProducer'], params['sourceTypeModel'], params['catalogVersion']);
     }
 }

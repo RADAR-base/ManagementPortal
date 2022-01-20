@@ -1,38 +1,20 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import {
-    BehaviorSubject,
-    combineLatest,
-    Observable,
-    of,
-    Subject,
-    throwError
-} from 'rxjs';
-import {
-    concatMap,
-    delay,
-    map,
-    pluck,
-    retryWhen,
-    startWith,
-    switchMap,
-    take,
-    tap,
-} from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable, of, Subject, throwError } from 'rxjs';
+import { concatMap, delay, distinctUntilChanged, filter, map, pluck, retryWhen, startWith, switchMap, tap, } from 'rxjs/operators';
 
 import { Project } from './project.model';
 import { SourceType } from '../../entities/source-type';
 import { createRequestOption } from '../model/request.utils';
 import { convertDateTimeFromServer, toDate } from '../util/date-util';
-import { Principal } from "../auth/principal.service";
-import { AlertService } from "../util/alert.service";
+import { Principal } from '../auth/principal.service';
+import { AlertService } from '../util/alert.service';
+import { OrganizationService } from '../organization';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectService {
     private readonly _projects$ = new BehaviorSubject<Project[]>([]);
     private readonly _trigger$ = new Subject<void>();
-
-    private organizationResourceUrl = 'api/organizations';
 
     projects$: Observable<Project[]> = this._projects$.asObservable();
 
@@ -40,29 +22,33 @@ export class ProjectService {
       private http: HttpClient,
       private principal: Principal,
       private alertService: AlertService,
+      private organizationService: OrganizationService,
     ) {
         combineLatest([
             principal.account$,
             this._trigger$.pipe(startWith(undefined as void)),
         ]).pipe(
-          switchMap(([account]) => {
-              if (account) {
-                  return this.fetch().pipe(
-                    retryWhen(errors => errors.pipe(
-                      delay(1000),
-                      take(10),
-                      concatMap(err => throwError(err)))
-                    ),
-                  );
-              } else {
-                  return of([]);
-              }
-          })
+            switchMap(([account]) => {
+                if (account) {
+                    return this.fetch().pipe(
+                        retryWhen(errors => errors.pipe(
+                            concatMap((error, count) => {
+                                if (count <= 10 && (!error.status || error.status >= 500)) {
+                                    return of(error);
+                                }
+                                return throwError(error);
+                            }),
+                            delay(1000),
+                        )),
+                    );
+                } else {
+                    return of([]);
+                }
+            }),
+            distinctUntilChanged((a, b) => a === b || (a && b && JSON.stringify(a) === JSON.stringify(b))),
         ).subscribe(
-          projects => {
-              this._projects$.next(projects)
-          },
-          err => this.alertService.error(err.message, null, null),
+            projects => this._projects$.next(projects),
+            err => this.alertService.error(err.message, null, null),
         );
     }
 
@@ -92,30 +78,25 @@ export class ProjectService {
 
     find(projectName: string): Observable<Project> {
         return this.projects$.pipe(
-            switchMap(projects => {
-              const existingProject = projects.find(p => p.projectName === projectName);
-              if (existingProject) {
-                  return of(existingProject);
-              } else {
-                  return this.fetchProject(projectName);
-              }
-            }),
-            take(1)
+            map(projects => projects.find(p => p.projectName === projectName)),
+            filter(p => !!p),
+            distinctUntilChanged((a, b) => a === b || JSON.stringify(a) === JSON.stringify(b)),
         );
     }
 
-    fetchProject(projectName: string): Observable<Project> {
-        return this.http.get(this.projectUrl(projectName)).pipe(
-          map(p => this.convertProjectFromServer(p)),
-          tap(p => this.updateProject(p)),
-        );
+    findByOrganization(organizationId?: number): Observable<Project[]> {
+        if (organizationId) {
+            return this.projects$.pipe(
+                map(projects => projects.filter(p => p.organization.id === organizationId)),
+            );
+        } else {
+            return this.projects$;
+        }
     }
 
     fetch(): Observable<Project[]> {
         return this.query().pipe(
-          map(res => res.body.map(p => {
-              return this.convertProjectFromServer(p)
-          })),
+          map(res => res.body.map(p => this.convertProjectFromServer(p))),
         );
     }
 
@@ -123,12 +104,6 @@ export class ProjectService {
         const options = createRequestOption(req);
         return this.http.get<Project[]>(this.projectUrl(), {params: options, observe: 'response'});
     }
-
-    findAllByOrganization(orgName: string): Observable<Project[]> {
-        let url = `${this.organizationResourceUrl}/${orgName}/projects`;
-        return this.http.get<Project[]>(url);
-    }
-
 
     findSourceTypesByName(projectName: string): Observable<SourceType[]> {
         return this.find(projectName).pipe(
@@ -162,16 +137,22 @@ export class ProjectService {
     private updateProject(project: Project) {
         const nextValue = this._projects$.value.slice();
         const idx = nextValue.findIndex(p => p.id === project.id);
+        let needsAuthRenewal = false;
         if (idx >= 0) {
+            if (nextValue[idx].projectName !== project.projectName) {
+                needsAuthRenewal = true;
+            }
             nextValue[idx] = project;
         } else {
             nextValue.push(project);
         }
         this._projects$.next(nextValue);
+        if (needsAuthRenewal) {
+            this.principal.reset();
+        }
     }
 
     protected convertProjectToServer(project: Project): any {
-        console.log(project)
         return {
             ...project,
             startDate: toDate(project.startDate),

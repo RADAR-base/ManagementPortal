@@ -1,22 +1,17 @@
-import { Observable, Subject, merge, combineLatest, Subscription } from 'rxjs';
+import { combineLatest, merge, Observable, Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, Params, Router} from '@angular/router';
 
-import {
-    NgbActiveModal,
-    NgbCalendar, NgbDate, NgbDateParserFormatter,
-    NgbDateStruct,
-    NgbModalRef,
-    NgbTypeaheadSelectItemEvent
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbCalendar, NgbDate, NgbDateParserFormatter, NgbDateStruct, NgbModalRef, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 
 import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
 import { SourceType, SourceTypeService } from '../source-type';
 import { ProjectPopupService } from './project-popup.service';
 
-import {GroupService, OrganizationService, Project, ProjectService} from '../../shared';
+import { GroupService, OrganizationService, Project, ProjectService } from '../../shared';
+import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
 
 @Component({
     selector: 'jhi-project-dialog',
@@ -54,7 +49,8 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
             private eventManager: EventManager,
             private groupService: GroupService,
             private calendar: NgbCalendar,
-            public formatter: NgbDateParserFormatter
+            public formatter: NgbDateParserFormatter,
+            private router: Router,
     ) {
         this.isSaving = false;
         this.options = ['Work-package', 'Phase', 'External-project-url', 'External-project-id', 'Privacy-policy-url'];
@@ -134,23 +130,16 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
     };
 
     private onSaveSuccess(result: Project) {
+        if(history.state?.parentComponent === 'project-detail') {
+            this.router.navigate(['/project', result.projectName]);
+        }
         this.eventManager.broadcast({name: 'projectListModification', content: 'OK'});
         this.isSaving = false;
         this.activeModal.dismiss(result);
     }
 
     private onSaveError(error) {
-        try {
-            error.json();
-        } catch (exception) {
-            error.message = error.text();
-        }
         this.isSaving = false;
-        this.onError(error);
-    }
-
-    private onError(error) {
-        this.alertService.error(error.message, null, null);
     }
 
     addSourceType(event: NgbTypeaheadSelectItemEvent) {
@@ -173,32 +162,26 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
         let currentGroups = this.projectCopy.groups || [];
         let newGroup = { name: this.newGroupInputText };
         if (newGroup.name.length == 0 || newGroup.name.length > 50) {
-            // TODO: actually show error
             return;
         }
         if (currentGroups.some(g => g.name === newGroup.name)) {
             // TODO: actually show error
             return;
         }
-        this.groupService.create(this.projectCopy.projectName, newGroup).toPromise()
-          .then(g => {
-              this.projectCopy.groups = [ ...currentGroups, g];
-              this.newGroupInputText = '';
-          })
-          .catch(reason => {
-              // TODO: actually show error
-          })
+        this.subscriptions.add(
+            this.groupService.create(this.projectCopy.projectName, newGroup).subscribe(g => {
+                this.projectCopy.groups = [ ...currentGroups, g];
+                this.newGroupInputText = '';
+            })
+        );
     }
 
     removeGroup(groupName: string) {
-        // TODO: warn that this may affect existing subjects
-        this.groupService.delete(this.projectCopy.projectName, groupName).toPromise()
-          .then(() => {
-              this.projectCopy.groups = this.projectCopy.groups.filter(g => g.name !== groupName);
-          })
-          .catch(() => {
-              // TODO: actually show error
-          });
+        this.subscriptions.add(
+            this.groupService.delete(this.projectCopy.projectName, groupName).subscribe(() => {
+                this.projectCopy.groups = this.projectCopy.groups.filter(g => g.name !== groupName);
+            })
+        );
     }
 }
 
@@ -206,26 +189,15 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
     selector: 'jhi-project-popup',
     template: '',
 })
-export class ProjectPopupComponent implements OnInit, OnDestroy {
-
-    modalRef: NgbModalRef;
-    routeSub: any;
-
+export class ProjectPopupComponent extends ObservablePopupComponent {
     constructor(
-            private route: ActivatedRoute,
+            route: ActivatedRoute,
             private projectPopupService: ProjectPopupService,
     ) {
+        super(route);
     }
 
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            console.log(params);
-            this.modalRef = this.projectPopupService
-                .open(ProjectDialogComponent, params['organizationName'], params['projectName']);
-        });
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.projectPopupService.open(ProjectDialogComponent, params['organizationName'], params['projectName']);
     }
 }

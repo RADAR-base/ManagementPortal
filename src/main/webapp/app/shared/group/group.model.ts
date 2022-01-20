@@ -1,6 +1,10 @@
-export class Group {
-    public id?: number;
-    public name: string;
-    public projectId?: number;
-    public projectName?: string;
+export interface Group {
+    id?: number;
+    name?: string;
+    projectId?: number;
+    projectName?: string;
+}
+
+export function copyGroup(group: Group): Group {
+    return {...group};
 }

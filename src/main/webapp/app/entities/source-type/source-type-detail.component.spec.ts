@@ -9,6 +9,7 @@ import { MockActivatedRoute } from '../../shared/util/test/mock-route.service';
 import { SourceTypeDetailComponent } from './source-type-detail.component';
 import { SourceTypeService } from './source-type.service';
 import { SourceType } from './source-type.model';
+import { first } from 'rxjs/operators';
 
 describe('Component Tests', () => {
 
@@ -49,8 +50,9 @@ describe('Component Tests', () => {
             // WHEN
             comp.ngOnInit();
 
+            const sourceType = await comp.sourceType$.pipe(first()).toPromise();
             // THEN
-            expect(await comp.sourceType$.toPromise()).toEqual(jasmine.objectContaining({id: 10}));
+            expect(sourceType).toEqual(jasmine.objectContaining({id: 10}));
             expect(service.find).toHaveBeenCalledWith('testProducer', 'testModel', 'testVersion');
             }));
         });

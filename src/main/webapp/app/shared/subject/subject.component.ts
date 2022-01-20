@@ -1,48 +1,18 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    Input,
-    OnChanges,
-    OnDestroy,
-    OnInit,
-    SimpleChange,
-    SimpleChanges,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChange, SimpleChanges, } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-    BehaviorSubject,
-    combineLatest,
-    Observable,
-    Subscription
-} from 'rxjs';
-import {
-    debounceTime,
-    distinctUntilChanged,
-    filter,
-    first,
-    map,
-    pluck,
-    shareReplay,
-    switchMap,
-    tap,
-    withLatestFrom,
-} from 'rxjs/operators';
-import { NgbCalendar, NgbDateParserFormatter, NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, first, map, pluck, shareReplay, switchMap, tap, withLatestFrom, } from 'rxjs/operators';
+import { NgbCalendar, NgbDateParserFormatter, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { Group, GroupService, ITEMS_PER_PAGE, Project } from '..';
-import { AddSubjectsToGroupDialogComponent } from "./add-subjects-to-group-dialog.component";
+import { AddSubjectsToGroupDialogComponent } from './add-subjects-to-group-dialog.component';
 import { CheckedSubject, Subject, SubjectFilterCriteria } from './subject.model';
 import { SubjectFilterParams, SubjectPaginationParams, SubjectService, } from './subject.service';
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
-import {
-    NgbDateRange,
-    NgbDateReactiveFilter,
-    ReactiveFilter,
-    ReactiveFilterOptions
-} from "../util/reactive-filter";
-import { distinctSortOrder, SortOrder, SortOrderImpl } from '../util/sort-util';
+import { NgbDateRange, NgbDateReactiveFilter, ReactiveFilter, ReactiveFilterOptions } from '../util/reactive-filter';
+import { regularSortOrder, SortOrder, SortOrderImpl } from '../util/sort-util';
 
 @Component({
     selector: 'jhi-subjects',
@@ -68,14 +38,12 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     previousPage: number = 1;
     itemsPerPage = ITEMS_PER_PAGE;
 
-    _sortOrder$ = new BehaviorSubject<SortOrder>({
+    private _sortOrder$ = new BehaviorSubject<SortOrder>({
         predicate: 'login',
         ascending: true,
     });
     sortOrder$: Observable<SortOrderImpl>;
 
-    sortBy$ = new BehaviorSubject<string>('login');
-    ascending$ = new BehaviorSubject<boolean>(true);
     sortingOptions = [
         'login',
         'externalId',
@@ -103,10 +71,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             calendar: NgbCalendar,
             public dateFormatter: NgbDateParserFormatter
     ) {
-        this.sortOrder$ = this._sortOrder$.pipe(
-          map(o => SortOrderImpl.from(o)),
-          distinctSortOrder(),
-        );
+        this.sortOrder$ = this._sortOrder$.pipe(regularSortOrder());
+
         const stringFilterOptions: ReactiveFilterOptions<string> = {
             mapResult: filter$ => filter$.pipe(
               map(v => v ? v.trim() : ''),
@@ -233,6 +199,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
                     sort: sortOrder.toQueryParam(),
                 },
                 queryParamsHandling: "merge",
+                replaceUrl: true,
             })),
           withLatestFrom(this._subjects$),
           switchMap(([[projectName, filter, sortOrder, page], subjects]) => {
@@ -372,12 +339,18 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     updateSortingSortBy(predicate?: string) {
-        this.sortBy$.next(predicate);
+        this._sortOrder$.next({
+            predicate: predicate || this._sortOrder$.value.predicate,
+            ascending: this._sortOrder$.value.ascending,
+        });
         this.page$.next(1);
     }
 
     updateSortAscending(ascending: boolean) {
-        this.ascending$.next(ascending);
+        this._sortOrder$.next({
+            predicate: this._sortOrder$.value.predicate,
+            ascending: ascending,
+        });
         this.page$.next(1);
     }
 

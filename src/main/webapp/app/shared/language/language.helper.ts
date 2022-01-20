@@ -8,18 +8,40 @@ import {
 } from '@ngx-translate/core';
 
 import { LANGUAGES } from './language.constants';
-import { Observable, of } from "rxjs";
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class JhiLanguageHelper {
-    languages$: Observable<string[]> = of(LANGUAGES);
+    readonly languages$: Observable<string[]> = of(LANGUAGES);
+
+    private _titleKey$: BehaviorSubject<string> = new BehaviorSubject<string>('managementPortalApp');
+    readonly titleKey$: Observable<string> = this._titleKey$.asObservable();
 
     constructor(private translateService: TranslateService, private titleService: Title, private router: Router) {
-        this.init();
-    }
+        this.updateTitle();
 
-    getAll(): Promise<string[]> {
-        return Promise.resolve(LANGUAGES);
+        combineLatest([
+            this.titleKey$,
+            this.translateService.onTranslationChange.pipe(startWith(undefined as TranslationChangeEvent)),
+            this.translateService.onLangChange.pipe(startWith(undefined as LangChangeEvent)),
+        ]).pipe(
+            switchMap(([titleKey]) => this.translateService.get(titleKey)),
+            map(t => {
+                if (typeof t === 'string') {
+                    return t;
+                } else if (typeof t === 'object') {
+                    const values = Object.values(t).filter(v => typeof v === 'string');
+                    if (values.length > 0) {
+                        return values[0] as string;
+                    }
+                }
+                return 'ManagementPortal';
+            }),
+            catchError(() => of('ManagementPortal')),
+        ).subscribe(title => {
+            this.titleService.setTitle(title);
+        });
     }
 
     /**
@@ -30,23 +52,7 @@ export class JhiLanguageHelper {
      * 3. 'global.title'
      */
     updateTitle(titleKey?: string) {
-        if (!titleKey) {
-            titleKey = this.getPageTitle(this.router.routerState.snapshot.root);
-        }
-
-        this.translateService.get(titleKey).subscribe((title) => {
-            this.titleService.setTitle(title);
-        });
-    }
-
-    private init() {
-        this.translateService.onTranslationChange.subscribe((event: TranslationChangeEvent) => {
-            this.updateTitle();
-        });
-
-        this.translateService.onLangChange.subscribe((event: LangChangeEvent) => {
-            this.updateTitle();
-        });
+        this._titleKey$.next(titleKey || this.getPageTitle(this.router.routerState.snapshot.root));
     }
 
     private getPageTitle(routeSnapshot: ActivatedRouteSnapshot) {

@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component } from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
@@ -7,6 +7,8 @@ import { ProjectPopupService } from './project-popup.service';
 
 import { Project, ProjectService } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
+import { Observable } from 'rxjs';
+import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
 
 @Component({
     selector: 'jhi-project-delete-dialog',
@@ -42,25 +44,15 @@ export class ProjectDeleteDialogComponent {
     selector: 'jhi-project-delete-popup',
     template: '',
 })
-export class ProjectDeletePopupComponent implements OnInit, OnDestroy {
-
-    modalRef: NgbModalRef;
-    routeSub: any;
-
+export class ProjectDeletePopupComponent extends ObservablePopupComponent {
     constructor(
-            private route: ActivatedRoute,
+            route: ActivatedRoute,
             private projectPopupService: ProjectPopupService,
     ) {
+        super(route);
     }
 
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            this.modalRef = this.projectPopupService
-                    .open(ProjectDeleteDialogComponent, params['projectName']);
-        });
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.projectPopupService.open(ProjectDeleteDialogComponent, null, params['projectName']);
     }
 }

@@ -1,10 +1,19 @@
-export class Organization {
-    constructor(
-        public id?: number,
-        public name?: string,
-        public description?: string,
-        public location?: string,
-        public projects?: any[],
-    ) {
+import { MinimalProject } from '../project';
+
+export interface MinimalOrganization {
+    id?: number;
+    name?: string;
+}
+
+export interface Organization extends MinimalOrganization {
+    description?: string;
+    location?: string;
+    projects?: MinimalProject[];
+}
+
+export function copyOrganization(organization: Organization): Organization {
+    return {
+        ...organization,
+        projects: organization.projects ? organization.projects.map(p => ({...p})) : organization.projects,
     }
 }

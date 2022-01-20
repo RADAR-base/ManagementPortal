@@ -5,10 +5,10 @@ import { map } from 'rxjs/operators';
 
 import { Organization, OrganizationService } from '../../shared';
 import {
-    distinctSortOrder,
+    regularSortOrder,
     SortOrder,
     SortOrderImpl
-} from "../../shared/util/sort-util";
+} from '../../shared/util/sort-util';
 
 @Component({
     selector: 'jhi-organization',
@@ -16,7 +16,7 @@ import {
 })
 export class OrganizationComponent implements OnInit, OnDestroy {
     organizations$: Observable<Organization[]>;
-    _sortOrder$ = new BehaviorSubject<SortOrder>({predicate: 'id', ascending: true});
+    private _sortOrder$ = new BehaviorSubject<SortOrder>({predicate: 'id', ascending: true});
     sortOrder$: Observable<SortOrderImpl>;
     subscriptions: Subscription = new Subscription();
 
@@ -25,10 +25,7 @@ export class OrganizationComponent implements OnInit, OnDestroy {
         private activatedRoute: ActivatedRoute,
         private router: Router,
     ) {
-        this.sortOrder$ = this._sortOrder$.pipe(
-          map(order => SortOrderImpl.from(order)),
-          distinctSortOrder(),
-        );
+        this.sortOrder$ = this._sortOrder$.pipe(regularSortOrder());
     }
 
     ngOnInit() {

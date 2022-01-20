@@ -1,18 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ Copyright (c) 2017. The Hyve and respective contributors
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~
-  ~ See the file LICENSE in the root of this repository.
-  ~
-  -->
-
 <databaseChangeLog
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd"
 >
     <changeSet id="Add organization authorities" author="joris@thehyve.nl">
         <sql>insert into radar_authority(name) values ('ROLE_ORGANIZATION_ADMIN')</sql>
@@ -25,7 +15,7 @@
         <sql>insert into radar_role_aud(id, rev, revtype, authority_name, authority_mod, project_id, project_mod, organization_id, organization_mod, users_mod) select id, 1, 0, authority_name, true, project_id, true, organization_id, true, true from radar_role WHERE id = 6</sql>
     </changeSet>
 
-    <changeSet id="Add organization admin user" author="joris@thehyve.nl" context="dev, test">
+    <changeSet id="Add organization admin user" author="joris@thehyve.nl" context="dev,test">
         <loadData
             file="config/liquibase/organization_user.csv"
             separator=";"

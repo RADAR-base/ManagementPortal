@@ -6,6 +6,7 @@ import { LoginModalService } from '../../../shared';
 
 import { PasswordResetFinish } from './password-reset-finish.service';
 import { Password } from '../../password/password.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'jhi-password-reset-finish',
@@ -23,6 +24,7 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
     success: string;
     modalRef: NgbModalRef;
     key: string;
+    private subscriptions = new Subscription();
 
     constructor(
             private passwordResetFinish: PasswordResetFinish,
@@ -33,9 +35,9 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit() {
-        this.route.queryParams.subscribe((params) => {
+        this.subscriptions.add(this.route.queryParams.subscribe((params) => {
             this.key = params['key'];
-        });
+        }));
         this.resetAccount = {};
         this.keyMissing = !this.key;
     }
@@ -44,6 +46,8 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
         if (this.passwordField) {
             this.passwordField.nativeElement.focus();
         }
+        this.subscriptions.unsubscribe();
+        this.modalRef?.dismiss();
     }
 
     finishReset() {
@@ -59,14 +63,14 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
         }
 
         if (this.weakPassword == null && this.doNotMatch == null) {
-            this.passwordResetFinish.save({
+            this.subscriptions.add(this.passwordResetFinish.save({
                 key: this.key,
                 newPassword: this.resetAccount.password,
             }).subscribe(() => {
                 this.success = 'OK';
             }, () => {
                 this.error = 'ERROR';
-            });
+            }));
         }
     }
 

@@ -4,8 +4,8 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { SourceType } from './source-type.model';
 import { SourceTypeService } from './source-type.service';
-import { Observable, of, Subscription } from "rxjs";
-import { catchError, filter, map, take } from "rxjs/operators";
+import { Observable, of } from "rxjs";
+import { catchError, filter, map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class SourceTypePopupService {
@@ -27,7 +27,6 @@ export class SourceTypePopupService {
         if (producer && model && version) {
             return this.sourceTypeService.find(producer, model, version).pipe(
               filter(s => !!s),
-              take(1),
               map(sourceType => this.sourceTypeModalRef(component, sourceType)),
               catchError(() => of(this.sourceTypeModalRef(component, {}))),
             )
@@ -38,11 +37,11 @@ export class SourceTypePopupService {
 
     sourceTypeModalRef(component: any, sourceType: SourceType): NgbModalRef {
         const modalRef = this.modalService.open(component, {size: 'lg', backdrop: 'static'});
-        modalRef.componentInstance.sourceType = sourceType;
-        modalRef.result.then((result) => {
+        modalRef.componentInstance.sourceType = sourceType || {};
+        modalRef.result.then(() => {
             this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;
-        }, (reason) => {
+        }, () => {
             this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;
         });

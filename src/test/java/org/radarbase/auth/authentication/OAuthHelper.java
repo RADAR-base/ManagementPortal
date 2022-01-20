@@ -5,6 +5,10 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import org.radarbase.auth.authorization.Permission;
 import org.radarbase.auth.config.TokenValidatorConfig;
+import org.radarbase.management.domain.Authority;
+import org.radarbase.management.domain.Role;
+import org.radarbase.management.domain.User;
+import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +26,14 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL;
 
 /**
@@ -40,7 +49,7 @@ public final class OAuthHelper {
     public static final String TEST_CHECKKEY_ALIAS = "radarbase-managementportal-rsa";
     public static final String[] SCOPES = Permission.scopes();
     public static final String[] AUTHORITIES = {"ROLE_SYS_ADMIN"};
-    public static final String[] ROLES = {};
+    public static final String[] ROLES = {"ROLE_SYS_ADMIN"};
     public static final String[] SOURCES = {};
     public static final String[] AUD = {RES_MANAGEMENT_PORTAL};
     public static final String CLIENT = "unit_test";
@@ -128,7 +137,9 @@ public final class OAuthHelper {
      * @return an initialized JwtAuthenticationFilter
      */
     public static JwtAuthenticationFilter createAuthenticationFilter() {
-        return new JwtAuthenticationFilter(createTokenValidator(), auth -> auth);
+        UserRepository userRepository = mock(UserRepository.class);
+        when(userRepository.findOneByLogin(anyString())).thenReturn(Optional.of(createAdminUser()));
+        return new JwtAuthenticationFilter(createTokenValidator(), auth -> auth, userRepository);
     }
 
     /**
@@ -162,6 +173,16 @@ public final class OAuthHelper {
         };
     }
 
+    private static User createAdminUser() {
+        User user = new User();
+        user.setId(1L);
+        user.setLogin("admin");
+        user.setActivated(true);
+        user.setRoles(Set.of(
+            new Role(new Authority("ROLE_SYS_ADMIN"))
+        ));
+        return user;
+    }
 
     private static String createValidToken(Algorithm algorithm) {
         Instant exp = Instant.now().plusSeconds(30 * 60);

@@ -1,5 +1,5 @@
-import { MonoTypeOperatorFunction } from "rxjs";
-import { distinctUntilChanged } from "rxjs/operators";
+import { MonoTypeOperatorFunction, OperatorFunction, pipe } from 'rxjs';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 
 export function sortByPredicate<T>(values: T[], predicate: (T) => any, ascending: boolean): T[] {
   const modifier = ascending ? 1 : -1;
@@ -41,12 +41,12 @@ export class SortOrderImpl implements SortOrder {
     return SortOrderImpl.sortBy(values, this);
   }
 
-  static sortBy<T>(values: T[], order: SortOrder): T[] {
-    return sortByPredicate(values, t => t[order.predicate], order.ascending);
-  }
-
   toQueryParam(): string {
     return this.predicate + ',' + (this.ascending ? 'asc' : 'desc');
+  }
+
+  static sortBy<T>(values: T[], order: SortOrder): T[] {
+    return sortByPredicate(values, t => t[order.predicate], order.ascending);
   }
 
   static from(order?: SortOrder, defaultPredicate?: string): SortOrderImpl {
@@ -59,6 +59,13 @@ export class SortOrderImpl implements SortOrder {
       );
     }
   }
+}
+
+export function regularSortOrder(defaultPredicate?: string): OperatorFunction<SortOrder, SortOrderImpl> {
+    return pipe(
+        map(o => SortOrderImpl.from(o, defaultPredicate)),
+        distinctSortOrder(),
+    );
 }
 
 export function distinctSortOrder(): MonoTypeOperatorFunction<SortOrderImpl> {

@@ -102,7 +102,7 @@
                                 [replaceUrl]="true"
                                 class="btn btn-danger btn-sm"
                                 [disabled]="account.login == user.login ||
-                                (user.roles && (
+                                (user.roles.length > 0 && (
                                 user.roles[0].authorityName=='ROLE_PARTICIPANT' ||
                                 user.roles[0].authorityName=='ROLE_INACTIVE_PARTICIPANT'))">
                             <span class="fa fa-remove"></span>

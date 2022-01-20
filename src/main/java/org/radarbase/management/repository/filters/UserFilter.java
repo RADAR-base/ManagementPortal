@@ -80,9 +80,10 @@ public class UserFilter implements Specification<User> {
             boolean allowNoRole) {
         PredicateBuilder authorityPredicates = predicates.newBuilder();
 
+        boolean allowNoRoleInScope = allowNoRole;
         // Is organization admin
         if (predicates.isValidValue(projectName)) {
-            allowNoRole = false;
+            allowNoRoleInScope = false;
             // Is project admin
             entitySubquery(RoleAuthority.Scope.PROJECT, roleJoin,
                     query, authorityPredicates, authoritiesAllowed,
@@ -96,7 +97,7 @@ public class UserFilter implements Specification<User> {
                                 org.join("projects").get("projectName"), projectName));
             }
         } else if (predicates.isValidValue(organization)) {
-            allowNoRole = false;
+            allowNoRoleInScope = false;
             entitySubquery(RoleAuthority.Scope.ORGANIZATION, roleJoin,
                     query, authorityPredicates, authoritiesAllowed,
                     (b, org) -> b.likeLower(org.get("name"), organization));
@@ -110,7 +111,7 @@ public class UserFilter implements Specification<User> {
             addAllowedAuthorities(authorityPredicates, roleJoin, authoritiesAllowed,
                     RoleAuthority.Scope.GLOBAL);
         }
-        if (allowNoRole) {
+        if (allowNoRoleInScope) {
             authorityPredicates.isNull(roleJoin.get("id"));
         }
 
