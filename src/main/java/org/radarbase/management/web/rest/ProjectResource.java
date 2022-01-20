@@ -275,7 +275,8 @@ public class ProjectResource {
         checkPermission(token, ROLE_READ);
         log.debug("REST request to get all Roles for project {}", projectName);
         ProjectDTO projectDto = projectService.findOneByName(projectName);
-        checkPermissionOnOrganizationAndProject(token, ROLE_READ, projectDto.getOrganization().getName(), projectDto.getProjectName());
+        checkPermissionOnOrganizationAndProject(token, ROLE_READ,
+                projectDto.getOrganization().getName(), projectDto.getProjectName());
         return ResponseEntity.ok(roleService.getRolesByProject(projectName));
     }
 
