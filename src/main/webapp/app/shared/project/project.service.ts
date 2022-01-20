@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { BehaviorSubject, combineLatest, Observable, of, Subject, throwError } from 'rxjs';
-import { concatMap, delay, distinctUntilChanged, map, pluck, retryWhen, startWith, switchMap, tap, } from 'rxjs/operators';
+import { concatMap, delay, distinctUntilChanged, filter, map, pluck, retryWhen, startWith, switchMap, tap, } from 'rxjs/operators';
 
 import { Project } from './project.model';
 import { SourceType } from '../../entities/source-type';
@@ -78,7 +78,8 @@ export class ProjectService {
 
     find(projectName: string): Observable<Project> {
         return this.projects$.pipe(
-          map(projects => projects.find(p => p.projectName === projectName)),
+            map(projects => projects.find(p => p.projectName === projectName)),
+            filter(p => !!p),
         );
     }
 

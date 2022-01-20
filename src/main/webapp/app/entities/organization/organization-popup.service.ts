@@ -5,7 +5,7 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { copyOrganization, Organization, OrganizationService } from '../../shared';
 import { Observable, of } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { first, map, take } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class OrganizationPopupService {
@@ -27,6 +27,7 @@ export class OrganizationPopupService {
 
         if (organizationName) {
             return this.organizationService.find(organizationName).pipe(
+                first(),
                 map((organization) => this.organizationModalRef(component, organization)),
             )
         } else {

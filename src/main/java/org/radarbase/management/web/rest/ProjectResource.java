@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
-import org.radarbase.management.domain.Project;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.service.ProjectService;
 import org.radarbase.management.service.ResourceUriService;
@@ -48,10 +47,6 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 
-import static org.radarbase.auth.authorization.RadarAuthorization.checkGlobalPermission;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganization;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganizationAndProject;
-import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
 import static org.radarbase.auth.authorization.Permission.PROJECT_CREATE;
 import static org.radarbase.auth.authorization.Permission.PROJECT_DELETE;
 import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
@@ -59,8 +54,12 @@ import static org.radarbase.auth.authorization.Permission.PROJECT_UPDATE;
 import static org.radarbase.auth.authorization.Permission.ROLE_READ;
 import static org.radarbase.auth.authorization.Permission.SOURCE_READ;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkGlobalPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganization;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganizationAndProject;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
+import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_PROJECT_NOT_EMPTY;
 
 /**

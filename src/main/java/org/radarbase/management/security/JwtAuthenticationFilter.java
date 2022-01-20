@@ -3,7 +3,6 @@ package org.radarbase.management.security;
 import org.radarbase.auth.authentication.TokenValidator;
 import org.radarbase.auth.exception.TokenValidationException;
 import org.radarbase.auth.token.AuthorityReference;
-import org.radarbase.auth.token.JwtRadarToken;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.repository.UserRepository;
 import org.slf4j.Logger;
@@ -29,7 +28,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

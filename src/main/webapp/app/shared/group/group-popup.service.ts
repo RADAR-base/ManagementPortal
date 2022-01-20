@@ -6,7 +6,7 @@ import { ProjectService } from '../project';
 import { GroupService } from './group.service';
 import { Group } from './group.model';
 import { Observable, throwError } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class GroupPopupService {
@@ -27,22 +27,24 @@ export class GroupPopupService {
 
         if (id) {
             return this.groupService.find(id, projectName).pipe(
-              map((group: Group) => {
-                if (group) {
-                    group.projectName = projectName;
-                }
-                return this.groupModalRef(component, group, isDelete);
-              }),
+                map((group: Group) => {
+                    if (group) {
+                        group.projectName = projectName;
+                    }
+                    return this.groupModalRef(component, group, isDelete);
+                }),
+                first(),
             );
         } else if (projectName) {
             return this.projectService.find(projectName).pipe(
-              map((project) => {
-                const group: Group = {
-                    projectId: project.id,
-                    projectName: project.projectName,
-                };
-                return this.groupModalRef(component, group, isDelete);
-              }),
+                map((project) => {
+                  const group: Group = {
+                      projectId: project.id,
+                      projectName: project.projectName,
+                  };
+                  return this.groupModalRef(component, group, isDelete);
+                }),
+                first(),
             );
         } else {
             return throwError("No group given");
