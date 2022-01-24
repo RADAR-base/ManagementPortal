@@ -81,8 +81,8 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
 
         var orgDto = projectDto.getOrganization();
         if (orgDto != null && orgDto.getName() != null) {
-            var org = organizationRepository.findOneByName(orgDto.getName()).orElseThrow(
-                    () -> new NotFoundException("Organization not found with name",
+            var org = organizationRepository.findOneByName(orgDto.getName())
+                    .orElseThrow(() -> new NotFoundException("Organization not found with name",
                             ORGANIZATION,
                             ErrorConstants.ERR_ORGANIZATION_NAME_NOT_FOUND,
                             Collections.singletonMap("name", orgDto.getName())));

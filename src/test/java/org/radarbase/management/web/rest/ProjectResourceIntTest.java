@@ -137,10 +137,14 @@ class ProjectResourceIntTest {
      * if they test an entity which requires the current entity.</p>
      */
     public static Project createEntity() {
+        Organization organization = new Organization();
+        organization.setId(1L);
+        organization.setName("main");
         return new Project()
                 .projectName(DEFAULT_PROJECT_NAME)
                 .description(DEFAULT_DESCRIPTION)
                 .organizationName(DEFAULT_ORGANIZATION)
+                .organization(organization)
                 .location(DEFAULT_LOCATION)
                 .startDate(DEFAULT_START_DATE)
                 .projectStatus(DEFAULT_PROJECT_STATUS)
