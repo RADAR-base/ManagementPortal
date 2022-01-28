@@ -12,7 +12,6 @@ import {
     ProjectDialogComponent,
     ProjectPopupComponent,
     projectPopupRoute,
-    ProjectPopupService,
     projectRoute,
 } from './';
 
@@ -42,9 +41,6 @@ const ENTITY_STATES = [
         ProjectPopupComponent,
         ProjectDeleteDialogComponent,
         ProjectDeletePopupComponent,
-    ],
-    providers: [
-        ProjectPopupService,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

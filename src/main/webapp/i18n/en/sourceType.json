@@ -15,6 +15,8 @@
             "detail": {
                 "title": "Source Type"
             },
+            "canRegisterDynamically": "Dynamic Source Registration",
+            "dynamicRegistrationHelp": "If enabled this will allow the OAuth client to dynamically register data sources.",
             "producer": "Producer",
             "model": "Model",
             "catalogVersion": "Catalog Version",

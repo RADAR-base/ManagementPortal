@@ -4,12 +4,12 @@
         <table class="table table-striped">
             <thead>
             <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
-            <th jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span><span class="fa fa-sort"></span></th>
-                <th jhiSortBy="login"><span jhiTranslate="userManagement.login">Login</span> <span class="fa fa-sort"></span></th>
-                <th jhiSortBy="email"><span jhiTranslate="userManagement.email">Email</span> <span class="fa fa-sort"></span></th>
+                <th jhiSortBy="id"><span [translate]="'global.field.id'"></span><span class="fa fa-sort"></span></th>
+                <th jhiSortBy="login"><span [translate]="'userManagement.login'"></span> <span class="fa fa-sort"></span></th>
+                <th jhiSortBy="email"><span [translate]="'userManagement.email'"></span> <span class="fa fa-sort"></span></th>
                 <th></th>
-                <th jhiSortBy="langKey"> <span jhiTranslate="userManagement.langKey">Lang Key</span> <span class="fa fa-sort"></span></th>
-                <th jhiSortBy="lastModifiedBy"><span jhiTranslate="userManagement.lastModifiedBy">Last Modified By</span> <span class="fa fa-sort"></span></th>
+                <th jhiSortBy="langKey"> <span [translate]="'userManagement.langKey'"></span> <span class="fa fa-sort"></span></th>
+                <th jhiSortBy="lastModifiedBy"><span [translate]="'userManagement.lastModifiedBy'"></span> <span class="fa fa-sort"></span></th>
                 <th></th>
             </tr>
             </thead>
@@ -19,10 +19,14 @@
                 <td>{{user.login}}</td>
                 <td>{{user.email}}</td>
                 <td>
-                    <span class="badge badge-danger hand"  *ngIf="!user.activated"
-                          jhiTranslate="userManagement.deactivated">Deactivated</span>
-                    <span class="badge badge-success hand"  *ngIf="user.activated"
-                          jhiTranslate="userManagement.activated">Activated</span>
+                    <span *ngIf="!user.activated"
+                        class="badge badge-danger hand"
+                        [translate]="'userManagement.deactivated'">
+                    </span>
+                    <span *ngIf="user.activated"
+                        class="badge badge-success hand"
+                        [translate]="'userManagement.activated'">
+                    </span>
                 </td>
                 <td>{{user.langKey}}</td>
 
@@ -35,7 +39,7 @@
                                 [routerLink]="['/user-management', user.login]"
                                 class="btn btn-info btn-sm">
                             <span class="fa fa-eye"></span>
-                            <span class="hidden-md-down" jhiTranslate="entity.action.view">View</span>
+                            <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
                         </button>
                     </div>
                 </td>

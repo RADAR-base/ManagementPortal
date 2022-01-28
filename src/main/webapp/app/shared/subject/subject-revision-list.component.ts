@@ -1,10 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { JhiLanguageService, ParseLinks } from 'ng-jhipster';
 import { ITEMS_PER_PAGE } from '..';
 import { EntityRevision } from '../../entities/revision/entity-revision.model';
 import { SubjectService } from './subject.service';
 import { HttpResponse } from '@angular/common/http';
+import { parseLinks } from '../util/parse-links-util';
 
 @Component({
     selector: 'jhi-subject-revision-list',
@@ -26,10 +26,8 @@ export class SubjectRevisionListComponent implements OnInit, OnDestroy {
     private subscription: any;
 
     constructor(
-            private jhiLanguageService: JhiLanguageService,
             private subjectService: SubjectService,
             private route: ActivatedRoute,
-            private parseLinks: ParseLinks,
             private router: Router,
     ) {
         this.revisions = [];
@@ -47,8 +45,6 @@ export class SubjectRevisionListComponent implements OnInit, OnDestroy {
                 this.reverse = true;
             }
         });
-        this.jhiLanguageService.addLocation('subject');
-        this.jhiLanguageService.addLocation('audits');
     }
 
     ngOnInit() {
@@ -72,7 +68,7 @@ export class SubjectRevisionListComponent implements OnInit, OnDestroy {
             size: this.itemsPerPage,
             sort: this.sort(),
         }).subscribe((response: HttpResponse<any>) => {
-            this.links = this.parseLinks.parse(response.headers.get('link'));
+            this.links = parseLinks(response.headers.get('link'));
             this.totalItems = parseInt(response.headers.get('X-Total-Count'), 10);
             this.queryCount = this.totalItems;
             this.revisions = response.body;

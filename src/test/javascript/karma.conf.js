@@ -1,9 +1,7 @@
-'use strict';
+// Karma configuration file, see link for more information
+// https://karma-runner.github.io/1.0/config/configuration-file.html
 
-const path = require('path');
-const webpack = require('webpack');
-const WATCH = process.argv.indexOf('--watch') > -1;
-const LoaderOptionsPlugin = require("webpack/lib/LoaderOptionsPlugin");
+process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 module.exports = function (config) {
     config.set({
@@ -13,95 +11,36 @@ module.exports = function (config) {
 
         // frameworks to use
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-        frameworks: ['jasmine', 'intl-shim'],
-
-        // list of files / patterns to load in the browser
-        files: [
-            'spec/entry.ts'
+        frameworks: ['jasmine', '@angular-devkit/build-angular'],
+        plugins: [
+            require('karma-jasmine'),
+            require('karma-chrome-launcher'),
+            require('karma-jasmine-html-reporter'),
+            require('karma-notify-reporter'),
+            require('karma-coverage'),
+            require('@angular-devkit/build-angular/plugins/karma'),
         ],
-
-
-        // list of files to exclude
-        exclude: ['e2e/**'],
-
-        // preprocess matching files before serving them to the browser
-        // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-        preprocessors: {
-            'spec/entry.ts': ['webpack', 'sourcemap']
+        client: {
+            jasmine: {
+                // you can add configuration options for Jasmine here
+                // the possible options are listed at https://jasmine.github.io/api/edge/Configuration.html
+                // for example, you can disable the random execution with `random: false`
+                // or set a specific seed with `seed: 4321`
+            },
+            clearContext: false, // leave Jasmine Spec Runner output visible in browser
         },
-
-        webpack: {
-            resolve: {
-                extensions: ['.ts', '.js']
-            },
-            module: {
-                rules: [
-                    {
-                        test: /\.ts$/, enforce: 'pre', loader: 'tslint-loader', exclude: /(test|node_modules)/
-                    },
-                    {
-                        test: /\.ts$/,
-                        loaders: ['awesome-typescript-loader', 'angular2-template-loader?keepUrl=true'],
-                        exclude: /node_modules/
-                    },
-                    {
-                        test: /\.(html|css)$/,
-                        loader: 'raw-loader',
-                        exclude: /\.async\.(html|css)$/
-                    },
-                    {
-                        test: /\.async\.(html|css)$/,
-                        loaders: ['file?name=[name].[hash].[ext]', 'extract']
-                    },
-                    {
-                        test: /\.scss$/,
-                        loaders: ['to-string-loader', 'css-loader', 'sass-loader']
-                    },
-                    {
-                        test: /src[\/|\\]main[\/|\\]webapp[\/|\\].+\.ts$/,
-                        enforce: 'post',
-                        exclude: /(test|node_modules)/,
-                        loader: 'sourcemap-istanbul-instrumenter-loader?force-sourcemap=true'
-                    }]
-            },
-            devtool: 'inline-source-map',
-            plugins: [
-                new webpack.ContextReplacementPlugin(
-                    // The (\\|\/) piece accounts for path separators in *nix and Windows
-                    /angular(\\|\/)core(\\|\/)(esm5(\\|\/)src|src)(\\|\/)linker/,
-                    root('./src') // location of your src
-                ),
-                new LoaderOptionsPlugin({
-                    options: {
-                        tslint: {
-                            emitErrors: !WATCH,
-                            failOnHint: false
-                        }
-                    }
-                })
-            ]
+        jasmineHtmlReporter: {
+            suppressAll: true, // removes the duplicated traces
         },
 
         // test results reporter to use
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-        reporters: ['dots', 'junit', 'progress', 'karma-remap-istanbul', 'notify'],
-
-        junitReporter: {
-            outputFile: '../../../../build/test-results/karma/TESTS-results.xml'
-        },
+        reporters: ['dots', 'kjhtml', 'progress', 'notify'],
 
         notifyReporter: {
             reportEachFailure: true, // Default: false, will notify on every failed sepc
             reportSuccess: true // Default: true, will notify when a suite was successful
-        },
-
-
-        remapIstanbulReporter: {
-            reports: { // eslint-disable-line
-                'html': 'build/test-results/coverage',
-                'text-summary': null
-            }
         },
 
         // web server port
@@ -115,31 +54,21 @@ module.exports = function (config) {
         logLevel: config.LOG_INFO,
 
         // enable / disable watching file and executing tests whenever any file changes
-        autoWatch: WATCH,
+        autoWatch: true,
 
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-        browsers: ['PhantomJS'],
-        // browsers: ['Chrome'],
-        //
-        // customLaunchers: {
-        //     ChromeHeadlessCI: {
-        //         base: 'ChromeHeadless',
-        //         flags: ['--no-sandbox']
-        //     }
-        // },
-        //
-        // Ensure all browsers can run tests written in .ts files
-        mime: {
-            'text/x-typescript': ['ts','tsx']
+        browsers: ['Chrome', 'ChromeHeadlessCI'],
+        customLaunchers: {
+          ChromeHeadlessCI: {
+            base: 'ChromeHeadless',
+            flags: ['--no-sandbox']
+          }
         },
 
         // Continuous Integration mode
         // if true, Karma captures browsers, runs the tests and exits
-        singleRun: !WATCH
+        singleRun: false,
+        restartOnFileChange: true,
     });
 };
-
-function root(__path) {
-    return path.join(__dirname, __path);
-}

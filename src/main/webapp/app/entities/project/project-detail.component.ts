@@ -1,10 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { EventManager, JhiLanguageService } from 'ng-jhipster';
-import { Subscription } from 'rxjs/Rx';
-import { Source } from '../../shared/source/source.model';
+import { Subscription } from 'rxjs';
 
+import { Source } from '../../shared/source/source.model';
 import { Project, ProjectService } from '../../shared';
+import { EventManager } from '../../shared/util/event-manager.service';
 
 @Component({
     selector: 'jhi-project-detail',
@@ -27,11 +27,9 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
     constructor(
             private eventManager: EventManager,
-            private jhiLanguageService: JhiLanguageService,
             private projectService: ProjectService,
             private route: ActivatedRoute,
     ) {
-        this.jhiLanguageService.setLocations(['project', 'projectStatus', 'subject']);
     }
 
     ngOnInit() {
@@ -40,7 +38,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         });
         this.registerChangeInProjects();
         this.viewSubjects();
-        // this.sourceComponent.ngOnInit();
     }
 
     load(projectName) {

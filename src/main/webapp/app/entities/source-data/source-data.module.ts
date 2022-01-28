@@ -10,9 +10,7 @@ import {
     SourceDataDialogComponent,
     SourceDataPopupComponent,
     sourceDataPopupRoute,
-    SourceDataPopupService,
     sourceDataRoute,
-    SourceDataService,
 } from './';
 
 const ENTITY_STATES = [
@@ -39,10 +37,6 @@ const ENTITY_STATES = [
         SourceDataPopupComponent,
         SourceDataDeleteDialogComponent,
         SourceDataDeletePopupComponent,
-    ],
-    providers: [
-        SourceDataService,
-        SourceDataPopupService,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
-import { Subject } from '../../shared/subject';
-
-import { OAuthClient } from './oauth-client.model';
 import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+import { Subject } from '../../shared/subject';
+import { OAuthClient } from './oauth-client.model';
 import { createRequestOption } from '../../shared/model/request.utils';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class OAuthClientPairInfoService {
 
     private pairUrl = 'api/oauth-clients/pair';

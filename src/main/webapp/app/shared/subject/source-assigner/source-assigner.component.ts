@@ -1,13 +1,15 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
+
+import { AlertService } from '../../util/alert.service';
+import { EventManager } from '../../util/event-manager.service';
 import { MinimalSource, SourceService} from '../../source';
 import { SubjectPopupService } from '../subject-popup.service';
 
 import { Subject } from '../subject.model';
 import { SubjectService } from '../subject.service';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-source-assigner',
@@ -23,13 +25,11 @@ export class SubjectSourceAssignerDialogComponent implements OnInit {
 
     constructor(
             public activeModal: NgbActiveModal,
-            private jhiLanguageService: JhiLanguageService,
             private alertService: AlertService,
             private subjectService: SubjectService,
             private sourceService: SourceService,
             private eventManager: EventManager,
     ) {
-        this.jhiLanguageService.addLocation('subject');
         this.isSaving = false;
     }
 

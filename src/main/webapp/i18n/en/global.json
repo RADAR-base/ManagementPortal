@@ -56,12 +56,7 @@
             "info": {
                 "authenticated": {
                     "prefix": "Are you a registered user? ",
-                    "link": "Sign in",
-                    "suffix": ", you can try the default accounts:<br/>- Administrator (login=\"admin\" and password=\"admin\") <br/>- User (login=\"user\" and password=\"user\")."
-                },
-                "register": {
-                    "noaccount": "You don't have an account yet?",
-                    "link": "Register a new account"
+                    "link": "Sign in"
                 }
             },
             "error": {
@@ -153,7 +148,7 @@
         "invalidsubjectstate": "A discontinued subject can not be activated",
         "nameexists": "A {{ entityName }} with the given name already exists"
     },
-    "footer": "For more details, read the user guide <a target=\"_blank\" href=\"https://github.com/RADAR-base/ManagementPortal/wiki/User-Guide\">here.</a>",
+    "footer": "For more details, read the user guide <a target=\"_blank\" href=\"https://radar-base.atlassian.net/wiki/spaces/RAD/pages/1913978881/User+Guide+for+Management+Portal\">here.</a>",
     "common" : {
         "showMore": " More",
         "showLess": " Less"

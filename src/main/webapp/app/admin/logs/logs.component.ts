@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { JhiLanguageService } from 'ng-jhipster';
 
 import { Log } from './log.model';
 import { LogsService } from './logs.service';
@@ -16,13 +15,11 @@ export class LogsComponent implements OnInit {
     reverse: boolean;
 
     constructor(
-            private jhiLanguageService: JhiLanguageService,
             private logsService: LogsService,
     ) {
         this.filter = '';
         this.orderProp = 'name';
         this.reverse = false;
-        this.jhiLanguageService.setLocations(['logs']);
     }
 
     ngOnInit() {
@@ -33,6 +30,21 @@ export class LogsComponent implements OnInit {
         const log = new Log(name, level);
         this.logsService.changeLevel(log).subscribe(() => {
             this.logsService.findAll().subscribe((loggers) => this.loggers = loggers);
+        });
+    }
+
+    get filteredAndOrderedLoggers() {
+        let filtered = !this.filter
+            ? this.loggers
+            : this.loggers.filter(l =>
+                l.name.toLowerCase().includes(this.filter.toLowerCase()));
+        return filtered.sort((a, b) => {
+            if (a[this.orderProp] < b[this.orderProp]) {
+                return this.reverse ? -1 : 1;
+            } else if (a[this.orderProp] > b[this.orderProp]) {
+                return this.reverse ? 1 : -1;
+            }
+            return 0;
         });
     }
 }

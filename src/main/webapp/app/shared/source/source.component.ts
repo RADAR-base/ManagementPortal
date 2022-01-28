@@ -7,16 +7,19 @@ import {
     SimpleChange,
     SimpleChanges,
 } from '@angular/core';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs/Rx';
-import { ITEMS_PER_PAGE, Principal, Project } from '..';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
+import { ITEMS_PER_PAGE, Project } from '..';
 import { Source } from './source.model';
 import { SourceService } from './source.service';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { SourceData } from '../../entities/source-data';
 import { PagingParams } from '../commons';
+import { AlertService } from '../util/alert.service';
+import { EventManager } from '../util/event-manager.service';
+import { parseLinks } from '../util/parse-links-util';
 
 @Component({
     selector: 'jhi-sources',
@@ -42,26 +45,24 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
     routeData: any;
     previousPage: any;
 
-    constructor(private jhiLanguageService: JhiLanguageService,
+    constructor(
                 private sourceService: SourceService,
                 private alertService: AlertService,
                 private eventManager: EventManager,
-                private parseLinks: ParseLinks,
                 private activatedRoute: ActivatedRoute,
                 private router: Router) {
         this.sources = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
-        this.pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
+        this.pagingParams$ = this.activatedRoute.data.pipe(map(data => {
             const fallback = { page: 1, predicate: 'id', ascending: true };
             return data['pagingParams'] || fallback;
-        });
+        }));
         this.routeData = this.pagingParams$.subscribe(params => {
             this.page = params.page;
             this.previousPage = params.page;
             this.ascending = params.ascending;
             this.predicate = params.predicate;
         });
-        this.jhiLanguageService.addLocation('source');
     }
 
     ngOnInit() {
@@ -141,7 +142,7 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     private onSuccess(data, headers) {
-        this.links = this.parseLinks.parse(headers.get('link'));
+        this.links = parseLinks(headers.get('link'));
         this.totalItems = headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
         this.sources = data;

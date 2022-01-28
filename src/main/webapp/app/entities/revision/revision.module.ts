@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { ManagementPortalSharedModule } from '../../shared';
 import { RevisionComponent } from './revision.component';
 import { revisionRoute } from './revision.route';
-import { RevisionService } from './revision.service';
 
 const ENTITY_STATES = [
     ...revisionRoute,
@@ -20,9 +19,6 @@ const ENTITY_STATES = [
     ],
     entryComponents: [
         RevisionComponent,
-    ],
-    providers: [
-        RevisionService,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [

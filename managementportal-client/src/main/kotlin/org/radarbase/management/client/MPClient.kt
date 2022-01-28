@@ -42,11 +42,7 @@ class MPClient(
 ) {
     private val clientId: String = serverConfig.clientId
     private val clientSecret: String = serverConfig.clientSecret
-    val baseUrl: HttpUrl = (serverConfig.url.toHttpUrlOrNull()
-        ?: throw MalformedURLException("Cannot parse base URL ${serverConfig.url} as an URL"))
-        .newBuilder()
-        .addPathSegment("")
-        .build()
+    val baseUrl: HttpUrl = serverConfig.httpUrl
 
     private val objectMapper: ObjectMapper = objectMapper ?: jsonMapper {
         serializationInclusion(JsonInclude.Include.NON_NULL)
@@ -195,5 +191,10 @@ class MPClient(
         val url: String,
         val clientId: String,
         val clientSecret: String,
-    )
+    ) {
+        val httpUrl: HttpUrl
+            get() = (url.trimEnd('/') + '/')
+                .toHttpUrlOrNull()
+                ?: throw MalformedURLException("Cannot parse base URL $url as an URL")
+    }
 }

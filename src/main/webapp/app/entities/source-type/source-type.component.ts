@@ -1,13 +1,16 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertService, EventManager, JhiLanguageService, ParseLinks } from 'ng-jhipster';
-import { Observable, Subscription } from 'rxjs/Rx';
+import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ITEMS_PER_PAGE } from '../../shared';
 
 import { SourceType } from './source-type.model';
 import { SourceTypeService } from './source-type.service';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { PagingParams } from '../../shared/commons';
+import { AlertService } from '../../shared/util/alert.service';
+import { EventManager } from '../../shared/util/event-manager.service';
+import { parseLinks } from '../../shared/util/parse-links-util';
 
 @Component({
     selector: 'jhi-source-type',
@@ -29,27 +32,24 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
     previousPage: any;
 
     constructor(
-            private jhiLanguageService: JhiLanguageService,
             private sourceTypeService: SourceTypeService,
             private alertService: AlertService,
             private eventManager: EventManager,
-            private parseLinks: ParseLinks,
             private activatedRoute: ActivatedRoute,
             private router: Router,
     ) {
         this.sourceTypes = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
-        this.pagingParams$ = this.activatedRoute.data.map<any, PagingParams>(data => {
+        this.pagingParams$ = this.activatedRoute.data.pipe(map(data => {
             const fallback = { page: 1, predicate: 'id', ascending: true };
             return data['pagingParams'] || fallback;
-        });
+        }));
         this.routeData = this.pagingParams$.subscribe(params => {
             this.page = params.page;
             this.previousPage = params.page;
             this.ascending = params.ascending;
             this.predicate = params.predicate;
         });
-        this.jhiLanguageService.setLocations(['sourceType', 'sourceTypeScope']);
     }
 
     loadAll() {
@@ -100,7 +100,7 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
     }
 
     private onSuccess(data, headers) {
-        this.links = this.parseLinks.parse(headers.get('link'));
+        this.links = parseLinks(headers.get('link'));
         this.totalItems = headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
         this.sourceTypes = data;

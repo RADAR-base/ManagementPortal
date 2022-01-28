@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { JhiLanguageService } from 'ng-jhipster';
+
 import { LoginModalService } from '../../shared';
 
 @Component({
@@ -14,11 +14,9 @@ export class ErrorComponent implements OnInit {
     modalRef: NgbModalRef;
 
     constructor(
-            private jhiLanguageService: JhiLanguageService,
             private loginModalService: LoginModalService,
             private route: ActivatedRoute,
     ) {
-        this.jhiLanguageService.setLocations(['error']);
     }
 
     ngOnInit() {
@@ -26,7 +24,6 @@ export class ErrorComponent implements OnInit {
             if (url[0].path === 'accessdenied') {
                 this.error403 = true;
             }
-            // this.login();
         });
     }
 

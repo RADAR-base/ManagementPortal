@@ -1,6 +1,6 @@
 <div>
     <h4 *ngIf="subjectLogin">
-        <span jhiTranslate="revisions.revisionList">Revisions for</span>&nbsp;<span jhiTranslate="revisions.entity.subject">Subject</span>&nbsp;{{ subjectLogin }}
+        <span [translate]="'revisions.revisionList'"></span>&nbsp;<span [translate]="'revisions.entity.subject'"></span>&nbsp;{{ subjectLogin }}
     </h4>
     <div class="row">
     </div>
@@ -10,23 +10,23 @@
         <table class="table table-striped">
             <thead>
             <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
-            <th jhiSortBy="id"><span jhiTranslate="revisions.number">Revision number</span><span class="fa fa-sort"></span></th>
-            <th><span jhiTranslate="revisions.revisionType">Revision type</span></th>
-            <th><span jhiTranslate="revisions.author">author</span></th>
-            <th><span jhiTranslate="revisions.timestamp">Timestamp</span></th>
-            <th><span jhiTranslate="managementPortalApp.subject.login">Login</span></th>
-            <th><span jhiTranslate="managementPortalApp.subject.externalId">Enternal Id</span></th>
-            <th><span jhiTranslate="managementPortalApp.subject.externalLink">External Link</span></th>
-            <th><span jhiTranslate="managementPortalApp.subject.status.title">Status</span></th>
-            <th><span jhiTranslate="managementPortalApp.subject.project">Project</span></th>
-            <th><span jhiTranslate="managementPortalApp.subject.sources">Sources</span></th>
-            <th><span jhiTranslate="managementPortalApp.subject.attributeData">Attributes</span></th>
+                <th jhiSortBy="id"><span [translate]="'revisions.number'"></span><span class="fa fa-sort"></span></th>
+                <th><span [translate]="'revisions.revisionType'"></span></th>
+                <th><span [translate]="'revisions.author'"></span></th>
+                <th><span [translate]="'revisions.timestamp'"></span></th>
+                <th><span [translate]="'managementPortalApp.subject.login'"></span></th>
+                <th><span [translate]="'managementPortalApp.subject.externalId'"></span></th>
+                <th><span [translate]="'managementPortalApp.subject.externalLink'"></span></th>
+                <th><span [translate]="'managementPortalApp.subject.status.title'"></span></th>
+                <th><span [translate]="'managementPortalApp.subject.project'"></span></th>
+                <th><span [translate]="'managementPortalApp.subject.sources'"></span></th>
+                <th><span [translate]="'managementPortalApp.subject.attributeData'"></span></th>
             </tr>
             </thead>
             <tbody>
             <tr *ngFor="let revision of revisions; trackBy: trackRevision">
                 <td>{{revision.id}}</td>
-                <td><span jhiTranslate="revisions.type.{{revision.revisionType | lowercase}}"></span></td>
+                <td><span [translate]="'revisions.type.' + revision.revisionType.toLowerCase()"></span></td>
                 <td>{{revision.author}}</td>
                 <td>{{revision.timestamp  | date:'MMMM d, y, h:mm:ss a Z'}}</td>
                 <td><a [routerLink]="['/subject', revision.entity.login, 'revisions', revision.id ]">{{revision.entity.login}}</a></td>
@@ -54,7 +54,7 @@
                     </span>
                 </td>
                 <td>
-                    <div *ngFor="let entry of revision.entity.attributes | keys; trackBy: trackKey">
+                    <div *ngFor="let entry of revision.entity.attributes | keyvalue; trackBy: trackKey">
                         <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
                     </div>
                 </td>

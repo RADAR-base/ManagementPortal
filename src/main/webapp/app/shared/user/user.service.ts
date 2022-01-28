@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { User } from './user.model';
 import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+import { User } from './user.model';
 import { createRequestOption } from '../model/request.utils';
 import { Project } from '../project';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class UserService {
     private resourceUrl = 'api/users';
 
@@ -21,16 +22,16 @@ export class UserService {
     }
 
     find(login: string): Observable<User> {
-        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}`) as Observable<User>;
+        return this.http.get<User>(`${this.resourceUrl}/${encodeURIComponent(login)}`);
     }
 
     findProject(login: string): Observable<Project[]> {
-        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/projects`) as Observable<Project[]>;
+        return this.http.get<Project[]>(`${this.resourceUrl}/${encodeURIComponent(login)}/projects`);
     }
 
     query(req?: any): Observable<HttpResponse<User[]>> {
         const params = createRequestOption(req);
-        return this.http.get(this.resourceUrl, {params, observe: 'response'}) as Observable<HttpResponse<User[]>>;
+        return this.http.get<User[]>(this.resourceUrl, {params, observe: 'response'});
     }
 
     delete(login: string): Observable<any> {
@@ -43,6 +44,6 @@ export class UserService {
 
     findByProjectAndAuthority(req: any): Observable<User[]> {
         const params = createRequestOption(req);
-        return this.http.get(this.resourceUrl, {params}) as Observable<User[]>;
+        return this.http.get<User[]>(this.resourceUrl, {params});
     }
 }

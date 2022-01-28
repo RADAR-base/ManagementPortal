@@ -1,26 +1,34 @@
 <form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
 
     <div class="modal-header">
-        <h4 class="modal-title" id="mySubjectLabel" jhiTranslate="managementPortalApp.subject.home.createOrEditLabel">Create or edit a Subject</h4>
+        <h4 class="modal-title" id="mySubjectLabel"
+            [translate]="'managementPortalApp.subject.home.createOrEditLabel'">
+        </h4>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
                 (click)="clear()">&times;</button>
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
         <div class="form-group" [hidden]="!subject.id">
-            <label for="id" jhiTranslate="global.field.id">ID</label>
+            <label for="id" [translate]="'global.field.id'"></label>
             <input type="text" class="form-control" id="id" name="id"
                    [(ngModel)]="subject.id" readonly />
         </div>
 
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.subject.externalLink" for="field_externalLink">External Link</label>
+            <label class="form-control-label"
+                for="field_externalLink"
+                [translate]="'managementPortalApp.subject.externalLink'">
+            </label>
             <input type="text" class="form-control" name="externalLink" id="field_externalLink"
                 [(ngModel)]="subject.externalLink"
              />
         </div>
         <div class="form-group">
-            <label class="form-control-label" jhiTranslate="managementPortalApp.subject.externalId" for="field_externalId">External Id</label>
+            <label class="form-control-label"
+                for="field_externalId"
+                [translate]="'managementPortalApp.subject.externalId'">
+            </label>
             <input type="text" class="form-control" name="externalId" id="field_externalId"
                 [(ngModel)]="subject.externalId"
              />
@@ -28,15 +36,15 @@
 
         <div class="form-group">
 
-            <label jhiTranslate="managementPortalApp.subject.project" for="field_project">Project</label>
+            <label [translate]="'managementPortalApp.subject.project'" for="field_project"></label>
             <select class="form-control" id="field_project" name="project" [(ngModel)]="subject.project" required>
                 <option [ngValue]="null"></option>
                 <option [ngValue]="projectOption.id === subject.project?.id ? subject.project : projectOption" *ngFor="let projectOption of projects; trackBy: trackProjectById">{{projectOption.projectName}}</option>
             </select>
             <div [hidden]="!(editForm.controls.project?.dirty && editForm.controls.project?.invalid)">
                 <small class="form-text text-danger"
-                       [hidden]="!editForm.controls.project?.errors?.required" jhiTranslate="entity.validation.required">
-                    This field is required.
+                    [hidden]="!editForm.controls.project?.errors?.required"
+                    [translate]="'entity.validation.required'">
                 </small>
             </div>
         </div>
@@ -45,10 +53,10 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
-            <span class="fa fa-ban"></span>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+            <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
         </button>
         <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
-            <span class="fa fa-save"></span>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+            <span class="fa fa-save"></span>&nbsp;<span [translate]="'entity.action.save'"></span>
         </button>
     </div>
 </form>

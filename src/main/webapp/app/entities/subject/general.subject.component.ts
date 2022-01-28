@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { JhiLanguageService } from 'ng-jhipster';
 
 @Component({
     selector: 'jhi-subject',
@@ -7,10 +6,4 @@ import { JhiLanguageService } from 'ng-jhipster';
 })
 export class GeneralSubjectComponent {
     isProjectSpecific = false;
-
-    constructor(
-            private jhiLanguateService: JhiLanguageService
-    ) {
-        this.jhiLanguateService.setLocations(['subject']);
-    }
 }

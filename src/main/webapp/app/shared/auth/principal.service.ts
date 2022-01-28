@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
+import { Observable, Subject } from 'rxjs';
+
 import { AccountService } from './account.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class Principal {
     private userIdentity: any;
     private authenticated = false;
@@ -85,9 +85,5 @@ export class Principal {
 
     getAuthenticationState(): Observable<any> {
         return this.authenticationState.asObservable();
-    }
-
-    getImageUrl(): String {
-        return this.isIdentityResolved() ? this.userIdentity.imageUrl : null;
     }
 }

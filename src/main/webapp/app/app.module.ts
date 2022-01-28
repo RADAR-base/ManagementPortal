@@ -1,6 +1,14 @@
-import {Injector, NgModule} from '@angular/core';
+import { NgModule } from '@angular/core';
+import {
+    HttpClient,
+    HttpClientModule,
+    HTTP_INTERCEPTORS,
+} from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
-import {Ng2Webstorage} from 'ngx-webstorage';
+import { NgxWebstorageModule } from 'ngx-webstorage';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+
 import { ManagementPortalAccountModule } from './account/account.module';
 import { ManagementPortalAdminModule } from './admin/admin.module';
 import { PaginationConfig } from './blocks/config/uib-pagination.config';
@@ -15,23 +23,28 @@ import {
     LayoutRoutingModule,
     NavbarComponent,
     PageRibbonComponent,
-    ProfileService,
 } from './layouts';
 
-import { ManagementPortalSharedModule, UserRouteAccessService } from './shared';
-import './vendor.ts';
-import {HTTP_INTERCEPTORS} from '@angular/common/http';
-import {AuthInterceptor} from './blocks/interceptor/auth.interceptor';
-import {AuthExpiredInterceptor} from './blocks/interceptor/auth-expired.interceptor';
-import {ErrorHandlerInterceptor} from './blocks/interceptor/errorhandler.interceptor';
-import {EventManager} from 'ng-jhipster';
-import {NotificationInterceptor} from './blocks/interceptor/notification.interceptor';
+import { LANGUAGES, ManagementPortalSharedModule } from './shared';
+import { AuthInterceptor } from './blocks/interceptor/auth.interceptor';
+import { AuthExpiredInterceptor } from './blocks/interceptor/auth-expired.interceptor';
+import { ErrorHandlerInterceptor } from './blocks/interceptor/errorhandler.interceptor';
+import { NotificationInterceptor } from './blocks/interceptor/notification.interceptor';
 
 @NgModule({
     imports: [
         BrowserModule,
+        HttpClientModule,
+        TranslateModule.forRoot({
+            useDefaultLang: true,
+            loader: {
+                provide: TranslateLoader,
+                useFactory: c => new TranslateHttpLoader(c, 'i18n/', `.json`),
+                deps: [HttpClient],
+            },
+        }),
         LayoutRoutingModule,
-        Ng2Webstorage.forRoot({prefix: 'jhi', separator: '-'}),
+        NgxWebstorageModule.forRoot({ prefix: 'jhi', separator: '-' }),
         ManagementPortalSharedModule,
         ManagementPortalHomeModule,
         ManagementPortalAdminModule,
@@ -47,43 +60,33 @@ import {NotificationInterceptor} from './blocks/interceptor/notification.interce
         FooterComponent,
     ],
     providers: [
-        ProfileService,
         PaginationConfig,
-        UserRouteAccessService,
         {
             provide: HTTP_INTERCEPTORS,
             useClass: AuthInterceptor,
             multi: true,
-            deps: [
-                Injector,
-            ]
         },
         {
             provide: HTTP_INTERCEPTORS,
             useClass: AuthExpiredInterceptor,
             multi: true,
-            deps: [
-               Injector
-            ]
         },
         {
             provide: HTTP_INTERCEPTORS,
             useClass: ErrorHandlerInterceptor,
             multi: true,
-            deps: [
-                EventManager
-            ]
         },
         {
             provide: HTTP_INTERCEPTORS,
             useClass: NotificationInterceptor,
             multi: true,
-            deps: [
-                Injector
-            ]
         },
     ],
     bootstrap: [JhiMainComponent],
 })
 export class ManagementPortalAppModule {
+    constructor(translate: TranslateService) {
+        let browserLang = translate.getBrowserLang();
+        translate.use(LANGUAGES.includes(browserLang) ? browserLang: 'en');
+    }
 }

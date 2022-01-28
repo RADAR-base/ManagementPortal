@@ -1,10 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { AlertService, EventManager, JhiLanguageService } from 'ng-jhipster';
-import { Subscription } from 'rxjs/Subscription';
+import { HttpResponse } from '@angular/common/http';
+import { Subscription } from 'rxjs';
+
 import { AuthorityService, Project, ProjectService } from '../../shared';
+import { AlertService } from '../../shared/util/alert.service';
+import { EventManager } from '../../shared/util/event-manager.service';
 
 import { Role } from './role.model';
-import {HttpResponse} from '@angular/common/http';
 
 @Component({
     selector: 'jhi-user-role',
@@ -19,13 +21,12 @@ export class RoleComponent implements OnInit {
     selectedAuthority: any;
     selectedProject: Project;
 
-    constructor(private jhiLanguageService: JhiLanguageService,
+    constructor(
                 private authorityService: AuthorityService,
                 private projectService: ProjectService,
                 private alertService: AlertService,
                 private eventManager: EventManager
     ) {
-        this.jhiLanguageService.addLocation('role');
     }
 
     ngOnInit() {

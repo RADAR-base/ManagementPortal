@@ -1,4 +1,4 @@
-import { Component, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
@@ -6,7 +6,7 @@ import { User, UserService } from '../../shared';
 import { SYSTEM_ADMIN } from '../../shared/constants/common.constants';
 import { Role } from './role.model';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class UserModalService {
     private isOpen = false;
 

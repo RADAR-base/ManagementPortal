@@ -38,7 +38,7 @@
                 "Id" : "Id",
                 "sourceDescription" : "Source Beschrijving",
                 "remove" : "Verwijderen",
-                "assignedSources" : "toegewezen sources",
+                "assignedSources" : "Toegewezen sources",
                 "availableSources" : "Beschikbaar sources",
                 "sourceType": "Device type",
                 "sourceId": "Source ID",

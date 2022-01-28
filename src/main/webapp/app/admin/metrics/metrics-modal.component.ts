@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { JhiLanguageService } from 'ng-jhipster';
 
 @Component({
     selector: 'jhi-metrics-modal',
@@ -18,8 +17,7 @@ export class JhiMetricsMonitoringModalComponent implements OnInit {
 
     constructor(
             public activeModal: NgbActiveModal,
-            private jhiLanguageService: JhiLanguageService) {
-        this.jhiLanguageService.addLocation('metrics');
+    ) {
     }
 
     ngOnInit() {
@@ -48,5 +46,10 @@ export class JhiMetricsMonitoringModalComponent implements OnInit {
         } else if (threadState === 'BLOCKED') {
             return 'badge-danger';
         }
+    }
+
+    get threads(): any[] {
+        let state = this.threadDumpFilter && this.threadDumpFilter.threadState;
+        return this.threadDump.filter(t => !state || t.threadState === state);
     }
 }

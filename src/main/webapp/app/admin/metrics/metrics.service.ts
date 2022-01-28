@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs/Rx';
+import { Observable } from 'rxjs';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class JhiMetricsService {
 
     constructor(private http: HttpClient) {
@@ -13,6 +13,6 @@ export class JhiMetricsService {
     }
 
     threadDump(): Observable<any> {
-        return this.http.get('management/dump', { observe: 'response'}).map((res: HttpResponse<any>) => res.body);
+        return this.http.get('management/dump');
     }
 }

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
+
 import { Revision } from '../../entities/revision/revision.model';
 import { RevisionService } from '../../entities/revision/revision.service';
 
@@ -18,13 +18,10 @@ export class SubjectRevisionComponent implements OnInit, OnDestroy {
     private subscription: any;
 
     constructor(
-            private jhiLanguageService: JhiLanguageService,
             private subjectService: SubjectService,
             private revisionService: RevisionService,
             private route: ActivatedRoute,
     ) {
-        this.jhiLanguageService.addLocation('subject');
-        this.jhiLanguageService.addLocation('audits');
     }
 
     ngOnInit() {

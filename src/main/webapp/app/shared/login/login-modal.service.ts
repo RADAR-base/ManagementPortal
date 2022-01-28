@@ -3,7 +3,7 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { JhiLoginModalComponent } from './login.component';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class LoginModalService {
     private isOpen = false;
 

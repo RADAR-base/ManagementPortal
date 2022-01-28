@@ -6,16 +6,18 @@
                 "createLabel": "Maak een nieuwe Source Type",
                 "createOrEditLabel": "Maak of wijzig een Source Type"
             },
-            "created": "A new Source Type is created with identifier {{ param }}",
-            "updated": "A Source Type is updated with identifier {{ param }}",
-            "deleted": "A Source Type is deleted with identifier {{ param }}",
+            "created": "Een nieuw Source Type aangemaakt met identifier {{ param }}",
+            "updated": "Een Source Type wordt bijgewerkt met identifier {{ param }}",
+            "deleted": "Een Source Type wordt verwijderd met identifier {{ param }}",
             "delete": {
                 "question": "Bent u zeker dat u Source Type {{ id }} wilt verwijderen?"
             },
             "detail": {
                 "title": "Source Type"
             },
-            "producer": "Producer",
+            "canRegisterDynamically": "Dynamisch source Registratie",
+            "dynamicRegistrationHelp": "Indien ingeschakeld, kan de OAuth-client dynamisch gegevensbronnen registreren.",
+            "producer": "Producent",
             "model": "Model",
             "catalogVersion": "Catalog Version",
             "sourceTypeScope": "Source Type Scope",
@@ -24,9 +26,9 @@
             "sourceRegistration" : "Source Registratie",
             "dynamicRegistration": "Dynamisch source Registratie",
             "manualRegistration": "Met de hand Source Registratie",
-            "name": "naam",
+            "name": "Naam",
             "description": "Beschrijving",
-            "assessmentType": "beoordeling Type",
+            "assessmentType": "Beoordeling Type",
             "appProvider": "App provider"
         }
     },

@@ -1,48 +1,48 @@
 
 <div *ngIf="subject">
-    <h2><span jhiTranslate="managementPortalApp.subject.detail.title">Subject</span> {{subject.id}}</h2>
+    <h2><span [translate]="'managementPortalApp.subject.detail.title'"></span> {{subject.id}}</h2>
     <hr>
     <jhi-alert-error></jhi-alert-error>
     <dl class="row-md jh-entity-details">
-        <dt><span jhiTranslate="managementPortalApp.subject.login">Login</span></dt>
+        <dt><span [translate]="'managementPortalApp.subject.login'"></span></dt>
         <dd>
             <span>{{subject.login}}</span>
         </dd>
-        <dt><span jhiTranslate="managementPortalApp.subject.externalLink">External Link</span></dt>
+        <dt><span [translate]="'managementPortalApp.subject.externalLink'"></span></dt>
         <dd>
             <span>{{subject.externalLink}}</span>
         </dd>
-        <dt><span jhiTranslate="managementPortalApp.subject.externalId">External Id</span></dt>
+        <dt><span [translate]="'managementPortalApp.subject.externalId'"></span></dt>
         <dd>
             <span>{{subject.externalId}}</span>
         </dd>
-        <dt><span jhiTranslate="managementPortalApp.subject.project">Project</span></dt>
+        <dt><span [translate]="'managementPortalApp.subject.project'"></span></dt>
         <dd>
             <span *ngIf="subject.project">
                   <a [routerLink]="['/project', subject.project?.projectName ]" >{{subject.project?.projectName}}</a>
             </span>
         </dd>
-        <dt><span jhiTranslate="managementPortalApp.subject.sources">Sources</span></dt>
+        <dt><span [translate]="'managementPortalApp.subject.sources'"></span></dt>
         <dd>
             <span *ngFor="let sources of subject.sources; let last = last">
                 <a [routerLink]="['/source', sources?.sourceName ]">{{sources.sourceTypeModel}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
             </span>
         </dd>
 
-        <dt><span jhiTranslate="managementPortalApp.subject.attributeData">Attributes</span></dt>
+        <dt><span [translate]="'managementPortalApp.subject.attributeData'"></span></dt>
         <dd>
-            <div *ngFor="let entry of subject.attributes | keys; trackBy: trackKey">
+            <div *ngFor="let entry of subject.attributes | keyvalue; trackBy: trackKey">
                 <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
             </div>
         </dd>
 
-        <dt><span jhiTranslate="managementPortalApp.subject.createdBy">Created By</span></dt>
+        <dt><span [translate]="'managementPortalApp.subject.createdBy'"></span></dt>
         <dd>{{subject.createdBy}}</dd>
-        <dt><span jhiTranslate="managementPortalApp.subject.createdDate">Created Date</span></dt>
+        <dt><span [translate]="'managementPortalApp.subject.createdDate'"></span></dt>
         <dd>{{subject.createdDate | date:'dd/MM/yy HH:mm' }}</dd>
-        <dt><span jhiTranslate="managementPortalApp.subject.lastModifiedBy">Last Modified By</span></dt>
+        <dt><span [translate]="'managementPortalApp.subject.lastModifiedBy'"></span></dt>
         <dd>{{subject.lastModifiedBy}}</dd>
-        <dt><span jhiTranslate="managementPortalApp.subject.lastModifiedDate">Last Modified Date</span></dt>
+        <dt><span [translate]="'managementPortalApp.subject.lastModifiedDate'"></span></dt>
         <dd>{{subject.lastModifiedDate | date:'dd/MM/yy HH:mm'}}</dd>
 
     </dl>
@@ -50,11 +50,11 @@
     <button type="submit"
             (click)="previousState()"
             class="btn btn-info">
-        <span class="fa fa-arrow-left"></span>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+        <span class="fa fa-arrow-left"></span>&nbsp;<span [translate]="'entity.action.back'"></span>
     </button>
     <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN']"
         class="btn btn-dark"
         [routerLink]="['/subject', subject.login, 'revisions']">
-        <span class="fa fa-history"></span>&nbsp;<span jhiTranslate="revisions.title"></span>
+        <span class="fa fa-history"></span>&nbsp;<span [translate]="'revisions.title'"></span>
     </button>
 </div>

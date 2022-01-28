@@ -5,7 +5,8 @@ import { ProfileService } from './profile.service';
 @Component({
     selector: 'jhi-page-ribbon',
     template: `
-        <div class="ribbon" *ngIf="ribbonEnv"><a href="" jhiTranslate="global.ribbon.{{ribbonEnv}}">{{ribbonEnv}}</a>
+        <div class="ribbon" *ngIf="ribbonEnv">
+            <a href="" [translate]="'global.ribbon.' + ribbonEnv"></a>
         </div>`,
     styleUrls: [
         'page-ribbon.scss',
