@@ -1,5 +1,5 @@
 # Build stage
-FROM azul/zulu-openjdk-alpine:17 as builder
+FROM --platform=$BUILDPLATFORM azul/zulu-openjdk-alpine:17 as builder
 
 # Install NodeJS and Yarn
 RUN apk add --no-cache nodejs npm && \
