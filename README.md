@@ -45,7 +45,16 @@ This will start a Postgres database and ManagementPortal. The default password f
 account is `admin`.
 
 ### Build from source
-you must install and configure the following dependencies on your machine to run from source.
+
+#### Dependencies
+
+The following are the prerequisites to run ManagementPortal from source on your machine:
+
+- Java 11
+- Gradle (v6 or later is recommended)
+- Node.js (v15 or later is recommended)
+- Yarn (v1.19.0 or later is recommended)
+
 1. [Node.js][]: We use Node to run a development web server and build the project.
    Depending on your system, you can install Node either from source or as a pre-packaged bundle.
 2. [Yarn][]: We use Yarn to manage Node dependencies.
