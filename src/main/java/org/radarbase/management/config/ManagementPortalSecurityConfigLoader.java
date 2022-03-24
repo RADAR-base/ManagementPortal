@@ -105,7 +105,6 @@ public class ManagementPortalSecurityConfigLoader {
             return;
         }
         Path file = Paths.get(path);
-        CsvMapper mapper = new CsvMapper();
         // CsvSchema uses the @JsonPropertyOrder to define column order, it does not
         // read the header. Let's read the header ourselves and provide that as
         // column order
@@ -113,6 +112,7 @@ public class ManagementPortalSecurityConfigLoader {
         if (columnOrder == null) {
             return;
         }
+        CsvMapper mapper = new CsvMapper();
         CsvSchema schema = mapper.schemaFor(CustomBaseClientDetails.class)
                 .withColumnReordering(true)
                 .sortedBy(columnOrder)
