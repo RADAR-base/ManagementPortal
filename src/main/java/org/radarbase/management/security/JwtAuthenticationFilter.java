@@ -91,7 +91,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 logger.error(ex.getMessage());
                 httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 httpResponse.setHeader(HttpHeaders.WWW_AUTHENTICATE, OAuth2AccessToken.BEARER_TYPE);
-                httpResponse.getOutputStream().println(
+                httpResponse.getOutputStream().print(
                         "{\"error\": \"" + "Unauthorized" + ",\n"
                                 + "\"status\": \"" + HttpServletResponse.SC_UNAUTHORIZED + ",\n"
                                 + "\"message\": \"" + ex.getMessage() + "\",\n"
@@ -119,7 +119,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 session.removeAttribute(TOKEN_ATTRIBUTE);
                 httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 httpResponse.setHeader(HttpHeaders.WWW_AUTHENTICATE, OAuth2AccessToken.BEARER_TYPE);
-                httpResponse.getOutputStream().println(
+                httpResponse.getOutputStream().print(
                         "{\"error\": \"" + "Unauthorized" + ",\n"
                                 + "\"status\": \"" + HttpServletResponse.SC_UNAUTHORIZED + ",\n"
                                 + "\"message\": \"User not found\",\n"
@@ -158,11 +158,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Check if the HTTP Authorization header is present and formatted correctly
         if (authorizationHeader == null || !authorizationHeader
                 .startsWith(OAuth2AccessToken.BEARER_TYPE)) {
-            logger.error("No authorization header provided in the request");
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             res.setHeader(HttpHeaders.WWW_AUTHENTICATE, OAuth2AccessToken.BEARER_TYPE);
             throw new TokenValidationException("No " + OAuth2AccessToken.BEARER_TYPE + " token "
-                    + "present in the request.");
+                    + "present in the request to " + req.getServletPath());
         }
 
         // Extract the token from the HTTP Authorization header

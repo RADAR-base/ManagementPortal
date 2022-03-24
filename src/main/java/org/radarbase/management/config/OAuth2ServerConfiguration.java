@@ -23,6 +23,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
@@ -122,7 +123,8 @@ public class OAuth2ServerConfiguration {
 
         public JwtAuthenticationFilter jwtAuthenticationFilter() {
             return new JwtAuthenticationFilter(
-                    keyStoreHandler.getTokenValidator(), authenticationManager, userRepository)
+                    keyStoreHandler.getTokenValidator(), authenticationManager, userRepository
+            )
                     .skipUrlPattern(HttpMethod.GET, "/management/health")
                     .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*");
         }
