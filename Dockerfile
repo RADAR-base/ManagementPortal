@@ -1,9 +1,12 @@
 # Build stage
-FROM --platform=$BUILDPLATFORM azul/zulu-openjdk-alpine:17 as builder
+FROM --platform=$BUILDPLATFORM eclipse-temurin:17-jdk as builder
 
 # Install NodeJS and Yarn
-RUN apk add --no-cache nodejs npm && \
-    npm install -g yarn
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash \
+     && apt-get update && apt-get install -y \
+        nodejs \
+     && rm -rf /var/lib/apt/lists/* \
+     && npm install -g yarn
 
 ## installing the node and java packages before adding the src directory
 ## will allow us to re-use these image layers when only the souce code changes
@@ -33,13 +36,15 @@ COPY src src
 RUN ./gradlew -s bootWar --no-watch-fs
 
 # Run stage
-FROM azul/zulu-openjdk-alpine:17-jre-headless
+FROM eclipse-temurin:17-jre
 
 ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
     JHIPSTER_SLEEP=0 \
     JAVA_OPTS=""
 
-RUN apk --no-cache add curl
+RUN apt-get update && apt-get install -y \
+        curl \
+     && rm -rf /var/lib/apt/lists/*
 
 # Add the war and changelogs files from build stage
 COPY --from=builder /code/build/libs/*.war /app.war
