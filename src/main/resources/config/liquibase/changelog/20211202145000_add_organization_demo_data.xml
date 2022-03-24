@@ -5,8 +5,14 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd"
 >
     <changeSet id="Add organization authorities" author="joris@thehyve.nl">
-        <sql>insert into radar_authority(name) values ('ROLE_ORGANIZATION_ADMIN')</sql>
-        <sql>insert into radar_authority_aud(rev, revtype, name) VALUES (1, 0, 'ROLE_ORGANIZATION_ADMIN')</sql>
+        <insert tableName="radar_authority">
+            <column name="name">ROLE_ORGANIZATION_ADMIN</column>
+        </insert>
+        <insert tableName="radar_authority_aud">
+            <column name="rev">1</column>
+            <column name="revtype">0</column>
+            <column name="name">ROLE_ORGANIZATION_ADMIN</column>
+        </insert>
         <loadData
             file="config/liquibase/organization_roles.csv"
             separator=";"

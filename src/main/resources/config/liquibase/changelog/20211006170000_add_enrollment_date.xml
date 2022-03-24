@@ -35,7 +35,7 @@
     <changeSet id="add subject enrollment date" author="joris@thehyve.nl">
         <sql>
             UPDATE subject
-            SET subject.enrollment_date = (
+            SET enrollment_date = (
                 SELECT MIN(r.timestamp)
                 FROM subject_aud a
                     INNER JOIN _revisions_info r ON a.rev = r.id
