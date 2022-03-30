@@ -5,8 +5,9 @@ description = 'This library can be used by client applications that want to use 
 
 dependencies {
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttp_version
-    implementation group: 'com.fasterxml.jackson.core' , name: 'jackson-databind' , version: jackson_version
-    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jackson_version
+    implementation(platform("com.fasterxml.jackson:jackson-bom:$jackson_version"))
+    implementation group: 'com.fasterxml.jackson.core' , name: 'jackson-databind'
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml'
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junit_version
     testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'

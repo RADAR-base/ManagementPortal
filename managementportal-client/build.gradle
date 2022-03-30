@@ -26,9 +26,10 @@ dependencies {
 
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttp_version
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version")
-    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jackson_version")
+    implementation(platform("com.fasterxml.jackson:jackson-bom:$jackson_version"))
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junit_version
     testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
@@ -37,7 +38,7 @@ dependencies {
 
     testRuntimeOnly group: 'org.slf4j', name: 'slf4j-simple', version: slf4j_version
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit_version
-    testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
+    testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 }
 
 tasks.withType(KotlinCompile) {
