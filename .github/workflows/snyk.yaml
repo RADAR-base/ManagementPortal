@@ -8,28 +8,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v3
+      - uses: snyk/actions/setup@master
+        with:
+          snyk-version: v1.931.0
 
       - uses: actions/setup-node@v2
         with:
           node-version: '16'
           cache: npm
 
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
-          distribution: zulu
+          distribution: temurin
           java-version: 17
-          cache: gradle
 
-      - name: Install Snyk
-        run: npm install snyk@latest -g
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
 
       - name: Run Snyk to check for vulnerabilities
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: >
           snyk test
-          --severity-threshold=high
           --all-projects
           --configuration-matching="^(compile|runtime)Classpath$"
+          --fail-on=upgradable
+          --org=radar-base
           --policy-path=.snyk
+          --severity-threshold=high
