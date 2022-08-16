@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2021. The Hyve and respective contributors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~
+  ~ See the file LICENSE in the root of this repository.
+  ~
+  -->
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.7.xsd">
+
+    <changeSet id="20211026-1" author="alexey@thehyve.nl" context="dev, test">
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/group.csv"
+                  separator=";"
+                  tableName="radar_group">
+        </loadData>
+        <!--
+            We can add group_id to subject.csv, but I assume
+            we'll switch to many-to-many subject-group relationship later on,
+            and I want to keep the old 201708301031-2 changeset intact.
+         -->
+        <loadUpdateData encoding="UTF-8"
+                  file="config/liquibase/subject_group.csv"
+                  primaryKey="id"
+                  separator=";"
+                  tableName="subject"
+                  onlyUpdate="true">
+        </loadUpdateData>
+    </changeSet>
+</databaseChangeLog>

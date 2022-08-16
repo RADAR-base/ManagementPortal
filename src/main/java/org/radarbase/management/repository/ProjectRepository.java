@@ -25,13 +25,48 @@ public interface ProjectRepository extends JpaRepository<Project, Long>,
             countQuery = "select distinct count(project) from Project project")
     Page<Project> findAllWithEagerRelationships(Pageable pageable);
 
-    @Query("select project from Project project left join fetch "
-            + "project.sourceTypes s left join fetch s.sourceData where project.id =:id")
+    @Query(value = "select distinct project from Project project "
+            + "left join fetch project.sourceTypes "
+            + "WHERE project.projectName in (:projectNames) "
+            + "OR project.organization.name in (:organizationNames)",
+            countQuery = "select distinct count(project) from Project project "
+                    + "WHERE project.projectName in (:projectNames) "
+                    + "OR project.organization.name in (:organizationNames)")
+    Page<Project> findAllWithEagerRelationshipsInOrganizationsOrProjects(
+            Pageable pageable,
+            @Param("organizationNames") List<String> organizationNames,
+            @Param("projectNames") List<String> projectNames);
+
+    @Query("select project from Project project "
+            + "WHERE project.organization.name = :organization_name")
+    List<Project> findAllByOrganizationName(
+            @Param("organization_name") String organizationName);
+
+    @Query("select project from Project project "
+            + "left join fetch project.sourceTypes s "
+            + "left join fetch project.groups "
+            + "where project.id = :id")
     Optional<Project> findOneWithEagerRelationships(@Param("id") Long id);
 
-    @Query("select project from Project project left join fetch "
-            + "project.sourceTypes where project.projectName =:name")
+    @Query("select project from Project project "
+            + "left join fetch project.organization "
+            + "where project.id = :id")
+    Optional<Project> findByIdWithOrganization(@Param("id") Long id);
+
+    @Query("select project from Project project "
+            + "left join fetch project.sourceTypes "
+            + "left join fetch project.groups "
+            + "where project.projectName = :name")
     Optional<Project> findOneWithEagerRelationshipsByName(@Param("name") String name);
+
+    @Query("select project.id from Project project "
+            + "where project.projectName =:name")
+    Optional<Long> findProjectIdByName(@Param("name") String name);
+
+    @Query("select project from Project project "
+            + "left join fetch project.groups "
+            + "where project.projectName = :name")
+    Optional<Project> findOneWithGroupsByName(@Param("name") String name);
 
     @Query("select project.sourceTypes from Project project WHERE project.id = :id")
     List<SourceType> findSourceTypesByProjectId(@Param("id") Long id);

@@ -1,13 +1,13 @@
 // Based on JHipster ParseLinks
 
-export function parseLinks(header: string): { [name: string]: any; } {
-    if (header.length === 0) {
-        throw new Error('input must not be of zero length');
+export function parseLinks(header: string): Record<string, any> {
+    if (!header) {
+        return {};
     }
 
     // Split parts by comma
-    const parts: string[] = header.split(',');
-    const links: { [name: string]: any; } = {};
+    const parts: string[] = header.split(/,\s*</);
+    const links: Record<string, any> = {};
 
     // Parse each part into a named link
     parts.forEach((p) => {
@@ -17,11 +17,11 @@ export function parseLinks(header: string): { [name: string]: any; } {
             throw new Error('section could not be split on ";"');
         }
 
-        const url: string = section[0].replace(/<(.*)>/, '$1').trim();
+        const url: string = section[0].replace(/<?(.*)>/, '$1').trim();
         const queryString: any = {};
 
         url.replace(
-            new RegExp('([^?=&]+)(=([^&]*))?', 'g'),
+            /([^?=&]+)(=([^&]*))?/g,
             ($0, $1, $2, $3) => queryString[$1] = $3
         );
 

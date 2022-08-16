@@ -35,7 +35,6 @@ class TokenValidatorTest {
         wireMockServer = new WireMockServer(new WireMockConfiguration()
                 .port(TokenTestUtils.WIREMOCK_PORT));
         wireMockServer.start();
-        TokenTestUtils.setUp();
     }
 
     /**

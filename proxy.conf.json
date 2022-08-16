@@ -4,9 +4,9 @@
             "/oauth",
             "/api",
             "/management",
-            "/swagger-resources",
-            "/v2/api-docs",
-            "/h2-console"
+            "/api-docs",
+            "/swagger-ui.html",
+            "/swagger-ui"
         ],
         "target": "http://127.0.0.1:8080",
         "secure": false

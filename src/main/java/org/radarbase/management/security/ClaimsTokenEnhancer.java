@@ -1,5 +1,6 @@
 package org.radarbase.management.security;
 
+import java.security.Principal;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.boot.actuate.audit.AuditEventRepository;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -35,7 +37,6 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
     @Autowired
     private AuditEventRepository auditEventRepository;
 
-
     @Value("${spring.application.name}")
     private String appName;
 
@@ -44,22 +45,30 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken,
             OAuth2Authentication authentication) {
-        logger.debug("Enhancing token {} with authentication {}" , accessToken, authentication);
+        logger.debug("Enhancing token of authentication {}" , authentication);
 
         Map<String, Object> additionalInfo = new HashMap<>();
 
-        String userName = SecurityUtils.getUserName(authentication);
+        String userName = authentication.getName();
 
-        if (userName != null) {
+        if (authentication.getPrincipal() instanceof Principal
+                || authentication.getPrincipal() instanceof UserDetails) {
             // add the 'sub' claim in accordance with JWT spec
             additionalInfo.put("sub", userName);
 
             userRepository.findOneByLogin(userName)
                     .ifPresent(user -> {
-                        List<String> roles = user.getRoles().stream()
-                                .filter(role -> role.getProject() != null)
-                                .map(role -> role.getProject().getProjectName() + ":"
-                                        + role.getAuthority().getName())
+                        var roles = user.getRoles().stream()
+                                .map(role -> {
+                                    var auth = role.getAuthority().getName();
+                                    return switch (role.getRole().scope()) {
+                                        case GLOBAL -> auth;
+                                        case ORGANIZATION -> role.getOrganization().getName()
+                                                + ":" + auth;
+                                        case PROJECT -> role.getProject().getProjectName()
+                                                + ":" + auth;
+                                    };
+                                })
                                 .collect(Collectors.toList());
                         additionalInfo.put(JwtRadarToken.ROLES_CLAIM, roles);
                     });
@@ -86,7 +95,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
         Map<String, Object> auditData = auditData(accessToken, authentication);
         auditEventRepository.add(new AuditEvent(userName, GRANT_TOKEN_EVENT,
                 auditData));
-        logger.info("[{}] for {}: {}", GRANT_TOKEN_EVENT, userName, auditData.toString());
+        logger.info("[{}] for {}: {}", GRANT_TOKEN_EVENT, userName, auditData);
 
         return accessToken;
     }

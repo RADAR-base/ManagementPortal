@@ -1,27 +1,29 @@
-<div class="table-responsive" *ngIf="loggers">
+<div class="table-responsive">
     <h2 [translate]="'logs.title'"></h2>
 
-    <p [translate]="'logs.nbloggers'" [translateParams]="{total: loggers.length}"></p>
+    <span [translate]="'logs.filter'"></span> <input type="text" [ngModel]="filter$ | async" (ngModelChange)="changeFilter($event)" class="form-control">
 
-    <span [translate]="'logs.filter'"></span> <input type="text" [(ngModel)]="filter" class="form-control">
+    <ng-container *ngIf="loggerView$ | async as loggerView">
+        <table class="table table-striped table-bordered">
+            <thead>
+            <tr title="click to order" jhiSortOrder [order]="sortOrder$ | async" (orderChange)="sort($event)">
+                <th jhiOrderBy="name"><span [translate]="'logs.table.name'"></span><span class="fa fa-sort"></span></th>
+                <th jhiOrderBy="level"><span [translate]="'logs.table.level'"></span><span class="fa fa-sort"></span></th>
+            </tr>
+            </thead>
 
-    <table class="table table-condensed table-striped table-bordered">
-        <thead>
-        <tr title="click to order">
-            <th (click)="orderProp = 'name'; reverse=!reverse"><span [translate]="'logs.table.name'"></span></th>
-            <th (click)="orderProp = 'level'; reverse=!reverse"><span [translate]="'logs.table.level'"></span></th>
-        </tr>
-        </thead>
+            <tr *ngFor="let logger of loggerView; trackBy: trackByLoggerName">
+                <td><small>{{logger.name | slice:0:140}}</small></td>
+                <td>
+                    <button (click)="changeLevel(logger.name, 'TRACE')" [ngClass]="(logger.level=='TRACE') ? 'btn-danger' : 'btn-secondary'" class="btn btn-sm">TRACE</button>
+                    <button (click)="changeLevel(logger.name, 'DEBUG')" [ngClass]="(logger.level=='DEBUG') ? 'btn-warning' : 'btn-secondary'" class="btn btn-sm">DEBUG</button>
+                    <button (click)="changeLevel(logger.name, 'INFO')" [ngClass]="(logger.level=='INFO') ? 'btn-info' : 'btn-secondary'" class="btn btn-sm">INFO</button>
+                    <button (click)="changeLevel(logger.name, 'WARN')" [ngClass]="(logger.level=='WARN') ? 'btn-success' : 'btn-secondary'" class="btn btn-sm">WARN</button>
+                    <button (click)="changeLevel(logger.name, 'ERROR')" [ngClass]="(logger.level=='ERROR') ? 'btn-primary' : 'btn-secondary'" class="btn btn-sm">ERROR</button>
+                </td>
+            </tr>
+        </table>
 
-        <tr *ngFor="let logger of filteredAndOrderedLoggers">
-            <td><small>{{logger.name | slice:0:140}}</small></td>
-            <td>
-                <button (click)="changeLevel(logger.name, 'TRACE')" [ngClass]="(logger.level=='TRACE') ? 'btn-danger' : 'btn-secondary'" class="btn btn-sm">TRACE</button>
-                <button (click)="changeLevel(logger.name, 'DEBUG')" [ngClass]="(logger.level=='DEBUG') ? 'btn-warning' : 'btn-secondary'" class="btn btn-sm">DEBUG</button>
-                <button (click)="changeLevel(logger.name, 'INFO')" [ngClass]="(logger.level=='INFO') ? 'btn-info' : 'btn-secondary'" class="btn btn-sm">INFO</button>
-                <button (click)="changeLevel(logger.name, 'WARN')" [ngClass]="(logger.level=='WARN') ? 'btn-success' : 'btn-secondary'" class="btn btn-sm">WARN</button>
-                <button (click)="changeLevel(logger.name, 'ERROR')" [ngClass]="(logger.level=='ERROR') ? 'btn-primary' : 'btn-secondary'" class="btn btn-sm">ERROR</button>
-            </td>
-        </tr>
-    </table>
+        <app-load-more (load)="loadMore()" [shownItems]="loggerView.length" [totalItems]="(loggersFiltered$ | async)?.length"></app-load-more>
+    </ng-container>
 </div>

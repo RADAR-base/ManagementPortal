@@ -9,6 +9,7 @@ import { SubjectService } from './subject.service';
 @Component({
     selector: 'jhi-subject-detail',
     templateUrl: './subject-detail.component.html',
+    styleUrls: ['./subject-detail.component.scss'],
 })
 export class SubjectDetailComponent implements OnInit, OnDestroy {
 
@@ -46,6 +47,10 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
     }
 
     registerChangeInSubjects() {
-        this.eventSubscriber = this.eventManager.subscribe('subjectListModification', () => this.load(this.subject.login));
+        this.eventSubscriber = this.eventManager.subscribe('subjectListModification', ({content}) => {
+            if (content.subject.login === this.subject.login && (content.op === 'UPDATE' || content.op === 'CREATE')) {
+                this.subject = content.subject;
+            }
+        });
     }
 }

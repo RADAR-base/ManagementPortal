@@ -1,16 +1,16 @@
 package org.radarbase.management.web.rest;
 
-import com.codahale.metrics.annotation.Timed;
-import io.swagger.annotations.ApiParam;
+import io.micrometer.core.annotation.Timed;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.repository.ProjectRepository;
-import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.service.ProjectService;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.RoleService;
 import org.radarbase.management.service.SourceService;
+import org.radarbase.management.service.SubjectService;
 import org.radarbase.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.service.dto.RoleDTO;
@@ -18,6 +18,8 @@ import org.radarbase.management.service.dto.SourceDTO;
 import org.radarbase.management.service.dto.SourceTypeDTO;
 import org.radarbase.management.service.dto.SubjectDTO;
 import org.radarbase.management.service.mapper.SubjectMapper;
+import org.radarbase.management.web.rest.criteria.SubjectCriteria;
+import org.radarbase.management.web.rest.errors.BadRequestException;
 import org.radarbase.management.web.rest.errors.ErrorVM;
 import org.radarbase.management.web.rest.util.HeaderUtil;
 import org.radarbase.management.web.rest.util.PaginationUtil;
@@ -41,16 +43,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
 import static org.radarbase.auth.authorization.Permission.PROJECT_CREATE;
 import static org.radarbase.auth.authorization.Permission.PROJECT_DELETE;
 import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
@@ -59,9 +56,11 @@ import static org.radarbase.auth.authorization.Permission.ROLE_READ;
 import static org.radarbase.auth.authorization.Permission.SOURCE_READ;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
-import static org.radarbase.management.security.SecurityUtils.getJWT;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganization;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganizationAndProject;
+import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_PROJECT_NOT_EMPTY;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
 
 /**
  * REST controller for managing Project.
@@ -81,16 +80,16 @@ public class ProjectResource {
     private ProjectService projectService;
 
     @Autowired
-    private HttpServletRequest servletRequest;
+    private RadarToken token;
 
     @Autowired
     private RoleService roleService;
 
     @Autowired
-    private SubjectRepository subjectRepository;
+    private SubjectMapper subjectMapper;
 
     @Autowired
-    private SubjectMapper subjectMapper;
+    private SubjectService subjectService;
 
     @Autowired
     private SourceService sourceService;
@@ -108,15 +107,24 @@ public class ProjectResource {
     public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDto)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Project : {}", projectDto);
-        checkPermission(getJWT(servletRequest), PROJECT_CREATE);
+        var org = projectDto.getOrganization();
+        if (org == null || org.getName() == null) {
+            throw new BadRequestException("Organization must be provided",
+                    ENTITY_NAME, ERR_VALIDATION);
+        }
+        checkPermissionOnOrganization(token, PROJECT_CREATE, org.getName());
+
         if (projectDto.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
-                    ENTITY_NAME, "idexists", "A new project cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest()
+                    .headers(HeaderUtil.createFailureAlert(
+                            ENTITY_NAME, "idexists", "A new project cannot already have an ID"))
+                    .body(null);
         }
         if (projectRepository.findOneWithEagerRelationshipsByName(projectDto.getProjectName())
                 .isPresent()) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(
-                    ENTITY_NAME, "nameexists", "A project with this name already exists"))
+            return ResponseEntity.badRequest()
+                    .headers(HeaderUtil.createFailureAlert(
+                            ENTITY_NAME, "nameexists", "A project with this name already exists"))
                     .body(null);
         }
         ProjectDTO result = projectService.save(projectDto);
@@ -142,8 +150,26 @@ public class ProjectResource {
         if (projectDto.getId() == null) {
             return createProject(projectDto);
         }
-        checkPermissionOnProject(getJWT(servletRequest), PROJECT_UPDATE,
-                projectDto.getProjectName());
+        // When a client wants to link the project to the default organization,
+        // this must be done explicitly.
+        var org = projectDto.getOrganization();
+        if (org == null || org.getName() == null) {
+            throw new BadRequestException("Organization must be provided",
+                    ENTITY_NAME, ERR_VALIDATION);
+        }
+        // When clients want to transfer a project,
+        // they must have permissions to modify both new & old organizations
+        var newOrgName = org.getName();
+        var existingProject = projectService.findOne(projectDto.getId());
+        checkPermissionOnOrganizationAndProject(token, PROJECT_UPDATE, newOrgName,
+                existingProject.getProjectName());
+
+        var oldOrgName = existingProject.getOrganization().getName();
+        if (!newOrgName.equals(oldOrgName)) {
+            checkPermissionOnOrganization(token, PROJECT_UPDATE, oldOrgName);
+            checkPermissionOnOrganization(token, PROJECT_UPDATE, newOrgName);
+        }
+
         ProjectDTO result = projectService.save(projectDto);
         return ResponseEntity.ok()
                 .headers(HeaderUtil
@@ -159,11 +185,11 @@ public class ProjectResource {
     @GetMapping("/projects")
     @Timed
     public ResponseEntity<?> getAllProjects(
-            @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable,
+            @PageableDefault(size = Integer.MAX_VALUE) Pageable pageable,
             @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
                     minimized) throws NotAuthorizedException {
         log.debug("REST request to get Projects");
-        checkPermission(getJWT(servletRequest), PROJECT_READ);
+        checkPermission(token, PROJECT_READ);
         Page<?> page = projectService.findAll(minimized, pageable);
         HttpHeaders headers = PaginationUtil
                 .generatePaginationHttpHeaders(page, "/api/projects");
@@ -181,9 +207,11 @@ public class ProjectResource {
     @Timed
     public ResponseEntity<ProjectDTO> getProject(@PathVariable String projectName)
             throws NotAuthorizedException {
+        checkPermission(token, PROJECT_READ);
         log.debug("REST request to get Project : {}", projectName);
         ProjectDTO projectDto = projectService.findOneByName(projectName);
-        checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ, projectDto.getProjectName());
+        checkPermissionOnOrganizationAndProject(token, PROJECT_READ,
+                projectDto.getOrganization().getName(), projectDto.getProjectName());
         return ResponseEntity.ok(projectDto);
     }
 
@@ -198,9 +226,11 @@ public class ProjectResource {
     @Timed
     public List<SourceTypeDTO> getSourceTypesOfProject(@PathVariable String projectName)
             throws NotAuthorizedException {
+        checkPermission(token, PROJECT_READ);
         log.debug("REST request to get Project : {}", projectName);
         ProjectDTO projectDto = projectService.findOneByName(projectName);
-        checkPermissionOnProject(getJWT(servletRequest), PROJECT_READ, projectDto.getProjectName());
+        checkPermissionOnOrganizationAndProject(token, PROJECT_READ,
+                projectDto.getOrganization().getName(), projectDto.getProjectName());
         return projectService.findSourceTypesByProjectId(projectDto.getId());
     }
 
@@ -215,10 +245,11 @@ public class ProjectResource {
     @Timed
     public ResponseEntity<?> deleteProject(@PathVariable String projectName)
             throws NotAuthorizedException {
+        checkPermission(token, PROJECT_DELETE);
         log.debug("REST request to delete Project : {}", projectName);
         ProjectDTO projectDto = projectService.findOneByName(projectName);
-        checkPermissionOnProject(getJWT(servletRequest), PROJECT_DELETE,
-                projectDto.getProjectName());
+        checkPermissionOnOrganizationAndProject(token, PROJECT_DELETE,
+                projectDto.getOrganization().getName(), projectDto.getProjectName());
 
         try {
             projectService.delete(projectDto.getId());
@@ -240,9 +271,11 @@ public class ProjectResource {
     @Timed
     public ResponseEntity<List<RoleDTO>> getRolesByProject(@PathVariable String projectName)
             throws NotAuthorizedException {
+        checkPermission(token, ROLE_READ);
         log.debug("REST request to get all Roles for project {}", projectName);
         ProjectDTO projectDto = projectService.findOneByName(projectName);
-        checkPermissionOnProject(getJWT(servletRequest), ROLE_READ, projectDto.getProjectName());
+        checkPermissionOnOrganizationAndProject(token, ROLE_READ,
+                projectDto.getOrganization().getName(), projectDto.getProjectName());
         return ResponseEntity.ok(roleService.getRolesByProject(projectName));
     }
 
@@ -253,15 +286,17 @@ public class ProjectResource {
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/sources")
     @Timed
-    public ResponseEntity<?> getAllSourcesForProject(@ApiParam Pageable pageable,
+    public ResponseEntity<?> getAllSourcesForProject(@Parameter Pageable pageable,
             @PathVariable String projectName,
             @RequestParam(value = "assigned", required = false) Boolean assigned,
             @RequestParam(name = "minimized", required = false, defaultValue = "false")
                     Boolean minimized) throws NotAuthorizedException {
+        checkPermission(token, SOURCE_READ);
         log.debug("REST request to get all Sources");
         ProjectDTO projectDto = projectService.findOneByName(projectName);
-        RadarToken jwt = getJWT(servletRequest);
-        checkPermissionOnProject(jwt, SOURCE_READ, projectDto.getProjectName());
+        RadarToken jwt = token;
+        checkPermissionOnOrganizationAndProject(jwt, SOURCE_READ,
+                projectDto.getOrganization().getName(), projectDto.getProjectName());
         if (!jwt.isClientCredentials() && jwt.hasAuthority(PARTICIPANT)) {
             throw new NotAuthorizedException("Cannot list all project sources as a participant.");
         }
@@ -297,41 +332,35 @@ public class ProjectResource {
     /**
      * Get /projects/{projectName}/subjects : get all subjects for a given project.
      *
-     * @param projectName The name of the project
      * @return The subjects in the project or 404 if there is no such project
      */
     @GetMapping("/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/subjects")
     @Timed
-    public ResponseEntity<List<SubjectDTO>> getAllSubjects(@ApiParam Pageable pageable,
-            @PathVariable String projectName,
-            @RequestParam(value = "withInactiveParticipants", required = false)
-                    Boolean inactiveParticipantsParam) throws NotAuthorizedException {
+    public ResponseEntity<List<SubjectDTO>> getAllSubjects(
+            @Valid SubjectCriteria subjectCriteria
+    ) throws NotAuthorizedException {
+        checkPermission(token, SUBJECT_READ);
+        String projectName = subjectCriteria.getProjectName();
         // this checks if the project exists
-        projectService.findOneByName(projectName);
-        RadarToken jwt = getJWT(servletRequest);
-        checkPermissionOnProject(jwt, SUBJECT_READ, projectName);
-        if (!jwt.isClientCredentials() && jwt.hasAuthority(PARTICIPANT)) {
+        ProjectDTO projectDto = projectService.findOneByName(projectName);
+        checkPermissionOnOrganizationAndProject(token, SUBJECT_READ,
+                projectDto.getOrganization().getName(), projectName);
+        if (!token.isClientCredentials() && token.hasAuthority(PARTICIPANT)) {
             throw new NotAuthorizedException("Cannot list all project subjects as a participant.");
         }
 
-        log.debug("REST request to get all subjects for project {}", projectName);
-        Page<SubjectDTO> page;
-        boolean includeInactiveParticipants = inactiveParticipantsParam != null
-                && inactiveParticipantsParam;
-        if (includeInactiveParticipants) {
-            page = subjectRepository.findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
-                    Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT))
-                    .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
+        // this checks if the project exists
+        projectService.findOneByName(projectName);
+        subjectCriteria.setProjectName(projectName);
 
-        } else {
-            page = subjectRepository.findAllByProjectNameAndAuthoritiesIn(pageable, projectName,
-                    Collections.singletonList(PARTICIPANT))
-                    .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
-        }
+        log.debug("REST request to get all subjects for project {} using criteria {}", projectName,
+                subjectCriteria);
+        Page<SubjectDTO> page = subjectService.findAll(subjectCriteria)
+                .map(subjectMapper::subjectToSubjectWithoutProjectDTO);
 
-        HttpHeaders headers = PaginationUtil
-                .generatePaginationHttpHeaders(page, HeaderUtil.buildPath("api",
-                        "projects", projectName, "subjects"));
+        String baseUri = HeaderUtil.buildPath("api", "projects", projectName, "subjects");
+        HttpHeaders headers = PaginationUtil.generateSubjectPaginationHttpHeaders(
+                page, baseUri, subjectCriteria);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 }

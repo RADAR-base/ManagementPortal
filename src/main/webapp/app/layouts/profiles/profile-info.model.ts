@@ -1,6 +1,6 @@
-export class ProfileInfo {
+export interface ProfileInfo {
     activeProfiles: string[];
     ribbonEnv: string;
     inProduction: boolean;
-    swaggerEnabled: boolean;
+    apiDocsEnabled: boolean;
 }

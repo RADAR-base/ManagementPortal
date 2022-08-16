@@ -1,17 +1,23 @@
 package org.radarbase.management.service.mapper.decorator;
 
 import org.mapstruct.MappingTarget;
+import org.radarbase.management.domain.Group;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.domain.audit.EntityAuditInfo;
+import org.radarbase.management.repository.GroupRepository;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.service.RevisionService;
 import org.radarbase.management.service.dto.SubjectDTO;
 import org.radarbase.management.service.dto.SubjectDTO.SubjectStatus;
 import org.radarbase.management.service.mapper.ProjectMapper;
 import org.radarbase.management.service.mapper.SubjectMapper;
+import org.radarbase.management.web.rest.errors.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_GROUP_NOT_FOUND;
 
 /**
  * Created by nivethika on 30-8-17.
@@ -30,6 +36,9 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private GroupRepository groupRepository;
 
     @Override
     public SubjectDTO subjectToSubjectDTO(Subject subject) {
@@ -90,13 +99,40 @@ public abstract class SubjectMapperDecorator implements SubjectMapper {
 
         Subject subject = delegate.subjectDTOToSubject(subjectDto);
         setSubjectStatus(subjectDto, subject);
+        subject.setGroup(getGroup(subjectDto));
+
         return subject;
+    }
+
+    private Group getGroup(SubjectDTO subjectDto) {
+        if (subjectDto.getGroup() == null) {
+            return null;
+        } else if (subjectDto.getProject().getId() != null) {
+            return groupRepository.findByProjectIdAndName(
+                            subjectDto.getProject().getId(), subjectDto.getGroup())
+                    .orElseThrow(() -> new BadRequestException(
+                            "Group " + subjectDto.getGroup() + " not found in project "
+                                    + subjectDto.getProject().getId(),
+                            SUBJECT, ERR_GROUP_NOT_FOUND));
+        } else if (subjectDto.getProject().getProjectName() != null) {
+            return groupRepository.findByProjectNameAndName(
+                            subjectDto.getProject().getProjectName(), subjectDto.getGroup())
+                    .orElseThrow(() -> new BadRequestException(
+                            "Group " + subjectDto.getGroup() + " not found in project "
+                                    + subjectDto.getProject().getProjectName(),
+                            SUBJECT, ERR_GROUP_NOT_FOUND));
+        } else {
+            throw new BadRequestException(
+                    "Group " + subjectDto.getGroup() + " cannot be found without a project",
+                    SUBJECT, ERR_GROUP_NOT_FOUND);
+        }
     }
 
     @Override
     public Subject safeUpdateSubjectFromDTO(SubjectDTO subjectDto, @MappingTarget Subject subject) {
         Subject subjectRetrieved = delegate.safeUpdateSubjectFromDTO(subjectDto, subject);
         setSubjectStatus(subjectDto, subjectRetrieved);
+        subject.setGroup(getGroup(subjectDto));
         return subjectRetrieved;
     }
 

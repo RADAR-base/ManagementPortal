@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,6 +59,14 @@ public class SubjectDTO implements Serializable {
     @JsonInclude(Include.NON_NULL)
     private ProjectDTO project;
 
+    private String group;
+
+    private LocalDate dateOfBirth;
+
+    private ZonedDateTime enrollmentDate;
+
+    private String personName;
+
     private List<RoleDTO> roles = new ArrayList<>();
 
     private Set<MinimalSourceDetailsDTO> sources = new HashSet<>();
@@ -66,6 +75,14 @@ public class SubjectDTO implements Serializable {
 
     public SubjectStatus getStatus() {
         return status;
+    }
+
+    public String getPersonName() {
+        return personName;
+    }
+
+    public void setPersonName(String personName) {
+        this.personName = personName;
     }
 
     public void setStatus(SubjectStatus status) {
@@ -87,6 +104,30 @@ public class SubjectDTO implements Serializable {
 
     public void setProject(ProjectDTO project) {
         this.project = project;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return this.dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public void setEnrollmentDate(ZonedDateTime enrollmentDate) {
+        this.enrollmentDate = enrollmentDate;
+    }
+
+    public ZonedDateTime getEnrollmentDate() {
+        return this.enrollmentDate;
     }
 
     public Long getId() {

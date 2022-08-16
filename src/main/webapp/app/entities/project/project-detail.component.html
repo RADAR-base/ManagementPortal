@@ -1,96 +1,102 @@
-<div id="wrapper" [ngClass]="{'toggled': true}">
-    <div id="sidebar-wrapper">
-        <div class="sidebar-nav" *ngIf="project">
-            <p class="status-header">
-                {{project.humanReadableProjectName ? project.humanReadableProjectName : project.projectName}}
-            </p>
-            <ul class="status-list">
-                <ng-container>
-                    <li [ngClass]="{'status-group-selected': showSubjects , 'status-group': !showSubjects}"
-                        (click)="viewSubjects()">
-                        <span>
-                            Subjects
-                        </span>
-                    </li>
-                    <li [ngClass]="{'status-group-selected': showSources , 'status-group': !showSources}"
-                         (click)="viewSources()">
-                        <span>
-                            Sources
-                        </span>
-                    </li>
-                    <li [ngClass]="{'status-group-selected': showProjectAdmins , 'status-group': !showProjectAdmins}"
-                        (click)="viewProjectAdmins()">
-                        <span>
-                            Project Admins
-                        </span>
-                    </li>
-                    <li [ngClass]="{'status-group-selected': showProjectAnalysts , 'status-group': !showProjectAnalysts}"
-                        (click)="viewProjectAnalysts()">
-                        <span>
-                            Project Analysts
-                        </span>
-                    </li>
-                </ng-container>
-            </ul>
+<div *ngIf="project$ | async as project">
+    <h2>
+        <span>
+            <span [translate]="'managementPortalApp.project.detail.title'"></span>
+            {{project.humanReadableProjectName ? project.humanReadableProjectName : project.projectName}}
+        </span>
+        <button type="button"
+                [routerLink]="['/', { outlets: { popup: ['organization', project.organization.name, 'project', project.projectName , 'edit']} }]"
+                [state]="{ parentComponent:'project-detail'}"
+                replaceUrl="true"
+                class="btn btn-primary float-right">
+            <span class="fa fa-pencil"></span>&nbsp;<span [translate]="'entity.action.edit'"></span>
+        </button>
+    </h2>
+    <div class="project-detail__project-info">
+        <div class="project-detail__project-info-fields">
+            <div>
+                <span [translate]="'managementPortalApp.project.projectName'"></span>
+                <p>{{project.projectName}}</p>
+            </div>
+            <div>
+                <span [translate]="'managementPortalApp.project.organization'"></span>
+                <p>{{project.organization.name}}</p>
+            </div>
+            <div>
+                <span [translate]="'managementPortalApp.project.location'"></span>
+                <p>{{project.location}}</p>
+            </div>
+            <div>
+                <span [translate]="'managementPortalApp.project.projectStatus'"></span>
+                <p>{{project.projectStatus}}</p>
+            </div>
+            <div>
+                <span [translate]="'managementPortalApp.project.startDate'"></span>
+                <p *ngIf="project.startDate; else noneAvailable">{{project.startDate | date:'mediumDate'}}</p>
+            </div>
+            <div>
+                <span [translate]="'managementPortalApp.project.endDate'"></span>
+                <p *ngIf="project.endDate; else noneAvailable">{{project.endDate | date:'mediumDate'}}</p>
+            </div>
+            <div>
+                <span>
+                    <span [translate]="'managementPortalApp.project.attributeData'"></span>
+                </span>
+                <ng-container *ngIf="!project.attributes || (project.attributes | keyvalue).length === 0" [ngTemplateOutlet]="noneAvailable"></ng-container>
+                <div *ngFor="let entry of project.attributes | keyvalue">
+                    <span class="form-control-static">{{entry.key}}</span>
+                    =>
+                    <span class="form-control-static">{{entry.value}}</span>
+                </div>
+            </div>
         </div>
+        <p class="project-detail__description">
+            {{project.description}}
+        </p>
     </div>
-    <div id="project-content-wrapper">
-        <div *ngIf="project">
+
+    <div *ngIf="tab$ | async as tab">
+        <ul class="nav nav-tabs">
+            <li class="nav-item" (click)="updateActiveTab('subjects')" *ngIf="tab.available.includes('subjects')">
+                    <span class="nav-link" [ngClass]="{active: tab.active === 'subjects'}"
+                          [translate]="'managementPortalApp.project.subjects'">
+                    </span>
+            </li>
+            <li class="nav-item" (click)="updateActiveTab('groups')" *ngIf="tab.available.includes('groups')">
+                    <span class="nav-link" [ngClass]="{active: tab.active === 'groups'}"
+                          [translate]="'managementPortalApp.project.groups'">
+                    </span>
+            </li>
+            <li class="nav-item" (click)="updateActiveTab('permissions')" *ngIf="tab.available.includes('permissions')">
+                <span class="nav-link" [ngClass]="{active: tab.active === 'permissions'}"
+                      [translate]="'managementPortalApp.project.permissions'">
+                </span>
+            </li>
+            <li class="nav-item" (click)="updateActiveTab('admins')" *ngIf="tab.available.includes('admins')">
+                    <span class="nav-link" [ngClass]="{active: tab.active === 'admins'}"
+                          [translate]="'managementPortalApp.project.admins'">
+                    </span>
+            </li>
+            <li class="nav-item" (click)="updateActiveTab('analysts')" *ngIf="tab.available.includes('analysts')">
+                    <span class="nav-link" [ngClass]="{active: tab.active === 'analysts'}"
+                          [translate]="'managementPortalApp.project.analysts'">
+                    </span>
+            </li>
+        </ul>
+
+        <div id="project-content-wrapper">
             <jhi-alert-error></jhi-alert-error>
-            <h2>
-                <span [translate]="'managementPortalApp.project.home.title'"></span>
-                <button type="button"
-                        [routerLink]="['/', { outlets: { popup: 'project/'+ project.projectName + '/edit'} }]"
-                        replaceUrl="true"
-                        class="btn btn-primary float-right">
-                    <span class="fa fa-pencil"></span>&nbsp;<span
-                        [translate]="'entity.action.edit'"></span>
-                </button>
-            </h2>
 
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th><span [translate]="'managementPortalApp.project.projectName'"></span></th>
-                    <th><span [translate]="'managementPortalApp.project.description'"></span></th>
-                    <th><span [translate]="'managementPortalApp.project.organization'"></span></th>
-                    <th><span [translate]="'managementPortalApp.project.location'"></span></th>
-                    <th><span [translate]="'managementPortalApp.project.startDate'"></span></th>
-                    <th><span [translate]="'managementPortalApp.project.projectStatus'"></span></th>
-                    <th><span [translate]="'managementPortalApp.project.endDate'"></span></th>
-                    <th><span [translate]="'managementPortalApp.project.attributeDataKey'"></span></th>
-                    <th><span [translate]="'managementPortalApp.project.attributeDataValue'"></span></th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr *ngIf="project">
-                    <td>{{project.projectName}}</td>
-                    <td>{{project.description}}</td>
-                    <td>{{project.organization}}</td>
-                    <td>{{project.location}}</td>
-                    <td>{{project.startDate | date:'medium'}}</td>
-                    <td [translate]="'managementPortalApp.ProjectStatus.' + project.projectStatus"></td>
-                    <td>{{project.endDate | date:'medium'}}</td>
-                    <td>
-                        <div *ngFor="let entry of project.attributes | keyvalue; trackBy: trackKey">
-                            <span class="form-control-static">{{entry.key}}</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div *ngFor="let entry of project.attributes | keyvalue; trackBy: trackKey">
-                            <span class="form-control-static">{{entry.value}}</span>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            <jhi-subjects *ngIf="showSubjects" [project]='project' [isProjectSpecific]="true"></jhi-subjects>
-            <jhi-sources *ngIf="showSources" [project]='project' [isProjectSpecific]="true"></jhi-sources>
-            <jhi-common-user-mgmt *ngIf="showProjectAdmins" [project]='project' [authority]="'ROLE_PROJECT_ADMIN'"></jhi-common-user-mgmt>
-            <jhi-common-user-mgmt *ngIf="showProjectAnalysts" [project]='project' [authority]="'ROLE_PROJECT_ANALYST'"></jhi-common-user-mgmt>
+            <jhi-subjects *ngIf="tab.active === 'subjects'" [project]='project' [isProjectSpecific]="true"></jhi-subjects>
+            <jhi-groups *ngIf="tab.active === 'groups'" [project]='project'></jhi-groups>
 
-
+            <jhi-permissions *ngIf="tab.active === 'permissions'" [project]='project'></jhi-permissions>
+            <jhi-common-user-mgmt *ngIf="tab.active === 'admins'" [project]='project' [authority]="'ROLE_PROJECT_ADMIN'"></jhi-common-user-mgmt>
+            <jhi-common-user-mgmt *ngIf="tab.active === 'analysts'" [project]='project' [authority]="'ROLE_PROJECT_ANALYST'"></jhi-common-user-mgmt>
         </div>
     </div>
 </div>
+
+<ng-template #noneAvailable>
+    <p class="none-available" [translate]="'global.attribute.noneAvailable'"></p>
+</ng-template>

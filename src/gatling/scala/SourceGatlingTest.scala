@@ -47,7 +47,7 @@ class SourceGatlingTest extends ManagementPortalSimulation {
             .get("/api/sources")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
-            .pause(5 seconds, 10 seconds)
+            .pause(5.seconds, 10.seconds)
             .feed(randomString)
             .exec(http("Create new source")
               .post("/api/sources")

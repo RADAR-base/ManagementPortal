@@ -49,7 +49,8 @@ public class User extends AbstractEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
+    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000,
+            sequenceName = "hibernate_sequence")
     private Long id;
 
     @NotNull
@@ -206,9 +207,11 @@ public class User extends AbstractEntity implements Serializable {
         this.roles = roles;
     }
 
+    /** Authorities tha ta user has. */
     public Set<Authority> getAuthorities() {
         return roles.stream()
-                .map(Role::getAuthority).collect(Collectors.toSet());
+                .map(Role::getAuthority)
+                .collect(Collectors.toSet());
     }
 
     @Override

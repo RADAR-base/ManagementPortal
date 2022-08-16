@@ -1,14 +1,10 @@
 package org.radarbase.management.config;
 
-import static org.springframework.orm.jpa.vendor.Database.POSTGRESQL;
-
-import java.util.Arrays;
-import javax.sql.DataSource;
-
-import io.github.jhipster.security.AjaxLogoutSuccessHandler;
-import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
-import org.radarbase.auth.authorization.AuthoritiesConstants;
+import org.radarbase.auth.authorization.RoleAuthority;
+import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.security.ClaimsTokenEnhancer;
+import org.radarbase.management.security.Http401UnauthorizedEntryPoint;
+import org.radarbase.management.security.JwtAuthenticationFilter;
 import org.radarbase.management.security.PostgresApprovalStore;
 import org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter;
 import org.radarbase.management.security.jwt.ManagementPortalJwtTokenStore;
@@ -31,6 +27,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -49,7 +46,12 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.filter.CorsFilter;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+
+import javax.sql.DataSource;
+import java.util.Arrays;
+
+import static org.springframework.orm.jpa.vendor.Database.POSTGRESQL;
 
 @Configuration
 public class OAuth2ServerConfiguration {
@@ -57,6 +59,9 @@ public class OAuth2ServerConfiguration {
 
     @Autowired
     private DataSource dataSource;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Configuration
     @Order(-20)
@@ -86,13 +91,15 @@ public class OAuth2ServerConfiguration {
     @Bean
     public JdbcClientDetailsService jdbcClientDetailsService() {
         JdbcClientDetailsService clientDetailsService = new JdbcClientDetailsService(dataSource);
-        clientDetailsService.setPasswordEncoder(new BCryptPasswordEncoder());
+        clientDetailsService.setPasswordEncoder(passwordEncoder);
         return clientDetailsService;
     }
 
     @Configuration
     @EnableResourceServer
     protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
+        @Autowired
+        private ManagementPortalOauthKeyStoreHandler keyStoreHandler;
 
         @Autowired
         private TokenStore tokenStore;
@@ -101,10 +108,21 @@ public class OAuth2ServerConfiguration {
         private Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint;
 
         @Autowired
-        private AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
+        private LogoutSuccessHandler logoutSuccessHandler;
 
         @Autowired
-        private CorsFilter corsFilter;
+        private AuthenticationManager authenticationManager;
+
+        @Autowired
+        private UserRepository userRepository;
+
+        public JwtAuthenticationFilter jwtAuthenticationFilter() {
+            return new JwtAuthenticationFilter(
+                    keyStoreHandler.getTokenValidator(), authenticationManager, userRepository
+            )
+                    .skipUrlPattern(HttpMethod.GET, "/management/health")
+                    .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*");
+        }
 
         @Override
         public void configure(HttpSecurity http) throws Exception {
@@ -112,34 +130,36 @@ public class OAuth2ServerConfiguration {
                     .exceptionHandling()
                     .authenticationEntryPoint(http401UnauthorizedEntryPoint)
                     .and()
-                    .logout()
+                    .logout().invalidateHttpSession(true)
                     .logoutUrl("/api/logout")
-                    .logoutSuccessHandler(ajaxLogoutSuccessHandler)
+                    .logoutSuccessHandler(logoutSuccessHandler)
                     .and()
                     .csrf()
                     .disable()
-                    .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+                    .addFilterBefore(jwtAuthenticationFilter(),
+                            UsernamePasswordAuthenticationFilter.class)
                     .headers()
                     .frameOptions().disable()
                     .and()
                     .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                     .and()
                     .authorizeRequests()
                     .antMatchers("/oauth/**").permitAll()
                     .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    .antMatchers("/api/authenticate").permitAll()
-                    .antMatchers("/api/register").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
+                    .antMatchers("/api/register").hasAnyAuthority(
+                            RoleAuthority.SYS_ADMIN_AUTHORITY)
                     .antMatchers("/api/profile-info").permitAll()
                     .antMatchers("/api/**").authenticated()
                     // Allow management/health endpoint to all to allow kubernetes to be able to
                     // detect the health of the service
                     .antMatchers("/management/health").permitAll()
-                    .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
+                    .antMatchers("/management/**").hasAnyAuthority(
+                            RoleAuthority.SYS_ADMIN_AUTHORITY)
                     .antMatchers("/v2/api-docs/**").permitAll()
                     .antMatchers("/swagger-resources/configuration/ui").permitAll()
                     .antMatchers("/swagger-ui/index.html")
-                    .hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN);
+                    .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY);
         }
 
         @Override
@@ -219,9 +239,9 @@ public class OAuth2ServerConfiguration {
 
         @Bean
         @Primary
-        public DefaultTokenServices tokenServices() {
+        public DefaultTokenServices tokenServices(TokenStore tokenStore) {
             DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
-            defaultTokenServices.setTokenStore(tokenStore());
+            defaultTokenServices.setTokenStore(tokenStore);
             defaultTokenServices.setSupportRefreshToken(true);
             defaultTokenServices.setReuseRefreshToken(false);
             return defaultTokenServices;

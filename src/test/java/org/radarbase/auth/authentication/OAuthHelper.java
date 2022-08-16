@@ -1,6 +1,18 @@
 package org.radarbase.auth.authentication;
 
-import static org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import org.radarbase.auth.authorization.Permission;
+import org.radarbase.auth.config.TokenValidatorConfig;
+import org.radarbase.management.domain.Authority;
+import org.radarbase.management.domain.Role;
+import org.radarbase.management.domain.User;
+import org.radarbase.management.repository.UserRepository;
+import org.radarbase.management.security.JwtAuthenticationFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -10,39 +22,35 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import java.util.stream.Stream;
-import org.radarbase.auth.authorization.Permission;
-import org.radarbase.auth.config.TokenValidatorConfig;
-import org.radarbase.management.security.JwtAuthenticationFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
+
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL;
 
 /**
  * Created by dverbeec on 29/06/2017.
  */
 public final class OAuthHelper {
     private static final Logger logger = LoggerFactory.getLogger(OAuthHelper.class);
-    public static String validEcToken;
-    public static DecodedJWT superUserToken;
-    public static String validRsaToken;
+    private static String validEcToken;
+    private static String validRsaToken;
 
     public static final String TEST_KEYSTORE_PASSWORD = "radarbase";
     public static final String TEST_SIGNKEY_ALIAS = "radarbase-managementportal-ec";
     public static final String TEST_CHECKKEY_ALIAS = "radarbase-managementportal-rsa";
-    public static final String[] SCOPES = allScopes();
+    public static final String[] SCOPES = Permission.scopes();
     public static final String[] AUTHORITIES = {"ROLE_SYS_ADMIN"};
-    public static final String[] ROLES = {};
+    public static final String[] ROLES = {"ROLE_SYS_ADMIN"};
     public static final String[] SOURCES = {};
     public static final String[] AUD = {RES_MANAGEMENT_PORTAL};
     public static final String CLIENT = "unit_test";
@@ -109,7 +117,6 @@ public final class OAuthHelper {
 
             Algorithm ecdsa = Algorithm.ECDSA256(publicKey, privateKey);
             validEcToken = createValidToken(ecdsa);
-            superUserToken = JWT.decode(validEcToken);
 
             // also get an RSA keypair to test accepting multiple keys
             RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) ks.getKey(TEST_CHECKKEY_ALIAS,
@@ -131,7 +138,9 @@ public final class OAuthHelper {
      * @return an initialized JwtAuthenticationFilter
      */
     public static JwtAuthenticationFilter createAuthenticationFilter() {
-        return new JwtAuthenticationFilter(createTokenValidator());
+        UserRepository userRepository = mock(UserRepository.class);
+        when(userRepository.findOneByLogin(anyString())).thenReturn(Optional.of(createAdminUser()));
+        return new JwtAuthenticationFilter(createTokenValidator(), auth -> auth, userRepository);
     }
 
     /**
@@ -141,13 +150,15 @@ public final class OAuthHelper {
      */
     public static TokenValidator createTokenValidator() {
         // Use tokenValidator with known JWTVerifier which signs.
-        //noinspection deprecation
-        return new TokenValidator(verifiers, getDummyValidatorConfig());
+        return new TokenValidator.Builder()
+                .verifiers(verifiers)
+                .config(getDummyValidatorConfig())
+                .fetchTimeout(Duration.ofHours(1))
+                .build();
     }
 
     private static TokenValidatorConfig getDummyValidatorConfig() {
         return new TokenValidatorConfig() {
-
             @Override
             public List<URI> getPublicKeyEndpoints() {
                 return Collections.emptyList();
@@ -157,14 +168,19 @@ public final class OAuthHelper {
             public String getResourceName() {
                 return "ISS";
             }
-
-            @Override
-            public List<String> getPublicKeys() {
-                return Collections.emptyList();
-            }
         };
     }
 
+    private static User createAdminUser() {
+        User user = new User();
+        user.setId(1L);
+        user.setLogin("admin");
+        user.setActivated(true);
+        user.setRoles(Set.of(
+            new Role(new Authority("ROLE_SYS_ADMIN"))
+        ));
+        return user;
+    }
 
     private static String createValidToken(Algorithm algorithm) {
         Instant exp = Instant.now().plusSeconds(30 * 60);
@@ -185,12 +201,5 @@ public final class OAuthHelper {
                 .withClaim("jti", JTI)
                 .withClaim("grant_type", "password")
                 .sign(algorithm);
-    }
-
-    private static String[] allScopes() {
-        return Permission.allPermissions().stream()
-                .map(Permission::scopeName)
-                .collect(Collectors.toList()).toArray(
-                        new String[Permission.allPermissions().size()]);
     }
 }

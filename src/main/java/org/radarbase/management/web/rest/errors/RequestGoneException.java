@@ -1,7 +1,8 @@
 package org.radarbase.management.web.rest.errors;
 
+import org.springframework.http.HttpStatus;
+
 import java.util.Map;
-import javax.ws.rs.core.Response;
 
 /**
  * Throw when the requested resource is no longer available at the server and no forwarding
@@ -18,7 +19,7 @@ public class RequestGoneException extends RadarWebApplicationException {
      * @param errorCode  errorCode from {@link ErrorConstants}
      */
     public RequestGoneException(String message, String entityName, String errorCode) {
-        super(Response.Status.GONE, message, entityName, errorCode);
+        super(HttpStatus.GONE, message, entityName, errorCode);
     }
 
 
@@ -32,6 +33,6 @@ public class RequestGoneException extends RadarWebApplicationException {
      */
     public RequestGoneException(String message, String entityName, String errorCode,
             Map<String, String> paramMap) {
-        super(Response.Status.GONE, message, entityName, errorCode, paramMap);
+        super(HttpStatus.GONE, message, entityName, errorCode, paramMap);
     }
 }

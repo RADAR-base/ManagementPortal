@@ -9,10 +9,10 @@
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
-        <div class="form-group" [hidden]="!project.id">
+        <div class="form-group" [hidden]="!projectCopy.id">
             <label for="id" [translate]="'global.field.id'"></label>
             <input type="text" class="form-control" id="id" name="id"
-                   [(ngModel)]="project.id" readonly />
+                   [(ngModel)]="projectCopy.id" readonly />
         </div>
         <div class="form-group">
             <label class="form-control-label"
@@ -20,7 +20,7 @@
                 for="field_projectName">
             </label>
             <input type="text" class="form-control" name="projectName" id="field_projectName"
-                [(ngModel)]="project.projectName" required pattern="[_'.@A-Za-z0-9- ]*" />
+                [(ngModel)]="projectCopy.projectName" required pattern="[_'.@A-Za-z0-9- ]*" />
             <small id="projectIdHelp" class="form-text text-muted"
                 [translate]="'managementPortalApp.project.projectName.fieldDescription'">
             </small>
@@ -43,7 +43,7 @@
                 for="field_humanReadableProjectName">
             </label>
             <input type="text" class="form-control" name="prettyProjectName" id="field_humanReadableProjectName"
-                   [(ngModel)]="project.humanReadableProjectName" value="{{projectIdAsPrettyValue? project.projectName : ''}}"/>
+                   [(ngModel)]="projectCopy.humanReadableProjectName" value="{{projectIdAsPrettyValue? projectCopy.projectName : ''}}"/>
             <small id="prettyProjectNameHelp" class="form-text text-muted"
                 [translate]="'managementPortalApp.project.prettyProjectName.fieldDescription'">
             </small>
@@ -59,7 +59,7 @@
                 for="field_description">
             </label>
             <input type="text" class="form-control" name="description" id="field_description"
-                [(ngModel)]="project.description"
+                [(ngModel)]="projectCopy.description"
             required />
             <div [hidden]="!(editForm.controls.description?.dirty && editForm.controls.description?.invalid)">
                 <small class="form-text text-danger"
@@ -70,12 +70,21 @@
         </div>
         <div class="form-group">
             <label class="form-control-label"
+                   [translate]="'managementPortalApp.project.organizationLegacy'"
+                   for="field_organization_legacy">
+            </label>
+            <input type="text" class="form-control" name="organizationName" id="field_organization_legacy"
+                   [(ngModel)]="projectCopy.organizationName"
+            />
+        </div>
+        <div class="form-group" *ngIf="projectCopy.organization">
+            <label class="form-control-label"
                 [translate]="'managementPortalApp.project.organization'"
                 for="field_organization">
             </label>
-            <input type="text" class="form-control" name="organization" id="field_organization"
-                [(ngModel)]="project.organization"
-             />
+            <select class="form-control" name="organization" [(ngModel)]="projectCopy.organization.name" id="field_organization">
+                <option *ngFor="let organization of organizationService.organizations$ | async" [ngValue]="organization.name">{{organization.name}}</option>
+            </select>
         </div>
         <div class="form-group">
             <label class="form-control-label"
@@ -83,7 +92,7 @@
                 for="field_location">
             </label>
             <input type="text" class="form-control" name="location" id="field_location"
-                [(ngModel)]="project.location"
+                [(ngModel)]="projectCopy.location"
             required />
             <div [hidden]="!(editForm.controls.location?.dirty && editForm.controls.location?.invalid)">
                 <small class="form-text text-danger"
@@ -97,9 +106,17 @@
                 [translate]="'managementPortalApp.project.startDate'"
                 for="field_startDate">
             </label>
-            <div class="d-flex">
-                <input id="field_startDate" type="datetime-local" class="form-control" name="startDate" [(ngModel)]="project.startDate"
-                  />
+            <div class="input-group">
+                <input [(ngModel)]="startDate"
+                       id="field_startDate"
+                       class="form-control"
+                       name="startDate"
+                       placeholder="yyyy-mm-dd"
+                       ngbDatepicker
+                       #startDatePicker="ngbDatepicker">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary calendar" (click)="startDatePicker.toggle()" type="button"></button>
+                </div>
             </div>
         </div>
         <div class="form-group">
@@ -107,7 +124,7 @@
                 [translate]="'managementPortalApp.project.projectStatus'"
                 for="field_projectStatus">
             </label>
-            <select class="form-control" name="projectStatus" [(ngModel)]="project.projectStatus" id="field_projectStatus" >
+            <select class="form-control" name="projectStatus" [(ngModel)]="projectCopy.projectStatus" id="field_projectStatus" >
                 <option value="PLANNING" [translate]="'managementPortalApp.ProjectStatus.PLANNING'"></option>
                 <option value="ONGOING" [translate]="'managementPortalApp.ProjectStatus.ONGOING'"></option>
                 <option value="ENDED" [translate]="'managementPortalApp.ProjectStatus.ENDED'"></option>
@@ -118,9 +135,17 @@
                 [translate]="'managementPortalApp.project.endDate'"
                 for="field_endDate">
             </label>
-            <div class="d-flex">
-                <input id="field_endDate" type="datetime-local" class="form-control" name="endDate" [(ngModel)]="project.endDate"
-                  />
+            <div class="input-group">
+                <input [(ngModel)]="endDate"
+                       id="field_endDate"
+                       class="form-control"
+                       name="endDate"
+                       placeholder="yyyy-mm-dd"
+                       ngbDatepicker
+                       #endDatePicker="ngbDatepicker">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary calendar" (click)="endDatePicker.toggle()" type="button"></button>
+                </div>
             </div>
         </div>
 
@@ -132,7 +157,7 @@
                 class="form-control"
                 name="sourceType"
                 [(ngModel)]="sourceTypeInputText"
-                [ngbTypeahead]="getMatchingSourceTypes"
+                [ngbTypeahead]="getMatchingSourceTypes.bind(this)"
                 [resultFormatter]="formatSourceTypeOption"
                 (focus)="sourceTypeInputFocus$.next($any($event).target.value)"
                 (selectItem)="addSourceType($event)"
@@ -140,7 +165,7 @@
             <div class="selected-source-types">
                 <div
                     class="badge badge-pill badge-primary"
-                    *ngFor="let t of project.sourceTypes"
+                    *ngFor="let t of projectCopy.sourceTypes"
                     (click)="removeSourceType(t.id)"
                 >
                     <span>{{formatSourceTypeOption(t)}}</span>
@@ -148,7 +173,40 @@
                 </div>
             </div>
         </div>
-        <jhi-dictionary-mapper [attributes]='project.attributes' [options]="options"
+        <div class="form-group">
+            <h2 [translate]="'managementPortalApp.project.groups'"></h2>
+            <div class="project-dialog__existing-groups">
+                <div
+                    class="badge badge-pill badge-primary"
+                    *ngFor="let g of projectCopy.groups"
+                    (click)="removeGroup(g.name)"
+                >
+                    <span>{{g.name}}</span>
+                    <span aria-hidden="true">&times;</span>
+                </div>
+            </div>
+            <div class="project-dialog__new-group">
+                <div>
+                    <label [translate]="'managementPortalApp.project.newGroup.label'"
+                        for="field_newGroup">
+                    </label>
+                    <input
+                        id="field_newGroup"
+                        type="text"
+                        class="form-control"
+                        name="newGroup"
+                        [(ngModel)]="newGroupInputText"
+                    />
+                </div>
+
+                <button type="button"
+                    class="btn btn-primary"
+                    (click)="addGroup()"
+                    [translate]="'managementPortalApp.project.newGroup.button'">
+                </button>
+            </div>
+        </div>
+        <jhi-dictionary-mapper [attributes]='projectCopy.attributes' [options]="options"
                                [eventPrefix]='attributeComponentEventPrefix'></jhi-dictionary-mapper>
     </div>
     <div class="modal-footer">

@@ -1,8 +1,7 @@
 package org.radarbase.management.service;
 
-
-import static org.radarbase.management.web.rest.errors.EntityName.PROJECT;
-
+import org.radarbase.auth.authorization.RoleAuthority;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.SourceType;
 import org.radarbase.management.repository.ProjectRepository;
@@ -10,8 +9,8 @@ import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.service.dto.SourceTypeDTO;
 import org.radarbase.management.service.mapper.ProjectMapper;
 import org.radarbase.management.service.mapper.SourceTypeMapper;
-import org.radarbase.management.web.rest.errors.NotFoundException;
 import org.radarbase.management.web.rest.errors.ErrorConstants;
+import org.radarbase.management.web.rest.errors.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
+import static org.radarbase.management.web.rest.errors.EntityName.PROJECT;
 
 /**
  * Service Implementation for managing Project.
@@ -40,6 +43,9 @@ public class ProjectService {
 
     @Autowired
     private SourceTypeMapper sourceTypeMapper;
+
+    @Autowired
+    private RadarToken token;
 
 
     /**
@@ -62,9 +68,25 @@ public class ProjectService {
      */
     @Transactional(readOnly = true)
     public Page<?> findAll(Boolean fetchMinimal, Pageable pageable) {
-        Page<Project> projects = projectRepository.findAllWithEagerRelationships(pageable);
+        Page<Project> projects;
+
+        if (token.hasGlobalAuthorityForPermission(PROJECT_READ)) {
+            projects = projectRepository.findAllWithEagerRelationships(pageable);
+        } else {
+            List<String> projectNames = token.getReferentsWithPermission(
+                    RoleAuthority.Scope.PROJECT, PROJECT_READ)
+                    .collect(Collectors.toList());
+
+            List<String> organizationNames = token.getReferentsWithPermission(
+                    RoleAuthority.Scope.ORGANIZATION, PROJECT_READ)
+                    .collect(Collectors.toList());
+
+            projects = projectRepository.findAllWithEagerRelationshipsInOrganizationsOrProjects(
+                     pageable, organizationNames, projectNames);
+        }
+
         if (!fetchMinimal) {
-            return projects.map(projectMapper::projectToProjectDTOReduced);
+            return projects.map(projectMapper::projectToProjectDTO);
         } else {
             return projects.map(projectMapper::projectToMinimalProjectDetailsDTO);
         }
@@ -97,7 +119,8 @@ public class ProjectService {
         log.debug("Request to get Project by name: {}", name);
         return projectRepository.findOneWithEagerRelationshipsByName(name)
                 .map(projectMapper::projectToProjectDTO)
-                .orElseThrow(() -> new NotFoundException("Project not found with projectName",
+                .orElseThrow(() -> new NotFoundException(
+                        "Project not found with projectName " + name,
                         PROJECT, ErrorConstants.ERR_PROJECT_NAME_NOT_FOUND,
                         Collections.singletonMap("projectName", name)));
     }

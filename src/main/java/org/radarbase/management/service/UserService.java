@@ -1,40 +1,19 @@
 package org.radarbase.management.service;
 
-import static org.radarbase.auth.authorization.AuthoritiesConstants.INACTIVE_PARTICIPANT;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.PARTICIPANT;
-import static org.radarbase.management.web.rest.errors.EntityName.USER;
-
-import java.time.Period;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import java.util.stream.Collectors;
-import org.radarbase.auth.authorization.AuthoritiesConstants;
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.auth.config.Constants;
+import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.config.ManagementPortalProperties;
-import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.User;
-import org.radarbase.management.repository.AuthorityRepository;
-import org.radarbase.management.repository.ProjectRepository;
-import org.radarbase.management.repository.RoleRepository;
 import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.repository.filters.UserFilter;
 import org.radarbase.management.security.SecurityUtils;
-import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.service.dto.UserDTO;
-import org.radarbase.management.service.mapper.ProjectMapper;
 import org.radarbase.management.service.mapper.UserMapper;
-import org.radarbase.management.service.util.RandomUtil;
-import org.radarbase.management.web.rest.errors.ErrorConstants;
+import org.radarbase.management.web.rest.errors.ConflictException;
 import org.radarbase.management.web.rest.errors.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,9 +22,30 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Period;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.radarbase.auth.authorization.Permission.ROLE_UPDATE;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkGlobalPermission;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganization;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganizationAndProject;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
+import static org.radarbase.auth.authorization.RoleAuthority.INACTIVE_PARTICIPANT;
+import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
+import static org.radarbase.management.service.RoleService.getRoleAuthority;
+import static org.radarbase.management.web.rest.errors.EntityName.USER;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_EMAIL_EXISTS;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_ENTITY_NOT_FOUND;
 
 /**
  * Service class for managing users.
@@ -60,28 +60,22 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private ProjectRepository projectRepository;
+    private PasswordService passwordService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
-    private ProjectMapper projectMapper;
+    private RoleService roleService;
 
     @Autowired
     private UserMapper userMapper;
-
-    @Autowired
-    private AuthorityRepository authorityRepository;
 
     @Autowired
     private RevisionService revisionService;
 
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
+
+    @Autowired
+    private RadarToken token;
 
     /**
      * Activate a user with the given activation key.
@@ -119,7 +113,7 @@ public class UserService {
                     return user.getResetDate().isAfter(oneDayAgo);
                 })
                 .map(user -> {
-                    user.setPassword(passwordEncoder.encode(newPassword));
+                    user.setPassword(passwordService.encode(newPassword));
                     user.setResetKey(null);
                     user.setResetDate(null);
                     user.setActivated(true);
@@ -140,7 +134,7 @@ public class UserService {
         return userRepository.findOneByLogin(login)
             .filter((p) -> !p.getActivated())
             .map(user -> {
-                user.setResetKey(RandomUtil.generateResetKey());
+                user.setResetKey(passwordService.generateResetKey());
                 user.setResetDate(ZonedDateTime.now());
                 return user;
             });
@@ -156,7 +150,7 @@ public class UserService {
         return userRepository.findOneByEmail(mail)
                 .filter(User::getActivated)
                 .map(user -> {
-                    user.setResetKey(RandomUtil.generateResetKey());
+                    user.setResetKey(passwordService.generateResetKey());
                     user.setResetDate(ZonedDateTime.now());
                     return user;
                 });
@@ -171,7 +165,7 @@ public class UserService {
      * @param userDto the user information
      * @return the newly created user
      */
-    public User createUser(UserDTO userDto) {
+    public User createUser(UserDTO userDto) throws NotAuthorizedException {
         User user = new User();
         user.setLogin(userDto.getLogin());
         user.setFirstName(userDto.getFirstName());
@@ -182,44 +176,73 @@ public class UserService {
         } else {
             user.setLangKey(userDto.getLangKey());
         }
-        String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
-        user.setPassword(encryptedPassword);
-        user.setResetKey(RandomUtil.generateResetKey());
+        user.setPassword(passwordService.generateEncodedPassword());
+        user.setResetKey(passwordService.generateResetKey());
         user.setResetDate(ZonedDateTime.now());
         user.setActivated(false);
 
-        user.setRoles(getUserRoles(userDto));
-        userRepository.save(user);
+        user.setRoles(getUserRoles(userDto.getRoles(), Set.of()));
+        user = userRepository.save(user);
         log.debug("Created Information for User: {}", user);
         return user;
     }
 
-    private Set<Role> getUserRoles(UserDTO userDto) {
-        Set<Role> roles = new HashSet<>();
-        for (RoleDTO roleDto : userDto.getRoles()) {
-            Optional<Role> role = roleRepository.findOneByProjectIdAndAuthorityName(
-                    roleDto.getProjectId(), roleDto.getAuthorityName());
-            if (!role.isPresent() || role.get().getId() == null) {
-                Role currentRole = new Role();
-                // supplied authorityname can be anything, so check if we actually have one
-                currentRole.setAuthority(
-                        authorityRepository.findByAuthorityName(roleDto.getAuthorityName())
-                        .orElseThrow(() -> new NotFoundException("Authority not found with "
-                            + "authorityName", USER, ErrorConstants.ERR_INVALID_AUTHORITY,
-                            Collections.singletonMap("authorityName",
-                                roleDto.getAuthorityName()))));
-                if (roleDto.getProjectId() != null) {
-                    currentRole.setProject(projectRepository.getOne(roleDto.getProjectId()));
-                }
-
-                if (Objects.nonNull(currentRole.getAuthority())) {
-                    roles.add(roleRepository.save(currentRole));
-                }
-            } else {
-                roles.add(role.get());
-            }
+    private Set<Role> getUserRoles(Set<RoleDTO> roleDtos, Set<Role> oldRoles)
+            throws NotAuthorizedException {
+        if (roleDtos == null) {
+            return null;
         }
+        var roles = roleDtos.stream()
+                .map(roleDto -> {
+                    RoleAuthority authority = getRoleAuthority(roleDto);
+                    return switch (authority.scope()) {
+                        case GLOBAL -> roleService.getGlobalRole(authority);
+                        case ORGANIZATION -> roleService.getOrganizationRole(authority,
+                                roleDto.getOrganizationId());
+                        case PROJECT -> roleService.getProjectRole(authority,
+                                roleDto.getProjectId());
+                    };
+                })
+                .collect(Collectors.toSet());
+
+        checkAuthorityForRoleChange(roles, oldRoles);
+
         return roles;
+    }
+
+    private void checkAuthorityForRoleChange(Set<Role> roles, Set<Role> oldRoles)
+            throws NotAuthorizedException {
+        var updatedRoles = new HashSet<>(roles);
+        updatedRoles.removeAll(oldRoles);
+        for (Role r : updatedRoles) {
+            checkAuthorityForRoleChange(r);
+        }
+
+        var removedRoles = new HashSet<>(oldRoles);
+        removedRoles.removeAll(roles);
+        for (Role r : removedRoles) {
+            checkAuthorityForRoleChange(r);
+        }
+    }
+
+    private void checkAuthorityForRoleChange(Role role)
+            throws NotAuthorizedException {
+        switch (role.getRole().scope()) {
+            case GLOBAL -> checkGlobalPermission(token, ROLE_UPDATE);
+            case ORGANIZATION -> checkPermissionOnOrganization(token, ROLE_UPDATE,
+                    role.getOrganization().getName());
+            case PROJECT -> {
+                if (role.getProject().getOrganization() != null) {
+                    checkPermissionOnOrganizationAndProject(token, ROLE_UPDATE,
+                            role.getProject().getOrganization().getName(),
+                            role.getProject().getProjectName());
+                } else {
+                    checkPermissionOnProject(token, ROLE_UPDATE,
+                            role.getProject().getProjectName());
+                }
+            }
+            default -> throw new IllegalStateException("Unknown authority scope.");
+        }
     }
 
     /**
@@ -230,39 +253,63 @@ public class UserService {
      * @param email email id of user
      * @param langKey language key
      */
-    public void updateUser(String firstName, String lastName, String email, String langKey) {
-        userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setEmail(email);
-            user.setLangKey(langKey);
-            log.debug("Changed Information for User: {}", user);
-        });
+    public void updateUser(String userName, String firstName, String lastName,
+            String email, String langKey) {
+        Optional<User> userWithEmail = userRepository.findOneByEmail(email);
+        User user;
+        if (userWithEmail.isPresent()) {
+            user = userWithEmail.get();
+            if (!user.getLogin().equalsIgnoreCase(userName)) {
+                throw new ConflictException("Email address " + email + " already in use", USER,
+                        ERR_EMAIL_EXISTS, Map.of("email", email));
+            }
+        } else {
+            user = userRepository.findOneByLogin(userName)
+                    .orElseThrow(() -> new NotFoundException(
+                            "User with login " + userName + " not found", USER,
+                            ERR_ENTITY_NOT_FOUND, Map.of("user", userName)));
+        }
+
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEmail(email);
+        user.setLangKey(langKey);
+        log.debug("Changed Information for User: {}", user);
+        userRepository.save(user);
     }
 
     /**
      * Update all information for a specific user, and return the modified user.
      *
      * @param userDto user to update
+     * @param updateProperties should update the user properties
      * @return updated user
      */
-    public Optional<UserDTO> updateUser(UserDTO userDto) {
-        return userRepository.findById(userDto.getId())
-                .map(user -> {
-                    user.setLogin(userDto.getLogin());
-                    user.setFirstName(userDto.getFirstName());
-                    user.setLastName(userDto.getLastName());
-                    user.setEmail(userDto.getEmail());
-                    user.setActivated(userDto.isActivated());
-                    user.setLangKey(userDto.getLangKey());
-                    Set<Role> managedRoles = user.getRoles();
-                    managedRoles.clear();
-                    managedRoles.addAll(getUserRoles(userDto));
+    @Transactional
+    public Optional<UserDTO> updateUser(
+            UserDTO userDto, boolean updateProperties) throws NotAuthorizedException {
+        Optional<User> userOpt = userRepository.findById(userDto.getId());
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            if (updateProperties) {
+                user.setLogin(userDto.getLogin());
+                user.setFirstName(userDto.getFirstName());
+                user.setLastName(userDto.getLastName());
+                user.setEmail(userDto.getEmail());
+                user.setActivated(userDto.isActivated());
+                user.setLangKey(userDto.getLangKey());
+            }
+            Set<Role> managedRoles = user.getRoles();
+            Set<Role> oldRoles = Set.copyOf(managedRoles);
+            managedRoles.clear();
+            managedRoles.addAll(getUserRoles(userDto.getRoles(), oldRoles));
 
-                    log.debug("Changed Information for User: {}", user);
-                    return user;
-                })
-                .map(userMapper::userToUserDTO);
+            user = userRepository.save(user);
+            log.debug("Changed Information for User: {}", user);
+            return Optional.of(userMapper.userToUserDTO(user));
+        } else {
+            return Optional.empty();
+        }
     }
 
     /**
@@ -291,7 +338,7 @@ public class UserService {
      */
     public void changePassword(String login, String password) {
         userRepository.findOneByLogin(login).ifPresent(user -> {
-            String encryptedPassword = passwordEncoder.encode(password);
+            String encryptedPassword = passwordService.encode(password);
             user.setPassword(encryptedPassword);
             log.debug("Changed password for User: {}", user);
         });
@@ -321,31 +368,6 @@ public class UserService {
     }
 
     /**
-     * Get the projects a given user has any role in.
-     * @param login the login of the user
-     * @return the list of projects
-     */
-    @Transactional(readOnly = true)
-    public List<ProjectDTO> getProjectsAssignedToUser(String login) {
-        User userByLogin = userRepository.findOneWithRolesByLogin(login)
-                .orElseThrow(NoSuchElementException::new);
-
-        List<Project> projectsOfUser;
-
-        if (userByLogin.getRoles().stream()
-                .anyMatch(r -> AuthoritiesConstants.SYS_ADMIN.equals(r.getAuthority().getName()))) {
-            projectsOfUser = projectRepository.findAll();
-        } else {
-            projectsOfUser = userByLogin.getRoles().stream()
-                    .map(Role::getProject)
-                    .distinct()
-                    .collect(Collectors.toList());
-        }
-
-        return projectMapper.projectsToProjectDTOs(projectsOfUser);
-    }
-
-    /**
      * Get the current user.
      * @return the currently authenticated user, or null if no user is currently authenticated
      */
@@ -366,8 +388,10 @@ public class UserService {
         log.info("Scheduled scan for expired user accounts starting now");
         ZonedDateTime cutoff = ZonedDateTime.now().minus(Period.ofDays(3));
 
-        userRepository.findAllByActivatedAndAuthoritiesNot(false,
-                Arrays.asList(PARTICIPANT, INACTIVE_PARTICIPANT)).stream()
+        List<String> authorities = Arrays.asList(
+                PARTICIPANT.authority(), INACTIVE_PARTICIPANT.authority());
+
+        userRepository.findAllByActivatedAndAuthoritiesNot(false, authorities).stream()
                 .filter(user -> revisionService.getAuditInfo(user).getCreatedAt().isBefore(cutoff))
                 .forEach(user -> {
                     try {
@@ -379,7 +403,40 @@ public class UserService {
                 });
     }
 
-    public Page<UserDTO> findUsers(UserFilter userFilter, Pageable pageable) {
-        return userRepository.findAll(userFilter, pageable).map(userMapper::userToUserDTO);
+    /**
+     * Find all user with given filter.
+     *
+     * @param userFilter filtering for users.
+     * @param pageable paging information
+     * @param includeProvenance whether to include created and modification fields.
+     * @return page of users.
+     */
+    public Page<UserDTO> findUsers(UserFilter userFilter, Pageable pageable,
+            boolean includeProvenance) {
+        return userRepository.findAll(userFilter, pageable)
+                .map(includeProvenance
+                        ? userMapper::userToUserDTO
+                        : userMapper::userToUserDTONoProvenance);
+    }
+
+    /**
+     * Update the roles of the given user.
+     * @param login user login
+     * @param roleDtos new roles to set
+     * @throws NotAuthorizedException if the current user is not allowed to modify the roles
+     *                                of the target user.
+     */
+    @Transactional
+    public void updateRoles(String login, Set<RoleDTO> roleDtos) throws NotAuthorizedException {
+        var user = userRepository.findOneByLogin(login)
+                .orElseThrow(() -> new NotFoundException(
+                        "User with login " + login + " not found", USER,
+                        ERR_ENTITY_NOT_FOUND, Map.of("user", login)));
+
+        Set<Role> managedRoles = user.getRoles();
+        Set<Role> oldRoles = Set.copyOf(managedRoles);
+        managedRoles.clear();
+        managedRoles.addAll(getUserRoles(roleDtos, oldRoles));
+        userRepository.save(user);
     }
 }

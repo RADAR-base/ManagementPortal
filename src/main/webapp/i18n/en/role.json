@@ -26,7 +26,8 @@
                 "title": "Role"
             },
             "authorityName": "Authority Name",
-            "project": "Project"
+            "project": "Project",
+            "organizationOrProject": "Organization/Project"
         },
         "error": {
             "error.invalidAuthority": "Invalid authority: {{ param0 }}"

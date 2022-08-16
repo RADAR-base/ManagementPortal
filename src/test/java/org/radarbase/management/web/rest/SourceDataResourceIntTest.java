@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.authentication.OAuthHelper;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.SourceData;
 import org.radarbase.management.repository.SourceDataRepository;
@@ -29,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,7 +98,7 @@ class SourceDataResourceIntTest {
     private EntityManager em;
 
     @Autowired
-    private HttpServletRequest servletRequest;
+    private RadarToken radarToken;
 
     private MockMvc restSourceDataMockMvc;
 
@@ -109,7 +109,7 @@ class SourceDataResourceIntTest {
         MockitoAnnotations.initMocks(this);
         SourceDataResource sourceDataResource = new SourceDataResource();
         ReflectionTestUtils.setField(sourceDataResource, "sourceDataService", sourceDataService);
-        ReflectionTestUtils.setField(sourceDataResource, "servletRequest", servletRequest);
+        ReflectionTestUtils.setField(sourceDataResource, "token", radarToken);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
@@ -129,7 +129,7 @@ class SourceDataResourceIntTest {
      * if they test an entity which requires the current entity.</p>
      */
     public static SourceData createEntity(EntityManager em) {
-        SourceData sourceData = new SourceData()
+        return new SourceData()
                 .sourceDataType(DEFAULT_SOURCE_DATA_TYPE)
                 .sourceDataName(DEFAULT_SOURCE_DATA_NAME)
                 .processingState(DEFAULT_PROCESSING_STATE)
@@ -138,8 +138,6 @@ class SourceDataResourceIntTest {
                 .topic(DEFAULT_TOPIC)
                 .unit(DEFAULT_UNTI)
                 .frequency(DEFAULT_FREQUENCY);
-
-        return sourceData;
     }
 
     @BeforeEach

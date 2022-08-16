@@ -15,13 +15,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import java.util.UUID;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.MockitoAnnotations;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Source;
@@ -93,7 +93,7 @@ class SourceResourceIntTest {
     private ExceptionTranslator exceptionTranslator;
 
     @Autowired
-    private HttpServletRequest servletRequest;
+    private RadarToken radarToken;
 
     @Autowired
     private ProjectRepository projectRepository;
@@ -108,7 +108,7 @@ class SourceResourceIntTest {
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         SourceResource sourceResource = new SourceResource();
-        ReflectionTestUtils.setField(sourceResource, "servletRequest", servletRequest);
+        ReflectionTestUtils.setField(sourceResource, "token", radarToken);
         ReflectionTestUtils.setField(sourceResource, "sourceService", sourceService);
         ReflectionTestUtils.setField(sourceResource, "sourceRepository", sourceRepository);
 
@@ -130,10 +130,9 @@ class SourceResourceIntTest {
      * if they test an entity which requires the current entity.</p>
      */
     public static Source createEntity() {
-        Source source = new Source()
+        return new Source()
                 .assigned(DEFAULT_ASSIGNED)
                 .sourceName(DEFAULT_SOURCE_NAME);
-        return source;
     }
 
     @BeforeEach

@@ -1,23 +1,13 @@
 import { login } from '../util/login';
-import * as navBarPage from '../util/nav-bar';
+import { loadProjectView } from "../util/nav-bar";
 
 describe.skip('Project view: Create a subject, assign sources, discontinue and delete a subject.', () => {
     const sourceName = 'test-source-2';
     const externalId = 'test-id';
 
-    before(() => {
-        login();
-        cy.visit('./');
-    });
-
     beforeEach(() => {
-        cy.wait(100);
-        Cypress.Cookies.preserveOnce('oAtkn');
-    });
-
-    it('should load project view', () => {
-        navBarPage.clickOnProjectMenu();
-        cy.get('a').contains('radar').first().click();
+        login();
+        loadProjectView();
     });
 
     it('should be able to create a subject', () => {

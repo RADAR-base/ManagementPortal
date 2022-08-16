@@ -1,15 +1,14 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import { EventManager } from '../util/event-manager.service';
-import { Dictionary } from './dictionary-mapper.model';
 
 @Component({
     selector: 'jhi-dictionary-mapper',
     templateUrl: './dictionary-mapper.component.html',
 })
-export class DictionaryMapperComponent implements OnInit {
-    @Input() attributes: Dictionary;
+export class DictionaryMapperComponent implements OnInit, OnDestroy {
+    @Input() attributes: Record<string, string>;
     eventSubscriber: Subscription;
 
     @Input() options: string[];
@@ -28,9 +27,13 @@ export class DictionaryMapperComponent implements OnInit {
         if (this.attributes === undefined) {
             this.attributes = {};
         }
-        this.eventManager.subscribe(this.eventPrefix + 'EditListModification', (response) => {
+        this.eventSubscriber = this.eventManager.subscribe(this.eventPrefix + 'EditListModification', (response) => {
             this.attributes = response.content;
         });
+    }
+
+    ngOnDestroy() {
+        this.eventSubscriber.unsubscribe();
     }
 
     addAttribute() {
@@ -57,14 +60,7 @@ export class DictionaryMapperComponent implements OnInit {
     }
 
     isEmpty(obj: any) {
-        if (obj) {
-            for (const key in obj) {
-                if (obj.hasOwnProperty(key)) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return !obj || Object.keys(obj).length === 0;
     }
 
     trackKey(index: number, item: any) {

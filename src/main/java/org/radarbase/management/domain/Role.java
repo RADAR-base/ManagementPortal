@@ -17,6 +17,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.management.domain.support.AbstractEntityListener;
 
 import javax.persistence.Entity;
@@ -48,7 +49,8 @@ public class Role extends AbstractEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
+    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000,
+            sequenceName = "hibernate_sequence")
     private Long id;
 
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
@@ -60,6 +62,10 @@ public class Role extends AbstractEntity implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Project project;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Organization organization;
 
     @JsonProperty()
     @ManyToOne(fetch = FetchType.EAGER)
@@ -103,6 +109,14 @@ public class Role extends AbstractEntity implements Serializable {
         this.users = users;
     }
 
+    public Organization getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
+    }
+
     public Project getProject() {
         return project;
     }
@@ -118,6 +132,10 @@ public class Role extends AbstractEntity implements Serializable {
 
     public Authority getAuthority() {
         return authority;
+    }
+
+    public RoleAuthority getRole() {
+        return RoleAuthority.valueOfAuthorityOrNull(authority.getName());
     }
 
     public Role authority(Authority authority) {
@@ -138,22 +156,23 @@ public class Role extends AbstractEntity implements Serializable {
             return false;
         }
         Role role = (Role) o;
-        if (role.id == null || id == null) {
-            return false;
-        }
-        return Objects.equals(id, role.id);
+        return Objects.equals(authority, role.authority)
+                && Objects.equals(project, role.project)
+                && Objects.equals(organization, role.organization);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hash(authority, project, organization);
     }
 
     @Override
     public String toString() {
         return "Role{"
                + "id=" + id + ", "
-               + "project='" + (project == null ? "null" : project.getProjectName()) + "', "
+                + "organization='" + (organization == null ? "null" : organization.getName())
+                + "', "
+                + "project='" + (project == null ? "null" : project.getProjectName()) + "', "
                + "authority='" + getAuthority().getName() + "', "
                + "}";
     }

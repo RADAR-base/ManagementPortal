@@ -2,67 +2,98 @@
     "managementPortalApp": {
         "subject" : {
             "home": {
-                "title": "Subjects",
-                "createLabel": "Maak een nieuwe Subject",
-                "createOrEditLabel": "Maak of wijzig een Subject",
+                "title": "Subjecten",
+                "createLabel": "Maak een nieuwe subject",
+                "createOrEditLabel": "Maak of wijzig een subject",
                 "pairAppLabel": "Koppel een app"
             },
-            "created": "A new Subject is created with identifier {{ param }}",
-            "updated": "A Subject is updated with identifier {{ param }}",
-            "deleted": "A Subject is deleted with identifier {{ param }}",
+            "created": "Een nieuw subject is met login {{ param }} is aangemaakt.",
+            "updated": "Het subject {{ param }} is bewerkt.",
+            "deleted": "Het subject {{ param }} is verwijderd.",
             "delete": {
-                "question": "Bent u zeker dat u Subject {{ id }} wilt verwijderen?"
+                "question": "Weet u zeker dat u subject {{ id }} wilt verwijderen? Dit kan niet ongedaan gemaakt worden."
             },
             "detail": {
                 "title": "Subject"
             },
+            "filter": {
+                "title": "Filter",
+                "filters": "Filters",
+                "applyButton": "Filter toepassen",
+                "clearButton": "Filters wissen",
+                "from": "Vanaf",
+                "to": "Tot en met",
+                "advancedFilter": "Uitgebreid filter",
+                "error": {
+                    "invalidDate": "De datum is niet geldig.",
+                    "invalidRange": "De periode is niet geldig: Vanaf datum is na de Tot en met datum."
+                }
+            },
             "login": "Login",
-            "email": "Email",
-            "externalLink": "External Link",
-            "externalId": "External Id",
-            "removed": "Removed",
-            "activated": "Activated",
+            "email": "E-mail",
+            "externalLink": "Externe link",
+            "externalId": "Extern ID",
+            "humanReadableId": "Leesbare ID",
+            "enrolmentDate": "Inschrijvingsdatum",
+            "removed": "Verwijderd",
+            "activated": "Actief",
             "langKey": "Taal",
             "project": "Project",
             "sources": "Sources",
-            "createdBy": "Aanmaak door",
-            "createdDate": "Aanmaak datum",
+            "createdBy": "Gemaakt door",
+            "createdDate": "Aanmaakdatum",
+            "dateOfBirth": "Geboortedatum",
+            "enrollmentDate": "Inschrijvingsdatum",
+            "enrollmentDateFrom": "Inschrijvingsdatum Vanaf",
+            "enrollmentDateTo": "Inschrijvingsdatum Tot",
             "lastModifiedBy": "Laatst aangepast door",
-            "lastModifiedDate": "Laatst aangepast datum",
+            "lastModifiedDate": "Laatst aangepaste datum",
+            "noSubjects": "Geen resultaten gevonden",
+            "personName": "Naam",
             "pairing": "Koppelen",
             "actions": "Acties",
             "pairApp": "App koppelen",
             "pairSources": {
-                "button" : "Paar Sources",
-                "title" : "Toewijzen of verwijderen sources ",
-                "Id" : "Id",
-                "sourceDescription" : "Source Beschrijving",
+                "button" : "Koppel Sources",
+                "title" : "Koppel of verwijder sources",
+                "Id" : "ID",
+                "sourceDescription" : "Source beschrijving",
                 "remove" : "Verwijderen",
-                "assignedSources" : "Toegewezen sources",
-                "availableSources" : "Beschikbaar sources",
-                "sourceType": "Device type",
+                "assignedSources" : "Gekoppelde sources",
+                "availableSources" : "Beschikbare sources",
+                "sourceType": "Source type",
                 "sourceId": "Source ID",
-                "sourceName": "Source Naam",
+                "sourceName": "Source naam",
                 "expectedSourceName": "Fysiek ID"
             },
             "clientApp": "Client app",
             "resource": "Beveiligde gegevensbron",
-            "attributeData" : "Attributes",
+            "attributeData" : "Attributen",
             "status" : {
                 "title" : "Staat",
                 "discontinued" : "Stopgezet",
-                "active" : "Geactiveerd",
-                "deactivated" : "Gedeactiveerd",
+                "active" : "Actief",
+                "deactivated" : "Inactief",
                 "invalid": "Ongeldig"
             },
             "discontinue" : {
-                "operation" : "Staken",
-                "title" : "Bevestig de werking stoppen",
-                "question" : "Weet u zeker dat u het onderwerp wilt stoppen {{ id }}?"
+                "operation" : "Stopzetten",
+                "title" : "Bevestig stopzetten",
+                "question" : "Weet u zeker dat u de deelname van subject {{ id }} wilt stopzetten? Dit kan niet ongedaan gemaakt worden."
             },
-            "discontinued": "Een onderwerp wordt beëindigd met een identificatiecode {{ param }}",
-            "subjectId" : "Subject Id",
-            "baseUrl" : "Base Url",
+            "discontinued": "De deelname van subject {{ param }} is stopgezet.",
+            "sorting": {
+                "sortByLabel": "Sorteren op",
+                "sortOrderLabel": "Volgorde",
+                "id": "Id",
+                "externalId": "Extern ID",
+                "asc": "Oplopend",
+                "desc": "Aflopend",
+                "login": "Subject ID",
+                "authority": "Status"
+            },
+            "subjectId" : "Subject ID",
+            "baseUrl" : "Basis-url",
             "tokenName" : "Token naam",
             "tokenTimeoutMinutes": "{{minutes}} minuten",
             "tokenTimeoutHour": "1 uur",
@@ -70,21 +101,27 @@
             "tokenTimeoutDays": "{{days}} dagen",
             "validUntil": "Geldig tot",
             "validity": "Geldigheidsduur",
-            "generateToken": "Genereer QR code",
-            "generatePersistentToken": "Genereer blijvende QR code"
+            "selectAll": "Selecteer alles",
+            "clearSelectedItems": "Geselecteerde items wissen",
+            "addSelectedToGroup": "Aan groep toevoegen",
+            "group": "Groep",
+            "loadMore": "Meer laden ({{shown}}/{{total}} getoond)",
+            "loadMorePartial": "Meer laden ({{shown}} getoond)",
+            "allLoaded": "Alle {{total}} resultaten geladen",
+            "generateToken": "Genereer QR-code",
+            "generatePersistentToken": "Genereer langdurige QR-code"
         }
     },
     "error": {
-        "patientEmailRequired": "Er is een geldige e-mail nodig om het vakaccount te activeren",
-        "subjectExists" : "Er bestaat al een onderwerp met een gegeven project-id en extern id",
-        "loginNotParticipant": "Opgegeven login is geen deelnemer in een studie",
-        "loginRequired": "A subject login is required",
-        "sourceNotFound": "Er is geen source met deze naam toegewezen aan de deelnemer.",
+        "patientEmailRequired": "Er is een geldige e-mailadres nodig om het subject-account te activeren",
+        "subjectExists" : "Er bestaat al een onderwerp met een gegeven project ID en extern ID",
+        "loginNotParticipant": "Opgegeven subject is geen deelnemer van een project",
+        "loginRequired": "Een subject-login is vereist.",
+        "sourceNotFound": "Er is geen source met deze naam toegewezen aan het subject.",
         "sourceNameExists": "Er bestaat reeds een source met deze naam.",
         "validation": "Validatie fout, controleer de ingevoerde waarden.",
         "sourceTypeExists": "De deelnemer werd reeds een source van dit type toegewezen.",
-        "activeParticipantProjectNotFound": "Het Subject heeft geen actief deelnemersproject",
-        "sourceTypeNotProvided" : "Het verzoek bevat geen geldige eigenschappen van het source-type"
+        "activeParticipantProjectNotFound": "Het subject neemt niet deel aan een project",
+        "sourceTypeNotProvided" : "De opgegeven eigenschappen van het source-type zijn incompleet."
     }
-
 }

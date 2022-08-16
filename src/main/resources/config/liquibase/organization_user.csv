@@ -1,0 +1,2 @@
+"ID";"LOGIN";"PASSWORD_HASH";"FIRST_NAME";"LAST_NAME";"EMAIL";"ACTIVATED";"LANG_KEY"
+55;oadmin;$2y$10$nRljY6NlDhLbsQ/xmbrvleYzQB3TWILZgMqLTOxXkt./upvLwFrsG;Org;Admin;oadmin@localhost;true;en

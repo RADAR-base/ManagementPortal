@@ -4,9 +4,8 @@ name: Main
 # Run in master and dev branches and in all pull requests to those branches
 on:
   push:
-    branches: [ master, dev ]
-  pull_request:
-    branches: [ master, dev ]
+    branches: [ master, dev, "Mp2.0-rc" ]
+  pull_request: {}
 
 env:
   DOCKER_IMAGE: radarbase/management-portal
@@ -22,18 +21,18 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Use Node.js 15
+      - name: Use Node.js 16
         uses: actions/setup-node@v1
         with:
-          node-version: 15
+          node-version: 16
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "::set-output name=dir::.yarn/cache"
 
       - uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 17
 
       - name: Cache
         uses: actions/cache@v2
@@ -42,7 +41,7 @@ jobs:
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-java-${{ hashFiles('**/build.gradle', '**/gradle.properties', '**/yarn.lock') }}
+          key: ${{ runner.os }}-java-${{ hashFiles('**/build.gradle', '**/gradle.properties', '**/yarn.lock', '.yarnrc.yml') }}
           restore-keys: |
             ${{ runner.os }}-java-
 
@@ -65,34 +64,15 @@ jobs:
         if: always()
         run: ./gradlew check
 
-      - name: Codacy
-        if: steps.gradle-check.outcome != 'cancelled'
-        env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        run: ./gradlew sendCoverageToCodacy
-
       - name: End to end tests
         id: e2e
         run: |
           cp src/test/resources/config/keystore.p12 src/main/resources/config/keystore.p12
           ./gradlew bootRun &>mp.log </dev/null &
-          BOOTRUN_PROCESS=$!
           yarn run wait-for-managementportal
           ./gradlew generateOpenApiSpec
           yarn e2e
-          kill $BOOTRUN_PROCESS
-
-      - uses: actions/upload-artifact@v2
-        if: steps.e2e.outcome == 'success' || steps.e2e.outcome == 'failure'
-        with:
-          name: openapi-spec
-          path: build/swagger-spec/swagger.json
-
-      - uses: actions/upload-artifact@v2
-        if: steps.e2e.outcome == 'success' || steps.e2e.outcome == 'failure'
-        with:
-          name: managementportal-logs
-          path: mp.log
+          ./gradlew --stop
 
       - name: Has SNAPSHOT version
         id: is-snapshot
@@ -135,6 +115,38 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::.yarn/cache"
+
+      - name: Cache Docker layers
+        id: cache-buildx
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile', '**/*.gradle', 'gradle.properties', 'src/main/**', 'radar-auth/src/**', 'yarn.lock', '*.json', '.yarnrc.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Cache parameters
+        id: cache-parameters
+        run: |
+          if [ "${{ steps.cache-buildx.outputs.cache-hit }}" = "true" ]; then
+            echo "::set-output name=cache-to::"
+          else
+            echo "::set-output name=cache-to::type=local,dest=/tmp/.buildx-cache-new,mode=max"
+          fi
+
+      - name: Use Node.js 16
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+
+      - name: Prime yarn cache
+        run: yarn install --mode=skip-build
+
       # Add Docker labels and tags
       - name: Docker meta
         id: docker_meta
@@ -165,6 +177,10 @@ jobs:
       - name: Build docker
         uses: docker/build-push-action@v2
         with:
+          # Do not load context from Github but from local path
+          context: .
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: ${{ steps.cache-parameters.outputs.cache-to }}
           load: ${{ steps.docker_params.outputs.load }}
           push: ${{ steps.docker_params.outputs.push }}
           platforms: ${{ steps.docker_params.outputs.platforms }}
@@ -176,6 +192,15 @@ jobs:
             org.opencontainers.image.authors=Joris Borgdorff <joris@thehyve.nl>
             org.opencontainers.image.vendor=RADAR-base
             org.opencontainers.image.licenses=Apache-2.0
+
+      # Temp fix
+      # https://github.com/docker/build-push-action/issues/252
+      # https://github.com/moby/buildkit/issues/1896
+      - name: Move docker build cache
+        if: steps.cache-buildx.outputs.cache-hit != 'true'
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Pull docker image
         if: steps.docker_params.outputs.load == 'false'

@@ -1,89 +1,76 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 
 import { AccountService } from './account.service';
+import { catchError, distinctUntilChanged, first, mergeMap, tap } from 'rxjs/operators';
+import { Account } from '../user/account.model';
 
 @Injectable({ providedIn: 'root' })
 export class Principal {
-    private userIdentity: any;
-    private authenticated = false;
-    private authenticationState = new Subject<any>();
+    private _account$ = new BehaviorSubject<Account | null>(null);
+    readonly account$: Observable<Account | null>;
 
     constructor(
-        private account: AccountService
-    ) {}
-
-    authenticate(identity) {
-        this.userIdentity = identity;
-        this.authenticated = identity !== null;
-        this.authenticationState.next(this.userIdentity);
+        private account: AccountService,
+    ) {
+        this.account$ = this._account$.asObservable().pipe(
+            // do not emit multiple duplicate values
+            distinctUntilChanged((a, b) => a === b),
+        );
+        this.reset().subscribe();
     }
 
-    hasAnyAuthority(authorities: string[]): Promise<boolean> {
-        if (!this.authenticated || !this.userIdentity || !this.userIdentity.authorities) {
-            return Promise.resolve(false);
-        }
-
-        for (let i = 0; i < authorities.length; i++) {
-            if (this.userIdentity.authorities.indexOf(authorities[i]) !== -1) {
-                return Promise.resolve(true);
-            }
-        }
-
-        return Promise.resolve(false);
+    /**
+     * Update authentication state. If new authentication state is null, the user is from the
+     * frontend perspective logged out.
+     */
+    authenticate(identity?: Account) {
+        this._account$.next(identity ? identity : null);
     }
 
-    hasAuthority(authority: string): Promise<boolean> {
-        if (!this.authenticated) {
-           return Promise.resolve(false);
+    /**
+     * Whether user has any of the required authorities.
+     * @param account account to check.
+     * @param authorities authorities to check. If empty, this method always returns true.
+     */
+    accountHasAnyAuthority(account: any, authorities: string[] | null): boolean {
+        if (!authorities || authorities.length === 0) {
+            return true;
         }
+        if (!account || !account.roles) {
+            return false;
+        }
+        const authoritySet: Set<string> = new Set(authorities);
 
-        return this.identity().then((id) => {
-            return Promise.resolve(id.authorities && id.authorities.indexOf(authority) !== -1);
-        }, () => {
-            return Promise.resolve(false);
-        });
+        return account.roles.some(r =>
+          authoritySet.has(r.authorityName)
+          || (r.projectName && authoritySet.has(r.authorityName + ':' + r.projectName))
+          || (r.organizationName && authoritySet.has(r.authorityName + ':' + r.organizationName))
+        )
     }
 
-    identity(force?: boolean): Promise<any> {
-        if (force === true) {
-            this.userIdentity = undefined;
-        }
+    /**
+     * Reset authentication state based on the current authentication state in the server.
+     */
+    reset(): Observable<Account | null> {
+        return this.account.get().pipe(
+          catchError(() => of(null)),
+          tap(account => this._account$.next(account ? account : null))
+        );
+    }
 
+    /**
+     * Returns the single latest identity. If the user is not logged in, login status will be
+     * checked with the server.
+     */
+    identity(): Observable<Account | null> {
         // check and see if we have retrieved the userIdentity data from the server.
         // if we have, reuse it by immediately resolving
-        if (this.userIdentity) {
-            return Promise.resolve(this.userIdentity);
-        }
-
-        // retrieve the userIdentity data from the server, update the identity object, and then resolve.
-        return this.account.get().toPromise().then((account) => {
-            if (account) {
-                this.userIdentity = account;
-                this.authenticated = true;
-            } else {
-                this.userIdentity = null;
-                this.authenticated = false;
-            }
-            this.authenticationState.next(this.userIdentity);
-            return this.userIdentity;
-        }).catch((err) => {
-            this.userIdentity = null;
-            this.authenticated = false;
-            this.authenticationState.next(this.userIdentity);
-            return null;
-        });
-    }
-
-    isAuthenticated(): boolean {
-        return this.authenticated;
-    }
-
-    isIdentityResolved(): boolean {
-        return this.userIdentity !== undefined;
-    }
-
-    getAuthenticationState(): Observable<any> {
-        return this.authenticationState.asObservable();
+        return this._account$.pipe(
+          first(),
+          mergeMap((user?: Account) => {
+              return user ? of(user) : this.reset();
+          }),
+        );
     }
 }

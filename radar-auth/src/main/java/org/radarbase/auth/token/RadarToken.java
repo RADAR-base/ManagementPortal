@@ -1,28 +1,78 @@
 package org.radarbase.auth.token;
 
 import org.radarbase.auth.authorization.Permission;
+import org.radarbase.auth.authorization.RoleAuthority;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Stream;
+
+import static org.radarbase.auth.authorization.RoleAuthority.toEnumSet;
 
 /**
  * Created by dverbeec on 10/01/2018.
  */
 public interface RadarToken {
+    /**
+     * Get all roles defined in this token.
+     * @return non-null set describing the roles defined in this token.
+     */
+    Set<AuthorityReference> getRoles();
+
+    default Stream<AuthorityReference> getAuthorityReferencesWithPermission(
+            RoleAuthority.Scope scope, Permission permission) {
+        return getRoles().stream()
+                .filter(r -> r.getRole().scope() == scope && permission.isRoleAllowed(r.getRole()));
+    }
 
     /**
-     * Get the roles defined in this token.
-     * @return non-null map describing the roles defined in this token. The keys in the map are the
-     *     project names, and the values are lists of authority names associated to the project.
+     * Get the referents (i.e., organization or project name) in a given scope that matches a
+     * permission.
+     * @param scope scope of the referents
+     * @param permission permission that should be authorized within the scope
+     * @return referents names
      */
-    Map<String, List<String>> getRoles();
+    default Stream<String> getReferentsWithPermission(RoleAuthority.Scope scope,
+            Permission permission) {
+        return getAuthorityReferencesWithPermission(scope, permission)
+                .map(AuthorityReference::getReferent)
+                .filter(Objects::nonNull);
+    }
+
+    /**
+     * Check if any non-project related authority has the given permission. Currently the only
+     * non-project authority is {@code SYS_ADMIN}, so we only check for that.
+     * @param permission the permission
+     * @return {@code true} if any non-project related authority has the permission, {@code false}
+     *     otherwise
+     */
+    default boolean hasGlobalAuthorityForPermission(Permission permission) {
+        return Stream.concat(
+                        getAuthorities().stream().map(RoleAuthority::valueOfAuthorityOrNull),
+                        getRoles().stream().map(AuthorityReference::getRole))
+                .anyMatch(r -> r != null
+                        && r.scope() == RoleAuthority.Scope.GLOBAL
+                        && permission.isRoleAllowed(r));
+    }
 
     /**
      * Get a list of non-project related authorities.
      * @return non-null list of authority names
      */
     List<String> getAuthorities();
+
+    /**
+     * Get a list of non-project related authorities.
+     * @return non-null list of authority names
+     */
+    default Set<RoleAuthority> getRoleAuthorities() {
+        return getAuthorities().stream()
+                .map(RoleAuthority::valueOfAuthorityOrNull)
+                .filter(Objects::nonNull)
+                .collect(toEnumSet(RoleAuthority.class));
+    }
 
     /**
      * Get a list of scopes assigned to this token.
@@ -47,6 +97,11 @@ public interface RadarToken {
      * @return non-null subject
      */
     String getSubject();
+
+    /**
+     * Get the token username.
+     */
+    String getUsername();
 
     /**
      * Get the date this token was issued.
@@ -113,7 +168,7 @@ public interface RadarToken {
      * @param authority The permission to check
      * @return {@code true} if this token has the permission, {@code false} otherwise
      */
-    boolean hasAuthority(String authority);
+    boolean hasAuthority(RoleAuthority authority);
 
     /**
      * Check if this token gives the given permission, not taking into account project affiliations.
@@ -127,6 +182,37 @@ public interface RadarToken {
      * @return {@code true} if this token has the permission, {@code false} otherwise
      */
     boolean hasPermission(Permission permission);
+
+    /**
+     * Check if this token gives the given permission from a global scope.
+     *
+     * <p>This token <strong>must</strong> have the permission in its set of scopes. If it's a
+     * client credentials token, this is the only requirement, as a client credentials token is
+     * linked to an OAuth client and not to a user in the system. If it's not a client
+     * credentials token, this also checks to see if the user has a global role with the specified
+     * permission.</p>
+     * @param permission The permission to check
+     * @return {@code true} if this token has the permission, {@code false} otherwise
+     */
+    boolean hasGlobalPermission(Permission permission);
+
+    /**
+     * Check if this token gives a permission in a specific organization.
+     * @param permission the permission
+     * @param organization the organization name
+     * @return true if this token has the permission in the project, false otherwise
+     */
+    boolean hasPermissionOnOrganization(Permission permission, String organization);
+
+    /**
+     * Check if this token gives a permission in a specific project in a given organization.
+     * @param permission the permission
+     * @param organization the organization name
+     * @param projectName the project name
+     * @return true if this token has the permission in the project, false otherwise
+     */
+    boolean hasPermissionOnOrganizationAndProject(Permission permission, String organization,
+            String projectName);
 
     /**
      * Check if this token gives a permission in a specific project.

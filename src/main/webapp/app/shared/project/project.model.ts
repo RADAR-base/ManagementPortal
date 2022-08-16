@@ -1,4 +1,6 @@
-import {SourceType} from '../../entities/source-type';
+import { copySourceType, SourceType } from '../../entities/source-type';
+import { copyGroup, Group } from '../group';
+import { MinimalOrganization } from '../organization';
 
 export const enum ProjectStatus {
     'PLANNING',
@@ -6,28 +8,36 @@ export const enum ProjectStatus {
     'ENDED'
 }
 
-export class Project {
-    constructor(
-            public id?: number,
-            public projectName?: string,
-            public description?: string,
-            public organization?: string,
-            public location?: string,
-            public startDate?: any,
-            public projectStatus?: ProjectStatus,
-            public endDate?: any,
-            public attributes ?: any,
-            public sourceTypes?: SourceType[],
-            public humanReadableProjectName ?: string,
-            public persistentTokenTimeout?: number
-    ) {
+export interface MinimalProject {
+    id?: number;
+    projectName?: string;
+}
+
+export interface Project extends MinimalProject{
+    description?: string;
+    organization?: MinimalOrganization;
+    organizationName?: string;
+    location?: string;
+    startDate?: any;
+    projectStatus?: ProjectStatus;
+    endDate?: any;
+    attributes ?: any;
+    sourceTypes?: SourceType[];
+    groups?: Group[];
+    humanReadableProjectName ?: string;
+    persistentTokenTimeout?: number;
+}
+
+export function copyProject(project: Project): Project {
+    return {
+        ...project,
+        organization: project.organization ? {...project.organization} : project.organization,
+        groups: project.groups ? project.groups.map(copyGroup) : project.groups,
+        sourceTypes: project.sourceTypes ? project.sourceTypes.map(copySourceType) : project.sourceTypes,
     }
 }
 
-export class MinimalProject {
-    constructor(
-            public id?: number,
-            public projectName?: string,
-    ) {
-    }
+export interface MinimalProject {
+    id?: number;
+    projectName?: string;
 }

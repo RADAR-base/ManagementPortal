@@ -1,0 +1,25 @@
+.selected-source-types > .badge {
+    margin: 2px;
+    cursor: pointer;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.organization-dialog__existing-groups:not(:empty) {
+    padding: 8px;
+    margin-bottom: 8px;
+}
+.organization-dialog__existing-groups > .badge {
+    margin: 2px;
+    cursor: pointer;
+}
+.organization-dialog__new-group {
+    display: flex;
+    align-items: flex-end;
+}
+.organization-dialog__new-group > *:first-child {
+    flex-grow: 1;
+    margin-right: 16px;
+}

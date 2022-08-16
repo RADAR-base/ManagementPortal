@@ -2,10 +2,10 @@ package org.radarbase.management.web.rest;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
-import com.codahale.metrics.annotation.Timed;
+import io.micrometer.core.annotation.Timed;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.radarbase.auth.authorization.AuthoritiesConstants;
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.management.web.rest.vm.LoggerVM;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -30,7 +30,7 @@ public class LogsResource {
      */
     @GetMapping("/logs")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN})
+    @Secured({RoleAuthority.SYS_ADMIN_AUTHORITY})
     public List<LoggerVM> getList() {
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         return context.getLoggerList()
@@ -46,7 +46,7 @@ public class LogsResource {
     @PutMapping("/logs")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN})
+    @Secured({RoleAuthority.SYS_ADMIN_AUTHORITY})
     public void changeLevel(@RequestBody LoggerVM jsonLogger) {
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         context.getLogger(jsonLogger.getName()).setLevel(Level.valueOf(jsonLogger.getLevel()));
