@@ -52,6 +52,6 @@ export class GroupDeletePopupComponent extends ObservablePopupComponent {
     }
 
     createModalRef(params: Params): Observable<NgbModalRef> {
-        return this.groupPopupService.open(GroupDialogComponent, params['id'], true, params['projectName']);
+        return this.groupPopupService.open(GroupDeleteDialogComponent, params['id'], true, params['projectName']);
     }
 }
