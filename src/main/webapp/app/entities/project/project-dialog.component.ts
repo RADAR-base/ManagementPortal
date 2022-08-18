@@ -84,14 +84,13 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
         if (this.endDate && this.calendar.isValid(NgbDate.from(this.endDate))) {
             this.projectCopy.endDate = this.formatter.format(this.endDate) + 'T23:59';
         }
-        const updatedProject = {...this.projectCopy, organization: {name: this.organizationName}};
         if (this.projectCopy.id !== undefined) {
-            this.subscriptions.add(this.projectService.update(updatedProject).subscribe(
+            this.subscriptions.add(this.projectService.update(this.projectCopy).subscribe(
               (res: Project) => this.onSaveSuccess(res),
               (res: Response) => this.onSaveError(res),
             ));
         } else {
-            this.subscriptions.add(this.projectService.create(updatedProject).subscribe(
+            this.subscriptions.add(this.projectService.create(this.projectCopy).subscribe(
               (res: Project) => this.onSaveSuccess(res),
               (res: Response) => this.onSaveError(res),
             ));
