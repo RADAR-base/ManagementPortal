@@ -1,9 +1,18 @@
-import { combineLatest, merge, Observable, Subject, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
-import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
+import {combineLatest, merge, Observable, OperatorFunction, Subject, Subscription} from 'rxjs';
+import {debounceTime, distinctUntilChanged, filter, map} from 'rxjs/operators';
+import {Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {ActivatedRoute, Params, Router} from '@angular/router';
 
-import { NgbActiveModal, NgbCalendar, NgbDate, NgbDateParserFormatter, NgbDateStruct, NgbModalRef, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import {
+    NgbActiveModal,
+    NgbCalendar,
+    NgbDate,
+    NgbDateParserFormatter,
+    NgbDateStruct,
+    NgbModalRef,
+    NgbTypeahead,
+    NgbTypeaheadSelectItemEvent
+} from '@ng-bootstrap/ng-bootstrap';
 
 import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
@@ -29,14 +38,41 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
     projectIdAsPrettyValue: boolean;
 
     sourceTypeInputText: string;
-    sourceTypeInputFocus$ = new Subject<string>();
-
-    newGroupInputText: string;
 
     attributeComponentEventPrefix: 'projectAttributes';
 
     startDate: NgbDateStruct;
     endDate: NgbDateStruct;
+
+    @ViewChild('instance', {static: true}) instance: NgbTypeahead;
+    focus$ = new Subject<string>();
+    click$ = new Subject<string>();
+
+    getMatchingSourceTypes: OperatorFunction<string, SourceType[]> = (text$: Observable<string>) => {
+        const debouncedText$ = text$.pipe(debounceTime(200), distinctUntilChanged());
+        const clicksWithClosedPopup$ = this.click$.pipe(filter(() => !this.instance.isPopupOpen()));
+        const inputFocus$ = this.focus$;
+
+        const availableTypes$ = this.sourceTypeService.sourceTypes$.pipe(
+            map(sourceTypes => {
+                const selectedTypeIds = new Set(this.projectCopy?.sourceTypes?.map(t => t.id) || []);
+                return sourceTypes.filter(t => !selectedTypeIds.has(t.id));
+            })
+        );
+        return combineLatest([
+            merge(debouncedText$, inputFocus$, clicksWithClosedPopup$),
+            availableTypes$
+        ]).pipe(
+            map(([term, availableTypes]) => {
+                term = term.trim().toLowerCase();
+                if (!term) {
+                    return availableTypes;
+                }
+                const getTypeKey = t => this.formatSourceTypeOption(t).toLowerCase();
+                return availableTypes.filter(t => getTypeKey(t).includes(term));
+            })
+        )
+    };
 
     private subscriptions = new Subscription();
 
@@ -84,15 +120,16 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
         if (this.endDate && this.calendar.isValid(NgbDate.from(this.endDate))) {
             this.projectCopy.endDate = this.formatter.format(this.endDate) + 'T23:59';
         }
+        const updatedProject = {...this.projectCopy, organization: {name: this.organizationName}};
         if (this.projectCopy.id !== undefined) {
-            this.subscriptions.add(this.projectService.update(this.projectCopy).subscribe(
-              (res: Project) => this.onSaveSuccess(res),
-              (res: Response) => this.onSaveError(res),
+            this.subscriptions.add(this.projectService.update(updatedProject).subscribe(
+                (res: Project) => this.onSaveSuccess(res),
+                (res: Response) => this.onSaveError(res),
             ));
         } else {
-            this.subscriptions.add(this.projectService.create(this.projectCopy).subscribe(
-              (res: Project) => this.onSaveSuccess(res),
-              (res: Response) => this.onSaveError(res),
+            this.subscriptions.add(this.projectService.create(updatedProject).subscribe(
+                (res: Project) => this.onSaveSuccess(res),
+                (res: Response) => this.onSaveError(res),
             ));
         }
     }
@@ -102,31 +139,6 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
             this.projectCopy.attributes = response.content;
         });
     }
-
-    getMatchingSourceTypes(text$: Observable<string>): Observable<SourceType[]> {
-        const debouncedText$ = text$.pipe(debounceTime(200), distinctUntilChanged());
-        const inputFocus$ = this.sourceTypeInputFocus$;
-        const availableTypes$ = this.sourceTypeService.sourceTypes$.pipe(
-          map(sourceTypes => {
-              const selectedTypeIds = new Set(this.projectCopy?.sourceTypes?.map(t => t.id) || []);
-              return sourceTypes.filter(t => !selectedTypeIds.has(t.id));
-          })
-        );
-
-        return combineLatest([
-            merge(debouncedText$, inputFocus$),
-            availableTypes$,
-        ]).pipe(
-          map(([term, availableTypes]) => {
-              term = term.trim().toLowerCase();
-              if (!term) {
-                  return availableTypes;
-              }
-              const getTypeKey = t => this.formatSourceTypeOption(t).toLowerCase();
-              return availableTypes.filter(t => getTypeKey(t).includes(term));
-          }),
-        );
-    };
 
     private onSaveSuccess(result: Project) {
         if(history.state?.parentComponent === 'project-detail') {
@@ -155,32 +167,6 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
 
     formatSourceTypeOption(t: SourceType) {
         return `${t.producer}_${t.model}_${t.catalogVersion}`;
-    }
-
-    addGroup() {
-        let currentGroups = this.projectCopy.groups || [];
-        let newGroup = { name: this.newGroupInputText };
-        if (newGroup.name.length == 0 || newGroup.name.length > 50) {
-            return;
-        }
-        if (currentGroups.some(g => g.name === newGroup.name)) {
-            // TODO: actually show error
-            return;
-        }
-        this.subscriptions.add(
-            this.groupService.create(this.projectCopy.projectName, newGroup).subscribe(g => {
-                this.projectCopy.groups = [ ...currentGroups, g];
-                this.newGroupInputText = '';
-            })
-        );
-    }
-
-    removeGroup(groupName: string) {
-        this.subscriptions.add(
-            this.groupService.delete(this.projectCopy.projectName, groupName).subscribe(() => {
-                this.projectCopy.groups = this.projectCopy.groups.filter(g => g.name !== groupName);
-            })
-        );
     }
 }
 
