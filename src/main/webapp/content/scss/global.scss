@@ -271,3 +271,8 @@ button.calendar, button.calendar:active {
     background-position: center;
 }
 
+ngb-typeahead-window {
+    max-height: 300px;
+    overflow-y: auto;
+}
+

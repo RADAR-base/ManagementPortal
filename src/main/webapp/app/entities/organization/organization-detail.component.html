@@ -2,7 +2,7 @@
     <ng-container *ngIf="userRoles$ | async as userRoles">
         <h2>
             <span>
-                <span [translate]="'managementPortalApp.organization.detail.title'"></span>
+                <span [translate]="'managementPortalApp.organization.detail.title'"></span>:
                 {{organization.name}}
             </span>
             <button *ngIf="userRoles.organizationAdmin"
