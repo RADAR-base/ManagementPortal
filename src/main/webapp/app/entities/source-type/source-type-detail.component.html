@@ -1,6 +1,6 @@
 
 <div *ngIf="sourceType$ | async as sourceType">
-    <h2><span [translate]="'managementPortalApp.sourceType.detail.title'"></span> {{sourceType.producer}}
+    <h2><span [translate]="'managementPortalApp.sourceType.detail.title'"></span>: {{sourceType.producer}}
     {{sourceType.model}} ({{sourceType.catalogVersion}}) </h2>
     <hr>
     <jhi-alert-error></jhi-alert-error>

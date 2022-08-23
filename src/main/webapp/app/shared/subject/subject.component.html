@@ -243,13 +243,13 @@
                             [translate]="'managementPortalApp.subject.externalId'">
                         </span>
                         <div>
-                            <a *ngIf="subject.externalLink" target="_blank" [href]="subject.externalLink">
-                                {{subject.externalId || subject.externalLink}}
+                            <a *ngIf="subject.externalLink && subject.externalId" target="_blank" [href]="subject.externalLink">
+                                {{subject.externalId}}
                             </a>
                             <span *ngIf="!subject.externalLink && subject.externalId">
                                 {{subject.externalId}}
                             </span>
-                            <ng-container *ngTemplateOutlet="!subject.externalLink && !subject.externalId ? noneAvailable : undefined"></ng-container>
+                            <ng-container *ngTemplateOutlet="!subject.externalId ? noneAvailable : undefined"></ng-container>
                         </div>
                     </div>
                     <div class="subject-row__status">
