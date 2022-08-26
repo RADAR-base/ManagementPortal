@@ -6,7 +6,8 @@ import { ITEMS_PER_PAGE, Principal, User, UserService } from '../../shared';
 import { AlertService } from '../../shared/util/alert.service';
 import { EventManager } from '../../shared/util/event-manager.service';
 import { parseLinks } from '../../shared/util/parse-links-util';
-import { Subscription } from "rxjs";
+import { Subject, Subscription } from "rxjs";
+import {debounceTime, distinctUntilChanged} from "rxjs/operators";
 
 @Component({
     selector: 'jhi-user-mgmt',
@@ -30,6 +31,8 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
     byLogin: string;
     byEmail: string;
 
+    filter: Subject<string> = new Subject<string>();
+
     constructor(
       private userService: UserService,
       private alertService: AlertService,
@@ -45,6 +48,8 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
             this.reverse = data['pagingParams'].ascending;
             this.predicate = data['pagingParams'].predicate;
         }));
+
+        this.subscriptions.add(this.filter.pipe(debounceTime(300), distinctUntilChanged()).subscribe(() => this.applyFilter()));
     }
 
     ngOnInit() {
@@ -62,7 +67,7 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
         );
     }
 
-    onChange(event: any) {
+    applyFilter() {
         this.subscriptions.add(
             this.userService.query({
                 page: this.page - 1,
@@ -77,7 +82,6 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
                     (res: HttpErrorResponse) => this.onError(res),
             )
         );
-
     }
 
     loadAll() {

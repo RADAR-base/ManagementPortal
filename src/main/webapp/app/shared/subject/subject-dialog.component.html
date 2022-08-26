@@ -33,7 +33,26 @@
                 [(ngModel)]="subject.externalId"
              />
         </div>
-        <div class="form-group" *ngIf="subject.project">
+        <div class="form-group" *ngIf="!isInProject">
+            <label class="form-control-label"
+                   for="field_project"
+                   [translate]="'managementPortalApp.subject.project'">
+            </label>
+            <select class="form-control"
+                    id="field_project"
+                    name="project"
+                    [(ngModel)]="projectName"
+                    (ngModelChange)="onProjectChange($event)"
+                    required
+            >
+                <option [ngValue]="null">-</option>
+                <option *ngFor="let p of projects" [ngValue]="p.projectName">
+                    {{p.projectName}}
+                </option>
+            </select>
+        </div>
+
+        <div class="form-group">
             <label class="form-control-label"
                 for="field_group"
                 [translate]="'managementPortalApp.subject.group'">
@@ -41,10 +60,10 @@
             <select class="form-control"
                 id="field_group"
                 name="group"
-                [(ngModel)]="subject.group"
+                [(ngModel)]="groupName"
             >
                 <option [ngValue]="null">-</option>
-                <option *ngFor="let g of subject.project.groups" [ngValue]="g.name">
+                <option *ngFor="let g of project?.groups" [ngValue]="g.name">
                     {{g.name}}
                 </option>
             </select>

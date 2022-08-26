@@ -1,9 +1,6 @@
 <div *ngIf="principal.account$ | async as account">
     <h2>
         <span [translate]="'userManagement.home.title'"></span>
-        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']" class="btn btn-primary float-right" style="margin-left: 5px" [routerLink]="['/', { outlets: { popup: ['user-management-new-admin'] } }]">
-            <span class="fa fa-plus"></span> <span [translate]="'userManagement.home.createAdminLabel'"></span>
-        </button>
         <button class="btn btn-primary float-right" [routerLink]="['/', { outlets: { popup: ['user-management-new'] } }]">
             <span class="fa fa-plus"></span> <span [translate]="'userManagement.home.createLabel'"></span>
         </button>
@@ -13,16 +10,13 @@
         <h4 [translate]="'userManagement.search.title'"></h4>
         <p class="d-flex">
             <span [translate]="'userManagement.login'" class="input-group-addon"></span>
-            <input type="text" class="form-control" name="byLogin" [(ngModel)]="byLogin" (ngModelChange)="onChange($event)"/>
+            <input type="text" class="form-control" name="byLogin" [(ngModel)]="byLogin" (ngModelChange)="filter.next($event)" />
 
             <span [translate]="'userManagement.email'" class="input-group-addon"></span>
-            <input type="text" class="form-control" name="byEmail" [(ngModel)]="byEmail" (ngModelChange)="onChange($event)"/>
-
-            <span [translate]="'userManagement.role.project'" class="input-group-addon"></span>
-            <input type="text" class="form-control" name="byProject" [(ngModel)]="byProject" (ngModelChange)="onChange($event)"/>
+            <input type="text" class="form-control" name="byEmail" [(ngModel)]="byEmail" (ngModelChange)="filter.next($event)"/>
 
             <span [translate]="'userManagement.role.authorityName'" class="input-group-addon"></span>
-            <input type="text" class="form-control" name="byAuthority" [(ngModel)]="byAuthority" (ngModelChange)="onChange($event)"/>
+            <input type="text" class="form-control" name="byAuthority" [(ngModel)]="byAuthority" (ngModelChange)="filter.next($event)"/>
         </p>
     </div>
 
@@ -36,7 +30,6 @@
                 <th></th>
                 <th jhiSortBy="langKey"> <span [translate]="'userManagement.langKey'"></span> <span class="fa fa-sort"></span></th>
                 <th><span [translate]="'userManagement.role.authorityName'"></span></th>
-                <th><span [translate]="'userManagement.role.organizationOrProject'"></span></th>
                 <th><span [translate]="'userManagement.createdDate'"></span></th>
                 <th><span [translate]="'userManagement.lastModifiedBy'"></span></th>
                 <th><span [translate]="'userManagement.lastModifiedDate'"></span></th>
@@ -62,13 +55,8 @@
                 <td>
                     <div *ngFor="let role of user.roles">
                         <span *ngIf="role.authorityName === 'ROLE_SYS_ADMIN'">{{role.authorityName}}</span>
-                        <span *ngIf="role.authorityName === 'ROLE_ORGANIZATION_ADMIN'" >{{role.authorityName}}</span>
-                        <a *ngIf="role.authorityName === 'ROLE_PROJECT_ADMIN'" [routerLink]="['/role', role.projectName, role.authorityName ]" >{{role.authorityName}}</a>
-                    </div>
-                </td>
-                <td>
-                    <div *ngFor="let role of user.roles">
-                       {{role.projectName || role.organizationName }}
+                        <span *ngIf="role.authorityName === 'ROLE_ORGANIZATION_ADMIN'" >{{role.authorityName}}: {{role.organizationName}}</span>
+                        <span *ngIf="role.authorityName === 'ROLE_PROJECT_ADMIN'">{{role.authorityName}}: {{role.projectName}}</span>
                     </div>
                 </td>
                 <td>{{user.createdDate | date:'dd/MM/yy HH:mm'}}</td>
