@@ -73,8 +73,8 @@ public final class Permissions {
         rolePermissions.put(ORGANIZATION_ADMIN, Permission.stream()
                 .filter(excludePermissions(Permission.ORGANIZATION_CREATE))
                 .filter(excludeEntities(Permission.Entity.AUDIT,
-                        Permission.Entity.AUTHORITY, Permission.Entity.MEASUREMENT)))
-                .filter(excludePermissions(Permission.SOURCEDATA_CREATE, Permission.SOURCETYPE_CREATE));
+                        Permission.Entity.AUTHORITY, Permission.Entity.MEASUREMENT))
+                .filter(excludePermissions(Permission.SOURCEDATA_CREATE, Permission.SOURCETYPE_CREATE)));
 
         // for all authorities except for SYS_ADMIN, the authority is scoped to a project, which
         // is checked elsewhere
