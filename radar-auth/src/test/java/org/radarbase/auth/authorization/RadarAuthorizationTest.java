@@ -46,6 +46,25 @@ class RadarAuthorizationTest {
     }
 
     @Test
+    void testCheckPermissionOnOrganization() throws NotAuthorizedException {
+        JwtRadarToken token = new JwtRadarToken(TokenTestUtils.ORGANIZATION_ADMIN_TOKEN);
+        assertNotAuthorized(() -> {
+            RadarAuthorization.checkPermissionOnOrganization(token, Permission.ORGANIZATION_CREATE,
+                    "main");
+        }, "Token should not be able to create organization");
+        RadarAuthorization.checkPermissionOnOrganization(token, Permission.PROJECT_CREATE, "main");
+        RadarAuthorization.checkPermissionOnOrganizationAndProject(token, Permission.SUBJECT_CREATE,
+                "main", "PROJECT1");
+        assertNotAuthorized(() -> RadarAuthorization.checkPermissionOnOrganization(
+                token, Permission.PROJECT_CREATE, "other"),
+                "Token should not be able to create organization");
+        assertNotAuthorized(() -> RadarAuthorization.checkPermissionOnOrganizationAndProject(
+                        token, Permission.SUBJECT_CREATE, "other",
+                        "PROJECT1"),
+                "Token should not be able to create organization");
+    }
+
+    @Test
     void testCheckPermission() throws NotAuthorizedException {
         RadarToken token = new JwtRadarToken(TokenTestUtils.SUPER_USER_TOKEN);
         for (Permission p : Permission.values()) {
