@@ -2,6 +2,7 @@ package org.radarbase.management.security;
 
 import org.radarbase.auth.authorization.Permission;
 import org.radarbase.auth.token.JwtRadarToken;
+import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.repository.UserRepository;
@@ -76,14 +77,17 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
                         additionalInfo.put(JwtRadarToken.ROLES_CLAIM, roles);
 
                         // Do not grant scopes that cannot be given to a user.
-                        Set<String> newScopes = Permission.stream()
-                                .filter(permission -> user.getRoles().stream()
-                                        .anyMatch(role -> permission.isRoleAllowed(role.getRole())))
-                                .map(Permission::scope)
-                                .filter(permission -> accessToken.getScope().contains(permission))
+                        Set<String> currentScopes = accessToken.getScope();
+                        Set<String> newScopes = currentScopes.stream()
+                                .filter(scope -> {
+                                    Permission permission = Permission.valueOf(scope);
+                                    return user.getRoles().stream()
+                                            .map(Role::getRole)
+                                            .anyMatch(permission::isRoleAllowed);
+                                })
                                 .collect(Collectors.toCollection(TreeSet::new));
 
-                        if (!newScopes.equals(accessToken.getScope())) {
+                        if (!newScopes.equals(currentScopes)) {
                             ((DefaultOAuth2AccessToken) accessToken).setScope(newScopes);
                         }
                     });
