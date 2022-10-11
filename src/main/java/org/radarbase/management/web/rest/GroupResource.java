@@ -9,11 +9,14 @@
 
 package org.radarbase.management.web.rest;
 
+import org.radarbase.auth.authorization.Permission;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.service.GroupService;
+import org.radarbase.management.service.ProjectService;
 import org.radarbase.management.service.dto.GroupDTO;
+import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.web.rest.errors.BadRequestException;
 import org.radarbase.management.web.rest.vm.GroupPatchOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +40,8 @@ import java.util.List;
 import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
 import static org.radarbase.auth.authorization.Permission.PROJECT_UPDATE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
-
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganizationAndProject;
 import static org.radarbase.management.web.rest.errors.EntityName.GROUP;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
 
@@ -51,6 +54,9 @@ public class GroupResource {
     @Autowired
     private RadarToken token;
 
+    @Autowired
+    private ProjectService projectService;
+
     /**
      * Create group.
      * @param projectName project name
@@ -62,7 +68,7 @@ public class GroupResource {
     public ResponseEntity<GroupDTO> createGroup(
             @PathVariable String projectName,
             @Valid @RequestBody GroupDTO groupDto) throws NotAuthorizedException {
-        checkPermissionOnProject(token, PROJECT_UPDATE, projectName);
+        checkProjectPermission(PROJECT_UPDATE, projectName);
         GroupDTO groupDtoResult = groupService.createGroup(projectName, groupDto);
         URI location = MvcUriComponentsBuilder.fromController(getClass())
                 .path("/{groupName}")
@@ -81,7 +87,7 @@ public class GroupResource {
     @GetMapping
     public List<GroupDTO> listGroups(
             @PathVariable String projectName) throws NotAuthorizedException {
-        checkPermissionOnProject(token, PROJECT_READ, projectName);
+        checkProjectPermission(PROJECT_READ, projectName);
         return groupService.listGroups(projectName);
     }
 
@@ -96,7 +102,7 @@ public class GroupResource {
     public GroupDTO getGroup(
             @PathVariable String projectName,
             @PathVariable String groupName) throws NotAuthorizedException {
-        checkPermissionOnProject(token, PROJECT_READ, projectName);
+        checkProjectPermission(PROJECT_READ, projectName);
         return groupService.getGroup(projectName, groupName);
     }
 
@@ -111,7 +117,7 @@ public class GroupResource {
             @RequestParam(defaultValue = "false") Boolean unlinkSubjects,
             @PathVariable String projectName,
             @PathVariable String groupName) throws NotAuthorizedException {
-        checkPermissionOnProject(token, PROJECT_UPDATE, projectName);
+        checkProjectPermission(PROJECT_UPDATE, projectName);
         groupService.deleteGroup(projectName, groupName, unlinkSubjects);
         return ResponseEntity.noContent().build();
     }
@@ -132,8 +138,8 @@ public class GroupResource {
         // so it would make sense to check permissions per subject,
         // but I assume that only those who are authorized to perform project-wide actions
         // should be allowed to use this endpoint
-        checkPermissionOnProject(token, SUBJECT_UPDATE, projectName);
-        
+        checkProjectPermission(SUBJECT_UPDATE, projectName);
+
         var addedItems = new ArrayList<GroupPatchOperation.SubjectPatchValue>();
         var removedItems = new ArrayList<GroupPatchOperation.SubjectPatchValue>();
         for (GroupPatchOperation operation : patchOperations) {
@@ -154,5 +160,13 @@ public class GroupResource {
 
         groupService.updateGroupSubjects(projectName, groupName, addedItems, removedItems);
         return ResponseEntity.noContent().build();
+    }
+
+    private void checkProjectPermission(Permission permission, String projectName)
+            throws NotAuthorizedException {
+        checkPermission(token, permission);
+        ProjectDTO project = projectService.findOneByName(projectName);
+        checkPermissionOnOrganizationAndProject(token, permission,
+                project.getOrganization().getName(), projectName);
     }
 }
