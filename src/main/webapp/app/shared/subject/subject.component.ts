@@ -470,9 +470,11 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
           this.groups$,
           this.project$,
         ]).subscribe(([subjects, groups, project]) => {
-          modalRef.componentInstance.groups = groups;
-          modalRef.componentInstance.projectName = project.projectName;
-          modalRef.componentInstance.subjects = subjects.filter(s => s.checked);
+            if(modalRef.componentInstance){
+                modalRef.componentInstance.groups = groups;
+                modalRef.componentInstance.projectName = project.projectName;
+                modalRef.componentInstance.subjects = subjects.filter(s => s.checked);
+            }
         }));
     }
 }
