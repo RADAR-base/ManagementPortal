@@ -80,7 +80,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
                         Set<String> currentScopes = accessToken.getScope();
                         Set<String> newScopes = currentScopes.stream()
                                 .filter(scope -> {
-                                    Permission permission = Permission.valueOf(scope);
+                                    Permission permission = Permission.ofScope(scope);
                                     return user.getRoles().stream()
                                             .map(Role::getRole)
                                             .anyMatch(permission::isRoleAllowed);

@@ -136,6 +136,10 @@ public enum Permission {
                         "No permission found for given entity and operation"));
     }
 
+    public static Permission ofScope(String scope) {
+        return valueOf(scope.replace('.', '_'));
+    }
+
     /**
      * Turn this permission into an OAuth scope name and return it.
      *
