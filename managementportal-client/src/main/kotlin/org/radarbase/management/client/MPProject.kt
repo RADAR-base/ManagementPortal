@@ -12,7 +12,7 @@ data class MPProject(
     /** Where a project is organized. */
     val location: String? = null,
     /** Organization that organizes the project. */
-    val organization: String? = null,
+    val organization: MPOrganization? = null,
     /** Project description. */
     val description: String? = null,
     /** Any other attributes. */

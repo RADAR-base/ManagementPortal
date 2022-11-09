@@ -62,6 +62,7 @@ class MPClient(
         .readTimeout(30, TimeUnit.SECONDS)
         .build()
 
+    private val organizationListReader: ObjectReader by lazy { this.objectMapper.readerForListOf(MPOrganization::class.java) }
     private val projectListReader: ObjectReader by lazy { this.objectMapper.readerForListOf(MPProject::class.java) }
     private val subjectListReader: ObjectReader by lazy { this.objectMapper.readerForListOf(MPSubject::class.java) }
     private val clientListReader: ObjectReader by lazy { this.objectMapper.readerForListOf(MPOAuthClient::class.java) }
@@ -79,13 +80,26 @@ class MPClient(
     val validToken: OAuth2AccessTokenDetails
         get() = oauth2Client.validToken
 
+    /** Request list of organizations from ManagementPortal */
+    fun requestOrganizations(
+        page: Int = 0,
+        size: Int = Int.MAX_VALUE,
+    ): List<MPOrganization> = request(
+        reader = organizationListReader,
+        urlBuilder = {
+            addPathSegments("api/organizations")
+            addQueryParameter("page", page.toString())
+            addQueryParameter("size", size.toString())
+        }
+    )
+
     /** Request list of projects from ManagementPortal. */
     fun requestProjects(
         page: Int = 0,
         size: Int = Int.MAX_VALUE,
     ): List<MPProject> = request(
-        projectListReader,
-        {
+        reader = projectListReader,
+        urlBuilder = {
             addPathSegments("api/projects")
             addQueryParameter("page", page.toString())
             addQueryParameter("size", size.toString())
@@ -100,8 +114,8 @@ class MPClient(
         page: Int = 0,
         size: Int = Int.MAX_VALUE,
     ): List<MPSubject> = request<List<MPSubject>>(
-        subjectListReader,
-        {
+        reader = subjectListReader,
+        urlBuilder = {
             addPathSegments("api/projects/$projectId/subjects")
             addQueryParameter("page", page.toString())
             addQueryParameter("size", size.toString())
@@ -115,8 +129,8 @@ class MPClient(
         page: Int = 0,
         size: Int = Int.MAX_VALUE,
     ): List<MPOAuthClient> = request(
-        clientListReader,
-        {
+        reader = clientListReader,
+        urlBuilder = {
             addPathSegments("api/oauth-clients")
             addQueryParameter("page", page.toString())
             addQueryParameter("size", size.toString())
