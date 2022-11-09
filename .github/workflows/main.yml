@@ -19,23 +19,24 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::.yarn/cache"
+        run: echo "dir=.yarn/cache" >> $GITHUB_OUTPUTS
 
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v3
         with:
+          distribution: temurin
           java-version: 17
 
       - name: Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -100,28 +101,28 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Check whether unity activation requests should be done
         id: docker_check_secret
         run: |
           echo "IS_DOCKER_SECRET_SET: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}"
-          echo "::set-output name=IS_DOCKER_SECRET_SET::${{ secrets.DOCKERHUB_USERNAME != ''  && secrets.DOCKERHUB_TOKEN != '' }}"
+          echo "IS_DOCKER_SECRET_SET=${{ secrets.DOCKERHUB_USERNAME != ''  && secrets.DOCKERHUB_TOKEN != '' }}" >> $GITHUB_OUTPUTS
 
       - name: Login to Docker Hub
         if: steps.docker_check_secret.outputs.IS_DOCKER_SECRET_SET == 'true'
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::.yarn/cache"
+        run: echo "dir=.yarn/cache" >> $GITHUB_OUTPUTS
 
       - name: Cache Docker layers
         id: cache-buildx
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -134,13 +135,13 @@ jobs:
         id: cache-parameters
         run: |
           if [ "${{ steps.cache-buildx.outputs.cache-hit }}" = "true" ]; then
-            echo "::set-output name=cache-to::"
+            echo "cache-to=" >> $GITHUB_OUTPUTS
           else
-            echo "::set-output name=cache-to::type=local,dest=/tmp/.buildx-cache-new,mode=max"
+            echo "cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max" >> $GITHUB_OUTPUTS
           fi
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16
 
@@ -150,32 +151,32 @@ jobs:
       # Add Docker labels and tags
       - name: Docker meta
         id: docker_meta
-        uses: crazy-max/ghaction-docker-meta@v2
+        uses: docker/metadata-action@v4
         with:
           images: ${{ env.DOCKER_IMAGE }}
 
       # Setup docker build environment
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Docker build parameters
         id: docker_params
         run: |
           if [ "${{ github.event_name == 'pull_request' }}" = "true" ]; then
-            echo "::set-output name=push::false"
-            echo "::set-output name=load::true"
-            echo "::set-output name=platforms::linux/amd64"
+            echo "push=false" >> $GITHUB_OUTPUTS
+            echo "load=true" >> $GITHUB_OUTPUTS
+            echo "platforms=linux/amd64" >> $GITHUB_OUTPUTS
           else
-            echo "::set-output name=push::true"
-            echo "::set-output name=load::false"
-            echo "::set-output name=platforms::linux/amd64,linux/arm64"
+            echo "push=true" >> $GITHUB_OUTPUTS
+            echo "load=false" >> $GITHUB_OUTPUTS
+            echo "platforms=linux/amd64,linux/arm64" >> $GITHUB_OUTPUTS
           fi
 
       - name: Build docker
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           # Do not load context from Github but from local path
           context: .
