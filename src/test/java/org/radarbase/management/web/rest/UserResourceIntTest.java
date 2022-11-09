@@ -1,5 +1,6 @@
 package org.radarbase.management.web.rest;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,6 +10,7 @@ import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Authority;
+import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.repository.RoleRepository;
@@ -117,6 +119,8 @@ class UserResourceIntTest {
 
     private User user;
 
+    private Project project;
+
     @BeforeEach
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
@@ -138,8 +142,15 @@ class UserResourceIntTest {
                 .setMessageConverters(jacksonMessageConverter)
                 .addFilter(filter)
                 .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
+        project = null;
     }
 
+    @AfterEach
+    public void tearDown() {
+        if (project != null) {
+            projectRepository.delete(project);
+        }
+    }
 
     @BeforeEach
     public void initTest() {
@@ -320,7 +331,7 @@ class UserResourceIntTest {
         // Initialize the database
         userRepository.saveAndFlush(user);
         final int databaseSizeBeforeUpdate = userRepository.findAll().size();
-        var project = ProjectResourceIntTest.createEntity();
+        project = ProjectResourceIntTest.createEntity();
         projectRepository.save(project);
 
         // Update the user
@@ -362,7 +373,7 @@ class UserResourceIntTest {
     void updateUserLogin() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
-        var project = ProjectResourceIntTest.createEntity();
+        project = ProjectResourceIntTest.createEntity();
         projectRepository.save(project);
 
         final int databaseSizeBeforeUpdate = userRepository.findAll().size();
@@ -407,7 +418,7 @@ class UserResourceIntTest {
     void updateUserExistingEmail() throws Exception {
         // Initialize the database with 2 users
         userRepository.saveAndFlush(user);
-        var project = ProjectResourceIntTest.createEntity();
+        project = ProjectResourceIntTest.createEntity();
         projectRepository.save(project);
 
         User anotherUser = new User();
@@ -450,7 +461,7 @@ class UserResourceIntTest {
     void updateUserExistingLogin() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
-        var project = ProjectResourceIntTest.createEntity();
+        project = ProjectResourceIntTest.createEntity();
         projectRepository.save(project);
 
         User anotherUser = new User();

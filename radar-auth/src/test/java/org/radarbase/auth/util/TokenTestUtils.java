@@ -28,6 +28,7 @@ public final class TokenTestUtils {
     public static final String EXPIRED_TOKEN;
     public static final String INCORRECT_ALGORITHM_TOKEN;
     public static final DecodedJWT SCOPE_TOKEN;
+    public static final DecodedJWT ORGANIZATION_ADMIN_TOKEN;
     public static final DecodedJWT PROJECT_ADMIN_TOKEN;
     public static final DecodedJWT SUPER_USER_TOKEN;
     public static final DecodedJWT MULTIPLE_ROLES_IN_PROJECT_TOKEN;
@@ -73,6 +74,7 @@ public final class TokenTestUtils {
         VALID_RSA_TOKEN = initValidToken(algorithm, exp, iat);
         SUPER_USER_TOKEN = JWT.decode(VALID_RSA_TOKEN);
         PROJECT_ADMIN_TOKEN = initProjectAdminToken(algorithm, exp, iat);
+        ORGANIZATION_ADMIN_TOKEN = initOrgananizationAdminToken(algorithm, exp, iat);
         MULTIPLE_ROLES_IN_PROJECT_TOKEN = initMultipleRolesToken(algorithm, exp, iat);
         INCORRECT_AUDIENCE_TOKEN = initIncorrectAudienceToken(algorithm, exp, iat);
         SCOPE_TOKEN = initTokenWithScopes(algorithm, exp, iat);
@@ -187,6 +189,27 @@ public final class TokenTestUtils {
                 .sign(algorithm);
 
         return JWT.decode(multipleRolesInProjectToken);
+    }
+
+    private static DecodedJWT initOrgananizationAdminToken(Algorithm algorithm, Instant exp,
+            Instant iat) {
+        String projectAdminToken = JWT.create()
+                .withIssuer(ISS)
+                .withIssuedAt(Date.from(iat))
+                .withExpiresAt(Date.from(exp))
+                .withAudience(CLIENT)
+                .withSubject(USER)
+                .withArrayClaim("scope", ALL_SCOPES)
+                .withArrayClaim("authorities", new String[] {"ROLE_ORGANIZATION_ADMIN"})
+                .withArrayClaim("roles", new String[] {"main:ROLE_ORGANIZATION_ADMIN"})
+                .withArrayClaim("sources", new String[] {})
+                .withClaim("client_id", CLIENT)
+                .withClaim("user_name", USER)
+                .withClaim("jti", JTI)
+                .withClaim("grant_type", "password")
+                .sign(algorithm);
+
+        return JWT.decode(projectAdminToken);
     }
 
     private static DecodedJWT initProjectAdminToken(Algorithm algorithm, Instant exp, Instant iat) {

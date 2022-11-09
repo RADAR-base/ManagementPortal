@@ -46,7 +46,7 @@ describe('Component Tests', () => {
         describe('OnInit', () => {
             it('Should call load all on init', waitForAsync(async () => {
                 // GIVEN
-                spyOn(service, 'find').and.returnValue(of({id: 10}));
+                spyOn(service, 'find').and.returnValue(of({id: 10, organization: {name: 'test'}}));
 
                 // WHEN
                 comp.ngOnInit();
@@ -54,7 +54,7 @@ describe('Component Tests', () => {
                 // THEN
                 expect(service.find).toHaveBeenCalledWith('testProject');
                 const result = await comp.project$.pipe(filter(p => !!p), first()).toPromise();
-                expect(result).toEqual(jasmine.objectContaining({id: 10}))
+                expect(result).toEqual(jasmine.objectContaining({id: 10, organization: {name: 'test'}}))
             }));
         });
     });

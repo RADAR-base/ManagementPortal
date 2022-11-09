@@ -1,13 +1,8 @@
 package org.radarbase.management.security;
 
-import java.security.Principal;
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import org.radarbase.auth.authorization.Permission;
 import org.radarbase.auth.token.JwtRadarToken;
+import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.repository.UserRepository;
@@ -24,6 +19,15 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
+
+import java.security.Principal;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
     private static final Logger logger = LoggerFactory.getLogger(ClaimsTokenEnhancer.class);
@@ -71,6 +75,21 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
                                 })
                                 .collect(Collectors.toList());
                         additionalInfo.put(JwtRadarToken.ROLES_CLAIM, roles);
+
+                        // Do not grant scopes that cannot be given to a user.
+                        Set<String> currentScopes = accessToken.getScope();
+                        Set<String> newScopes = currentScopes.stream()
+                                .filter(scope -> {
+                                    Permission permission = Permission.ofScope(scope);
+                                    return user.getRoles().stream()
+                                            .map(Role::getRole)
+                                            .anyMatch(permission::isRoleAllowed);
+                                })
+                                .collect(Collectors.toCollection(TreeSet::new));
+
+                        if (!newScopes.equals(currentScopes)) {
+                            ((DefaultOAuth2AccessToken) accessToken).setScope(newScopes);
+                        }
                     });
 
             List<Source> assignedSources = subjectRepository.findSourcesBySubjectLogin(userName);
