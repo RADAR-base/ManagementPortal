@@ -43,14 +43,14 @@ describe('Component Tests', () => {
             it('Should call load all on init', waitForAsync(async () => {
             // GIVEN
 
-            spyOn(service, 'find').and.returnValue(of({id: 10}));
+            spyOn(service, 'find').and.returnValue(of({id: 10, organization: {name: 'test'}}));
 
             // WHEN
             comp.ngOnInit();
 
             // THEN
             const org = await comp.organization$.pipe(first()).toPromise();
-            expect(org).toEqual(jasmine.objectContaining({id: 10}));
+            expect(org).toEqual(jasmine.objectContaining({id: 10, organization: {name: 'test'}}));
 
             expect(service.find).toHaveBeenCalledWith('testOrganization');
 
