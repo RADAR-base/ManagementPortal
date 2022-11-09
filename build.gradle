@@ -14,11 +14,11 @@ buildscript {
 plugins {
     id 'application'
     id 'org.springframework.boot' version "${spring_boot_version}"
-    id "com.github.node-gradle.node" version "3.2.1"
-    id "io.spring.dependency-management" version "1.0.11.RELEASE"
-    id 'de.undercouch.download' version '5.0.2' apply false
+    id "com.github.node-gradle.node" version "3.5.0"
+    id "io.spring.dependency-management" version "1.1.0"
+    id 'de.undercouch.download' version '5.3.0' apply false
     id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
-    id("com.github.ben-manes.versions") version "0.42.0"
+    id("com.github.ben-manes.versions") version "0.43.0"
 }
 
 apply plugin: 'org.springframework.boot'
@@ -177,7 +177,7 @@ dependencies {
     }
     implementation "org.hibernate:hibernate-core"
     implementation "org.hibernate:hibernate-envers"
-    implementation "org.hibernate:hibernate-validator:7.0.4.Final"
+    implementation 'org.hibernate:hibernate-validator:8.0.0.Final'
 
     runtimeOnly "org.postgresql:postgresql:${postgresql_version}"
     runtimeOnly "org.hsqldb:hsqldb:${hsqldb_version}"
@@ -193,7 +193,7 @@ dependencies {
     implementation("org.springframework:spring-context-support")
     implementation("org.springframework.session:spring-session-hazelcast")
 
-    implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.1.RELEASE")
+    implementation('org.springframework.security.oauth:spring-security-oauth2:2.5.2.RELEASE')
     implementation "org.springdoc:springdoc-openapi-ui:${springdoc_version}"
     runtimeOnly("javax.inject:javax.inject:1")
     implementation project(':radar-auth')
@@ -203,7 +203,7 @@ dependencies {
     runtimeOnly("org.glassfish.jaxb:jaxb-core:${javax_jaxb_core_version}")
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime:${javax_jaxb_runtime_version}")
     runtimeOnly("javax.activation:activation:${javax_activation}")
-    runtimeOnly 'org.javassist:javassist:3.28.0-GA'
+    runtimeOnly 'org.javassist:javassist:3.29.2-GA'
 
     testImplementation "com.jayway.jsonpath:json-path"
     testImplementation ("org.springframework.boot:spring-boot-starter-test") {
@@ -242,7 +242,7 @@ task cleanResources(type: Delete) {
 }
 
 wrapper {
-    gradleVersion '7.4.1'
+    gradleVersion '7.5.1'
 }
 
 task stage(dependsOn: 'bootWar') {
