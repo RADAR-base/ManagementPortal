@@ -25,7 +25,7 @@ jobs:
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "dir=.yarn/cache" >> $GITHUB_OUTPUTS
+        run: echo "dir=.yarn/cache" >> $GITHUB_OUTPUT
 
       - uses: actions/setup-java@v3
         with:

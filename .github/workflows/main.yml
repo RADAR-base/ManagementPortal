@@ -28,7 +28,7 @@ jobs:
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "dir=.yarn/cache" >> $GITHUB_OUTPUTS
+        run: echo "dir=.yarn/cache" >> $GITHUB_OUTPUT
 
       - uses: actions/setup-java@v3
         with:
@@ -107,7 +107,7 @@ jobs:
         id: docker_check_secret
         run: |
           echo "IS_DOCKER_SECRET_SET: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}"
-          echo "IS_DOCKER_SECRET_SET=${{ secrets.DOCKERHUB_USERNAME != ''  && secrets.DOCKERHUB_TOKEN != '' }}" >> $GITHUB_OUTPUTS
+          echo "IS_DOCKER_SECRET_SET=${{ secrets.DOCKERHUB_USERNAME != ''  && secrets.DOCKERHUB_TOKEN != '' }}" >> $GITHUB_OUTPUT
 
       - name: Login to Docker Hub
         if: steps.docker_check_secret.outputs.IS_DOCKER_SECRET_SET == 'true'
@@ -118,7 +118,7 @@ jobs:
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "dir=.yarn/cache" >> $GITHUB_OUTPUTS
+        run: echo "dir=.yarn/cache" >> $GITHUB_OUTPUT
 
       - name: Cache Docker layers
         id: cache-buildx
@@ -135,9 +135,9 @@ jobs:
         id: cache-parameters
         run: |
           if [ "${{ steps.cache-buildx.outputs.cache-hit }}" = "true" ]; then
-            echo "cache-to=" >> $GITHUB_OUTPUTS
+            echo "cache-to=" >> $GITHUB_OUTPUT
           else
-            echo "cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max" >> $GITHUB_OUTPUTS
+            echo "cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max" >> $GITHUB_OUTPUT
           fi
 
       - name: Use Node.js 16
@@ -166,13 +166,13 @@ jobs:
         id: docker_params
         run: |
           if [ "${{ github.event_name == 'pull_request' }}" = "true" ]; then
-            echo "push=false" >> $GITHUB_OUTPUTS
-            echo "load=true" >> $GITHUB_OUTPUTS
-            echo "platforms=linux/amd64" >> $GITHUB_OUTPUTS
+            echo "push=false" >> $GITHUB_OUTPUT
+            echo "load=true" >> $GITHUB_OUTPUT
+            echo "platforms=linux/amd64" >> $GITHUB_OUTPUT
           else
-            echo "push=true" >> $GITHUB_OUTPUTS
-            echo "load=false" >> $GITHUB_OUTPUTS
-            echo "platforms=linux/amd64,linux/arm64" >> $GITHUB_OUTPUTS
+            echo "push=true" >> $GITHUB_OUTPUT
+            echo "load=false" >> $GITHUB_OUTPUT
+            echo "platforms=linux/amd64,linux/arm64" >> $GITHUB_OUTPUT
           fi
 
       - name: Build docker

@@ -13,7 +13,7 @@ import org.radarbase.exception.TokenException;
 import org.radarbase.oauth.OAuth2AccessTokenDetails;
 import org.radarbase.oauth.OAuth2Client;
 
-import javax.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.HttpHeaders;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;

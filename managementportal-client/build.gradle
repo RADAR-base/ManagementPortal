@@ -9,8 +9,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
  * See the file LICENSE in the root of this repository.
  */
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version "1.6.10"
-    id 'org.jetbrains.dokka' version "1.6.10"
+    id 'org.jetbrains.kotlin.jvm' version "1.7.20"
+    id 'org.jetbrains.dokka' version "1.7.20"
     id 'maven-publish'
 }
 
@@ -20,8 +20,8 @@ targetCompatibility = JavaVersion.VERSION_11
 description = "Kotlin ManagementPortal client"
 
 dependencies {
-    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.10")
+    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.20")
     api(project(":oauth-client-util"))
 
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttp_version
