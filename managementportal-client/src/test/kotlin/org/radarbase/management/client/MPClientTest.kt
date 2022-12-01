@@ -11,6 +11,9 @@ package org.radarbase.management.client
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.apache.http.entity.ContentType
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers
@@ -18,18 +21,26 @@ import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.radarbase.management.auth.ClientCredentialsConfig
+import org.radarbase.management.auth.clientCredentials
+import org.slf4j.LoggerFactory
 import java.net.HttpURLConnection.HTTP_OK
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class MPClientTest {
     private lateinit var wireMockServer: WireMockServer
     private lateinit var client: MPClient
 
     @BeforeEach
     fun setUp() {
-        wireMockServer = WireMockServer(9090);
+        wireMockServer = WireMockServer(9090)
         wireMockServer.start()
+
+        wireMockServer.stubFor(
+            get(anyUrl())
+                .willReturn(aResponse()
+                    .withStatus(HTTP_UNAUTHORIZED)))
 
         wireMockServer.stubFor(
             post(urlEqualTo("/oauth/token"))
@@ -38,13 +49,23 @@ class MPClientTest {
                     .withHeader("content-type", ContentType.APPLICATION_JSON.toString())
                     .withBody("{\"access_token\":\"abcdef\"}")))
 
-        client = MPClient(
-            MPClient.MPServerConfig(
-                "http://localhost:9090/",
-                "test",
-            "test",
-            ),
-        )
+        client = mpClient {
+            url = "http://localhost:9090/"
+            auth { emit ->
+                clientCredentials(
+                    authConfig = ClientCredentialsConfig(
+                        tokenUrl = "http://localhost:9090/oauth/token",
+                        clientId = "test",
+                        clientSecret = "test",
+                    ),
+                    targetHost = "localhost",
+                    emit = {
+                        logger.info("Got new token: {}", it)
+                        emit(it)
+                    }
+                )
+            }
+        }
     }
 
     @AfterEach
@@ -53,7 +74,7 @@ class MPClientTest {
     }
 
     @Test
-    fun testClients() {
+    fun testClients() = runBlocking {
         val body =
             """
             [{
@@ -120,11 +141,11 @@ class MPClientTest {
         )))
 
         wireMockServer.verify(1, postRequestedFor(urlEqualTo("/oauth/token")))
-        wireMockServer.verify(1, getRequestedFor(urlPathEqualTo("/api/oauth-clients")))
+        wireMockServer.verify(2, getRequestedFor(urlPathEqualTo("/api/oauth-clients")))
     }
 
     @Test
-    fun testProjects() {
+    fun testProjects() = runTest {
         val body =
             """
             [{
@@ -186,9 +207,9 @@ class MPClientTest {
                 description = "d2",
                 organization = MPOrganization(id = "Mixed"),
                 location = "here",
-                startDate = ZonedDateTime.of(2021, 6, 7, 2, 2, 0, 0, ZoneId.of("UTC")),
+                startDate = "2021-06-07T02:02:00Z",
                 projectStatus = "ONGOING",
-                endDate = ZonedDateTime.of(2022, 6, 7, 2, 2, 0, 0, ZoneId.of("UTC")),
+                endDate = "2022-06-07T02:02:00Z",
                 attributes = mapOf(
                     "External-project-id" to "p2a",
                     "Human-readable-project-name" to "P2",
@@ -197,6 +218,10 @@ class MPClientTest {
         )))
 
         wireMockServer.verify(1, postRequestedFor(urlEqualTo("/oauth/token")))
-        wireMockServer.verify(1, getRequestedFor(urlPathEqualTo("/api/projects")))
+        wireMockServer.verify(2, getRequestedFor(urlPathEqualTo("/api/projects")))
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(MPClientTest::class.java)
     }
 }
