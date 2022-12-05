@@ -1,16 +1,24 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, Params} from '@angular/router';
 
-import { NgbActiveModal, NgbCalendar, NgbDate, NgbDateParserFormatter, NgbDateStruct, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {
+    NgbActiveModal,
+    NgbCalendar,
+    NgbDate,
+    NgbDateParserFormatter,
+    NgbDateStruct,
+    NgbModalRef
+} from '@ng-bootstrap/ng-bootstrap';
 
-import { AlertService } from '../util/alert.service';
-import { EventManager } from '../util/event-manager.service';
-import { SubjectPopupService } from './subject-popup.service';
+import {AlertService} from '../util/alert.service';
+import {EventManager} from '../util/event-manager.service';
+import {SubjectPopupService} from './subject-popup.service';
 
-import { Subject } from './subject.model';
-import { SubjectService } from './subject.service';
-import { Observable, Subscription } from 'rxjs';
-import { ObservablePopupComponent } from '../util/observable-popup.component';
+import {Subject} from './subject.model';
+import {SubjectService} from './subject.service';
+import {Observable, Subscription} from 'rxjs';
+import {ObservablePopupComponent} from '../util/observable-popup.component';
+import {Project, ProjectService} from "../project";
 
 @Component({
     selector: 'jhi-subject-dialog',
@@ -21,6 +29,13 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     readonly options: string[];
 
     subject: Subject;
+    isInProject: boolean;
+    projects: Project[] = [];
+    project: Project;
+    projectName: string;
+
+    groupName: string;
+
     isSaving: boolean;
 
     attributeComponentEventPrefix: 'subjectAttributes';
@@ -31,6 +46,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     constructor(public activeModal: NgbActiveModal,
                 private alertService: AlertService,
                 private subjectService: SubjectService,
+                private projectService: ProjectService,
                 private eventManager: EventManager,
                 private calendar: NgbCalendar,
                 private formatter: NgbDateParserFormatter) {
@@ -40,6 +56,15 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        this.projectName = this.subject?.project?.projectName || null;
+        this.groupName = this.subject.group || null;
+
+        this.projectService.query().subscribe((projects) => {
+            this.projects = projects.body;
+            this.project = this.projects.find((project) =>
+                project.projectName === this.projectName
+            )
+        })
         if(this.subject.dateOfBirth) {
             this.dateOfBirth = this.formatter.parse(this.subject.dateOfBirth.toString());
         }
@@ -65,7 +90,13 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
         if (this.dateOfBirth && this.calendar.isValid(NgbDate.from(this.dateOfBirth))) {
             this.subject.dateOfBirth = new Date(this.formatter.format(this.dateOfBirth));
         }
-        if (this.subject.id !== null) {
+        this.project = this.projects.find((p) => p.projectName === this.projectName);
+        this.subject.project = this.project;
+
+        this.subject.group = this.groupName; //this.project.groups.find(group => group.name === this.groupName)
+
+        if (this.subject.id) {
+
             this.subjectService.update(this.subject)
             .subscribe((res: Subject) =>
                     this.onSaveSuccess('UPDATE', res), (res: any) => this.onSaveError(res));
@@ -89,6 +120,10 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
 
     private onError(error) {
         this.alertService.error(error.message, null, null);
+    }
+
+    onProjectChange($event: any) {
+        this.project = this.projects.find((p) => p.projectName === $event);
     }
 }
 

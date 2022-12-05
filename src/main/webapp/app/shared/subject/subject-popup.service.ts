@@ -29,7 +29,7 @@ export class SubjectPopupService {
 
         if (login) {
             return this.subjectService.find(login).pipe(
-                map((subject: Subject) => this.subjectModalRef(component, subject, isDelete)),
+                map((subject: Subject) => this.subjectModalRef(component, subject, isDelete, !!projectName)),
                 first(),
             );
         } else if (projectName) {
@@ -38,21 +38,22 @@ export class SubjectPopupService {
                     project,
                     sources: [],
                     status: SubjectStatus.ACTIVATED,
-                }, isDelete)),
+                }, isDelete, true)),
                 first(),
             );
         } else {
             return of(this.subjectModalRef(component, {
                 sources: [],
                 status: SubjectStatus.ACTIVATED,
-            }, isDelete));
+            }, isDelete, false));
         }
     }
 
-    subjectModalRef(component: any, subject: Subject, isDelete?: boolean): NgbModalRef {
+    subjectModalRef(component: any, subject: Subject, isDelete?: boolean, isInProject?: boolean): NgbModalRef {
         const modalRef = this.modalService.open(component, {size: 'lg', backdrop: 'static'});
         modalRef.componentInstance.subject = subject;
         modalRef.componentInstance.isDelete = isDelete;
+        modalRef.componentInstance.isInProject = isInProject;
         modalRef.result.then(() => {
             this.router.navigate([{outlets: {popup: null}}], {replaceUrl: true});
             this.isOpen = false;

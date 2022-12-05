@@ -12,7 +12,7 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x | bash \
 ## will allow us to re-use these image layers when only the souce code changes
 WORKDIR /code
 
-ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.project.prod=true"
+ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.project.prod=true -Dorg.gradle.vfs.watch=false"
 
 COPY package.json yarn.lock .yarnrc.yml /code/
 COPY .yarn /code/.yarn
@@ -23,7 +23,7 @@ COPY gradlew build.gradle gradle.properties settings.gradle /code/
 COPY radar-auth/build.gradle radar-auth/
 COPY oauth-client-util/build.gradle oauth-client-util/
 
-RUN ./gradlew downloadDependencies --no-watch-fs
+RUN ./gradlew downloadDependencies
 
 # now we copy our application source code and build it
 
@@ -33,7 +33,7 @@ COPY webpack webpack
 
 COPY radar-auth radar-auth
 COPY src src
-RUN ./gradlew -s bootWar --no-watch-fs
+RUN ./gradlew -s bootWar
 
 # Run stage
 FROM eclipse-temurin:17-jre

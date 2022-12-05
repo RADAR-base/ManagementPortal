@@ -37,13 +37,15 @@ describe('Create, edit, and delete user', () => {
     });
 
     it('should be able to create new system admin user', () => {
-        cy.contains('button.btn-primary', 'Create an admin user').click();
+        cy.get('button.btn-primary').contains('Create a new user').click();
         cy.get('[name=login]').type('test-sys-admin');
         cy.get('[name=firstName]').type('Alice');
         cy.get('[name=lastName]').type('Bob');
         cy.get('[name=email]').type('alice@radarbase.org');
+        cy.get('[name=authority]').select('ROLE_SYS_ADMIN');
+        cy.get('[name=addRole]').click();
 
-        cy.contains('button.btn-primary', 'Save').click();
+        cy.get('button.btn-primary').contains('Save').click();
         cy.get('jhi-user-mgmt tbody tr').should('have.length', 5);
     });
 

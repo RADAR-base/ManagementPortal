@@ -69,7 +69,7 @@ public class OrganizationService {
     public List<OrganizationDTO> findAll() {
         List<Organization> organizationsOfUser;
 
-        if (token.hasGlobalAuthorityForPermission(ORGANIZATION_READ)) {
+        if (token.hasGlobalPermission(ORGANIZATION_READ)) {
             organizationsOfUser = organizationRepository.findAll();
         } else {
             List<String> projectNames = token.getReferentsWithPermission(

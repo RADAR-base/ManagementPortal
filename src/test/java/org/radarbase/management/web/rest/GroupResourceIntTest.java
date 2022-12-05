@@ -17,6 +17,7 @@ import org.radarbase.management.repository.RoleRepository;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
 import org.radarbase.management.service.GroupService;
+import org.radarbase.management.service.ProjectService;
 import org.radarbase.management.service.SubjectService;
 import org.radarbase.management.service.dto.GroupDTO;
 import org.radarbase.management.service.dto.SubjectDTO;
@@ -89,6 +90,9 @@ class GroupResourceIntTest {
     private GroupMapper groupMapper;
 
     @Autowired
+    private ProjectService projectService;
+
+    @Autowired
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
     @Autowired
@@ -112,6 +116,7 @@ class GroupResourceIntTest {
         var groupResource = new GroupResource();
         ReflectionTestUtils.setField(groupResource, "groupService", groupService);
         ReflectionTestUtils.setField(groupResource, "token", token);
+        ReflectionTestUtils.setField(groupResource, "projectService", projectService);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());

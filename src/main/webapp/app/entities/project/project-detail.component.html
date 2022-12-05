@@ -1,7 +1,7 @@
 <div *ngIf="project$ | async as project">
     <h2>
         <span>
-            <span [translate]="'managementPortalApp.project.detail.title'"></span>
+            <span [translate]="'managementPortalApp.project.detail.title'"></span>:
             {{project.humanReadableProjectName ? project.humanReadableProjectName : project.projectName}}
         </span>
         <button type="button"
@@ -72,16 +72,16 @@
                       [translate]="'managementPortalApp.project.permissions'">
                 </span>
             </li>
-            <li class="nav-item" (click)="updateActiveTab('admins')" *ngIf="tab.available.includes('admins')">
-                    <span class="nav-link" [ngClass]="{active: tab.active === 'admins'}"
-                          [translate]="'managementPortalApp.project.admins'">
-                    </span>
-            </li>
-            <li class="nav-item" (click)="updateActiveTab('analysts')" *ngIf="tab.available.includes('analysts')">
-                    <span class="nav-link" [ngClass]="{active: tab.active === 'analysts'}"
-                          [translate]="'managementPortalApp.project.analysts'">
-                    </span>
-            </li>
+<!--            <li class="nav-item" (click)="updateActiveTab('admins')" *ngIf="tab.available.includes('admins')">-->
+<!--                    <span class="nav-link" [ngClass]="{active: tab.active === 'admins'}"-->
+<!--                          [translate]="'managementPortalApp.project.admins'">-->
+<!--                    </span>-->
+<!--            </li>-->
+<!--            <li class="nav-item" (click)="updateActiveTab('analysts')" *ngIf="tab.available.includes('analysts')">-->
+<!--                    <span class="nav-link" [ngClass]="{active: tab.active === 'analysts'}"-->
+<!--                          [translate]="'managementPortalApp.project.analysts'">-->
+<!--                    </span>-->
+<!--            </li>-->
         </ul>
 
         <div id="project-content-wrapper">

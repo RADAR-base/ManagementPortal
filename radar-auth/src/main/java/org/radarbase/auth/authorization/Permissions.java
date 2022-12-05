@@ -72,7 +72,10 @@ public final class Permissions {
         // Organization admin can do most things, but not view subjects or measurements
         rolePermissions.put(ORGANIZATION_ADMIN, Permission.stream()
                 .filter(excludePermissions(Permission.ORGANIZATION_CREATE))
-                .filter(excludeEntities(Permission.Entity.SUBJECT, Permission.Entity.MEASUREMENT)));
+                .filter(excludeEntities(Permission.Entity.AUDIT,
+                        Permission.Entity.AUTHORITY, Permission.Entity.MEASUREMENT))
+                .filter(excludePermissions(Permission.SOURCEDATA_CREATE,
+                        Permission.SOURCETYPE_CREATE)));
 
         // for all authorities except for SYS_ADMIN, the authority is scoped to a project, which
         // is checked elsewhere
