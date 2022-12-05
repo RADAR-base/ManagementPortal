@@ -23,7 +23,6 @@ description = "Kotlin ManagementPortal client"
 dependencies {
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.22")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.22")
-    api(project(":oauth-client-util"))
 
     api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version"))
     api(platform("io.ktor:ktor-bom:$ktor_version"))
@@ -46,8 +45,8 @@ dependencies {
 tasks.withType(KotlinCompile) {
     kotlinOptions {
         jvmTarget = "11"
-        apiVersion = "1.6"
-        languageVersion = "1.6"
+        apiVersion = "1.7"
+        languageVersion = "1.7"
     }
 }
 
