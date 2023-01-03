@@ -14,7 +14,6 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
-import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -37,7 +36,7 @@ fun mpClient(config: MPClient.Config.() -> Unit): MPClient {
 /**
  * Client for the ManagementPortal REST API.
  */
-@Suppress("unused")
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 class MPClient(config: Config) {
     private val _token: MutableStateFlow<MPOAuth2AccessToken?> = MutableStateFlow(null)
 
