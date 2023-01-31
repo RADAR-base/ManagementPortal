@@ -27,6 +27,7 @@
             "sourceType": "Source Type",
             "groups": "Groups",
             "subjects": "Subjects",
+            "sources": "Sources",
             "permissions":  "Permissions",
             "admins":  "Admins",
             "analysts": "Analysts",

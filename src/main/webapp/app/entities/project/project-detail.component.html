@@ -62,6 +62,11 @@
                           [translate]="'managementPortalApp.project.subjects'">
                     </span>
             </li>
+            <li class="nav-item" (click)="updateActiveTab('sources')" *ngIf="tab.available.includes('sources')">
+                    <span class="nav-link" [ngClass]="{active: tab.active === 'sources'}"
+                          [translate]="'managementPortalApp.project.sources'">
+                    </span>
+            </li>
             <li class="nav-item" (click)="updateActiveTab('groups')" *ngIf="tab.available.includes('groups')">
                     <span class="nav-link" [ngClass]="{active: tab.active === 'groups'}"
                           [translate]="'managementPortalApp.project.groups'">
@@ -88,6 +93,7 @@
             <jhi-alert-error></jhi-alert-error>
 
             <jhi-subjects *ngIf="tab.active === 'subjects'" [project]='project' [isProjectSpecific]="true"></jhi-subjects>
+            <jhi-sources *ngIf="tab.active === 'sources'" [project]='project' [isProjectSpecific]="true"></jhi-sources>
             <jhi-groups *ngIf="tab.active === 'groups'" [project]='project'></jhi-groups>
 
             <jhi-permissions *ngIf="tab.active === 'permissions'" [project]='project'></jhi-permissions>

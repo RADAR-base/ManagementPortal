@@ -62,6 +62,7 @@ export class SortOrderImpl implements SortOrder {
 }
 
 export function regularSortOrder(defaultPredicate?: string): OperatorFunction<SortOrder, SortOrderImpl> {
+    console.log('regularSortOrder', defaultPredicate)
     return pipe(
         map(o => SortOrderImpl.from(o, defaultPredicate)),
         distinctSortOrder(),
