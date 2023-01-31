@@ -135,31 +135,32 @@ public class OAuth2ServerConfiguration {
                     .logoutSuccessHandler(logoutSuccessHandler)
                     .and()
                     .csrf()
-                    .disable()
+                        .disable()
                     .addFilterBefore(jwtAuthenticationFilter(),
                             UsernamePasswordAuthenticationFilter.class)
                     .headers()
-                    .frameOptions().disable()
+                        .frameOptions()
+                            .disable()
                     .and()
                     .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                     .and()
                     .authorizeRequests()
-                    .antMatchers("/oauth/**").permitAll()
-                    .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    .antMatchers("/api/register").hasAnyAuthority(
-                            RoleAuthority.SYS_ADMIN_AUTHORITY)
-                    .antMatchers("/api/profile-info").permitAll()
-                    .antMatchers("/api/**").authenticated()
-                    // Allow management/health endpoint to all to allow kubernetes to be able to
-                    // detect the health of the service
-                    .antMatchers("/management/health").permitAll()
-                    .antMatchers("/management/**").hasAnyAuthority(
-                            RoleAuthority.SYS_ADMIN_AUTHORITY)
-                    .antMatchers("/v2/api-docs/**").permitAll()
-                    .antMatchers("/swagger-resources/configuration/ui").permitAll()
-                    .antMatchers("/swagger-ui/index.html")
-                    .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY);
+                        .antMatchers("/oauth/**").permitAll()
+                        .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .antMatchers("/api/register")
+                            .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
+                        .antMatchers("/api/profile-info").permitAll()
+                        .antMatchers("/api/**").authenticated()
+                        // Allow management/health endpoint to all to allow kubernetes to be able to
+                        // detect the health of the service
+                        .antMatchers("/management/health").permitAll()
+                        .antMatchers("/management/**")
+                            .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
+                        .antMatchers("/v2/api-docs/**").permitAll()
+                        .antMatchers("/swagger-resources/configuration/ui").permitAll()
+                        .antMatchers("/swagger-ui/index.html")
+                            .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY);
         }
 
         @Override
