@@ -10,7 +10,8 @@
             "updated": "A Group is updated with identifier {{ param }}",
             "deleted": "A Group is deleted with identifier {{ param }}",
             "delete": {
-                "question": "This group has subjects, are you sure you want to delete Group {{ id }}?"
+                "warning": "This group has subjects.",
+                "question": "Are you sure you want to delete Group {{ id }}?"
             },
             "detail": {
                 "title": "Group"

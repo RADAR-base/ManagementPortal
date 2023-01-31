@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, } from '@angular/core';
 import { Role } from '../../admin/user-management/role.model';
-import { BehaviorSubject, combineLatest, Observable, of, Subscription } from 'rxjs';
+import { combineLatest, Observable, of, Subscription } from 'rxjs';
 import { Project } from '../project';
 import { AuthorityService } from '../user/authority.service';
 import { AlertService } from '../util/alert.service';
@@ -10,7 +10,7 @@ import { User } from '../user/user.model';
 import { Organization } from '../organization';
 import { UserService } from '../user/user.service';
 import { Authority, Scope } from '../user/authority.model';
-import { distinctUntilChanged, first, map, switchMap, tap, combineAll } from 'rxjs/operators';
+import { distinctUntilChanged, first, map, switchMap, tap } from 'rxjs/operators';
 import { Principal } from '../auth/principal.service';
 
 interface UserRole {
@@ -43,7 +43,7 @@ export class PermissionComponent implements OnInit, OnChanges, OnDestroy {
             private eventManager: EventManager,
             private userService: UserService,
             private changeDetectorRef: ChangeDetectorRef,
-            private principal: Principal,
+            public principal: Principal,
     ) {}
 
     ngOnInit() {
