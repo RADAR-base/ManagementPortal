@@ -74,7 +74,7 @@
                 for="field_organization">
             </label>
             <select class="form-control" name="organization" [(ngModel)]="projectCopy.organization.name" id="field_organization">
-                <option *ngFor="let organization of organizationService.organizations$ | async" [ngValue]="organization.name">{{organization.name}}</option>
+                <option *ngFor="let organization of organizations" [ngValue]="organization.name">{{organization.name}}</option>
             </select>
         </div>
         <div class="form-group">

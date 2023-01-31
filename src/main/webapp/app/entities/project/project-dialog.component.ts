@@ -19,7 +19,7 @@ import { EventManager } from '../../shared/util/event-manager.service';
 import { SourceType, SourceTypeService } from '../source-type';
 import { ProjectPopupService } from './project-popup.service';
 
-import { GroupService, OrganizationService, Project, ProjectService } from '../../shared';
+import {GroupService, Organization, OrganizationService, Project, ProjectService} from '../../shared';
 import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
 
 @Component({
@@ -32,6 +32,8 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
     readonly options: string[];
 
     organizationName: string;
+    organizations: Organization[];
+
     project: Project;
     projectCopy: Project;
     isSaving: boolean;
@@ -79,7 +81,7 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
     constructor(
             public activeModal: NgbActiveModal,
             private alertService: AlertService,
-            public organizationService: OrganizationService,
+            private organizationService: OrganizationService,
             private projectService: ProjectService,
             private sourceTypeService: SourceTypeService,
             private eventManager: EventManager,
@@ -94,6 +96,9 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        const organizationSubscription = this.organizationService.organizations$.subscribe(organizations => this.organizations = organizations)
+        this.subscriptions.add(organizationSubscription);
+
         this.projectCopy = Object.assign({}, this.project)
         if(this.projectCopy.startDate) {
             this.startDate = this.formatter.parse(this.projectCopy.startDate.toString());
@@ -120,13 +125,16 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
         if (this.endDate && this.calendar.isValid(NgbDate.from(this.endDate))) {
             this.projectCopy.endDate = this.formatter.format(this.endDate) + 'T23:59';
         }
-        const updatedProject = {...this.projectCopy, organization: {name: this.organizationName}};
         if (this.projectCopy.id !== undefined) {
+            const organization = this.organizations.find(o => o.name === this.projectCopy.organization.name)
+            const updatedProject = {...this.projectCopy, organization};
             this.subscriptions.add(this.projectService.update(updatedProject).subscribe(
                 (res: Project) => this.onSaveSuccess(res),
                 (res: Response) => this.onSaveError(res),
             ));
         } else {
+            const organization = this.organizations.find(o => o.name === this.organizationName)
+            const updatedProject = {...this.projectCopy, organization};
             this.subscriptions.add(this.projectService.create(updatedProject).subscribe(
                 (res: Project) => this.onSaveSuccess(res),
                 (res: Response) => this.onSaveError(res),
