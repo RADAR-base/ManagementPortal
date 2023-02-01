@@ -246,7 +246,8 @@ public class TokenValidator {
                 return algorithmLoader.loadAlgorithmsFromJavaWebKeys(publicKeyInfo);
             } else {
                 // Log and Continue Pulling next Endpoints, if any
-                LOGGER.warn("Invalid token signature. Could not load newer public keys");
+                LOGGER.warn("Invalid token signature. Could not load " 
+                        + "public key from {}", serverUri.toURL());
                 return null;
             }
 
