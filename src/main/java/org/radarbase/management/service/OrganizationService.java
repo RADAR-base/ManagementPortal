@@ -162,6 +162,9 @@ public class OrganizationService {
     }
 
     private boolean hasPermissionOnOrganization(Permission permission, String projectName) {
+        if (projectName == null) {
+            return false;
+        }
         return organizationRepository.findAllByProjectNames(List.of(projectName)).stream()
                 .anyMatch(o -> token.hasPermissionOnOrganization(permission, o.getName()));
     }

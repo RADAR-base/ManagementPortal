@@ -6,6 +6,7 @@ import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.repository.SourceRepository;
+import org.radarbase.management.service.OrganizationService;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.SourceService;
 import org.radarbase.management.service.dto.MinimalProjectDetailsDTO;
@@ -38,7 +39,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN;
 import static org.radarbase.auth.authorization.Permission.SOURCE_CREATE;
 import static org.radarbase.auth.authorization.Permission.SOURCE_DELETE;
 import static org.radarbase.auth.authorization.Permission.SOURCE_READ;
@@ -46,8 +46,7 @@ import static org.radarbase.auth.authorization.Permission.SOURCE_UPDATE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkAuthorityAndPermission;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSource;
+import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN;
 import static tech.jhipster.web.util.ResponseUtil.wrapOrNotFound;
 
 /**
@@ -70,6 +69,9 @@ public class SourceResource {
     @Autowired
     private RadarToken token;
 
+    @Autowired
+    private OrganizationService organizationService;
+
     /**
      * POST  /sources : Create a new source.
      *
@@ -85,7 +87,7 @@ public class SourceResource {
         log.debug("REST request to save Source : {}", sourceDto);
         MinimalProjectDetailsDTO project = sourceDto.getProject();
         String projectName = project != null ? project.getProjectName() : null;
-        checkPermissionOnProject(token, SOURCE_CREATE, projectName);
+        organizationService.checkPermissionByProject(SOURCE_CREATE, projectName);
         if (sourceDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
                     "idexists", "A new source cannot already have an ID")).build();
@@ -127,8 +129,8 @@ public class SourceResource {
         }
         RadarToken jwt = token;
         MinimalProjectDetailsDTO project = sourceDto.getProject();
-        String projectName = project != null ? project.getProjectName() : null;
-        checkPermissionOnProject(jwt, SOURCE_UPDATE, projectName);
+        var projectName = project != null ? project.getProjectName() : null;
+        organizationService.checkPermissionByProject(SOURCE_UPDATE, projectName);
         Optional<SourceDTO> updatedSource = sourceService.updateSource(sourceDto, jwt);
         return wrapOrNotFound(updatedSource,
                 HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceDto.getSourceName()));
@@ -171,8 +173,8 @@ public class SourceResource {
             String projectName = source.getProject() != null
                     ? source.getProject().getProjectName()
                     : null;
-            checkPermissionOnSource(token, SOURCE_READ, projectName, source.getSubjectLogin(),
-                    source.getSourceName());
+            organizationService.checkPermissionBySubject(SOURCE_READ, projectName,
+                    source.getSubjectLogin());
         }
         return wrapOrNotFound(sourceOpt);
     }
@@ -198,8 +200,8 @@ public class SourceResource {
         String projectName = sourceDto.getProject() != null
                 ? sourceDto.getProject().getProjectName()
                 : null;
-        checkPermissionOnSource(jwt, SOURCE_DELETE, projectName, sourceDto.getSubjectLogin(),
-                sourceDto.getSourceName());
+        organizationService.checkPermissionBySubject(SOURCE_READ, projectName,
+                sourceDto.getSubjectLogin());
 
         if (sourceDto.getAssigned()) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
