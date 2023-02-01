@@ -39,7 +39,8 @@
             "attributeDataValue" : "Waarde",
             "prettyProjectName" : "Leesbare projectnaam",
             "prettyProjectName.fieldDescription" : "Voor mensen leesbare projectnaam die niet het urlpatroon hoeft te volgen.",
-            "projectIdAsPrettyName": "Wil je de project-id gebruiken als de voor mensen leesbare naam?"
+            "projectIdAsPrettyName": "Wil je de project-id gebruiken als de voor mensen leesbare naam?",
+            "sources": "Sources"
         },
         "error" : {
             "projectIdNotFound" : "Er werd geen project gevonden met id {{ param0 }}",

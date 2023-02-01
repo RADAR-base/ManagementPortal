@@ -1,6 +1,8 @@
 package org.radarbase.management.service;
 
+import org.radarbase.auth.authorization.Permission;
 import org.radarbase.auth.authorization.RoleAuthority;
+import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.Organization;
 import org.radarbase.management.repository.OrganizationRepository;
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.radarbase.auth.authorization.Permission.ORGANIZATION_READ;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
 
 /**
  * Service Implementation for managing Organization.
@@ -118,5 +122,47 @@ public class OrganizationService {
                         ORGANIZATION_READ, organizationName, project.getProjectName()))
                 .map(projectMapper::projectToProjectDTO)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Checks the permission of a project, also taking into
+     * account the organization that a project belongs to.
+     * @param permission permission to check
+     * @param projectName project name to check
+     * @throws NotAuthorizedException if the current user is not authorized.
+     */
+    public void checkPermissionByProject(Permission permission, String projectName)
+            throws NotAuthorizedException {
+        if (token.hasPermissionOnProject(permission, projectName)) {
+            return;
+        }
+        if (hasPermissionOnOrganization(permission, projectName)) {
+            return;
+        }
+        checkPermissionOnProject(token, permission, projectName);
+    }
+
+    /**
+     * Checks the permission of a subject, also taking into
+     * account the organization that a project belongs to.
+     * @param permission permission to check
+     * @param projectName project name to check
+     * @param subject subject login to check
+     * @throws NotAuthorizedException if the current user is not authorized.
+     */
+    public void checkPermissionBySubject(Permission permission, String projectName, String subject)
+            throws NotAuthorizedException {
+        if (token.hasPermissionOnSubject(permission, projectName, subject)) {
+            return;
+        }
+        if (hasPermissionOnOrganization(permission, projectName)) {
+            return;
+        }
+        checkPermissionOnSubject(token, permission, projectName, subject);
+    }
+
+    private boolean hasPermissionOnOrganization(Permission permission, String projectName) {
+        return organizationRepository.findAllByProjectNames(List.of(projectName)).stream()
+                .anyMatch(o -> token.hasPermissionOnOrganization(permission, o.getName()));
     }
 }

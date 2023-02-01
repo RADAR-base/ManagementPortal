@@ -1,34 +1,5 @@
 package org.radarbase.management.web.rest;
 
-import static tech.jhipster.web.util.ResponseUtil.wrapOrNotFound;
-import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
-import static org.radarbase.auth.authorization.Permission.SUBJECT_CREATE;
-import static org.radarbase.auth.authorization.Permission.SUBJECT_DELETE;
-import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
-import static org.radarbase.auth.authorization.Permission.SUBJECT_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
-import static org.radarbase.management.web.rest.errors.EntityName.SOURCE;
-import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
-import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;
-import static org.radarbase.management.web.rest.errors.EntityName.PROJECT;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SOURCE_TYPE_NOT_PROVIDED;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SUBJECT_NOT_FOUND;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
-
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.validation.Valid;
-
 import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -43,6 +14,7 @@ import org.radarbase.management.domain.Subject;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.security.SecurityUtils;
+import org.radarbase.management.service.OrganizationService;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.RevisionService;
 import org.radarbase.management.service.SourceService;
@@ -77,6 +49,33 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.radarbase.auth.authorization.Permission.SUBJECT_CREATE;
+import static org.radarbase.auth.authorization.Permission.SUBJECT_DELETE;
+import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
+import static org.radarbase.auth.authorization.Permission.SUBJECT_UPDATE;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
+import static org.radarbase.management.web.rest.errors.EntityName.SOURCE;
+import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
+import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SOURCE_TYPE_NOT_PROVIDED;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SUBJECT_NOT_FOUND;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
+import static tech.jhipster.web.util.ResponseUtil.wrapOrNotFound;
 
 /**
  * REST controller for managing Subject.
@@ -113,6 +112,8 @@ public class SubjectResource {
 
     @Autowired
     private SourceService sourceService;
+    @Autowired
+    private OrganizationService organizationService;
 
     /**
      * POST  /subjects : Create a new subject.
@@ -127,39 +128,41 @@ public class SubjectResource {
     public ResponseEntity<SubjectDTO> createSubject(@RequestBody SubjectDTO subjectDto)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Subject : {}", subjectDto);
-        if (subjectDto.getProject() == null || subjectDto.getProject().getId() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                    .createFailureAlert(SUBJECT, "projectrequired",
-                            "A subject should be assigned to a project")).build();
-        }
-        checkPermissionOnProject(token, SUBJECT_CREATE,
-                subjectDto.getProject().getProjectName());
+
+        String projectName = getProjectName(subjectDto);
+        organizationService.checkPermissionByProject(SUBJECT_CREATE, projectName);
 
         if (subjectDto.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                    .createFailureAlert(SUBJECT, "idexists",
-                            "A new subject cannot already have an ID")).build();
+            throw new BadRequestException("A new subject cannot already have an ID",
+                    SUBJECT, "idexists");
         }
         if (subjectDto.getLogin() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                            .createFailureAlert(SUBJECT, "loginrequired",
-                                    "A subject login is required"))
-                    .build();
+            throw new BadRequestException("A subject login is required", SUBJECT, "loginrequired");
         }
-        if (subjectDto.getExternalId() != null && !subjectDto.getExternalId().isEmpty()
-                && subjectRepository.findOneByProjectNameAndExternalId(subjectDto.getProject()
-                .getProjectName(), subjectDto.getExternalId()).isPresent()) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                            .createFailureAlert(SUBJECT, "subjectExists",
-                                    "A subject with given project-id and"
-                                            + "external-id already exists"))
-                    .build();
+        if (subjectDto.getExternalId() != null
+                && !subjectDto.getExternalId().isEmpty()
+                && subjectRepository.findOneByProjectNameAndExternalId(
+                        projectName, subjectDto.getExternalId()).isPresent()) {
+            throw new BadRequestException("A subject with given project-id and"
+                    + "external-id already exists", SUBJECT, "subjectExists");
         }
 
         SubjectDTO result = subjectService.createSubject(subjectDto);
         return ResponseEntity.created(ResourceUriService.getUri(subjectDto))
                 .headers(HeaderUtil.createEntityCreationAlert(SUBJECT, result.getLogin()))
                 .body(result);
+    }
+
+    private String getProjectName(SubjectDTO subjectDto) {
+        if (
+                subjectDto.getProject() == null
+                        || subjectDto.getProject().getId() == null
+                        || subjectDto.getProject().getProjectName() == null
+        ) {
+            throw new BadRequestException("A subject should be assigned to a project", SUBJECT,
+                    "projectrequired");
+        }
+        return subjectDto.getProject().getProjectName();
     }
 
     /**
@@ -176,16 +179,12 @@ public class SubjectResource {
     public ResponseEntity<SubjectDTO> updateSubject(@RequestBody SubjectDTO subjectDto)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to update Subject : {}", subjectDto);
-        if (subjectDto.getProject() == null || subjectDto.getProject().getId() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                    .createFailureAlert(SUBJECT, "projectrequired",
-                            "A subject should be assigned to a project")).body(null);
-        }
+        String projectName = getProjectName(subjectDto);
+        organizationService.checkPermissionBySubject(SUBJECT_UPDATE,
+                projectName, subjectDto.getLogin());
         if (subjectDto.getId() == null) {
             return createSubject(subjectDto);
         }
-        checkPermissionOnSubject(token, SUBJECT_UPDATE,
-                subjectDto.getProject().getProjectName(), subjectDto.getLogin());
         SubjectDTO result = subjectService.updateSubject(subjectDto);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(SUBJECT, subjectDto.getLogin()))
@@ -207,18 +206,12 @@ public class SubjectResource {
             throws NotAuthorizedException {
         log.debug("REST request to update Subject : {}", subjectDto);
         if (subjectDto.getId() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                            .createFailureAlert(SUBJECT, "subjectNotAvailable", "No subject found"))
-                    .body(null);
+            throw new BadRequestException("No subject found", SUBJECT, "subjectNotAvailable");
         }
 
-        if (subjectDto.getProject() == null || subjectDto.getProject().getId() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                    .createFailureAlert(SUBJECT, "projectrequired",
-                            "A subject should be assigned to a project")).body(null);
-        }
-        checkPermissionOnSubject(token, SUBJECT_UPDATE,
-                subjectDto.getProject().getProjectName(), subjectDto.getLogin());
+        String projectName = getProjectName(subjectDto);
+        organizationService.checkPermissionBySubject(SUBJECT_UPDATE,
+                projectName, subjectDto.getLogin());
 
         // In principle this is already captured by the PostUpdate event listener, adding this
         // event just makes it more clear a subject was discontinued.
@@ -241,11 +234,11 @@ public class SubjectResource {
     public ResponseEntity<List<SubjectDTO>> getAllSubjects(
             @Valid SubjectCriteria subjectCriteria
     ) throws NotAuthorizedException {
-        String projectName = subjectCriteria.getProjectName();
-        checkPermissionOnProject(token, SUBJECT_READ, projectName);
         if (!token.isClientCredentials() && token.hasAuthority(PARTICIPANT)) {
             throw new NotAuthorizedException("Cannot list subjects as a participant.");
         }
+        String projectName = subjectCriteria.getProjectName();
+        organizationService.checkPermissionByProject(SUBJECT_READ, projectName);
 
         String externalId = subjectCriteria.getExternalId();
         log.debug("ProjectName {} and external {}", projectName, externalId);
@@ -291,14 +284,9 @@ public class SubjectResource {
     public ResponseEntity<SubjectDTO> getSubject(@PathVariable String login)
             throws NotAuthorizedException {
         log.debug("REST request to get Subject : {}", login);
+        checkPermission(token, SUBJECT_READ);
         Subject subject = subjectService.findOneByLogin(login);
-        Project project = subject.getActiveProject()
-                .flatMap(p ->  projectRepository.findOneWithEagerRelationships(p.getId()))
-                .orElse(null);
-
-        String projectName = project != null ? project.getProjectName() : null;
-        checkPermissionOnSubject(token, SUBJECT_READ, projectName,
-                subject.getUser().getLogin());
+        subjectService.checkSubjectProject(SUBJECT_READ, subject, false);
 
         SubjectDTO subjectDto = subjectMapper.subjectToSubjectDTO(subject);
 
@@ -317,18 +305,12 @@ public class SubjectResource {
     public ResponseEntity<List<RevisionDTO>> getSubjectRevisions(
             @Parameter Pageable pageable,
             @PathVariable String login) throws NotAuthorizedException {
+        checkPermission(token, SUBJECT_READ);
+
         log.debug("REST request to get revisions for Subject : {}", login);
         Subject subject = subjectService.findOneByLogin(login);
-        String project = subject.getActiveProject()
-                .flatMap(p -> projectRepository.findById(p.getId()))
-                .map(Project::getProjectName)
-                .orElseThrow(() -> new NotFoundException(
-                        "Requested subject does not have an active project",
-                        PROJECT,
-                        ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND));
+        subjectService.checkSubjectProject(SUBJECT_READ, subject, false);
 
-        checkPermissionOnSubject(token, SUBJECT_READ, project,
-                login);
         Page<RevisionDTO> page = revisionService.getRevisionsForEntity(pageable, subject);
 
         return ResponseEntity.ok()
@@ -350,10 +332,10 @@ public class SubjectResource {
     @Timed
     public ResponseEntity<SubjectDTO> getSubjectRevision(@PathVariable String login,
             @PathVariable Integer revisionNb) throws NotAuthorizedException {
+        checkPermission(token, SUBJECT_READ);
+
         log.debug("REST request to get Subject : {}, for revisionNb: {}", login, revisionNb);
         SubjectDTO subjectDto = subjectService.findRevision(login, revisionNb);
-        checkPermissionOnSubject(token, SUBJECT_READ, subjectDto.getProject()
-                .getProjectName(), subjectDto.getLogin());
         return ResponseEntity.ok(subjectDto);
     }
 
@@ -368,10 +350,10 @@ public class SubjectResource {
     public ResponseEntity<Void> deleteSubject(@PathVariable String login)
             throws NotAuthorizedException {
         log.debug("REST request to delete Subject : {}", login);
+        checkPermission(token, SUBJECT_DELETE);
         Subject subject = subjectService.findOneByLogin(login);
 
-        String projectName = subject.getActiveProject().map(Project::getProjectName).orElse(null);
-        checkPermissionOnSubject(token, SUBJECT_DELETE, projectName, login);
+        subjectService.checkSubjectProject(SUBJECT_DELETE, subject, false);
         subjectService.deleteSubject(login);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityDeletionAlert(SUBJECT, login)).build();
@@ -408,7 +390,7 @@ public class SubjectResource {
     public ResponseEntity<MinimalSourceDetailsDTO> assignSources(@PathVariable String login,
             @RequestBody MinimalSourceDetailsDTO sourceDto) throws URISyntaxException,
             NotAuthorizedException {
-
+        checkPermission(token, SUBJECT_UPDATE);
         // find out source type id of supplied source
         Long sourceTypeId = sourceDto.getSourceTypeId();
         if (sourceTypeId == null) {
@@ -432,8 +414,7 @@ public class SubjectResource {
         Subject sub = subjectService.findOneByLogin(login);
 
         // find the actively assigned project for this subject
-
-        Project currentProject = sub.getActiveProject()
+        Project currentProject = subjectService.checkSubjectProject(SUBJECT_UPDATE, sub, true)
                 .orElseThrow(() ->
                         new InvalidRequestException(
                                 "Requested subject does not have an active project",
@@ -448,13 +429,10 @@ public class SubjectResource {
                         SUBJECT, ERR_SOURCE_TYPE_NOT_PROVIDED)
                 );
 
-        checkPermissionOnSubject(token, SUBJECT_UPDATE, currentProject.getProjectName(),
-                sub.getUser().getLogin());
-
         // check if any of id, sourceID, sourceName were non-null
         boolean existing = Stream.of(sourceDto.getId(), sourceDto.getSourceName(),
                         sourceDto.getSourceId())
-                .map(Objects::nonNull).reduce(false, (r1, r2) -> r1 || r2);
+                .anyMatch(Objects::nonNull);
 
         // handle the source registration
         MinimalSourceDetailsDTO sourceRegistered = subjectService
@@ -462,15 +440,17 @@ public class SubjectResource {
 
         // Return the correct response type, either created if a new source was created, or ok if
         // an existing source was provided. If an existing source was given but not found, the
-        // assignOrUpdateSource would throw an error and we would not reach this point.
+        // assignOrUpdateSource would throw an error, and we would not reach this point.
         if (!existing) {
             return ResponseEntity.created(ResourceUriService.getUri(sourceRegistered))
                     .headers(HeaderUtil.createEntityCreationAlert(SOURCE,
                             sourceRegistered.getSourceName()))
                     .body(sourceRegistered);
         } else {
-            return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(SOURCE,
-                    sourceRegistered.getSourceName())).body(sourceRegistered);
+            return ResponseEntity.ok()
+                    .headers(HeaderUtil.createEntityUpdateAlert(SOURCE,
+                            sourceRegistered.getSourceName()))
+                    .body(sourceRegistered);
         }
     }
 
@@ -486,17 +466,14 @@ public class SubjectResource {
             @PathVariable String login,
             @RequestParam(value = "withInactiveSources", required = false)
                     Boolean withInactiveSourcesParam) throws NotAuthorizedException {
+        checkPermission(token, SUBJECT_READ);
 
         boolean withInactiveSources = withInactiveSourcesParam != null && withInactiveSourcesParam;
         // check the subject id
         Subject subject = subjectRepository.findOneWithEagerBySubjectLogin(login)
                 .orElseThrow(NoSuchElementException::new);
 
-        String projectName = subject.getActiveProject()
-                .map(Project::getProjectName)
-                .orElse(null);
-
-        checkPermissionOnSubject(token, SUBJECT_READ, projectName, login);
+        subjectService.checkSubjectProject(SUBJECT_READ, subject, false);
 
         if (withInactiveSources) {
             return ResponseEntity.ok(subjectService.findSubjectSourcesFromRevisions(subject));
@@ -535,16 +512,15 @@ public class SubjectResource {
     public ResponseEntity<MinimalSourceDetailsDTO> updateSubjectSource(@PathVariable String login,
             @PathVariable String sourceName, @RequestBody Map<String, String> attributes)
             throws NotFoundException, NotAuthorizedException {
+        checkPermission(token, SUBJECT_UPDATE);
+
         // check the subject id
         Subject subject = subjectRepository.findOneWithEagerBySubjectLogin(login)
                 .orElseThrow(() -> new NotFoundException("Subject ID not found",
                         SUBJECT, ERR_SUBJECT_NOT_FOUND,
                         Collections.singletonMap("subjectLogin", login)));
 
-        String projectName = subject.getActiveProject()
-                .map(Project::getProjectName)
-                .orElse(null);
-        checkPermissionOnSubject(token, SUBJECT_UPDATE, projectName, login);
+        subjectService.checkSubjectProject(SUBJECT_UPDATE, subject, false);
 
         // find source under subject
         Source source = subject.getSources().stream()
