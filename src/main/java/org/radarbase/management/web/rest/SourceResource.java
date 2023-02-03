@@ -127,7 +127,6 @@ public class SourceResource {
         if (sourceDto.getId() == null) {
             return createSource(sourceDto);
         }
-        RadarToken jwt = token;
         MinimalProjectDetailsDTO project = sourceDto.getProject();
         var projectName = project != null ? project.getProjectName() : null;
         organizationService.checkPermissionByProject(SOURCE_UPDATE, projectName);

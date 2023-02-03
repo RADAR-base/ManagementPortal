@@ -7,12 +7,9 @@ import org.radarbase.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarbase.management.service.dto.SourceDTO;
 import org.radarbase.management.service.mapper.SourceMapper;
 import org.radarbase.management.web.rest.errors.NotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -24,7 +21,6 @@ import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SOURCE
  */
 
 public abstract class SourceMapperDecorator implements SourceMapper {
-    private static final Logger logger = LoggerFactory.getLogger(SourceMapperDecorator.class);
 
     @Autowired
     @Qualifier("delegate")

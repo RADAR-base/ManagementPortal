@@ -24,8 +24,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.radarbase.auth.authorization.Permission.ORGANIZATION_READ;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
 
 /**
  * Service Implementation for managing Organization.
@@ -133,7 +131,8 @@ public class OrganizationService {
      */
     public void checkPermissionByProject(Permission permission, String projectName)
             throws NotAuthorizedException {
-        if (!token.hasPermissionOnProject(permission, projectName) && !hasPermissionOnOrganization(permission, projectName)) {
+        if (!token.hasPermissionOnProject(permission, projectName)
+                && !hasPermissionOnOrganization(permission, projectName)) {
             throw new NotAuthorizedException(String.format("Client %s does not have "
                             + "permission %s in project %s", token.getUsername(), permission,
                     projectName));
@@ -150,7 +149,8 @@ public class OrganizationService {
      */
     public void checkPermissionBySubject(Permission permission, String projectName, String subject)
             throws NotAuthorizedException {
-        if (!token.hasPermissionOnSubject(permission, projectName, subject) && !hasPermissionOnOrganization(permission, projectName)) {
+        if (!token.hasPermissionOnSubject(permission, projectName, subject)
+                && !hasPermissionOnOrganization(permission, projectName)) {
             throw new NotAuthorizedException(String.format("Client %s does not have "
                             + "permission %s on subject %s in project %s ", token.getUsername(),
                     permission, subject, projectName));
@@ -166,12 +166,14 @@ public class OrganizationService {
      * @param sourceId sourceId to check
      * @throws NotAuthorizedException if the current user is not authorized.
      */
-    public void checkPermissionBySource(Permission permission, String projectName, String subject, String sourceId)
+    public void checkPermissionBySource(Permission permission, String projectName, String subject,
+                                        String sourceId)
             throws NotAuthorizedException {
-        if (!token.hasPermissionOnSource(permission, projectName, subject, sourceId) && !hasPermissionOnOrganization(permission, projectName)) {
+        if (!token.hasPermissionOnSource(permission, projectName, subject, sourceId)
+                && !hasPermissionOnOrganization(permission, projectName)) {
             throw new NotAuthorizedException(String.format("Client %s does not have "
-                            + "permission %s on subject %s and source %s in project %s ", token.getUsername(),
-                    permission, subject, sourceId, projectName));
+                            + "permission %s on subject %s and source %s in project %s ",
+                    token.getUsername(), permission, subject, sourceId, projectName));
         }
     }
 
