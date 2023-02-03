@@ -233,7 +233,7 @@ public class SourceService {
                 ? existingSource.getSubject().getUser().getLogin()
                 : null;
 
-        organizationService.checkPermissionOnSource(SOURCE_UPDATE, project, user, existingSource.getSourceName());
+        organizationService.checkPermissionBySource(SOURCE_UPDATE, project, user, existingSource.getSourceName());
 
         // if the source is being transferred to another project.
         if (!existingSource.getProject().getId().equals(sourceDto.getProject().getId())) {
