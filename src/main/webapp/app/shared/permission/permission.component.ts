@@ -176,7 +176,14 @@ export class PermissionComponent implements OnInit, OnChanges, OnDestroy {
             let userAdded = false;
             user.roles.map(role => {
                 if (this.project) {
-                    if ( role.projectId === this.project.id || role.authorityName === 'ROLE_SYS_ADMIN') {
+                    // if ( role.projectId === this.project.id || role.authorityName === 'ROLE_SYS_ADMIN') {
+                    //     userAdded = true;
+                    //     result.authorizedUsers.push({login: user.login, authorityName: role.authorityName})
+                    // }
+                    if ( role.projectId === this.project.id ||
+                        role.organizationId === this.project.organization.id ||
+                        role.authorityName === 'ROLE_SYS_ADMIN'
+                    ) {
                         userAdded = true;
                         result.authorizedUsers.push({login: user.login, authorityName: role.authorityName})
                     }
