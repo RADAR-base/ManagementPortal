@@ -133,7 +133,7 @@ public class OrganizationService {
      */
     public void checkPermissionByProject(Permission permission, String projectName)
             throws NotAuthorizedException {
-        if (!token.hasPermissionOnProject(permission, projectName) && hasPermissionOnOrganization(permission, projectName)) {
+        if (!token.hasPermissionOnProject(permission, projectName) && !hasPermissionOnOrganization(permission, projectName)) {
             throw new NotAuthorizedException(String.format("Client %s does not have "
                             + "permission %s in project %s", token.getUsername(), permission,
                     projectName));
