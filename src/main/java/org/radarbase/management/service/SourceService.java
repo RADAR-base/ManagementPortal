@@ -212,11 +212,10 @@ public class SourceService {
      * Does not allow to transfer if new project does not have valid source-type.
      *
      * @param sourceDto source details to update.
-     * @param jwt authorization token.
      * @return updated source.
      */
     @Transactional
-    public Optional<SourceDTO> updateSource(SourceDTO sourceDto, RadarToken jwt)
+    public Optional<SourceDTO> updateSource(SourceDTO sourceDto)
             throws NotAuthorizedException {
         Optional<Source> existingSourceOpt = sourceRepository.findById(sourceDto.getId());
         if (existingSourceOpt.isEmpty()) {
@@ -230,8 +229,6 @@ public class SourceService {
                 && existingSource.getSubject().getUser() != null)
                 ? existingSource.getSubject().getUser().getLogin()
                 : null;
-
-        checkPermissionOnSource(jwt, SOURCE_UPDATE, project, user, existingSource.getSourceName());
 
         // if the source is being transferred to another project.
         if (!existingSource.getProject().getId().equals(sourceDto.getProject().getId())) {

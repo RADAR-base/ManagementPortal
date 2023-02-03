@@ -131,7 +131,7 @@ public class SourceResource {
         MinimalProjectDetailsDTO project = sourceDto.getProject();
         var projectName = project != null ? project.getProjectName() : null;
         organizationService.checkPermissionByProject(SOURCE_UPDATE, projectName);
-        Optional<SourceDTO> updatedSource = sourceService.updateSource(sourceDto, jwt);
+        Optional<SourceDTO> updatedSource = sourceService.updateSource(sourceDto);
         return wrapOrNotFound(updatedSource,
                 HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceDto.getSourceName()));
     }
