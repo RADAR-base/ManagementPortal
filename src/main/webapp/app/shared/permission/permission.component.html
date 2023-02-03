@@ -19,9 +19,14 @@
                     <td>
                         {{user.authorityName}}
                     </td>
-                    <td>
+                    <td *ngIf="project && !organization">
                         <button type="button" (click)="removeRole(user.login, user.authorityName)" class="btn btn-danger btn-sm fa fa-remove"
-                            [disabled]="user.authorityName === 'ROLE_SYS_ADMIN' || account.login === user.login">
+                            [disabled]="user.authorityName === 'ROLE_SYS_ADMIN' || user.authorityName === 'ROLE_ORGANIZATION_ADMIN' || account.login === user.login">
+                        </button>
+                    </td>
+                    <td *ngIf="!project && organization">
+                        <button type="button" (click)="removeRole(user.login, user.authorityName)" class="btn btn-danger btn-sm fa fa-remove"
+                                [disabled]="user.authorityName === 'ROLE_SYS_ADMIN' || account.login === user.login">
                         </button>
                     </td>
                 </tr>
