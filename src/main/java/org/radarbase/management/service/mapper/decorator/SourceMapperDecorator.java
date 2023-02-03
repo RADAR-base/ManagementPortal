@@ -37,11 +37,7 @@ public abstract class SourceMapperDecorator implements SourceMapper {
     private SubjectRepository subjectRepository;
 
     @Override
-    public Source descriptiveDTOToSource(MinimalSourceDetailsDTO minimalSource) {
-        List<Source> allSources = sourceRepository.findAll();
-        logger.info("Listing {} existing sources", allSources.size());
-        allSources.forEach(s -> logger.info("Existing source: {}", s.getSourceId()));
-
+    public Source minimalSourceDTOToSource(MinimalSourceDetailsDTO minimalSource) {
         Source source = sourceRepository
                 .findOneBySourceId(minimalSource.getSourceId())
                 .orElseThrow(() -> new NotFoundException(

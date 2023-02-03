@@ -43,7 +43,7 @@ public interface SourceMapper {
     @Mapping(target = "project", ignore = true)
     @Mapping(target = "subject", ignore = true)
     @Mapping(target = "deleted", constant = "false")
-    Source descriptiveDTOToSource(MinimalSourceDetailsDTO minimalSourceDetailsDto);
+    Source minimalSourceDTOToSource(MinimalSourceDetailsDTO minimalSourceDetailsDto);
 
     @Mapping(target = "subject", ignore = true)
     @Mapping(target = "deleted", constant = "false")
