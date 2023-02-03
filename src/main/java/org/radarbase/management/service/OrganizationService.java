@@ -133,13 +133,11 @@ public class OrganizationService {
      */
     public void checkPermissionByProject(Permission permission, String projectName)
             throws NotAuthorizedException {
-        if (token.hasPermissionOnProject(permission, projectName)) {
-            return;
+        if (!token.hasPermissionOnProject(permission, projectName) && hasPermissionOnOrganization(permission, projectName)) {
+            throw new NotAuthorizedException(String.format("Client %s does not have "
+                            + "permission %s in project %s", token.getUsername(), permission,
+                    projectName));
         }
-        if (hasPermissionOnOrganization(permission, projectName)) {
-            return;
-        }
-        checkPermissionOnProject(token, permission, projectName);
     }
 
     /**
@@ -152,13 +150,29 @@ public class OrganizationService {
      */
     public void checkPermissionBySubject(Permission permission, String projectName, String subject)
             throws NotAuthorizedException {
-        if (token.hasPermissionOnSubject(permission, projectName, subject)) {
-            return;
+        if (!token.hasPermissionOnSubject(permission, projectName, subject) && !hasPermissionOnOrganization(permission, projectName)) {
+            throw new NotAuthorizedException(String.format("Client %s does not have "
+                            + "permission %s on subject %s in project %s ", token.getUsername(),
+                    permission, subject, projectName));
         }
-        if (hasPermissionOnOrganization(permission, projectName)) {
-            return;
+    }
+
+    /**
+     * Checks the permission of a source, also taking into
+     * account the organization that a project belongs to.
+     * @param permission permission to check
+     * @param projectName project name to check
+     * @param subject subject login to check
+     * @param sourceId sourceId to check
+     * @throws NotAuthorizedException if the current user is not authorized.
+     */
+    public void checkPermissionBySource(Permission permission, String projectName, String subject, String sourceId)
+            throws NotAuthorizedException {
+        if (!token.hasPermissionOnSource(permission, projectName, subject, sourceId) && !hasPermissionOnOrganization(permission, projectName)) {
+            throw new NotAuthorizedException(String.format("Client %s does not have "
+                            + "permission %s on subject %s and source %s in project %s ", token.getUsername(),
+                    permission, subject, sourceId, projectName));
         }
-        checkPermissionOnSubject(token, permission, projectName, subject);
     }
 
     private boolean hasPermissionOnOrganization(Permission permission, String projectName) {

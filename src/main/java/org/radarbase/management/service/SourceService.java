@@ -55,6 +55,9 @@ public class SourceService {
     @Autowired
     private SourceTypeMapper sourceTypeMapper;
 
+    @Autowired
+    private OrganizationService organizationService;
+
     /**
      * Save a Source.
      *
@@ -229,6 +232,8 @@ public class SourceService {
                 && existingSource.getSubject().getUser() != null)
                 ? existingSource.getSubject().getUser().getLogin()
                 : null;
+
+        organizationService.checkPermissionOnSource(SOURCE_UPDATE, project, user, existingSource.getSourceName());
 
         // if the source is being transferred to another project.
         if (!existingSource.getProject().getId().equals(sourceDto.getProject().getId())) {
