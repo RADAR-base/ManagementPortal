@@ -5,7 +5,7 @@ import { BehaviorSubject, combineLatest, Observable, of, Subject, throwError } f
 import { Organization } from './organization.model';
 import { Principal } from '../auth/principal.service';
 import { AlertService } from '../util/alert.service';
-import { concatMap, delay, distinctUntilChanged, filter, first, map, retryWhen, startWith, switchMap, tap } from 'rxjs/operators';
+import { concatMap, delay, distinctUntilChanged, filter, map, retryWhen, startWith, switchMap, tap } from 'rxjs/operators';
 import { createRequestOption } from '../model/request.utils';
 
 @Injectable({ providedIn: 'root' })
@@ -128,7 +128,7 @@ export class OrganizationService {
         this._organizations$.next(nextValue);
         if (needsAuthRenewal) {
             this.principal.reset();
-        };
+        }
     }
 
     findAll(): Observable<Organization[]> {
