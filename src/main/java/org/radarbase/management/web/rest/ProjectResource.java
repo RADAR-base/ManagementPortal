@@ -161,6 +161,12 @@ public class ProjectResource {
         // they must have permissions to modify both new & old organizations
         var newOrgName = org.getName();
         var existingProject = projectService.findOne(projectDto.getId());
+
+        if (existingProject.getProjectName() != projectDto.getProjectName()) {
+            throw new BadRequestException("The project name cannot be modified.", ENTITY_NAME,
+                    ERR_VALIDATION);
+        }
+
         checkPermissionOnOrganizationAndProject(token, PROJECT_UPDATE, newOrgName,
                 existingProject.getProjectName());
 

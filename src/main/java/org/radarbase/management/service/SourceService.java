@@ -3,7 +3,6 @@ package org.radarbase.management.service;
 
 import static org.hibernate.id.IdentifierGenerator.ENTITY_NAME;
 import static org.radarbase.auth.authorization.Permission.SOURCE_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSource;
 import static org.radarbase.management.web.rest.errors.EntityName.SOURCE;
 
 import java.util.HashMap;
@@ -14,7 +13,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.radarbase.auth.exception.NotAuthorizedException;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.domain.SourceType;
 import org.radarbase.management.repository.ProjectRepository;
@@ -163,7 +161,7 @@ public class SourceService {
      * @return list of sources
      */
     public Page<MinimalSourceDetailsDTO> findAllMinimalSourceDetailsByProject(Long projectId,
-            Pageable pageable) {
+                                                                              Pageable pageable) {
         return sourceRepository.findAllSourcesByProjectId(pageable, projectId)
                 .map(sourceMapper::sourceToMinimalSourceDetailsDTO);
     }
@@ -197,7 +195,7 @@ public class SourceService {
      * @return Updated {@link MinimalSourceDetailsDTO} of source
      */
     public MinimalSourceDetailsDTO safeUpdateOfAttributes(Source sourceToUpdate,
-            Map<String, String> attributes) {
+                                                          Map<String, String> attributes) {
 
         // update source attributes
         Map<String, String> updatedAttributes = new HashMap<>();
@@ -233,7 +231,8 @@ public class SourceService {
                 ? existingSource.getSubject().getUser().getLogin()
                 : null;
 
-        organizationService.checkPermissionBySource(SOURCE_UPDATE, project, user, existingSource.getSourceName());
+        organizationService.checkPermissionBySource(SOURCE_UPDATE, project, user,
+                existingSource.getSourceName());
 
         // if the source is being transferred to another project.
         if (!existingSource.getProject().getId().equals(sourceDto.getProject().getId())) {
