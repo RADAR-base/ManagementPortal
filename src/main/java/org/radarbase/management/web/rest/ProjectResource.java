@@ -162,7 +162,7 @@ public class ProjectResource {
         var newOrgName = org.getName();
         var existingProject = projectService.findOne(projectDto.getId());
 
-        if (existingProject.getProjectName() != projectDto.getProjectName()) {
+        if (!existingProject.getProjectName().equals(projectDto.getProjectName())) {
             throw new BadRequestException("The project name cannot be modified.", ENTITY_NAME,
                     ERR_VALIDATION);
         }
