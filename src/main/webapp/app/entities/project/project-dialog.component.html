@@ -71,13 +71,17 @@
                 </small>
             </div>
         </div>
+        {{hasRoleToChangeOrganization | json}}
+        {{availableOrganizations | json}}
         <div class="form-group" *ngIf="projectCopy.organization">
             <label class="form-control-label"
                 [translate]="'managementPortalApp.project.organization'"
                 for="field_organization">
             </label>
-            <select class="form-control" name="organization" [(ngModel)]="projectCopy.organization.name" id="field_organization">
-                <option *ngFor="let organization of organizations" [ngValue]="organization.name">{{organization.name}}</option>
+
+            <select class="form-control" name="organization" [(ngModel)]="projectCopy.organization.name" id="field_organization"
+                [disabled]="!hasRoleToChangeOrganization">
+                <option *ngFor="let organization of availableOrganizations" [ngValue]="organization">{{organization}}</option>
             </select>
         </div>
         <div class="form-group">

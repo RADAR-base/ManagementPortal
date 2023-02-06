@@ -19,7 +19,7 @@ import { EventManager } from '../../shared/util/event-manager.service';
 import { SourceType, SourceTypeService } from '../source-type';
 import { ProjectPopupService } from './project-popup.service';
 
-import {GroupService, Organization, OrganizationService, Project, ProjectService} from '../../shared';
+import {GroupService, Organization, OrganizationService, Principal, Project, ProjectService} from '../../shared';
 import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
 
 @Component({
@@ -49,6 +49,9 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
     @ViewChild('instance', {static: true}) instance: NgbTypeahead;
     focus$ = new Subject<string>();
     click$ = new Subject<string>();
+
+    availableOrganizations: string[];
+    hasRoleToChangeOrganization: boolean = false;
 
     getMatchingSourceTypes: OperatorFunction<string, SourceType[]> = (text$: Observable<string>) => {
         const debouncedText$ = text$.pipe(debounceTime(200), distinctUntilChanged());
@@ -89,6 +92,7 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
             private calendar: NgbCalendar,
             public formatter: NgbDateParserFormatter,
             private router: Router,
+            public principal: Principal,
     ) {
         this.isSaving = false;
         this.options = ['Work-package', 'Phase', 'External-project-url', 'External-project-id', 'Privacy-policy-url'];
@@ -107,6 +111,25 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
             this.endDate = this.formatter.parse(this.projectCopy.endDate.toString());
         }
         this.subscriptions.add(this.registerChangesToAttributes());
+
+        const principalSubscription = this.principal.account$.subscribe(account => {
+            const isSysAdmin = account.roles.find(role => role.authorityName === 'ROLE_SYS_ADMIN')
+            if(isSysAdmin){
+                this.hasRoleToChangeOrganization = true;
+                this.availableOrganizations = this.organizations.map(o => o.name)
+            } else {
+                this.hasRoleToChangeOrganization = !!account.roles.find(role => role.organizationName === this.organizationName)
+                if(this.hasRoleToChangeOrganization){
+                    this.availableOrganizations = account.roles
+                        .filter(role => role.authorityName === "ROLE_ORGANIZATION_ADMIN")
+                        .map(role => role.organizationName)
+                } else {
+                    this.availableOrganizations = this.organizations.map(o => o.name)
+                }
+            }
+        })
+
+        this.subscriptions.add(principalSubscription);
     }
 
     ngOnDestroy() {
