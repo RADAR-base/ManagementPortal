@@ -20,7 +20,10 @@
                 for="field_projectName">
             </label>
             <input type="text" class="form-control" name="projectName" id="field_projectName"
-                [(ngModel)]="projectCopy.projectName" required pattern="[_'.@A-Za-z0-9- ]*" />
+                [(ngModel)]="projectCopy.projectName" [readOnly]="projectCopy.id" required pattern="[_'.@A-Za-z0-9- ]*" />
+            <small *ngIf="!projectCopy.id" id="projectIdWarning" class="form-text bold-warn"
+                   [translate]="'managementPortalApp.project.projectName.fieldWarning'">
+            </small>
             <small id="projectIdHelp" class="form-text text-muted"
                 [translate]="'managementPortalApp.project.projectName.fieldDescription'">
             </small>

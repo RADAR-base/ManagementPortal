@@ -20,7 +20,10 @@
                 for="field_organizationName">
             </label>
             <input type="text" class="form-control" name="organizationName" id="field_organizationName"
-                [(ngModel)]="organization.name" required pattern="[_'.@A-Za-z0-9- ]*" />
+                [(ngModel)]="organization.name" [readOnly]="organization.id" required pattern="[_'.@A-Za-z0-9- ]*" />
+            <small *ngIf="!organization.id" id="organizationIdWarning" class="form-text bold-warn"
+                   [translate]="'managementPortalApp.organization.organizationName.fieldWarning'">
+            </small>
             <small id="organizationIdHelp" class="form-text text-muted"
                 [translate]="'managementPortalApp.organization.organizationName.fieldDescription'">
             </small>

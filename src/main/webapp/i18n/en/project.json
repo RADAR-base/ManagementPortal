@@ -16,6 +16,7 @@
                 "title": "Project"
             },
             "projectName": "Project Id",
+            "projectName.fieldWarning": "This field is not editable after creation.",
             "projectName.fieldDescription": "Unique identifier of project",
             "description": "Description",
             "organization": "Organization",
