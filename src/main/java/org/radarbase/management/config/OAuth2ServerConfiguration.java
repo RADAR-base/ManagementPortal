@@ -121,6 +121,8 @@ public class OAuth2ServerConfiguration {
                     keyStoreHandler.getTokenValidator(), authenticationManager, userRepository
             )
                     .skipUrlPattern(HttpMethod.GET, "/management/health")
+                    .skipUrlPattern(HttpMethod.GET, "/css/oauth.css")
+                    .skipUrlPattern(HttpMethod.GET, "/radar-baseRR.png")
                     .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*");
         }
 
