@@ -9,11 +9,17 @@
 
 package org.radarbase.management.client
 
+import com.fasterxml.jackson.databind.deser.DataFormatReaders.Match
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.matching.ContentPattern
+import com.github.tomakehurst.wiremock.matching.EqualToPattern
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.apache.http.entity.ContentType
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers
@@ -22,6 +28,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.radarbase.management.auth.ClientCredentialsConfig
+import org.radarbase.management.auth.MPOAuth2AccessToken
 import org.radarbase.management.auth.clientCredentials
 import org.slf4j.LoggerFactory
 import java.net.HttpURLConnection.HTTP_OK
@@ -29,6 +36,7 @@ import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MPClientTest {
+    private lateinit var authStub: StubMapping
     private lateinit var wireMockServer: WireMockServer
     private lateinit var client: MPClient
 
@@ -42,7 +50,7 @@ class MPClientTest {
                 .willReturn(aResponse()
                     .withStatus(HTTP_UNAUTHORIZED)))
 
-        wireMockServer.stubFor(
+        authStub = wireMockServer.stubFor(
             post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                     .withStatus(HTTP_OK)
@@ -51,18 +59,14 @@ class MPClientTest {
 
         client = mpClient {
             url = "http://localhost:9090/"
-            auth { emit ->
+            auth {
                 clientCredentials(
                     authConfig = ClientCredentialsConfig(
                         tokenUrl = "http://localhost:9090/oauth/token",
-                        clientId = "test",
-                        clientSecret = "test",
+                        clientId = "testId",
+                        clientSecret = "testSecret",
                     ),
                     targetHost = "localhost",
-                    emit = {
-                        logger.info("Got new token: {}", it)
-                        emit(it)
-                    }
                 )
             }
         }
@@ -112,6 +116,7 @@ class MPClientTest {
                     .withBody(body)))
 
         val clients = client.requestClients()
+
         assertThat(clients, hasSize(2))
         assertThat(clients, Matchers.equalTo(listOf(
             MPOAuthClient(
@@ -140,8 +145,26 @@ class MPClientTest {
             )
         )))
 
-        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/oauth/token")))
+        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/oauth/token"))
+            .withRequestBody(EqualToPattern("grant_type=client_credentials&client_id=testId&client_secret=testSecret")))
         wireMockServer.verify(2, getRequestedFor(urlPathEqualTo("/api/oauth-clients")))
+    }
+
+    @Test
+    fun testParseToken() {
+        val json = Json {
+            ignoreUnknownKeys = true
+            coerceInputValues = true
+        }
+
+        val token = json.decodeFromString<MPOAuth2AccessToken?>("""{"access_token":"access token","token_type":"bearer","expires_in":899,"scope":"PROJECT.READ","iss":"ManagementPortal","grant_type":"client_credentials","iat":1600000000,"jti":"some token"}""")
+        assertThat(token, Matchers.equalTo(
+            MPOAuth2AccessToken(
+                accessToken = "access token",
+                expiresIn = 899,
+                tokenType = "bearer",
+            )
+        ))
     }
 
     @Test

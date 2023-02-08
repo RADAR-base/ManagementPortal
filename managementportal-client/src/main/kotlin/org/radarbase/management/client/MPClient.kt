@@ -38,9 +38,7 @@ fun mpClient(config: MPClient.Config.() -> Unit): MPClient {
  */
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 class MPClient(config: Config) {
-    private val _token: MutableStateFlow<MPOAuth2AccessToken?> = MutableStateFlow(null)
-
-    val token: Flow<MPOAuth2AccessToken?> = _token
+    lateinit var token: Flow<MPOAuth2AccessToken?>
 
     private val url: String = requireNotNull(config.url) {
         "Missing server URL"
@@ -48,7 +46,7 @@ class MPClient(config: Config) {
 
             /** HTTP client to make requests with. */
     private val originalHttpClient: HttpClient? = config.httpClient
-    private val auth: Auth.(suspend (MPOAuth2AccessToken?) -> Unit) -> Unit = config.auth
+    private val auth: Auth.() -> Flow<MPOAuth2AccessToken?> = config.auth
 
     val httpClient = (originalHttpClient ?: HttpClient(CIO)).config {
         install(HttpTimeout) {
@@ -63,7 +61,7 @@ class MPClient(config: Config) {
             })
         }
         install(Auth) {
-            auth(_token::emit)
+            token = auth()
         }
         defaultRequest {
             url(this@MPClient.url)
@@ -149,14 +147,14 @@ class MPClient(config: Config) {
     }
 
     class Config {
-        internal var auth: Auth.(suspend (MPOAuth2AccessToken?) -> Unit) -> Unit = {}
+        internal var auth: Auth.() -> Flow<MPOAuth2AccessToken?> = { MutableStateFlow(null) }
 
         /** HTTP client to make requests with. */
         var httpClient: HttpClient? = null
 
         var url: String? = null
 
-        fun auth(install: Auth.(suspend (MPOAuth2AccessToken?) -> Unit) -> Unit) {
+        fun auth(install: Auth.() -> Flow<MPOAuth2AccessToken?>) {
             auth = install
         }
 

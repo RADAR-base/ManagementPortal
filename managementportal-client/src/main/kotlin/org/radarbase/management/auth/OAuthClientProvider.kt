@@ -12,6 +12,13 @@ import io.ktor.http.*
 import io.ktor.http.auth.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.util.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import org.slf4j.LoggerFactory
+
+private val logger = LoggerFactory.getLogger(Auth::class.java)
 
 /**
  * Installs the client's [BearerAuthProvider].
@@ -25,10 +32,10 @@ fun Auth.clientCredentials(block: ClientCredentialsAuthConfig.() -> Unit) {
 fun Auth.clientCredentials(
     authConfig: ClientCredentialsConfig,
     targetHost: String? = null,
-    emit: suspend (MPOAuth2AccessToken?) -> Unit = {},
-) {
+): Flow<MPOAuth2AccessToken?> {
     requireNotNull(authConfig.clientId) { "Missing client ID" }
     requireNotNull(authConfig.clientSecret) { "Missing client secret"}
+    val flow = MutableStateFlow<MPOAuth2AccessToken?>(null)
 
     clientCredentials {
         if (targetHost != null) {
@@ -37,19 +44,29 @@ fun Auth.clientCredentials(
             }
         }
         requestToken {
-            val refreshTokenInfo: MPOAuth2AccessToken = client.submitForm {
-                url(authConfig.tokenUrl)
-                formData {
+            val response = client.submitForm(
+                url = authConfig.tokenUrl,
+                formParameters = Parameters.build {
                     append("grant_type", "client_credentials")
                     append("client_id", authConfig.clientId)
                     append("client_secret", authConfig.clientSecret)
                 }
+            ) {
+                accept(ContentType.Application.Json)
                 markAsRequestTokenRequest()
-            }.body()
-            emit(refreshTokenInfo)
+            }
+            val refreshTokenInfo: MPOAuth2AccessToken? = if (!response.status.isSuccess()) {
+                logger.error("Failed to fetch new token: {}", response.bodyAsText())
+                null
+            } else {
+                response.body<MPOAuth2AccessToken>()
+            }
+            flow.value = refreshTokenInfo
             refreshTokenInfo
         }
     }
+
+    return flow
 }
 
 /**

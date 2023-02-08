@@ -9,8 +9,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
  * See the file LICENSE in the root of this repository.
  */
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version "1.7.22"
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.7.22'
+    id 'org.jetbrains.kotlin.jvm' version "1.8.10"
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
     id 'org.jetbrains.dokka' version "1.7.20"
     id 'maven-publish'
 }
@@ -21,13 +21,13 @@ targetCompatibility = JavaVersion.VERSION_11
 description = "Kotlin ManagementPortal client"
 
 dependencies {
-    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.22")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.22")
+    api("org.jetbrains.kotlin:kotlin-stdlib:1.8.10")
+    api(platform('io.ktor:ktor-bom:2.2.3'))
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.10")
 
     api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version"))
-    api(platform("io.ktor:ktor-bom:$ktor_version"))
     api("io.ktor:ktor-client-core")
-    implementation("io.ktor:ktor-client-auth")
+    api("io.ktor:ktor-client-auth")
     implementation("io.ktor:ktor-client-cio")
     implementation("io.ktor:ktor-client-content-negotiation")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
