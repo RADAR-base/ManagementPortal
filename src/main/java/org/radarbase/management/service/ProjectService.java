@@ -1,7 +1,5 @@
 package org.radarbase.management.service;
 
-import org.radarbase.auth.authorization.RoleAuthority;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.SourceType;
 import org.radarbase.management.repository.ProjectRepository;
@@ -15,13 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.radarbase.auth.authorization.Permission.PROJECT_READ;
 import static org.radarbase.management.web.rest.errors.EntityName.PROJECT;
@@ -45,7 +43,7 @@ public class ProjectService {
     private SourceTypeMapper sourceTypeMapper;
 
     @Autowired
-    private RadarToken token;
+    private AuthService authService;
 
 
     /**
@@ -70,19 +68,14 @@ public class ProjectService {
     public Page<?> findAll(Boolean fetchMinimal, Pageable pageable) {
         Page<Project> projects;
 
-        if (token.hasGlobalPermission(PROJECT_READ)) {
+        var referents = authService.referentsByScope(PROJECT_READ);
+        if (referents.isEmpty()) {
+            projects = new PageImpl<>(List.of());
+        } else if (referents.getGlobal()) {
             projects = projectRepository.findAllWithEagerRelationships(pageable);
         } else {
-            List<String> projectNames = token.getReferentsWithPermission(
-                    RoleAuthority.Scope.PROJECT, PROJECT_READ)
-                    .collect(Collectors.toList());
-
-            List<String> organizationNames = token.getReferentsWithPermission(
-                    RoleAuthority.Scope.ORGANIZATION, PROJECT_READ)
-                    .collect(Collectors.toList());
-
             projects = projectRepository.findAllWithEagerRelationshipsInOrganizationsOrProjects(
-                     pageable, organizationNames, projectNames);
+                     pageable, referents.getOrganizations(), referents.getProjects());
         }
 
         if (!fetchMinimal) {

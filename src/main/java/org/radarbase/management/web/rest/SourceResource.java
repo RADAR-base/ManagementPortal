@@ -1,11 +1,11 @@
 package org.radarbase.management.web.rest;
 
 import io.micrometer.core.annotation.Timed;
-import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.repository.SourceRepository;
+import org.radarbase.management.security.Constants;
+import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.SourceService;
 import org.radarbase.management.service.dto.MinimalProjectDetailsDTO;
@@ -38,16 +38,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN;
 import static org.radarbase.auth.authorization.Permission.SOURCE_CREATE;
 import static org.radarbase.auth.authorization.Permission.SOURCE_DELETE;
 import static org.radarbase.auth.authorization.Permission.SOURCE_READ;
 import static org.radarbase.auth.authorization.Permission.SOURCE_UPDATE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkAuthorityAndPermission;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSource;
 import static tech.jhipster.web.util.ResponseUtil.wrapOrNotFound;
 
 /**
@@ -68,7 +63,7 @@ public class SourceResource {
     private SourceRepository sourceRepository;
 
     @Autowired
-    private RadarToken token;
+    private AuthService authService;
 
     /**
      * POST  /sources : Create a new source.
@@ -84,8 +79,11 @@ public class SourceResource {
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Source : {}", sourceDto);
         MinimalProjectDetailsDTO project = sourceDto.getProject();
-        String projectName = project != null ? project.getProjectName() : null;
-        checkPermissionOnProject(token, SOURCE_CREATE, projectName);
+        authService.checkPermission(SOURCE_CREATE, e -> {
+            if (project != null) {
+                e.project(project.getProjectName());
+            }
+        });
         if (sourceDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,
                     "idexists", "A new source cannot already have an ID")).build();
@@ -125,11 +123,13 @@ public class SourceResource {
         if (sourceDto.getId() == null) {
             return createSource(sourceDto);
         }
-        RadarToken jwt = token;
         MinimalProjectDetailsDTO project = sourceDto.getProject();
-        String projectName = project != null ? project.getProjectName() : null;
-        checkPermissionOnProject(jwt, SOURCE_UPDATE, projectName);
-        Optional<SourceDTO> updatedSource = sourceService.updateSource(sourceDto, jwt);
+        authService.checkPermission(SOURCE_UPDATE, e -> {
+            if (project != null) {
+                e.project(project.getProjectName());
+            }
+        });
+        Optional<SourceDTO> updatedSource = sourceService.updateSource(sourceDto);
         return wrapOrNotFound(updatedSource,
                 HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sourceDto.getSourceName()));
     }
@@ -144,7 +144,7 @@ public class SourceResource {
     public ResponseEntity<List<SourceDTO>> getAllSources(
             @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable)
             throws NotAuthorizedException {
-        checkAuthorityAndPermission(token, SYS_ADMIN, SUBJECT_READ);
+        authService.checkPermission(SUBJECT_READ);
         log.debug("REST request to get all Sources");
         Page<SourceDTO> page = sourceService.findAll(pageable);
         HttpHeaders headers = PaginationUtil
@@ -164,15 +164,17 @@ public class SourceResource {
     public ResponseEntity<SourceDTO> getSource(@PathVariable String sourceName)
             throws NotAuthorizedException {
         log.debug("REST request to get Source : {}", sourceName);
-        checkPermission(token, SOURCE_READ);
+        authService.checkScope(SOURCE_READ);
         Optional<SourceDTO> sourceOpt = sourceService.findOneByName(sourceName);
         if (sourceOpt.isPresent()) {
             SourceDTO source = sourceOpt.get();
-            String projectName = source.getProject() != null
-                    ? source.getProject().getProjectName()
-                    : null;
-            checkPermissionOnSource(token, SOURCE_READ, projectName, source.getSubjectLogin(),
-                    source.getSourceName());
+            authService.checkPermission(SOURCE_READ, e -> {
+                if (source.getProject() != null) {
+                    e.project(source.getProject().getProjectName());
+                }
+                e.subject(source.getSubjectLogin());
+                e.source(source.getSourceName());
+            });
         }
         return wrapOrNotFound(sourceOpt);
     }
@@ -188,18 +190,19 @@ public class SourceResource {
     public ResponseEntity<Void> deleteSource(@PathVariable String sourceName)
             throws NotAuthorizedException {
         log.debug("REST request to delete Source : {}", sourceName);
-        RadarToken jwt = token;
-        checkPermission(jwt, SOURCE_DELETE);
+        authService.checkScope(SOURCE_DELETE);
         Optional<SourceDTO> sourceDtoOpt = sourceService.findOneByName(sourceName);
         if (sourceDtoOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         SourceDTO sourceDto = sourceDtoOpt.get();
-        String projectName = sourceDto.getProject() != null
-                ? sourceDto.getProject().getProjectName()
-                : null;
-        checkPermissionOnSource(jwt, SOURCE_DELETE, projectName, sourceDto.getSubjectLogin(),
-                sourceDto.getSourceName());
+        authService.checkPermission(SOURCE_DELETE, e -> {
+            if (sourceDto.getProject() != null) {
+                e.project(sourceDto.getProject().getProjectName());
+            }
+            e.subject(sourceDto.getSubjectLogin())
+                    .source(sourceDto.getSourceName());
+        });
 
         if (sourceDto.getAssigned()) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME,

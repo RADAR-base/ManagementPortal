@@ -1,27 +1,12 @@
 package org.radarbase.management.web.rest;
 
-import static org.radarbase.auth.authorization.Permission.OAUTHCLIENTS_CREATE;
-import static org.radarbase.auth.authorization.Permission.OAUTHCLIENTS_DELETE;
-import static org.radarbase.auth.authorization.Permission.OAUTHCLIENTS_READ;
-import static org.radarbase.auth.authorization.Permission.OAUTHCLIENTS_UPDATE;
-import static org.radarbase.auth.authorization.Permission.SUBJECT_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
-import static org.radarbase.management.service.OAuthClientService.checkProtected;
-import static org.radarbase.management.web.rest.errors.EntityName.OAUTH_CLIENT;
-
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.util.List;
-import javax.validation.Valid;
-
 import io.micrometer.core.annotation.Timed;
-import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.domain.User;
+import org.radarbase.management.security.Constants;
+import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.MetaTokenService;
 import org.radarbase.management.service.OAuthClientService;
 import org.radarbase.management.service.ResourceUriService;
@@ -30,6 +15,7 @@ import org.radarbase.management.service.UserService;
 import org.radarbase.management.service.dto.ClientDetailsDTO;
 import org.radarbase.management.service.dto.ClientPairInfoDTO;
 import org.radarbase.management.service.mapper.ClientDetailsMapper;
+import org.radarbase.management.web.rest.errors.NotFoundException;
 import org.radarbase.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +35,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.util.List;
+
+import static org.radarbase.auth.authorization.Permission.OAUTHCLIENTS_CREATE;
+import static org.radarbase.auth.authorization.Permission.OAUTHCLIENTS_DELETE;
+import static org.radarbase.auth.authorization.Permission.OAUTHCLIENTS_READ;
+import static org.radarbase.auth.authorization.Permission.OAUTHCLIENTS_UPDATE;
+import static org.radarbase.auth.authorization.Permission.SUBJECT_UPDATE;
+import static org.radarbase.management.service.OAuthClientService.checkProtected;
+import static org.radarbase.management.web.rest.errors.EntityName.OAUTH_CLIENT;
+import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SUBJECT_NOT_FOUND;
 
 /**
  * Created by dverbeec on 5/09/2017.
@@ -79,7 +80,7 @@ public class OAuthClientsResource {
     private AuditEventRepository eventRepository;
 
     @Autowired
-    private RadarToken token;
+    private AuthService authService;
 
     /**
      * GET /api/oauth-clients.
@@ -91,7 +92,7 @@ public class OAuthClientsResource {
     @GetMapping("/oauth-clients")
     @Timed
     public ResponseEntity<List<ClientDetailsDTO>> getOAuthClients() throws NotAuthorizedException {
-        checkPermission(token, OAUTHCLIENTS_READ);
+        authService.checkPermission(OAUTHCLIENTS_READ);
         return ResponseEntity.ok().body(clientDetailsMapper
                 .clientDetailsToClientDetailsDTO(oAuthClientService.findAllOAuthClients()));
     }
@@ -108,7 +109,7 @@ public class OAuthClientsResource {
     @Timed
     public ResponseEntity<ClientDetailsDTO> getOAuthClientById(@PathVariable("id") String id)
             throws NotAuthorizedException {
-        checkPermission(token, OAUTHCLIENTS_READ);
+        authService.checkPermission(OAUTHCLIENTS_READ);
         // getOAuthClient checks if the id exists
         return ResponseEntity.ok().body(clientDetailsMapper
                 .clientDetailsToClientDetailsDTO(oAuthClientService.findOneByClientId(id)));
@@ -126,7 +127,7 @@ public class OAuthClientsResource {
     @Timed
     public ResponseEntity<ClientDetailsDTO> updateOAuthClient(@Valid @RequestBody ClientDetailsDTO
             clientDetailsDto) throws NotAuthorizedException {
-        checkPermission(token, OAUTHCLIENTS_UPDATE);
+        authService.checkPermission(OAUTHCLIENTS_UPDATE);
         // getOAuthClient checks if the id exists
         checkProtected(oAuthClientService.findOneByClientId(clientDetailsDto.getClientId()));
 
@@ -149,7 +150,7 @@ public class OAuthClientsResource {
     @Timed
     public ResponseEntity<Void> deleteOAuthClient(@PathVariable String id)
             throws NotAuthorizedException {
-        checkPermission(token, OAUTHCLIENTS_DELETE);
+        authService.checkPermission(OAUTHCLIENTS_DELETE);
         // getOAuthClient checks if the id exists
         checkProtected(oAuthClientService.findOneByClientId(id));
         oAuthClientService.deleteClientDetails(id);
@@ -170,7 +171,7 @@ public class OAuthClientsResource {
     @Timed
     public ResponseEntity<ClientDetailsDTO> createOAuthClient(@Valid @RequestBody ClientDetailsDTO
             clientDetailsDto) throws URISyntaxException, NotAuthorizedException {
-        checkPermission(token, OAUTHCLIENTS_CREATE);
+        authService.checkPermission(OAUTHCLIENTS_CREATE);
         ClientDetails created = oAuthClientService.createClientDetail(clientDetailsDto);
         return ResponseEntity.created(ResourceUriService.getUri(clientDetailsDto))
                 .headers(HeaderUtil.createEntityCreationAlert(OAUTH_CLIENT, created.getClientId()))
@@ -194,6 +195,7 @@ public class OAuthClientsResource {
             @RequestParam(value = "clientId") String clientId,
             @RequestParam(value = "persistent", defaultValue = "false") Boolean persistent)
             throws NotAuthorizedException, URISyntaxException, MalformedURLException {
+        authService.checkScope(SUBJECT_UPDATE);
         User currentUser = userService.getUserWithAuthorities();
         if (currentUser == null) {
             // We only allow this for actual logged in users for now, not for client_credentials
@@ -204,10 +206,12 @@ public class OAuthClientsResource {
         Subject subject = subjectService.findOneByLogin(login);
         String project = subject.getActiveProject()
                 .map(Project::getProjectName)
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException(
+                        "Project for subject " + login + " not found", SUBJECT,
+                        ERR_SUBJECT_NOT_FOUND));
 
         // Users who can update a subject can also generate a refresh token for that subject
-        checkPermissionOnSubject(token, SUBJECT_UPDATE, project, login);
+        authService.checkPermission(SUBJECT_UPDATE, e -> e.project(project).subject(login));
 
         ClientPairInfoDTO cpi = metaTokenService.createMetaToken(subject, clientId, persistent);
         // generate audit event

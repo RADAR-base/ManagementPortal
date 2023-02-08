@@ -4,14 +4,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
-import org.radarbase.auth.token.RadarToken;
+import org.radarbase.auth.authentication.OAuthHelper;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.config.audit.AuditEventConverter;
 import org.radarbase.management.domain.PersistentAuditEvent;
 import org.radarbase.management.repository.PersistenceAuditEventRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
 import org.radarbase.management.service.AuditEventService;
-import org.radarbase.auth.authentication.OAuthHelper;
+import org.radarbase.management.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -67,12 +67,11 @@ class AuditResourceIntTest {
     @Autowired
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
-    @Autowired
-    private RadarToken radarToken;
-
     private PersistentAuditEvent auditEvent;
 
     private MockMvc restAuditMockMvc;
+    @Autowired
+    private AuthService authService;
 
     @BeforeEach
     public void setUp() throws ServletException {
@@ -83,7 +82,7 @@ class AuditResourceIntTest {
         ReflectionTestUtils.setField(auditEventService, "auditEventConverter", auditEventConverter);
         AuditResource auditResource = new AuditResource();
         ReflectionTestUtils.setField(auditResource, "auditEventService", auditEventService);
-        ReflectionTestUtils.setField(auditResource, "token", radarToken);
+        ReflectionTestUtils.setField(auditResource, "authService", authService);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());

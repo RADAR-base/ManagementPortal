@@ -1,21 +1,5 @@
 package org.radarbase.management.web.rest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.radarbase.management.security.JwtAuthenticationFilter.TOKEN_ATTRIBUTE;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +13,7 @@ import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.security.RadarAuthentication;
+import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.MailService;
 import org.radarbase.management.service.UserService;
 import org.radarbase.management.service.dto.RoleDTO;
@@ -43,6 +28,22 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.radarbase.management.security.JwtAuthenticationFilter.TOKEN_ATTRIBUTE;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Test class for the AccountResource REST controller.
@@ -73,6 +74,9 @@ class AccountResourceIntTest {
     @Autowired
     private RadarToken radarToken;
 
+    @Autowired
+    private AuthService authService;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -84,12 +88,14 @@ class AccountResourceIntTest {
         ReflectionTestUtils.setField(accountResource, "userService", userService);
         ReflectionTestUtils.setField(accountResource, "userMapper", userMapper);
         ReflectionTestUtils.setField(accountResource, "mailService", mockMailService);
+        ReflectionTestUtils.setField(accountResource, "authService", authService);
         ReflectionTestUtils.setField(accountResource, "token", radarToken);
 
         AccountResource accountUserMockResource = new AccountResource();
         ReflectionTestUtils.setField(accountUserMockResource, "userService", mockUserService);
         ReflectionTestUtils.setField(accountUserMockResource, "userMapper", userMapper);
         ReflectionTestUtils.setField(accountUserMockResource, "mailService", mockMailService);
+        ReflectionTestUtils.setField(accountUserMockResource, "authService", authService);
         ReflectionTestUtils.setField(accountUserMockResource, "token", radarToken);
 
         this.restUserMockMvc = MockMvcBuilders.standaloneSetup(accountUserMockResource).build();
@@ -114,7 +120,7 @@ class AccountResourceIntTest {
         Set<org.radarbase.management.domain.Role> roles = new HashSet<>();
         org.radarbase.management.domain.Role role = new org.radarbase.management.domain.Role();
         Authority authority = new Authority();
-        authority.setName(RoleAuthority.SYS_ADMIN.authority());
+        authority.setName(RoleAuthority.SYS_ADMIN.getAuthority());
         role.setAuthority(authority);
         roles.add(role);
 
@@ -142,7 +148,7 @@ class AccountResourceIntTest {
                 .andExpect(jsonPath("$.email").value("john.doe@jhipster.com"))
                 .andExpect(jsonPath("$.langKey").value("en"))
                 .andExpect(jsonPath("$.authorities").value(
-                        RoleAuthority.SYS_ADMIN.authority()));
+                        RoleAuthority.SYS_ADMIN.getAuthority()));
     }
 
     @Test
@@ -150,7 +156,7 @@ class AccountResourceIntTest {
         Set<org.radarbase.management.domain.Role> roles = new HashSet<>();
         org.radarbase.management.domain.Role role = new org.radarbase.management.domain.Role();
         Authority authority = new Authority();
-        authority.setName(RoleAuthority.SYS_ADMIN.authority());
+        authority.setName(RoleAuthority.SYS_ADMIN.getAuthority());
         role.setAuthority(authority);
         roles.add(role);
 
@@ -173,7 +179,7 @@ class AccountResourceIntTest {
                 .andExpect(jsonPath("$.email").value("john.doe@jhipster.com"))
                 .andExpect(jsonPath("$.langKey").value("en"))
                 .andExpect(jsonPath("$.authorities").value(
-                        RoleAuthority.SYS_ADMIN.authority()));
+                        RoleAuthority.SYS_ADMIN.getAuthority()));
     }
 
     @Test
@@ -190,7 +196,7 @@ class AccountResourceIntTest {
     void testSaveInvalidLogin() throws Exception {
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(RoleAuthority.PARTICIPANT.authority());
+        role.setAuthorityName(RoleAuthority.PARTICIPANT.getAuthority());
         roles.add(role);
 
         UserDTO invalidUser = new UserDTO();

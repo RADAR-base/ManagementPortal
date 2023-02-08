@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 /*
@@ -9,9 +11,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
  * See the file LICENSE in the root of this repository.
  */
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version "1.8.10"
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
-    id 'org.jetbrains.dokka' version "1.7.20"
+    id 'org.jetbrains.kotlin.jvm'
+    id 'org.jetbrains.kotlin.plugin.serialization'
+    id 'org.jetbrains.dokka'
     id 'maven-publish'
 }
 
@@ -42,17 +44,18 @@ dependencies {
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit_version
 }
 
-tasks.withType(KotlinCompile) {
-    kotlinOptions {
-        jvmTarget = "11"
-        apiVersion = "1.7"
-        languageVersion = "1.7"
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_11
+        apiVersion = KotlinVersion.KOTLIN_1_8
+        languageVersion = KotlinVersion.KOTLIN_1_8
     }
 }
 
-task ghPagesJavadoc(type: Copy, dependsOn: dokkaJavadoc) {
+tasks.register('ghPagesJavadoc', Copy) {
     from file("$buildDir/dokka/javadoc")
     into file("$rootDir/public/managementportal-client-javadoc")
+    dependsOn(dokkaJavadoc)
 }
 
 test {

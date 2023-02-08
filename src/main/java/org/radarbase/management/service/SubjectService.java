@@ -168,10 +168,11 @@ public class SubjectService {
      */
     private Role getProjectParticipantRole(Project project, RoleAuthority authority) {
         return roleRepository.findOneByProjectIdAndAuthorityName(project.getId(),
-                        authority.authority())
+                        authority.getAuthority())
                 .orElseGet(() -> {
                     Role subjectRole = new Role();
-                    Authority auth = authorityRepository.findByAuthorityName(authority.authority())
+                    Authority auth = authorityRepository.findByAuthorityName(
+                            authority.getAuthority())
                             .orElseGet(() -> authorityRepository.save(new Authority(authority)));
                     subjectRole.setAuthority(auth);
                     subjectRole.setProject(project);
@@ -219,7 +220,7 @@ public class SubjectService {
         Stream<Role> existingRoles = subject.getUser().getRoles().stream()
                 .map(role -> {
                     // make participant inactive in projects that do not match the new project
-                    if (role.getAuthority().getName().equals(PARTICIPANT.authority())
+                    if (role.getAuthority().getName().equals(PARTICIPANT.getAuthority())
                             && !role.getProject().getProjectName().equals(
                                     subjectDto.getProject().getProjectName())) {
                         return getProjectParticipantRole(role.getProject(), INACTIVE_PARTICIPANT);

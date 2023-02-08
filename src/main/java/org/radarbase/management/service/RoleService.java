@@ -87,15 +87,15 @@ public class RoleService {
         List<String> currentUserAuthorities = currentUser.getAuthorities().stream()
                 .map(Authority::getName).collect(Collectors.toList());
 
-        if (currentUserAuthorities.contains(RoleAuthority.SYS_ADMIN.authority())) {
+        if (currentUserAuthorities.contains(RoleAuthority.SYS_ADMIN.getAuthority())) {
             log.debug("Request to get all Roles");
             return roleRepository.findAll().stream()
                     .map(roleMapper::roleToRoleDTO)
                     .collect(Collectors.toList());
-        } else if (currentUserAuthorities.contains(RoleAuthority.PROJECT_ADMIN.authority())) {
+        } else if (currentUserAuthorities.contains(RoleAuthority.PROJECT_ADMIN.getAuthority())) {
             log.debug("Request to get project admin's project Projects");
             return currentUser.getRoles().stream()
-                    .filter(role -> RoleAuthority.PROJECT_ADMIN.authority()
+                    .filter(role -> RoleAuthority.PROJECT_ADMIN.getAuthority()
                             .equals(role.getAuthority().getName()))
                     .map(r -> r.getProject().getProjectName())
                     .distinct()
@@ -117,7 +117,7 @@ public class RoleService {
         log.debug("Request to get admin Roles");
 
         return roleRepository
-                .findRolesByAuthorityName(RoleAuthority.SYS_ADMIN.authority()).stream()
+                .findRolesByAuthorityName(RoleAuthority.SYS_ADMIN.getAuthority()).stream()
                 .map(roleMapper::roleToRoleDTO)
                 .collect(Collectors.toCollection(LinkedList::new));
     }
@@ -162,14 +162,14 @@ public class RoleService {
                     Collections.singletonMap("authorityName",
                             roleDto.getAuthorityName()));
         }
-        if (authority.scope() == RoleAuthority.Scope.ORGANIZATION
+        if (authority.getScope() == RoleAuthority.Scope.ORGANIZATION
                 && roleDto.getOrganizationId() == null) {
             throw new BadRequestException("Authority with "
                     + "authorityName should have organization ID",
                     USER, ErrorConstants.ERR_INVALID_AUTHORITY,
                     Collections.singletonMap("authorityName", roleDto.getAuthorityName()));
         }
-        if (authority.scope() == RoleAuthority.Scope.PROJECT
+        if (authority.getScope() == RoleAuthority.Scope.PROJECT
                 && roleDto.getProjectId() == null) {
             throw new BadRequestException("Authority with "
                     + "authorityName should have project ID",
@@ -185,7 +185,7 @@ public class RoleService {
      * @return role from database
      */
     public Role getGlobalRole(RoleAuthority role) {
-        return roleRepository.findRolesByAuthorityName(role.authority()).stream()
+        return roleRepository.findRolesByAuthorityName(role.getAuthority()).stream()
                 .findAny()
                 .orElseGet(() -> createNewRole(role, r -> { }));
     }
@@ -198,13 +198,13 @@ public class RoleService {
      */
     public Role getOrganizationRole(RoleAuthority role, Long organizationId) {
         return roleRepository.findOneByOrganizationIdAndAuthorityName(
-                        organizationId, role.authority())
+                        organizationId, role.getAuthority())
                 .orElseGet(() -> createNewRole(role, r -> {
                     r.setOrganization(organizationRepository.findById(organizationId)
                             .orElseThrow(() -> new NotFoundException(
                                     "Cannot find organization for authority",
                                     USER, ErrorConstants.ERR_INVALID_AUTHORITY,
-                                    Map.of("authorityName", role.authority(),
+                                    Map.of("authorityName", role.getAuthority(),
                                             "projectId",
                                             organizationId.toString()))));
                 }));
@@ -218,13 +218,13 @@ public class RoleService {
      */
     public Role getProjectRole(RoleAuthority role, Long projectId) {
         return roleRepository.findOneByProjectIdAndAuthorityName(
-                        projectId, role.authority())
+                        projectId, role.getAuthority())
                 .orElseGet(() -> createNewRole(role, r -> {
                     r.setProject(projectRepository.findByIdWithOrganization(projectId)
                             .orElseThrow(() -> new NotFoundException(
                                     "Cannot find project for authority",
                                     USER, ErrorConstants.ERR_INVALID_AUTHORITY,
-                                    Map.of("authorityName", role.authority(),
+                                    Map.of("authorityName", role.getAuthority(),
                                             "projectId",
                                             projectId.toString()))));
                 }));
@@ -244,7 +244,7 @@ public class RoleService {
     }
 
     private Authority getAuthority(RoleAuthority role) {
-        return authorityRepository.findByAuthorityName(role.authority())
+        return authorityRepository.findByAuthorityName(role.getAuthority())
                 .orElseGet(() -> authorityRepository.saveAndFlush(new Authority(role)));
     }
 

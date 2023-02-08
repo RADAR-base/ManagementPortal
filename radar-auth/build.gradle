@@ -1,4 +1,13 @@
-apply plugin: 'maven-publish'
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id 'maven-publish'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'org.jetbrains.kotlin.plugin.serialization'
+    id 'org.jetbrains.dokka'
+}
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
@@ -7,20 +16,30 @@ description = 'Library for authentication and authorization of JWT tokens issued
 
 dependencies {
     api group: 'com.auth0', name: 'java-jwt', version: oauth_jwt_version
-    api group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttp_version
+
+    implementation(platform('io.ktor:ktor-bom:2.2.3'))
+    implementation("io.ktor:ktor-client-core")
+    implementation("io.ktor:ktor-client-cio")
+    implementation("io.ktor:ktor-client-content-negotiation")
+    implementation("io.ktor:ktor-serialization-kotlinx-json")
 
     implementation group: 'org.slf4j', name: 'slf4j-api', version: slf4j_version
-    implementation(platform("com.fasterxml.jackson:jackson-bom:$jackson_version"))
-    implementation group: 'com.fasterxml.jackson.core' , name: 'jackson-databind'
-    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml'
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junit_version
     testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
-    testImplementation group: 'com.github.stefanbirkner', name: 'system-rules', version: '1.19.0'
+    testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
 
     testRuntimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: logback_version
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit_version
 
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_11
+        apiVersion = KotlinVersion.KOTLIN_1_8
+        languageVersion = KotlinVersion.KOTLIN_1_8
+    }
 }
 
 test {
@@ -30,12 +49,13 @@ test {
     useJUnitPlatform()
 }
 
-task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {
-    from javadoc.destinationDir
+tasks.register('ghPagesJavadoc', Copy) {
+    from file("$buildDir/dokka/javadoc")
     into file("$rootDir/public/radar-auth-javadoc")
+    dependsOn(dokkaJavadoc)
 }
 
-ext.projectLanguage = "java"
+ext.projectLanguage = "kotlin"
 
 apply from: "$rootDir/gradle/style.gradle"
 apply from: "$rootDir/gradle/publishing.gradle"

@@ -1,5 +1,48 @@
 package org.radarbase.management.web.rest;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockitoAnnotations;
+import org.radarbase.auth.authentication.OAuthHelper;
+import org.radarbase.management.ManagementPortalTestApp;
+import org.radarbase.management.domain.Subject;
+import org.radarbase.management.repository.ProjectRepository;
+import org.radarbase.management.repository.SubjectRepository;
+import org.radarbase.management.security.JwtAuthenticationFilter;
+import org.radarbase.management.service.AuthService;
+import org.radarbase.management.service.SourceService;
+import org.radarbase.management.service.SourceTypeService;
+import org.radarbase.management.service.SubjectService;
+import org.radarbase.management.service.dto.MinimalSourceDetailsDTO;
+import org.radarbase.management.service.dto.ProjectDTO;
+import org.radarbase.management.service.dto.SourceDTO;
+import org.radarbase.management.service.dto.SourceTypeDTO;
+import org.radarbase.management.service.dto.SubjectDTO;
+import org.radarbase.management.service.mapper.SubjectMapper;
+import org.radarbase.management.web.rest.errors.ExceptionTranslator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.mock.web.MockFilterConfig;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.servlet.ServletException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,49 +67,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.Collections;
-import java.util.UUID;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import javax.servlet.ServletException;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockitoAnnotations;
-import org.radarbase.auth.token.RadarToken;
-import org.radarbase.management.ManagementPortalTestApp;
-import org.radarbase.management.domain.Subject;
-import org.radarbase.management.repository.ProjectRepository;
-import org.radarbase.management.repository.SubjectRepository;
-import org.radarbase.management.security.JwtAuthenticationFilter;
-import org.radarbase.management.service.SourceService;
-import org.radarbase.management.service.SourceTypeService;
-import org.radarbase.management.service.SubjectService;
-import org.radarbase.management.service.dto.MinimalSourceDetailsDTO;
-import org.radarbase.management.service.dto.ProjectDTO;
-import org.radarbase.management.service.dto.SourceDTO;
-import org.radarbase.management.service.dto.SourceTypeDTO;
-import org.radarbase.management.service.dto.SubjectDTO;
-import org.radarbase.management.service.mapper.SubjectMapper;
-import org.radarbase.management.web.rest.errors.ExceptionTranslator;
-import org.radarbase.auth.authentication.OAuthHelper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.mock.web.MockFilterConfig;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Test class for the SubjectResource REST controller.
@@ -105,10 +105,10 @@ class SubjectResourceIntTest {
     @Autowired
     private ProjectRepository projectRepository;
 
-    @Autowired
-    private RadarToken radarToken;
-
     private MockMvc restSubjectMockMvc;
+
+    @Autowired
+    private AuthService authService;
 
     @BeforeEach
     public void setUp() throws ServletException {
@@ -119,7 +119,7 @@ class SubjectResourceIntTest {
         ReflectionTestUtils.setField(subjectResource, "subjectMapper", subjectMapper);
         ReflectionTestUtils.setField(subjectResource, "projectRepository", projectRepository);
         ReflectionTestUtils.setField(subjectResource, "sourceTypeService", sourceTypeService);
-        ReflectionTestUtils.setField(subjectResource, "token", radarToken);
+        ReflectionTestUtils.setField(subjectResource, "authService", authService);
         ReflectionTestUtils.setField(subjectResource, "sourceService", sourceService);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();

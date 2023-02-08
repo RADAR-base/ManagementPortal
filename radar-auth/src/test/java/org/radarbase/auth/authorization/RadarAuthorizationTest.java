@@ -1,9 +1,11 @@
 package org.radarbase.auth.authorization;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.radarbase.auth.authorization.Permission.Entity;
 import org.radarbase.auth.exception.NotAuthorizedException;
-import org.radarbase.auth.token.JwtRadarToken;
+import org.radarbase.auth.jwt.JwtRadarToken;
+import org.radarbase.auth.token.AbstractRadarTokenTest;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.auth.util.TokenTestUtils;
 
@@ -13,62 +15,70 @@ import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Created by dverbeec on 25/09/2017.
  */
 class RadarAuthorizationTest {
+    private AuthorizationOracle oracle;
+
+    @BeforeEach
+    public void setUp() {
+        this.oracle = new AuthorizationOracle(
+                new AbstractRadarTokenTest.MockEntityRelationService());
+    }
+
     @Test
     void testCheckPermissionOnProject() throws NotAuthorizedException {
         String project = "PROJECT1";
         // let's get all permissions a project admin has
-        Set<Permission> permissions = Permissions.getPermissionMatrix().entrySet().stream()
+        Set<Permission> permissions = AuthorizationOracle.Permissions.getPermissionMatrix()
+                .entrySet().stream()
                 .filter(e -> e.getValue().contains(RoleAuthority.PROJECT_ADMIN))
                 .map(Entry::getKey)
                 .collect(Collectors.toSet());
         RadarToken token = new JwtRadarToken(TokenTestUtils.PROJECT_ADMIN_TOKEN);
         for (Permission p : permissions) {
-            RadarAuthorization.checkPermissionOnProject(token, p, project);
+            oracle.checkPermission(token, p, e -> e.project(project));
         }
 
-        Set<Permission> notPermitted = Permissions.getPermissionMatrix().entrySet().stream()
+        Set<Permission> notPermitted = AuthorizationOracle.Permissions.getPermissionMatrix()
+                .entrySet().stream()
                 .filter(e -> !e.getValue().contains(RoleAuthority.PROJECT_ADMIN))
                 .map(Entry::getKey)
                 .collect(Collectors.toSet());
 
         notPermitted.forEach(p -> assertNotAuthorized(() ->
-                RadarAuthorization.checkPermissionOnProject(token, p, project),
+                oracle.checkPermission(token, p, e -> e.project(project)),
                 String.format("Token should not have permission %s on project %s", p, project)));
     }
 
     @Test
     void testCheckPermissionOnOrganization() throws NotAuthorizedException {
         JwtRadarToken token = new JwtRadarToken(TokenTestUtils.ORGANIZATION_ADMIN_TOKEN);
-        assertNotAuthorized(() -> {
-            RadarAuthorization.checkPermissionOnOrganization(token, Permission.ORGANIZATION_CREATE,
-                    "main");
-        }, "Token should not be able to create organization");
-        RadarAuthorization.checkPermissionOnOrganization(token, Permission.PROJECT_CREATE, "main");
-        RadarAuthorization.checkPermissionOnOrganizationAndProject(token, Permission.SUBJECT_CREATE,
-                "main", "PROJECT1");
-        assertNotAuthorized(() -> RadarAuthorization.checkPermissionOnOrganization(
-                token, Permission.PROJECT_CREATE, "other"),
+        assertNotAuthorized(() -> oracle.checkPermission(token, Permission.ORGANIZATION_CREATE,
+                e -> e.organization("main")),
                 "Token should not be able to create organization");
-        assertNotAuthorized(() -> RadarAuthorization.checkPermissionOnOrganizationAndProject(
-                        token, Permission.SUBJECT_CREATE, "other",
-                        "PROJECT1"),
-                "Token should not be able to create organization");
+        oracle.checkPermission(token, Permission.PROJECT_CREATE, e -> e.organization("main"));
+        oracle.checkPermission(token, Permission.SUBJECT_CREATE,
+                e -> e.organization("main").project("PROJECT1"));
+        assertNotAuthorized(() -> oracle.checkPermission(token, Permission.PROJECT_CREATE,
+                        e -> e.organization("other")),
+                "Token should not be able to create project in other organization");
+        assertNotAuthorized(() -> oracle.checkPermission(
+                        token, Permission.SUBJECT_CREATE,
+                        e -> e.organization("other").project("PROJECT1")),
+                "Token should not be able to create subject in other organization");
     }
 
     @Test
     void testCheckPermission() throws NotAuthorizedException {
         RadarToken token = new JwtRadarToken(TokenTestUtils.SUPER_USER_TOKEN);
         for (Permission p : Permission.values()) {
-            RadarAuthorization.checkPermission(token, p);
+            oracle.checkPermission(token, p);
         }
     }
 
@@ -80,7 +90,7 @@ class RadarAuthorizationTest {
         String subject = token.getSubject();
         for (Permission p : Arrays.asList(Permission.MEASUREMENT_CREATE,
                 Permission.MEASUREMENT_READ, Permission.SUBJECT_UPDATE, Permission.SUBJECT_READ)) {
-            RadarAuthorization.checkPermissionOnSubject(token, p, project, subject);
+            oracle.checkPermission(token, p, e -> e.project(project).subject(subject));
         }
     }
 
@@ -91,9 +101,9 @@ class RadarAuthorizationTest {
         // this token is participant in PROJECT2
         RadarToken token = new JwtRadarToken(TokenTestUtils.PROJECT_ADMIN_TOKEN);
         String other = "other-subject";
-        Permission.stream()
+        Stream.of(Permission.values())
                 .forEach(p -> assertNotAuthorized(
-                    () -> RadarAuthorization.checkPermissionOnSubject(token, p, project, other),
+                    () -> oracle.checkPermission(token, p, e -> e.project(project).subject(other)),
                     "Token should not have permission " + p + " on another subject"));
     }
 
@@ -104,11 +114,11 @@ class RadarAuthorizationTest {
         // this token is participant in PROJECT2
         RadarToken token = new JwtRadarToken(TokenTestUtils.PROJECT_ADMIN_TOKEN);
         String subject = "some-subject";
-        Set<Permission> permissions = Permission.stream()
+        Set<Permission> permissions = Stream.of(Permission.values())
                 .filter(p -> p.getEntity() == Permission.Entity.SUBJECT)
                 .collect(Collectors.toSet());
         for (Permission p : permissions) {
-            RadarAuthorization.checkPermissionOnSubject(token, p, project, subject);
+            oracle.checkPermission(token, p, e -> e.project(project).subject(subject));
         }
     }
 
@@ -117,11 +127,11 @@ class RadarAuthorizationTest {
         String project = "PROJECT2";
         RadarToken token = new JwtRadarToken(TokenTestUtils.MULTIPLE_ROLES_IN_PROJECT_TOKEN);
         String subject = "some-subject";
-        Set<Permission> permissions = Permission.stream()
+        Set<Permission> permissions = Stream.of(Permission.values())
                 .filter(p -> p.getEntity() == Permission.Entity.SUBJECT)
                 .collect(Collectors.toSet());
         for (Permission p : permissions) {
-            RadarAuthorization.checkPermissionOnSubject(token, p, project, subject);
+            oracle.checkPermission(token, p, e -> e.project(project).subject(subject));
         }
     }
 
@@ -133,10 +143,10 @@ class RadarAuthorizationTest {
         String subject = "some-subject";
         String source = "source-1";
 
-        Permission.stream()
+        Stream.of(Permission.values())
                 .forEach(p -> assertNotAuthorized(
-                    () -> RadarAuthorization.checkPermissionOnSource(
-                                token, p, project, subject, source),
+                    () -> oracle.checkPermission(
+                                token, p, e -> e.project(project).subject(subject).source(source)),
                         "Token should not have permission " + p + " on another subject"));
     }
 
@@ -148,12 +158,13 @@ class RadarAuthorizationTest {
         String subject = token.getSubject();
         String source = "source-1";  // source to use
 
-        Set<Permission> permissions = Permission.stream()
+        Set<Permission> permissions = Stream.of(Permission.values())
                 .filter(p -> p.getEntity() == Entity.MEASUREMENT)
                 .collect(Collectors.toSet());
 
         for (Permission p : permissions) {
-            RadarAuthorization.checkPermissionOnSource(token, p, project, subject, source);
+            oracle.checkPermission(
+                    token, p, e -> e.project(project).subject(subject).source(source));
         }
     }
 
@@ -166,45 +177,41 @@ class RadarAuthorizationTest {
                 Permission.MEASUREMENT_CREATE);
 
         for (Permission p : scope) {
-            RadarAuthorization.checkPermission(token, p);
-            RadarAuthorization.checkPermissionOnProject(token, p, "");
-            RadarAuthorization.checkPermissionOnSubject(token, p, "", "");
-            RadarAuthorization.checkPermissionOnSource(token, p, "", "", "");
+            oracle.checkPermission(token, p);
+            oracle.checkPermission(token, p, e -> e.project(""));
+            oracle.checkPermission(token, p, e -> e.project("").subject(""));
+            oracle.checkPermission(token, p, e -> e.project("").subject("").source(""));
         }
 
         // test we can do nothing else, for each of the checkPermission methods
-        Permission.stream()
+        Stream.of(Permission.values())
                 .filter(p -> !scope.contains(p))
                 .forEach(p -> assertNotAuthorized(
-                    () -> RadarAuthorization.checkPermission(token, p),
+                    () -> oracle.checkPermission(token, p),
                     "Permission " + p + " is granted but not in scope."));
 
-        Permission.stream()
+        Stream.of(Permission.values())
                 .filter(p -> !scope.contains(p))
                 .forEach(p -> assertNotAuthorized(
-                    () -> RadarAuthorization.checkPermissionOnProject(token, p, ""),
+                    () -> oracle.checkPermission(token, p, e -> e.project("")),
                     "Permission " + p + " is granted but not in scope."));
 
-        Permission.stream()
+        Stream.of(Permission.values())
                 .filter(p -> !scope.contains(p))
                 .forEach(p -> assertNotAuthorized(
-                    () -> RadarAuthorization.checkPermissionOnSubject(token, p, "", ""),
+                    () -> oracle.checkPermission(token, p, e -> e.project("").subject("")),
                     "Permission " + p + " is granted but not in scope."));
 
-        Permission.stream()
+        Stream.of(Permission.values())
                 .filter(p -> !scope.contains(p))
                 .forEach(p -> assertNotAuthorized(
-                    () -> RadarAuthorization.checkPermissionOnSource(token, p, "", "", ""),
+                    () -> oracle.checkPermission(token, p,
+                            e -> e.project("").subject("").source("")),
                         "Permission " + p + " is granted but not in scope."));
     }
 
     private static void assertNotAuthorized(AuthorizationCheck supplier, String message) {
-        try {
-            supplier.check();
-            fail(message);
-        } catch (GeneralSecurityException e) {
-            assertThat(e, instanceOf(NotAuthorizedException.class));
-        }
+        assertThrows(NotAuthorizedException.class, supplier::check, message);
     }
 
     @FunctionalInterface

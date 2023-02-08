@@ -234,7 +234,7 @@ public class Subject extends AbstractEntity implements Serializable {
      */
     public Optional<Project> getActiveProject() {
         return this.getUser().getRoles().stream()
-                .filter(r -> r.getAuthority().getName().equals(PARTICIPANT.authority()))
+                .filter(r -> r.getAuthority().getName().equals(PARTICIPANT.getAuthority()))
                 .findFirst()
                 .map(Role::getProject);
     }

@@ -1,10 +1,10 @@
 package org.radarbase.management.service;
 
+import org.radarbase.management.service.dto.ClientDetailsDTO;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.stream.Collectors;
-
-import org.radarbase.management.service.dto.ClientDetailsDTO;
 
 /**
  * Test class for the OAuthClientService class.

@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.authentication.OAuthHelper;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.SourceData;
 import org.radarbase.management.repository.SourceDataRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
+import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.SourceDataService;
 import org.radarbase.management.service.dto.SourceDataDTO;
 import org.radarbase.management.service.mapper.SourceDataMapper;
@@ -97,19 +97,18 @@ class SourceDataResourceIntTest {
     @Autowired
     private EntityManager em;
 
-    @Autowired
-    private RadarToken radarToken;
-
     private MockMvc restSourceDataMockMvc;
 
     private SourceData sourceData;
+    @Autowired
+    private AuthService authService;
 
     @BeforeEach
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         SourceDataResource sourceDataResource = new SourceDataResource();
         ReflectionTestUtils.setField(sourceDataResource, "sourceDataService", sourceDataService);
-        ReflectionTestUtils.setField(sourceDataResource, "token", radarToken);
+        ReflectionTestUtils.setField(sourceDataResource, "authService", authService);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());

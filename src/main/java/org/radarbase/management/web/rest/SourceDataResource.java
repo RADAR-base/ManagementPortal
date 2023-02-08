@@ -1,9 +1,9 @@
 package org.radarbase.management.web.rest;
 
 import io.micrometer.core.annotation.Timed;
-import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
-import org.radarbase.auth.token.RadarToken;
+import org.radarbase.management.security.Constants;
+import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.SourceDataService;
 import org.radarbase.management.service.dto.SourceDataDTO;
@@ -35,13 +35,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN;
 import static org.radarbase.auth.authorization.Permission.SOURCEDATA_CREATE;
 import static org.radarbase.auth.authorization.Permission.SOURCEDATA_DELETE;
 import static org.radarbase.auth.authorization.Permission.SOURCEDATA_READ;
 import static org.radarbase.auth.authorization.Permission.SOURCEDATA_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkAuthorityAndPermission;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_DATA;
 
 /**
@@ -54,10 +51,9 @@ public class SourceDataResource {
     private static final Logger log = LoggerFactory.getLogger(SourceDataResource.class);
 
     @Autowired
-    private RadarToken token;
-
-    @Autowired
     private SourceDataService sourceDataService;
+    @Autowired
+    private AuthService authService;
 
     /**
      * POST  /source-data : Create a new sourceData.
@@ -72,7 +68,7 @@ public class SourceDataResource {
     public ResponseEntity<SourceDataDTO> createSourceData(@Valid @RequestBody SourceDataDTO
             sourceDataDto) throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save SourceData : {}", sourceDataDto);
-        checkAuthorityAndPermission(token, SYS_ADMIN, SOURCEDATA_CREATE);
+        authService.checkPermission(SOURCEDATA_CREATE);
         if (sourceDataDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(SOURCE_DATA,
                     "idexists", "A new sourceData cannot already have an ID")).build();
@@ -106,7 +102,7 @@ public class SourceDataResource {
         if (sourceDataDto.getId() == null) {
             return createSourceData(sourceDataDto);
         }
-        checkAuthorityAndPermission(token, SYS_ADMIN, SOURCEDATA_UPDATE);
+        authService.checkPermission(SOURCEDATA_UPDATE);
         SourceDataDTO result = sourceDataService.save(sourceDataDto);
         return ResponseEntity.ok().headers(HeaderUtil
                 .createEntityUpdateAlert(SOURCE_DATA, sourceDataDto.getSourceDataName()))
@@ -125,7 +121,7 @@ public class SourceDataResource {
             @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable)
             throws NotAuthorizedException {
         log.debug("REST request to get all SourceData");
-        checkPermission(token, SOURCEDATA_READ);
+        authService.checkScope(SOURCEDATA_READ);
         Page<SourceDataDTO> page = sourceDataService.findAll(pageable);
         HttpHeaders headers = PaginationUtil
                 .generatePaginationHttpHeaders(page, "/api/source-data");
@@ -143,7 +139,7 @@ public class SourceDataResource {
     @Timed
     public ResponseEntity<SourceDataDTO> getSourceData(@PathVariable String sourceDataName)
             throws NotAuthorizedException {
-        checkPermission(token, SOURCEDATA_READ);
+        authService.checkScope(SOURCEDATA_READ);
         return ResponseUtil.wrapOrNotFound(sourceDataService
                 .findOneBySourceDataName(sourceDataName));
     }
@@ -158,7 +154,7 @@ public class SourceDataResource {
     @Timed
     public ResponseEntity<Void> deleteSourceData(@PathVariable String sourceDataName)
             throws NotAuthorizedException {
-        checkPermission(token, SOURCEDATA_DELETE);
+        authService.checkPermission(SOURCEDATA_DELETE);
         Optional<SourceDataDTO> sourceDataDto = sourceDataService
                 .findOneBySourceDataName(sourceDataName);
         if (sourceDataDto.isEmpty()) {

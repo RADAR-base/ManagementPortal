@@ -1,10 +1,8 @@
 package org.radarbase.auth.authentication;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import org.radarbase.auth.authorization.Permission;
-import org.radarbase.auth.config.TokenValidatorConfig;
 import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.User;
@@ -15,16 +13,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.io.InputStream;
-import java.net.URI;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.time.Duration;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +30,7 @@ import java.util.stream.Stream;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.radarbase.auth.jwks.JwksTokenVerifierLoader.toTokenVerifier;
 import static org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL;
 
 /**
@@ -57,7 +53,7 @@ public final class OAuthHelper {
     public static final String USER = "admin";
     public static final String ISS = "RADAR";
     public static final String JTI = "some-jwt-id";
-    private static List<JWTVerifier> verifiers;
+    private static List<TokenVerifierLoader> verifiers;
 
     static {
         try {
@@ -126,9 +122,11 @@ public final class OAuthHelper {
             Algorithm rsa = Algorithm.RSA256(rsaPublicKey, rsaPrivateKey);
             validRsaToken = createValidToken(rsa);
 
-            verifiers = Stream.of(ecdsa, rsa)
-                    .map(alg -> JWT.require(alg).withIssuer(ISS).build())
+            var verifierList = Stream.of(ecdsa, rsa)
+                    .map(alg -> toTokenVerifier(alg, RES_MANAGEMENT_PORTAL))
                     .collect(Collectors.toList());
+
+            verifiers = List.of(new StaticTokenVerifierLoader(verifierList));
         }
     }
 
@@ -150,25 +148,7 @@ public final class OAuthHelper {
      */
     public static TokenValidator createTokenValidator() {
         // Use tokenValidator with known JWTVerifier which signs.
-        return new TokenValidator.Builder()
-                .verifiers(verifiers)
-                .config(getDummyValidatorConfig())
-                .fetchTimeout(Duration.ofHours(1))
-                .build();
-    }
-
-    private static TokenValidatorConfig getDummyValidatorConfig() {
-        return new TokenValidatorConfig() {
-            @Override
-            public List<URI> getPublicKeyEndpoints() {
-                return Collections.emptyList();
-            }
-
-            @Override
-            public String getResourceName() {
-                return "ISS";
-            }
-        };
+        return new TokenValidator(verifiers);
     }
 
     private static User createAdminUser() {

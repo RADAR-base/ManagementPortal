@@ -1,28 +1,37 @@
 package org.radarbase.auth.token;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
-import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN;
-import static org.radarbase.auth.authorization.Permission.MEASUREMENT_CREATE;
-import static org.radarbase.auth.token.AbstractRadarToken.CLIENT_CREDENTIALS;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.radarbase.auth.authorization.AuthorizationOracle;
+import org.radarbase.auth.authorization.EntityRelationService;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.radarbase.auth.authorization.Permission.MEASUREMENT_CREATE;
+import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
+import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN;
+import static org.radarbase.auth.token.AbstractRadarToken.CLIENT_CREDENTIALS;
 
-class AbstractRadarTokenTest {
+public class AbstractRadarTokenTest {
+    private AuthorizationOracle oracle;
+    private MockToken token;
+
     static class MockToken extends AbstractRadarToken {
         private final Set<AuthorityReference> roles = new HashSet<>();
         private final List<String> sources = new ArrayList<>();
-        private final List<String> scopes = new ArrayList<>();
+        private final Set<String> scopes = new LinkedHashSet<>();
         private String grantType = "refresh_token";
-        private final List<String> authorities = new ArrayList<>();
-        private String subject = null;
+        private String subject = "";
 
         @Override
         public Set<AuthorityReference> getRoles() {
@@ -30,12 +39,7 @@ class AbstractRadarTokenTest {
         }
 
         @Override
-        public List<String> getAuthorities() {
-            return authorities;
-        }
-
-        @Override
-        public List<String> getScopes() {
+        public Set<String> getScopes() {
             return scopes;
         }
 
@@ -61,12 +65,14 @@ class AbstractRadarTokenTest {
 
         @Override
         public Date getIssuedAt() {
-            return null;
+            return new Date();
         }
 
         @Override
         public Date getExpiresAt() {
-            return null;
+            var calendar = Calendar.getInstance();
+            calendar.set(Calendar.YEAR, 3000);
+            return calendar.getTime();
         }
 
         @Override
@@ -76,27 +82,27 @@ class AbstractRadarTokenTest {
 
         @Override
         public String getToken() {
-            return null;
+            return "";
         }
 
         @Override
         public String getIssuer() {
-            return null;
+            return "";
         }
 
         @Override
         public String getType() {
-            return null;
+            return "";
         }
 
         @Override
         public String getClientId() {
-            return null;
+            return "";
         }
 
         @Override
         public String getClaimString(String name) {
-            return null;
+            return "";
         }
 
         @Override
@@ -105,119 +111,146 @@ class AbstractRadarTokenTest {
         }
     }
 
+    public static class MockEntityRelationService implements EntityRelationService {
+        private final Map<String, String> projectToOrganization;
+
+        public MockEntityRelationService() {
+            this(Map.of());
+        }
+
+        public MockEntityRelationService(Map<String, String> projectToOrganization) {
+            this.projectToOrganization = projectToOrganization;
+        }
+
+        @Override
+        public boolean organizationContainsProject(@NotNull String organization,
+                @NotNull String project) {
+            return findOrganizationOfProject(project).equals(organization);
+        }
+
+        @NotNull
+        @Override
+        public String findOrganizationOfProject(@NotNull String project) {
+            return projectToOrganization.getOrDefault(project, "main");
+        }
+    }
+
+    @BeforeEach
+    public void setUp() {
+        this.oracle = new AuthorizationOracle(new MockEntityRelationService());
+        this.token = new MockToken();
+    }
+
     @Test
     void notHasPermissionWithoutScope() {
-        MockToken token = new MockToken();
-        assertFalse(token.hasPermission(MEASUREMENT_CREATE));
+        assertFalse(oracle.hasScope(token, MEASUREMENT_CREATE));
     }
 
     @Test
     void notHasPermissionWithoutAuthority() {
-        MockToken token = new MockToken();
         token.scopes.add("MEASUREMENT_CREATE");
-        assertFalse(token.hasPermission(MEASUREMENT_CREATE));
+        assertFalse(oracle.hasScope(token, MEASUREMENT_CREATE));
     }
 
     @Test
     void hasPermissionAsAdmin() {
-        MockToken token = new MockToken();
         token.scopes.add(MEASUREMENT_CREATE.scope());
-        token.authorities.add(SYS_ADMIN.authority());
-        assertTrue(token.hasPermission(MEASUREMENT_CREATE));
+        token.roles.add(new AuthorityReference(SYS_ADMIN));
+        assertTrue(oracle.hasScope(token, MEASUREMENT_CREATE));
     }
 
     @Test
     void hasPermissionAsUser() {
-        MockToken token = new MockToken();
         token.scopes.add(MEASUREMENT_CREATE.scope());
         token.roles.add(new AuthorityReference(PARTICIPANT, "some"));
-        assertTrue(token.hasPermission(MEASUREMENT_CREATE));
+        assertTrue(oracle.hasScope(token, MEASUREMENT_CREATE));
     }
 
     @Test
     void hasPermissionAsClient() {
-        MockToken token = new MockToken();
         token.scopes.add(MEASUREMENT_CREATE.scope());
         token.grantType = CLIENT_CREDENTIALS;
-        assertTrue(token.hasPermission(MEASUREMENT_CREATE));
+        assertTrue(oracle.hasScope(token, MEASUREMENT_CREATE));
     }
 
     @Test
     void notHasPermissionOnProjectWithoutScope() {
         MockToken token = new MockToken();
-        assertFalse(token.hasPermissionOnProject(MEASUREMENT_CREATE, "project"));
+        assertFalse(oracle.hasPermission(token, MEASUREMENT_CREATE, e -> e.project("project")));
     }
 
     @Test
     void notHasPermissioOnProjectnWithoutAuthority() {
-        MockToken token = new MockToken();
-        token.scopes.add("MEASUREMENT_CREATE");
-        assertFalse(token.hasPermissionOnProject(MEASUREMENT_CREATE, "project"));
+        token.scopes.add(MEASUREMENT_CREATE.scope());
+        assertFalse(oracle.hasPermission(token, MEASUREMENT_CREATE, e -> e.project("project")));
     }
 
     @Test
     void hasPermissionOnProjectAsAdmin() {
-        MockToken token = new MockToken();
         token.scopes.add(MEASUREMENT_CREATE.scope());
-        token.authorities.add(SYS_ADMIN.authority());
-        assertTrue(token.hasPermissionOnProject(MEASUREMENT_CREATE, "project"));
+        token.roles.add(new AuthorityReference(SYS_ADMIN));
+        assertTrue(oracle.hasPermission(token, MEASUREMENT_CREATE, e -> e.project("project")));
     }
 
     @Test
     void hasPermissionOnProjectAsUser() {
-        MockToken token = new MockToken();
         token.scopes.add(MEASUREMENT_CREATE.scope());
         token.roles.add(new AuthorityReference(PARTICIPANT, "project"));
-        assertFalse(token.hasPermissionOnProject(MEASUREMENT_CREATE, "project"));
-        assertFalse(token.hasPermissionOnProject(MEASUREMENT_CREATE, "otherProject"));
+        token.subject = "subject";
+        assertTrue(oracle.hasPermission(token, MEASUREMENT_CREATE, e -> e
+                .project("project").subject("subject")));
+        assertFalse(oracle.hasPermission(token, MEASUREMENT_CREATE,
+                e -> e.project("otherProject")));
     }
 
     @Test
     void hasPermissionOnProjectAsClient() {
-        MockToken token = new MockToken();
         token.scopes.add(MEASUREMENT_CREATE.scope());
         token.grantType = CLIENT_CREDENTIALS;
-        assertTrue(token.hasPermissionOnProject(MEASUREMENT_CREATE, "project"));
+        assertTrue(oracle.hasPermission(token, MEASUREMENT_CREATE, e -> e.project("project")));
     }
 
 
     @Test
     void notHasPermissionOnSubjectWithoutScope() {
-        MockToken token = new MockToken();
-        assertFalse(token.hasPermissionOnSubject(MEASUREMENT_CREATE, "project", "subject"));
+        assertFalse(oracle.hasPermission(token, MEASUREMENT_CREATE,
+                e -> e.project("project").subject("subject")));
     }
 
     @Test
     void notHasPermissioOnSubjectnWithoutAuthority() {
         MockToken token = new MockToken();
-        token.scopes.add("MEASUREMENT_CREATE");
-        assertFalse(token.hasPermissionOnSubject(MEASUREMENT_CREATE, "project", "subject"));
+        token.scopes.add(MEASUREMENT_CREATE.scope());
+        assertFalse(oracle.hasPermission(token, MEASUREMENT_CREATE,
+                e -> e.project("project").subject("subject")));
     }
 
     @Test
     void hasPermissionOnSubjectAsAdmin() {
         MockToken token = new MockToken();
         token.scopes.add(MEASUREMENT_CREATE.scope());
-        token.authorities.add(SYS_ADMIN.authority());
-        assertTrue(token.hasPermissionOnSubject(MEASUREMENT_CREATE, "project", "subject"));
+        token.roles.add(new AuthorityReference(SYS_ADMIN));
+        assertTrue(oracle.hasPermission(token, MEASUREMENT_CREATE,
+                e -> e.project("project").subject("subject")));
     }
 
     @Test
     void hasPermissionOnSubjectAsUser() {
-        MockToken token = new MockToken();
         token.scopes.add(MEASUREMENT_CREATE.scope());
         token.roles.add(new AuthorityReference(PARTICIPANT, "project"));
         token.subject = "subject";
-        assertTrue(token.hasPermissionOnSubject(MEASUREMENT_CREATE, "project", "subject"));
-        assertFalse(token.hasPermissionOnSubject(MEASUREMENT_CREATE, "otherProject", "subject"));
-        assertFalse(token.hasPermissionOnSubject(MEASUREMENT_CREATE, "project", "otherSubject"));
+
+        assertTrue(oracle.hasPermission(token, MEASUREMENT_CREATE,
+                e -> e.project("project").subject("subject")));
+        assertFalse(oracle.hasPermission(token, MEASUREMENT_CREATE,
+                e -> e.project("project").subject("otherSubject")));
     }
 
     @Test
     void hasPermissionOnSubjectAsClient() {
-        MockToken token = new MockToken();
         token.scopes.add(MEASUREMENT_CREATE.scope());
         token.grantType = CLIENT_CREDENTIALS;
-        assertTrue(token.hasPermissionOnSubject(MEASUREMENT_CREATE, "project", "subject"));
+        assertTrue(oracle.hasPermission(token, MEASUREMENT_CREATE,
+                e -> e.project("project").subject("subject")));
     }
 }

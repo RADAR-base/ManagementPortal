@@ -1,7 +1,7 @@
 package org.radarbase.management.web.rest;
 
 import io.micrometer.core.annotation.Timed;
-import org.radarbase.auth.security.jwk.JavaWebKeySet;
+import org.radarbase.auth.jwks.JsonWebKeySet;
 import org.radarbase.management.security.jwt.ManagementPortalOauthKeyStoreHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ public class TokenKeyEndpoint {
      */
     @GetMapping("/oauth/token_key")
     @Timed
-    public JavaWebKeySet getKey() {
+    public JsonWebKeySet getKey() {
         logger.debug("Requesting verifier public keys...");
         return keyStoreHandler.loadJwks();
     }

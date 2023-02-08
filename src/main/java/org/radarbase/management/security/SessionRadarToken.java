@@ -9,6 +9,7 @@
 
 package org.radarbase.management.security;
 
+import org.jetbrains.annotations.NotNull;
 import org.radarbase.auth.token.AbstractRadarToken;
 import org.radarbase.auth.token.AuthorityReference;
 import org.radarbase.auth.token.RadarToken;
@@ -22,9 +23,8 @@ public class SessionRadarToken extends AbstractRadarToken implements Serializabl
     private final Set<AuthorityReference> roles;
     private final String subject;
     private final String token;
-    private final List<String> scopes;
+    private final Set<String> scopes;
     private final List<String> audience;
-    private final List<String> authorities;
     private final List<String> sources;
     private final String grantType;
     private final Date issuedAt;
@@ -44,9 +44,8 @@ public class SessionRadarToken extends AbstractRadarToken implements Serializabl
         this.roles = Set.copyOf(roles);
         this.subject = token.getSubject();
         this.token = token.getToken();
-        this.scopes = List.copyOf(token.getScopes());
+        this.scopes = Set.copyOf(token.getScopes());
         this.audience = List.copyOf(token.getAudience());
-        this.authorities = List.copyOf(token.getAuthorities());
         this.sources = List.copyOf(token.getSources());
         this.grantType = token.getGrantType();
         this.issuedAt = token.getIssuedAt();
@@ -57,81 +56,90 @@ public class SessionRadarToken extends AbstractRadarToken implements Serializabl
         this.username = token.getUsername();
     }
 
+    @NotNull
     @Override
     public Set<AuthorityReference> getRoles() {
         return roles;
     }
 
+    @NotNull
     @Override
-    public List<String> getAuthorities() {
-        return authorities;
-    }
-
-    @Override
-    public List<String> getScopes() {
+    public Set<String> getScopes() {
         return scopes;
     }
 
+    @NotNull
     @Override
     public List<String> getSources() {
         return sources;
     }
 
+    @NotNull
     @Override
     public String getGrantType() {
         return grantType;
     }
 
+    @NotNull
     @Override
     public String getSubject() {
         return subject;
     }
 
+    @NotNull
     @Override
     public Date getIssuedAt() {
         return issuedAt;
     }
 
+    @NotNull
     @Override
     public Date getExpiresAt() {
         return expiresAt;
     }
 
+    @NotNull
     @Override
     public List<String> getAudience() {
         return audience;
     }
 
+    @NotNull
     @Override
     public String getToken() {
         return token;
     }
 
+    @NotNull
     @Override
     public String getIssuer() {
         return issuer;
     }
 
+    @NotNull
     @Override
     public String getType() {
         return type;
     }
 
+    @NotNull
     @Override
     public String getClientId() {
         return clientId;
     }
 
     @Override
-    public String getClaimString(String name) {
-        return null;
+    public String getClaimString(@NotNull String name) {
+        return "";
     }
 
+    @NotNull
     @Override
-    public List<String> getClaimList(String name) {
+    public List<String> getClaimList(@NotNull String name) {
         return List.of();
     }
 
+    @NotNull
     @Override
     public String getUsername() {
         return username;

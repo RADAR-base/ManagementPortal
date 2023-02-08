@@ -16,6 +16,8 @@ import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Sets up a keypair for signing the tokens, initialize all kinds of different tokens for tests.
@@ -34,7 +36,8 @@ public final class TokenTestUtils {
     public static final DecodedJWT MULTIPLE_ROLES_IN_PROJECT_TOKEN;
 
     public static final String[] AUTHORITIES = {"ROLE_SYS_ADMIN", "ROLE_USER"};
-    public static final String[] ALL_SCOPES = Permission.scopes();
+    public static final String[] ALL_SCOPES = Stream.of(Permission.values())
+            .map(Permission::scope).collect(Collectors.toList()).toArray(new String[0]);
     public static final String[] ROLES = {"PROJECT1:ROLE_PROJECT_ADMIN",
             "PROJECT2:ROLE_PARTICIPANT"};
     public static final String[] SOURCES = {};
@@ -64,7 +67,7 @@ public final class TokenTestUtils {
         Algorithm algorithm = Algorithm.RSA256(publicKey, provider.getPrivateKey());
 
         PUBLIC_KEY_BODY = "{\n \"keys\" : [ {\n  \"alg\" : \"" + algorithm.getName()
-                + "\",\n  \"alg\" : \"RSA\",\n"
+                + "\",\n  \"kty\" : \"RSA\",\n"
                 + "  \"value\" : \"-----BEGIN PUBLIC KEY-----\\n" + PUBLIC_KEY_STRING
                 + "\\n-----END PUBLIC KEY-----\"\n} ]\n}";
 

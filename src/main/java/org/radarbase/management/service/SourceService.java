@@ -1,20 +1,7 @@
 package org.radarbase.management.service;
 
 
-import static org.hibernate.id.IdentifierGenerator.ENTITY_NAME;
-import static org.radarbase.auth.authorization.Permission.SOURCE_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSource;
-import static org.radarbase.management.web.rest.errors.EntityName.SOURCE;
-
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import org.radarbase.auth.exception.NotAuthorizedException;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.domain.SourceType;
 import org.radarbase.management.repository.ProjectRepository;
@@ -33,6 +20,17 @@ import org.springframework.data.history.Revision;
 import org.springframework.data.history.Revisions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.hibernate.id.IdentifierGenerator.ENTITY_NAME;
+import static org.radarbase.auth.authorization.Permission.SOURCE_UPDATE;
+import static org.radarbase.management.web.rest.errors.EntityName.SOURCE;
 
 /**
  * Service Implementation for managing Source.
@@ -54,6 +52,8 @@ public class SourceService {
 
     @Autowired
     private SourceTypeMapper sourceTypeMapper;
+    @Autowired
+    private AuthService authService;
 
     /**
      * Save a Source.
@@ -212,26 +212,26 @@ public class SourceService {
      * Does not allow to transfer if new project does not have valid source-type.
      *
      * @param sourceDto source details to update.
-     * @param jwt authorization token.
      * @return updated source.
      */
     @Transactional
-    public Optional<SourceDTO> updateSource(SourceDTO sourceDto, RadarToken jwt)
+    public Optional<SourceDTO> updateSource(SourceDTO sourceDto)
             throws NotAuthorizedException {
         Optional<Source> existingSourceOpt = sourceRepository.findById(sourceDto.getId());
         if (existingSourceOpt.isEmpty()) {
             return Optional.empty();
         }
         Source existingSource = existingSourceOpt.get();
-        String project = existingSource.getProject() != null
-                ? existingSource.getProject().getProjectName()
-                : null;
-        String user = (existingSource.getSubject() != null
-                && existingSource.getSubject().getUser() != null)
-                ? existingSource.getSubject().getUser().getLogin()
-                : null;
-
-        checkPermissionOnSource(jwt, SOURCE_UPDATE, project, user, existingSource.getSourceName());
+        authService.checkPermission(SOURCE_UPDATE, e -> {
+            e.source(existingSource.getSourceName());
+            if (existingSource.getProject() != null) {
+                e.project(existingSource.getProject().getProjectName());
+            }
+            if (existingSource.getSubject() != null
+                    && existingSource.getSubject().getUser() != null) {
+                e.subject(existingSource.getSubject().getUser().getLogin());
+            }
+        });
 
         // if the source is being transferred to another project.
         if (!existingSource.getProject().getId().equals(sourceDto.getProject().getId())) {

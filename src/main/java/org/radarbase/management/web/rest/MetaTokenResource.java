@@ -2,11 +2,11 @@ package org.radarbase.management.web.rest;
 
 
 import io.micrometer.core.annotation.Timed;
-import org.radarbase.auth.config.Constants;
+import org.radarbase.management.security.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.MetaToken;
 import org.radarbase.management.domain.Subject;
+import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.MetaTokenService;
 import org.radarbase.management.service.dto.ClientPairInfoDTO;
 import org.radarbase.management.service.dto.TokenDTO;
@@ -24,7 +24,6 @@ import java.net.MalformedURLException;
 import java.time.Duration;
 
 import static org.radarbase.auth.authorization.Permission.SUBJECT_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
 
 @RestController
 @RequestMapping("/api")
@@ -37,6 +36,9 @@ public class MetaTokenResource {
 
     @Autowired
     private MetaTokenService metaTokenService;
+
+    @Autowired
+    private AuthService authService;
 
     /**
      * GET /api/meta-token/:tokenName.
@@ -64,8 +66,7 @@ public class MetaTokenResource {
      */
     @DeleteMapping("/meta-token/{tokenName:" + Constants.TOKEN_NAME_REGEX + "}")
     @Timed
-    public ResponseEntity<Void> deleteTokenByTokenName(
-            @PathVariable("tokenName") String tokenName, RadarToken token)
+    public ResponseEntity<Void> deleteTokenByTokenName(@PathVariable("tokenName") String tokenName)
             throws NotAuthorizedException {
         log.info("Requesting token with tokenName {}", tokenName);
         MetaToken metaToken = metaTokenService.getToken(tokenName);
@@ -76,7 +77,7 @@ public class MetaTokenResource {
                 ))
                 .getProjectName();
         String user = subject.getUser().getLogin();
-        checkPermissionOnSubject(token, SUBJECT_UPDATE, project, user);
+        authService.checkPermission(SUBJECT_UPDATE, e -> e.project(project).subject(user));
         metaTokenService.delete(metaToken);
         return ResponseEntity.noContent().build();
     }

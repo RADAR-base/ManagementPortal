@@ -1,6 +1,6 @@
 package org.radarbase.management.domain.support;
 
-import org.radarbase.auth.config.Constants;
+import org.radarbase.management.security.Constants;
 import org.radarbase.management.domain.AbstractEntity;
 import org.radarbase.management.security.SpringSecurityAuditorAware;
 import org.slf4j.Logger;

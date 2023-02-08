@@ -10,7 +10,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import org.radarbase.auth.authentication.AlgorithmLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.common.DefaultExpiringOAuth2RefreshToken;
@@ -120,7 +119,7 @@ public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenCo
     public final void setAlgorithm(Algorithm algorithm) {
         this.algorithm = algorithm;
         if (verifiers.isEmpty()) {
-            this.verifiers.add(AlgorithmLoader.buildVerifier(algorithm, RES_MANAGEMENT_PORTAL));
+            this.verifiers.add(JWT.require(algorithm).withAudience(RES_MANAGEMENT_PORTAL).build());
         }
     }
 

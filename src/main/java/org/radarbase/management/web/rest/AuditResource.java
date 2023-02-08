@@ -2,8 +2,8 @@ package org.radarbase.management.web.rest;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import org.radarbase.auth.exception.NotAuthorizedException;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.service.AuditEventService;
+import org.radarbase.management.service.AuthService;
 import org.radarbase.management.web.rest.util.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.audit.AuditEvent;
@@ -23,7 +23,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.radarbase.auth.authorization.Permission.AUDIT_READ;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 
 /**
  * REST controller for getting the audit events.
@@ -32,10 +31,9 @@ import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissio
 @RequestMapping("/management/audits")
 public class AuditResource {
     @Autowired
-    private RadarToken token;
-
-    @Autowired
     private AuditEventService auditEventService;
+    @Autowired
+    private AuthService authService;
 
     /**
      * GET  /audits : get a page of AuditEvents.
@@ -46,7 +44,7 @@ public class AuditResource {
     @GetMapping
     public ResponseEntity<List<AuditEvent>> getAll(@Parameter Pageable pageable)
             throws NotAuthorizedException {
-        checkPermission(token, AUDIT_READ);
+        authService.checkPermission(AUDIT_READ);
         Page<AuditEvent> page = auditEventService.findAll(pageable);
         HttpHeaders headers = PaginationUtil
                 .generatePaginationHttpHeaders(page, "/management/audits");
@@ -67,7 +65,7 @@ public class AuditResource {
             @RequestParam(value = "fromDate") LocalDate fromDate,
             @RequestParam(value = "toDate") LocalDate toDate,
             @Parameter Pageable pageable) throws NotAuthorizedException {
-        checkPermission(token, AUDIT_READ);
+        authService.checkPermission(AUDIT_READ);
         Page<AuditEvent> page = auditEventService
                 .findByDates(fromDate.atTime(0, 0), toDate.atTime(23, 59), pageable);
         HttpHeaders headers = PaginationUtil
@@ -84,7 +82,7 @@ public class AuditResource {
      */
     @GetMapping("/{id:.+}")
     public ResponseEntity<AuditEvent> get(@PathVariable Long id) throws NotAuthorizedException {
-        checkPermission(token, AUDIT_READ);
+        authService.checkPermission(AUDIT_READ);
         return ResponseUtil.wrapOrNotFound(auditEventService.find(id));
     }
 }

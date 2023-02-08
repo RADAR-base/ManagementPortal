@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.authentication.OAuthHelper;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Group;
 import org.radarbase.management.domain.Project;
@@ -16,8 +15,8 @@ import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.repository.RoleRepository;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
+import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.GroupService;
-import org.radarbase.management.service.ProjectService;
 import org.radarbase.management.service.SubjectService;
 import org.radarbase.management.service.dto.GroupDTO;
 import org.radarbase.management.service.dto.SubjectDTO;
@@ -38,15 +37,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import javax.servlet.ServletException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.radarbase.management.service.dto.SubjectDTO.SubjectStatus.ACTIVATED;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.radarbase.management.service.dto.SubjectDTO.SubjectStatus.ACTIVATED;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -90,9 +87,6 @@ class GroupResourceIntTest {
     private GroupMapper groupMapper;
 
     @Autowired
-    private ProjectService projectService;
-
-    @Autowired
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
     @Autowired
@@ -101,22 +95,20 @@ class GroupResourceIntTest {
     @Autowired
     private GroupRepository groupRepository;
 
-    @Autowired
-    private RadarToken token;
-
     private MockMvc restGroupMockMvc;
 
     private Group group;
 
     private Project project;
+    @Autowired
+    private AuthService authService;
 
     @BeforeEach
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         var groupResource = new GroupResource();
         ReflectionTestUtils.setField(groupResource, "groupService", groupService);
-        ReflectionTestUtils.setField(groupResource, "token", token);
-        ReflectionTestUtils.setField(groupResource, "projectService", projectService);
+        ReflectionTestUtils.setField(groupResource, "authService", authService);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());

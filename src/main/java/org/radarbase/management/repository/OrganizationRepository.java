@@ -1,5 +1,6 @@
 package org.radarbase.management.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,5 +24,6 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
 
     @Query("select distinct org from Organization org left join fetch org.projects project "
             + "where project.projectName in (:projectNames)")
-    List<Organization> findAllByProjectNames(@Param("projectNames") List<String> projectNames);
+    List<Organization> findAllByProjectNames(
+            @Param("projectNames") Collection<String> projectNames);
 }

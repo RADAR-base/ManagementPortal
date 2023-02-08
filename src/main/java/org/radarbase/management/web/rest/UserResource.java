@@ -1,15 +1,15 @@
 package org.radarbase.management.web.rest;
 
 import io.micrometer.core.annotation.Timed;
-import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.repository.filters.UserFilter;
+import org.radarbase.management.security.Constants;
+import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.MailService;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.UserService;
@@ -50,8 +50,6 @@ import static org.radarbase.auth.authorization.Permission.USER_CREATE;
 import static org.radarbase.auth.authorization.Permission.USER_DELETE;
 import static org.radarbase.auth.authorization.Permission.USER_READ;
 import static org.radarbase.auth.authorization.Permission.USER_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN;
 import static org.radarbase.management.web.rest.errors.EntityName.USER;
 
 /**
@@ -98,10 +96,9 @@ public class UserResource {
     private SubjectRepository subjectRepository;
 
     @Autowired
-    private RadarToken token;
-
-    @Autowired
     private ManagementPortalProperties managementPortalProperties;
+    @Autowired
+    private AuthService authService;
 
     /**
      * POST  /users  : Creates a new user. <p> Creates a new user if the login and email are not
@@ -118,7 +115,7 @@ public class UserResource {
     public ResponseEntity<User> createUser(@RequestBody ManagedUserVM managedUserVm)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save User : {}", managedUserVm);
-        checkPermission(token, USER_CREATE);
+        authService.checkPermission(USER_CREATE);
         if (managedUserVm.getId() != null) {
             return ResponseEntity.badRequest()
                     .headers(HeaderUtil.createFailureAlert(USER, "idexists",
@@ -161,7 +158,7 @@ public class UserResource {
     public ResponseEntity<UserDTO> updateUser(@RequestBody ManagedUserVM managedUserVm)
             throws NotAuthorizedException {
         log.debug("REST request to update User : {}", managedUserVm);
-        checkPermission(token, USER_UPDATE);
+        authService.checkPermission(USER_UPDATE, e -> e.user(managedUserVm.getLogin()));
         Optional<User> existingUser = userRepository.findOneByEmail(managedUserVm.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getId()
                 .equals(managedUserVm.getId()))) {
@@ -188,8 +185,7 @@ public class UserResource {
         }
 
         Optional<UserDTO> updatedUser = userService.updateUser(
-                managedUserVm,
-                token.hasAuthority(SYS_ADMIN));
+                managedUserVm);
 
         return ResponseUtil.wrapOrNotFound(updatedUser,
                 HeaderUtil.createAlert("userManagement.updated", managedUserVm.getLogin()));
@@ -213,7 +209,7 @@ public class UserResource {
             UserFilter userFilter,
             @RequestParam(defaultValue = "true") boolean includeProvenance)
             throws NotAuthorizedException {
-        checkPermission(token, USER_READ);
+        authService.checkPermission(USER_READ);
 
         Page<UserDTO> page = userService.findUsers(userFilter, pageable, includeProvenance);
 
@@ -233,7 +229,7 @@ public class UserResource {
     public ResponseEntity<UserDTO> getUser(@PathVariable String login)
             throws NotAuthorizedException {
         log.debug("REST request to get User : {}", login);
-        checkPermission(token, USER_READ);
+        authService.checkPermission(USER_READ, e -> e.user(login));
         return ResponseUtil.wrapOrNotFound(
                 userService.getUserWithAuthoritiesByLogin(login));
     }
@@ -249,7 +245,7 @@ public class UserResource {
     public ResponseEntity<Void> deleteUser(@PathVariable String login)
             throws NotAuthorizedException {
         log.debug("REST request to delete User: {}", login);
-        checkPermission(token, USER_DELETE);
+        authService.checkPermission(USER_DELETE, e -> e.user(login));
         userService.deleteUser(login);
         return ResponseEntity.ok().headers(HeaderUtil.createAlert("userManagement.deleted", login))
                 .build();
@@ -266,7 +262,7 @@ public class UserResource {
     public ResponseEntity<Set<RoleDTO>> getUserRoles(@PathVariable String login)
             throws NotAuthorizedException {
         log.debug("REST request to read User roles: {}", login);
-        checkPermission(token, ROLE_READ);
+        authService.checkPermission(ROLE_READ, e -> e.user(login));
         return ResponseUtil.wrapOrNotFound(userService.getUserWithAuthoritiesByLogin(login)
                         .map(UserDTO::getRoles));
     }
@@ -282,7 +278,7 @@ public class UserResource {
     public ResponseEntity<Void> putUserRoles(@PathVariable String login,
             @RequestBody Set<RoleDTO> roleDtos) throws NotAuthorizedException {
         log.debug("REST request to update User roles: {} to {}", login, roleDtos);
-        checkPermission(token, ROLE_UPDATE);
+        authService.checkPermission(ROLE_UPDATE, e -> e.user(login));
         userService.updateRoles(login, roleDtos);
         return ResponseEntity.noContent().build();
     }

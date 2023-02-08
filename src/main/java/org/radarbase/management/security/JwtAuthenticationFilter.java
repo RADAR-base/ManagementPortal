@@ -85,7 +85,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         if (token == null) {
             try {
-                token = SessionRadarToken.from(validator.validateAccessToken(getToken(httpRequest,
+                token = SessionRadarToken.from(validator.authenticateBlocking(getToken(httpRequest,
                         httpResponse)));
             } catch (TokenValidationException ex) {
                 logger.error(ex.getMessage());
@@ -105,7 +105,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 var roles = user.get().getRoles().stream()
                         .map(role -> {
                             var auth = role.getRole();
-                            return switch (role.getRole().scope()) {
+                            return switch (role.getRole().getScope()) {
                                 case GLOBAL -> new AuthorityReference(auth);
                                 case ORGANIZATION -> new AuthorityReference(auth,
                                         role.getOrganization().getName());

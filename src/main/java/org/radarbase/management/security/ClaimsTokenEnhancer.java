@@ -1,7 +1,7 @@
 package org.radarbase.management.security;
 
 import org.radarbase.auth.authorization.Permission;
-import org.radarbase.auth.token.JwtRadarToken;
+import org.radarbase.auth.jwt.JwtRadarToken;
 import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.repository.SubjectRepository;
@@ -65,7 +65,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
                         var roles = user.getRoles().stream()
                                 .map(role -> {
                                     var auth = role.getAuthority().getName();
-                                    return switch (role.getRole().scope()) {
+                                    return switch (role.getRole().getScope()) {
                                         case GLOBAL -> auth;
                                         case ORGANIZATION -> role.getOrganization().getName()
                                                 + ":" + auth;
@@ -83,7 +83,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
                                     Permission permission = Permission.ofScope(scope);
                                     return user.getRoles().stream()
                                             .map(Role::getRole)
-                                            .anyMatch(permission::isRoleAllowed);
+                                            .anyMatch(r -> r.mayBeGranted(permission));
                                 })
                                 .collect(Collectors.toCollection(TreeSet::new));
 

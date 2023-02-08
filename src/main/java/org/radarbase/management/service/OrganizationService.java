@@ -1,8 +1,7 @@
 package org.radarbase.management.service;
 
-import org.radarbase.auth.authorization.RoleAuthority;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.Organization;
+import org.radarbase.management.domain.Project;
 import org.radarbase.management.repository.OrganizationRepository;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.service.dto.OrganizationDTO;
@@ -15,9 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,10 +42,9 @@ public class OrganizationService {
     private OrganizationMapper organizationMapper;
 
     @Autowired
-    private RadarToken token;
-
-    @Autowired
     private ProjectMapper projectMapper;
+    @Autowired
+    private AuthService authService;
 
     /**
      * Save an organization.
@@ -69,21 +68,20 @@ public class OrganizationService {
     public List<OrganizationDTO> findAll() {
         List<Organization> organizationsOfUser;
 
-        if (token.hasGlobalPermission(ORGANIZATION_READ)) {
+        var referents = authService.referentsByScope(ORGANIZATION_READ);
+
+        if (referents.getGlobal()) {
             organizationsOfUser = organizationRepository.findAll();
         } else {
-            List<String> projectNames = token.getReferentsWithPermission(
-                    RoleAuthority.Scope.PROJECT, ORGANIZATION_READ)
-                    .collect(Collectors.toList());
+            Set<String> projectNames = referents.getProjects();
 
-            Stream<Organization> organizationsOfProject = projectNames.isEmpty()
-                    ? Stream.of()
-                    : organizationRepository.findAllByProjectNames(projectNames).stream();
+            Stream<Organization> organizationsOfProject = referents.hasProjects()
+                    ? organizationRepository.findAllByProjectNames(projectNames).stream()
+                    : Stream.of();
 
-            Stream<Organization> organizationsOfRole = token.getReferentsWithPermission(
-                    RoleAuthority.Scope.ORGANIZATION, ORGANIZATION_READ)
-                    .flatMap(name -> organizationRepository.findOneByName(name).stream())
-                    .filter(Objects::nonNull);
+            Stream<Organization> organizationsOfRole = referents.getOrganizations()
+                    .stream()
+                    .flatMap(name -> organizationRepository.findOneByName(name).stream());
 
             organizationsOfUser = Stream.concat(organizationsOfRole, organizationsOfProject)
                     .distinct()
@@ -113,9 +111,23 @@ public class OrganizationService {
      */
     @Transactional(readOnly = true)
     public List<ProjectDTO> findAllProjectsByOrganizationName(String organizationName) {
-        return projectRepository.findAllByOrganizationName(organizationName).stream()
-                .filter(project -> token.hasPermissionOnOrganizationAndProject(
-                        ORGANIZATION_READ, organizationName, project.getProjectName()))
+        var referents = authService.referentsByScope(ORGANIZATION_READ);
+        if (referents.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Stream<Project> projectStream;
+
+        if (referents.getGlobal() || referents.hasOrganization(organizationName)) {
+            projectStream = projectRepository.findAllByOrganizationName(organizationName).stream();
+        } else if (referents.hasProjects()) {
+            projectStream = projectRepository.findAllByOrganizationName(organizationName).stream()
+                    .filter(project -> referents.hasProject(project.getProjectName()));
+        } else {
+            return List.of();
+        }
+
+        return projectStream
                 .map(projectMapper::projectToProjectDTO)
                 .collect(Collectors.toList());
     }

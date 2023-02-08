@@ -5,7 +5,7 @@ import java.util.Set;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.Email;
-import org.radarbase.auth.config.Constants;
+import org.radarbase.management.security.Constants;
 
 /**
  * A DTO representing a user, with his authorities.
