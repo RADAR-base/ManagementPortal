@@ -22,7 +22,8 @@ export const sourceTypeRoute: Routes = [
             pageTitle: 'managementPortalApp.sourceType.home.title',
         },
         canActivate: [UserRouteAccessService],
-    }, {
+    },
+    {
         path: 'source-type/:sourceTypeProducer/:sourceTypeModel/:catalogVersion',
         component: SourceTypeDetailComponent,
         data: {

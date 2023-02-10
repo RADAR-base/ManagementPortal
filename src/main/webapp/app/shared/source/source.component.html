@@ -19,7 +19,7 @@
     </div>
     <br/>
     <jhi-alert></jhi-alert>
-    <div class="table-responsive" *ngIf="sources">
+    <div class="table-responsive" *ngIf="_sources$ | async as sources">
         <table class="table table-striped">
             <thead>
                 <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="transition.bind(this)">
@@ -61,7 +61,7 @@
                     </div>
                 </td>
                 <td>
-                  <div *ngFor="let entry of source.attributes | keyvalue; trackBy: trackKey">
+                  <div *ngFor="let entry of source.attributes | keyvalue; trackBy: trackId">
                     <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
                   </div>
                 </td>
@@ -102,7 +102,7 @@
             </tbody>
         </table>
     </div>
-    <div *ngIf="sources && totalItems !== undefined">
+    <div *ngIf="(_sources$ | async)  && totalItems !== undefined">
         <div class="row justify-content-center">
             <jhi-item-count [page]="page" [total]="queryCount" [itemsPerPage]="itemsPerPage"></jhi-item-count>
         </div>

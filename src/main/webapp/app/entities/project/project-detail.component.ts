@@ -94,7 +94,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
     private availableTabs(project: Project, account: Account): string[] {
         if (project && this.principal.accountHasAnyAuthority(account, ['ROLE_SYS_ADMIN', 'ROLE_ORGANIZATION_ADMIN:' + project.organization.name, 'ROLE_PROJECT_ADMIN:' + project.projectName])) {
-            return ['subjects', 'groups', 'permissions', 'admins', 'analysts'];
+            return ['subjects', 'sources', 'groups', 'permissions', 'admins', 'analysts'];
         } else {
             return [];
         }

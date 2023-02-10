@@ -32,6 +32,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -39,6 +40,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.radarbase.auth.authorization.RoleAuthority.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
 
 /**
@@ -51,6 +53,9 @@ import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
 @EntityListeners({AbstractEntityListener.class})
 public class Subject extends AbstractEntity implements Serializable {
     private static final long serialVersionUID = 1L;
+    private static final Set<String> PARTICIPANT_TYPES = Set.of(
+            PARTICIPANT.authority(),
+            INACTIVE_PARTICIPANT.authority());
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
@@ -235,6 +240,20 @@ public class Subject extends AbstractEntity implements Serializable {
     public Optional<Project> getActiveProject() {
         return this.getUser().getRoles().stream()
                 .filter(r -> r.getAuthority().getName().equals(PARTICIPANT.authority()))
+                .findFirst()
+                .map(Role::getProject);
+    }
+
+    /**
+     * Get the active project of a subject, and otherwise the
+     * inactive project.
+     * @return the project a subject belongs to, if any.
+     */
+    public Optional<Project> getAssociatedProject() {
+        return this.getUser().getRoles().stream()
+                .filter(r -> PARTICIPANT_TYPES.contains(r.getAuthority().getName()))
+                .sorted(Comparator.<Role, String>comparing(r -> r.getAuthority().getName())
+                        .reversed())
                 .findFirst()
                 .map(Role::getProject);
     }

@@ -6,7 +6,6 @@ import static org.radarbase.auth.authorization.Permission.OAUTHCLIENTS_READ;
 import static org.radarbase.auth.authorization.Permission.OAUTHCLIENTS_UPDATE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_UPDATE;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
 import static org.radarbase.management.service.OAuthClientService.checkProtected;
 import static org.radarbase.management.web.rest.errors.EntityName.OAUTH_CLIENT;
 
@@ -23,10 +22,11 @@ import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.service.MetaTokenService;
-import org.radarbase.management.service.OAuthClientService;
-import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.SubjectService;
 import org.radarbase.management.service.UserService;
+import org.radarbase.management.service.OAuthClientService;
+import org.radarbase.management.service.OrganizationService;
+import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.dto.ClientDetailsDTO;
 import org.radarbase.management.service.dto.ClientPairInfoDTO;
 import org.radarbase.management.service.mapper.ClientDetailsMapper;
@@ -74,6 +74,9 @@ public class OAuthClientsResource {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private OrganizationService organizationService;
 
     @Autowired
     private AuditEventRepository eventRepository;
@@ -207,7 +210,7 @@ public class OAuthClientsResource {
                 .orElse(null);
 
         // Users who can update a subject can also generate a refresh token for that subject
-        checkPermissionOnSubject(token, SUBJECT_UPDATE, project, login);
+        organizationService.checkPermissionBySubject(SUBJECT_UPDATE, project, login);
 
         ClientPairInfoDTO cpi = metaTokenService.createMetaToken(subject, clientId, persistent);
         // generate audit event

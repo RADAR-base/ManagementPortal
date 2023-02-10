@@ -28,6 +28,7 @@ import org.radarbase.management.domain.Source;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.repository.SourceRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
+import org.radarbase.management.service.OrganizationService;
 import org.radarbase.management.service.SourceService;
 import org.radarbase.management.service.SourceTypeService;
 import org.radarbase.management.service.dto.SourceDTO;
@@ -103,6 +104,8 @@ class SourceResourceIntTest {
     private Source source;
 
     private Project project;
+    @Autowired
+    private OrganizationService organizationService;
 
     @BeforeEach
     public void setUp() throws ServletException {
@@ -111,6 +114,7 @@ class SourceResourceIntTest {
         ReflectionTestUtils.setField(sourceResource, "token", radarToken);
         ReflectionTestUtils.setField(sourceResource, "sourceService", sourceService);
         ReflectionTestUtils.setField(sourceResource, "sourceRepository", sourceRepository);
+        ReflectionTestUtils.setField(sourceResource, "organizationService", organizationService);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());

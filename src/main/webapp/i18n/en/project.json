@@ -16,6 +16,7 @@
                 "title": "Project"
             },
             "projectName": "Project Id",
+            "projectName.fieldWarning": "This field is not editable after creation.",
             "projectName.fieldDescription": "Unique identifier of project",
             "description": "Description",
             "organization": "Organization",
@@ -27,6 +28,7 @@
             "sourceType": "Source Type",
             "groups": "Groups",
             "subjects": "Subjects",
+            "sources": "Sources",
             "permissions":  "Permissions",
             "admins":  "Admins",
             "analysts": "Analysts",

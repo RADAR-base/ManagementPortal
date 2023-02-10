@@ -1,36 +1,10 @@
 package org.radarbase.management.service;
 
-import static org.radarbase.auth.authorization.RoleAuthority.INACTIVE_PARTICIPANT;
-import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
-import static org.radarbase.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
-import static org.radarbase.management.web.rest.errors.EntityName.GROUP;
-import static org.radarbase.management.web.rest.errors.EntityName.OAUTH_CLIENT;
-import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
-import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_GROUP_NOT_FOUND;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SOURCE_NOT_FOUND;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SUBJECT_NOT_FOUND;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-
 import org.hibernate.envers.query.AuditEntity;
+import org.radarbase.auth.authorization.Permission;
 import org.radarbase.auth.authorization.RoleAuthority;
+import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.Group;
@@ -42,6 +16,7 @@ import org.radarbase.management.domain.Subject;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.repository.AuthorityRepository;
 import org.radarbase.management.repository.GroupRepository;
+import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.repository.RoleRepository;
 import org.radarbase.management.repository.SourceRepository;
 import org.radarbase.management.repository.SubjectRepository;
@@ -65,6 +40,38 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.history.Revisions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Nonnull;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkGlobalPermission;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganizationAndProject;
+import static org.radarbase.auth.authorization.RoleAuthority.INACTIVE_PARTICIPANT;
+import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
+import static org.radarbase.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
+import static org.radarbase.management.web.rest.errors.EntityName.GROUP;
+import static org.radarbase.management.web.rest.errors.EntityName.OAUTH_CLIENT;
+import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
+import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_GROUP_NOT_FOUND;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SOURCE_NOT_FOUND;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SUBJECT_NOT_FOUND;
 
 /**
  * Created by nivethika on 26-5-17.
@@ -107,6 +114,14 @@ public class SubjectService {
 
     @Autowired
     private AuthorityRepository authorityRepository;
+
+    @Autowired
+    private ProjectRepository projectRepository;
+
+    @Autowired
+    private RadarToken token;
+    @Autowired
+    private OrganizationService organizationService;
 
     /**
      * Create a new subject.
@@ -192,14 +207,12 @@ public class SubjectService {
             return createSubject(newSubjectDto);
         }
         Subject subjectFromDb = ensureSubject(newSubjectDto);
-        //reset all the sources assigned to a subject to unassigned
         Set<Source> sourcesToUpdate = subjectFromDb.getSources();
-        sourcesToUpdate.forEach(s -> s.subject(null).assigned(false).deleted(true));
         //set only the devices assigned to a subject as assigned
         subjectMapper.safeUpdateSubjectFromDTO(newSubjectDto, subjectFromDb);
         sourcesToUpdate.addAll(subjectFromDb.getSources());
         subjectFromDb.getSources()
-                .forEach(s -> s.subject(subjectFromDb).assigned(true).deleted(false));
+                .forEach(s -> s.subject(subjectFromDb).assigned(true));
         sourceRepository.saveAll(sourcesToUpdate);
         // update participant role
         subjectFromDb.getUser().setRoles(updateParticipantRoles(subjectFromDb, newSubjectDto));
@@ -437,13 +450,18 @@ public class SubjectService {
      * @throws NotFoundException if there was no subject with the given login at the given
      *         revision number
      */
-    public SubjectDTO findRevision(String login, Integer revision) throws NotFoundException {
+    public SubjectDTO findRevision(String login, Integer revision)
+            throws NotFoundException, NotAuthorizedException {
+        checkPermission(token, SUBJECT_READ);
         // first get latest known version of the subject, if it's deleted we can't load the entity
         // directly by e.g. findOneByLogin
         SubjectDTO latest = getLatestRevision(login);
+        organizationService.checkPermissionBySubject(SUBJECT_READ,
+                latest.getProject().getProjectName(), latest.getLogin());
         SubjectDTO sub = revisionService
                 .findRevision(revision, latest.getId(), Subject.class,
                         subjectMapper::subjectToSubjectReducedProjectDTO);
+
         if (sub == null) {
             throw new NotFoundException("subject not found for given login and revision.", SUBJECT,
                 ERR_SUBJECT_NOT_FOUND, Collections.singletonMap("subjectLogin", login));
@@ -536,4 +554,34 @@ public class SubjectService {
         }
     }
 
+    /**
+     * Check that the current user is authorized for the given subject. This takes
+     * into account project and organization affiliation.
+     * @param permission permission to check
+     * @param subject subject to check
+     * @param active if true, only check active project, otherwise also inactive.
+     * @return the project associated to the subject, if any.
+     * @throws NotAuthorizedException if the current user is not authorized.
+     */
+    public Optional<Project> checkSubjectProject(Permission permission, Subject subject,
+            boolean active) throws NotAuthorizedException {
+        Optional<Project> project = (active ? subject.getActiveProject()
+                : subject.getAssociatedProject())
+                .flatMap(p -> projectRepository.findByIdWithOrganization(p.getId()));
+
+        if (project.isPresent()) {
+            Project p = project.get();
+            String projectName = p.getProjectName();
+            if (!token.hasPermissionOnSubject(permission, projectName,
+                    subject.getUser().getLogin())) {
+                String organizationName = p.getOrganization().getName();
+                checkPermissionOnOrganizationAndProject(token, permission, organizationName,
+                        projectName);
+            }
+        } else {
+            checkGlobalPermission(token, permission);
+        }
+
+        return project;
+    }
 }

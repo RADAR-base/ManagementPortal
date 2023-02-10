@@ -43,6 +43,7 @@ import org.radarbase.management.domain.Subject;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
+import org.radarbase.management.service.OrganizationService;
 import org.radarbase.management.service.SourceService;
 import org.radarbase.management.service.SourceTypeService;
 import org.radarbase.management.service.SubjectService;
@@ -110,6 +111,9 @@ class SubjectResourceIntTest {
 
     private MockMvc restSubjectMockMvc;
 
+    @Autowired
+    private OrganizationService organizationService;
+
     @BeforeEach
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
@@ -121,6 +125,7 @@ class SubjectResourceIntTest {
         ReflectionTestUtils.setField(subjectResource, "sourceTypeService", sourceTypeService);
         ReflectionTestUtils.setField(subjectResource, "token", radarToken);
         ReflectionTestUtils.setField(subjectResource, "sourceService", sourceService);
+        ReflectionTestUtils.setField(subjectResource, "organizationService", organizationService);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());

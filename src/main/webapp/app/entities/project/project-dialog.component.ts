@@ -19,7 +19,7 @@ import { EventManager } from '../../shared/util/event-manager.service';
 import { SourceType, SourceTypeService } from '../source-type';
 import { ProjectPopupService } from './project-popup.service';
 
-import { GroupService, OrganizationService, Project, ProjectService } from '../../shared';
+import {GroupService, Organization, OrganizationService, Principal, Project, ProjectService} from '../../shared';
 import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
 
 @Component({
@@ -32,6 +32,8 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
     readonly options: string[];
 
     organizationName: string;
+    organizations: Organization[];
+
     project: Project;
     projectCopy: Project;
     isSaving: boolean;
@@ -47,6 +49,9 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
     @ViewChild('instance', {static: true}) instance: NgbTypeahead;
     focus$ = new Subject<string>();
     click$ = new Subject<string>();
+
+    availableOrganizations: string[];
+    hasRoleToChangeOrganization: boolean = false;
 
     getMatchingSourceTypes: OperatorFunction<string, SourceType[]> = (text$: Observable<string>) => {
         const debouncedText$ = text$.pipe(debounceTime(200), distinctUntilChanged());
@@ -79,7 +84,7 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
     constructor(
             public activeModal: NgbActiveModal,
             private alertService: AlertService,
-            public organizationService: OrganizationService,
+            private organizationService: OrganizationService,
             private projectService: ProjectService,
             private sourceTypeService: SourceTypeService,
             private eventManager: EventManager,
@@ -87,6 +92,7 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
             private calendar: NgbCalendar,
             public formatter: NgbDateParserFormatter,
             private router: Router,
+            public principal: Principal,
     ) {
         this.isSaving = false;
         this.options = ['Work-package', 'Phase', 'External-project-url', 'External-project-id', 'Privacy-policy-url'];
@@ -94,6 +100,9 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        const organizationSubscription = this.organizationService.organizations$.subscribe(organizations => this.organizations = organizations)
+        this.subscriptions.add(organizationSubscription);
+
         this.projectCopy = Object.assign({}, this.project)
         if(this.projectCopy.startDate) {
             this.startDate = this.formatter.parse(this.projectCopy.startDate.toString());
@@ -102,6 +111,25 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
             this.endDate = this.formatter.parse(this.projectCopy.endDate.toString());
         }
         this.subscriptions.add(this.registerChangesToAttributes());
+
+        const principalSubscription = this.principal.account$.subscribe(account => {
+            const isSysAdmin = account.roles.find(role => role.authorityName === 'ROLE_SYS_ADMIN')
+            if(isSysAdmin){
+                this.hasRoleToChangeOrganization = true;
+                this.availableOrganizations = this.organizations.map(o => o.name)
+            } else {
+                this.hasRoleToChangeOrganization = !!account.roles.find(role => role.organizationName === this.organizationName)
+                if(this.hasRoleToChangeOrganization){
+                    this.availableOrganizations = account.roles
+                        .filter(role => role.authorityName === "ROLE_ORGANIZATION_ADMIN")
+                        .map(role => role.organizationName)
+                } else {
+                    this.availableOrganizations = this.organizations.map(o => o.name)
+                }
+            }
+        })
+
+        this.subscriptions.add(principalSubscription);
     }
 
     ngOnDestroy() {
@@ -120,13 +148,16 @@ export class ProjectDialogComponent implements OnInit, OnDestroy {
         if (this.endDate && this.calendar.isValid(NgbDate.from(this.endDate))) {
             this.projectCopy.endDate = this.formatter.format(this.endDate) + 'T23:59';
         }
-        const updatedProject = {...this.projectCopy, organization: {name: this.organizationName}};
         if (this.projectCopy.id !== undefined) {
+            const organization = this.organizations.find(o => o.name === this.projectCopy.organization.name)
+            const updatedProject = {...this.projectCopy, organization};
             this.subscriptions.add(this.projectService.update(updatedProject).subscribe(
                 (res: Project) => this.onSaveSuccess(res),
                 (res: Response) => this.onSaveError(res),
             ));
         } else {
+            const organization = this.organizations.find(o => o.name === this.organizationName)
+            const updatedProject = {...this.projectCopy, organization};
             this.subscriptions.add(this.projectService.create(updatedProject).subscribe(
                 (res: Project) => this.onSaveSuccess(res),
                 (res: Response) => this.onSaveError(res),

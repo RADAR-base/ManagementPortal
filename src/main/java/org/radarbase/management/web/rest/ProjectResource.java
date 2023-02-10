@@ -161,6 +161,12 @@ public class ProjectResource {
         // they must have permissions to modify both new & old organizations
         var newOrgName = org.getName();
         var existingProject = projectService.findOne(projectDto.getId());
+
+        if (!existingProject.getProjectName().equals(projectDto.getProjectName())) {
+            throw new BadRequestException("The project name cannot be modified.", ENTITY_NAME,
+                    ERR_VALIDATION);
+        }
+
         checkPermissionOnOrganizationAndProject(token, PROJECT_UPDATE, newOrgName,
                 existingProject.getProjectName());
 
@@ -294,10 +300,9 @@ public class ProjectResource {
         checkPermission(token, SOURCE_READ);
         log.debug("REST request to get all Sources");
         ProjectDTO projectDto = projectService.findOneByName(projectName);
-        RadarToken jwt = token;
-        checkPermissionOnOrganizationAndProject(jwt, SOURCE_READ,
+        checkPermissionOnOrganizationAndProject(token, SOURCE_READ,
                 projectDto.getOrganization().getName(), projectDto.getProjectName());
-        if (!jwt.isClientCredentials() && jwt.hasAuthority(PARTICIPANT)) {
+        if (!token.isClientCredentials() && token.hasAuthority(PARTICIPANT)) {
             throw new NotAuthorizedException("Cannot list all project sources as a participant.");
         }
 

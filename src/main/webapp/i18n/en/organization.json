@@ -16,6 +16,7 @@
                 "title": "Organization"
             },
             "organizationName": "Organization Id",
+            "organizationName.fieldWarning": "This field is not editable after creation.",
             "organizationName.fieldDescription": "Unique identifier of organization",
             "description": "Description",
             "organization": "Organization",
