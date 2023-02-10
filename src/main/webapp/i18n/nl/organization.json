@@ -16,6 +16,7 @@
                 "title": "Organisatie"
             },
             "organizationName": "Organisatie Id",
+            "organizationName.fieldWarning": "",
             "organizationName.fieldDescription": "Unieke identificatie van organization",
             "description": "Omschrijving",
             "organization": "Organisatie",
