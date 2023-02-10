@@ -30,7 +30,6 @@ Management Portal is an application which is used to manage clinical studies for
 The following are the prerequisites to run ManagementPortal from source on your machine:
 
 - Java 11
-- Gradle (v6 or later is recommended)
 - Node.js (v15 or later is recommended)
 - Yarn (v1.19.0 or later is recommended)
 
