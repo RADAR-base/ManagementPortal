@@ -111,7 +111,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     logger.error("Failed to validate token: {}", ex.getMessage());
                     httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     httpResponse.setHeader(
-                        HttpHeaders.WWW_AUTHENTICATE, OAuth2AccessToken.BEARER_TYPE);
+                            HttpHeaders.WWW_AUTHENTICATE, OAuth2AccessToken.BEARER_TYPE);
                     httpResponse.getOutputStream().print(
                             "{\"error\": \"" + "Unauthorized" + ",\n"
                                     + "\"status\": \"" + HttpServletResponse.SC_UNAUTHORIZED 
