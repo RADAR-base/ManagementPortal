@@ -110,10 +110,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 } else {
                     logger.error("Failed to validate token: {}", ex.getMessage());
                     httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    httpResponse.setHeader(HttpHeaders.WWW_AUTHENTICATE, OAuth2AccessToken.BEARER_TYPE);
+                    httpResponse.setHeader(
+                            HttpHeaders.WWW_AUTHENTICATE, OAuth2AccessToken.BEARER_TYPE);
                     httpResponse.getOutputStream().print(
                             "{\"error\": \"" + "Unauthorized" + ",\n"
-                                    + "\"status\": \"" + HttpServletResponse.SC_UNAUTHORIZED + "\",\n"
+                                    + "\"status\": \"" + HttpServletResponse.SC_UNAUTHORIZED 
+                                    + "\",\n"
                                     + "\"message\": \"" + ex.getMessage() + "\",\n"
                                     + "\"path\": \"" + httpRequest.getRequestURI() + "\n"
                                     + "\"}");

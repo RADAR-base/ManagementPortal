@@ -1,11 +1,13 @@
 package org.radarbase.management.service.catalog;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.hibernate.validator.constraints.NotEmpty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CatalogSourceType {
 
     @JsonProperty("assessment_type")
@@ -36,9 +38,6 @@ public class CatalogSourceType {
     private Map<String, String> properties;
 
     @JsonProperty
-    private List<String> labels;
-
-    @JsonProperty
     @NotEmpty
     private List<CatalogSourceData> data;
 
@@ -48,10 +47,6 @@ public class CatalogSourceType {
 
     public String getDoc() {
         return doc;
-    }
-
-    public List<String> getLabels() {
-        return labels;
     }
 
     public Map<String, String> getProperties() {
@@ -104,7 +99,6 @@ public class CatalogSourceType {
                 && Objects.equals(doc, that.doc)
                 && Objects.equals(scope, that.scope)
                 && Objects.equals(properties, that.properties)
-                && Objects.equals(labels, that.labels)
                 && Objects.equals(data, that.data);
     }
 
@@ -113,6 +107,6 @@ public class CatalogSourceType {
 
         return Objects
             .hash(assessmentType, appProvider, vendor, model, version, name, doc, scope, properties,
-                labels, data);
+                    data);
     }
 }

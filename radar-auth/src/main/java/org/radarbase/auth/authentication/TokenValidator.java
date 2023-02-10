@@ -6,13 +6,13 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.interfaces.Claim;
@@ -185,6 +185,7 @@ public class TokenValidator {
 
         return streamEmptyIfNull(config.getPublicKeyEndpoints())
                 .map(this::algorithmFromServerPublicKeyEndpoint)
+                .filter(Objects::nonNull)
                 .flatMap(List::stream)
                 .map(alg -> AlgorithmLoader.buildVerifier(alg, config.getResourceName()))
                 .collect(Collectors.toList());
@@ -206,8 +207,9 @@ public class TokenValidator {
                             publicKeyInfo.getKeys().size(), serverUri.toURL());
                     return algorithmLoader.loadAlgorithmsFromJavaWebKeys(publicKeyInfo);
                 } else {
-                    throw new TokenValidationException("Invalid token signature. Could not load "
-                            + "newer public keys");
+                    // Log and Continue Pulling next Endpoints, if any
+                    LOGGER.warn("Could not load newer public keys from {}", serverUri.toURL());
+                    return null;
                 }
             }
         } catch (Exception ex) {
