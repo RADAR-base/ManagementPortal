@@ -96,7 +96,10 @@ public class OAuth2ServerConfiguration {
 
         public JwtAuthenticationFilter jwtAuthenticationFilter() {
             return new JwtAuthenticationFilter(
-                    keyStoreHandler.getTokenValidator(), authenticationManager, userRepository, true);
+                    keyStoreHandler.getTokenValidator(), 
+                    authenticationManager, 
+                    userRepository, 
+                    true);
         }
     }
 
