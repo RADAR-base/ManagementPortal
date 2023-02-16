@@ -16,6 +16,7 @@
                 "title": "Project"
             },
             "projectName": "Project Id",
+            "projectName.fieldWarning": "",
             "projectName.fieldDescription": "Unieke identificatie van project",
             "description": "Omschrijving",
             "organization": "Organisatie",

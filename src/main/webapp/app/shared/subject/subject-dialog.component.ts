@@ -51,7 +51,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
                 private formatter: NgbDateParserFormatter) {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
-        this.options = ['Human-readable-identifier'];
+        this.options = ['Human-readable-identifier', 'participant_group'];
     }
 
     ngOnInit() {
