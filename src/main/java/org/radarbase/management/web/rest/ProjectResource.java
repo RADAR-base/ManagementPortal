@@ -154,8 +154,13 @@ public class ProjectResource {
         }
         // When clients want to transfer a project,
         // they must have permissions to modify both new & old organizations
-        var newOrgName = org.getName();
         var existingProject = projectService.findOne(projectDto.getId());
+        if (!existingProject.getProjectName().equals(projectDto.getProjectName())) {
+            throw new BadRequestException("The project name cannot be modified.", ENTITY_NAME,
+                    ERR_VALIDATION);
+        }
+
+        var newOrgName = org.getName();
         authService.checkPermission(PROJECT_UPDATE, e -> e
                 .organization(newOrgName)
                 .project(existingProject.getProjectName()));
@@ -294,6 +299,7 @@ public class ProjectResource {
         authService.checkScope(SOURCE_READ);
         log.debug("REST request to get all Sources");
         ProjectDTO projectDto = projectService.findOneByName(projectName);
+
         authService.checkPermission(SOURCE_READ, e -> e
                 .organization(projectDto.getOrganization().getName())
                 .project(projectDto.getProjectName()));

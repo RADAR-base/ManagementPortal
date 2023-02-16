@@ -15,6 +15,7 @@ import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.UserService;
 import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.service.dto.UserDTO;
+import org.radarbase.management.web.rest.errors.BadRequestException;
 import org.radarbase.management.web.rest.errors.InvalidRequestException;
 import org.radarbase.management.web.rest.util.HeaderUtil;
 import org.radarbase.management.web.rest.util.PaginationUtil;
@@ -162,17 +163,13 @@ public class UserResource {
         Optional<User> existingUser = userRepository.findOneByEmail(managedUserVm.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getId()
                 .equals(managedUserVm.getId()))) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                    .createFailureAlert(USER, "emailexists", "Email already in use"))
-                    .body(null);
+            throw new BadRequestException("Email already in use", USER, "emailexists");
         }
         existingUser = userRepository.findOneByLogin(managedUserVm.getLogin()
                 .toLowerCase(Locale.US));
         if (existingUser.isPresent() && (!existingUser.get().getId()
                 .equals(managedUserVm.getId()))) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                    .createFailureAlert(USER, "userexists", "Login already in use"))
-                    .body(null);
+            throw new BadRequestException("Login already in use", USER, "emailexists");
         }
 
         Optional<Subject> subject = subjectRepository

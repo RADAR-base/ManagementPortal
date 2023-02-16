@@ -25,7 +25,7 @@ export class AuthorityService {
     private principal: Principal,
   ) {
     this.authorities$ = this.principal.account$.pipe(
-      map(account => !!account),
+      map(account => !!account && account.authorities.includes("ROLE_SYS_ADMIN")),
       distinctUntilChanged(),
       switchMap(account => {
         if (account) {

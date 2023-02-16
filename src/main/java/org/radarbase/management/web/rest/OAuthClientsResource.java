@@ -9,6 +9,7 @@ import org.radarbase.management.security.Constants;
 import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.MetaTokenService;
 import org.radarbase.management.service.OAuthClientService;
+import org.radarbase.management.service.OrganizationService;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.SubjectService;
 import org.radarbase.management.service.UserService;
@@ -75,6 +76,9 @@ public class OAuthClientsResource {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private OrganizationService organizationService;
 
     @Autowired
     private AuditEventRepository eventRepository;

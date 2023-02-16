@@ -16,7 +16,7 @@ import {
 })
 export class OrganizationComponent implements OnInit, OnDestroy {
     organizations$: Observable<Organization[]>;
-    private _sortOrder$ = new BehaviorSubject<SortOrder>({predicate: 'id', ascending: true});
+    private _sortOrder$ = new BehaviorSubject<SortOrder>({predicate: 'name', ascending: true});
     sortOrder$: Observable<SortOrderImpl>;
     subscriptions: Subscription = new Subscription();
 
@@ -45,6 +45,7 @@ export class OrganizationComponent implements OnInit, OnDestroy {
     }
 
     sort(order: SortOrder) {
+        console.log('sort', order);
         this._sortOrder$.next(order);
     }
 

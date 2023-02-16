@@ -65,7 +65,6 @@ import static org.radarbase.auth.authorization.Permission.SUBJECT_CREATE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_DELETE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_UPDATE;
-import static org.radarbase.management.web.rest.errors.EntityName.PROJECT;
 import static org.radarbase.management.web.rest.errors.EntityName.SOURCE;
 import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
 import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;
@@ -123,39 +122,40 @@ public class SubjectResource {
     public ResponseEntity<SubjectDTO> createSubject(@RequestBody SubjectDTO subjectDto)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save Subject : {}", subjectDto);
-        if (subjectDto.getProject() == null || subjectDto.getProject().getId() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                    .createFailureAlert(SUBJECT, "projectrequired",
-                            "A subject should be assigned to a project")).build();
-        }
-        authService.checkPermission(SUBJECT_CREATE, e -> e
-                .project(subjectDto.getProject().getProjectName()));
+        String projectName = getProjectName(subjectDto);
+        authService.checkPermission(SUBJECT_CREATE, e -> e.project(projectName));
 
         if (subjectDto.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                    .createFailureAlert(SUBJECT, "idexists",
-                            "A new subject cannot already have an ID")).build();
+            throw new BadRequestException("A new subject cannot already have an ID",
+                    SUBJECT, "idexists");
         }
         if (subjectDto.getLogin() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                            .createFailureAlert(SUBJECT, "loginrequired",
-                                    "A subject login is required"))
-                    .build();
+            throw new BadRequestException("A subject login is required", SUBJECT, "loginrequired");
         }
-        if (subjectDto.getExternalId() != null && !subjectDto.getExternalId().isEmpty()
-                && subjectRepository.findOneByProjectNameAndExternalId(subjectDto.getProject()
-                .getProjectName(), subjectDto.getExternalId()).isPresent()) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                            .createFailureAlert(SUBJECT, "subjectExists",
-                                    "A subject with given project-id and"
-                                            + "external-id already exists"))
-                    .build();
+        if (subjectDto.getExternalId() != null
+                && !subjectDto.getExternalId().isEmpty()
+                && subjectRepository.findOneByProjectNameAndExternalId(
+                        projectName, subjectDto.getExternalId()).isPresent()) {
+            throw new BadRequestException("A subject with given project-id and"
+                    + "external-id already exists", SUBJECT, "subjectExists");
         }
 
         SubjectDTO result = subjectService.createSubject(subjectDto);
         return ResponseEntity.created(ResourceUriService.getUri(subjectDto))
                 .headers(HeaderUtil.createEntityCreationAlert(SUBJECT, result.getLogin()))
                 .body(result);
+    }
+
+    private String getProjectName(SubjectDTO subjectDto) {
+        if (
+                subjectDto.getProject() == null
+                        || subjectDto.getProject().getId() == null
+                        || subjectDto.getProject().getProjectName() == null
+        ) {
+            throw new BadRequestException("A subject should be assigned to a project", SUBJECT,
+                    "projectrequired");
+        }
+        return subjectDto.getProject().getProjectName();
     }
 
     /**
@@ -172,18 +172,13 @@ public class SubjectResource {
     public ResponseEntity<SubjectDTO> updateSubject(@RequestBody SubjectDTO subjectDto)
             throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to update Subject : {}", subjectDto);
-        if (subjectDto.getProject() == null || subjectDto.getProject().getId() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                    .createFailureAlert(SUBJECT, "projectrequired",
-                            "A subject should be assigned to a project")).body(null);
-        }
         if (subjectDto.getId() == null) {
             return createSubject(subjectDto);
         }
+        String projectName = getProjectName(subjectDto);
         authService.checkPermission(SUBJECT_UPDATE, e -> e
-                .project(subjectDto.getProject().getProjectName())
+                .project(projectName)
                 .subject(subjectDto.getLogin()));
-
         SubjectDTO result = subjectService.updateSubject(subjectDto);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(SUBJECT, subjectDto.getLogin()))
@@ -205,18 +200,13 @@ public class SubjectResource {
             throws NotAuthorizedException {
         log.debug("REST request to update Subject : {}", subjectDto);
         if (subjectDto.getId() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                            .createFailureAlert(SUBJECT, "subjectNotAvailable", "No subject found"))
-                    .body(null);
+            throw new BadRequestException("No subject found", SUBJECT, "subjectNotAvailable");
         }
 
-        if (subjectDto.getProject() == null || subjectDto.getProject().getId() == null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil
-                    .createFailureAlert(SUBJECT, "projectrequired",
-                            "A subject should be assigned to a project")).body(null);
-        }
+        String projectName = getProjectName(subjectDto);
         authService.checkPermission(SUBJECT_UPDATE, e -> e
-                .project(subjectDto.getProject().getProjectName()).subject(subjectDto.getLogin()));
+                .project(projectName)
+                .subject(subjectDto.getLogin()));
 
         // In principle this is already captured by the PostUpdate event listener, adding this
         // event just makes it more clear a subject was discontinued.
@@ -286,6 +276,7 @@ public class SubjectResource {
     public ResponseEntity<SubjectDTO> getSubject(@PathVariable String login)
             throws NotAuthorizedException {
         log.debug("REST request to get Subject : {}", login);
+        authService.checkScope(SUBJECT_READ);
         Subject subject = subjectService.findOneByLogin(login);
         Project project = subject.getActiveProject()
                 .flatMap(p ->  projectRepository.findOneWithEagerRelationships(p.getId()))
@@ -315,17 +306,17 @@ public class SubjectResource {
     public ResponseEntity<List<RevisionDTO>> getSubjectRevisions(
             @Parameter Pageable pageable,
             @PathVariable String login) throws NotAuthorizedException {
+        authService.checkScope(SUBJECT_READ);
+
         log.debug("REST request to get revisions for Subject : {}", login);
         Subject subject = subjectService.findOneByLogin(login);
-        String project = subject.getActiveProject()
-                .flatMap(p -> projectRepository.findById(p.getId()))
-                .map(Project::getProjectName)
-                .orElseThrow(() -> new NotFoundException(
-                        "Requested subject does not have an active project",
-                        PROJECT,
-                        ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND));
+        authService.checkPermission(SUBJECT_READ, e -> {
+            subject.getAssociatedProject()
+                    .map(Project::getProjectName)
+                    .ifPresent(e::project);
+            e.subject(login);
+        });
 
-        authService.checkPermission(SUBJECT_READ, e -> e.project(project).subject(login));
         Page<RevisionDTO> page = revisionService.getRevisionsForEntity(pageable, subject);
 
         return ResponseEntity.ok()
@@ -347,6 +338,8 @@ public class SubjectResource {
     @Timed
     public ResponseEntity<SubjectDTO> getSubjectRevision(@PathVariable String login,
             @PathVariable Integer revisionNb) throws NotAuthorizedException {
+        authService.checkScope(SUBJECT_READ);
+
         log.debug("REST request to get Subject : {}, for revisionNb: {}", login, revisionNb);
         SubjectDTO subjectDto = subjectService.findRevision(login, revisionNb);
         authService.checkPermission(SUBJECT_READ, e -> e
@@ -366,10 +359,11 @@ public class SubjectResource {
     public ResponseEntity<Void> deleteSubject(@PathVariable String login)
             throws NotAuthorizedException {
         log.debug("REST request to delete Subject : {}", login);
+        authService.checkScope(SUBJECT_DELETE);
         Subject subject = subjectService.findOneByLogin(login);
 
         authService.checkPermission(SUBJECT_DELETE, e -> {
-            subject.getActiveProject()
+            subject.getAssociatedProject()
                     .map(Project::getProjectName)
                     .ifPresent(e::project);
             e.subject(subject.getUser().getLogin());
@@ -435,12 +429,17 @@ public class SubjectResource {
         Subject sub = subjectService.findOneByLogin(login);
 
         // find the actively assigned project for this subject
-
         Project currentProject = sub.getActiveProject()
+                .map(Project::getId)
+                .flatMap(projectRepository::findByIdWithOrganization)
                 .orElseThrow(() ->
                         new InvalidRequestException(
                                 "Requested subject does not have an active project",
                                 SUBJECT, ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND));
+
+        authService.checkPermission(SUBJECT_UPDATE, e -> e
+                .project(currentProject.getProjectName())
+                .subject(sub.getUser().getLogin()));
 
         // find whether the relevant source-type is available in the subject's project
         SourceType sourceType = projectRepository
@@ -451,14 +450,10 @@ public class SubjectResource {
                         SUBJECT, ERR_SOURCE_TYPE_NOT_PROVIDED)
                 );
 
-        authService.checkPermission(SUBJECT_UPDATE, e -> e
-                .project(currentProject.getProjectName())
-                .subject(sub.getUser().getLogin()));
-
         // check if any of id, sourceID, sourceName were non-null
         boolean existing = Stream.of(sourceDto.getId(), sourceDto.getSourceName(),
                         sourceDto.getSourceId())
-                .map(Objects::nonNull).reduce(false, (r1, r2) -> r1 || r2);
+                .anyMatch(Objects::nonNull);
 
         // handle the source registration
         MinimalSourceDetailsDTO sourceRegistered = subjectService
@@ -466,15 +461,17 @@ public class SubjectResource {
 
         // Return the correct response type, either created if a new source was created, or ok if
         // an existing source was provided. If an existing source was given but not found, the
-        // assignOrUpdateSource would throw an error and we would not reach this point.
+        // assignOrUpdateSource would throw an error, and we would not reach this point.
         if (!existing) {
             return ResponseEntity.created(ResourceUriService.getUri(sourceRegistered))
                     .headers(HeaderUtil.createEntityCreationAlert(SOURCE,
                             sourceRegistered.getSourceName()))
                     .body(sourceRegistered);
         } else {
-            return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(SOURCE,
-                    sourceRegistered.getSourceName())).body(sourceRegistered);
+            return ResponseEntity.ok()
+                    .headers(HeaderUtil.createEntityUpdateAlert(SOURCE,
+                            sourceRegistered.getSourceName()))
+                    .body(sourceRegistered);
         }
     }
 
@@ -490,7 +487,6 @@ public class SubjectResource {
             @PathVariable String login,
             @RequestParam(value = "withInactiveSources", required = false)
                     Boolean withInactiveSourcesParam) throws NotAuthorizedException {
-
         authService.checkScope(SUBJECT_READ);
 
         boolean withInactiveSources = withInactiveSourcesParam != null && withInactiveSourcesParam;
@@ -499,7 +495,7 @@ public class SubjectResource {
                 .orElseThrow(NoSuchElementException::new);
 
         authService.checkPermission(SUBJECT_READ, e -> {
-            subject.getActiveProject()
+            subject.getAssociatedProject()
                     .map(Project::getProjectName)
                     .ifPresent(e::project);
             e.subject(login);
@@ -551,7 +547,7 @@ public class SubjectResource {
                         Collections.singletonMap("subjectLogin", login)));
 
         authService.checkPermission(SUBJECT_UPDATE, e -> {
-            subject.getActiveProject()
+            subject.getAssociatedProject()
                     .map(Project::getProjectName)
                     .ifPresent(e::project);
             e.subject(login);

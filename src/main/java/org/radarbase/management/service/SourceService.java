@@ -108,7 +108,6 @@ public class SourceService {
                 .map(sourceMapper::sourceToSourceDTO);
     }
 
-
     /**
      * Get one source by id.
      *
@@ -160,7 +159,7 @@ public class SourceService {
      * @return list of sources
      */
     public Page<MinimalSourceDetailsDTO> findAllMinimalSourceDetailsByProject(Long projectId,
-            Pageable pageable) {
+                                                                              Pageable pageable) {
         return sourceRepository.findAllSourcesByProjectId(pageable, projectId)
                 .map(sourceMapper::sourceToMinimalSourceDetailsDTO);
     }
@@ -194,7 +193,7 @@ public class SourceService {
      * @return Updated {@link MinimalSourceDetailsDTO} of source
      */
     public MinimalSourceDetailsDTO safeUpdateOfAttributes(Source sourceToUpdate,
-            Map<String, String> attributes) {
+                                                          Map<String, String> attributes) {
 
         // update source attributes
         Map<String, String> updatedAttributes = new HashMap<>();

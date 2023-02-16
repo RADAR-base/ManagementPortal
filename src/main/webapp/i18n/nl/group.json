@@ -10,7 +10,9 @@
             "updated": "De groep {{ param }} is gewijzigd",
             "deleted": "De groep {{ param }} is verwijderd",
             "delete": {
-                "question": "Deze groep heeft onderwerpen. Weet u zeker dat u groep {{ id }} wilt verwijderen?"
+                "question": "Deze groep heeft subjecten. Weet u zeker dat u groep {{ id }} wilt verwijderen?",
+                "warning": "Deze groep heeft subjecten.",
+                "warningDescription": ""
             },
             "detail": {
                 "title": "Groep"

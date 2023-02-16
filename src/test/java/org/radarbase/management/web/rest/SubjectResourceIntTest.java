@@ -11,6 +11,7 @@ import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
 import org.radarbase.management.service.AuthService;
+import org.radarbase.management.service.OrganizationService;
 import org.radarbase.management.service.SourceService;
 import org.radarbase.management.service.SourceTypeService;
 import org.radarbase.management.service.SubjectService;

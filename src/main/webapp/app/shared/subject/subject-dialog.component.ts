@@ -32,7 +32,6 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     isInProject: boolean;
     projects: Project[] = [];
     project: Project;
-    projectName: string;
 
     groupName: string;
 
@@ -52,18 +51,15 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
                 private formatter: NgbDateParserFormatter) {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
-        this.options = ['Human-readable-identifier'];
+        this.options = ['Human-readable-identifier', 'participant_group'];
     }
 
     ngOnInit() {
-        this.projectName = this.subject?.project?.projectName || null;
+        this.project = this.subject?.project;
         this.groupName = this.subject.group || null;
 
         this.projectService.query().subscribe((projects) => {
             this.projects = projects.body;
-            this.project = this.projects.find((project) =>
-                project.projectName === this.projectName
-            )
         })
         if(this.subject.dateOfBirth) {
             this.dateOfBirth = this.formatter.parse(this.subject.dateOfBirth.toString());
@@ -90,13 +86,11 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
         if (this.dateOfBirth && this.calendar.isValid(NgbDate.from(this.dateOfBirth))) {
             this.subject.dateOfBirth = new Date(this.formatter.format(this.dateOfBirth));
         }
-        this.project = this.projects.find((p) => p.projectName === this.projectName);
         this.subject.project = this.project;
 
         this.subject.group = this.groupName; //this.project.groups.find(group => group.name === this.groupName)
 
         if (this.subject.id) {
-
             this.subjectService.update(this.subject)
             .subscribe((res: Subject) =>
                     this.onSaveSuccess('UPDATE', res), (res: any) => this.onSaveError(res));

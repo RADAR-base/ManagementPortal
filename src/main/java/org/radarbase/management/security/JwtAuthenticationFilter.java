@@ -40,19 +40,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String TOKEN_ATTRIBUTE = "jwt";
     private final List<AntPathRequestMatcher> ignoreUrls;
     private final UserRepository userRepository;
+    private final boolean isOptional;
+
+    /**
+     * Authentication filter using given validator. Authentication is mandatory.
+     * @param validator validates the JWT token.
+     * @param authenticationManager authentication manager to pass valid authentication to.
+     * @param userRepository user repository to retrieve user details from.
+     */
+    public JwtAuthenticationFilter(TokenValidator validator,
+            AuthenticationManager authenticationManager,
+            UserRepository userRepository) {
+        this(validator, authenticationManager, userRepository, false);
+    }
 
     /**
      * Authentication filter using given validator.
      * @param validator validates the JWT token.
      * @param authenticationManager authentication manager to pass valid authentication to.
+     * @param userRepository user repository to retrieve user details from.
+     * @param isOptional do not fail if no authentication is provided
      */
     public JwtAuthenticationFilter(TokenValidator validator,
             AuthenticationManager authenticationManager,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            boolean isOptional) {
         this.validator = validator;
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.ignoreUrls = new ArrayList<>();
+        this.isOptional = isOptional;
     }
 
     /**
@@ -88,16 +105,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 token = SessionRadarToken.from(validator.authenticateBlocking(getToken(httpRequest,
                         httpResponse)));
             } catch (TokenValidationException ex) {
-                logger.error(ex.getMessage());
-                httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                httpResponse.setHeader(HttpHeaders.WWW_AUTHENTICATE, OAuth2AccessToken.BEARER_TYPE);
-                httpResponse.getOutputStream().print(
-                        "{\"error\": \"" + "Unauthorized" + ",\n"
-                                + "\"status\": \"" + HttpServletResponse.SC_UNAUTHORIZED + ",\n"
-                                + "\"message\": \"" + ex.getMessage() + "\",\n"
-                                + "\"path\": \"" + httpRequest.getRequestURI() + "\n"
-                                + "\"}");
-                return;
+                if (isOptional) {
+                    logger.debug("Skipping optional token: {}", ex.getMessage());
+                } else {
+                    logger.error("Failed to validate token: {}", ex.getMessage());
+                    httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    httpResponse.setHeader(
+                            HttpHeaders.WWW_AUTHENTICATE, OAuth2AccessToken.BEARER_TYPE);
+                    httpResponse.getOutputStream().print(
+                            "{\"error\": \"" + "Unauthorized" + ",\n"
+                                    + "\"status\": \"" + HttpServletResponse.SC_UNAUTHORIZED 
+                                    + "\",\n"
+                                    + "\"message\": \"" + ex.getMessage() + "\",\n"
+                                    + "\"path\": \"" + httpRequest.getRequestURI() + "\n"
+                                    + "\"}");
+                    return;
+                }
             }
         } else if (!token.isClientCredentials()) {
             var user = userRepository.findOneByLogin(token.getUsername());
@@ -129,10 +152,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        httpRequest.setAttribute(TOKEN_ATTRIBUTE, token);
-        RadarAuthentication authentication = new RadarAuthentication(token);
-        authenticationManager.authenticate(authentication);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        if (token != null) {
+            httpRequest.setAttribute(TOKEN_ATTRIBUTE, token);
+            RadarAuthentication authentication = new RadarAuthentication(token);
+            authenticationManager.authenticate(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
         chain.doFilter(httpRequest, httpResponse);
     }
 

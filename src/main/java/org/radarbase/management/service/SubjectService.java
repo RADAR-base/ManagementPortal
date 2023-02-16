@@ -1,36 +1,8 @@
 package org.radarbase.management.service;
 
-import static org.radarbase.auth.authorization.RoleAuthority.INACTIVE_PARTICIPANT;
-import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
-import static org.radarbase.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
-import static org.radarbase.management.web.rest.errors.EntityName.GROUP;
-import static org.radarbase.management.web.rest.errors.EntityName.OAUTH_CLIENT;
-import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
-import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_GROUP_NOT_FOUND;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SOURCE_NOT_FOUND;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SUBJECT_NOT_FOUND;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-
 import org.hibernate.envers.query.AuditEntity;
 import org.radarbase.auth.authorization.RoleAuthority;
+import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.Group;
@@ -65,6 +37,35 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.history.Revisions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Nonnull;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
+import static org.radarbase.auth.authorization.RoleAuthority.INACTIVE_PARTICIPANT;
+import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
+import static org.radarbase.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
+import static org.radarbase.management.web.rest.errors.EntityName.GROUP;
+import static org.radarbase.management.web.rest.errors.EntityName.OAUTH_CLIENT;
+import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
+import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_GROUP_NOT_FOUND;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SOURCE_NOT_FOUND;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SUBJECT_NOT_FOUND;
 
 /**
  * Created by nivethika on 26-5-17.
@@ -107,6 +108,9 @@ public class SubjectService {
 
     @Autowired
     private AuthorityRepository authorityRepository;
+
+    @Autowired
+    private AuthService authService;
 
     /**
      * Create a new subject.
@@ -193,14 +197,12 @@ public class SubjectService {
             return createSubject(newSubjectDto);
         }
         Subject subjectFromDb = ensureSubject(newSubjectDto);
-        //reset all the sources assigned to a subject to unassigned
         Set<Source> sourcesToUpdate = subjectFromDb.getSources();
-        sourcesToUpdate.forEach(s -> s.subject(null).assigned(false).deleted(true));
         //set only the devices assigned to a subject as assigned
         subjectMapper.safeUpdateSubjectFromDTO(newSubjectDto, subjectFromDb);
         sourcesToUpdate.addAll(subjectFromDb.getSources());
         subjectFromDb.getSources()
-                .forEach(s -> s.subject(subjectFromDb).assigned(true).deleted(false));
+                .forEach(s -> s.subject(subjectFromDb).assigned(true));
         sourceRepository.saveAll(sourcesToUpdate);
         // update participant role
         subjectFromDb.getUser().setRoles(updateParticipantRoles(subjectFromDb, newSubjectDto));
@@ -438,13 +440,18 @@ public class SubjectService {
      * @throws NotFoundException if there was no subject with the given login at the given
      *         revision number
      */
-    public SubjectDTO findRevision(String login, Integer revision) throws NotFoundException {
+    public SubjectDTO findRevision(String login, Integer revision)
+            throws NotFoundException, NotAuthorizedException {
         // first get latest known version of the subject, if it's deleted we can't load the entity
         // directly by e.g. findOneByLogin
         SubjectDTO latest = getLatestRevision(login);
+        authService.checkPermission(SUBJECT_READ, e -> e
+                .project(latest.getProject().getProjectName())
+                .subject(latest.getLogin()));
         SubjectDTO sub = revisionService
                 .findRevision(revision, latest.getId(), Subject.class,
                         subjectMapper::subjectToSubjectReducedProjectDTO);
+
         if (sub == null) {
             throw new NotFoundException("subject not found for given login and revision.", SUBJECT,
                 ERR_SUBJECT_NOT_FOUND, Collections.singletonMap("subjectLogin", login));
@@ -536,5 +543,4 @@ public class SubjectService {
                     params);
         }
     }
-
 }

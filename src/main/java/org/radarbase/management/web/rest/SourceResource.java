@@ -36,7 +36,6 @@ import javax.validation.Valid;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.radarbase.auth.authorization.Permission.SOURCE_CREATE;
 import static org.radarbase.auth.authorization.Permission.SOURCE_DELETE;
@@ -172,8 +171,8 @@ public class SourceResource {
                 if (source.getProject() != null) {
                     e.project(source.getProject().getProjectName());
                 }
-                e.subject(source.getSubjectLogin());
-                e.source(source.getSourceName());
+                e.subject(source.getSubjectLogin())
+                        .source(source.getSourceName());
             });
         }
         return wrapOrNotFound(sourceOpt);
@@ -211,7 +210,7 @@ public class SourceResource {
         Long sourceId = sourceDtoOpt.get().getId();
         Revisions<Integer, Source> sourceHistory = sourceRepository.findRevisions(sourceId);
         List<Source> sources = sourceHistory.getContent().stream().map(Revision::getEntity)
-                .filter(Source::isAssigned).collect(Collectors.toList());
+                .filter(Source::isAssigned).toList();
         if (!sources.isEmpty()) {
             HttpHeaders failureAlert = HeaderUtil.createFailureAlert(ENTITY_NAME,
                     "sourceRevisionIsAssigned", "Cannot delete a previously assigned source");
